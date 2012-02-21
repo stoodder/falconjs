@@ -13,6 +13,9 @@ class Falcon.View extends Falcon.Class
 	###
 	@extend = (definition) -> Falcon.Class.extend(Falcon.View, definition)
 
+	_loaded: false
+	_loadQueue: []
+
 	###
 	#
 	###
@@ -36,8 +39,8 @@ class Falcon.View extends Falcon.Class
 		url = ko.utils.unwrapObservable( @url )
 		template = ko.utils.unwrapObservable( @template )
 
-		@template = ko.observable(template).extend(throttle: 1)
-		@url = ko.observable(url).extend(throttle: 1)
+		@template = ko.observable(template)
+		@url = ko.observable(url)
 		@model = ko.observable(model)
 
 		@url.subscribe( do => @getTemplateHtml() )
@@ -70,13 +73,31 @@ class Falcon.View extends Falcon.Class
 		url = "" unless isString(url)
 		url = trim(url)
 
-		return if isEmpty(url)
-		return @template(templateCache[url]) if url of templateCache
+		@_loaded = true
+		if isEmpty(url)
+			return this
+		else if url of templateCache
+			@template(templateCache[url])
+			@load()
+		else
+			@_loaded = false
+			$.ajax(
+				url: url
+				type: "GET"
+				success: (html) =>
+					templateCache[url] = html
+					@template(html)
+					@_loaded = true
+					@load()
+			)
 
-		$.ajax(
-			url: url
-			type: "GET"
-			success: (html) =>
-				templateCache[url] = html
-				@template(html)
-		)
+		return this
+	
+	load: (callback) ->
+		if callback?
+			callback = (->) unless isFunction(callback)
+			if @_loaded then callback() else @_loadQueue.push(callback)
+		else if @_loaded
+			@_loadQueue.shift()() until @_loadQueue.length <= 0
+		
+		return this

@@ -10,6 +10,7 @@ ko.bindingHandlers["view"] = ( ->
 	
 	getViewModel = (value) -> 
 		viewModel = {}
+		value ?= {}
 		if value instanceof Falcon.View
 			viewModel = value.viewModel()
 		else
@@ -18,18 +19,18 @@ ko.bindingHandlers["view"] = ( ->
 
 	getTemplate = (value) -> 
 		template = ""
+		value ?= {}
 		if value instanceof Falcon.View
 			template = value.template()
 		else
 			template = ko.utils.unwrapObservable( value.template ? {} )
 		return template
-	
+
 	return {
 		'init': (element, valueAccessor) ->
 			value = valueAccessor()
 			value = ko.utils.unwrapObservable(value)
 			viewModel = getViewModel(value)
-
 
 			ko.bindingHandlers['template']['init'](
 				element,
@@ -41,8 +42,6 @@ ko.bindingHandlers["view"] = ( ->
 			value = ko.utils.unwrapObservable(value)
 			viewModel = getViewModel(value)
 			template = getTemplate(value)
-
-			console.log template
 
 			return if isEmpty(template)
 			return if isEmpty(viewModel)

@@ -3,7 +3,7 @@
 	Falcon.js
 	by Rick Allen (stoodder)
 
-	Version 0.0.0
+	Version 0.0.1
 	Full source at https://github.com/stoodder/falconjs
 	Copyright (c) 2011 RokkinCat, http://www.rokkincat.com
 
@@ -171,7 +171,7 @@
   };
 
   Falcon = {
-    version: "0.0.0",
+    version: "0.0.1",
     observable: ko.observable,
     computed: ko.computed,
     attr: function(value) {
@@ -179,20 +179,16 @@
         hasState: true
       });
     },
-    apply: (function() {
-      var v;
-      v = null;
-      return function(view) {
-        return v != null ? v : v = ko.observable(new view);
-      };
-    })()
+    apply: function(view) {
+      return $(function() {
+        $('body').attr('data-bind', 'view: $data');
+        return ko.applyBindings(view);
+      });
+    },
+    __layout__: null
   };
 
   this.Falcon = Falcon;
-
-  $(function() {
-    return ko.applyBindings();
-  });
 
   Falcon.Class = (function() {
 
@@ -433,6 +429,10 @@
       return Falcon.Class.extend(Falcon.View, definition);
     };
 
+    View.prototype._loaded = false;
+
+    View.prototype._loadQueue = [];
+
     /*
     	#
     */
@@ -461,12 +461,8 @@
       model = ko.utils.unwrapObservable(this.model);
       url = ko.utils.unwrapObservable(this.url);
       template = ko.utils.unwrapObservable(this.template);
-      this.template = ko.observable(template).extend({
-        throttle: 1
-      });
-      this.url = ko.observable(url).extend({
-        throttle: 1
-      });
+      this.template = ko.observable(template);
+      this.url = ko.observable(url);
       this.model = ko.observable(model);
       this.url.subscribe((function() {
         return _this.getTemplateHtml();
@@ -503,16 +499,42 @@
       url = this.url();
       if (!isString(url)) url = "";
       url = trim(url);
-      if (isEmpty(url)) return;
-      if (url in templateCache) return this.template(templateCache[url]);
-      return $.ajax({
-        url: url,
-        type: "GET",
-        success: function(html) {
-          templateCache[url] = html;
-          return _this.template(html);
+      this._loaded = true;
+      if (isEmpty(url)) {
+        return this;
+      } else if (url in templateCache) {
+        this.template(templateCache[url]);
+        this.load();
+      } else {
+        this._loaded = false;
+        $.ajax({
+          url: url,
+          type: "GET",
+          success: function(html) {
+            templateCache[url] = html;
+            _this.template(html);
+            _this._loaded = true;
+            return _this.load();
+          }
+        });
+      }
+      return this;
+    };
+
+    View.prototype.load = function(callback) {
+      if (callback != null) {
+        if (!isFunction(callback)) callback = (function() {});
+        if (this._loaded) {
+          callback();
+        } else {
+          this._loadQueue.push(callback);
         }
-      });
+      } else if (this._loaded) {
+        while (!(this._loadQueue.length <= 0)) {
+          this._loadQueue.shift()();
+        }
+      }
+      return this;
     };
 
     return View;
@@ -533,6 +555,7 @@
     getViewModel = function(value) {
       var viewModel, _ref;
       viewModel = {};
+      if (value == null) value = {};
       if (value instanceof Falcon.View) {
         viewModel = value.viewModel();
       } else {
@@ -543,6 +566,7 @@
     getTemplate = function(value) {
       var template, _ref;
       template = "";
+      if (value == null) value = {};
       if (value instanceof Falcon.View) {
         template = value.template();
       } else {
@@ -565,7 +589,6 @@
         value = ko.utils.unwrapObservable(value);
         viewModel = getViewModel(value);
         template = getTemplate(value);
-        console.log(template);
         if (isEmpty(template)) return;
         if (isEmpty(viewModel)) return;
         if (ko.utils.domData.get(element, '__ko_view_updating__') === true) return;
