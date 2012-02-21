@@ -12,6 +12,15 @@ isFunction = (object) -> Object::toString.call( object ) is "[object Function]"
 isArray = (object) -> Object::toString.call( object ) is "[object Array]"
 isString = (object) -> Object::toString.call( object ) is "[object String]"
 isNumber = (object) -> Object::toString.call( object ) is "[object Number]"
+isEmpty = (object) ->
+	if isObject object
+		return false for key, value of object
+		return true
+	else if isString object or isArray object
+		return object.length is 0
+	else if object is null or typeof object is "undefined"
+		return true
+	return false
 
 # -------------------------------------------------
 # STRING FUNCTIONS
@@ -39,7 +48,7 @@ compact = (obj) ->
 	(newObj[key] = value if value?) for key, value of obj
 	return newObj
 extend = (obj, extender) ->
-	obj = {} unless isObject(obj)
+	obj ?= {}
 	extender = {} unless isObject(extender)
 
 	obj[key] = value for key, value of extender
@@ -62,3 +71,20 @@ arrayContains = (haystack, needle) ->
 		for hay in haystack
 			return true if hay is needle
 	return false
+
+# -------------------------------------------------
+# TIMING FUNCTIONS
+# -------------------------------------------------
+delay = (time, callback) ->
+	[time, callback] = [callback, time] if isFunction(time)
+
+	time = 1 unless isNumber(time)
+	callback = (->) unless isFunction(callback)
+
+	time = 1 if time < 1
+
+	setTimeout(callback, time)
+
+defer = (callback) -> 
+	callback = (->) unless isFunction(callback)
+	setTimeout(callback, 1)

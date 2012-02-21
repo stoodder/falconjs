@@ -3,7 +3,7 @@
 	Falcon.js
 	by Rick Allen (stoodder)
 
-	Version 0.0.1
+	Version 0.0.0
 	Full source at https://github.com/stoodder/falconjs
 	Copyright (c) 2011 RokkinCat, http://www.rokkincat.com
 
@@ -12,7 +12,10 @@
 */
 
 (function() {
-  var Falcon, arrayContains, arrayPeek, arraysEqual, compact, countSubstrings, endsWith, extend, isArray, isFunction, isNumber, isObject, isString, objectKeys, objectValues, objectsEqual, startsWith, trim, trimSlashes;
+  var Falcon, arrayContains, arrayPeek, arraysEqual, compact, countSubstrings, defer, delay, endsWith, extend, isArray, isEmpty, isFunction, isNumber, isObject, isString, objectKeys, objectValues, objectsEqual, startsWith, trim, trimSlashes,
+    __hasProp = Object.prototype.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; },
+    __slice = Array.prototype.slice;
 
   isObject = function(object) {
     return (typeof object) === (typeof {}) && object !== null;
@@ -32,6 +35,22 @@
 
   isNumber = function(object) {
     return Object.prototype.toString.call(object) === "[object Number]";
+  };
+
+  isEmpty = function(object) {
+    var key, value;
+    if (isObject(object)) {
+      for (key in object) {
+        value = object[key];
+        return false;
+      }
+      return true;
+    } else if (isString(object || isArray(object))) {
+      return object.length === 0;
+    } else if (object === null || typeof object === "undefined") {
+      return true;
+    }
+    return false;
   };
 
   trim = function(str) {
@@ -99,7 +118,7 @@
 
   extend = function(obj, extender) {
     var key, value;
-    if (!isObject(obj)) obj = {};
+    if (obj == null) obj = {};
     if (!isObject(extender)) extender = {};
     for (key in extender) {
       value = extender[key];
@@ -135,26 +154,488 @@
     return false;
   };
 
+  delay = function(time, callback) {
+    var _ref;
+    if (isFunction(time)) {
+      _ref = [callback, time], time = _ref[0], callback = _ref[1];
+    }
+    if (!isNumber(time)) time = 1;
+    if (!isFunction(callback)) callback = (function() {});
+    if (time < 1) time = 1;
+    return setTimeout(callback, time);
+  };
+
+  defer = function(callback) {
+    if (!isFunction(callback)) callback = (function() {});
+    return setTimeout(callback, 1);
+  };
+
   Falcon = {
-    version: "0.0.1"
+    version: "0.0.0",
+    observable: ko.observable,
+    computed: ko.computed,
+    attr: function(value) {
+      return ko.observable(value).extend({
+        hasState: true
+      });
+    },
+    apply: (function() {
+      var v;
+      v = null;
+      return function(view) {
+        return v != null ? v : v = ko.observable(new view);
+      };
+    })()
   };
 
   this.Falcon = Falcon;
 
-  Falcon.Model = (function() {
+  $(function() {
+    return ko.applyBindings();
+  });
 
-    function Model() {}
+  Falcon.Class = (function() {
+
+    function Class() {}
+
+    Class.prototype["super"] = function() {};
+
+    Class.extend = function(parent, definition) {
+      var child, ctor;
+      if (parent == null) parent = Falcon.Class;
+      child = null;
+      if ((definition != null) && definition.hasOwnProperty("constructor")) {
+        child = definition.constructor;
+      } else {
+        child = function() {
+          return this.__super__.apply(this, arguments);
+        };
+      }
+      ctor = (function() {});
+      ctor.prototype = parent.prototype;
+      child.prototype = new ctor;
+      child.prototype.__super__ = function() {
+        return parent.apply(this, arguments);
+      };
+      child.extend = function(definition) {
+        return Falcon.Class.extend(child, definition);
+      };
+      extend(child.prototype, definition != null ? definition : {});
+      return child;
+    };
+
+    return Class;
+
+  })();
+
+  Falcon.Model = (function(_super) {
+
+    __extends(Model, _super);
+
+    Model.prototype._data = {};
+
+    Model.prototype._id = null;
+
+    Model.prototype._url = "";
+
+    Model.extend = function(properties) {
+      return Falcon.Class.extend(Falcon.Model, properties);
+    };
+
+    Model.url = null;
+
+    /*
+    	# Method: constructor
+    	#	The constructor for a model
+    */
+
+    function Model(data) {
+      var url;
+      url = ko.utils.unwrapObservable(this.url);
+      this.url = ko.observable(url);
+      this.data(data);
+    }
+
+    /*
+    	#
+    */
+
+    Model.prototype.data = function(data) {
+      var key, value, _results;
+      if (isEmpty(data)) return this._data;
+      if (!isObject(data)) data = {};
+      _results = [];
+      for (key in data) {
+        value = data[key];
+        _results.push(this.set(key, value));
+      }
+      return _results;
+    };
+
+    /*
+    	#
+    */
+
+    Model.prototype.get = function(key) {
+      if (!isString(key)) return;
+      return ko.utils.unwrapObservable(this._data[key]);
+    };
+
+    /*
+    	#
+    */
+
+    Model.prototype.set = function(key, value) {
+      var _base;
+      value = ko.utils.unwrapObservable(value);
+      if ((_base = this._data)[key] == null) _base[key] = ko.observable();
+      this._data[key](value);
+      return this;
+    };
+
+    /*
+    	#
+    */
+
+    Model.prototype.sync = function(type, options) {
+      var url;
+      if (isFunction(options)) {
+        options = {
+          complete: options
+        };
+      }
+      if (!isObject(options)) options = {};
+      if (!isFunction(options.success)) options.success = (function() {});
+      if (!isFunction(options.error)) options.error = (function() {});
+      if (!isFunction(options.complete)) options.complete = (function() {});
+      type = isString(type) ? type.toUpperCase() : "GET";
+      if (type !== "GET" && type !== "POST" && type !== "PUT" && type !== "DELETE") {
+        type = "GET";
+      }
+      type = trim(type);
+      url = trim(this.url());
+      if (type === "GET" || type === "PUT" || type === "DELETE") {
+        if (url.slice(-1) !== "/") url += "/";
+        url += this.id();
+      }
+      return $.ajax({
+        url: this.url(),
+        type: type,
+        data: this.toJSON(),
+        error: function() {
+          return options.error.apply(options, arguments);
+        },
+        success: function() {
+          return options.success.apply(options, arguments);
+        },
+        complete: function() {
+          return options.complete.apply(options, arguments);
+        }
+      });
+    };
+
+    /*
+    	#
+    */
+
+    Model.prototype.fetch = function(options) {
+      return this.sync('GET', options);
+    };
+
+    /*
+    	#
+    */
+
+    Model.prototype.create = function(options) {
+      return this.sync('POST', options);
+    };
+
+    /*
+    	#
+    */
+
+    Model.prototype.save = function(options) {
+      return this.sync('PUT', options);
+    };
+
+    /*
+    	#
+    */
+
+    Model.prototype["delete"] = function(options) {
+      return this.sync('DELETE', options);
+    };
+
+    /*
+    	#
+    */
+
+    Model.prototype.toJS = function() {
+      var recur;
+      return (recur = function(value) {
+        var k, output, v;
+        value = ko.utils.unwrapObservable(value);
+        if (isArray(value)) {
+          return (function() {
+            var _i, _len, _results;
+            _results = [];
+            for (_i = 0, _len = value.length; _i < _len; _i++) {
+              v = value[_i];
+              _results.push(recur(v));
+            }
+            return _results;
+          })();
+        } else if (isObject(value)) {
+          output = {};
+          for (k in value) {
+            v = value[k];
+            output[k] = recur(v);
+          }
+          return output;
+        } else {
+          return value;
+        }
+      })(this.data());
+    };
+
+    /*
+    	#
+    */
+
+    Model.prototype.toJSON = function() {
+      return ko.utils.stringifyJson(this.toJS());
+    };
 
     return Model;
 
-  })();
+  })(Falcon.Class);
 
-  Falcon.View = (function() {
+  /*
+  #
+  */
 
-    function View() {}
+  Falcon.View = (function(_super) {
+    var templateCache;
+
+    __extends(View, _super);
+
+    /*
+    	#
+    */
+
+    templateCache = {};
+
+    /*
+    	#
+    */
+
+    View.extend = function(definition) {
+      return Falcon.Class.extend(Falcon.View, definition);
+    };
+
+    /*
+    	#
+    */
+
+    View.prototype.model = null;
+
+    /*
+    	#
+    */
+
+    View.prototype.url = null;
+
+    /*
+    	#
+    */
+
+    View.prototype.template = null;
+
+    /*
+    	#
+    */
+
+    function View() {
+      var model, template, url,
+        _this = this;
+      model = ko.utils.unwrapObservable(this.model);
+      url = ko.utils.unwrapObservable(this.url);
+      template = ko.utils.unwrapObservable(this.template);
+      this.template = ko.observable(template).extend({
+        throttle: 1
+      });
+      this.url = ko.observable(url).extend({
+        throttle: 1
+      });
+      this.model = ko.observable(model);
+      this.url.subscribe((function() {
+        return _this.getTemplateHtml();
+      })());
+      this.initialize();
+    }
+
+    View.prototype.initialize = (function() {});
+
+    /*
+    	#
+    */
+
+    View.prototype.viewModel = function() {
+      var key, model, value, viewModel;
+      viewModel = {};
+      model = this.model();
+      if (model instanceof Falcon.Model) model = model.toJS();
+      for (key in this) {
+        value = this[key];
+        if (!(key in Falcon.View.prototype)) viewModel[key] = value;
+      }
+      extend(viewModel, model);
+      return viewModel;
+    };
+
+    /*
+    	#
+    */
+
+    View.prototype.getTemplateHtml = function() {
+      var url,
+        _this = this;
+      url = this.url();
+      if (!isString(url)) url = "";
+      url = trim(url);
+      if (isEmpty(url)) return;
+      if (url in templateCache) return this.template(templateCache[url]);
+      return $.ajax({
+        url: url,
+        type: "GET",
+        success: function(html) {
+          templateCache[url] = html;
+          return _this.template(html);
+        }
+      });
+    };
 
     return View;
 
+  })(Falcon.Class);
+
+  ko.bindingHandlers["view"] = (function() {
+    var getTemplate, getViewModel, makeTemplateValueAccessor;
+    makeTemplateValueAccessor = function(viewModel) {
+      return function() {
+        return {
+          'if': viewModel,
+          'data': viewModel,
+          'templateEngine': ko.nativeTemplateEngine.instance
+        };
+      };
+    };
+    getViewModel = function(value) {
+      var viewModel, _ref;
+      viewModel = {};
+      if (value instanceof Falcon.View) {
+        viewModel = value.viewModel();
+      } else {
+        viewModel = ko.utils.unwrapObservable((_ref = value.viewModel) != null ? _ref : {});
+      }
+      return viewModel;
+    };
+    getTemplate = function(value) {
+      var template, _ref;
+      template = "";
+      if (value instanceof Falcon.View) {
+        template = value.template();
+      } else {
+        template = ko.utils.unwrapObservable((_ref = value.template) != null ? _ref : {});
+      }
+      return template;
+    };
+    return {
+      'init': function(element, valueAccessor) {
+        var value, viewModel;
+        value = valueAccessor();
+        value = ko.utils.unwrapObservable(value);
+        viewModel = getViewModel(value);
+        return ko.bindingHandlers['template']['init'](element, makeTemplateValueAccessor(viewModel));
+      },
+      'update': function() {
+        var args, element, template, value, valueAccessor, viewModel;
+        element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
+        value = valueAccessor();
+        value = ko.utils.unwrapObservable(value);
+        viewModel = getViewModel(value);
+        template = getTemplate(value);
+        console.log(template);
+        if (isEmpty(template)) return;
+        if (isEmpty(viewModel)) return;
+        if (ko.utils.domData.get(element, '__ko_view_updating__') === true) return;
+        ko.utils.domData.set(element, '__ko_view_updating__', true);
+        return defer(function() {
+          var execScripts, originalTemplate, _ref;
+          execScripts = !!ko.utils.unwrapObservable(value.execScripts);
+          if (!(template != null)) {
+            $(element).html("");
+          } else {
+            originalTemplate = ko.utils.domData.get(element, '__ko_anon_template__');
+            ko.utils.domData.set(element, '__ko_anon_template__', template);
+            (_ref = ko.bindingHandlers['template'])['update'].apply(_ref, [element, makeTemplateValueAccessor(viewModel)].concat(__slice.call(args)));
+            if (template !== originalTemplate && execScripts === true) {
+              $(element).find("script").each(function(index, script) {
+                script = $(script);
+                if (script.attr('type').toLowerCase() === "text/javascript") {
+                  return eval(script.text());
+                }
+              });
+            }
+          }
+          return ko.utils.domData.set(element, '__ko_view_updating__', false);
+        });
+      }
+    };
   })();
+
+  extend(ko.extenders, {
+    /*
+    	# Method: ko.extenders.hasState
+    	#	Extender to add state to a knockout observable, with state we
+    	#	get access to the original value, the previously saved values,
+    	#	the previous value, and the current 'saved' state of the observable
+    */
+    hasState: function(target, option) {
+      var changed, current, initial, previous, saved, _ref;
+      if (!isObject(option)) {
+        option = {
+          initial: target()
+        };
+      }
+      initial = (_ref = option.initial) != null ? _ref : target();
+      saved = ko.observable(initial);
+      previous = ko.observable(null);
+      current = target();
+      changed = ko.observable(false);
+      target.subscribe(function(value) {
+        previous(current);
+        current = value;
+        return changed(true);
+      });
+      extend(target, {
+        initial: initial,
+        saved: saved,
+        previous: previous,
+        changed: changed,
+        save: function() {
+          saved(current);
+          changed(false);
+          return target;
+        },
+        revert: function() {
+          target(saved());
+          changed(false);
+          return target;
+        }
+      });
+      return target;
+    }
+  });
 
 }).call(this);

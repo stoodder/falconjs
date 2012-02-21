@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Falcon Todo Example</title>
+		<script src="./jquery-1.7.1.min.js" type="text/javascript" language="javascript"></script>
+		<script src="../scripts/knockout-2.0.0.js" type="text/javascript" language="javascript"></script>
+		<script src="../scripts/falcon.js" type="text/javascript" language="javascript"></script>
+		<script>
+			$(function()
+			{
+				var viewModel = {
+					hello: Falcon.attr("World"),
+					fooIt: function()
+					{
+						this.hello("FOO")
+					},
+					worldIt: function()
+					{
+						this.hello("World")
+					},
+					bamIt: function()
+					{
+						this.hello("Bam")
+					}
+				};
+
+				ko.applyBindings(viewModel);
+			});
+		</script>
+	</head>
+	<body>
+		<div data-bind="text: hello"></div>
+		<hr />
+		<div>
+			<input type="button" data-bind="click: fooIt" value="Foo It" />
+			<input type="button" data-bind="click: worldIt" value="World It"/>
+			<input type="button" data-bind="click: bamIt" value="Bam It"/>
+			<input type="button" data-bind="click: hello.save, enable: hello.changed" value="Save"/>
+			<input type="button" data-bind="click: hello.revert, enable: hello.changed" value="Revert"/>
+		</div>
+		<hr />
+		<b>Current Value:</b> <span data-bind="text: hello"></span><br/>
+		<b>Initial Value:</b> <span data-bind="text: hello.initial"></span><br/>
+		<b>Saved Value:</b> <span data-bind="text: hello.saved"></span><br/>
+		<b>Previous:</b> <span data-bind="text: hello.previous"></span><br/>
+		<b>Changed:</b> <span data-bind="text: hello.changed"></span><br/>
+	</body>
+</html>
