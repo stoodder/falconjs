@@ -19,11 +19,6 @@ class Falcon.View extends Falcon.Class
 	###
 	#
 	###
-	model: null
-
-	###
-	#
-	###
 	url: null
 
 	###
@@ -35,18 +30,38 @@ class Falcon.View extends Falcon.Class
 	#
 	###
 	constructor: () ->
-		model = ko.utils.unwrapObservable( @model )
-		url = ko.utils.unwrapObservable( @url )
-		template = ko.utils.unwrapObservable( @template )
+		# Validate the public variables
+		@template = ko.observable( ko.utils.unwrapObservable( @template ) )
+		@url = "" unless isString(@url)
+		@url = trim(@url)
 
-		@template = ko.observable(template)
-		@url = ko.observable(url)
-		@model = ko.observable(model)
+		# Validate the private variables
+		@_loaded = false
 
-		@url.subscribe( do => @getTemplateHtml() )
+		# Attempt to load the template from the server or cache
+		if isEmpty(@url)
+			@_loaded = true
+
+		else if @url of templateCache
+			@_loaded = true
+			@template(templateCache[@url])
+
+		else
+			$.ajax(
+				url: @url
+				type: "GET"
+				success: (html) =>
+					templateCache[@url] = html
+					@template(html)
+					@_loaded = true
+					@load()
+			)
 
 		@initialize()
-	
+
+	###
+	#
+	###
 	initialize: (->)
 	
 	###
@@ -54,45 +69,18 @@ class Falcon.View extends Falcon.Class
 	###
 	viewModel: () ->
 		viewModel = {}
-
-		model = @model()
-		model = model.toJS() if model instanceof Falcon.Model
-
 		for key, value of this
 			viewModel[key] = value unless key of Falcon.View.prototype
-
-		extend(viewModel, model)
-
 		return viewModel
 	
 	###
 	#
 	###
-	getTemplateHtml: () ->
-		url = @url()
-		url = "" unless isString(url)
-		url = trim(url)
-
-		@_loaded = true
-		if isEmpty(url)
-			return this
-		else if url of templateCache
-			@template(templateCache[url])
-			@load()
-		else
-			@_loaded = false
-			$.ajax(
-				url: url
-				type: "GET"
-				success: (html) =>
-					templateCache[url] = html
-					@template(html)
-					@_loaded = true
-					@load()
-			)
-
-		return this
+	isLoaded: () -> @_loaded
 	
+	###
+	#
+	###
 	load: (callback) ->
 		if callback?
 			callback = (->) unless isFunction(callback)

@@ -25,6 +25,7 @@ compiledFiles = {
 		"coffee/falcon.class.coffee"
 		"coffee/falcon.model.coffee"
 		"coffee/falcon.view.coffee"
+		"coffee/falcon.collection.coffee"
 		"coffee/falcon.ko.bindings.coffee"
 		"coffee/falcon.ko.extenders.coffee"
 	]

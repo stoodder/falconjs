@@ -9,6 +9,7 @@
 # -------------------------------------------------
 isObject = (object) -> (typeof object) is (typeof {}) and object isnt null
 isFunction = (object) -> Object::toString.call( object ) is "[object Function]"
+isBoolean = (object) -> Object::toString.call( object ) is "[object Boolean]"
 isArray = (object) -> Object::toString.call( object ) is "[object Array]"
 isString = (object) -> Object::toString.call( object ) is "[object String]"
 isNumber = (object) -> Object::toString.call( object ) is "[object Number]"
