@@ -1,6 +1,5 @@
 class Falcon.Collection extends Falcon.Class
 
-
 	###
 	#
 	###
@@ -21,7 +20,12 @@ class Falcon.Collection extends Falcon.Class
 	###
 	length: 0
 
+	###
+	#
+	###
 	parent: null
+
+	@_mappings: null
 
 	###
 	#
@@ -34,18 +38,21 @@ class Falcon.Collection extends Falcon.Class
 	constructor: (models, parent) ->
 		[parent, models] = [models, parent] if not parent? and models instanceof Falcon.Model
 
+		@url ?= @model::url if @model?
 		@parent = parent
+		@_mappings = []
 		@reset().add(models)
 		@initialize(models)
 
 	###
 	#
 	###
-	initialize: (models) ->
+	initialize: (->)
 
+	###
+	#
+	###
 	data: (models) ->
-		o = ko.observableArray(["Hello", "World"])
-
 		if isEmpty(models)
 			ret = []
 
@@ -108,6 +115,10 @@ class Falcon.Collection extends Falcon.Class
 		append = false unless isBoolean(append)
 		replace = ( not prepend and not append ) unless isBoolean(replace)
 
+		for item in items when item instanceof Falcon.Model or item instanceof Falcon.Collection
+			item.on("destroy", (model) => @remove(model)) if item instanceof Falcon.Model
+			item.map(mapping) for mapping in @_mappings
+
 		if replace
 			@reset().list(items)
 		else if prepend
@@ -122,12 +133,69 @@ class Falcon.Collection extends Falcon.Class
 	###
 	#
 	###
+	remove: (items) ->
+		if isArray(items) then @list.removeAll(items) else @list.remove(items)
+
+		return this
+
+	###
+	#
+	###
 	append: (items) -> @add(items, append:true)
 
 	###
 	#
 	###
 	prepend: (items) -> @add(items, prepend:true)
+
+	###
+	#
+	###
+	create: (data, options) ->
+		return unless @model?
+		
+		options = {success:options} if isFunction(options)
+		options = {} unless isObject(options)
+
+		_success = options.success
+		options.success = (model) =>
+			@add(model, options)
+			_success.apply(model, arguments)
+
+		return ( new @model(data, @parent).create(options) )
+
+	###
+	#
+	###
+	at: (index) ->
+		index = 0 unless isNumber(index)
+
+		list = @list()
+		index = 0 if index < 0
+		index = list.length-1 if index >= list.length
+
+		return list[index]
+
+	###
+	#
+	###
+	map: (mapping) ->
+
+		mapping = {} unless isObject(mapping)
+
+		for key, value of mapping
+			if isFunction(value) and not ko.isObservable(value)
+				value = do =>
+					_value = value
+					return ( => _value.call(arguments[0], arguments[0], this)  )
+			mapping[key] = value
+
+		model.map(mapping) for model in @list() when Falcon.isDataObject( model )
+			
+
+		@_mappings.push(mapping)
+			
+		return this
 
 	###
 	#
@@ -152,3 +220,5 @@ class Falcon.Collection extends Falcon.Class
 		@length = @list().length
 		return this
 
+
+@hfhfhfhfh = 0

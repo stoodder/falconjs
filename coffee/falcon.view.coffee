@@ -69,8 +69,8 @@ class Falcon.View extends Falcon.Class
 	###
 	viewModel: () ->
 		viewModel = {}
-		for key, value of this
-			viewModel[key] = value unless key of Falcon.View.prototype
+		for key, value of this when not ( key of Falcon.View.prototype )
+			viewModel[key] = value
 		return viewModel
 	
 	###

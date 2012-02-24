@@ -176,20 +176,24 @@
 
   Falcon = {
     version: "0.0.1",
-    observable: ko.observable,
-    computed: ko.computed,
-    attr: function(value) {
-      return ko.observable(value).extend({
-        hasState: true
-      });
-    },
     apply: function(view) {
       return $(function() {
         $('body').attr('data-bind', 'view: $data');
         return ko.applyBindings(view);
       });
     },
-    __layout__: null
+    isModel: function(object) {
+      return (object != null) && object instanceof Falcon.Model;
+    },
+    isCollection: function(object) {
+      return (object != null) && object instanceof Falcon.Collection;
+    },
+    isView: function(object) {
+      return (object != null) && object instanceof Falcon.View;
+    },
+    isDataObject: function(object) {
+      return (object != null) && (object instanceof Falcon.Model || object instanceof Falcon.Collection);
+    }
   };
 
   this.Falcon = Falcon;
@@ -232,10 +236,6 @@
 
     __extends(Model, _super);
 
-    Model.prototype._id = null;
-
-    Model.prototype._url = "";
-
     Model.extend = function(properties) {
       return Falcon.Class.extend(Falcon.Model, properties);
     };
@@ -244,6 +244,8 @@
 
     Model.prototype.parent = null;
 
+    Model.prototype._events = null;
+
     /*
     	# Method: constructor
     	#	The constructor for a model
@@ -251,9 +253,10 @@
 
     function Model(data, parent) {
       var _ref;
-      if (!(parent != null) && data instanceof Falcon.Model) {
+      if (Falcon.isModel(data)) {
         _ref = [data, parent], parent = _ref[0], data = _ref[1];
       }
+      this._events = {};
       this.id = ko.observable(0);
       this.parent = parent;
       this.initialize(data);
@@ -275,7 +278,7 @@
           if (!(key in Falcon.Model.prototype)) {
             if (value instanceof Falcon.Model || value instanceof Falcon.Collection) {
               ret[key] = value.data();
-            } else {
+            } else if (ko.isObservable(value) || isFunction(value)) {
               ret[key] = value;
             }
           }
@@ -299,7 +302,7 @@
       var datum;
       if (!isString(key)) return;
       datum = this[key];
-      return (ko.isObservable(datum) ? ko.utils.unwrapObservable(datum) : datum);
+      return ko.utils.unwrapObservable(datum);
     };
 
     /*
@@ -323,8 +326,28 @@
     	#
     */
 
+    Model.prototype.makeUrl = function(type) {
+      var ext, periodIndex, url;
+      url = trim(isFunction(this.url) ? this.url() : this.url);
+      ext = "";
+      periodIndex = url.lastIndexOf(".");
+      if (periodIndex > -1) {
+        ext = url.slice(periodIndex);
+        url = url.slice(0, periodIndex);
+      }
+      if (type === "GET" || type === "PUT" || type === "DELETE") {
+        if (url.slice(-1) !== "/") url += "/";
+        url += this.id();
+      }
+      return "" + url + ext;
+    };
+
+    /*
+    	#
+    */
+
     Model.prototype.sync = function(type, options) {
-      var ext, periodIndex, url,
+      var url,
         _this = this;
       if (isFunction(options)) {
         options = {
@@ -340,33 +363,105 @@
         type = "GET";
       }
       type = trim(type);
-      console.log("HERE", this.url);
-      url = trim(isFunction(this.url) ? this.url() : this.url);
-      ext = "";
-      periodIndex = url.lastIndexOf(".");
-      if (periodIndex > -1) {
-        ext = url.slice(periodIndex);
-        url = url.slice(0, periodIndex);
-      }
-      if (type === "GET" || type === "PUT" || type === "DELETE") {
-        if (url.slice(-1) !== "/") url += "/";
-        url += this.id();
-      }
-      return $.ajax({
-        url: "" + url + ext,
+      url = this.makeUrl(type);
+      $.ajax({
+        url: url,
         type: type,
         data: this.toJSON(),
         error: function() {
-          return options.error.apply(options, arguments);
+          var _ref;
+          return (_ref = options.error).call.apply(_ref, [_this, _this].concat(__slice.call(arguments)));
         },
         success: function(data) {
+          var _ref;
           _this.data(data);
-          return options.success.apply(options, arguments);
+          switch (type) {
+            case "GET":
+              _this.trigger("fetch");
+              break;
+            case "POST":
+              _this.trigger("create");
+              break;
+            case "PUT":
+              _this.trigger("save");
+              break;
+            case "DELETE":
+              _this.trigger("destroy");
+          }
+          return (_ref = options.success).call.apply(_ref, [_this, _this].concat(__slice.call(arguments)));
         },
         complete: function() {
-          return options.complete.apply(options, arguments);
+          var _ref;
+          return (_ref = options.complete).call.apply(_ref, [_this, _this].concat(__slice.call(arguments)));
         }
       });
+      return this;
+    };
+
+    /*
+    	#
+    */
+
+    Model.prototype.map = function(mapping) {
+      var key, value,
+        _this = this;
+      if (!isObject(mapping)) mapping = {};
+      for (key in mapping) {
+        value = mapping[key];
+        if (Falcon.isDataObject(this[key])) {
+          this[key].map(value);
+        } else {
+          if (ko.isObservable(value)) {
+            value = ko.observable(ko.utils.unwrapObservable(value));
+          } else if (isFunction(value)) {
+            value = (function() {
+              var _value;
+              _value = value;
+              return (function() {
+                return _value.call(_this, _this);
+              });
+            })();
+          }
+          this[key] = value;
+        }
+      }
+      return this;
+    };
+
+    /*
+    	#
+    */
+
+    Model.prototype.on = function(event, action) {
+      var _base, _ref,
+        _this = this;
+      if (!((event != null) && (action != null))) return this;
+      if (!isString(event)) event = "";
+      if (!isFunction(action)) action = (function() {});
+      event = trim(event).toLowerCase();
+      if (isEmpty(event)) return this;
+      ((_ref = (_base = this._events)[event]) != null ? _ref : _base[event] = []).push(function() {
+        return action.call(_this, _this);
+      });
+      return this;
+    };
+
+    /*
+    	#
+    */
+
+    Model.prototype.trigger = function(event) {
+      var action, _i, _len, _ref;
+      if (event == null) return this;
+      if (!isString(event)) event = "";
+      event = trim(event).toLowerCase();
+      if (isEmpty(event) || !(this._events[event] != null)) return this;
+      _ref = this._events[event];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        action = _ref[_i];
+        action();
+      }
+      return this;
     };
 
     /*
@@ -397,7 +492,7 @@
     	#
     */
 
-    Model.prototype["delete"] = function(options) {
+    Model.prototype.destroy = function(options) {
       return this.sync('DELETE', options);
     };
 
@@ -405,9 +500,15 @@
     	#
     */
 
-    Model.prototype.toJS = function() {
-      var recur;
-      return (recur = function(value) {
+    Model.prototype.toJSON = function() {
+      var data, key, recur, ret, value, _ref;
+      data = {};
+      _ref = this.data();
+      for (key in _ref) {
+        value = _ref[key];
+        data[key] = value;
+      }
+      ret = (recur = function(value) {
         var k, output, v;
         value = ko.utils.unwrapObservable(value);
         if (isArray(value)) {
@@ -430,15 +531,8 @@
         } else {
           return value;
         }
-      })(this.data());
-    };
-
-    /*
-    	#
-    */
-
-    Model.prototype.toJSON = function() {
-      return ko.utils.stringifyJson(this.toJS());
+      })(data);
+      if (!isEmpty(ret)) return ko.utils.stringifyJson(ret);
     };
 
     return Model;
@@ -594,7 +688,13 @@
 
     Collection.prototype.length = 0;
 
+    /*
+    	#
+    */
+
     Collection.prototype.parent = null;
+
+    Collection._mappings = null;
 
     /*
     	#
@@ -613,7 +713,11 @@
       if (!(parent != null) && models instanceof Falcon.Model) {
         _ref = [models, parent], parent = _ref[0], models = _ref[1];
       }
+      if (this.model != null) {
+        if (this.url == null) this.url = this.model.prototype.url;
+      }
       this.parent = parent;
+      this._mappings = [];
       this.reset().add(models);
       this.initialize(models);
     }
@@ -622,11 +726,14 @@
     	#
     */
 
-    Collection.prototype.initialize = function(models) {};
+    Collection.prototype.initialize = (function() {});
+
+    /*
+    	#
+    */
 
     Collection.prototype.data = function(models) {
-      var i, o, ret, value, _ref;
-      o = ko.observableArray(["Hello", "World"]);
+      var i, ret, value, _ref;
       if (isEmpty(models)) {
         ret = [];
         _ref = this.list();
@@ -683,7 +790,8 @@
     */
 
     Collection.prototype.add = function(items, options) {
-      var append, prepend, replace;
+      var append, item, mapping, prepend, replace, _i, _j, _len, _len2, _ref,
+        _this = this;
       if (this.model == null) return this;
       if (items == null) items = [];
       if (options == null) options = {};
@@ -693,6 +801,22 @@
       if (!isBoolean(prepend)) prepend = false;
       if (!isBoolean(append)) append = false;
       if (!isBoolean(replace)) replace = !prepend && !append;
+      for (_i = 0, _len = items.length; _i < _len; _i++) {
+        item = items[_i];
+        if (!(item instanceof Falcon.Model || item instanceof Falcon.Collection)) {
+          continue;
+        }
+        if (item instanceof Falcon.Model) {
+          item.on("destroy", function(model) {
+            return _this.remove(model);
+          });
+        }
+        _ref = this._mappings;
+        for (_j = 0, _len2 = _ref.length; _j < _len2; _j++) {
+          mapping = _ref[_j];
+          item.map(mapping);
+        }
+      }
       if (replace) {
         this.reset().list(items);
       } else if (prepend) {
@@ -705,6 +829,19 @@
         }
       }
       this.length = this.list().length;
+      return this;
+    };
+
+    /*
+    	#
+    */
+
+    Collection.prototype.remove = function(items) {
+      if (isArray(items)) {
+        this.list.removeAll(items);
+      } else {
+        this.list.remove(items);
+      }
       return this;
     };
 
@@ -726,6 +863,71 @@
       return this.add(items, {
         prepend: true
       });
+    };
+
+    /*
+    	#
+    */
+
+    Collection.prototype.create = function(data, options) {
+      var _success,
+        _this = this;
+      if (this.model == null) return;
+      if (isFunction(options)) {
+        options = {
+          success: options
+        };
+      }
+      if (!isObject(options)) options = {};
+      _success = options.success;
+      options.success = function(model) {
+        _this.add(model, options);
+        return _success.apply(model, arguments);
+      };
+      return new this.model(data, this.parent).create(options);
+    };
+
+    /*
+    	#
+    */
+
+    Collection.prototype.at = function(index) {
+      var list;
+      if (!isNumber(index)) index = 0;
+      list = this.list();
+      if (index < 0) index = 0;
+      if (index >= list.length) index = list.length - 1;
+      return list[index];
+    };
+
+    /*
+    	#
+    */
+
+    Collection.prototype.map = function(mapping) {
+      var key, model, value, _i, _len, _ref,
+        _this = this;
+      if (!isObject(mapping)) mapping = {};
+      for (key in mapping) {
+        value = mapping[key];
+        if (isFunction(value) && !ko.isObservable(value)) {
+          value = (function() {
+            var _value;
+            _value = value;
+            return (function() {
+              return _value.call(arguments[0], arguments[0], _this);
+            });
+          })();
+        }
+        mapping[key] = value;
+      }
+      _ref = this.list();
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        model = _ref[_i];
+        if (Falcon.isDataObject(model)) model.map(mapping);
+      }
+      this._mappings.push(mapping);
+      return this;
     };
 
     /*
@@ -759,6 +961,8 @@
     return Collection;
 
   })(Falcon.Class);
+
+  this.hfhfhfhfh = 0;
 
   extend(ko.bindingHandlers, {
     view: (function() {

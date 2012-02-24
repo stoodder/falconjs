@@ -4,27 +4,28 @@
 #--------------------------------------------------------
 class Falcon.Model extends Falcon.Class
 
-	_id: null
-	_url: ""
-
 	@extend = (properties) -> Falcon.Class.extend(Falcon.Model, properties)
 
 	url: null
 
 	parent: null
 
+	_events: null
+
 	###
 	# Method: constructor
 	#	The constructor for a model
 	###
 	constructor: (data, parent) ->
-		[parent, data] = [data, parent] if not parent? and data instanceof Falcon.Model
+		[parent, data] = [data, parent] if Falcon.isModel( data )
 
+		@_events = {}
 		@id = ko.observable(0)
 
 		@parent = parent
 		@initialize(data)
 		@data(data)
+
 
 	initialize: (->)
 
@@ -35,12 +36,11 @@ class Falcon.Model extends Falcon.Class
 		if isEmpty(data)
 			ret = {}
 
-			for key, value of @ when not (key of Falcon.Model.prototype)
+			for key, value of this when not (key of Falcon.Model.prototype)
 				if value instanceof Falcon.Model or value instanceof Falcon.Collection
 					ret[key] = value.data()
-				else
+				else if  ko.isObservable(value) or isFunction(value)
 					ret[key] = value
-
 			return ret
 
 		data = {} unless isObject(data)
@@ -55,7 +55,7 @@ class Falcon.Model extends Falcon.Class
 
 		datum = @[key]
 
-		return (if ko.isObservable(datum) then ko.utils.unwrapObservable( datum )  else datum)
+		return ko.utils.unwrapObservable( datum )
 	
 	###
 	# 
@@ -73,6 +73,25 @@ class Falcon.Model extends Falcon.Class
 			datum(value)
 
 		return this
+		
+	###
+	#
+	###
+	makeUrl: (type) ->
+		url = trim( if isFunction(@url) then @url() else @url )
+
+		ext = ""
+		periodIndex = url.lastIndexOf(".")
+
+		if periodIndex > -1
+			ext = url.slice(periodIndex)
+			url = url.slice(0, periodIndex)
+
+		if type in ["GET", "PUT", "DELETE"]
+			url += "/" unless url.slice(-1) is "/"
+			url += @id()
+
+		return "#{url}#{ext}"
 
 	###
 	#
@@ -88,31 +107,84 @@ class Falcon.Model extends Falcon.Class
 		type = "GET" unless type in ["GET", "POST", "PUT", "DELETE"]
 		type = trim(type)
 
-		console.log("HERE", @url)
-		url = trim( if isFunction(@url) then @url() else @url )
-
-		ext = ""
-		periodIndex = url.lastIndexOf(".")
-
-		if periodIndex > -1
-			ext = url.slice(periodIndex)
-			url = url.slice(0, periodIndex)
-
-		if type in ["GET", "PUT", "DELETE"]
-			url += "/" unless url.slice(-1) is "/"
-			url += @id()
+		url = @makeUrl(type)
 
 		$.ajax(
-			url: "#{url}#{ext}"
+			url: url
 			type: type
 			data: @toJSON()
-			error: -> options.error(arguments...)
+			error: => options.error.call(this, this, arguments...)
 			success: (data) => 
+
 				@data(data)
-				options.success(arguments...)
-			complete: -> options.complete(arguments...)
+
+				switch type
+					when "GET" then @trigger("fetch")
+					when "POST" then @trigger("create")
+					when "PUT" then @trigger("save")
+					when "DELETE" then @trigger("destroy")
+
+				options.success.call(this, this, arguments...)
+
+			complete: => 
+				options.complete.call(this, this, arguments...)
 		)
-	
+
+		return this
+
+	###
+	#
+	###
+	map: (mapping) ->
+
+		mapping = {} unless isObject(mapping)
+
+		for key, value of mapping
+			if Falcon.isDataObject( this[key] )
+				this[key].map(value)
+			else 
+				if ko.isObservable(value)
+					value = ko.observable( ko.utils.unwrapObservable(value) )
+				else if isFunction(value)
+					value = do =>
+						_value = value
+						return ( => _value.call(this, this) )
+				this[key] = value 
+
+		return this
+		
+	###
+	#
+	###
+	on: (event, action) ->
+		return this unless event? and action?
+
+		event = "" unless isString(event)
+		action = (->) unless isFunction(action)
+
+		event = trim(event).toLowerCase()
+
+		return this if isEmpty(event)
+
+		( @_events[event] ?= [] ).push( => action.call(this, this) )
+
+		return this
+		
+	###
+	#
+	###
+	trigger: (event) ->
+		return this unless event?
+
+		event = "" unless isString(event)
+		event = trim(event).toLowerCase()
+
+		return this if isEmpty(event) or not @_events[event]?
+
+		action() for action in @_events[event]
+
+		return this
+
 	###
 	#
 	###
@@ -131,13 +203,16 @@ class Falcon.Model extends Falcon.Class
 	###
 	#
 	###
-	delete: (options) -> @sync('DELETE', options)
+	destroy: (options) -> @sync('DELETE', options)
 
 	###
 	#
 	###
-	toJS: () ->
-		return (recur = (value) ->
+	toJSON: () -> 
+		data = {}
+		data[key] = value for key, value of @data()
+
+		ret = (recur = (value) ->
 			value = ko.utils.unwrapObservable(value)
 			if isArray value
 				return ( recur(v) for v in value )
@@ -147,9 +222,6 @@ class Falcon.Model extends Falcon.Class
 				return output
 			else
 				return value
-		)(@data())
-	
-	###
-	#
-	###
-	toJSON: () -> ko.utils.stringifyJson( @toJS() )
+		)( data )
+
+		ko.utils.stringifyJson( ret ) unless isEmpty(ret)
