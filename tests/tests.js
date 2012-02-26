@@ -3,7 +3,7 @@
 	Falcon.js
 	by Rick Allen (stoodder)
 
-	Version 0.0.1
+	Version 0.0.2
 	Full source at https://github.com/stoodder/falconjs
 	Copyright (c) 2011 RokkinCat, http://www.rokkincat.com
 
@@ -49,7 +49,7 @@
         return false;
       }
       return true;
-    } else if (isString(object || isArray(object))) {
+    } else if (isString(object) || isArray(object)) {
       return object.length === 0;
     } else if (object === null || typeof object === "undefined") {
       return true;
@@ -175,7 +175,7 @@
   };
 
   Falcon = {
-    version: "0.0.1",
+    version: "0.0.2",
     apply: function(view) {
       return $(function() {
         $('body').attr('data-bind', 'view: $data');
@@ -347,7 +347,7 @@
     */
 
     Model.prototype.sync = function(type, options) {
-      var url,
+      var data, url,
         _this = this;
       if (isFunction(options)) {
         options = {
@@ -363,11 +363,14 @@
         type = "GET";
       }
       type = trim(type);
+      data = {};
+      if (type === "POST" || type === "PUT") data = this.toJSON();
       url = this.makeUrl(type);
       $.ajax({
         url: url,
         type: type,
-        data: this.toJSON(),
+        data: data,
+        dataType: 'json',
         error: function() {
           var _ref;
           return (_ref = options.error).call.apply(_ref, [_this, _this].concat(__slice.call(arguments)));
@@ -620,7 +623,9 @@
 
     View.prototype.viewModel = function() {
       var key, value, viewModel;
-      viewModel = {};
+      viewModel = {
+        __falcon__: true
+      };
       for (key in this) {
         value = this[key];
         if (!(key in Falcon.View.prototype)) viewModel[key] = value;
@@ -644,13 +649,13 @@
       if (callback != null) {
         if (!isFunction(callback)) callback = (function() {});
         if (this._loaded) {
-          callback();
+          callback.call(this);
         } else {
           this._loadQueue.push(callback);
         }
       } else if (this._loaded) {
         while (!(this._loadQueue.length <= 0)) {
-          this._loadQueue.shift()();
+          this._loadQueue.shift().call(this);
         }
       }
       return this;
@@ -756,7 +761,15 @@
     */
 
     Collection.prototype.fetch = function(options) {
-      var url,
+      return this.sync('GET', options);
+    };
+
+    /*
+    	#
+    */
+
+    Collection.prototype.sync = function(type, options) {
+      var data, url, _ref,
         _this = this;
       if (isFunction(options)) {
         options = {
@@ -767,16 +780,23 @@
       if (!isObject(options.data)) options.data = {};
       if (!isFunction(options.success)) options.success = (function() {});
       if (!isFunction(options.error)) options.error = (function() {});
+      type = isString(type) ? type.toUpperCase() : "GET";
+      if (type !== "GET" && type !== "POST" && type !== "PUT" && type !== "DELETE") {
+        type = "GET";
+      }
+      type = trim(type);
+      data = (_ref = options.data) != null ? _ref : {};
       url = isFunction(this.url) ? this.url() : this.url;
       if (!((url != null) && isString(url))) return;
       return $.ajax({
         url: trim(url),
-        type: 'GET',
-        data: options.data,
+        type: type,
+        data: data,
+        dataType: 'json',
         success: function() {
-          var args, data, _ref;
+          var args, _ref2;
           args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-          data = (_ref = args[0]) != null ? _ref : {};
+          data = (_ref2 = args[0]) != null ? _ref2 : {};
           if (isString(data)) data = JSON.parse(data);
           _this.add(data, options);
           return options.success.apply(options, args);

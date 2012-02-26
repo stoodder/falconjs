@@ -35,6 +35,7 @@ class Falcon.View extends Falcon.Class
 		@url = "" unless isString(@url)
 		@url = trim(@url)
 
+
 		# Validate the private variables
 		@_loaded = false
 
@@ -68,7 +69,7 @@ class Falcon.View extends Falcon.Class
 	#
 	###
 	viewModel: () ->
-		viewModel = {}
+		viewModel = {__falcon__: true}
 		for key, value of this when not ( key of Falcon.View.prototype )
 			viewModel[key] = value
 		return viewModel
@@ -84,8 +85,8 @@ class Falcon.View extends Falcon.Class
 	load: (callback) ->
 		if callback?
 			callback = (->) unless isFunction(callback)
-			if @_loaded then callback() else @_loadQueue.push(callback)
+			if @_loaded then callback.call(this) else @_loadQueue.push(callback)
 		else if @_loaded
-			@_loadQueue.shift()() until @_loadQueue.length <= 0
+			@_loadQueue.shift().call(this) until @_loadQueue.length <= 0
 		
 		return this

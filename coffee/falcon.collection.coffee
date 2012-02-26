@@ -71,7 +71,12 @@ class Falcon.Collection extends Falcon.Class
 	###
 	#
 	###
-	fetch: (options) ->
+	fetch: (options) -> @sync('GET', options)
+
+	###
+	#
+	###
+	sync: (type, options) ->
 		options = {success: options} if isFunction(options)
 
 		options = {} unless isObject(options)
@@ -79,14 +84,21 @@ class Falcon.Collection extends Falcon.Class
 		options.success = (->) unless isFunction(options.success)
 		options.error = (->) unless isFunction(options.error)
 
+		type = if isString(type) then type.toUpperCase() else "GET"
+		type = "GET" unless type in ["GET", "POST", "PUT", "DELETE"]
+		type = trim(type)
+
+		data = options.data ? {}
+
 		url = if isFunction(@url) then @url() else @url
 
 		return unless url? and isString(url)
 
 		$.ajax(
 			url: trim(url)
-			type: 'GET'
-			data: options.data
+			type: type
+			data: data
+			dataType: 'json'
 			success: (args...) =>
 				data = args[0] ? {}
 				data = JSON.parse( data ) if isString(data)

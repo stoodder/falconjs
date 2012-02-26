@@ -14,10 +14,10 @@ isArray = (object) -> Object::toString.call( object ) is "[object Array]"
 isString = (object) -> Object::toString.call( object ) is "[object String]"
 isNumber = (object) -> Object::toString.call( object ) is "[object Number]"
 isEmpty = (object) ->
-	if isObject object
+	if isObject(object)
 		return false for key, value of object
 		return true
-	else if isString object or isArray object
+	else if isString(object) or isArray(object)
 		return object.length is 0
 	else if object is null or typeof object is "undefined"
 		return true

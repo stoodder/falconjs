@@ -107,12 +107,16 @@ class Falcon.Model extends Falcon.Class
 		type = "GET" unless type in ["GET", "POST", "PUT", "DELETE"]
 		type = trim(type)
 
+		data = {}
+		data = @toJSON() if type in ["POST", "PUT"]
+
 		url = @makeUrl(type)
 
 		$.ajax(
 			url: url
 			type: type
-			data: @toJSON()
+			data: data
+			dataType: 'json'
 			error: => options.error.call(this, this, arguments...)
 			success: (data) => 
 
