@@ -36,7 +36,7 @@ class Falcon.Collection extends Falcon.Class
 	#
 	###
 	constructor: (models, parent) ->
-		[parent, models] = [models, parent] if not parent? and models instanceof Falcon.Model
+		[parent, models] = [models, parent] if not parent? and Falcon.isModel( models )
 
 		@url ?= @model::url if @model?
 		@parent = parent
@@ -127,8 +127,7 @@ class Falcon.Collection extends Falcon.Class
 		append = false unless isBoolean(append)
 		replace = ( not prepend and not append ) unless isBoolean(replace)
 
-		for item in items when item instanceof Falcon.Model or item instanceof Falcon.Collection
-			item.on("destroy", (model) => @remove(model)) if item instanceof Falcon.Model
+		for item in items when Falcon.isDataObject( item )
 			item.map(mapping) for mapping in @_mappings
 
 		if replace
@@ -168,6 +167,7 @@ class Falcon.Collection extends Falcon.Class
 		
 		options = {success:options} if isFunction(options)
 		options = {} unless isObject(options)
+		options.success = (->) unless isFunction(options.success)
 
 		_success = options.success
 		options.success = (model) =>
@@ -175,6 +175,26 @@ class Falcon.Collection extends Falcon.Class
 			_success.apply(model, arguments)
 
 		return ( new @model(data, @parent).create(options) )
+
+	destroy: (models, options) ->
+		return this unless @model?
+
+		models = [models] unless isArray(models)
+
+		return this if isEmpty(models)
+
+		options = {success:options} is isFunction(options)
+		options = {} unless isObject(options)
+		options.success = (->) unless isFunction(options.success)
+
+		_success = options.success
+		options.success = (model) =>
+			@remove(model)
+			_success.apply(model, arguments)
+
+		model.destroy(options) for model in models when Falcon.isDataObject(model)
+
+		return this
 
 	###
 	#
@@ -218,7 +238,7 @@ class Falcon.Collection extends Falcon.Class
 
 		return items unless @model?
 
-		for i, m of items when not ( m instanceof Falcon.Model )
+		for i, m of items when not ( m instanceof @model )
 			items[i] = new @model(m, @parent) 
 		
 		return items
@@ -231,6 +251,3 @@ class Falcon.Collection extends Falcon.Class
 		@list([])
 		@length = @list().length
 		return this
-
-
-@hfhfhfhfh = 0

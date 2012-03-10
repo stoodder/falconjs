@@ -51,6 +51,7 @@ class Falcon.View extends Falcon.Class
 			$.ajax(
 				url: @url
 				type: "GET"
+				cache: false
 				success: (html) =>
 					templateCache[@url] = html
 					@template(html)
@@ -71,6 +72,10 @@ class Falcon.View extends Falcon.Class
 	viewModel: () ->
 		viewModel = {__falcon__: true}
 		for key, value of this when not ( key of Falcon.View.prototype )
+			if isFunction(value) and not ko.isObservable(value)
+				value = do =>
+					_value = value
+					(args...) => _value.call(this, args...)
 			viewModel[key] = value
 		return viewModel
 	

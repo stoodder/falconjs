@@ -24,6 +24,7 @@ class Falcon.Model extends Falcon.Class
 
 		@parent = parent
 		@initialize(data)
+
 		@data(data)
 
 
@@ -37,7 +38,7 @@ class Falcon.Model extends Falcon.Class
 			ret = {}
 
 			for key, value of this when not (key of Falcon.Model.prototype)
-				if value instanceof Falcon.Model or value instanceof Falcon.Collection
+				if Falcon.isDataObject( value )
 					ret[key] = value.data()
 				else if  ko.isObservable(value) or isFunction(value)
 					ret[key] = value
@@ -46,6 +47,8 @@ class Falcon.Model extends Falcon.Class
 		data = {} unless isObject(data)
 
 		@set(key, value) for key, value of data
+
+		return this
 
 	###
 	#
@@ -61,13 +64,14 @@ class Falcon.Model extends Falcon.Class
 	# 
 	###
 	set: (key, value) ->
+
 		return this if not key? or key of Falcon.Model.prototype
 
 		value = ko.utils.unwrapObservable(value) if ko.isObservable(value)
 		
 		datum = ( @[key] ?= ko.observable() )
 
-		if datum instanceof Falcon.Model or datum instanceof Falcon.Collection
+		if Falcon.isDataObject( datum )
 			datum.data(value)
 		else if ko.isObservable(datum)
 			datum(value)
@@ -139,6 +143,26 @@ class Falcon.Model extends Falcon.Class
 	###
 	#
 	###
+	fetch: (options) -> @sync('GET', options)
+
+	###
+	#
+	###
+	create: (options) -> @sync('POST', options)
+
+	###
+	#
+	###
+	save: (options) -> @sync('PUT', options)
+
+	###
+	#
+	###
+	destroy: (options) -> @sync('DELETE', options)
+
+	###
+	#
+	###
 	map: (mapping) ->
 
 		mapping = {} unless isObject(mapping)
@@ -192,35 +216,17 @@ class Falcon.Model extends Falcon.Class
 	###
 	#
 	###
-	fetch: (options) -> @sync('GET', options)
-
-	###
-	#
-	###
-	create: (options) -> @sync('POST', options)
-
-	###
-	#
-	###
-	save: (options) -> @sync('PUT', options)
-
-	###
-	#
-	###
-	destroy: (options) -> @sync('DELETE', options)
-
-	###
-	#
-	###
 	toJSON: () -> 
 		data = {}
 		data[key] = value for key, value of @data()
 
 		ret = (recur = (value) ->
 			value = ko.utils.unwrapObservable(value)
-			if isArray value
+			if isArray(value)
 				return ( recur(v) for v in value )
-			else if isObject value
+			else if Falcon.isCollection(value)
+				return ( recur(v) for v in (value.list() ? []) )
+			else if isObject(value)
 				output = {}
 				output[k] = recur(v) for k, v of value
 				return output

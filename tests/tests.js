@@ -270,13 +270,13 @@
     */
 
     Model.prototype.data = function(data) {
-      var key, ret, value, _results;
+      var key, ret, value;
       if (isEmpty(data)) {
         ret = {};
         for (key in this) {
           value = this[key];
           if (!(key in Falcon.Model.prototype)) {
-            if (value instanceof Falcon.Model || value instanceof Falcon.Collection) {
+            if (Falcon.isDataObject(value)) {
               ret[key] = value.data();
             } else if (ko.isObservable(value) || isFunction(value)) {
               ret[key] = value;
@@ -286,12 +286,11 @@
         return ret;
       }
       if (!isObject(data)) data = {};
-      _results = [];
       for (key in data) {
         value = data[key];
-        _results.push(this.set(key, value));
+        this.set(key, value);
       }
-      return _results;
+      return this;
     };
 
     /*
@@ -314,7 +313,7 @@
       if (!(key != null) || key in Falcon.Model.prototype) return this;
       if (ko.isObservable(value)) value = ko.utils.unwrapObservable(value);
       datum = ((_ref = this[key]) != null ? _ref : this[key] = ko.observable());
-      if (datum instanceof Falcon.Model || datum instanceof Falcon.Collection) {
+      if (Falcon.isDataObject(datum)) {
         datum.data(value);
       } else if (ko.isObservable(datum)) {
         datum(value);
@@ -405,6 +404,38 @@
     	#
     */
 
+    Model.prototype.fetch = function(options) {
+      return this.sync('GET', options);
+    };
+
+    /*
+    	#
+    */
+
+    Model.prototype.create = function(options) {
+      return this.sync('POST', options);
+    };
+
+    /*
+    	#
+    */
+
+    Model.prototype.save = function(options) {
+      return this.sync('PUT', options);
+    };
+
+    /*
+    	#
+    */
+
+    Model.prototype.destroy = function(options) {
+      return this.sync('DELETE', options);
+    };
+
+    /*
+    	#
+    */
+
     Model.prototype.map = function(mapping) {
       var key, value,
         _this = this;
@@ -471,38 +502,6 @@
     	#
     */
 
-    Model.prototype.fetch = function(options) {
-      return this.sync('GET', options);
-    };
-
-    /*
-    	#
-    */
-
-    Model.prototype.create = function(options) {
-      return this.sync('POST', options);
-    };
-
-    /*
-    	#
-    */
-
-    Model.prototype.save = function(options) {
-      return this.sync('PUT', options);
-    };
-
-    /*
-    	#
-    */
-
-    Model.prototype.destroy = function(options) {
-      return this.sync('DELETE', options);
-    };
-
-    /*
-    	#
-    */
-
     Model.prototype.toJSON = function() {
       var data, key, recur, ret, value, _ref;
       data = {};
@@ -520,6 +519,17 @@
             _results = [];
             for (_i = 0, _len = value.length; _i < _len; _i++) {
               v = value[_i];
+              _results.push(recur(v));
+            }
+            return _results;
+          })();
+        } else if (Falcon.isCollection(value)) {
+          return (function() {
+            var _i, _len, _ref2, _ref3, _results;
+            _ref3 = (_ref2 = value.list()) != null ? _ref2 : [];
+            _results = [];
+            for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+              v = _ref3[_i];
               _results.push(recur(v));
             }
             return _results;
@@ -600,6 +610,7 @@
         $.ajax({
           url: this.url,
           type: "GET",
+          cache: false,
           success: function(html) {
             templateCache[_this.url] = html;
             _this.template(html);
@@ -622,13 +633,26 @@
     */
 
     View.prototype.viewModel = function() {
-      var key, value, viewModel;
+      var key, value, viewModel,
+        _this = this;
       viewModel = {
         __falcon__: true
       };
       for (key in this) {
         value = this[key];
-        if (!(key in Falcon.View.prototype)) viewModel[key] = value;
+        if (!(!(key in Falcon.View.prototype))) continue;
+        if (isFunction(value) && !ko.isObservable(value)) {
+          value = (function() {
+            var _value;
+            _value = value;
+            return function() {
+              var args;
+              args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+              return _value.call.apply(_value, [_this].concat(__slice.call(args)));
+            };
+          })();
+        }
+        viewModel[key] = value;
       }
       return viewModel;
     };
@@ -715,7 +739,7 @@
 
     function Collection(models, parent) {
       var _ref;
-      if (!(parent != null) && models instanceof Falcon.Model) {
+      if (!(parent != null) && Falcon.isModel(models)) {
         _ref = [models, parent], parent = _ref[0], models = _ref[1];
       }
       if (this.model != null) {
@@ -810,8 +834,7 @@
     */
 
     Collection.prototype.add = function(items, options) {
-      var append, item, mapping, prepend, replace, _i, _j, _len, _len2, _ref,
-        _this = this;
+      var append, item, mapping, prepend, replace, _i, _j, _len, _len2, _ref;
       if (this.model == null) return this;
       if (items == null) items = [];
       if (options == null) options = {};
@@ -823,18 +846,12 @@
       if (!isBoolean(replace)) replace = !prepend && !append;
       for (_i = 0, _len = items.length; _i < _len; _i++) {
         item = items[_i];
-        if (!(item instanceof Falcon.Model || item instanceof Falcon.Collection)) {
-          continue;
-        }
-        if (item instanceof Falcon.Model) {
-          item.on("destroy", function(model) {
-            return _this.remove(model);
-          });
-        }
-        _ref = this._mappings;
-        for (_j = 0, _len2 = _ref.length; _j < _len2; _j++) {
-          mapping = _ref[_j];
-          item.map(mapping);
+        if (Falcon.isDataObject(item)) {
+          _ref = this._mappings;
+          for (_j = 0, _len2 = _ref.length; _j < _len2; _j++) {
+            mapping = _ref[_j];
+            item.map(mapping);
+          }
         }
       }
       if (replace) {
@@ -899,12 +916,36 @@
         };
       }
       if (!isObject(options)) options = {};
+      if (!isFunction(options.success)) options.success = (function() {});
       _success = options.success;
       options.success = function(model) {
         _this.add(model, options);
         return _success.apply(model, arguments);
       };
       return new this.model(data, this.parent).create(options);
+    };
+
+    Collection.prototype.destroy = function(models, options) {
+      var model, _i, _len, _success,
+        _this = this;
+      if (this.model == null) return this;
+      if (!isArray(models)) models = [models];
+      if (isEmpty(models)) return this;
+      options = {
+        success: options
+      } === isFunction(options);
+      if (!isObject(options)) options = {};
+      if (!isFunction(options.success)) options.success = (function() {});
+      _success = options.success;
+      options.success = function(model) {
+        _this.remove(model);
+        return _success.apply(model, arguments);
+      };
+      for (_i = 0, _len = models.length; _i < _len; _i++) {
+        model = models[_i];
+        if (Falcon.isDataObject(model)) model.destroy(options);
+      }
+      return this;
     };
 
     /*
@@ -960,9 +1001,7 @@
       if (this.model == null) return items;
       for (i in items) {
         m = items[i];
-        if (!(m instanceof Falcon.Model)) {
-          items[i] = new this.model(m, this.parent);
-        }
+        if (!(m instanceof this.model)) items[i] = new this.model(m, this.parent);
       }
       return items;
     };
@@ -981,8 +1020,6 @@
     return Collection;
 
   })(Falcon.Class);
-
-  this.hfhfhfhfh = 0;
 
   extend(ko.bindingHandlers, {
     view: (function() {
@@ -1086,50 +1123,6 @@
         }
       };
     })()
-  });
-
-  extend(ko.extenders, {
-    /*
-    	# Method: ko.extenders.hasState
-    	#	Extender to add state to a knockout observable, with state we
-    	#	get access to the original value, the previously saved values,
-    	#	the previous value, and the current 'saved' state of the observable
-    */
-    hasState: function(target, option) {
-      var changed, current, initial, previous, saved, _ref;
-      if (!isObject(option)) {
-        option = {
-          initial: target()
-        };
-      }
-      initial = (_ref = option.initial) != null ? _ref : target();
-      saved = ko.observable(initial);
-      previous = ko.observable(null);
-      current = target();
-      changed = ko.observable(false);
-      target.subscribe(function(value) {
-        previous(current);
-        current = value;
-        return changed(true);
-      });
-      extend(target, {
-        initial: initial,
-        saved: saved,
-        previous: previous,
-        changed: changed,
-        save: function() {
-          saved(current);
-          changed(false);
-          return target;
-        },
-        revert: function() {
-          target(saved());
-          changed(false);
-          return target;
-        }
-      });
-      return target;
-    }
   });
 
 }).call(this);
