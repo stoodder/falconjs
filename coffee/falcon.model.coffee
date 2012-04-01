@@ -7,95 +7,177 @@ class Falcon.Model extends Falcon.Class
 	@extend = (properties) -> Falcon.Class.extend(Falcon.Model, properties)
 
 	url: null
-
 	parent: null
-
+	fields: null #TODO: Make this into an object, array reads to object form
 	_events: null
 
 	###
-	# Method: constructor
+	# Method: Falcon.Class()
 	#	The constructor for a model
+	#
+	# Arguments:
+	#	**data** _(object)_ - The initial data to load in
+	#	**parent** _(mixed)_ - The parent object of this one
 	###
 	constructor: (data, parent) ->
-		[parent, data] = [data, parent] if Falcon.isModel( data )
+		data = ko.utils.unwrapObservable( data )
+		parent = ko.utils.unwrapObservable( parent )
+
+		[parent, data] = [data, parent] if Falcon.isModel( data ) and not parent?
 
 		@_events = {}
-		@id = ko.observable(0)
-
-		@parent = parent
+		@id = ko.observable()
+		@parent = ko.utils.unwrapObservable( parent )
+		@fields = [] if @fields is null
 		@initialize(data)
+		@fill(data)
 
-		@data(data)
-
+		#Lastly make sure that any of the fields that should exist, do
+		this[field] = ko.observable() for field in @fields when not this[field] and isString(field)
+	#END constructor
 
 	initialize: (->)
 
 	###
-	#
+	# Method: Falcon.Model#fill
+	#	Method used to 'fill in' and add data to this model
 	###
-	data: (data) ->
-		if isEmpty(data)
-			ret = {}
+	fill: (data) ->
+		return this unless isObject(data)
 
-			for key, value of this when not (key of Falcon.Model.prototype)
-				if Falcon.isDataObject( value )
-					ret[key] = value.data()
-				else if  ko.isObservable(value) or isFunction(value)
-					ret[key] = value
-			return ret
-
-		data = {} unless isObject(data)
-
-		@set(key, value) for key, value of data
+		for key, value of data when not (key of Falcon.Model.prototype)
+			if not this[key]?
+				unless ko.isObservable(value) or Falcon.isDataObject(value)
+					if isArray(value)
+						value = ko.observableArray(value)
+					else
+						value = ko.observable(value)
+					#END if
+				#END unless
+				this[key] = value
+			else if Falcon.isDataObject(this[key])
+				this[key].fill(value)
+			else if ko.isObservable(this[key])
+				this[key](value)
+			else
+				this[key] = value
+			#END if
+		#END for
 
 		return this
+	#END fill
 
 	###
+	# Method: Falcon.Model#unwrap
+	#	Method used to 'unwrap' this object into an anonmous object
+	#	Needed to cascade inwards on other Falcon Data objects (like lists)
+	#	to unwrap newly added member variables/objects
 	#
+	# Returns
+	#	_Object_ - The 'unwrapped' object
 	###
-	get: (key) ->
-		return undefined unless isString(key)
+	unwrap: () ->
+		raw = {}
 
-		datum = @[key]
+		#Get the keys that pertain only to this models added attributes
+		keys = arrayRemove( objectKeys(this), objectKeys(Falcon.Model.prototype) )
+		keys[keys.length] = "id"
+		keys = arrayUnique( keys )
 
-		return ko.utils.unwrapObservable( datum )
-	
+		for key in keys
+			value = this[key]
+			raw[key] = if Falcon.isDataObject(value) then value.unwrap() else value
+		#END fors
+
+		return raw
+	#END unwrap
+
 	###
-	# 
+	# Method: Falon.Model#serialize
+	#	Serializes the data into a raw json object and only corresponds to the fields
+	#	that are primitive and that we wish to be able to send back to the server
 	###
-	set: (key, value) ->
+	serialize: ->
+		raw = {}
 
-		return this if not key? or key of Falcon.Model.prototype
+		if isArray(@fields) and @fields.length > 0
+			keys = @fields
+		else
+			keys = arrayRemove( objectKeys(this), objectKeys(Falcon.Model.prototype) )
+		#END if
 
-		value = ko.utils.unwrapObservable(value) if ko.isObservable(value)
+		keys[keys.length] = "id"
+		keys = arrayUnique( keys )
+
+		for key in keys
+			value = this[key]
+			if Falcon.isDataObject(value)
+				raw[key] =  value.serialize() 
+			else if ko.isObservable(value)
+				raw[key] = ko.utils.unwrapObservable( value )
+			else if not isFunction(value)
+				raw[key] = value
+		#END for
+
+		return raw
+	#END serialize
 		
-		datum = ( @[key] ?= ko.observable() )
-
-		if Falcon.isDataObject( datum )
-			datum.data(value)
-		else if ko.isObservable(datum)
-			datum(value)
-
-		return this
-		
 	###
+	# Method: Falcon.Model#makeURL
+	#	generates a URL based on this model's url, the parent model of this model, 
+	#	the type of request we're making and Falcon's defined baseModel
 	#
+	# Arguments:
+	#	**type** _(string)_ - The type of request we're making (GET, POST, PUT, DELETE)
+	#
+	# Returns:
+	#	_String_ - The generated URL
 	###
 	makeUrl: (type) ->
-		url = trim( if isFunction(@url) then @url() else @url )
+		url = if isFunction(@url) then @url() else @url
+		url = "" unless isString(url)
+		url = trim(url)
+
+		type = "" unless isString(type)
+		type = type.toUpperCase()
+		type = 'GET' unless type in ['GET', 'PUT', 'POST', 'DELETE']
 
 		ext = ""
 		periodIndex = url.lastIndexOf(".")
 
+		#Split on the extension if it exists
 		if periodIndex > -1
 			ext = url.slice(periodIndex)
 			url = url.slice(0, periodIndex)
+		#END if
 
+		#Make sure the url is now formatted correctly
+		url = "/#{url}" unless startsWith(url, "/")
+
+		#Check if a parent model is present
+		if Falcon.isModel(@parent)
+			parentUrl = @parent.makeUrl()
+			parentPeriodIndex = parentUrl.lastIndexOf(".")
+			parentUrl = parentUrl.slice(0, parentPeriodIndex) if parentPeriodIndex > -1
+			parentUrl = trim(parentUrl)
+
+			url = "#{parentUrl}#{url}"
+
+		#Otherwise consider this the base
+		else if isString(Falcon.baseApiUrl)
+			url = "#{Falcon.baseApiUrl}#{url}"
+
+		#END if
+
+		#Append the id if it exists
 		if type in ["GET", "PUT", "DELETE"]
 			url += "/" unless url.slice(-1) is "/"
 			url += @id()
+		#END if
 
+		#Return the built url
 		return "#{url}#{ext}"
+	#END makeUrl
 
 	###
 	#
@@ -107,12 +189,12 @@ class Falcon.Model extends Falcon.Class
 		options.error = (->) unless isFunction(options.error)
 		options.complete = (->) unless isFunction(options.complete)
 
-		type = if isString(type) then type.toUpperCase() else "GET"
+		type = trim( if isString(type) then type.toUpperCase() else "GET" )
 		type = "GET" unless type in ["GET", "POST", "PUT", "DELETE"]
-		type = trim(type)
 
 		data = {}
-		data = @toJSON() if type in ["POST", "PUT"]
+		data = JSON.stringify( @serialize() ) if type in ["POST", "PUT"]
+		data = extend( data, options.data ) if isObject(options.data)
 
 		url = @makeUrl(type)
 
@@ -121,10 +203,15 @@ class Falcon.Model extends Falcon.Class
 			type: type
 			data: data
 			dataType: 'json'
-			error: => options.error.call(this, this, arguments...)
-			success: (data) => 
+			error: (xhr) => 
+				response = xhr.responseText
+				try
+					response = JSON.parse(response) if isString(response)
+				catch e
 
-				@data(data)
+				options.error.call(this, this, response, xhr)
+			success: (data) => 
+				@fill(data)
 
 				switch type
 					when "GET" then @trigger("fetch")
@@ -172,66 +259,107 @@ class Falcon.Model extends Falcon.Class
 				this[key].map(value)
 			else 
 				if ko.isObservable(value)
-					value = ko.observable( ko.utils.unwrapObservable(value) )
+					this[key] = ko.observable( ko.utils.unwrapObservable(value) )
 				else if isFunction(value)
-					value = do =>
+					do =>
 						_value = value
-						return ( => _value.call(this, this) )
-				this[key] = value 
+						this[key] = () => 
+							_value.call(this, this) 
+				else
+					this[key] = value 
 
 		return this
+	#END map
 		
 	###
+	# Method: Falcon.Model#on()
+	#	Adds an event listener to a specific event
 	#
+	# Arguments:
+	#	**event** _(string)_ - The event to listen tpo
+	#	**action** _(function)_ - The callback function to attach to this event
+	#	**context** _(mixed)_ - The context to apply to the callback. Defaults to this model
+	#
+	# Returns:
+	#	_(Falcon.Model)_ - This instance
 	###
-	on: (event, action) ->
-		return this unless event? and action?
+	on: (event, action, context) ->
+		return this unless isString(event) and isFunction(action)
 
-		event = "" unless isString(event)
-		action = (->) unless isFunction(action)
-
+		context ?= this
 		event = trim(event).toLowerCase()
 
 		return this if isEmpty(event)
 
-		( @_events[event] ?= [] ).push( => action.call(this, this) )
+		( @_events[event] ?= [] ).push({action, context})
 
 		return this
-		
-	###
-	#
-	###
-	trigger: (event) ->
-		return this unless event?
+	#END on
 
-		event = "" unless isString(event)
+	###
+	# Method: Falcon.Model#off()
+	#	Removes an event listener from an event
+	#
+	# Arguments:
+	#	**event** _(string)_ - The event to remove from
+	#	**action** _(function)_ - The event handler to remove
+	#
+	# Returns:
+	#	_(Flacon.Model)_ - This instance
+	###
+	off: (event, action) ->
+		return this unless isString(event) and isFunction(action)
+
 		event = trim(event).toLowerCase()
 
 		return this if isEmpty(event) or not @_events[event]?
 
-		action() for action in @_events[event]
+		@_events[event] = ( evt for evt in @_events[event] when evt.action isnt action )
 
 		return this
+	#END off
 
 	###
+	# Method: Falcon.Model#has
+	#	Method used to see if this model has a specific event attached
 	#
+	# Arguments:
+	#	**event** _(string)_ - The event to look at
+	#	**action** _(function)_ - The event handler to look for
+	#
+	# Returns:
+	#	_(boolean)_ - Did we find the event?
 	###
-	toJSON: () -> 
-		data = {}
-		data[key] = value for key, value of @data()
+	has: (event, action) ->
+		return false unless isString(event) and isFunction(action)
 
-		ret = (recur = (value) ->
-			value = ko.utils.unwrapObservable(value)
-			if isArray(value)
-				return ( recur(v) for v in value )
-			else if Falcon.isCollection(value)
-				return ( recur(v) for v in (value.list() ? []) )
-			else if isObject(value)
-				output = {}
-				output[k] = recur(v) for k, v of value
-				return output
-			else
-				return value
-		)( data )
+		event = trim(event).toLowerCase()
 
-		ko.utils.stringifyJson( ret ) unless isEmpty(ret)
+		return false if isEmpty(event) or not @_events[event]?
+
+		return true for evt in @_events[event] when evt.action is action
+
+		return false
+	#END has
+		
+	###
+	# Method: Falcon.Model#trigger()
+	#	Used to trigger a specific event
+	#
+	# Arguments:
+	#	**event** _(string)_ - The event to trigger
+	#
+	# Returns:
+	#	_(Falcon.Model)_ - This instance
+	###
+	trigger: (event) ->
+		return this unless isString(event)
+		event = trim(event).toLowerCase()
+
+		return this if isEmpty(event) or not @_events[event]?
+
+		evt.action.call(evt.context, this) for evt in @_events[event]
+
+		return this
+	#END trigger
+#END Falcon.Model

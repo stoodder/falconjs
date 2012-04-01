@@ -77,9 +77,8 @@ task 'watch', 'watch coffee/ and tests/ for changes and build', ->
 	for destination, sources of compiledFiles
 		for source in sources
 			fs.watch( source, (curr, prev) ->
-				if +curr.mtime isnt +prev.mtime
-					console.log "Saw change in #{source}"
-					invoke 'build'
+				console.log "Saw change in #{source}"
+				invoke 'build'
 			)
 
 # --------------------------------------------------------
