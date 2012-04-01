@@ -1,3 +1,6 @@
+#------------------------------------------------------------------
+# Class: Falcon.Collection
+#------------------------------------------------------------------
 class Falcon.Collection extends Falcon.Class
 
 	###
@@ -25,6 +28,9 @@ class Falcon.Collection extends Falcon.Class
 	###
 	parent: null
 
+	###
+	#
+	###
 	@_mappings: null
 
 	###
@@ -36,6 +42,9 @@ class Falcon.Collection extends Falcon.Class
 	#
 	###
 	constructor: (models, parent) ->
+		models = ko.utils.unwrapObservable(models)
+		parent = ko.utils.unwrapObservable(parent)
+
 		[parent, models] = [models, parent] if not parent? and Falcon.isModel( models )
 
 		@url ?= @model::url if @model?
@@ -121,6 +130,9 @@ class Falcon.Collection extends Falcon.Class
 	# Method: Falcon.Collection#serialize
 	#	Serializes this collection and returns the raw array
 	#	of data
+	#
+	# Returns:
+	#	_Array_ - an array of the serialized raw data to send to the server
 	###
 	serialize: () ->
 		raw = []
@@ -207,9 +219,19 @@ class Falcon.Collection extends Falcon.Class
 		return this
 
 	###
+	# Method: Falcon.Collection#remove
+	#	Used to simplu remove elements from the current collection
+	#	Does not actually delete the data from the server
 	#
+	# Arguments:
+	#	**items** _(Array)_ - An array (or an item) to remove from the list
+	#
+	# Returns:
+	#	_(Falcon.Collection)_ - This instance
 	###
-	remove: (items) ->
+	remove: (items, count) ->
+		items = ko.utils.unwrapObservable( items )
+		items = items.list() if Falcon.isCollection( items )
 		if isArray(items) then @list.removeAll(items) else @list.remove(items)
 
 		@length( @list().length )
@@ -244,6 +266,7 @@ class Falcon.Collection extends Falcon.Class
 		options = {success:options} if isFunction(options)
 		options = {} unless isObject(options)
 		options.success = (->) unless isFunction(options.success)
+		options.method = 'append' unless isString(options.method)
 
 		_success = options.success
 		options.success = (model) =>
@@ -275,6 +298,7 @@ class Falcon.Collection extends Falcon.Class
 	destroy: (models, options) ->
 		return this unless @model?
 
+		models = ko.utils.unwrapObservable( models )
 		models = this.list() unless models? and models isnt 'all'
 		models = models.list() if Falcon.isCollection(models)
 		models = [models] unless isArray(models)
@@ -291,7 +315,7 @@ class Falcon.Collection extends Falcon.Class
 			_success.apply(model, arguments)
 
 		for model in models when Falcon.isDataObject(model)
-			model.destroy(options) 
+			new @model(model.unwrap(), this).destroy(options)
 
 		return this
 	#END destory
@@ -348,6 +372,17 @@ class Falcon.Collection extends Falcon.Class
 			
 		return this
 	#END map
+
+	###
+	# Method: Falcon.Collection#clone
+	# 	Method used to deeply clone this colleciton
+	#
+	# Returns:
+	#	_Falcon.Collection_ - A clone of this collection
+	###
+	clone: ->
+		return new this.constructor(this.unwrap())
+	#END clone
 
 	###
 	# Method: Falcon.Collection#reset

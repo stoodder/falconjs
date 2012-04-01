@@ -23,12 +23,15 @@ class Falcon.Model extends Falcon.Class
 		data = ko.utils.unwrapObservable( data )
 		parent = ko.utils.unwrapObservable( parent )
 
-		[parent, data] = [data, parent] if Falcon.isModel( data ) and not parent?
+		[parent, data] = [data, parent] if not parent? and Falcon.isModel( data )
+
+		data = data.unwrap() if Falcon.isModel(data)
 
 		@_events = {}
 		@id = ko.observable()
-		@parent = ko.utils.unwrapObservable( parent )
 		@fields = [] if @fields is null
+		@parent = parent
+
 		@initialize(data)
 		@fill(data)
 
@@ -45,7 +48,14 @@ class Falcon.Model extends Falcon.Class
 	fill: (data) ->
 		return this unless isObject(data)
 
-		for key, value of data when not (key of Falcon.Model.prototype)
+		protoKeys = objectKeys(Falcon.Model.prototype)
+		acceptedKeys = arrayRemove( objectKeys(this), protoKeys )
+		rejectedKeys = arrayRemove( protoKeys, acceptedKeys )
+		rejectedKeys = arrayRemove( rejectedKeys, "id" )
+		rejectedKeys = arrayUnique( rejectedKeys )
+
+		for key, value of data when not (key in rejectedKeys)
+			value = ko.utils.unwrapObservable( value )
 			if not this[key]?
 				unless ko.isObservable(value) or Falcon.isDataObject(value)
 					if isArray(value)
@@ -58,7 +68,7 @@ class Falcon.Model extends Falcon.Class
 			else if Falcon.isDataObject(this[key])
 				this[key].fill(value)
 			else if ko.isObservable(this[key])
-				this[key](value)
+				this[key](value) if ko.isWriteableObservable(this[key])
 			else
 				this[key] = value
 			#END if
@@ -180,7 +190,17 @@ class Falcon.Model extends Falcon.Class
 	#END makeUrl
 
 	###
+	# Method: Falcon.Model#sync
+	#	Used to dynamically place calls to the server in order
+	#	to create, update, destroy, or read this from/to the
+	#	server
 	#
+	# Arguments:
+	#	**type** _(String)_ - The HTTP Method to call to the server with
+	#	**options** _(Object)_ - Optional object of settings to use on this call
+	#
+	# Returns:
+	#	_(Falcon.Model)_ - This instance
 	###
 	sync: (type, options) ->
 		options = {complete:options} if isFunction(options)
@@ -193,15 +213,24 @@ class Falcon.Model extends Falcon.Class
 		type = "GET" unless type in ["GET", "POST", "PUT", "DELETE"]
 
 		data = {}
-		data = JSON.stringify( @serialize() ) if type in ["POST", "PUT"]
-		data = extend( data, options.data ) if isObject(options.data)
+		data = @serialize() if type in ["POST", "PUT"]
+		###
+		if Falcon.isDataObject(options.data)
+			data = extend( data, options.data.serialize() ) 
+		else if isObject(options.data)
+			data = extend( data, options.data ) if isObject(options.data)
+		###
+		json = if isEmpty(data) then "" else JSON.stringify(data)
 
 		url = @makeUrl(type)
+
+		console.log(type, url, data)
+		console.log( JSON.stringify(data) )
 
 		$.ajax(
 			url: url
 			type: type
-			data: data
+			data: json
 			dataType: 'json'
 			error: (xhr) => 
 				response = xhr.responseText
@@ -362,4 +391,15 @@ class Falcon.Model extends Falcon.Class
 
 		return this
 	#END trigger
+
+	###
+	# Method: Falcon.Model#clone
+	# 	Method used to deeply clone this model
+	#
+	# Returns:
+	#	_Falcon.Model_ - A clone of this model
+	###
+	clone: ->
+		return new this.constructor(this.unwrap())
+	#END clone
 #END Falcon.Model

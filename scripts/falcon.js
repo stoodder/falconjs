@@ -15,6 +15,7 @@
   var Falcon, arrayContains, arrayPeek, arrayRemove, arrayUnique, arraysEqual, compact, countSubstrings, defer, delay, endsWith, extend, isArray, isBoolean, isEmpty, isFunction, isNumber, isObject, isString, key, objectKeys, objectValues, objectsEqual, startsWith, trim, trimSlashes, value, _foreach,
     __hasProp = Object.prototype.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; },
+    __indexOf = Array.prototype.indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __slice = Array.prototype.slice;
 
   isObject = function(object) {
@@ -303,13 +304,14 @@
       var field, _i, _len, _ref, _ref2;
       data = ko.utils.unwrapObservable(data);
       parent = ko.utils.unwrapObservable(parent);
-      if (Falcon.isModel(data) && !(parent != null)) {
+      if (!(parent != null) && Falcon.isModel(data)) {
         _ref = [data, parent], parent = _ref[0], data = _ref[1];
       }
+      if (Falcon.isModel(data)) data = data.unwrap();
       this._events = {};
       this.id = ko.observable();
-      this.parent = ko.utils.unwrapObservable(parent);
       if (this.fields === null) this.fields = [];
+      this.parent = parent;
       this.initialize(data);
       this.fill(data);
       _ref2 = this.fields;
@@ -327,27 +329,32 @@
     */
 
     Model.prototype.fill = function(data) {
-      var key, value;
+      var acceptedKeys, key, protoKeys, rejectedKeys, value;
       if (!isObject(data)) return this;
+      protoKeys = objectKeys(Falcon.Model.prototype);
+      acceptedKeys = arrayRemove(objectKeys(this), protoKeys);
+      rejectedKeys = arrayRemove(protoKeys, acceptedKeys);
+      rejectedKeys = arrayRemove(rejectedKeys, "id");
+      rejectedKeys = arrayUnique(rejectedKeys);
       for (key in data) {
         value = data[key];
-        if (!(key in Falcon.Model.prototype)) {
-          if (!(this[key] != null)) {
-            if (!(ko.isObservable(value) || Falcon.isDataObject(value))) {
-              if (isArray(value)) {
-                value = ko.observableArray(value);
-              } else {
-                value = ko.observable(value);
-              }
+        if (!(!(__indexOf.call(rejectedKeys, key) >= 0))) continue;
+        value = ko.utils.unwrapObservable(value);
+        if (!(this[key] != null)) {
+          if (!(ko.isObservable(value) || Falcon.isDataObject(value))) {
+            if (isArray(value)) {
+              value = ko.observableArray(value);
+            } else {
+              value = ko.observable(value);
             }
-            this[key] = value;
-          } else if (Falcon.isDataObject(this[key])) {
-            this[key].fill(value);
-          } else if (ko.isObservable(this[key])) {
-            this[key](value);
-          } else {
-            this[key] = value;
           }
+          this[key] = value;
+        } else if (Falcon.isDataObject(this[key])) {
+          this[key].fill(value);
+        } else if (ko.isObservable(this[key])) {
+          if (ko.isWriteableObservable(this[key])) this[key](value);
+        } else {
+          this[key] = value;
         }
       }
       return this;
@@ -455,11 +462,21 @@
     };
 
     /*
+    	# Method: Falcon.Model#sync
+    	#	Used to dynamically place calls to the server in order
+    	#	to create, update, destroy, or read this from/to the
+    	#	server
     	#
+    	# Arguments:
+    	#	**type** _(String)_ - The HTTP Method to call to the server with
+    	#	**options** _(Object)_ - Optional object of settings to use on this call
+    	#
+    	# Returns:
+    	#	_(Falcon.Model)_ - This instance
     */
 
     Model.prototype.sync = function(type, options) {
-      var data, url,
+      var data, json, url,
         _this = this;
       if (isFunction(options)) {
         options = {
@@ -475,15 +492,21 @@
         type = "GET";
       }
       data = {};
-      if (type === "POST" || type === "PUT") {
-        data = JSON.stringify(this.serialize());
-      }
-      if (isObject(options.data)) data = extend(data, options.data);
+      if (type === "POST" || type === "PUT") data = this.serialize();
+      /*
+      		if Falcon.isDataObject(options.data)
+      			data = extend( data, options.data.serialize() ) 
+      		else if isObject(options.data)
+      			data = extend( data, options.data ) if isObject(options.data)
+      */
+      json = isEmpty(data) ? "" : JSON.stringify(data);
       url = this.makeUrl(type);
+      console.log(type, url, data);
+      console.log(JSON.stringify(data));
       $.ajax({
         url: url,
         type: type,
-        data: data,
+        data: json,
         dataType: 'json',
         error: function(xhr) {
           var response;
@@ -689,6 +712,18 @@
       return this;
     };
 
+    /*
+    	# Method: Falcon.Model#clone
+    	# 	Method used to deeply clone this model
+    	#
+    	# Returns:
+    	#	_Falcon.Model_ - A clone of this model
+    */
+
+    Model.prototype.clone = function() {
+      return new this.constructor(this.unwrap());
+    };
+
     return Model;
 
   })(Falcon.Class);
@@ -864,6 +899,10 @@
 
     Collection.prototype.parent = null;
 
+    /*
+    	#
+    */
+
     Collection._mappings = null;
 
     /*
@@ -881,6 +920,8 @@
     function Collection(models, parent) {
       var _ref,
         _this = this;
+      models = ko.utils.unwrapObservable(models);
+      parent = ko.utils.unwrapObservable(parent);
       if (!(parent != null) && Falcon.isModel(models)) {
         _ref = [models, parent], parent = _ref[0], models = _ref[1];
       }
@@ -983,6 +1024,9 @@
     	# Method: Falcon.Collection#serialize
     	#	Serializes this collection and returns the raw array
     	#	of data
+    	#
+    	# Returns:
+    	#	_Array_ - an array of the serialized raw data to send to the server
     */
 
     Collection.prototype.serialize = function() {
@@ -1076,10 +1120,20 @@
     };
 
     /*
+    	# Method: Falcon.Collection#remove
+    	#	Used to simplu remove elements from the current collection
+    	#	Does not actually delete the data from the server
     	#
+    	# Arguments:
+    	#	**items** _(Array)_ - An array (or an item) to remove from the list
+    	#
+    	# Returns:
+    	#	_(Falcon.Collection)_ - This instance
     */
 
-    Collection.prototype.remove = function(items) {
+    Collection.prototype.remove = function(items, count) {
+      items = ko.utils.unwrapObservable(items);
+      if (Falcon.isCollection(items)) items = items.list();
       if (isArray(items)) {
         this.list.removeAll(items);
       } else {
@@ -1132,6 +1186,7 @@
       }
       if (!isObject(options)) options = {};
       if (!isFunction(options.success)) options.success = (function() {});
+      if (!isString(options.method)) options.method = 'append';
       _success = options.success;
       options.success = function(model) {
         _this.fill(model, options);
@@ -1164,6 +1219,7 @@
       var model, _i, _len, _success,
         _this = this;
       if (this.model == null) return this;
+      models = ko.utils.unwrapObservable(models);
       if (!((models != null) && models !== 'all')) models = this.list();
       if (Falcon.isCollection(models)) models = models.list();
       if (!isArray(models)) models = [models];
@@ -1180,7 +1236,9 @@
       };
       for (_i = 0, _len = models.length; _i < _len; _i++) {
         model = models[_i];
-        if (Falcon.isDataObject(model)) model.destroy(options);
+        if (Falcon.isDataObject(model)) {
+          new this.model(model.unwrap(), this).destroy(options);
+        }
       }
       return this;
     };
@@ -1246,6 +1304,18 @@
       }
       this._mappings.push(_mapping);
       return this;
+    };
+
+    /*
+    	# Method: Falcon.Collection#clone
+    	# 	Method used to deeply clone this colleciton
+    	#
+    	# Returns:
+    	#	_Falcon.Collection_ - A clone of this collection
+    */
+
+    Collection.prototype.clone = function() {
+      return new this.constructor(this.unwrap());
     };
 
     /*
