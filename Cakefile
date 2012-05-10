@@ -22,12 +22,15 @@ compiledFiles = {
 		"coffee/header.coffee"
 		"coffee/utility.coffee"
 		"coffee/falcon.coffee"
+		"coffee/falcon.global.coffee"
 		"coffee/falcon.class.coffee"
 		"coffee/falcon.model.coffee"
 		"coffee/falcon.view.coffee"
 		"coffee/falcon.collection.coffee"
+		"coffee/falcon.event.coffee"
 		"coffee/falcon.ko.bindings.coffee"
 		"coffee/falcon.ko.extenders.coffee"
+		"coffee/falcon.ko.extensions.coffee"
 	]
 
 	"tests/tests.js": [

@@ -4,22 +4,84 @@
 #--------------------------------------------------------
 class Falcon.Model extends Falcon.Class
 
+	#--------------------------------------------------------
+	# Method: Falcon.Model.extend()
+	#	static method used to replicate inhertiance in
+	#	javascript applications.  Used to create a new
+	#	model that inherits from the base Falcon.Model
+	#
+	# Arguments:
+	#	**properties** _(Object)_ -  The new class definition
+	#
+	# Returns:
+	#	_(Object)_ - The new class definition
+	#--------------------------------------------------------
 	@extend = (properties) -> Falcon.Class.extend(Falcon.Model, properties)
 
-	url: null
-	parent: null
-	fields: null #TODO: Make this into an object, array reads to object form
-	_events: null
+	#--------------------------------------------------------
+	# Member: Falcon.Model#id
+	#	This is the serve's id of this model.  This value will be converted
+	#	to an observable (keeping the same value) once this model is 
+	#	instantiated.
+	#--------------------------------------------------------
+	id: null
 
-	###
-	# Method: Falcon.Class()
+	#--------------------------------------------------------
+	# Member: Falcon.Model#url
+	#	This is the top level url for the model.
+	#--------------------------------------------------------
+	url: null
+
+	#--------------------------------------------------------
+	# Member: Falcon.Model#parent
+	#	This represents the 'parent' object that holds this
+	#	model.  Generally this is used for determining the URL
+	#	structure of rest objects in the makeURL() routine.
+	#	This should also be a Model.
+	#
+	# Type: Falcon.Model
+	#--------------------------------------------------------
+	parent: null
+
+	#--------------------------------------------------------
+	# Member: Falcon.Model#fields
+	# 	The fields to transfer to/from the server
+	# 	Takes 2 forms
+	#
+	# Form 1: Array
+	#	A list of array to directly map (1-to-1) model 
+	#	attributes to server attributes
+	#
+	# Form 2: Object
+	# 	A object of mapped fields
+	#	The object's keys are the server attributes
+	#	The object's values are the model attributes
+	#
+	# Type: Array, Object
+	#--------------------------------------------------------
+	fields: null
+
+	#--------------------------------------------------------
+	# Member: Falcon.Model#loading
+	#	Flag indicating if this model is in a loading state
+	#	(if any ajax request is currently executing). Will
+	#	be converted to an observable on construction
+	#
+	# Type: Boolean
+	#--------------------------------------------------------
+	loading: false
+
+	#--------------------------------------------------------
+	# Method: Falcon.Model()
 	#	The constructor for a model
 	#
 	# Arguments:
 	#	**data** _(object)_ - The initial data to load in
 	#	**parent** _(mixed)_ - The parent object of this one
-	###
+	#--------------------------------------------------------
 	constructor: (data, parent) ->
+		super()
+		
 		data = ko.utils.unwrapObservable( data )
 		parent = ko.utils.unwrapObservable( parent )
 
@@ -27,26 +89,46 @@ class Falcon.Model extends Falcon.Class
 
 		data = data.unwrap() if Falcon.isModel(data)
 
-		@_events = {}
-		@id = ko.observable()
-		@fields = [] if @fields is null
+		@id = ko.observable( ko.utils.unwrapObservable(@id) )
+		@loading = ko.observable( ko.utils.unwrapObservable( @loading ) )
+		@fields = {} if @fields is null
 		@parent = parent
 
 		@initialize(data)
 		@fill(data)
 
 		#Lastly make sure that any of the fields that should exist, do
-		this[field] = ko.observable() for field in @fields when not this[field] and isString(field)
+		this[model_field] = ko.observable() for field, model_field of @fields when not this[model_field] and isString(model_field)
 	#END constructor
 
-	initialize: (->)
+	#--------------------------------------------------------
+	# Method: Falcon.Model#initialize()
+	#	The psuedo-constructor of the model.  Useful for ensuring that
+	#	the base constructor is called (in the correct spot) without 
+	#	having to explicitly call the native Model constructor
+	#
+	# Arguments:
+	#	**data** _(object)_ - The initial data to load in
+	#--------------------------------------------------------
+	initialize: (data) ->
+	#END initialize
 
-	###
-	# Method: Falcon.Model#fill
+	#--------------------------------------------------------
+	# Method: Falcon.Model#fill()
 	#	Method used to 'fill in' and add data to this model
-	###
-	fill: (data) ->
-		return this unless isObject(data)
+	#--------------------------------------------------------
+	fill: (_data) ->
+		return this unless isObject(_data)
+		_data = _data.unwrap() if Falcon.isModel(_data)
+		data = {}
+
+		#if the fields is an object, map the data
+		if isObject(@fields) and not isEmpty(@fields)
+			data[ @fields[key] ? key ] = value for key, value of _data
+		#Otherwise just directly map it
+		else
+			data = _data
+		#END if
 
 		protoKeys = objectKeys(Falcon.Model.prototype)
 		acceptedKeys = arrayRemove( objectKeys(this), protoKeys )
@@ -77,15 +159,15 @@ class Falcon.Model extends Falcon.Class
 		return this
 	#END fill
 
-	###
-	# Method: Falcon.Model#unwrap
+	#--------------------------------------------------------
+	# Method: Falcon.Model#unwrap()
 	#	Method used to 'unwrap' this object into an anonmous object
 	#	Needed to cascade inwards on other Falcon Data objects (like lists)
 	#	to unwrap newly added member variables/objects
 	#
 	# Returns
-	#	_Object_ - The 'unwrapped' object
-	###
+	#	_(Object)_ - The 'unwrapped' object
+	#--------------------------------------------------------
 	unwrap: () ->
 		raw = {}
 
@@ -97,53 +179,79 @@ class Falcon.Model extends Falcon.Class
 		for key in keys
 			value = this[key]
 			raw[key] = if Falcon.isDataObject(value) then value.unwrap() else value
-		#END fors
+		#END for
 
 		return raw
 	#END unwrap
 
-	###
-	# Method: Falon.Model#serialize
+	#--------------------------------------------------------
+	# Method: Falon.Model#serialize()
 	#	Serializes the data into a raw json object and only corresponds to the fields
 	#	that are primitive and that we wish to be able to send back to the server
-	###
+	#
+	# Returns:
+	#	_(Object)_ - The resultant 'raw' object to send to the server
+	#--------------------------------------------------------
 	serialize: ->
 		raw = {}
 
-		if isArray(@fields) and @fields.length > 0
-			keys = @fields
+		server_keys = []
+		model_keys = []
+
+		# Get the keys and mapped keys
+		# Mapped keys are the local attributes
+		# Keys are the server's attributes
+		if isArray(@fields) and not isEmpty(@fields)
+			for field in @fields
+				server_keys[server_keys.length] = field
+				model_keys[model_keys.length] = field
+			#END for
+
+		else if isObject(@fields) and not isEmpty(@fields)
+			for server_field, model_field of @fields
+				server_keys[server_keys.length] = server_field
+				model_keys[model_keys.length] = if model_field of this then model_field else server_field
+			#END for
+
 		else
-			keys = arrayRemove( objectKeys(this), objectKeys(Falcon.Model.prototype) )
+			server_keys = model_keys = arrayRemove( objectKeys(this), objectKeys(Falcon.Model.prototype) )
 		#END if
 
-		keys[keys.length] = "id"
-		keys = arrayUnique( keys )
+		#Make sure we pull in the id
+		server_keys.push("id")
+		server_keys = arrayUnique( server_keys )
 
-		for key in keys
-			value = this[key]
+		model_keys.push("id")
+		model_keys = arrayUnique( model_keys )
+
+		for index, model_key of model_keys
+			server_key = server_keys[index]
+			value = this[model_key]
+
 			if Falcon.isDataObject(value)
-				raw[key] =  value.serialize() 
+				raw[server_key] =  value.serialize() 
 			else if ko.isObservable(value)
-				raw[key] = ko.utils.unwrapObservable( value )
+				raw[server_key] = ko.utils.unwrapObservable( value )
 			else if not isFunction(value)
-				raw[key] = value
+				raw[server_key] = value
+			#END if
 		#END for
 
 		return raw
 	#END serialize
 		
-	###
-	# Method: Falcon.Model#makeURL
+	#--------------------------------------------------------
+	# Method: Falcon.Model#makeURL()
 	#	generates a URL based on this model's url, the parent model of this model, 
-	#	the type of request we're making and Falcon's defined baseModel
+	#	the type of request we're making and Falcon's defined baseApiUrl
 	#
 	# Arguments:
 	#	**type** _(string)_ - The type of request we're making (GET, POST, PUT, DELETE)
 	#
 	# Returns:
 	#	_String_ - The generated URL
-	###
-	makeUrl: (type) ->
+	#--------------------------------------------------------
+	makeUrl: (type, parent) ->
 		url = if isFunction(@url) then @url() else @url
 		url = "" unless isString(url)
 		url = trim(url)
@@ -151,6 +259,8 @@ class Falcon.Model extends Falcon.Class
 		type = "" unless isString(type)
 		type = type.toUpperCase()
 		type = 'GET' unless type in ['GET', 'PUT', 'POST', 'DELETE']
+
+		parent = if Falcon.isModel(parent) then parent else @parent
 
 		ext = ""
 		periodIndex = url.lastIndexOf(".")
@@ -165,8 +275,8 @@ class Falcon.Model extends Falcon.Class
 		url = "/#{url}" unless startsWith(url, "/")
 
 		#Check if a parent model is present
-		if Falcon.isModel(@parent)
-			parentUrl = @parent.makeUrl()
+		if Falcon.isModel(parent)
+			parentUrl = parent.makeUrl()
 			parentPeriodIndex = parentUrl.lastIndexOf(".")
 			parentUrl = parentUrl.slice(0, parentPeriodIndex) if parentPeriodIndex > -1
 			parentUrl = trim(parentUrl)
@@ -189,8 +299,8 @@ class Falcon.Model extends Falcon.Class
 		return "#{url}#{ext}"
 	#END makeUrl
 
-	###
-	# Method: Falcon.Model#sync
+	#--------------------------------------------------------
+	# Method: Falcon.Model#sync()
 	#	Used to dynamically place calls to the server in order
 	#	to create, update, destroy, or read this from/to the
 	#	server
@@ -201,84 +311,146 @@ class Falcon.Model extends Falcon.Class
 	#
 	# Returns:
 	#	_(Falcon.Model)_ - This instance
-	###
+	#--------------------------------------------------------
 	sync: (type, options) ->
-		options = {complete:options} if isFunction(options)
+		options = {complete: options} if isFunction(options)
 		options = {} unless isObject(options)
+		options.data = {} unless isObject(options.data)
+		options.dataType = "json" unless isString(options.dataType)
+		options.contentType = "application/json" unless isString(options.contentType)
 		options.success = (->) unless isFunction(options.success)
-		options.error = (->) unless isFunction(options.error)
 		options.complete = (->) unless isFunction(options.complete)
+		options.error = (->) unless isFunction(options.error)
+		options.parent = @parent unless Falcon.isModel(options.parent)
 
 		type = trim( if isString(type) then type.toUpperCase() else "GET" )
 		type = "GET" unless type in ["GET", "POST", "PUT", "DELETE"]
 
 		data = {}
-		data = @serialize() if type in ["POST", "PUT"]
-		###
-		if Falcon.isDataObject(options.data)
-			data = extend( data, options.data.serialize() ) 
-		else if isObject(options.data)
-			data = extend( data, options.data ) if isObject(options.data)
-		###
+		unless isEmpty(options.data)
+			data[key] = value for key, value of options.data
+		#END unless
+		data = extend(data, @serialize()) if type in ["POST", "PUT"]
+
+		#serialize the data to json
 		json = if isEmpty(data) then "" else JSON.stringify(data)
 
-		url = @makeUrl(type)
+		url = @makeUrl(type, options.parent)
 
-		console.log(type, url, data)
-		console.log( JSON.stringify(data) )
+		@loading(true)
 
-		$.ajax(
-			url: url
-			type: type
-			data: json
-			dataType: 'json'
-			error: (xhr) => 
+		$.ajax
+			'url': url
+			'type': type
+			'data': json
+			'dataType': options.dataType
+			'contentType': options.contentType
+
+			'success': (data) => 
+				@fill(data) 
+				switch type
+					when "GET" then @trigger("fetch", data)
+					when "POST" then @trigger("create", data)
+					when "PUT" then @trigger("save", data)
+					when "DELETE" then @trigger("destroy", data)
+				#END switch
+
+				options.success.call(this, this, arguments...)
+			#END success
+
+			'error': (xhr) => 
 				response = xhr.responseText
 				try
 					response = JSON.parse(response) if isString(response)
 				catch e
 
 				options.error.call(this, this, response, xhr)
-			success: (data) => 
-				@fill(data)
+			#END error
 
-				switch type
-					when "GET" then @trigger("fetch")
-					when "POST" then @trigger("create")
-					when "PUT" then @trigger("save")
-					when "DELETE" then @trigger("destroy")
-
-				options.success.call(this, this, arguments...)
-
-			complete: => 
+			'complete': => 
+				@loading(false)
 				options.complete.call(this, this, arguments...)
-		)
+			#END complete
+		#END $.ajax
 
 		return this
+	#END sync
 
-	###
+	#--------------------------------------------------------
+	# Method: Falcon.Model#fetch()
+	#	Calls the sync method with 'GET' as the default type
+	#	server. Get's this model's server data.
 	#
-	###
-	fetch: (options) -> @sync('GET', options)
+	# Arguments:
+	#	**options** _(Object)_ - Optional object of settings to use on this call
+	#
+	# Returns:
+	#	_(Falcon.Model)_ - This instance
+	#--------------------------------------------------------
+	fetch: (options) -> 
+		return @sync('GET', options)
+	#END fetch
 
-	###
+	#--------------------------------------------------------
+	# Method: Falcon.Model#create()
+	#	Calls the sync method with 'POST' as the default type
+	#	server. Creates a new version of this model.
 	#
-	###
-	create: (options) -> @sync('POST', options)
+	# Arguments:
+	#	**options** _(Object)_ - Optional object of settings to use on this call
+	#
+	# Returns:
+	#	_(Falcon.Model)_ - This instance
+	#--------------------------------------------------------
+	create: (options) -> 
+		return @sync('POST', options)
+	#END create
 
-	###
+	#--------------------------------------------------------
+	# Method: Falcon.Model#save()
+	#	Calls the sync method with 'PUT' as the default type
+	#	server. Saves this model to the server.
 	#
-	###
-	save: (options) -> @sync('PUT', options)
+	# Arguments:
+	#	**options** _(Object)_ - Optional object of settings to use on this call
+	#
+	# Returns:
+	#	_(Falcon.Model)_ - This instance
+	#--------------------------------------------------------
+	save: (options) -> 
+		return @sync('PUT', options)
+	#END save
 
-	###
+	#--------------------------------------------------------
+	# Method: Falcon.Model#destroy()
+	#	Calls the sync method with 'DELETE' as the default type
+	#	server.  Deletes this model from the server.
 	#
-	###
-	destroy: (options) -> @sync('DELETE', options)
+	# Arguments:
+	#	**options** _(Object)_ - Optional object of settings to use on this call
+	#
+	# Returns:
+	#	_(Falcon.Model)_ - This instance
+	#--------------------------------------------------------
+	destroy: (options) -> 
+		return @sync('DELETE', options)
+	#END destroy
 
-	###
+	#--------------------------------------------------------
+	# Method: Falcon.Model#map()
+	#	Maps extra atributes and methods onto this model for use
+	#	later, mostly in Falcon views. Will ensure that any method
+	#	that is not a knockout observable will be called in the
+	#	context of this model as well as pass this model in as
+	#	the first argument, pushing the other arguments down the
+	#	list.
+	# 
+	# Arguments:
+	#	**mapping** _(Object)_ - The mapping to augment this model with
 	#
-	###
+	# Returns:
+	#	_(Falcon.Model)_ - This model
+	#--------------------------------------------------------
 	map: (mapping) ->
 
 		mapping = {} unless isObject(mapping)
@@ -292,114 +464,26 @@ class Falcon.Model extends Falcon.Class
 				else if isFunction(value)
 					do =>
 						_value = value
-						this[key] = () => 
-							_value.call(this, this) 
+						this[key] = (args...) => 
+							_value.call(this, this, args...) 
 				else
 					this[key] = value 
 
 		return this
 	#END map
-		
-	###
-	# Method: Falcon.Model#on()
-	#	Adds an event listener to a specific event
-	#
-	# Arguments:
-	#	**event** _(string)_ - The event to listen tpo
-	#	**action** _(function)_ - The callback function to attach to this event
-	#	**context** _(mixed)_ - The context to apply to the callback. Defaults to this model
-	#
-	# Returns:
-	#	_(Falcon.Model)_ - This instance
-	###
-	on: (event, action, context) ->
-		return this unless isString(event) and isFunction(action)
 
-		context ?= this
-		event = trim(event).toLowerCase()
-
-		return this if isEmpty(event)
-
-		( @_events[event] ?= [] ).push({action, context})
-
-		return this
-	#END on
-
-	###
-	# Method: Falcon.Model#off()
-	#	Removes an event listener from an event
-	#
-	# Arguments:
-	#	**event** _(string)_ - The event to remove from
-	#	**action** _(function)_ - The event handler to remove
-	#
-	# Returns:
-	#	_(Flacon.Model)_ - This instance
-	###
-	off: (event, action) ->
-		return this unless isString(event) and isFunction(action)
-
-		event = trim(event).toLowerCase()
-
-		return this if isEmpty(event) or not @_events[event]?
-
-		@_events[event] = ( evt for evt in @_events[event] when evt.action isnt action )
-
-		return this
-	#END off
-
-	###
-	# Method: Falcon.Model#has
-	#	Method used to see if this model has a specific event attached
-	#
-	# Arguments:
-	#	**event** _(string)_ - The event to look at
-	#	**action** _(function)_ - The event handler to look for
-	#
-	# Returns:
-	#	_(boolean)_ - Did we find the event?
-	###
-	has: (event, action) ->
-		return false unless isString(event) and isFunction(action)
-
-		event = trim(event).toLowerCase()
-
-		return false if isEmpty(event) or not @_events[event]?
-
-		return true for evt in @_events[event] when evt.action is action
-
-		return false
-	#END has
-		
-	###
-	# Method: Falcon.Model#trigger()
-	#	Used to trigger a specific event
-	#
-	# Arguments:
-	#	**event** _(string)_ - The event to trigger
-	#
-	# Returns:
-	#	_(Falcon.Model)_ - This instance
-	###
-	trigger: (event) ->
-		return this unless isString(event)
-		event = trim(event).toLowerCase()
-
-		return this if isEmpty(event) or not @_events[event]?
-
-		evt.action.call(evt.context, this) for evt in @_events[event]
-
-		return this
-	#END trigger
-
-	###
-	# Method: Falcon.Model#clone
+	#--------------------------------------------------------
+	# Method: Falcon.Model#clone()
 	# 	Method used to deeply clone this model
+	#
+	# Arguments:
+	#	**parent** _(Falcon.Model)_ - The parent of the clone. optional
 	#
 	# Returns:
 	#	_Falcon.Model_ - A clone of this model
-	###
-	clone: ->
-		return new this.constructor(this.unwrap())
+	#--------------------------------------------------------
+	clone: (parent) ->
+		parent = if parent is null or Falcon.isModel(parent) then parent else @parent
+		return new this.constructor(this.unwrap(), parent )
 	#END clone
 #END Falcon.Model

@@ -2,6 +2,15 @@
 # Class: Falcon.Collection
 #------------------------------------------------------------------
 class Falcon.Collection extends Falcon.Class
+	###
+	#
+	###
+	_mappings: null
+
+	###
+	#
+	###
+	@extend = (definition) -> Falcon.Class.extend(Falcon.Collection, definition)
 
 	###
 	#
@@ -16,32 +25,47 @@ class Falcon.Collection extends Falcon.Class
 	###
 	#
 	###
+	__change_count__: 0
+
+	#--------------------------------------------------------
+	# Member: Falcon.Collection#url
+	#	This is the top level url for the collection.
+	#
+	# Type: _(String)_
+	#--------------------------------------------------------
 	url: null
 
-	###
+	#--------------------------------------------------------
+	# Member: Falcon.Collection#length
+	#	The number of elements in this collection.  Will be 
+	#	converted into an observable on construction
 	#
-	###
+	# Type: _(Number)_
+	#--------------------------------------------------------
 	length: 0
 
-	###
+	#--------------------------------------------------------
+	# Member: Falcon.Collection#parent
+	#	This represents the 'parent' object that holds these
+	#	models.  Generally this is used for determining the URL
+	#	structure of rest objects in the makeURL() routine.
+	#	This should also be a Model.
 	#
-	###
+	# Type: _(Falcon.Model)_
+	#--------------------------------------------------------
 	parent: null
 
 	###
 	#
 	###
-	@_mappings: null
-
-	###
-	#
-	###
-	@extend = (definition) -> Falcon.Class.extend(Falcon.Collection, definition)
+	loading: false
 
 	###
 	#
 	###
 	constructor: (models, parent) ->
+		super()
+		
 		models = ko.utils.unwrapObservable(models)
 		parent = ko.utils.unwrapObservable(parent)
 
@@ -50,6 +74,7 @@ class Falcon.Collection extends Falcon.Class
 		@url ?= @model::url if @model?
 		@parent = parent
 		@length = ko.observable( ko.utils.unwrapObservable( @length ) )
+		@loading = ko.observable( ko.utils.unwrapObservable( @loading ) )
 		@populated = ko.computed => ( @length() > 0 )
 
 		@_mappings = []
@@ -63,7 +88,7 @@ class Falcon.Collection extends Falcon.Class
 	initialize: (->)
 
 	###
-	# Method: Falcon.Collection#fill
+	# Method: Falcon.Collection#fill()
 	#	'fills' this collection with new data
 	#
 	# Arguments:
@@ -79,6 +104,7 @@ class Falcon.Collection extends Falcon.Class
 		items = items.list() if Falcon.isCollection(items)
 		items = ko.utils.unwrapObservable(items) if ko.isObservable(items)
 		items = [items] unless isArray(items)
+		models = []
 		
 		options ?= {}
 		options = {} unless isObject(options)
@@ -88,22 +114,29 @@ class Falcon.Collection extends Falcon.Class
 		method = method.toLowerCase()
 		method = 'replace' unless method in ['replace', 'append', 'prepend']
 
-		#Make sure each of the items is a model
-		for i, m of items when not ( m instanceof @model )
-			items[i] = new @model(m, @parent) 
+		#Increment the change count
+		@__change_count__++
 
-		#Push our mappings onto the items
-		for item in items when Falcon.isDataObject( item )
-			item.map(mapping) for mapping in @_mappings
+		#Make a clone of each item and ensure that they're models
+		for i, m of items
+			models[i] = new @model({}, @parent)
+			models[i].map(mapping) for mapping in @_mappings
+			models[i].fill( if Falcon.isModel(m) then m.serialize() else m )
+		#END for
 
-		#Determine how we should proceed adding items to the list
+		#Determine how we should proceed adding models to the list
 		if method is 'replace'
-			@reset().list(items)
+			@list(models)
 		else if method is 'prepend'
-			@list.unshift(items.pop()) while items.length > 0
+			list = (item for item in @list())
+			list.unshift(models.pop()) while models.length > 0
+			@list(list)
 		else if method is 'append'
-			@list.push(items.shift()) while items.length > 0
-		
+			list = @list()
+			list = (item for item in list)
+			list.push(models.shift()) while models.length > 0
+			@list(list)
+
 		#Update the length
 		@length( @list().length )
 
@@ -111,12 +144,12 @@ class Falcon.Collection extends Falcon.Class
 	#END fill
 
 	###
-	# Method: Falcon.Collection#unwrap
+	# Method: Falcon.Collection#unwrap()
 	#	Method used to 'unwrap' this object into an anonmous object
 	#	Needed to cascade inwards on other Falcon Data objects (like lists)
 	#	to unwrap newly added member variables/objects
 	#
-	# Returns
+	# Returns:
 	#	_Array_ - The 'unwrapped' array
 	###
 	unwrap: () ->
@@ -127,7 +160,7 @@ class Falcon.Collection extends Falcon.Class
 	#END unwrap
 
 	###
-	# Method: Falcon.Collection#serialize
+	# Method: Falcon.Collection#serialize()
 	#	Serializes this collection and returns the raw array
 	#	of data
 	#
@@ -178,7 +211,9 @@ class Falcon.Collection extends Falcon.Class
 	###
 	#
 	###
-	fetch: (options) -> @sync('GET', options)
+	fetch: (options) -> 
+		@sync('GET', options)
+	#END fetch
 
 	###
 	#
@@ -188,35 +223,65 @@ class Falcon.Collection extends Falcon.Class
 
 		options = {} unless isObject(options)
 		options.data = {} unless isObject(options.data)
+		options.dataType = "json" unless isString(options.dataType)
+		options.contentType = "application/json" unless isString(options.contentType)
 		options.success = (->) unless isFunction(options.success)
+		options.complete = (->) unless isFunction(options.complete)
 		options.error = (->) unless isFunction(options.error)
 
 		type = if isString(type) then type.toUpperCase() else "GET"
 		type = "GET" unless type in ["GET", "POST", "PUT", "DELETE"]
 		type = trim(type)
 
-		data = options.data ? {}
+		data = {}
+		unless isEmpty(options.data)
+			data[key] = value for key, value of options.data
+		#END unless
 
-		url = @makeUrl(type)
+		url = trim(@makeUrl(type))
 
 		return unless url? and isString(url)
 
-		$.ajax(
-			url: trim(url)
-			type: type
-			data: data
-			dataType: 'json'
-			success: (args...) =>
-				data = args[0] ? {}
+		@loading(true)
+
+		_complete = options.complete
+		_error = options.error
+		_success = options.success
+
+		$.ajax
+			'url': url
+			'type': type
+			'data': data
+			'dataType': options.dataType
+			'contentType': options.contentType
+
+			'success': (data, status, xhr) =>
+				data ?= []
 				data = JSON.parse( data ) if isString(data)
+				data = JSON.parse( xhr.responseText ) if isEmpty(data)
 
 				@fill(data, options) if type is "GET"
 
-				options.success(args...)
-			error: options.error
-		)
+				_success.call(this, this, arguments...)
+			#END success
+
+			'error': (xhr) => 
+				response = xhr.responseText
+				try
+					response = JSON.parse(response) if isString(response)
+				catch e
+
+				_error.call(this, this, response, xhr)
+			#END error
+
+			'complete': =>
+				@loading(false)
+				_complete.call(this, this, arguments...)
+			#END complete
+		#END $.ajax
 
 		return this
+	#END sync
 
 	###
 	# Method: Falcon.Collection#remove
@@ -229,12 +294,15 @@ class Falcon.Collection extends Falcon.Class
 	# Returns:
 	#	_(Falcon.Collection)_ - This instance
 	###
-	remove: (items, count) ->
+	remove: (items) ->
 		items = ko.utils.unwrapObservable( items )
 		items = items.list() if Falcon.isCollection( items )
-		if isArray(items) then @list.removeAll(items) else @list.remove(items)
+		@__change_count__++
+		removedItems = if isArray(items) then @list.removeAll(items) else @list.remove(items)
 
-		@length( @list().length )
+		unless isEmpty(removedItems)
+			@length( @list().length )
+		#END unless
 
 		return this
 	#END remove
@@ -250,18 +318,28 @@ class Falcon.Collection extends Falcon.Class
 	prepend: (items) -> @fill(items, {'method': 'prepend'})
 
 	###
+	# Method: Falcon.Collection#pop
+	#	Pops the last element from the list and returns it
+	###
+	pop: ->
+		item = @list.pop()
+		@length( @list().length )
+		return item
+	#END pop
+
+	###
 	# Method: Falcon.Collection#create
 	#	Creates a new model and adds it to the list of eisting models, 
 	#	also sends off a corresponding ajax request
 	#
 	# Returns:
 	#	_XmlHttpRequest_ - The XHR object that corresponds to this create instance
-	#
-	# TODO:
-	#	Re-evaluate this to work more like the 'destroy' method
 	###
 	create: (data, options) ->
 		return unless @model?
+		
+		data = data.unwrap() if Falcon.isModel(data)
+		data = {} unless isObject(data)
 		
 		options = {success:options} if isFunction(options)
 		options = {} unless isObject(options)
@@ -304,10 +382,10 @@ class Falcon.Collection extends Falcon.Class
 		models = [models] unless isArray(models)
 
 		return this if isEmpty(models)
-
-		options = {success:options} is isFunction(options)
+		options = {success:options} if isFunction(options)
 		options = {} unless isObject(options)
 		options.success = (->) unless isFunction(options.success)
+		options.parent = @parent
 
 		_success = options.success
 		options.success = (model) =>
@@ -315,7 +393,8 @@ class Falcon.Collection extends Falcon.Class
 			_success.apply(model, arguments)
 
 		for model in models when Falcon.isDataObject(model)
-			new @model(model.unwrap(), this).destroy(options)
+			model.destroy(options)
+		#END for
 
 		return this
 	#END destory
@@ -336,22 +415,81 @@ class Falcon.Collection extends Falcon.Class
 	###
 	#
 	###
-	first: () ->
-		return @list()[0]
+	first: (iterator) ->
+		iterator = ( -> true ) unless isFunction(iterator)
+
+		for item in @list()
+			return item if iterator( item )
+		#END for
+
+		return null
 	#END first
 
 	###
 	#
 	###
-	last: () ->
-		return @list()[@length-1]
+	last: (iterator) ->
+		iterator = ( -> true ) unless isFunction(iterator)
+
+		list = @list()
+		for i, item of list
+			item = list[list.length - i - 1]
+			return item if iterator( item )
+		#END for
+
+		return null
 	#END last
 
 	###
+	# Method: Falcon.Collection#all
+	#	Gets a list of all elements that match the iterator, if one is given
 	#
+	# Arguments:
+	#	**iterator** _(Function)_ - The iterator to check if this item belongs in the response list
+	#
+	# Returns:
+	#	_(Array)_ - An array of all the matched items
+	###
+	all: (iterator) ->
+		iterator = ( -> true ) unless isFunction(iterator)
+		return ( item for item in @list() when iterator(item) )
+	#END first
+
+	###
+	# Method: Falcon.Collection#any
+	#	Checks to see if any of the values match the iterator in this list
+	###
+	any: (iterator) ->
+		if Falcon.isModel( iterator )
+			_model = iterator
+			iterator = (item) ->
+				return false unless Falcon.isModel(item)
+				return ( item.id() is _model.id() )
+			#END itertaor assignment
+		#END if
+
+		return false unless isFunction(iterator)
+
+		for item in @list()
+			return true if iterator( item )
+		#END for
+
+		return false
+	#END any
+
+	###
+	# Method: Falcon.Collection#map
+	#	Adds a mapping to all of the models in the current list and any future models that are added.
+	#	Mappings are added onto a stack of mappings.  When the list changes, all of the mappings will
+	#	be re-executed.
+	#
+	# Arguments:
+	#	**mapping** _(object)_ - The mapping to apply and save
+	#
+	# Returns:
+	#	_(Falcon.Collection)_ - This instance
 	###
 	map: (mapping) ->
-
 		mapping = {} unless isObject(mapping)
 		_mapping = {}
 
@@ -377,11 +515,15 @@ class Falcon.Collection extends Falcon.Class
 	# Method: Falcon.Collection#clone
 	# 	Method used to deeply clone this colleciton
 	#
+	# Arguments:
+	#	**parent** _(Falcon.Model)_ - The parent of the clone. optional
+	#
 	# Returns:
 	#	_Falcon.Collection_ - A clone of this collection
 	###
-	clone: ->
-		return new this.constructor(this.unwrap())
+	clone: (parent) ->
+		parent = if parent is null or Falcon.isModel(parent) then parent else @parent
+		return new this.constructor(this.unwrap(), parent )
 	#END clone
 
 	###
@@ -396,7 +538,8 @@ class Falcon.Collection extends Falcon.Class
 	reset: () -> 
 		@list = ko.observableArray([]) unless @list?
 		@list([])
-		@length( @list().length )
+		@length(0)
+		@__change_count__ += 1
 		return this
 	#END reset
 #END Falcon.Collection
