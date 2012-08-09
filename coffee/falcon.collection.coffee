@@ -164,13 +164,23 @@ class Falcon.Collection extends Falcon.Class
 	#	Serializes this collection and returns the raw array
 	#	of data
 	#
+	# Arguments:
+	#	**fields** _(Araay)_ -	The fields that should be included in the 
+	#	                      	serialization "id" is always included. If 
+	#	                      	none given, all fields from this models 'fields' 
+	#	                      	member are serialized
+	#
+	#	**deep** _(Boolean)_ -	should we do a deep copy? In otherwords, should 
+	#	                      	we cascade downwards to serialize data about 
+	#	                      	children models.
+	#
 	# Returns:
 	#	_Array_ - an array of the serialized raw data to send to the server
 	###
-	serialize: () ->
+	serialize: (fields, deep) ->
 		raw = []
 		for i, value of @list()
-			raw[i] = if Falcon.isDataObject(value) then value.serialize() else value
+			raw[i] = if Falcon.isDataObject(value) then value.serialize(fields, deep) else value
 		return raw
 	#END serialize
 
@@ -238,7 +248,7 @@ class Falcon.Collection extends Falcon.Class
 			data[key] = value for key, value of options.data
 		#END unless
 
-		url = trim(@makeUrl(type))
+		url = options.url ? trim(@makeUrl(type))
 
 		return unless url? and isString(url)
 
@@ -254,6 +264,7 @@ class Falcon.Collection extends Falcon.Class
 			'data': data
 			'dataType': options.dataType
 			'contentType': options.contentType
+			'cache': Falcon.cache
 
 			'success': (data, status, xhr) =>
 				data ?= []
@@ -439,6 +450,26 @@ class Falcon.Collection extends Falcon.Class
 
 		return null
 	#END last
+
+	###
+	# Method: Falcon.Collection#slice
+	#	Slices the underlying collection the same way slice works on an array
+	#
+	# Arguments:
+	#	**start** _(Number)_ - Required. An integer that specifies where to start 
+	#						   the selection (The first element has an index of 0). 
+	#						   Use negative numbers to select from the end of an array.
+	#	**end** _(Number)_ - Optional. An integer that specifies where to end the selection. 
+	#						 If omitted, all elements from the start position and to the 
+	#						 end of the array will be selected. Use negative numbers to 
+	#						 select from the end of an array
+	#
+	# Returns:
+	#	_(Array)_ - The sliced array of models from the underlying array in this collection
+	###
+	slice: (start, end) ->
+		return @list.slice( start, end )
+	#END slice
 
 	###
 	# Method: Falcon.Collection#all

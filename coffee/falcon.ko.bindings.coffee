@@ -33,7 +33,6 @@ ko.bindingHandlers['view'] = do ->
 	makeTemplateValueAccessor = (viewModel) ->
 		return ->
 			return {
-				'if': viewModel
 				'data': viewModel
 				'templateEngine': ko.nativeTemplateEngine.instance
 			}
@@ -60,12 +59,16 @@ ko.bindingHandlers['view'] = do ->
 		return template
 	#END getTemplate
 
+	returnVal = { controlsDescendantBindings: true }
+
 	return {
 		'init': (element, valueAccessor, allBindingsAccessor, viewModel, context) ->
 			value = valueAccessor()
 			value = ko.utils.unwrapObservable(value)
 			viewModel = getViewModel(value)
-
+			
+			value.template( $(element).html() ) if value instanceof Falcon.View and not value.url
+				
 			ko.bindingHandlers['template']['init'](
 				element,
 				makeTemplateValueAccessor(viewModel),
@@ -74,30 +77,29 @@ ko.bindingHandlers['view'] = do ->
 				context
 			)
 
-			return { controlsDescendantBindings: true }
+			return returnVal
 		#END init
 
 		'update': (element, valueAccessor, allBindingsAccessor, viewModel, context) ->
 			value = valueAccessor()
 			value = ko.utils.unwrapObservable(value)
-			context['$view'] = value
 			viewModel = getViewModel(value)
 			template = getTemplate(value)
 
-			return unless isObject( value )
+			return returnVal unless isObject( value )
 
-			return if ko.utils.domData.get(element, '__falcon_view_updating__') is true
-			ko.utils.domData.set(element, '__falcon_view_updating__', true)
+			#Store the original view context to revert later, otherwise syncing issues occur
+			originalViewContext = context['$view']
 
-			execScripts = !!ko.utils.unwrapObservable(value.execScripts)
+			#Setup the new view context
+			context['$view'] = viewModel
 
-			if not template?
-				$(element).html("")
-			else if isEmpty(viewModel)
-				$(element).html("")
-			else
+			if isEmpty( viewModel ) or not template?
+				$(element).html(" ")
+			if not (value instanceof Falcon.View) or value.isLoaded()
 				anonymousTemplate = ko.utils.domData.get(element, '__ko_anon_template__')
 				anonymousTemplate.containerData.innerHTML = template
+				anonymousTemplate.textData = template if ($.browser.msie and $.browser.version < 9)
 
 				ko.bindingHandlers['template']['update'](
 					element,
@@ -106,7 +108,9 @@ ko.bindingHandlers['view'] = do ->
 					viewModel, 
 					context
 				)
+				#END evaluateTemplate
 
+				execScripts = !!ko.utils.unwrapObservable(value.execScripts)
 				if template isnt anonymousTemplate and execScripts is true
 					$(element).find("script").each( (index, script) ->
 						script = $(script)
@@ -114,10 +118,11 @@ ko.bindingHandlers['view'] = do ->
 					)
 				#END if template updated
 			#END if not template?
-			
-			ko.utils.domData.set(element, '__falcon_view_updating__', false)
 
-			return { controlsDescendantBindings: true }
+			#Revert this back to the parent view (so we keep the correct context)
+			context['$view'] = originalViewContext
+
+			return returnVal
 		#END update
 	} #END return
 #END view binding handler

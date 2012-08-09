@@ -1,9 +1,26 @@
 Falcon =
 	version: "{{VERSION}}"
 	baseApiUrl: ""
+	baseTemplateUrl: ""
+	cache: true
 
-	apply: (view) -> 
+	apply: (view, callback) -> 
 		$ ->
+			$('template').each (index, template) ->
+				template = $(template)
+				identifier = template.attr("id")
+				Falcon.View.cacheTemplate( "#" + identifier, template.html() ) if identifier?
+				template.remove()
+			#END each template
+
+			if isFunction( callback )
+				if view instanceof Falcon.View
+					Falcon.View.on("init", callback) 
+				else
+					callback()
+				#END if
+			#END if
+
 			$('body').attr('data-bind', 'view: $data')
 			ko.applyBindings(view)
 	#END apply

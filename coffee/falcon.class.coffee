@@ -79,7 +79,7 @@ class Falcon.Class
 	#	**action** _(function)_ - The event handler to remove
 	#
 	# Returns:
-	#	_(Flacon.Model)_ - This instance
+	#	_(Falcon.Model)_ - This instance
 	###
 	off: (event, action) ->
 		return this unless isString(event) and isFunction(action)

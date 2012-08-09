@@ -98,7 +98,7 @@ class Falcon.Model extends Falcon.Class
 		@fill(data)
 
 		#Lastly make sure that any of the fields that should exist, do
-		this[model_field] = ko.observable() for field, model_field of @fields when not this[model_field] and isString(model_field)
+		this[model_field] = null for field, model_field of @fields when not this[model_field] and isString(model_field)
 	#END constructor
 
 	#--------------------------------------------------------
@@ -138,16 +138,7 @@ class Falcon.Model extends Falcon.Class
 
 		for key, value of data when not (key in rejectedKeys)
 			value = ko.utils.unwrapObservable( value )
-			if not this[key]?
-				unless ko.isObservable(value) or Falcon.isDataObject(value)
-					if isArray(value)
-						value = ko.observableArray(value)
-					else
-						value = ko.observable(value)
-					#END if
-				#END unless
-				this[key] = value
-			else if Falcon.isDataObject(this[key])
+			if Falcon.isDataObject(this[key])
 				this[key].fill(value)
 			else if ko.isObservable(this[key])
 				this[key](value) if ko.isWriteableObservable(this[key])
@@ -161,7 +152,7 @@ class Falcon.Model extends Falcon.Class
 
 	#--------------------------------------------------------
 	# Method: Falcon.Model#unwrap()
-	#	Method used to 'unwrap' this object into an anonmous object
+	#	Method used to 'unwrap' this object into an anonymous object
 	#	Needed to cascade inwards on other Falcon Data objects (like lists)
 	#	to unwrap newly added member variables/objects
 	#
@@ -189,26 +180,41 @@ class Falcon.Model extends Falcon.Class
 	#	Serializes the data into a raw json object and only corresponds to the fields
 	#	that are primitive and that we wish to be able to send back to the server
 	#
+	# Arguments:
+	#	**fields** _(Araay)_ -	The fields that should be included in the 
+	#	                      	serialization "id" is always included. If 
+	#	                      	none given, all fields from this models 'fields' 
+	#	                      	member are serialized
+	#
+	#	**deep** _(Boolean)_ -	should we do a deep copy? In otherwords, should 
+	#	                      	we cascade downwards to serialize data about 
+	#	                      	children models.
+	#
 	# Returns:
 	#	_(Object)_ - The resultant 'raw' object to send to the server
 	#--------------------------------------------------------
-	serialize: ->
+	serialize: (fields, deep) ->
 		raw = {}
 
+		[deep, fields] = [fields, deep] if not isBoolean( deep ) and isBoolean( fields )
+		deep = true unless isBoolean( deep )
+
+		fields = trim(fields).split(",") if isString( fields )
+		fields = @fields unless fields?
 		server_keys = []
 		model_keys = []
 
 		# Get the keys and mapped keys
 		# Mapped keys are the local attributes
 		# Keys are the server's attributes
-		if isArray(@fields) and not isEmpty(@fields)
-			for field in @fields
+		if isArray(fields) and not isEmpty(fields)
+			for field in fields
 				server_keys[server_keys.length] = field
 				model_keys[model_keys.length] = field
 			#END for
 
-		else if isObject(@fields) and not isEmpty(@fields)
-			for server_field, model_field of @fields
+		else if isObject(fields) and not isEmpty(fields)
+			for server_field, model_field of fields
 				server_keys[server_keys.length] = server_field
 				model_keys[model_keys.length] = if model_field of this then model_field else server_field
 			#END for
@@ -229,7 +235,7 @@ class Falcon.Model extends Falcon.Class
 			value = this[model_key]
 
 			if Falcon.isDataObject(value)
-				raw[server_key] =  value.serialize() 
+				raw[server_key] =  if deep then value.serialize() else value.serialize(["id"])
 			else if ko.isObservable(value)
 				raw[server_key] = ko.utils.unwrapObservable( value )
 			else if not isFunction(value)
@@ -314,6 +320,14 @@ class Falcon.Model extends Falcon.Class
 	#--------------------------------------------------------
 	sync: (type, options) ->
 		options = {complete: options} if isFunction(options)
+
+		if isString(options)
+			options = trim( options ) 
+			options = {fields: options.split(",")}
+		#END if
+
+		options = {fields: options} if isArray( options )
+
 		options = {} unless isObject(options)
 		options.data = {} unless isObject(options.data)
 		options.dataType = "json" unless isString(options.dataType)
@@ -322,6 +336,7 @@ class Falcon.Model extends Falcon.Class
 		options.complete = (->) unless isFunction(options.complete)
 		options.error = (->) unless isFunction(options.error)
 		options.parent = @parent unless Falcon.isModel(options.parent)
+		options.fields = [] unless isArray( options.fields )
 
 		type = trim( if isString(type) then type.toUpperCase() else "GET" )
 		type = "GET" unless type in ["GET", "POST", "PUT", "DELETE"]
@@ -330,12 +345,12 @@ class Falcon.Model extends Falcon.Class
 		unless isEmpty(options.data)
 			data[key] = value for key, value of options.data
 		#END unless
-		data = extend(data, @serialize()) if type in ["POST", "PUT"]
+		data = extend(@serialize( options.fields ), data) if type in ["POST", "PUT"]
 
 		#serialize the data to json
 		json = if isEmpty(data) then "" else JSON.stringify(data)
 
-		url = @makeUrl(type, options.parent)
+		url = options.url ? @makeUrl(type, options.parent)
 
 		@loading(true)
 
@@ -345,6 +360,7 @@ class Falcon.Model extends Falcon.Class
 			'data': json
 			'dataType': options.dataType
 			'contentType': options.contentType
+			'cache': Falcon.cache
 
 			'success': (data) => 
 				@fill(data) 
@@ -474,7 +490,7 @@ class Falcon.Model extends Falcon.Class
 
 	#--------------------------------------------------------
 	# Method: Falcon.Model#clone()
-	# 	Method used to deeply clone this model
+	#	Method used to deeply clone this model
 	#
 	# Arguments:
 	#	**parent** _(Falcon.Model)_ - The parent of the clone. optional
@@ -486,4 +502,16 @@ class Falcon.Model extends Falcon.Class
 		parent = if parent is null or Falcon.isModel(parent) then parent else @parent
 		return new this.constructor(this.unwrap(), parent )
 	#END clone
+
+	#--------------------------------------------------------
+	# Method: Falcon.Model#isNew()
+	#	Method used to check if this model is new or is from the server.  Based on id.
+	#
+	# Returns:
+	#	_Boolean_ - Is this a new model?
+	#--------------------------------------------------------
+	isNew: () ->
+		return isNumber( @id() )
+	#END isNew
+
 #END Falcon.Model

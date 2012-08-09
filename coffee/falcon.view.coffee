@@ -8,17 +8,85 @@
 class Falcon.View extends Falcon.Class
 
 	###
-	#
+	# The internal cache of each template identified by 
+	# their url or element id
 	###
 	templateCache = {}
+
+	###
+	# Counter to track how many things are loading
+	###
+	_loadingCount = 0
+	_initialized = false
+
+	###
+	# Method: Falcon.View.cacheTemplate( identifier, template )
+	#	Method used to manually cache a template
+	#
+	# Arguments:
+	#	**identifier** _(String)_ - The identifier for the templae
+	#	**template** _(String)_ - The template to store
+	###
+	@cacheTemplate = (identifier, template) ->
+		identifier = "" unless isString( identifier )
+		template = "" unless isString( template )
+
+		identifier = trim( identifier )
+
+		templateCache[identifier] = template
+
+		return
+	#END cacheTeplate
+
+	###
+	#
+	#
+	###
+	@_events = {}
+	@on = -> Falcon.Class::on.apply(this, arguments)
+	@off = -> Falcon.Class::off.apply(this, arguments)
+	@has = -> Falcon.Class::has.apply(this, arguments)
+	@trigger = -> Falcon.Class::trigger.apply(this, arguments)
+
+	# (event, action, context) ->
+	#	return this unless isString(event) and isFunction(action)
+
+	#	context ?= this
+	#	event = trim(event).toLowerCase()
+
+	#	return this if isEmpty(event)
+
+
+	#	( _events[event] ?= [] ).push({action, context})
+
+	#	return this
+	#END on
+
+	@trigger
+
+	###
+	# Method used to track when a template is loaded
+	###
+	@tick = ->
+		_loadingCount++
+	#END tick
+
+	@loaded = ->
+		_loadingCount--
+		if _loadingCount is 0
+			if _initialized is false
+				Falcon.View.trigger("init") 
+				_initialized = true
+			#END if
+
+			Falcon.View.trigger("load")
+		#END if
+	#END initialized
 	
 	###
 	#
 	###
 	@extend = (definition) -> Falcon.Class.extend(Falcon.View, definition)
-
-	_loaded: false
-	_loadQueue: []
 
 	###
 	#
@@ -37,39 +105,53 @@ class Falcon.View extends Falcon.Class
 	constructor: () ->
 		super()
 
+		Falcon.View.tick()
+
 		# Validate the public variables
-		@template = ko.observable( ko.utils.unwrapObservable( @template ) )
+		@template = ko.observable()
 		@url = "" unless isString(@url)
 		@url = trim(@url)
 
-		# Setup our private variables for instance usage
-		@_loaded = ko.observable( ko.utils.unwrapObservable( @_loaded ) )
-		@_loaded.subscribe (loaded) => @trigger("load") if !!loaded
-		@isLoaded = ko.computed => !!@_loaded() 
+		# Setup the isLoaded variable
+		@isLoaded = ko.observable( ko.utils.unwrapObservable( @isLoaded ) )
+		
+		_loaded = () =>
+			@isLoaded(true)
+			@trigger("load")
+
+			Falcon.View.loaded()
+		#END _loaded
 
 		# Attempt to load the template from the server or cache
 		if isEmpty(@url)
-			@_loaded(true)
+			_loaded()
 
 		else if @url of templateCache
 			@template(templateCache[@url])
-			@_loaded(true)
+			_loaded()
 
 		else if startsWith(@url, "#")
-			templateCache[@url] = $(@url).html()
-			@template(templateCache[@url])
-			@_loaded(true)
-
+			if templateCache[@url]?
+				@template( templateCache[@url] )
+			else
+				@template( templateCache[@url] = $(@url).html() )
+			#END if
+			
+			_loaded()
 		else
-			$.ajax(
+			$.ajax
 				url: @url
 				type: "GET"
 				cache: false
+				error: () =>
+					alert("ERROR LOADING TEMPLATE")
+				#END error
 				success: (html) =>
-					templateCache[@url] = html
-					@template(html)
-					@_loaded(true)
-			)
+					@template( templateCache[@url] = html )
+					_loaded()
+				#END success
+			#END ajax
+		#END if
 
 		@initialize.apply(this, arguments)
 	#END constructor
@@ -78,14 +160,13 @@ class Falcon.View extends Falcon.Class
 	#
 	###
 	initialize: (->)
-
-	###
-	# Method: Falcon.View#isLoaded
-	#	Method to check if the view has been loaded, will
-	#	be overriden by a computed value later
-	###
-	isLoaded: ( -> @_loaded )
 	
+	###
+	#
+	###
+	makeUrl: () ->
+	#END makeUrl
+
 	###
 	# Method Falcon.View#viewModel
 	#	Get's a view model representing this view
@@ -96,7 +177,7 @@ class Falcon.View extends Falcon.Class
 			if isFunction(value) and not ko.isObservable(value)
 				value = do =>
 					_value = value
-					(args...) => _value.call(this, args...)
+					return (args...) =>  _value.call(this, args...)
 			viewModel[key] = value
 		return viewModel
 	#END viewModel

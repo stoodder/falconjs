@@ -215,8 +215,26 @@
   Falcon = {
     version: "0.0.2",
     baseApiUrl: "",
-    apply: function(view) {
+    baseTemplateUrl: "",
+    cache: true,
+    apply: function(view, callback) {
       return $(function() {
+        $('template').each(function(index, template) {
+          var identifier;
+          template = $(template);
+          identifier = template.attr("id");
+          if (identifier != null) {
+            Falcon.View.cacheTemplate("#" + identifier, template.html());
+          }
+          return template.remove();
+        });
+        if (isFunction(callback)) {
+          if (view instanceof Falcon.View) {
+            Falcon.View.on("init", callback);
+          } else {
+            callback();
+          }
+        }
         $('body').attr('data-bind', 'view: $data');
         return ko.applyBindings(view);
       });
@@ -334,7 +352,7 @@
     	#	**action** _(function)_ - The event handler to remove
     	#
     	# Returns:
-    	#	_(Flacon.Model)_ - This instance
+    	#	_(Falcon.Model)_ - This instance
     */
 
     Class.prototype.off = function(event, action) {
@@ -473,9 +491,7 @@
       _ref2 = this.fields;
       for (field in _ref2) {
         model_field = _ref2[field];
-        if (!this[model_field] && isString(model_field)) {
-          this[model_field] = ko.observable();
-        }
+        if (!this[model_field] && isString(model_field)) this[model_field] = null;
       }
     }
 
@@ -503,16 +519,7 @@
         value = data[key];
         if (!(!(__indexOf.call(rejectedKeys, key) >= 0))) continue;
         value = ko.utils.unwrapObservable(value);
-        if (!(this[key] != null)) {
-          if (!(ko.isObservable(value) || Falcon.isDataObject(value))) {
-            if (isArray(value)) {
-              value = ko.observableArray(value);
-            } else {
-              value = ko.observable(value);
-            }
-          }
-          this[key] = value;
-        } else if (Falcon.isDataObject(this[key])) {
+        if (Falcon.isDataObject(this[key])) {
           this[key].fill(value);
         } else if (ko.isObservable(this[key])) {
           if (ko.isWriteableObservable(this[key])) this[key](value);
@@ -537,22 +544,26 @@
       return raw;
     };
 
-    Model.prototype.serialize = function() {
-      var field, index, model_field, model_key, model_keys, raw, server_field, server_key, server_keys, value, _i, _len, _ref, _ref2;
+    Model.prototype.serialize = function(fields, deep) {
+      var field, index, model_field, model_key, model_keys, raw, server_field, server_key, server_keys, value, _i, _len, _ref;
       raw = {};
+      if (!isBoolean(deep) && isBoolean(fields)) {
+        _ref = [fields, deep], deep = _ref[0], fields = _ref[1];
+      }
+      if (!isBoolean(deep)) deep = true;
+      if (isString(fields)) fields = trim(fields).split(",");
+      if (fields == null) fields = this.fields;
       server_keys = [];
       model_keys = [];
-      if (isArray(this.fields) && !isEmpty(this.fields)) {
-        _ref = this.fields;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          field = _ref[_i];
+      if (isArray(fields) && !isEmpty(fields)) {
+        for (_i = 0, _len = fields.length; _i < _len; _i++) {
+          field = fields[_i];
           server_keys[server_keys.length] = field;
           model_keys[model_keys.length] = field;
         }
-      } else if (isObject(this.fields) && !isEmpty(this.fields)) {
-        _ref2 = this.fields;
-        for (server_field in _ref2) {
-          model_field = _ref2[server_field];
+      } else if (isObject(fields) && !isEmpty(fields)) {
+        for (server_field in fields) {
+          model_field = fields[server_field];
           server_keys[server_keys.length] = server_field;
           model_keys[model_keys.length] = model_field in this ? model_field : server_field;
         }
@@ -568,7 +579,7 @@
         server_key = server_keys[index];
         value = this[model_key];
         if (Falcon.isDataObject(value)) {
-          raw[server_key] = value.serialize();
+          raw[server_key] = deep ? value.serialize() : value.serialize(["id"]);
         } else if (ko.isObservable(value)) {
           raw[server_key] = ko.utils.unwrapObservable(value);
         } else if (!isFunction(value)) {
@@ -615,11 +626,22 @@
     };
 
     Model.prototype.sync = function(type, options) {
-      var data, json, key, url, value, _ref,
+      var data, json, key, url, value, _ref, _ref2,
         _this = this;
       if (isFunction(options)) {
         options = {
           complete: options
+        };
+      }
+      if (isString(options)) {
+        options = trim(options);
+        options = {
+          fields: options.split(",")
+        };
+      }
+      if (isArray(options)) {
+        options = {
+          fields: options
         };
       }
       if (!isObject(options)) options = {};
@@ -630,6 +652,7 @@
       if (!isFunction(options.complete)) options.complete = (function() {});
       if (!isFunction(options.error)) options.error = (function() {});
       if (!Falcon.isModel(options.parent)) options.parent = this.parent;
+      if (!isArray(options.fields)) options.fields = [];
       type = trim(isString(type) ? type.toUpperCase() : "GET");
       if (type !== "GET" && type !== "POST" && type !== "PUT" && type !== "DELETE") {
         type = "GET";
@@ -642,9 +665,11 @@
           data[key] = value;
         }
       }
-      if (type === "POST" || type === "PUT") data = extend(data, this.serialize());
+      if (type === "POST" || type === "PUT") {
+        data = extend(this.serialize(options.fields), data);
+      }
       json = isEmpty(data) ? "" : JSON.stringify(data);
-      url = this.makeUrl(type, options.parent);
+      url = (_ref2 = options.url) != null ? _ref2 : this.makeUrl(type, options.parent);
       this.loading(true);
       $.ajax({
         'url': url,
@@ -652,8 +677,9 @@
         'data': json,
         'dataType': options.dataType,
         'contentType': options.contentType,
+        'cache': Falcon.cache,
         'success': function(data) {
-          var _ref2;
+          var _ref3;
           _this.fill(data);
           switch (type) {
             case "GET":
@@ -668,7 +694,7 @@
             case "DELETE":
               _this.trigger("destroy", data);
           }
-          return (_ref2 = options.success).call.apply(_ref2, [_this, _this].concat(__slice.call(arguments)));
+          return (_ref3 = options.success).call.apply(_ref3, [_this, _this].concat(__slice.call(arguments)));
         },
         'error': function(xhr) {
           var response;
@@ -681,9 +707,9 @@
           return options.error.call(_this, _this, response, xhr);
         },
         'complete': function() {
-          var _ref2;
+          var _ref3;
           _this.loading(false);
-          return (_ref2 = options.complete).call.apply(_ref2, [_this, _this].concat(__slice.call(arguments)));
+          return (_ref3 = options.complete).call.apply(_ref3, [_this, _this].concat(__slice.call(arguments)));
         }
       });
       return this;
@@ -739,6 +765,10 @@
       return new this.constructor(this.unwrap(), parent);
     };
 
+    Model.prototype.isNew = function() {
+      return isNumber(this.id());
+    };
+
     return Model;
 
   })(Falcon.Class);
@@ -752,15 +782,84 @@
   */
 
   Falcon.View = (function(_super) {
-    var templateCache;
+    var templateCache, _initialized, _loadingCount;
 
     __extends(View, _super);
 
     /*
-    	#
+    	# The internal cache of each template identified by 
+    	# their url or element id
     */
 
     templateCache = {};
+
+    /*
+    	# Counter to track how many things are loading
+    */
+
+    _loadingCount = 0;
+
+    _initialized = false;
+
+    /*
+    	# Method: Falcon.View.cacheTemplate( identifier, template )
+    	#	Method used to manually cache a template
+    	#
+    	# Arguments:
+    	#	**identifier** _(String)_ - The identifier for the templae
+    	#	**template** _(String)_ - The template to store
+    */
+
+    View.cacheTemplate = function(identifier, template) {
+      if (!isString(identifier)) identifier = "";
+      if (!isString(template)) template = "";
+      identifier = trim(identifier);
+      templateCache[identifier] = template;
+    };
+
+    /*
+    	#
+    	#
+    */
+
+    View._events = {};
+
+    View.on = function() {
+      return Falcon.Class.prototype.on.apply(this, arguments);
+    };
+
+    View.off = function() {
+      return Falcon.Class.prototype.off.apply(this, arguments);
+    };
+
+    View.has = function() {
+      return Falcon.Class.prototype.has.apply(this, arguments);
+    };
+
+    View.trigger = function() {
+      return Falcon.Class.prototype.trigger.apply(this, arguments);
+    };
+
+    View.trigger;
+
+    /*
+    	# Method used to track when a template is loaded
+    */
+
+    View.tick = function() {
+      return _loadingCount++;
+    };
+
+    View.loaded = function() {
+      _loadingCount--;
+      if (_loadingCount === 0) {
+        if (_initialized === false) {
+          Falcon.View.trigger("init");
+          _initialized = true;
+        }
+        return Falcon.View.trigger("load");
+      }
+    };
 
     /*
     	#
@@ -769,10 +868,6 @@
     View.extend = function(definition) {
       return Falcon.Class.extend(Falcon.View, definition);
     };
-
-    View.prototype._loaded = false;
-
-    View.prototype._loadQueue = [];
 
     /*
     	#
@@ -792,36 +887,42 @@
     */
 
     function View() {
-      var _this = this;
+      var _loaded,
+        _this = this;
       View.__super__.constructor.call(this);
-      this.template = ko.observable(ko.utils.unwrapObservable(this.template));
+      Falcon.View.tick();
+      this.template = ko.observable();
       if (!isString(this.url)) this.url = "";
       this.url = trim(this.url);
-      this._loaded = ko.observable(ko.utils.unwrapObservable(this._loaded));
-      this._loaded.subscribe(function(loaded) {
-        if (!!loaded) return _this.trigger("load");
-      });
-      this.isLoaded = ko.computed(function() {
-        return !!_this._loaded();
-      });
+      this.isLoaded = ko.observable(ko.utils.unwrapObservable(this.isLoaded));
+      _loaded = function() {
+        _this.isLoaded(true);
+        _this.trigger("load");
+        return Falcon.View.loaded();
+      };
       if (isEmpty(this.url)) {
-        this._loaded(true);
+        _loaded();
       } else if (this.url in templateCache) {
         this.template(templateCache[this.url]);
-        this._loaded(true);
+        _loaded();
       } else if (startsWith(this.url, "#")) {
-        templateCache[this.url] = $(this.url).html();
-        this.template(templateCache[this.url]);
-        this._loaded(true);
+        if (templateCache[this.url] != null) {
+          this.template(templateCache[this.url]);
+        } else {
+          this.template(templateCache[this.url] = $(this.url).html());
+        }
+        _loaded();
       } else {
         $.ajax({
           url: this.url,
           type: "GET",
           cache: false,
+          error: function() {
+            return alert("ERROR LOADING TEMPLATE");
+          },
           success: function(html) {
-            templateCache[_this.url] = html;
-            _this.template(html);
-            return _this._loaded(true);
+            _this.template(templateCache[_this.url] = html);
+            return _loaded();
           }
         });
       }
@@ -835,14 +936,10 @@
     View.prototype.initialize = (function() {});
 
     /*
-    	# Method: Falcon.View#isLoaded
-    	#	Method to check if the view has been loaded, will
-    	#	be overriden by a computed value later
+    	#
     */
 
-    View.prototype.isLoaded = (function() {
-      return this._loaded;
-    });
+    View.prototype.makeUrl = function() {};
 
     /*
     	# Method Falcon.View#viewModel
@@ -1104,17 +1201,27 @@
     	#	Serializes this collection and returns the raw array
     	#	of data
     	#
+    	# Arguments:
+    	#	**fields** _(Araay)_ -	The fields that should be included in the 
+    	#	                      	serialization "id" is always included. If 
+    	#	                      	none given, all fields from this models 'fields' 
+    	#	                      	member are serialized
+    	#
+    	#	**deep** _(Boolean)_ -	should we do a deep copy? In otherwords, should 
+    	#	                      	we cascade downwards to serialize data about 
+    	#	                      	children models.
+    	#
     	# Returns:
     	#	_Array_ - an array of the serialized raw data to send to the server
     */
 
-    Collection.prototype.serialize = function() {
+    Collection.prototype.serialize = function(fields, deep) {
       var i, raw, value, _ref;
       raw = [];
       _ref = this.list();
       for (i in _ref) {
         value = _ref[i];
-        raw[i] = Falcon.isDataObject(value) ? value.serialize() : value;
+        raw[i] = Falcon.isDataObject(value) ? value.serialize(fields, deep) : value;
       }
       return raw;
     };
@@ -1161,7 +1268,7 @@
     */
 
     Collection.prototype.sync = function(type, options) {
-      var data, key, url, value, _complete, _error, _ref, _success,
+      var data, key, url, value, _complete, _error, _ref, _ref2, _success,
         _this = this;
       if (isFunction(options)) {
         options = {
@@ -1188,7 +1295,7 @@
           data[key] = value;
         }
       }
-      url = trim(this.makeUrl(type));
+      url = (_ref2 = options.url) != null ? _ref2 : trim(this.makeUrl(type));
       if (!((url != null) && isString(url))) return;
       this.loading(true);
       _complete = options.complete;
@@ -1200,6 +1307,7 @@
         'data': data,
         'dataType': options.dataType,
         'contentType': options.contentType,
+        'cache': Falcon.cache,
         'success': function(data, status, xhr) {
           if (data == null) data = [];
           if (isString(data)) data = JSON.parse(data);
@@ -1412,6 +1520,27 @@
     };
 
     /*
+    	# Method: Falcon.Collection#slice
+    	#	Slices the underlying collection the same way slice works on an array
+    	#
+    	# Arguments:
+    	#	**start** _(Number)_ - Required. An integer that specifies where to start 
+    	#						   the selection (The first element has an index of 0). 
+    	#						   Use negative numbers to select from the end of an array.
+    	#	**end** _(Number)_ - Optional. An integer that specifies where to end the selection. 
+    	#						 If omitted, all elements from the start position and to the 
+    	#						 end of the array will be selected. Use negative numbers to 
+    	#						 select from the end of an array
+    	#
+    	# Returns:
+    	#	_(Array)_ - The sliced array of models from the underlying array in this collection
+    */
+
+    Collection.prototype.slice = function(start, end) {
+      return this.list.slice(start, end);
+    };
+
+    /*
     	# Method: Falcon.Collection#all
     	#	Gets a list of all elements that match the iterator, if one is given
     	#
@@ -1615,11 +1744,10 @@
   };
 
   ko.bindingHandlers['view'] = (function() {
-    var getTemplate, getViewModel, makeTemplateValueAccessor;
+    var getTemplate, getViewModel, makeTemplateValueAccessor, returnVal;
     makeTemplateValueAccessor = function(viewModel) {
       return function() {
         return {
-          'if': viewModel,
           'data': viewModel,
           'templateEngine': ko.nativeTemplateEngine.instance
         };
@@ -1647,38 +1775,39 @@
       }
       return template;
     };
+    returnVal = {
+      controlsDescendantBindings: true
+    };
     return {
       'init': function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
         var value;
         value = valueAccessor();
         value = ko.utils.unwrapObservable(value);
         viewModel = getViewModel(value);
+        if (value instanceof Falcon.View && !value.url) {
+          value.template($(element).html());
+        }
         ko.bindingHandlers['template']['init'](element, makeTemplateValueAccessor(viewModel), allBindingsAccessor, viewModel, context);
-        return {
-          controlsDescendantBindings: true
-        };
+        return returnVal;
       },
       'update': function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
-        var anonymousTemplate, execScripts, template, value;
+        var anonymousTemplate, execScripts, originalViewContext, template, value;
         value = valueAccessor();
         value = ko.utils.unwrapObservable(value);
-        context['$view'] = value;
         viewModel = getViewModel(value);
         template = getTemplate(value);
-        if (!isObject(value)) return;
-        if (ko.utils.domData.get(element, '__falcon_view_updating__') === true) {
-          return;
-        }
-        ko.utils.domData.set(element, '__falcon_view_updating__', true);
-        execScripts = !!ko.utils.unwrapObservable(value.execScripts);
-        if (!(template != null)) {
-          $(element).html("");
-        } else if (isEmpty(viewModel)) {
-          $(element).html("");
-        } else {
+        if (!isObject(value)) return returnVal;
+        originalViewContext = context['$view'];
+        context['$view'] = viewModel;
+        if (isEmpty(viewModel) || !(template != null)) $(element).html(" ");
+        if (!(value instanceof Falcon.View) || value.isLoaded()) {
           anonymousTemplate = ko.utils.domData.get(element, '__ko_anon_template__');
           anonymousTemplate.containerData.innerHTML = template;
+          if ($.browser.msie && $.browser.version < 9) {
+            anonymousTemplate.textData = template;
+          }
           ko.bindingHandlers['template']['update'](element, makeTemplateValueAccessor(viewModel), allBindingsAccessor, viewModel, context);
+          execScripts = !!ko.utils.unwrapObservable(value.execScripts);
           if (template !== anonymousTemplate && execScripts === true) {
             $(element).find("script").each(function(index, script) {
               script = $(script);
@@ -1688,10 +1817,8 @@
             });
           }
         }
-        ko.utils.domData.set(element, '__falcon_view_updating__', false);
-        return {
-          controlsDescendantBindings: true
-        };
+        context['$view'] = originalViewContext;
+        return returnVal;
       }
     };
   })();
