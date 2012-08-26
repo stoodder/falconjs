@@ -144,7 +144,7 @@ class Falcon.View extends Falcon.Class
 				type: "GET"
 				cache: false
 				error: () =>
-					alert("ERROR LOADING TEMPLATE")
+					console.log("ERROR LOADING TEMPLATE #{@url}")
 				#END error
 				success: (html) =>
 					@template( templateCache[@url] = html )
@@ -160,12 +160,6 @@ class Falcon.View extends Falcon.Class
 	#
 	###
 	initialize: (->)
-	
-	###
-	#
-	###
-	makeUrl: () ->
-	#END makeUrl
 
 	###
 	# Method Falcon.View#viewModel

@@ -117,9 +117,11 @@ class Falcon.Collection extends Falcon.Class
 		#Increment the change count
 		@__change_count__++
 
+		_return = []
+
 		#Make a clone of each item and ensure that they're models
-		for i, m of items
-			models[i] = new @model({}, @parent)
+		for m, i in items
+			_return[i] = models[i] = new @model({}, @parent)
 			models[i].map(mapping) for mapping in @_mappings
 			models[i].fill( if Falcon.isModel(m) then m.serialize() else m )
 		#END for
@@ -140,7 +142,7 @@ class Falcon.Collection extends Falcon.Class
 		#Update the length
 		@length( @list().length )
 
-		return this
+		return _return
 	#END fill
 
 	###
@@ -165,7 +167,7 @@ class Falcon.Collection extends Falcon.Class
 	#	of data
 	#
 	# Arguments:
-	#	**fields** _(Araay)_ -	The fields that should be included in the 
+	#	**fields** _(Array)_ -	The fields that should be included in the 
 	#	                      	serialization "id" is always included. If 
 	#	                      	none given, all fields from this models 'fields' 
 	#	                      	member are serialized
@@ -238,6 +240,7 @@ class Falcon.Collection extends Falcon.Class
 		options.success = (->) unless isFunction(options.success)
 		options.complete = (->) unless isFunction(options.complete)
 		options.error = (->) unless isFunction(options.error)
+		options.params = {} unless isObject( options.params )
 
 		type = if isString(type) then type.toUpperCase() else "GET"
 		type = "GET" unless type in ["GET", "POST", "PUT", "DELETE"]
@@ -251,6 +254,11 @@ class Falcon.Collection extends Falcon.Class
 		url = options.url ? trim(@makeUrl(type))
 
 		return unless url? and isString(url)
+
+		unless isEmpty( options.params )
+			url += "?" unless url.indexOf("?") > -1
+			url += ( "#{key}=#{value}" for key, value of options.params ).join("&")
+		#END if params
 
 		@loading(true)
 
@@ -329,6 +337,50 @@ class Falcon.Collection extends Falcon.Class
 	prepend: (items) -> @fill(items, {'method': 'prepend'})
 
 	###
+	# Method: Falcon.Collection#unshift
+	#	Push an element onto the begining of the array, Alias of prepend
+	#
+	# Arguments:
+	#	**item** _(Falcon.Model)_ - The model to add
+	#
+	# Returns:
+	#	_(Falcon.Collection)_ - This instance
+	#
+	# See Also:
+	#	Falcon.Colletion#prepend
+	###
+	unshift: ->
+		@prepend(arguments...)
+	#END pop
+
+	###
+	# Method: Falcon.Collection#shift
+	#	Shifts the first element from the list and returns it
+	###
+	shift: ->
+		item = @list.shift()
+		@length( @list().length )
+		return item
+	#END pop
+
+	###
+	# Method: Falcon.Collection#push
+	#	Push an element onto the end of the array, Alias of append
+	#
+	# Arguments:
+	#	**item** _(Falcon.Model)_ - The model to add
+	#
+	# Returns:
+	#	_(Falcon.Collection)_ - This instance
+	#
+	# See Also:
+	#	Falcon.Colletion#append
+	###
+	push: ->
+		@append(arguments...)
+	#END pop
+
+	###
 	# Method: Falcon.Collection#pop
 	#	Pops the last element from the list and returns it
 	###
@@ -337,6 +389,23 @@ class Falcon.Collection extends Falcon.Class
 		@length( @list().length )
 		return item
 	#END pop
+
+	###
+	# Method: Falcon.Collection#sort
+	#	Sorts the collection by a given sorter
+	#
+	# Arguments:
+	#	**sorter** _(Function)_ - An iterator to sort the array with
+	#
+	# Returns:
+	#	_(Array)_ - The sorted array
+	###
+	sort: (sorter) ->
+		list = @list()
+		return unless isArray( list )
+		return list unless isFunction( sorter )
+		return list.sort( sorter )
+	#END sort
 
 	###
 	# Method: Falcon.Collection#create
@@ -359,8 +428,10 @@ class Falcon.Collection extends Falcon.Class
 
 		_success = options.success
 		options.success = (model) =>
-			@fill(model, options)
-			_success.apply(model, arguments)
+			models = @fill(model, options)
+			( arguments[0] = models = models[0] ) if models.length is 1
+			_success.apply(models, arguments)
+		#END success
 
 		return ( new @model(data, @parent).create(options) )
 	#END create
@@ -411,10 +482,18 @@ class Falcon.Collection extends Falcon.Class
 	#END destory
 
 	###
+	# Method: Falcon.Collection#at
+	#	Gets a the value at the specified index
 	#
+	# Arguments:
+	#	**index** _(Number)_ - The index to retrieve the value from
+	#
+	# Returns:
+	#	_(Falcon.Model)_ - The model at that index
 	###
 	at: (index) ->
 		index = 0 unless isNumber(index)
+		index = parseInt( index )
 
 		list = @list()
 		index = 0 if index < 0
@@ -424,7 +503,38 @@ class Falcon.Collection extends Falcon.Class
 	#END at
 
 	###
+	# Method: Falcon.Collection#each
 	#
+	# Arguments:
+	#	**iterator** _(Function)_ - The iterator to loop over each value, if one argument is provided 
+	#								the input argument will be each item, if two are provided that input 
+	#								parameters will be index, item.
+	#
+	#	**context** _(mixed)_ - The context to bind the iterator against, if none is provided it defaults
+	#							to this collection.
+	#
+	# Returns:
+	#	_(Falcon.Collection)_ - This instance
+	###
+	each: (iterator, context) ->
+		return this unless isFunction( iterator )
+
+		context ?= this
+
+		if iterator.length is 1
+			iterator.call(context, item) for item in @list()
+		else
+			iterator.call(context, index, item ) for index, item in @list()
+		#END if
+
+		return this
+	#END each
+
+	###
+	# Method: Falcon.Collection#first
+	#	Retrieves the first value from the internal list based on an interator.  
+	#	If no iterator is present, the first value is returned.  
+	#	If no values match or exist, then null is returned
 	###
 	first: (iterator) ->
 		iterator = ( -> true ) unless isFunction(iterator)
@@ -493,9 +603,12 @@ class Falcon.Collection extends Falcon.Class
 	any: (iterator) ->
 		if Falcon.isModel( iterator )
 			_model = iterator
+			_model_id = 
 			iterator = (item) ->
 				return false unless Falcon.isModel(item)
-				return ( item.id() is _model.id() )
+				id = ko.utils.unwrapObservable( item.id )
+				model_id = ko.utils.unwrapObservable( _model.id )
+				return ( id is model_id )
 			#END itertaor assignment
 		#END if
 
@@ -507,6 +620,25 @@ class Falcon.Collection extends Falcon.Class
 
 		return false
 	#END any
+
+	###
+	# Method: Falcon.Collection#without
+	#	Returns an array of elements that don't match the iterator
+	###
+	without: (iterator) ->
+		if Falcon.isModel( iterator )
+			_model = iterator
+			iterator = (item) ->
+				return false unless Falcon.isModel(item)
+				id = ko.utils.unwrapObservable( item.id )
+				model_id = ko.utils.unwrapObservable( _model.id )
+				return ( id is model_id )
+			#END itertaor assignment
+		#END if
+
+		return @list() unless isFunction(iterator)
+		return ( item for item in @list() when not iterator( item ) )
+	#END without
 
 	###
 	# Method: Falcon.Collection#map
@@ -541,6 +673,47 @@ class Falcon.Collection extends Falcon.Class
 			
 		return this
 	#END map
+
+	###
+	# Method: Falcon.Collection#pluck
+	#	Method used to pluck values from each model in the list of models.
+	#
+	# Arguments:
+	#	**keys** _(String)_ - The key to look at in each mode
+	#			_(Array)_ - An array of keys to pluck from the model, value returned in the same order
+	#	**unwrap** _(Boolean)_ - Flag to state if we should or shouldn't unwrap values that are observables, default is true
+	#
+	# Returns:
+	#	_(Array)_ - An array of the values from each model coresponding to the keys. If the keys was an array, then this is an array of arrays
+	###
+	pluck: (keys, unwrap) ->
+		keys = keys.split(",") if isString(keys)
+		keys = [] unless isArray( keys )
+		return [] unless keys.length > 0
+
+		unwrap ?= true
+
+		plucked_values = []
+		if keys.length > 1
+			for model in @list()
+				if isObject( model )
+					plucked_values.push( (if unwrap then ko.utils.unwrapObservable(model[key]) else model[key]) for key in keys )
+				else
+					plucked_values.push( window.undefined )
+				#END if
+			#END for
+		else
+			for model in @list()
+				if isObject( model )
+					plucked_values.push( (if unwrap then ko.utils.unwrapObservable(model[key]) else model[key]) )
+				else
+					plucked_values.push( window.undefined )
+				#END if
+			#END for
+		#END if
+
+		return plucked_values
+	#END pluck
 
 	###
 	# Method: Falcon.Collection#clone

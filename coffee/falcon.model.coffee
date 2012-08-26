@@ -88,9 +88,8 @@ class Falcon.Model extends Falcon.Class
 		[parent, data] = [data, parent] if not parent? and Falcon.isModel( data )
 
 		data = data.unwrap() if Falcon.isModel(data)
-
-		@id = ko.observable( ko.utils.unwrapObservable(@id) )
-		@loading = ko.observable( ko.utils.unwrapObservable( @loading ) )
+		
+		@loading = ko.observable( @loading )
 		@fields = {} if @fields is null
 		@parent = parent
 
@@ -98,7 +97,7 @@ class Falcon.Model extends Falcon.Class
 		@fill(data)
 
 		#Lastly make sure that any of the fields that should exist, do
-		this[model_field] = null for field, model_field of @fields when not this[model_field] and isString(model_field)
+		this[model_field] = null for field, model_field of @fields when not this[model_field]? and isString(model_field)
 	#END constructor
 
 	#--------------------------------------------------------
@@ -298,7 +297,7 @@ class Falcon.Model extends Falcon.Class
 		#Append the id if it exists
 		if type in ["GET", "PUT", "DELETE"]
 			url += "/" unless url.slice(-1) is "/"
-			url += @id()
+			url += ko.utils.unwrapObservable( @id )
 		#END if
 
 		#Return the built url
@@ -337,6 +336,7 @@ class Falcon.Model extends Falcon.Class
 		options.error = (->) unless isFunction(options.error)
 		options.parent = @parent unless Falcon.isModel(options.parent)
 		options.fields = [] unless isArray( options.fields )
+		options.params = {} unless isObject( options.params ) 
 
 		type = trim( if isString(type) then type.toUpperCase() else "GET" )
 		type = "GET" unless type in ["GET", "POST", "PUT", "DELETE"]
@@ -351,6 +351,11 @@ class Falcon.Model extends Falcon.Class
 		json = if isEmpty(data) then "" else JSON.stringify(data)
 
 		url = options.url ? @makeUrl(type, options.parent)
+
+		unless isEmpty( options.params )
+			url += "?" unless url.indexOf("?") > -1
+			url += ( "#{key}=#{value}" for key, value of options.params ).join("&")
+		#END if params
 
 		@loading(true)
 
@@ -511,7 +516,7 @@ class Falcon.Model extends Falcon.Class
 	#	_Boolean_ - Is this a new model?
 	#--------------------------------------------------------
 	isNew: () ->
-		return isNumber( @id() )
+		return isNumber( ko.utils.unwrapObservable( @id ) )
 	#END isNew
 
 #END Falcon.Model

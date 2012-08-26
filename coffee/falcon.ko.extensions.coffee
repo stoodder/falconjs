@@ -13,6 +13,7 @@ ko.bindingContext = (dataItem, parentBindingContext) ->
 ko.bindingContext.prototype = _bindingContext.prototype
 
 ko.virtualElements.allowedBindings['view'] = true
+ko.virtualElements.allowedBindings['log'] = true
 ko.virtualElements.allowedBindings['collection'] = true
 
 ko.subscribable.fn.classify = (identifiers...) ->

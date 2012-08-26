@@ -184,3 +184,9 @@ ko.bindingHandlers['options'] = do ->
 		#END if
 	#END update
 #END foreach override
+
+ko.bindingHandlers['log'] =
+	update: (element, valueAccessor) ->
+		console.log( ko.utils.unwrapObservable( valueAccessor() ) )
+	#END update
+#END log

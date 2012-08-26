@@ -27,6 +27,7 @@ compiledFiles = {
 		"coffee/falcon.model.coffee"
 		"coffee/falcon.view.coffee"
 		"coffee/falcon.collection.coffee"
+		"coffee/falcon.report.coffee"
 		"coffee/falcon.event.coffee"
 		"coffee/falcon.ko.bindings.coffee"
 		"coffee/falcon.ko.extenders.coffee"
