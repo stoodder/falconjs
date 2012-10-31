@@ -205,8 +205,12 @@ class Falcon.Collection extends Falcon.Class
 		if Falcon.isModel(@parent)
 			parentUrl = @parent.makeUrl()
 			parentPeriodIndex = parentUrl.lastIndexOf(".")
-			parentUrl = parentUrl.slice(0, parentPeriodIndex) if parentPeriodIndex > -1
-			parentUrl = trim(parentUrl)
+			parentSlashIndex = parentUrl.lastIndexOf("/")
+
+			if parentSlashIndex < parentPeriodIndex
+				parentUrl = parentUrl.slice(0, parentPeriodIndex) if parentPeriodIndex > -1
+				parentUrl = trim(parentUrl)
+			#END if
 
 			url = "#{parentUrl}#{url}"
 
@@ -241,6 +245,7 @@ class Falcon.Collection extends Falcon.Class
 		options.complete = (->) unless isFunction(options.complete)
 		options.error = (->) unless isFunction(options.error)
 		options.params = {} unless isObject( options.params )
+		options.fill = true unless isBoolean( options.fill )
 
 		type = if isString(type) then type.toUpperCase() else "GET"
 		type = "GET" unless type in ["GET", "POST", "PUT", "DELETE"]
@@ -262,10 +267,6 @@ class Falcon.Collection extends Falcon.Class
 
 		@loading(true)
 
-		_complete = options.complete
-		_error = options.error
-		_success = options.success
-
 		$.ajax
 			'url': url
 			'type': type
@@ -274,28 +275,33 @@ class Falcon.Collection extends Falcon.Class
 			'contentType': options.contentType
 			'cache': Falcon.cache
 
+			'beforeSend': (xhr) =>
+				xhr.withCredentials = true
+			#END beforeSend
+
 			'success': (data, status, xhr) =>
 				data ?= []
 				data = JSON.parse( data ) if isString(data)
 				data = JSON.parse( xhr.responseText ) if isEmpty(data)
 
-				@fill(data, options) if type is "GET"
+				@fill(data, options) if options.fill and type is "GET"
 
-				_success.call(this, this, arguments...)
+				options.success.call(this, this, arguments...)
 			#END success
 
-			'error': (xhr) => 
+			'error': (xhr) =>
 				response = xhr.responseText
 				try
 					response = JSON.parse(response) if isString(response)
 				catch e
 
-				_error.call(this, this, response, xhr)
+				options.error.call(this, this, response, xhr)
 			#END error
 
 			'complete': =>
 				@loading(false)
-				_complete.call(this, this, arguments...)
+
+				options.complete.call(this, this, arguments...)
 			#END complete
 		#END $.ajax
 
@@ -439,15 +445,15 @@ class Falcon.Collection extends Falcon.Class
 	###
 	# Method: Falcon.Collection#destroy
 	#	Removes the specified models from the collection and database
-	#	executing each of te models destory method and passing the
+	#	executing each of te models destroy method and passing the
 	#	'options' parameter along with the destroy call
 	#
 	# Arguments:
 	#	**models** _(Array)_ - An array of the models to remove, if this is not an array, 
 	#						   it will be placed in one as the only object, if the models 
-	#						   is a collection, we will destory all of the models in the list.
+	#						   is a collection, we will destroy all of the models in the list.
 	#						   When no argument is given for models (or the argument is the 
-	#						   string 'all'), we'll destory everything.
+	#						   string 'all'), we'll destroy everything.
 	#
 	#	**options** _(Object)_ - An optional object of the settings to call when onto each 
 	#							 of the destroy methods of the 
@@ -479,7 +485,7 @@ class Falcon.Collection extends Falcon.Class
 		#END for
 
 		return this
-	#END destory
+	#END destroy
 
 	###
 	# Method: Falcon.Collection#at
@@ -531,12 +537,40 @@ class Falcon.Collection extends Falcon.Class
 	#END each
 
 	###
+	# Method: _makeIterator
+	#	Private method used to consistently generate iterators for 
+	#	the following search functions
+	###
+	_makeIterator = (iterator) ->
+		if Falcon.isModel( iterator )
+			_model = iterator
+			return (item) ->
+				return false unless Falcon.isModel(item)
+				id = item.get('id')
+				model_id = _model.get('id')
+				return ( id is model_id )
+			#END itertaor assignment
+		#END if
+
+		if isNumber(iterator)
+			_id = iterator
+			return (model) -> 
+				model.get("id") is _id
+			#END iterator
+		#END if
+
+		return iterator
+	#_makeIterator
+
+
+	###
 	# Method: Falcon.Collection#first
 	#	Retrieves the first value from the internal list based on an interator.  
 	#	If no iterator is present, the first value is returned.  
 	#	If no values match or exist, then null is returned
 	###
 	first: (iterator) ->
+		iterator = _makeIterator( iterator )
 		iterator = ( -> true ) unless isFunction(iterator)
 
 		for item in @list()
@@ -550,6 +584,7 @@ class Falcon.Collection extends Falcon.Class
 	#
 	###
 	last: (iterator) ->
+		iterator = _makeIterator( iterator )
 		iterator = ( -> true ) unless isFunction(iterator)
 
 		list = @list()
@@ -592,7 +627,7 @@ class Falcon.Collection extends Falcon.Class
 	#	_(Array)_ - An array of all the matched items
 	###
 	all: (iterator) ->
-		iterator = ( -> true ) unless isFunction(iterator)
+		iterator = _makeIterator( iterator )
 		return ( item for item in @list() when iterator(item) )
 	#END first
 
@@ -601,16 +636,7 @@ class Falcon.Collection extends Falcon.Class
 	#	Checks to see if any of the values match the iterator in this list
 	###
 	any: (iterator) ->
-		if Falcon.isModel( iterator )
-			_model = iterator
-			_model_id = 
-			iterator = (item) ->
-				return false unless Falcon.isModel(item)
-				id = ko.utils.unwrapObservable( item.id )
-				model_id = ko.utils.unwrapObservable( _model.id )
-				return ( id is model_id )
-			#END itertaor assignment
-		#END if
+		iterator = _makeIterator( iterator )
 
 		return false unless isFunction(iterator)
 
@@ -626,15 +652,7 @@ class Falcon.Collection extends Falcon.Class
 	#	Returns an array of elements that don't match the iterator
 	###
 	without: (iterator) ->
-		if Falcon.isModel( iterator )
-			_model = iterator
-			iterator = (item) ->
-				return false unless Falcon.isModel(item)
-				id = ko.utils.unwrapObservable( item.id )
-				model_id = ko.utils.unwrapObservable( _model.id )
-				return ( id is model_id )
-			#END itertaor assignment
-		#END if
+		iterator = _makeIterator( iterator )
 
 		return @list() unless isFunction(iterator)
 		return ( item for item in @list() when not iterator( item ) )

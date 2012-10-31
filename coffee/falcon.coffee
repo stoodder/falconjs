@@ -1,10 +1,17 @@
 Falcon =
 	version: "{{VERSION}}"
+	applicationElement: "body"
 	baseApiUrl: ""
 	baseTemplateUrl: ""
 	cache: true
 
-	apply: (view, callback) -> 
+	apply: (view, element, callback) -> 
+		[callback, element] = [element, callback] if isFunction( element )
+
+		element = "" unless isString( element )
+		element = trim( element )
+		element = (Falcon.applicationElement ? "body") if isEmpty( element )
+
 		$ ->
 			$('template').each (index, template) ->
 				template = $(template)
@@ -21,7 +28,7 @@ Falcon =
 				#END if
 			#END if
 
-			$('body').attr('data-bind', 'view: $data')
+			$(element).attr('data-bind', 'view: $data')
 			ko.applyBindings(view)
 	#END apply
 

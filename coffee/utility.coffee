@@ -7,7 +7,7 @@
 # -------------------------------------------------
 # CHECKING FUNCTIONS
 # -------------------------------------------------
-isObject = (object) -> (typeof object) is (typeof {}) and object isnt null
+isObject = (object) -> Object::toString.call( object ) is "[object Object]"
 isFunction = (object) -> Object::toString.call( object ) is "[object Function]"
 isBoolean = (object) -> Object::toString.call( object ) is "[object Boolean]"
 isArray = (object) -> Object::toString.call( object ) is "[object Array]"
@@ -22,6 +22,7 @@ isEmpty = (object) ->
 	else if object is null or typeof object is "undefined"
 		return true
 	return false
+#END is empty
 
 # -------------------------------------------------
 # STRING FUNCTIONS
@@ -55,6 +56,13 @@ extend = (obj, extender) ->
 	obj[key] = value for key, value of extender
 
 	return obj
+
+findKey = (obj, value) ->
+	for k, v of obj
+		return k if v is value 
+	return undefined
+#END findKey
+		
 
 # -------------------------------------------------
 # ARRAY FUNCTIONS

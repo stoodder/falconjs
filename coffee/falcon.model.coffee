@@ -113,10 +113,71 @@ class Falcon.Model extends Falcon.Class
 	#END initialize
 
 	#--------------------------------------------------------
+	# Method: Falcon.Model#get()
+	#	Gets am observable-less value for a specific key
+	#
+	# Arguments:
+	#	**key** _(string)_ - The key to look up
+	#
+	# Returns:
+	#	_(mixed)_ - The unwrapped value at the specific key
+	#--------------------------------------------------------
+	get: (key) ->
+		return @undefined unless isString( key )
+		return ko.utils.unwrapObservable( @[key] )
+	#END get
+
+	#--------------------------------------------------------
+	# Method: Falcon.Model#set()
+	#	Sets a value for the specific key, creating one if it does nto exist
+	#
+	# Arguments:
+	#	**key** _(string)_ - The key to look up
+	#	**value** -(mixed)_ - The value to assign
+	#
+	# Arguments:
+	#	**key** _(object)_ - An object of values to set
+	#
+	# Returns:
+	#	_(Falcon.Model)_ - This Model
+	#--------------------------------------------------------
+	set: (key, value) ->
+		if isObject( key )
+			@set(k, v) for k, v of key
+			return this
+		#END if
+		
+		return this unless isString( key )
+		
+		if ko.isObservable( @[key] )
+			@[key](value)
+		else
+			@[key] = value
+		#END if
+
+		return this
+	#END set
+
+	#--------------------------------------------------------
+	# Method: Falcon.Model#toggle()
+	#	Toggles the value between true/false on the specific key
+	#
+	# Arguments:
+	#	**key** _(string)_ - The key to look up
+	#
+	# Returns:
+	#	_(mixed)_ - The unwrapped value at the specific key
+	#--------------------------------------------------------
+	toggle: (key) ->
+		return @set(key, not @get(key) )
+	#END toggle
+
+	#--------------------------------------------------------
 	# Method: Falcon.Model#fill()
 	#	Method used to 'fill in' and add data to this model
 	#--------------------------------------------------------
 	fill: (_data) ->
+		_data = {'id': _data} if isNumber(_data)
 		return this unless isObject(_data)
 		_data = _data.unwrap() if Falcon.isModel(_data)
 		data = {}
@@ -207,10 +268,17 @@ class Falcon.Model extends Falcon.Class
 		# Mapped keys are the local attributes
 		# Keys are the server's attributes
 		if isArray(fields) and not isEmpty(fields)
-			for field in fields
-				server_keys[server_keys.length] = field
-				model_keys[model_keys.length] = field
-			#END for
+			if isObject(@fields) #TODO: Can we optimize this at all?
+				for field in fields
+					server_keys[server_keys.length] = findKey( @fields, field ) ? field
+					model_keys[model_keys.length] = field
+				#END for
+			else
+				for field in fields
+					server_keys[server_keys.length] = field
+					model_keys[model_keys.length] = field
+				#END for
+			#END if
 
 		else if isObject(fields) and not isEmpty(fields)
 			for server_field, model_field of fields
@@ -283,8 +351,12 @@ class Falcon.Model extends Falcon.Class
 		if Falcon.isModel(parent)
 			parentUrl = parent.makeUrl()
 			parentPeriodIndex = parentUrl.lastIndexOf(".")
-			parentUrl = parentUrl.slice(0, parentPeriodIndex) if parentPeriodIndex > -1
-			parentUrl = trim(parentUrl)
+			parentSlashIndex = parentUrl.lastIndexOf("/")
+
+			if parentSlashIndex < parentPeriodIndex
+				parentUrl = parentUrl.slice(0, parentPeriodIndex) if parentPeriodIndex > -1
+				parentUrl = trim(parentUrl)
+			#END if
 
 			url = "#{parentUrl}#{url}"
 
@@ -337,6 +409,7 @@ class Falcon.Model extends Falcon.Class
 		options.parent = @parent unless Falcon.isModel(options.parent)
 		options.fields = [] unless isArray( options.fields )
 		options.params = {} unless isObject( options.params ) 
+		options.fill = true unless isBoolean( options.fill )
 
 		type = trim( if isString(type) then type.toUpperCase() else "GET" )
 		type = "GET" unless type in ["GET", "POST", "PUT", "DELETE"]
@@ -367,8 +440,13 @@ class Falcon.Model extends Falcon.Class
 			'contentType': options.contentType
 			'cache': Falcon.cache
 
-			'success': (data) => 
-				@fill(data) 
+			'beforeSend': (xhr) =>
+				xhr.withCredentials = true
+			#END beforeSend
+
+			'success': (data, status, xhr) =>
+				@fill(data) if options.fill
+
 				switch type
 					when "GET" then @trigger("fetch", data)
 					when "POST" then @trigger("create", data)
@@ -388,7 +466,7 @@ class Falcon.Model extends Falcon.Class
 				options.error.call(this, this, response, xhr)
 			#END error
 
-			'complete': => 
+			'complete': (xhr) =>
 				@loading(false)
 				options.complete.call(this, this, arguments...)
 			#END complete
@@ -504,7 +582,7 @@ class Falcon.Model extends Falcon.Class
 	#	_Falcon.Model_ - A clone of this model
 	#--------------------------------------------------------
 	clone: (parent) ->
-		parent = if parent is null or Falcon.isModel(parent) then parent else @parent
+		parent = if parent? or parent is null then parent else @parent
 		return new this.constructor(this.unwrap(), parent )
 	#END clone
 

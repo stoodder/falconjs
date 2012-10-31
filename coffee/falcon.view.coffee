@@ -109,42 +109,37 @@ class Falcon.View extends Falcon.Class
 
 		# Validate the public variables
 		@template = ko.observable()
-		@url = "" unless isString(@url)
-		@url = trim(@url)
+		url = @makeUrl()
 
 		# Setup the isLoaded variable
-		@isLoaded = ko.observable( ko.utils.unwrapObservable( @isLoaded ) )
+		@isLoaded = ko.observable( false )
 		
 		_loaded = () =>
 			@isLoaded(true)
-			@trigger("load")
+			defer => @trigger("load")
 
 			Falcon.View.loaded()
 		#END _loaded
 
 		# Attempt to load the template from the server or cache
-		if isEmpty(@url)
+		if isEmpty(url)
 			_loaded()
 
-		else if @url of templateCache
-			@template(templateCache[@url])
+		else if url of templateCache
+			@template(templateCache[url])
 			_loaded()
 
-		else if startsWith(@url, "#")
-			if templateCache[@url]?
-				@template( templateCache[@url] )
-			else
-				@template( templateCache[@url] = $(@url).html() )
-			#END if
+		else if startsWith(url, "#")
+			@template( templateCache[url] ?= $(url).html() )
 			
 			_loaded()
 		else
 			$.ajax
-				url: @url
+				url: url
 				type: "GET"
 				cache: false
 				error: () =>
-					console.log("ERROR LOADING TEMPLATE #{@url}")
+					console.log("ERROR LOADING TEMPLATE #{url}")
 				#END error
 				success: (html) =>
 					@template( templateCache[@url] = html )
@@ -155,6 +150,20 @@ class Falcon.View extends Falcon.Class
 
 		@initialize.apply(this, arguments)
 	#END constructor
+
+	makeUrl: () ->
+		url = ko.utils.unwrapObservable( @url )
+		url = "" unless isString( url )
+		url = trim( url )
+
+		#Make sure the url is now formatted correctly
+		#url = "/#{url}" unless startsWith(url, "/")
+
+		#Attempt to add on the base url
+		url = "#{Falcon.baseTemplateUrl}#{url}" if isString( Falcon.baseTemplateUrl)
+
+		return url
+	#END makeUrl
 
 	###
 	#

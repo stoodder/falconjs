@@ -24,7 +24,5 @@ ko.subscribable.fn.classify = (identifiers...) ->
 		extenders[identifier] = true
 	#END for
 
-	this.extend(extenders) 
-
-	return this
+	return this.extend(extenders) 
 #END classify
