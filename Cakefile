@@ -1,7 +1,9 @@
+
 # Building Falcon requires coffee-script and uglify-js. For
 # help installing, try:
 #
-# `npm -g install coffee-script uglify-js`
+# `npm -g install coffee-script uglify-js wrench`
+# `gem install sass`
 #
 # Original Cake file from Chosen.js - modified for our use
 #   https://github.com/harvesthq/chosen/blob/master/Cakefile
@@ -10,15 +12,39 @@ path            	= require 'path'
 {spawn, exec}   	= require 'child_process'
 CoffeeScript    	= require 'coffee-script'
 {parser, uglify}	= require 'uglify-js'
+wrench          	= require 'wrench'
 
+extendArray = (_array, _ext) -> 
+	ret = []
+	ret.push( val ) for val in _array
+	ret.push( val ) for val in _ext
+	return ret
+#END exendArray
 
 # Get the version number
 version_file = 'VERSION'
 version = "#{fs.readFileSync(version_file)}".replace /[^0-9a-zA-Z.]*/gm, ''
 version_tag = -> "v#{version}"
 
-compiledFiles = {
-	"scripts/falcon.js": [
+copiedFiles = {}
+
+compiledCoffeeFiles = {
+	"scripts/falcon-standalone.js": [
+		"coffee/header.coffee"
+		"coffee/utility.coffee"
+		"coffee/falcon.coffee"
+		"coffee/falcon.global.coffee"
+		"coffee/falcon.class.coffee"
+		"coffee/falcon.model.coffee"
+		"coffee/falcon.view.coffee"
+		"coffee/falcon.collection.coffee"
+		"coffee/falcon.event.coffee"
+		"coffee/falcon.ko.bindings.coffee"
+		"coffee/falcon.ko.extenders.coffee"
+		"coffee/falcon.ko.extensions.coffee"
+	]
+
+	"scripts/falcon-standalone-reports.js": [
 		"coffee/header.coffee"
 		"coffee/utility.coffee"
 		"coffee/falcon.coffee"
@@ -39,93 +65,179 @@ compiledFiles = {
 	]
 }
 
-Array::unique = ->
-	output = {}
-	output[@[key]] = @[key] for key in [0...@length]
-	value for key, value of output
+combinedScriptFiles = {
+	"scripts/falcon.js": [
+		"scripts/knockout-2.2.0.js"
+		"scripts/falcon-standalone.js"
+	]
+
+	"scripts/falcon-reports.js": [
+		"scripts/knockout-2.2.0.js"
+		"scripts/falcon-standalone-reports.js"
+	]
+}
+
+compiledSassFiles = {}
 
 # Method used to write a javascript file
-write_javascript_file = (filename, body) ->
-	body = body
-		.replace(/\{\{VERSION\}\}/gi, version)
-		.replace(/\{\{VERSION_TAG\}\}/gi, version_tag)
+write_file = (filename, body) ->
+	body = body.replace(
+		/\{\{VERSION\}\}/gi, version
+	).replace(
+		/\{\{VERSION_TAG\}\}/gi, version_tag
+	)
 	fs.writeFileSync filename, body
 	console.log "Wrote #{filename}"
 
 # Task to build the current source
-task 'build', 'build from source', build = (cb) ->
-	code = minified_code = ""
-	file_name = file_contents = ""
-	try
-		for destination, sources of compiledFiles
-			file_name = destination
-			file_contents += "#{fs.readFileSync(source)}\r\n" for source in sources	
+task 'build', 'build coffee from source', build = (cb) ->
+	for destination, sources of compiledCoffeeFiles
+		do ->
+			code = minified_code = ""
+			file_name = file_contents = ""
+			try
 
-			code = CoffeeScript.compile(file_contents)
+				file_name = destination
+				file_contents = ""
+				file_contents += "#{fs.readFileSync(source)}\r\n" for source in sources	
+
+				code = CoffeeScript.compile(file_contents)
+				minified_code = parser.parse( code )
+				minified_code = uglify.ast_mangle( minified_code )
+				minified_code = uglify.ast_squeeze( minified_code )
+				minified_code = uglify.gen_code( minified_code )
+
+				write_file(file_name, code)
+				write_file(file_name.replace(/\.js$/,'.min.js'), minified_code)
+
+				cb() if typeof cb is 'function'
+			catch e
+				print_error e, file_name, file_contents
+		#END do
+
+#END build task
+
+task 'combine', 'Combine dependant script files into one', (cb) ->
+	try
+		for destination, sources of combinedScriptFiles
+			code = ( fs.readFileSync(source) for source in sources when path.existsSync(source) ).join("\r\n")
+
 			minified_code = parser.parse( code )
 			minified_code = uglify.ast_mangle( minified_code )
 			minified_code = uglify.ast_squeeze( minified_code )
 			minified_code = uglify.gen_code( minified_code )
-
-			write_javascript_file(file_name, code)
-			write_javascript_file(file_name.replace(/\.js$/,'.min.js'), minified_code)
+			
+			write_file( destination, code )
+			write_file( destination.replace(/\.js$/,'.min.js'), minified_code )
+		#END for
 
 		cb() if typeof cb is 'function'
 	catch e
 		print_error e, file_name, file_contents
+#END minify
+
+# Task to build the current source
+task 'copy', 'copy from source', build = (cb) ->
+	try
+		for destination, source of copiedFiles when path.existsSync(source)
+			write_file(destination, "#{fs.readFileSync(source)}")
+
+		cb() if typeof cb is 'function'
+	catch e
+		print_error e, file_name, file_contents
+#END copy task
+
+#Task for building sass file
+task 'build_sass', 'Build sass from source', ->
+	count = 0
+	for destination, sources of compiledSassFiles
+		do ->
+			try
+				file_name = destination
+				min_destination = destination.replace(/\.css$/,'.min.css')
+				temp_destination = "__temp_" + (new Date).valueOf() + "_#{count}__.sass"
+
+				file_contents = ""
+				file_contents += "#{fs.readFileSync(source)}\r\n" for source in sources
+
+				write_file(temp_destination, file_contents)
+
+				exec "sass --update #{temp_destination}:#{destination} --style expanded", (messages) ->
+					console.log("Wrote #{destination}")
+					console.error( messages ) if messages?.code is 1
+					exec "sass --update #{temp_destination}:#{min_destination} --style compressed", ->
+						console.log("Wrote #{min_destination}")
+						fs.unlink(temp_destination)
+						console.log("Cleaning: #{temp_destination}")
+
+						#lastly try to delete in .sass-cache directory
+						try
+							wrench.rmdirSyncRecursive('.sass-cache')
+						catch error
+						#END try/catch
+					#END min exec
+				#END exec
+
+				count++
+			catch error
+				print_error error, file_name, file_contents
+			#END try/catch
+		#END do
+	#END for
+
+#END build_sass task
 
 #Task to watch files (so they're built when saved)
 task 'watch', 'watch coffee/ and tests/ for changes and build', ->
-	console.log "Watching for changes in coffee/ and tests/"
+	console.log "Watching for changes"
 
-	for destination, sources of compiledFiles
+	for destination, sources of compiledCoffeeFiles
 		for source in sources
+			console.log "Watching for changes in #{source}"
 			fs.watch( source, (curr, prev) ->
-				console.log "Saw change in #{source}"
+				console.log "#{new Date}: Saw change in #{source}"
 				invoke 'build'
 			)
+		#END for
+	#END for
 
-# --------------------------------------------------------
-# 
-# --------------------------------------------------------
-run = (cmd, args, cb, err_cb) ->
-	exec "#{cmd} #{args.join(' ')}", (err, stdout, stderr) ->
-		if err isnt null
-			console.error stderr
+	invoke 'build'
 
-			if typeof err_cb is 'function'
-				err_cb()
-			else
-				throw "Failed command execution (#{err})."
-		else
-			cb(stdout) if typeof cb is 'function'
+	for destination, sources of compiledSassFiles
+		for source in sources
+			console.log "Watching for changes in #{source}"
+			fs.watch( source, (curr, prev) ->
+				console.log "#{new Date}: Saw change in #{source}"
+				invoke 'build_sass'
+			)
+		#END for
+	#END for
 
-# --------------------------------------------------------
-# 
-# --------------------------------------------------------
-with_clean_repo = (cb) ->
-	run 'git', ['diff', '--exit-code'], cb, ->
-		throw 'There are files that need to be committed first.'
+	invoke 'build_sass'
 
-# --------------------------------------------------------
-#
-# --------------------------------------------------------
-without_existing_tag = (cb) ->
-	run 'git', ['tag'], (stdout) ->
-		if stdout.split("\n").indexOf( version_tag() ) >= 0
-			throw 'This tag has already been committed to the repo.'
-		else
-			cb()
+	for destination, source of copiedFiles
+		console.log "Watching for changes in #{source}"
+		fs.watch( source, (curr, prev) ->
+			console.log "#{new Date}: Saw change in #{source}"
+			invoke 'copy'
+		)
+	#END for
 
-# --------------------------------------------------------
-#
-# --------------------------------------------------------
-push_repo = (args=[], cb, cb_err) ->
-	run 'git', ['push'].concat(args), cb, cb_err
+	invoke 'copy'
 
-# --------------------------------------------------------
-#
-# --------------------------------------------------------
+	for destination, sources of combinedScriptFiles
+		for source in sources
+			console.log "Watching for changes in #{source}"
+			fs.watch( source, (curr, prev) ->
+				console.log "#{new Date}: Saw change in #{source}"
+				invoke 'combine'
+			)
+		#END for
+	#END for
+	
+	invoke 'combine'
+#END watch task
+
 print_error = (error, file_name, file_contents) ->
 	line = error.message.match /line ([0-9]+):/
 	if line && line[1] && line = parseInt(line[1])
@@ -141,114 +253,3 @@ print_error = (error, file_name, file_contents) ->
 	else
 		console.log "Error compiling #{file_name}: #{error.message}"
 
-# --------------------------------------------------------
-#
-# --------------------------------------------------------
-git_commit = (message) ->
-	run "git", ["commit", '-a', '-m', message]
-
-# --------------------------------------------------------
-#
-# --------------------------------------------------------
-git_tag = (cb, cb_err) ->
-	run 'git', ['tag', '-a', '-m', "\"Version #{version}\"", version_tag()], cb, cb_err
-
-# --------------------------------------------------------
-#
-# --------------------------------------------------------
-git_untag = (e) ->
-	console.log "Failure to tag caught: #{e}"
-	console.log "Removing tag #{version_tag()}"
-	run 'git', ['tag', '-d', version_tag()]
-
-
-# --------------------------------------------------------
-#
-# --------------------------------------------------------
-task 'major', 'Executing a major version update', () ->
-
-	console.log "Trying to run a major version update"
-
-	v = version.match(/^([0-9]+)\.([0-9]+)\.([0-9]+)$/)
-	v[1]++
-	v[2] = v[3] = 0
-	version = "#{v[1]}.#{v[2]}.#{v[3]}"
-
-	fs.writeFileSync(version_file, version)
-
-	invoke 'build'
-	invoke 'build-tests'
-
-	git_commit("\"Updating to Major version #{version}\"")
-
-	git_tag(->)
-
-	console.log "Finished updating major version"
-
-
-# --------------------------------------------------------
-#
-# --------------------------------------------------------
-task 'minor', 'Executing a minor version update', () ->
-
-	console.log "Trying to run a minor versino update"
-
-	v = version.match(/^([0-9]+)\.([0-9]+)\.([0-9]+)$/)
-	v[2]++
-	v[3] = 0
-	version = "#{v[1]}.#{v[2]}.#{v[3]}"
-
-	fs.writeFileSync(version_file, version)
-
-	invoke 'build'
-	invoke 'build-tests'
-
-	git_commit("\"Updating to Minor version #{version}\"")
-
-	git_tag(->)
-
-	console.log "Finished updating minor version"
-
-
-# --------------------------------------------------------
-#
-# --------------------------------------------------------
-task 'patch', 'Executing a patch version update', () ->
-
-	console.log "Trying to run a patch version update"
-
-	v = version.match(/^([0-9]+)\.([0-9]+)\.([0-9]+)$/)
-	v[3]++
-	version = "#{v[1]}.#{v[2]}.#{v[3]}"
-
-	fs.writeFileSync(version_file, version)
-
-	invoke 'build'
-	invoke 'build-tests'
-
-	git_commit("\"Updating to Patch version #{version}\"")
-
-	git_tag(->)
-
-	console.log "Finished updating patch version"
-
-
-# --------------------------------------------------------
-#
-# --------------------------------------------------------
-task 'release', 'build, tag the current release, and push', ->
-	console.log "Trying to tag #{version_tag()}..."
-	with_clean_repo( ->
-		without_existing_tag( ->
-			build( ->
-				git_tag ( ->
-					push_repo [], ( ->
-						push_repo ['--tags'], ( ->
-							console.log "Successfully tagged #{version_tag()}: https://github.com/stoodder/falconjs/tree/#{version_tag()}"
-
-						), git_untag
-					), git_untag
-				), git_untag
-			)
-		)
-	)

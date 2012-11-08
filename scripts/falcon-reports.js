@@ -5563,6 +5563,211 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
 
   })(Falcon.Class);
 
+  Falcon.Report = (function(_super) {
+    var Axis;
+
+    __extends(Report, _super);
+
+    Axis = (function() {
+
+      function Axis() {
+        this.title = "";
+        this.format = "";
+      }
+
+      Axis.prototype.options = function() {
+        return {
+          title: this.title,
+          format: this.format
+        };
+      };
+
+      return Axis;
+
+    })();
+
+    /*
+    	# Attribute: Report#columns
+    	#	A list of columns to use in this format: "[type] [key] [label]"
+    	#
+    	#	types: 'string' 'number' 'boolean' 'date' 'datetime' 'timeofday'
+    */
+
+    Report.prototype.columns = null;
+
+    Report.prototype.url = null;
+
+    Report.prototype._formatting = null;
+
+    Report.prototype.haxis = null;
+
+    Report.prototype.vaxis = null;
+
+    Report.prototype.data = null;
+
+    Report.prototype._parameters = null;
+
+    Report.prototype.response_handler = (function() {});
+
+    function Report(url, columns) {
+      var _ref;
+      Report.__super__.constructor.call(this);
+      if (isArray(url)) _ref = [columns, url], url = _ref[0], columns = _ref[1];
+      if (this.url == null) this.url = url != null ? url : "";
+      if (this.columns == null) this.columns = columns != null ? columns : [];
+      this.data = ko.observableArray([]);
+      this.loading = ko.observable(false);
+      this._parameters = {};
+      this._formatting = {};
+      this._current_request = null;
+      this.haxis = new Axis();
+      this.vaxis = new Axis();
+    }
+
+    Report.prototype.param = function(key, value) {
+      this._parameters[key] = value;
+      return this;
+    };
+
+    Report.prototype.fetch = function(success) {
+      var key, params, url, value, _ref, _value,
+        _this = this;
+      url = isFunction(this.url) ? this.url() : this.url;
+      if (!isString(url)) url = "";
+      if (!isString(url)) return;
+      if (!isFunction(success)) success = (function() {});
+      this.loading(true);
+      params = {};
+      _ref = this._parameters;
+      for (key in _ref) {
+        _value = _ref[key];
+        value = ko.utils.unwrapObservable(_value);
+        if (Falcon.isModel(value)) {
+          params[key] = ko.utils.unwrapObservable(value.id);
+        } else if (isFunction(value)) {
+          params[key] = value();
+        } else {
+          params[key] = value;
+        }
+      }
+      url = url + "/";
+      for (key in params) {
+        value = params[key];
+        url = url.replace(":" + key + "/", "" + value + "/");
+      }
+      url = url.slice(0, -1);
+      return this._current_request = $.ajax({
+        type: "GET",
+        url: url,
+        data: params,
+        success: function(data) {
+          if (data == null) data = [];
+          if (!isArray(data)) data = [data];
+          _this.data(data);
+          _this.trigger("success", data);
+          return success.apply(_this, arguments);
+        },
+        error: function(error) {
+          return _this.trigger("error", error);
+        },
+        complete: function() {
+          _this._current_request = null;
+          return _this.loading(false);
+        }
+      });
+    };
+
+    Report.prototype.request = function(chart) {
+      var _this = this;
+      if (chart == null) return;
+      return this.fetch(function() {
+        var options;
+        options = {
+          hAxis: _this.haxis.options(),
+          vAxis: _this.vaxis.options()
+        };
+        return chart.draw(_this.dataTable(), options);
+      });
+    };
+
+    /*
+    	# Method: Report#format
+    	#	Formats a specific key as a specific format type
+    */
+
+    Report.prototype.format = function(key, type, options) {
+      var formatter;
+      if (!_.isString(key)) key = "";
+      if (!_.isString(type)) type = "";
+      key = _.trim(key);
+      type = _.trim(type).toLowerCase();
+      if (_.isEmpty(key)) return;
+      if (_.isEmpty(type)) return;
+      formatter = (function() {});
+      if (type === "number") {
+        formatter = function() {
+          return new google.visualization.NumberFormat(options);
+        };
+      }
+      return this._formatting[key] = {
+        type: type,
+        formatter: formatter
+      };
+    };
+
+    Report.prototype.parseColumn = function(column_str) {
+      var coumn_str;
+      if (!_.isString(coumn_str)) coumn_str = "";
+      return column_str.split(" ", 3);
+    };
+
+    Report.prototype.parseItem = function(key, item) {
+      var formatting, type;
+      item = ko.utils.unwrapObservable(item);
+      formatting = this._formatting[key];
+      if (formatting != null) {
+        type = formatting['type'];
+        if (type === "number") return parseFloat(item);
+      }
+      return item;
+    };
+
+    Report.prototype.dataTable = function() {
+      var column, index, item, key, key_array, label, table, type, _i, _len, _len2, _ref, _ref2, _ref3;
+      table = new google.visualization.DataTable();
+      key_array = [];
+      _ref = this.columns;
+      for (index = 0, _len = _ref.length; index < _len; index++) {
+        column = _ref[index];
+        _ref2 = this.parseColumn(column), type = _ref2[0], key = _ref2[1], label = _ref2[2];
+        key_array.push(key);
+        table.addColumn(type, label);
+        if (this._formatting[key] != null) {
+          this._formatting[key]['formatter']().format(table, index);
+        }
+      }
+      _ref3 = this.data();
+      for (_i = 0, _len2 = _ref3.length; _i < _len2; _i++) {
+        item = _ref3[_i];
+        if (isObject(item)) {
+          table.addRow((function() {
+            var _j, _len3, _results;
+            _results = [];
+            for (_j = 0, _len3 = key_array.length; _j < _len3; _j++) {
+              key = key_array[_j];
+              _results.push(this.parseItem(key, item[key]));
+            }
+            return _results;
+          }).call(this));
+        }
+      }
+      return table;
+    };
+
+    return Report;
+
+  })(Falcon.Class);
+
   Falcon.Event = (function() {
 
     Event.UP_KEY = 38;
