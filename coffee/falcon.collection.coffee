@@ -720,7 +720,8 @@ class Falcon.Collection extends Falcon.Class
 					plucked_values.push( window.undefined )
 				#END if
 			#END for
-		else
+		else if keys.length == 1
+			key = keys[0]
 			for model in @list()
 				if isObject( model )
 					plucked_values.push( (if unwrap then ko.utils.unwrapObservable(model[key]) else model[key]) )

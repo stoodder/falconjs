@@ -21,6 +21,7 @@ Falcon =
 			#END each template
 
 			if isFunction( callback )
+				#TODO: we need to check if view is an observable
 				if view instanceof Falcon.View
 					Falcon.View.on("init", callback) 
 				else
@@ -28,7 +29,7 @@ Falcon =
 				#END if
 			#END if
 
-			$(element).attr('data-bind', 'view: $data')
+			$(element).attr('data-bind', 'view: ko.observable($data)')
 			ko.applyBindings(view)
 	#END apply
 

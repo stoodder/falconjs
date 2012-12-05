@@ -160,7 +160,7 @@ class Falcon.View extends Falcon.Class
 		#url = "/#{url}" unless startsWith(url, "/")
 
 		#Attempt to add on the base url
-		url = "#{Falcon.baseTemplateUrl}#{url}" if isString( Falcon.baseTemplateUrl)
+		url = "#{Falcon.baseTemplateUrl}#{url}" if isString(Falcon.baseTemplateUrl)
 
 		return url
 	#END makeUrl

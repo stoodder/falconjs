@@ -96,6 +96,8 @@ class Falcon.Report extends Falcon.Class
 		url = url.replace(":#{key}/", "#{value}/") for key, value of params
 		url = url.slice(0, -1)
 
+		url = Falcon.baseApiUrl + url
+
 		#Send of and set the current reuqest variable
 		@_current_request = $.ajax
 			type: "GET"

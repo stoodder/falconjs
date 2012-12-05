@@ -3,7 +3,7 @@
 	Falcon.js
 	by Rick Allen (stoodder)
 
-	Version 0.0.2
+	Version 0.1.0
 	Full source at https://github.com/stoodder/falconjs
 	Copyright (c) 2011 RokkinCat, http://www.rokkincat.com
 
@@ -221,7 +221,7 @@
   };
 
   Falcon = {
-    version: "0.0.2",
+    version: "0.1.0",
     applicationElement: "body",
     baseApiUrl: "",
     baseTemplateUrl: "",
@@ -253,7 +253,7 @@
             callback();
           }
         }
-        $(element).attr('data-bind', 'view: $data');
+        $(element).attr('data-bind', 'view: ko.observable($data)');
         return ko.applyBindings(view);
       });
     },
@@ -1933,7 +1933,8 @@
             plucked_values.push(window.undefined);
           }
         }
-      } else {
+      } else if (keys.length === 1) {
+        key = keys[0];
         _ref2 = this.list();
         for (_j = 0, _len2 = _ref2.length; _j < _len2; _j++) {
           model = _ref2[_j];
@@ -2078,6 +2079,7 @@
         url = url.replace(":" + key + "/", "" + value + "/");
       }
       url = url.slice(0, -1);
+      url = Falcon.baseApiUrl + url;
       return this._current_request = $.ajax({
         type: "GET",
         url: url,
@@ -2296,8 +2298,23 @@
     };
     return {
       'init': function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
-        var value;
+        var oldViewModel, subscription, value;
         value = valueAccessor();
+        if (ko.isSubscribable(value)) {
+          oldViewModel = ko.utils.unwrapObservable(value);
+          subscription = value.subscribe(function(newViewModel) {
+            if (Falcon.isView(oldViewModel)) oldViewModel.dispose();
+            return oldViewModel = newViewModel;
+          });
+          ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+            if (Falcon.isView(oldViewModel)) oldViewModel.dispose();
+            return subscription.dispose();
+          });
+        } else if (Falcon.isView(value)) {
+          ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+            return value.dispose();
+          });
+        }
         value = ko.utils.unwrapObservable(value);
         viewModel = getViewModel(value);
         if (value instanceof Falcon.View && !value.url) {
@@ -2333,6 +2350,7 @@
             });
           }
         }
+        if (Falcon.isView(value)) value.trigger("render");
         context['$view'] = originalViewContext;
         return returnVal;
       }
@@ -2356,6 +2374,7 @@
       if (_shouldUpdate(element, value)) {
         return ((_ref = _foreach['update']) != null ? _ref : (function() {})).apply(null, [element, _getItems(value)].concat(__slice.call(args)));
       }
+      if (Falcon.isCollection(value)) value.trigger("render");
     }
   };
 

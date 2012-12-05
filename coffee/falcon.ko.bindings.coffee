@@ -64,9 +64,32 @@ ko.bindingHandlers['view'] = do ->
 	return {
 		'init': (element, valueAccessor, allBindingsAccessor, viewModel, context) ->
 			value = valueAccessor()
+
+			if ko.isSubscribable( value )
+				oldViewModel = ko.utils.unwrapObservable( value )
+				#console.log("INIT", oldViewModel)
+				subscription = value.subscribe (newViewModel) ->
+					#console.log( "SUBSCRIPTION", oldViewModel, newViewModel )
+					oldViewModel.dispose() if Falcon.isView(oldViewModel)
+					oldViewModel = newViewModel
+				#END subscribe
+
+				ko.utils.domNodeDisposal.addDisposeCallback element, ->
+					#console.log( "DOM DISPOSAL", oldViewModel )
+					oldViewModel.dispose() if Falcon.isView(oldViewModel)
+					subscription.dispose()
+				#END domDisposal
+			#END if subscribable
+
+			else if Falcon.isView( value )
+				ko.utils.domNodeDisposal.addDisposeCallback element, ->
+					value.dispose()
+				#END domDisposal
+			#END if
+
 			value = ko.utils.unwrapObservable(value)
 			viewModel = getViewModel(value)
-			
+
 			value.template( $(element).html() ) if value instanceof Falcon.View and not value.url
 				
 			ko.bindingHandlers['template']['init'](
@@ -76,7 +99,7 @@ ko.bindingHandlers['view'] = do ->
 				viewModel,
 				context
 			)
-
+			
 			return returnVal
 		#END init
 
@@ -93,6 +116,7 @@ ko.bindingHandlers['view'] = do ->
 
 			#Setup the new view context
 			context['$view'] = viewModel
+
 
 			if isEmpty( viewModel ) or not template?
 				$(element).html(" ")
@@ -118,6 +142,8 @@ ko.bindingHandlers['view'] = do ->
 					)
 				#END if template updated
 			#END if not template?
+
+			value.trigger("render") if Falcon.isView(value)
 
 			#Revert this back to the parent view (so we keep the correct context)
 			context['$view'] = originalViewContext
@@ -148,6 +174,7 @@ ko.bindingHandlers['foreach'] =
 		if _shouldUpdate(element, value)
 			return ( _foreach['update'] ? (->) )(element, _getItems(value), args...)
 		#END if
+		value.trigger("render") if Falcon.isCollection(value)
 		return
 	#END update
 #END foreach override
