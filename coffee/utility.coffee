@@ -7,12 +7,12 @@
 # -------------------------------------------------
 # CHECKING FUNCTIONS
 # -------------------------------------------------
-isObject = (object) -> Object::toString.call( object ) is "[object Object]"
-isFunction = (object) -> Object::toString.call( object ) is "[object Function]"
-isBoolean = (object) -> Object::toString.call( object ) is "[object Boolean]"
-isArray = (object) -> Object::toString.call( object ) is "[object Array]"
-isString = (object) -> Object::toString.call( object ) is "[object String]"
-isNumber = (object) -> Object::toString.call( object ) is "[object Number]"
+isObject = (object) -> object? and Object::toString.call( object ) is "[object Object]"
+isFunction = (object) -> object? and Object::toString.call( object ) is "[object Function]"
+isBoolean = (object) -> object? and Object::toString.call( object ) is "[object Boolean]"
+isArray = (object) -> object? and Object::toString.call( object ) is "[object Array]"
+isString = (object) -> object? and Object::toString.call( object ) is "[object String]"
+isNumber = (object) -> object? and Object::toString.call( object ) is "[object Number]"
 isEmpty = (object) ->
 	if isObject(object)
 		return false for key, value of object
@@ -62,6 +62,25 @@ findKey = (obj, value) ->
 		return k if v is value 
 	return undefined
 #END findKey
+
+#Flattens the object's keys into an array
+#TODO:  Try to optimize things that call this method, 
+#		usually this results in being re-inflated to an object later
+flattenObjectKeys = (obj, prefix) ->
+	flat = []
+	prefix = "" unless isString( prefix )
+
+	for key, value of obj
+		if isObject( value )
+			flat = flat.concat( flattenObjectKeys( value, "#{prefix}#{key}." ) )
+		else
+			flat.push( "#{prefix}#{key}")
+		#END if
+	#END for
+
+	return flat
+#END flattenObjectKeys
+
 		
 
 # -------------------------------------------------

@@ -1,138 +1,90 @@
-###
+#--------------------------------------------------------
 # Class: Falcon.View
 #	Class hat represents a view on the screen
 #
 # TODO:
 #	Add the on/off methods
-###
+#--------------------------------------------------------
 class Falcon.View extends Falcon.Class
 
-	###
+	#--------------------------------------------------------
 	# The internal cache of each template identified by 
 	# their url or element id
-	###
-	templateCache = {}
+	#--------------------------------------------------------
+	_template_cache = {}
 
-	###
-	# Counter to track how many things are loading
-	###
-	_loadingCount = 0
-	_initialized = false
-
-	###
+	#--------------------------------------------------------
 	# Method: Falcon.View.cacheTemplate( identifier, template )
 	#	Method used to manually cache a template
 	#
 	# Arguments:
 	#	**identifier** _(String)_ - The identifier for the templae
 	#	**template** _(String)_ - The template to store
-	###
+	#--------------------------------------------------------
 	@cacheTemplate = (identifier, template) ->
 		identifier = "" unless isString( identifier )
 		template = "" unless isString( template )
 
 		identifier = trim( identifier )
 
-		templateCache[identifier] = template
+		_template_cache[identifier] = template
 
 		return
 	#END cacheTeplate
 
-	###
-	#
-	#
-	###
-	@_events = {}
-	@on = -> Falcon.Class::on.apply(this, arguments)
-	@off = -> Falcon.Class::off.apply(this, arguments)
-	@has = -> Falcon.Class::has.apply(this, arguments)
-	@trigger = -> Falcon.Class::trigger.apply(this, arguments)
-
-	# (event, action, context) ->
-	#	return this unless isString(event) and isFunction(action)
-
-	#	context ?= this
-	#	event = trim(event).toLowerCase()
-
-	#	return this if isEmpty(event)
-
-
-	#	( _events[event] ?= [] ).push({action, context})
-
-	#	return this
-	#END on
-
-	@trigger
-
-	###
-	# Method used to track when a template is loaded
-	###
-	@tick = ->
-		_loadingCount++
-	#END tick
-
-	@loaded = ->
-		_loadingCount--
-		if _loadingCount is 0
-			if _initialized is false
-				Falcon.View.trigger("init") 
-				_initialized = true
-			#END if
-
-			Falcon.View.trigger("load")
-		#END if
-	#END initialized
-	
-	###
-	#
-	###
-	@extend = (definition) -> Falcon.Class.extend(Falcon.View, definition)
-
-	###
-	#
-	###
+	#--------------------------------------------------------
+	# Attribute: Faclon.View#url
+	#	The url to locate this template at. Can either be a string or a function 
+	#	and can either point to a uri or a DOM object identifier.  This attribute 
+	#	should be overridden by any inheritting classes
+	#--------------------------------------------------------
 	url: null
 
-	###
-	#
-	###
-	template: null
+	_loaded_url: null
 
-	###
+	#--------------------------------------------------------
+	# Attribute: Falcon.View#is_loaded
+	#	This is
+	#--------------------------------------------------------
+	is_loaded: false
+
+	#--------------------------------------------------------
+	# Attribute: Falcon.View#is_destroyed
+	#	This is
+	#--------------------------------------------------------
+	is_destroyed: false
+
+	#--------------------------------------------------------
 	# Method: Falcon.View()
 	#	The constuctor method for the view class
-	###
+	#--------------------------------------------------------
 	constructor: () ->
 		super()
 
-		Falcon.View.tick()
-
 		# Validate the public variables
-		@template = ko.observable()
 		url = @makeUrl()
 
-		# Setup the isLoaded variable
-		@isLoaded = ko.observable( false )
+		# Setup the is_loaded variable
+		@is_loaded = ko.observable( false )
+		@is_destroyed = false
+		@_child_views = []
 		
 		_loaded = () =>
-			@isLoaded(true)
-			defer => @trigger("load")
-
-			Falcon.View.loaded()
+			@_loaded_url = url
+			@is_loaded(true)
+			@trigger("load")
 		#END _loaded
 
-		# Attempt to load the template from the server or cache
-		if isEmpty(url)
-			_loaded()
+		@initialize.apply(this, arguments)
 
-		else if url of templateCache
-			@template(templateCache[url])
+		# Attempt to load the template from the server or cache
+		if isEmpty(url) or url of _template_cache
 			_loaded()
 
 		else if startsWith(url, "#")
-			@template( templateCache[url] ?= $(url).html() )
-			
+			_template_cache[url] = $(url).html()
 			_loaded()
+
 		else
 			$.ajax
 				url: url
@@ -140,42 +92,94 @@ class Falcon.View extends Falcon.Class
 				cache: false
 				error: () =>
 					console.log("ERROR LOADING TEMPLATE #{url}")
+					@trigger("error")
 				#END error
 				success: (html) =>
-					@template( templateCache[@url] = html )
+					_template_cache[url] = html
 					_loaded()
 				#END success
 			#END ajax
 		#END if
-
-		@initialize.apply(this, arguments)
 	#END constructor
 
+	#--------------------------------------------------------
+	# Method: Falcon.View#makeUrl
+	#	Method used to intelligently make a url to point to the 
+	#	remote version of this
+	#	url if 
+	#
+	# Returns:
+	#	_(String)_ - The full url
+	#--------------------------------------------------------
 	makeUrl: () ->
 		url = ko.utils.unwrapObservable( @url )
+		url = url() if isFunction( url )
 		url = "" unless isString( url )
 		url = trim( url )
 
 		#Make sure the url is now formatted correctly
-		#url = "/#{url}" unless startsWith(url, "/")
+		url = "/#{url}" unless url.slice(0,1) in ["/", "#"]
 
-		#Attempt to add on the base url
-		url = "#{Falcon.baseTemplateUrl}#{url}" if isString(Falcon.baseTemplateUrl)
+		#Attempt to add on the base url if its set and the url is a uri (not an element ID)
+		url = "#{Falcon.baseTemplateUrl}#{url}" if isString(Falcon.baseTemplateUrl) and startsWith(url, "/")
 
 		return url
 	#END makeUrl
 
-	###
-	#
-	###
+	template: () ->
+		return "" unless ko.utils.unwrapObservable( @is_loaded )
+		return ( _template_cache[@_loaded_url] ? "" )
+	#END template
+
+	#--------------------------------------------------------
+	# Method: Falcon.View#destroy
+	#	Method used to destroy this view. Will do it's best to
+	#	dispose of any memory related to dom elements and events.
+	#	This method should not ve overriden and instead inherrting
+	#	classes should override the 'dispose' method instead.
+	#--------------------------------------------------------
+	destroy: () ->
+		return if @is_destroyed
+
+		child.destroy() for child in @_child_views
+		@dispose.apply(this, arguments)
+		
+		@_child_views = null
+		@is_destroyed = true
+
+		return
+	#END destroy
+
+	#--------------------------------------------------------
+	# Method: Falcon.View#initialize
+	#	Initializes this class, this is called within the default contructor
+	#	and is expected to be overridden by inheritting classes.
+	#--------------------------------------------------------
 	initialize: (->)
 
-	###
+	#--------------------------------------------------------
+	# Method: Falcon.View#dispose
+	#	Executed when this view is disposed to the garbage collector.  This method will be called
+	#	from within the destroy method and is expected to be overridden in any inheritting class.
+	#--------------------------------------------------------
+	dispose: (->)
+
+	#--------------------------------------------------------
+	# Method: Falcon.View#dispose
+	#	Executed when this view is disposed to the garbage collector.  This method will be called
+	#	from within the destroy method and is expected to be overridden in any inheritting class.
+	#--------------------------------------------------------
+	_addChildView: (view) ->
+		return unless Falcon.isView( view )
+		@_child_views.push( view )
+	#END addChildView
+
+	#--------------------------------------------------------
 	# Method Falcon.View#viewModel
 	#	Get's a view model representing this view
-	###
+	#--------------------------------------------------------
 	viewModel: () ->
-		viewModel = {__falcon__: true}
+		viewModel = {"__falcon_addChildView__": (view) => @_addChildView(view)}
 		for key, value of this when not ( key of Falcon.View.prototype )
 			if isFunction(value) and not ko.isObservable(value)
 				value = do =>
@@ -184,43 +188,4 @@ class Falcon.View extends Falcon.Class
 			viewModel[key] = value
 		return viewModel
 	#END viewModel
-	
-	###
-	#
-	###
-	load: (callback) ->
-		@on("load", callback)
-		@trigger("load") if @isLoaded()
-	#END load
-
-	###
-	# Method: Falcon.View#dispose
-	#	Executed when this view is disposed to the garbage collector (Doesn't work yet)
-	###
-	dispose: ( -> )
-
-	###
-	# Method: Falcon.View#call()
-	#	Used to make a 'call' method of a specific method on this view.
-	#	useful for attaching a view's method to events in a template so that
-	#	they can be called when an event is fired (without having to do any
-	#	currying/method wrapping)
-	#
-	# Arguments:
-	#	**method** _(string)_ - The view method to call
-	#
-	# Returns:
-	#	_(Function)_ - A wrapped version of the method
-	###
-	call: (method) ->
-		(throw new Error("Method must be a string")) unless isString(method)
-
-		_method = this[method]
-		(throw new Error("'#{method}' is not a valid method.")) unless isFunction(_method)
-
-		_args = Array::slice.call(arguments, 1)
-		return =>
-			_method.apply(@, _args)
-		#END return
-	#END call
 #END Falcon.View

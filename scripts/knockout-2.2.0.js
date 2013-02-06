@@ -3,7 +3,6 @@
 // License: MIT (http://www.opensource.org/licenses/mit-license.php)
 
 (function(){
-var DEBUG=true;
 (function(window,document,navigator,jQuery,undefined){
 !function(factory) {
     // Support three module loading scenarios
@@ -986,7 +985,6 @@ ko.observable = function (initialValue) {
             if ((!observable['equalityComparer']) || !observable['equalityComparer'](_latestValue, arguments[0])) {
                 observable.valueWillMutate();
                 _latestValue = arguments[0];
-                if (DEBUG) observable._latestValue = _latestValue;
                 observable.valueHasMutated();
             }
             return this; // Permits chained assignments
@@ -997,7 +995,6 @@ ko.observable = function (initialValue) {
             return _latestValue;
         }
     }
-    if (DEBUG) observable._latestValue = _latestValue;
     ko.subscribable.call(observable);
     observable.peek = function() { return _latestValue };
     observable.valueHasMutated = function () { observable["notifySubscribers"](_latestValue); }
@@ -1243,7 +1240,6 @@ ko.dependentObservable = function (evaluatorFunctionOrOptions, evaluatorFunction
 
             dependentObservable["notifySubscribers"](_latestValue, "beforeChange");
             _latestValue = newValue;
-            if (DEBUG) dependentObservable._latestValue = _latestValue;
         } finally {
             ko.dependencyDetection.end();
         }

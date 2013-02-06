@@ -1,30 +1,4 @@
 #--------------------------------------------------------
-# INTERNAL PRIVATE METHODS FOR THE BINDING HANDLERS
-#--------------------------------------------------------
-
-#Checks to see (and keeps track) if a collection is actually updated
-_shouldUpdate = (element, value) ->
-	return true unless Falcon.isCollection(value)
-
-	changeCount = value.__change_count__
-	lastChangeCount = ko.utils.domData.get(element, "__falcon_collection___change_count__")
-
-	return false if lastChangeCount is changeCount
-
-	ko.utils.domData.set(element, '__falcon_collection___change_count__', changeCount)
-
-	return true
-#END _.shouldChange
-
-#Interal method used to get a the expected list
-_getItems = (value) ->
-	items = ko.utils.unwrapObservable( if Falcon.isCollection(value) then value.list() else value )
-	items = [items] unless isArray(items)
-
-	return ( -> items )
-#END _getItems
-
-#--------------------------------------------------------
 # Method: ko.bindingHandlers.view
 #	Mehod used to handle view objects, fetching their html
 #	and binding them against their memebr objects
@@ -42,20 +16,26 @@ ko.bindingHandlers['view'] = do ->
 	getViewModel = (value) -> 
 		viewModel = {}
 		value ?= {}
+
 		if value instanceof Falcon.View
 			viewModel = value.viewModel()
 		else
 			viewModel = ko.utils.unwrapObservable( value.viewModel ? {} )
+		#END if
+
 		return viewModel
 	#END getViewModel
 
 	getTemplate = (value) -> 
 		template = ""
 		value ?= {}
+
 		if value instanceof Falcon.View
 			template = value.template()
 		else
 			template = ko.utils.unwrapObservable( value.template ? "" )
+		#END if
+
 		return template
 	#END getTemplate
 
@@ -65,32 +45,27 @@ ko.bindingHandlers['view'] = do ->
 		'init': (element, valueAccessor, allBindingsAccessor, viewModel, context) ->
 			value = valueAccessor()
 
-			if ko.isSubscribable( value )
+			if value? and ko.isSubscribable( value )
 				oldViewModel = ko.utils.unwrapObservable( value )
-				#console.log("INIT", oldViewModel)
 				subscription = value.subscribe (newViewModel) ->
-					#console.log( "SUBSCRIPTION", oldViewModel, newViewModel )
-					oldViewModel.dispose() if Falcon.isView(oldViewModel)
+					oldViewModel.destroy() if Falcon.isView(oldViewModel)
 					oldViewModel = newViewModel
 				#END subscribe
 
 				ko.utils.domNodeDisposal.addDisposeCallback element, ->
-					#console.log( "DOM DISPOSAL", oldViewModel )
-					oldViewModel.dispose() if Falcon.isView(oldViewModel)
+					oldViewModel.destroy() if Falcon.isView(oldViewModel)
 					subscription.dispose()
 				#END domDisposal
 			#END if subscribable
 
 			else if Falcon.isView( value )
 				ko.utils.domNodeDisposal.addDisposeCallback element, ->
-					value.dispose()
+					value.destroy()
 				#END domDisposal
 			#END if
 
 			value = ko.utils.unwrapObservable(value)
 			viewModel = getViewModel(value)
-
-			value.template( $(element).html() ) if value instanceof Falcon.View and not value.url
 				
 			ko.bindingHandlers['template']['init'](
 				element,
@@ -117,13 +92,22 @@ ko.bindingHandlers['view'] = do ->
 			#Setup the new view context
 			context['$view'] = viewModel
 
+			#The method below maps to: Falcon.View#_addChildView, it's added to the viewModel upon creation
+			#due to the fact that proto method are abstracted away during viewModel generation, it's used
+			#to notify a view which views have been created within its context.  This is then used when
+			#destroying the view to also ensure that we destroy child views
+			originalViewContent['__falcon_addChildView__']( value ) if Falcon.isView( originalViewContext )
 
 			if isEmpty( viewModel ) or not template?
-				$(element).html(" ")
-			if not (value instanceof Falcon.View) or value.isLoaded()
+				$(element).empty()
+			else if not (value instanceof Falcon.View) or value.is_loaded()
+
 				anonymousTemplate = ko.utils.domData.get(element, '__ko_anon_template__')
-				anonymousTemplate.containerData.innerHTML = template
-				anonymousTemplate.textData = template if ($.browser.msie and $.browser.version < 9)
+				if anonymousTemplate.containerData?.innerHTML?
+					anonymousTemplate.containerData.innerHTML = template
+				else
+					anonymousTemplate.textData = template
+				#END if
 
 				ko.bindingHandlers['template']['update'](
 					element,
@@ -159,8 +143,30 @@ ko.bindingHandlers['view'] = do ->
 #	Override the default foreach handler to also take into account
 #	Falcon collection objects
 #--------------------------------------------------------
+#Interal method used to get a the expected models
+_getItems = (value) ->
+	items = ko.utils.unwrapObservable( if Falcon.isCollection(value) then value.models() else value )
+	items = [items] unless isArray(items)
+
+	return ( -> items )
+#END _getItems
+
+#Checks to see (and keeps track) if a collection is actually updated
+_shouldUpdate = (element, value) ->
+	return true unless Falcon.isCollection(value)
+
+	changeCount = value.__change_count__
+	lastChangeCount = ko.utils.domData.get(element, "__falcon_collection___change_count__")
+
+	return false if lastChangeCount is changeCount
+
+	ko.utils.domData.set(element, '__falcon_collection___change_count__', changeCount)
+
+	return true
+#END _shouldUpdate
+
 #Store a copy of the old foreach
-_foreach = ko.bindingHandlers['foreach']
+_foreach = ko.bindingHandlers['foreach'] ? (->)
 
 ko.bindingHandlers['foreach'] = 
 	'init': (element, valueAccessor, args...) ->
@@ -185,13 +191,6 @@ for key, value of _foreach when key not of ko.bindingHandlers['foreach']
 #END for
 
 #--------------------------------------------------------
-# Method: ko.bindingHandlers.collection
-#	An alias for the overriden foreach binding
-#--------------------------------------------------------
-ko.bindingHandlers['collection'] = ko.bindingHandlers['foreach']
-
-
-#--------------------------------------------------------
 # Method: ko.bindingHandlers.options
 #	override the options binding to account for collections
 #--------------------------------------------------------
@@ -209,6 +208,8 @@ ko.bindingHandlers['options'] = do ->
 		if _shouldUpdate(element, value)
 			return ( _options['update'] ? (->) )(element, _getItems(value), args...)
 		#END if
+		value.trigger("render") if Falcon.isCollection(value)
+		return
 	#END update
 #END foreach override
 

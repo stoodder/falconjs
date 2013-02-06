@@ -83,7 +83,7 @@ class Falcon.Report extends Falcon.Class
 		for key, _value of @_parameters
 			value = ko.utils.unwrapObservable( _value )
 			if Falcon.isModel( value )
-				params[key] = ko.utils.unwrapObservable( value.id )
+				params[key] = value.get("id")
 			else if isFunction( value )
 				params[key] = value()
 			else
@@ -93,8 +93,14 @@ class Falcon.Report extends Falcon.Class
 
 		#replace any spots in the url where the params match up
 		url = url + "/"
-		url = url.replace(":#{key}/", "#{value}/") for key, value of params
+		has_undefined = false
+		for key, value of params
+			url = url.replace(":#{key}/", "#{value}/")
+			has_undefined = has_undefined or not (value?)
+		#END has_undefined
 		url = url.slice(0, -1)
+
+		return if has_undefined
 
 		url = Falcon.baseApiUrl + url
 

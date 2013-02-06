@@ -59,7 +59,10 @@ class Falcon.Model extends Falcon.Class
 	#
 	# Type: Array, Object
 	#--------------------------------------------------------
-	fields: null
+	fields: {}
+
+	#TODO: Define this
+	definitions: {}
 
 	#--------------------------------------------------------
 	# Member: Falcon.Model#loading
@@ -90,11 +93,10 @@ class Falcon.Model extends Falcon.Class
 		data = data.unwrap() if Falcon.isModel(data)
 		
 		@loading = ko.observable( @loading )
-		@fields = {} if @fields is null
 		@parent = parent
 
 		@initialize(data)
-		@fill(data)
+		@fill(data) unless isEmpty( data )
 
 		#Lastly make sure that any of the fields that should exist, do
 		this[model_field] = null for field, model_field of @fields when not this[model_field]? and isString(model_field)
@@ -177,9 +179,11 @@ class Falcon.Model extends Falcon.Class
 	#	Method used to 'fill in' and add data to this model
 	#--------------------------------------------------------
 	fill: (_data) ->
-		_data = {'id': _data} if isNumber(_data)
+		_data = {'id': _data} if isNumber(_data) or isString(_data)
 		return this unless isObject(_data)
 		_data = _data.unwrap() if Falcon.isModel(_data)
+		return this if isEmpty( _data )
+
 		data = {}
 
 		#if the fields is an object, map the data
@@ -198,8 +202,10 @@ class Falcon.Model extends Falcon.Class
 
 		for key, value of data when not (key in rejectedKeys)
 			value = ko.utils.unwrapObservable( value )
-			if Falcon.isDataObject(this[key])
-				this[key].fill(value)
+			if Falcon.isModel(this[key])
+				this[key].fill(value) unless isEmpty( value )
+			else if Falcon.isCollection(this[key])
+				this[key].fill(value) unless isEmpty( value ) and this[key].length() <= 0
 			else if ko.isObservable(this[key])
 				this[key](value) if ko.isWriteableObservable(this[key])
 			else
@@ -259,6 +265,7 @@ class Falcon.Model extends Falcon.Class
 		[deep, fields] = [fields, deep] if not isBoolean( deep ) and isBoolean( fields )
 		deep = true unless isBoolean( deep )
 
+		fields = null if isEmpty( fields )
 		fields = trim(fields).split(",") if isString( fields )
 		fields = @fields unless fields?
 		server_keys = []
@@ -279,7 +286,6 @@ class Falcon.Model extends Falcon.Class
 					model_keys[model_keys.length] = field
 				#END for
 			#END if
-
 		else if isObject(fields) and not isEmpty(fields)
 			for server_field, model_field of fields
 				server_keys[server_keys.length] = server_field
@@ -377,6 +383,68 @@ class Falcon.Model extends Falcon.Class
 	#END makeUrl
 
 	#--------------------------------------------------------
+	# Method: Falcon.Model#remoteFieldsArray()
+	#	Reserved instance method used for generating a flattened list
+	#	of remote fields in an array, used to send up with each reques
+	#	on the 'fields' query parameter
+	#
+	# TODO: This doesn't fully work yet because it cannot correctly
+	#		traverse into groups and then further into their models
+	#		since we don't know the class definitions of a group's child
+	#		model before one is instantiated.  There needs to be something
+	#		to help feed the information to the groups so that they understand
+	#		how to call unto their children.
+	#--------------------------------------------------------
+	remoteFieldsArray: (local_fields, prefix) ->
+		prefix ?= ""
+		local_fields = local_fields.split(",") if isString( local_fields )
+		local_fields = [] unless isArray( local_fields )
+		
+		#Variables for helping to parse this list into an object
+		remote_fields = []
+		remote_fields_obj = {}
+		recurse_fields = {}
+
+		#Make sure we have a duplicate object representation of the field mapping
+		_fields = {}
+		if isObject(@fields)
+			_fields[key] = value for key, value of @fields
+		else if isArray( @fields )
+			_fields[field] = field for field in @fields
+		#END if
+
+		_fields['id'] = 'id' unless _fields['id']?
+
+		#First attempt to convert the flat array into an object
+		for local_field in local_fields when isString( local_field )
+			if local_field.indexOf(".") >= 0
+				[local_key_prefix, local_child_key] = local_field.split(".", 2)
+
+				remote_key = recurse_fields[local_key_prefix] ? findKey( _fields, local_key_prefix )
+
+				if remote_key?
+					recurse_fields[local_key_prefix] ?= remote_key
+					( remote_fields_obj[remote_key] ?= [] ).push( local_child_key )
+				#END if
+			else
+				if ( remote_key = findKey( _fields, local_field ) )?
+					remote_fields.push( "#{prefix}#{remote_key}" )
+				#END if
+			#END if
+		#END for
+
+		for local_field, remote_field of recurse_fields when isFunction( @definitions[local_field] )
+			local_definition = @definitions[local_field]().prototype
+			if Falcon.isDataObject( local_definition )
+				child_fields = local_definition.remoteFieldsArray( remote_fields_obj[remote_field], "#{prefix}#{remote_field}." )
+				remote_fields = remote_fields.concat( child_fields )
+			#END if
+		#END for
+
+		return remote_fields
+	#END remoteFieldsArray
+
+	#--------------------------------------------------------
 	# Method: Falcon.Model#sync()
 	#	Used to dynamically place calls to the server in order
 	#	to create, update, destroy, or read this from/to the
@@ -391,12 +459,7 @@ class Falcon.Model extends Falcon.Class
 	#--------------------------------------------------------
 	sync: (type, options) ->
 		options = {complete: options} if isFunction(options)
-
-		if isString(options)
-			options = trim( options ) 
-			options = {fields: options.split(",")}
-		#END if
-
+		options = {fields: trim( options ).split(",")} if isString(options)
 		options = {fields: options} if isArray( options )
 
 		options = {} unless isObject(options)
@@ -407,9 +470,11 @@ class Falcon.Model extends Falcon.Class
 		options.complete = (->) unless isFunction(options.complete)
 		options.error = (->) unless isFunction(options.error)
 		options.parent = @parent unless Falcon.isModel(options.parent)
+		options.fields = flattenObjectKeys( options.fields ) if isObject( options.fields )
 		options.fields = [] unless isArray( options.fields )
 		options.params = {} unless isObject( options.params ) 
 		options.fill = true unless isBoolean( options.fill )
+		options.headers = {} unless isObject( options.headers )
 
 		type = trim( if isString(type) then type.toUpperCase() else "GET" )
 		type = "GET" unless type in ["GET", "POST", "PUT", "DELETE"]
@@ -418,12 +483,19 @@ class Falcon.Model extends Falcon.Class
 		unless isEmpty(options.data)
 			data[key] = value for key, value of options.data
 		#END unless
+
 		data = extend(@serialize( options.fields ), data) if type in ["POST", "PUT"]
 
 		#serialize the data to json
 		json = if isEmpty(data) then "" else JSON.stringify(data)
 
 		url = options.url ? @makeUrl(type, options.parent)
+
+		if options.fields.length > 0 and not options.params['fields']?
+			options.params['fields'] = options.fields
+		#end if
+
+		options.params['fields'] = trim( options.params['fields'].join(",") ) if isArray( options.params['fields'] )
 
 		unless isEmpty( options.params )
 			url += "?" unless url.indexOf("?") > -1
@@ -439,6 +511,7 @@ class Falcon.Model extends Falcon.Class
 			'dataType': options.dataType
 			'contentType': options.contentType
 			'cache': Falcon.cache
+			'headers': options.headers
 
 			'beforeSend': (xhr) =>
 				xhr.withCredentials = true
@@ -536,7 +609,33 @@ class Falcon.Model extends Falcon.Class
 	#END destroy
 
 	#--------------------------------------------------------
-	# Method: Falcon.Model#map()
+	# Method: Falcon.Model#equals()
+	#	Determines if this model is equivalent to the input value
+	#
+	# Arguments 1:
+	#	**model** _(Falcon.Model)_ - Is this model the same as the one given, based on id
+	#
+	# Arguments 2:
+	#	**id** _(Number)_ - Treated as an id, checked against this id
+	#
+	# Returns:
+	#	_(Boolean)_ - Are these equal?
+	#--------------------------------------------------------
+	equals: (model) ->
+		model = ko.utils.unwrapObservable( model )
+
+		if Falcon.isModel( model )
+			return model.get("id") is @get("id")
+		else if isNumber( model )
+			return model is @get("id")
+		#END if
+
+		return false
+	#END equals
+
+
+	#--------------------------------------------------------
+	# Method: Falcon.Model#mixin()
 	#	Maps extra atributes and methods onto this model for use
 	#	later, mostly in Falcon views. Will ensure that any method
 	#	that is not a knockout observable will be called in the
@@ -550,13 +649,12 @@ class Falcon.Model extends Falcon.Class
 	# Returns:
 	#	_(Falcon.Model)_ - This model
 	#--------------------------------------------------------
-	map: (mapping) ->
-
+	mixin: (mapping) ->
 		mapping = {} unless isObject(mapping)
 
 		for key, value of mapping
 			if Falcon.isDataObject( this[key] )
-				this[key].map(value)
+				this[key].mixin(value)
 			else 
 				if ko.isObservable(value)
 					this[key] = ko.observable( ko.utils.unwrapObservable(value) )
@@ -569,7 +667,7 @@ class Falcon.Model extends Falcon.Class
 					this[key] = value 
 
 		return this
-	#END map
+	#END mixin
 
 	#--------------------------------------------------------
 	# Method: Falcon.Model#clone()
@@ -586,6 +684,14 @@ class Falcon.Model extends Falcon.Class
 		return new this.constructor(this.unwrap(), parent )
 	#END clone
 
+	copy: (fields) ->
+		fields = ["id", "parent"] unless isArray( fields )
+		copy = new @constructor()
+		copy.fill( @serialize( fields ) )
+		copy.parent = @parent if arrayContains( fields, "parent" )
+		return copy
+	#END copy
+
 	#--------------------------------------------------------
 	# Method: Falcon.Model#isNew()
 	#	Method used to check if this model is new or is from the server.  Based on id.
@@ -594,7 +700,7 @@ class Falcon.Model extends Falcon.Class
 	#	_Boolean_ - Is this a new model?
 	#--------------------------------------------------------
 	isNew: () ->
-		return isNumber( ko.utils.unwrapObservable( @id ) )
+		return !@get("id")?
 	#END isNew
 
 #END Falcon.Model

@@ -12,22 +12,35 @@ class Falcon.Class
 	# Returns:
 	#	_Object_ - The extended class
 	###
-	@extend = (parent, definition) ->
-		parent ?= Falcon.Class
+	@extend = (instanceDef, staticDef) ->
+		instanceDef ?= {}
+		staticDef ?= {}
+
+		parent = this
 		child = null
 
-		if definition? and definition.hasOwnProperty("constructor")
-			child = definition.constructor
+		#Check if the instance defintion has a constrctor,
+		#if not, generate one that calls the parent constructor
+		if Object::hasOwnProperty.call(instanceDef, "constructor")
+			child = instanceDef.constructor
 		else
-			child = -> @__super__(arguments...)
-		
-		ctor = (->)
+			child = -> parent.apply(this, arguments)
+		#END if
+
+		#Setup the prototype chain
+		ctor = ( -> this.constructor = child )
 		ctor.prototype = parent.prototype
 		child.prototype = new ctor
-		child.prototype.__super__ = () -> parent.apply(this, arguments)
-		child.extend = (definition) -> Falcon.Class.extend(child, definition)
 
-		extend( child.prototype, definition ? {} )
+		#Add instance methods
+		extend( child.prototype, instanceDef )
+
+		#Add static methods
+		extend( child, parent ) #First add any static attributes from the parent
+		extend( child, staticDef ) #Now add any static method being defined
+
+		#Store the parent's prototype for use later
+		child.__super__ = parent.prototype
 
 		return child
 	#END Falcon.Class.extend
@@ -44,6 +57,14 @@ class Falcon.Class
 	constructor: ->
 		@_events = {}
 	#END constructor
+
+	###
+	# Method: Falcon.Class#_super
+	#	attempts to call a parent version of an inheritted class
+	###
+	_super: (method, args...) ->
+		return @__super__[method].apply(this, args)
+	#END _super
 
 	###
 	# Method: Falcon.Model#on()
@@ -82,13 +103,18 @@ class Falcon.Class
 	#	_(Falcon.Model)_ - This instance
 	###
 	off: (event, action) ->
-		return this unless isString(event) and isFunction(action)
+		return this unless isString(event)
 
 		event = trim(event).toLowerCase()
 
 		return this if isEmpty(event) or not @_events[event]?
 
-		@_events[event] = ( evt for evt in @_events[event] when evt.action isnt action )
+		if isFunction( action )
+			@_events[event] = ( evt for evt in @_events[event] when evt.action isnt action )
+			@_events[event] = null if @_events[event].length <= 0
+		else
+			@_events[event] = null
+		#END if
 
 		return this
 	#END off
@@ -105,11 +131,12 @@ class Falcon.Class
 	#	_(boolean)_ - Did we find the event?
 	###
 	has: (event, action) ->
-		return false unless isString(event) and isFunction(action)
+		return false unless isString(event)
 
 		event = trim(event).toLowerCase()
 
 		return false if isEmpty(event) or not @_events[event]?
+		return true if @_events[event]? and not isFunction( action )
 
 		return true for evt in @_events[event] when evt.action is action
 

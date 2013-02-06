@@ -1,0 +1,34 @@
+<xhtml>
+	<head>
+		<script src="/examples/jquery-1.8.3.min.js" type="text/javascript" language="javascript"></script>
+		<script src="/scripts/falcon.js" type="text/javascript" language="javascript"></script>
+		<script src="/examples/inline-example.js" type="text/javascript" language="javascript"></script>
+	</head>
+	<body>
+		Application:
+		<div id="application"></div>
+
+		<template id="layout-view">
+			A Layout
+			<button data-bind="click: showList">List</button>
+			<button data-bind="click: showSettings">Settings</button>
+			<hr />
+			<!-- ko view: current_view --><!-- /ko -->
+		</template>
+
+		<template id="list-view">
+			List
+			<div data-bind="view: $view.itemA"></div>
+			<!-- ko view: $view.itemB --><!-- /ko -->
+		</template>
+
+		<template id="list-item-view">
+			List Item <!-- ko text: $view.name --><!-- /ko -->
+			<br />
+		</template>
+
+		<template id="settings-view">
+			Settings
+		</template>
+	</body>
+</xhtml>

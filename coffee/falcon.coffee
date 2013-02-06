@@ -5,12 +5,16 @@ Falcon =
 	baseTemplateUrl: ""
 	cache: true
 
-	apply: (view, element, callback) -> 
-		[callback, element] = [element, callback] if isFunction( element )
+	apply: (root, element, viewCallback) -> 
+		[element, viewCallback] = [viewCallback, element] if isFunction( element )
 
 		element = "" unless isString( element )
 		element = trim( element )
 		element = (Falcon.applicationElement ? "body") if isEmpty( element )
+		viewCallback = ( -> ko.observable() ) unless isFunction( viewCallback )
+
+		#We need to create a template element for IE to recognize the tag
+		document.createElement("template")
 
 		$ ->
 			$('template').each (index, template) ->
@@ -20,17 +24,11 @@ Falcon =
 				template.remove()
 			#END each template
 
-			if isFunction( callback )
-				#TODO: we need to check if view is an observable
-				if view instanceof Falcon.View
-					Falcon.View.on("init", callback) 
-				else
-					callback()
-				#END if
-			#END if
-
-			$(element).attr('data-bind', 'view: ko.observable($data)')
-			ko.applyBindings(view)
+			$element = $(element);
+			$element.attr('data-bind', 'view: $data')
+			ko.applyBindings( root, $element[0] )
+			viewCallback()
+		#END onLoad
 	#END apply
 
 	isModel: (object) -> 
