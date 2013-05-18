@@ -92,15 +92,15 @@ ko.bindingHandlers['view'] = do ->
 			#Setup the new view context
 			context['$view'] = viewModel
 
-			#The method below maps to: Falcon.View#_addChildView, it's added to the viewModel upon creation
-			#due to the fact that proto method are abstracted away during viewModel generation, it's used
-			#to notify a view which views have been created within its context.  This is then used when
-			#destroying the view to also ensure that we destroy child views
-			originalViewContent['__falcon_addChildView__']( value ) if Falcon.isView( originalViewContext )
+			#The method below is added to the viewModel upon creation due to the fact that proto 
+			#method are abstracted away during viewModel generation, it's used to notify a view 
+			#which views have been created within its context.  This is then used when destroying 
+			#the view to also ensure that we destroy child views.
+			originalViewContent['__falcon_view__addChildView__']( value ) if Falcon.isView( originalViewContext )
 
-			if isEmpty( viewModel ) or not template?
+			if isEmpty( viewModel ) or isEmpty( template )
 				$(element).empty()
-			else if not (value instanceof Falcon.View) or value.is_loaded()
+			else if not (value instanceof Falcon.View) or ko.utils.unwrapObservable( value.__falcon_view__is_loaded__ )
 
 				anonymousTemplate = ko.utils.domData.get(element, '__ko_anon_template__')
 				if anonymousTemplate.containerData?.innerHTML?

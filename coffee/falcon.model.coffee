@@ -61,19 +61,6 @@ class Falcon.Model extends Falcon.Class
 	#--------------------------------------------------------
 	fields: {}
 
-	#TODO: Define this
-	definitions: {}
-
-	#--------------------------------------------------------
-	# Member: Falcon.Model#loading
-	#	Flag indicating if this model is in a loading state
-	#	(if any ajax request is currently executing). Will
-	#	be converted to an observable on construction
-	#
-	# Type: Boolean
-	#--------------------------------------------------------
-	loading: false
-
 	#--------------------------------------------------------
 	# Method: Falcon.Model()
 	#	The constructor for a model
@@ -88,11 +75,11 @@ class Falcon.Model extends Falcon.Class
 		data = ko.utils.unwrapObservable( data )
 		parent = ko.utils.unwrapObservable( parent )
 
+		[parent, data] = [data, parent] if parent? and not Falcon.isModel( parent ) and Falcon.isModel( data )
 		[parent, data] = [data, parent] if not parent? and Falcon.isModel( data )
 
 		data = data.unwrap() if Falcon.isModel(data)
-		
-		@loading = ko.observable( @loading )
+
 		@parent = parent
 
 		@initialize(data)
@@ -174,6 +161,22 @@ class Falcon.Model extends Falcon.Class
 		return @set(key, not @get(key) )
 	#END toggle
 
+	#----------------------------------------------------------------------------------------------
+	# Method: Falcon.Model#parse()
+	#	parses the response data from an XHR request
+	#
+	# Arguments:
+	#	**data** _(Object)_ - The xhr response data
+	#	**options** _ - The options fed initiallyinto the XHR request
+	#	**xhr** _(Object)_ - The XHR object
+	#
+	# Returns:
+	#	_Object_ - Parsing on a model expects an object to be returned
+	#----------------------------------------------------------------------------------------------
+	parse: (data, options, xhr) ->
+		return data
+	#END parse
+
 	#--------------------------------------------------------
 	# Method: Falcon.Model#fill()
 	#	Method used to 'fill in' and add data to this model
@@ -197,7 +200,7 @@ class Falcon.Model extends Falcon.Class
 		protoKeys = objectKeys(Falcon.Model.prototype)
 		acceptedKeys = arrayRemove( objectKeys(this), protoKeys )
 		rejectedKeys = arrayRemove( protoKeys, acceptedKeys )
-		rejectedKeys = arrayRemove( rejectedKeys, "id" )
+		rejectedKeys = arrayRemove( rejectedKeys, ["id", "url"] )
 		rejectedKeys = arrayUnique( rejectedKeys )
 
 		for key, value of data when not (key in rejectedKeys)
@@ -218,7 +221,7 @@ class Falcon.Model extends Falcon.Class
 
 	#--------------------------------------------------------
 	# Method: Falcon.Model#unwrap()
-	#	Method used to 'unwrap' this object into an anonymous object
+	#	Method used to 'unwrap' this object into a raw object
 	#	Needed to cascade inwards on other Falcon Data objects (like lists)
 	#	to unwrap newly added member variables/objects
 	#
@@ -231,7 +234,6 @@ class Falcon.Model extends Falcon.Class
 		#Get the keys that pertain only to this models added attributes
 		keys = arrayRemove( objectKeys(this), objectKeys(Falcon.Model.prototype) )
 		keys[keys.length] = "id"
-		keys = arrayUnique( keys )
 
 		for key in keys
 			value = this[key]
@@ -339,7 +341,7 @@ class Falcon.Model extends Falcon.Class
 		type = type.toUpperCase()
 		type = 'GET' unless type in ['GET', 'PUT', 'POST', 'DELETE']
 
-		parent = if Falcon.isModel(parent) then parent else @parent
+		parent = if parent isnt undefined then parent else @parent
 
 		ext = ""
 		periodIndex = url.lastIndexOf(".")
@@ -378,71 +380,12 @@ class Falcon.Model extends Falcon.Class
 			url += ko.utils.unwrapObservable( @id )
 		#END if
 
+		#Replace any double slashes outside of the initial protocol
+		url = url.replace(/([^:])\/\/+/gi, "$1/")
+
 		#Return the built url
 		return "#{url}#{ext}"
 	#END makeUrl
-
-	#--------------------------------------------------------
-	# Method: Falcon.Model#remoteFieldsArray()
-	#	Reserved instance method used for generating a flattened list
-	#	of remote fields in an array, used to send up with each reques
-	#	on the 'fields' query parameter
-	#
-	# TODO: This doesn't fully work yet because it cannot correctly
-	#		traverse into groups and then further into their models
-	#		since we don't know the class definitions of a group's child
-	#		model before one is instantiated.  There needs to be something
-	#		to help feed the information to the groups so that they understand
-	#		how to call unto their children.
-	#--------------------------------------------------------
-	remoteFieldsArray: (local_fields, prefix) ->
-		prefix ?= ""
-		local_fields = local_fields.split(",") if isString( local_fields )
-		local_fields = [] unless isArray( local_fields )
-		
-		#Variables for helping to parse this list into an object
-		remote_fields = []
-		remote_fields_obj = {}
-		recurse_fields = {}
-
-		#Make sure we have a duplicate object representation of the field mapping
-		_fields = {}
-		if isObject(@fields)
-			_fields[key] = value for key, value of @fields
-		else if isArray( @fields )
-			_fields[field] = field for field in @fields
-		#END if
-
-		_fields['id'] = 'id' unless _fields['id']?
-
-		#First attempt to convert the flat array into an object
-		for local_field in local_fields when isString( local_field )
-			if local_field.indexOf(".") >= 0
-				[local_key_prefix, local_child_key] = local_field.split(".", 2)
-
-				remote_key = recurse_fields[local_key_prefix] ? findKey( _fields, local_key_prefix )
-
-				if remote_key?
-					recurse_fields[local_key_prefix] ?= remote_key
-					( remote_fields_obj[remote_key] ?= [] ).push( local_child_key )
-				#END if
-			else
-				if ( remote_key = findKey( _fields, local_field ) )?
-					remote_fields.push( "#{prefix}#{remote_key}" )
-				#END if
-			#END if
-		#END for
-
-		for local_field, remote_field of recurse_fields when isFunction( @definitions[local_field] )
-			local_definition = @definitions[local_field]().prototype
-			if Falcon.isDataObject( local_definition )
-				child_fields = local_definition.remoteFieldsArray( remote_fields_obj[remote_field], "#{prefix}#{remote_field}." )
-				remote_fields = remote_fields.concat( child_fields )
-			#END if
-		#END for
-
-		return remote_fields
-	#END remoteFieldsArray
 
 	#--------------------------------------------------------
 	# Method: Falcon.Model#sync()
@@ -470,7 +413,6 @@ class Falcon.Model extends Falcon.Class
 		options.complete = (->) unless isFunction(options.complete)
 		options.error = (->) unless isFunction(options.error)
 		options.parent = @parent unless Falcon.isModel(options.parent)
-		options.fields = flattenObjectKeys( options.fields ) if isObject( options.fields )
 		options.fields = [] unless isArray( options.fields )
 		options.params = {} unless isObject( options.params ) 
 		options.fill = true unless isBoolean( options.fill )
@@ -491,34 +433,28 @@ class Falcon.Model extends Falcon.Class
 
 		url = options.url ? @makeUrl(type, options.parent)
 
-		if options.fields.length > 0 and not options.params['fields']?
-			options.params['fields'] = options.fields
-		#end if
-
-		options.params['fields'] = trim( options.params['fields'].join(",") ) if isArray( options.params['fields'] )
-
 		unless isEmpty( options.params )
 			url += "?" unless url.indexOf("?") > -1
 			url += ( "#{key}=#{value}" for key, value of options.params ).join("&")
 		#END if params
 
-		@loading(true)
-
-		$.ajax
-			'url': url
+		return $.ajax
 			'type': type
+			'url': url
 			'data': json
 			'dataType': options.dataType
 			'contentType': options.contentType
 			'cache': Falcon.cache
 			'headers': options.headers
 
-			'beforeSend': (xhr) =>
-				xhr.withCredentials = true
-			#END beforeSend
-
 			'success': (data, status, xhr) =>
-				@fill(data) if options.fill
+				data = JSON.parse( data ) if isString( data )
+				data = JSON.parse( xhr.responseText ) if not data? and isString( xhr.responseText )
+				data ?= {}
+
+				data = @parse( data, options, xhr )
+
+				@fill(data, options) if options.fill
 
 				switch type
 					when "GET" then @trigger("fetch", data)
@@ -527,7 +463,7 @@ class Falcon.Model extends Falcon.Class
 					when "DELETE" then @trigger("destroy", data)
 				#END switch
 
-				options.success.call(this, this, arguments...)
+				options.success.call(this, this, data, status, xhr)
 			#END success
 
 			'error': (xhr) => 
@@ -539,13 +475,10 @@ class Falcon.Model extends Falcon.Class
 				options.error.call(this, this, response, xhr)
 			#END error
 
-			'complete': (xhr) =>
-				@loading(false)
-				options.complete.call(this, this, arguments...)
+			'complete': (xhr, status) =>
+				options.complete.call(this, this, xhr, status)
 			#END complete
 		#END $.ajax
-
-		return this
 	#END sync
 
 	#--------------------------------------------------------
@@ -626,7 +559,7 @@ class Falcon.Model extends Falcon.Class
 
 		if Falcon.isModel( model )
 			return model.get("id") is @get("id")
-		else if isNumber( model )
+		else if isNumber( model ) or isString( model )
 			return model is @get("id")
 		#END if
 
@@ -648,6 +581,9 @@ class Falcon.Model extends Falcon.Class
 	#
 	# Returns:
 	#	_(Falcon.Model)_ - This model
+	#
+	# TODO:
+	#	Have observables check for 'extends' method
 	#--------------------------------------------------------
 	mixin: (mapping) ->
 		mapping = {} unless isObject(mapping)
@@ -663,8 +599,13 @@ class Falcon.Model extends Falcon.Class
 						_value = value
 						this[key] = (args...) => 
 							_value.call(this, this, args...) 
+						#END
+					#END do
 				else
 					this[key] = value 
+				#END if
+			#END if
+		#END for
 
 		return this
 	#END mixin
@@ -678,18 +619,32 @@ class Falcon.Model extends Falcon.Class
 	#
 	# Returns:
 	#	_Falcon.Model_ - A clone of this model
+	#
+	# TODO:
+	#	Add deep cloning
 	#--------------------------------------------------------
 	clone: (parent) ->
 		parent = if parent? or parent is null then parent else @parent
-		return new this.constructor(this.unwrap(), parent )
+		return new @constructor(this.unwrap(), parent )
 	#END clone
 
-	copy: (fields) ->
-		fields = ["id", "parent"] unless isArray( fields )
-		copy = new @constructor()
-		copy.fill( @serialize( fields ) )
-		copy.parent = @parent if arrayContains( fields, "parent" )
-		return copy
+	#--------------------------------------------------------
+	# Method: Falcon.Model#copy()
+	#	Method used to copy this model
+	#
+	# Arguments:
+	#	**fields** _(Array)_ - A list of attributes to copy.
+	#	**parent** _(Object)_ - The parent to set on the new model, use 
+	#							'null' to unset the parent.
+	#
+	# Returns:
+	#	_(Falcon.Model)_ - A copy of this model
+	#--------------------------------------------------------
+	copy: (fields, parent) ->
+		parent = fields if fields is null or Falcon.isModel( fields )
+		fields = ["id"] unless isArray( fields )
+		parent = @parent unless parent is null or Falcon.isModel( parent )
+		return new @constructor( @serialize( fields ), parent )
 	#END copy
 
 	#--------------------------------------------------------
@@ -700,7 +655,6 @@ class Falcon.Model extends Falcon.Class
 	#	_Boolean_ - Is this a new model?
 	#--------------------------------------------------------
 	isNew: () ->
-		return !@get("id")?
+		return ( not @get("id")? )
 	#END isNew
-
 #END Falcon.Model

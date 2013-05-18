@@ -4,6 +4,70 @@
 		"selected_items":
 		[
 			[
+				"pre",
+				"prepend_stub"
+			],
+			[
+				"append",
+				"append_stub"
+			],
+			[
+				"app",
+				"append_stub"
+			],
+			[
+				"prpe",
+				"prepend_stub"
+			],
+			[
+				"fill",
+				"fill_stub"
+			],
+			[
+				"model",
+				"model_a4"
+			],
+			[
+				"model_",
+				"model_a1"
+			],
+			[
+				"_falcon_vi",
+				"__falcon_view__is_loaded__"
+			],
+			[
+				"Collecio",
+				"CollectionA"
+			],
+			[
+				"collectiond",
+				"collection_d2"
+			],
+			[
+				"collection",
+				"collectionA"
+			],
+			[
+				"ob",
+				"observable"
+			],
+			[
+				"init",
+				"init_stub"
+			],
+			[
+				"save",
+				"save_spy"
+			],
+			[
+				"create",
+				"create_spy"
+			],
+			[
+				"parse",
+				"parse_stub"
+			],
+			[
 				"cache",
 				"cacheTemplate"
 			],
@@ -196,10 +260,6 @@
 				"survey_question_id"
 			],
 			[
-				"pre",
-				"previousEncoding"
-			],
-			[
 				"text",
 				"textQuestionTemplate"
 			],
@@ -238,10 +298,6 @@
 			[
 				"surve",
 				"survey_taken"
-			],
-			[
-				"create",
-				"createChainForm"
 			],
 			[
 				"show",
@@ -458,72 +514,56 @@
 			[
 				"leftO",
 				"leftObservable"
-			],
-			[
-				"rightO",
-				"rightOffscreenObservable"
-			],
-			[
-				"con",
-				"controlsDescendantBindings"
-			],
-			[
-				"next",
-				"nextCallback"
-			],
-			[
-				"keydown",
-				"keydownCallback"
-			],
-			[
-				"keo",
-				"keydownCallback"
-			],
-			[
-				"key",
-				"keycount"
-			],
-			[
-				"res",
-				"responseText"
-			],
-			[
-				"pr",
-				"procedures"
-			],
-			[
-				"value",
-				"valueAccessor"
-			],
-			[
-				"chang",
-				"changeCount"
-			],
-			[
-				"AddCon",
-				"AddContactToList"
-			],
-			[
-				"COnstan",
-				"ConstantContact"
-			],
-			[
-				"fcpFill",
-				"fcpFillOrAddCCLis"
-			],
-			[
-				"Consta",
-				"ConstantContact"
 			]
 		]
 	},
 	"buffers":
 	[
+		{
+			"file": "/Users/stoodder/Dropbox/gitrepo/falconjs/coffee/falcon.view.coffee",
+			"settings":
+			{
+				"buffer_size": 7758,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/Users/stoodder/Dropbox/gitrepo/falconjs/tests/coffee/falcon.collection.test.coffee",
+			"settings":
+			{
+				"buffer_size": 37924,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/stoodder/Dropbox/gitrepo/falconjs/build.json",
+			"settings":
+			{
+				"buffer_size": 1311,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/stoodder/Dropbox/gitrepo/falconjs/tests/index.html",
+			"settings":
+			{
+				"buffer_size": 1044,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/stoodder/Dropbox/gitrepo/falconjs/coffee/falcon.collection.coffee",
+			"settings":
+			{
+				"buffer_size": 30268,
+				"line_ending": "Windows"
+			}
+		}
 	],
 	"build_system": "",
 	"command_palette":
 	{
-		"height": 392.0,
+		"height": 387.0,
 		"selected_items":
 		[
 			[
@@ -564,17 +604,22 @@
 	},
 	"file_history":
 	[
+		"/Users/stoodder/Dropbox/gitrepo/falconjs/coffee/falcon.ko.bindings.coffee",
+		"/Users/stoodder/Dropbox/gitrepo/falconjs/tests/coffee/falcon.model.test.coffee",
+		"/Users/stoodder/Dropbox/gitrepo/falconjs/coffee/falcon.collection.coffee",
+		"/Users/stoodder/Dropbox/gitrepo/falconjs/tests/coffee/falcon.collection.test.coffee",
+		"/Users/stoodder/Library/Application Support/Sublime Text 2/Packages/Default/Preferences.sublime-settings",
+		"/Users/stoodder/Library/Application Support/Sublime Text 2/Packages/User/Preferences.sublime-settings",
+		"/Users/stoodder/Dropbox/gitrepo/falconjs/coffee/falcon.view.coffee",
+		"/Users/stoodder/Dropbox/gitrepo/falconjs/coffee/utility.coffee",
+		"/Users/stoodder/Dropbox/gitrepo/falconjs/coffee/falcon.model.coffee",
+		"/Users/stoodder/Dropbox/gitrepo/falconjs/build.json",
 		"/Users/stoodder/Dropbox/libraries/Backbone/backbone.js",
 		"/Users/stoodder/Dropbox/gitrepo/falconjs/coffee/falcon.class.coffee",
-		"/Users/stoodder/Dropbox/gitrepo/falconjs/coffee/falcon.collection.coffee",
-		"/Users/stoodder/Dropbox/gitrepo/falconjs/coffee/falcon.ko.bindings.coffee",
 		"/Users/stoodder/Dropbox/gitrepo/falconjs/tests/spec/falcon.class.spec.coffee",
 		"/Users/stoodder/Dropbox/gitrepo/falconjs/Cakefile",
-		"/Users/stoodder/Dropbox/gitrepo/falconjs/coffee/falcon.view.coffee",
 		"/Users/stoodder/Dropbox/gitrepo/falconjs/tests/index.html",
-		"/Users/stoodder/Dropbox/gitrepo/falconjs/coffee/utility.coffee",
 		"/Users/stoodder/Dropbox/gitrepo/falconjs/coffee/falcon.event.coffee",
-		"/Users/stoodder/Dropbox/gitrepo/falconjs/coffee/falcon.model.coffee",
 		"/Users/stoodder/Dropbox/gitrepo/falconjs/tests/tests.min.js",
 		"/Users/stoodder/Dropbox/gitrepo/falconjs/scripts/knockout-2.2.0.js",
 		"/Users/stoodder/Dropbox/gitrepo/falconjs/scripts/falcon-reports.js",
@@ -686,12 +731,7 @@
 		"/Users/stoodder/Dropbox/RokkinCat/gitrepo/pgood/private/coffee/mobicratic.init.coffee",
 		"/Users/stoodder/Dropbox/RokkinCat/gitrepo/pgood/private/coffee/models/session.model.coffee",
 		"/Users/stoodder/Dropbox/RokkinCat/gitrepo/pgood/private/coffee/models/user.model.coffee",
-		"/Users/stoodder/Dropbox/RokkinCat/gitrepo/pgood/private/coffee/models/member.model.coffee",
-		"/Users/stoodder/Dropbox/RokkinCat/gitrepo/pgood/private/coffee/models/post.model.coffee",
-		"/Users/stoodder/Dropbox/RokkinCat/gitrepo/pgood/private/coffee/models/procedure.model.coffee",
-		"/Users/stoodder/Dropbox/RokkinCat/gitrepo/pgood/private/coffee/models/role.model.coffee",
-		"/Users/stoodder/Dropbox/RokkinCat/gitrepo/pgood/private/coffee/models/file.model.coffee",
-		"/Users/stoodder/Dropbox/RokkinCat/gitrepo/pgood/private/coffee/models/comment.model.coffee"
+		"/Users/stoodder/Dropbox/RokkinCat/gitrepo/pgood/private/coffee/models/member.model.coffee"
 	],
 	"find":
 	{
@@ -699,7 +739,7 @@
 	},
 	"find_in_files":
 	{
-		"height": 0.0,
+		"height": 93.0,
 		"where_history":
 		[
 			"/Users/stoodder/Dropbox/gitrepo/falconjs/coffee",
@@ -713,6 +753,67 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"class",
+			"prepend",
+			"remove:",
+			"exepect",
+			"console.log",
+			"remove:",
+			", ",
+			"remove:",
+			"console.log",
+			"__child_views__",
+			"faclon",
+			"_child_views",
+			"is_destroyed",
+			"is_loaded",
+			"child",
+			"__falcon_addChildView__",
+			"is_loaded",
+			"@cacheTemplate",
+			"_template_cache",
+			"_addChildView",
+			"_child_views",
+			"is_loaded",
+			"collecionA",
+			"modelA",
+			"collection_d2",
+			"string",
+			"collectionD2",
+			"CollectionD2",
+			"function",
+			", prent url",
+			"model_d",
+			"collectionD",
+			"CollectionD",
+			"mobel_b",
+			"model_a",
+			"CollectionA",
+			"collectionA",
+			"[], ",
+			"1b",
+			".should.be.a ModelA",
+			"START",
+			"toLowerCase",
+			"replace",
+			"parse(",
+			"calledWith( models, modelB )",
+			"colletionA",
+			"populated",
+			"collection_a",
+			"flattenObjectKeys",
+			"sync:",
+			"sunc:",
+			"loading",
+			"foo",
+			"epxect",
+			"modelA_1",
+			"parse:",
+			"sinont",
+			"sinot",
+			"response_data",
+			"data2",
+			" = ",
 			"_generated_url",
 			"_templateCache",
 			"extend",
@@ -779,68 +880,7 @@
 			"previousAsset",
 			"previousRow",
 			"assetsOnRow",
-			"_CELLS_PER_ROW",
-			"addChildView",
-			"_ASSETS_PER_ROW",
-			"_ASSET_HEIGHT",
-			"_ASSET_WIDTH",
-			"this.options",
-			"this.",
-			"fetch",
-			".fetch",
-			"that",
-			"vod-asset-template",
-			"SeeMoreView",
-			"SeeMoreAssetsView",
-			"SeeMore",
-			"fetch",
-			".fetch",
-			"gist",
-			"assets",
-			"grid-view-template",
-			"focus:next",
-			"menu-section-header-template",
-			"menu",
-			"menu\\",
-			".buildMenu",
-			"isSubMenu",
-			"this.collection.isSubMenu",
-			"this.colleciton.isSubMenu",
-			"isSubMenu",
-			"$back",
-			"common.Menu(",
-			"common.Menu",
-			"collections.Menu",
-			"collection.Menu",
-			"model.Menu",
-			".Menu",
-			"Menu",
-			"positionHighlight",
-			"menu\"",
-			"menu",
-			"MenuView",
-			"id=\"menu\"",
-			"<use",
-			"use",
-			"ericsson",
-			"MenuView",
-			"id=\"menu\"",
-			"menu-section-header-template",
-			"removeChildren",
-			"showMenu :",
-			"showMenu(",
-			"showMenu",
-			"showMenu:",
-			"app.page.currentApp.showMenu",
-			"app.menu.MainMenu",
-			"menu",
-			"id=\"menu\"",
-			"id=\"title\"",
-			"href=\"#title\"",
-			"id=\"menu\"",
-			"id=\"menu",
-			"parent",
-			"menu"
+			"_CELLS_PER_ROW"
 		],
 		"highlight": false,
 		"in_selection": false,
@@ -928,8 +968,150 @@
 	"groups":
 	[
 		{
+			"selected": 0,
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "/Users/stoodder/Dropbox/gitrepo/falconjs/coffee/falcon.view.coffee",
+					"settings":
+					{
+						"buffer_size": 7758,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								7706,
+								7706
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/CoffeeScript/CoffeeScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 2588.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "/Users/stoodder/Dropbox/gitrepo/falconjs/tests/coffee/falcon.collection.test.coffee",
+					"settings":
+					{
+						"buffer_size": 37924,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								36890,
+								36890
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/CoffeeScript/CoffeeScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 13740.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "/Users/stoodder/Dropbox/gitrepo/falconjs/build.json",
+					"settings":
+					{
+						"buffer_size": 1311,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								374,
+								374
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JSON.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 1.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "/Users/stoodder/Dropbox/gitrepo/falconjs/tests/index.html",
+					"settings":
+					{
+						"buffer_size": 1044,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1044,
+								1044
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 44.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 4,
+					"file": "/Users/stoodder/Dropbox/gitrepo/falconjs/coffee/falcon.collection.coffee",
+					"settings":
+					{
+						"buffer_size": 30268,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								13715,
+								13715
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/CoffeeScript/CoffeeScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 5125.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
 			]
 		}
 	],
@@ -950,11 +1132,18 @@
 				0,
 				1,
 				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
 			]
 		],
 		"cols":
 		[
 			0.0,
+			0.497716688414,
 			1.0
 		],
 		"rows":
@@ -964,6 +1153,10 @@
 		]
 	},
 	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 88.0
+	},
 	"replace":
 	{
 		"height": 64.0
@@ -974,6 +1167,46 @@
 		"height": 0.0,
 		"selected_items":
 		[
+			[
+				"build",
+				"build.json"
+			],
+			[
+				"coll",
+				"coffee/falcon.collection.coffee"
+			],
+			[
+				"collectiontest",
+				"tests/coffee/falcon.collection.test.coffee"
+			],
+			[
+				"view",
+				"coffee/falcon.view.coffee"
+			],
+			[
+				"utilt",
+				"coffee/utility.coffee"
+			],
+			[
+				"bindings",
+				"coffee/falcon.ko.bindings.coffee"
+			],
+			[
+				"model",
+				"coffee/falcon.model.coffee"
+			],
+			[
+				"collection",
+				"coffee/falcon.collection.coffee"
+			],
+			[
+				"modelco",
+				"coffee/falcon.model.coffee"
+			],
+			[
+				"modeltest",
+				"tests/coffee/falcon.model.test.coffee"
+			]
 		],
 		"width": 0.0
 	},
@@ -982,6 +1215,26 @@
 		"height": 500.0,
 		"selected_items":
 		[
+			[
+				"niner",
+				"/Users/stoodder/Dropbox/RokkinCat/gitrepo/niner/niner.sublime-project"
+			],
+			[
+				"nine",
+				"/Users/stoodder/Dropbox/RokkinCat/gitrepo/niner/niner.sublime-project"
+			],
+			[
+				"nii",
+				"/Users/stoodder/Dropbox/RokkinCat/gitrepo/niner/niner.sublime-project"
+			],
+			[
+				"nineit",
+				"/Users/stoodder/Dropbox/RokkinCat/gitrepo/niner/niner.sublime-project"
+			],
+			[
+				"n",
+				"/Users/stoodder/Dropbox/RokkinCat/gitrepo/niner/niner.sublime-project"
+			]
 		],
 		"width": 380.0
 	},
@@ -989,6 +1242,6 @@
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 217.0,
+	"side_bar_width": 181.0,
 	"status_bar_visible": true
 }

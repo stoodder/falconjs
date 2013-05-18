@@ -1,14 +1,14 @@
 (function() {
-  var LayoutView, ListItemView, ListView, SettingsView,
-    __hasProp = Object.prototype.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+  var LayoutView, ListItemView, ListView, SettingsView, _ref, _ref1, _ref2, _ref3,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   LayoutView = (function(_super) {
-
     __extends(LayoutView, _super);
 
     function LayoutView() {
-      LayoutView.__super__.constructor.apply(this, arguments);
+      _ref = LayoutView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     LayoutView.prototype.url = "#layout-view";
@@ -31,11 +31,11 @@
   })(Falcon.View);
 
   SettingsView = (function(_super) {
-
     __extends(SettingsView, _super);
 
     function SettingsView() {
-      SettingsView.__super__.constructor.apply(this, arguments);
+      _ref1 = SettingsView.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     SettingsView.prototype.url = "#settings-view";
@@ -49,11 +49,11 @@
   })(Falcon.View);
 
   ListView = (function(_super) {
-
     __extends(ListView, _super);
 
     function ListView() {
-      ListView.__super__.constructor.apply(this, arguments);
+      _ref2 = ListView.__super__.constructor.apply(this, arguments);
+      return _ref2;
     }
 
     ListView.prototype.url = "#list-view";
@@ -72,11 +72,11 @@
   })(Falcon.View);
 
   ListItemView = (function(_super) {
-
     __extends(ListItemView, _super);
 
     function ListItemView() {
-      ListItemView.__super__.constructor.apply(this, arguments);
+      _ref3 = ListItemView.__super__.constructor.apply(this, arguments);
+      return _ref3;
     }
 
     ListItemView.prototype.url = "#list-item-view";

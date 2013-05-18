@@ -13,6 +13,7 @@ isBoolean = (object) -> object? and Object::toString.call( object ) is "[object 
 isArray = (object) -> object? and Object::toString.call( object ) is "[object Array]"
 isString = (object) -> object? and Object::toString.call( object ) is "[object String]"
 isNumber = (object) -> object? and Object::toString.call( object ) is "[object Number]"
+isNaN = (object) -> isNumber(object) and object isnt object
 isEmpty = (object) ->
 	if isObject(object)
 		return false for key, value of object

@@ -1,6 +1,4 @@
 class Falcon.Class
-	super: () ->
-
 	###
 	# Method: Falcon.Class.extend
 	#	Used to extend (as in, inherit) from one class to another
@@ -57,14 +55,6 @@ class Falcon.Class
 	constructor: ->
 		@_events = {}
 	#END constructor
-
-	###
-	# Method: Falcon.Class#_super
-	#	attempts to call a parent version of an inheritted class
-	###
-	_super: (method, args...) ->
-		return @__super__[method].apply(this, args)
-	#END _super
 
 	###
 	# Method: Falcon.Model#on()
@@ -142,27 +132,6 @@ class Falcon.Class
 
 		return false
 	#END has
-
-	###
-	# Method: Falcon.Model#relay
-	#	Relay's a specific event when called on an object through this object
-	#
-	# Arguments:
-	#	**object** _(string)_ - The event to look at
-	#	**event** _(function)_ - The event handler to look for
-	#
-	# Returns:
-	#	_(Falcon.Class)_ - This instance
-	###
-	relay: (object, event) ->
-		[object, event] = [event, object] unless isString(event)
-		return this unless Falcon.isFalconObject(object)
-		return this if isEmpty(event)
-
-		object.on(event, => @trigger(event, arguments...))
-
-		return this
-	#END relay
 		
 	###
 	# Method: Falcon.Model#trigger()

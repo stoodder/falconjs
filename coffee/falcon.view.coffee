@@ -1,9 +1,6 @@
 #--------------------------------------------------------
 # Class: Falcon.View
-#	Class hat represents a view on the screen
-#
-# TODO:
-#	Add the on/off methods
+#	Class that represents a view on the screen
 #--------------------------------------------------------
 class Falcon.View extends Falcon.Class
 
@@ -43,16 +40,33 @@ class Falcon.View extends Falcon.Class
 	_loaded_url: null
 
 	#--------------------------------------------------------
-	# Attribute: Falcon.View#is_loaded
+	# Attribute: Falcon.View#__falcon_view__is_loaded__
 	#	This is
 	#--------------------------------------------------------
-	is_loaded: false
+	__falcon_view__is_loaded__: false
 
 	#--------------------------------------------------------
-	# Attribute: Falcon.View#is_destroyed
+	# Attribute: Falcon.View#__falcon_view__is_destroyed__
 	#	This is
 	#--------------------------------------------------------
-	is_destroyed: false
+	__falcon_view__is_destroyed__: false
+
+	#--------------------------------------------------------
+	# Attribute: Falcon.View#__falcon_view__child_views__
+	#	This is
+	#--------------------------------------------------------
+	__falcon_view__child_views__: []
+
+	#--------------------------------------------------------
+	# Attribute: Falcon.View#observables
+	#	This is a list of the default observables and values for
+	#	this view on each instantiation. If the value is a function
+	#	a computed is created. If the value is an object with the keys
+	#	'read' and/or 'write' a computed is created with those object
+	#	keys as the defining variables. All computeds are created with
+	#	this view's instance bound to its callback methods
+	#--------------------------------------------------------
+	observables: null
 
 	#--------------------------------------------------------
 	# Method: Falcon.View()
@@ -64,14 +78,36 @@ class Falcon.View extends Falcon.Class
 		# Validate the public variables
 		url = @makeUrl()
 
-		# Setup the is_loaded variable
-		@is_loaded = ko.observable( false )
-		@is_destroyed = false
-		@_child_views = []
+		# Setup the __falcon_view__is_loaded__ variable
+		@__falcon_view__is_loaded__ = ko.observable( false )
+		@__falcon_view__is_destroyed__ = false
+		@__falcon_view__child_views__ = []
+
+		#Setup the observables
+		if isObject( @observables )
+			for key, value of @observables
+				if isFunction( value )
+					@[key] = ko.computed
+						'read': value
+						'owner': @
+					#END computed
+				else if isObject( value ) and ('read' of value or 'write' of value)
+					@[key] = ko.computed
+						'read': value.read
+						'write': value.write
+						'owner': @
+					#END computed
+				else if isArray( value )
+					@[key] = ko.observableArray( value )
+				else
+					@[key] = ko.observable( value )
+				#END if
+			#END for
+		#END if
 		
 		_loaded = () =>
 			@_loaded_url = url
-			@is_loaded(true)
+			@__falcon_view__is_loaded__( true )
 			@trigger("load")
 		#END _loaded
 
@@ -82,7 +118,7 @@ class Falcon.View extends Falcon.Class
 			_loaded()
 
 		else if startsWith(url, "#")
-			_template_cache[url] = $(url).html()
+			Falcon.View.cacheTemplate( url, $(url).html() )
 			_loaded()
 
 		else
@@ -95,7 +131,7 @@ class Falcon.View extends Falcon.Class
 					@trigger("error")
 				#END error
 				success: (html) =>
-					_template_cache[url] = html
+					Falcon.View.cacheTemplate(url, html)
 					_loaded()
 				#END success
 			#END ajax
@@ -126,8 +162,12 @@ class Falcon.View extends Falcon.Class
 		return url
 	#END makeUrl
 
+	#--------------------------------------------------------
+	# Method: Falcon.View#template
+	#	Method used to return the string template used for this view
+	#--------------------------------------------------------
 	template: () ->
-		return "" unless ko.utils.unwrapObservable( @is_loaded )
+		return "" unless ko.utils.unwrapObservable( @__falcon_view__is_loaded__ )
 		return ( _template_cache[@_loaded_url] ? "" )
 	#END template
 
@@ -139,13 +179,13 @@ class Falcon.View extends Falcon.Class
 	#	classes should override the 'dispose' method instead.
 	#--------------------------------------------------------
 	destroy: () ->
-		return if @is_destroyed
+		return if @__falcon_view__is_destroyed__
 
-		child.destroy() for child in @_child_views
+		child_view.destroy() for child_view in @__falcon_view__child_views__
 		@dispose.apply(this, arguments)
 		
-		@_child_views = null
-		@is_destroyed = true
+		@__falcon_view__child_views__ = null
+		@__falcon_view__is_destroyed__ = true
 
 		return
 	#END destroy
@@ -165,26 +205,31 @@ class Falcon.View extends Falcon.Class
 	dispose: (->)
 
 	#--------------------------------------------------------
-	# Method: Falcon.View#dispose
-	#	Executed when this view is disposed to the garbage collector.  This method will be called
-	#	from within the destroy method and is expected to be overridden in any inheritting class.
+	# Method: Falcon.View#isLoaded
+	#	Method to tell if this view has already been initialized and the template
+	#	loaded
 	#--------------------------------------------------------
-	_addChildView: (view) ->
-		return unless Falcon.isView( view )
-		@_child_views.push( view )
-	#END addChildView
+	isLoaded: ->
+		return @__falcon_view__is_loaded__()
+	#END isLoaded
 
 	#--------------------------------------------------------
 	# Method Falcon.View#viewModel
 	#	Get's a view model representing this view
 	#--------------------------------------------------------
 	viewModel: () ->
-		viewModel = {"__falcon_addChildView__": (view) => @_addChildView(view)}
+		viewModel = {"__falcon_view__addChildView__": (view) =>
+			return unless Falcon.isView( view )
+			@__falcon_view__child_views__.push( view )
+		}
+
 		for key, value of this when not ( key of Falcon.View.prototype )
 			if isFunction(value) and not ko.isObservable(value)
 				value = do =>
 					_value = value
-					return (args...) =>  _value.call(this, args...)
+					method = (args...) => _value.call(this, args...)
+					method.length = _value.length
+					return method
 			viewModel[key] = value
 		return viewModel
 	#END viewModel
