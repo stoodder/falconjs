@@ -1,5 +1,16 @@
 class Falcon.Class
-	###
+	#--------------------------------------------------------
+	# Attribute: Falcon.Class#observables
+	#	This is a list of the default observables and values for
+	#	this view on each instantiation. If the value is a function
+	#	a computed is created. If the value is an object with the keys
+	#	'read' and/or 'write' a computed is created with those object
+	#	keys as the defining variables. All computeds are created with
+	#	this view's instance bound to its callback methods
+	#--------------------------------------------------------
+	observables: null
+
+	#--------------------------------------------------------
 	# Method: Falcon.Class.extend
 	#	Used to extend (as in, inherit) from one class to another
 	#
@@ -8,8 +19,8 @@ class Falcon.Class
 	#	**definition** _(Object)_ - The child's class definition
 	#
 	# Returns:
-	#	_Object_ - The extended class
-	###
+	#	_(Objec)t_ - The extended class
+	#--------------------------------------------------------
 	@extend = (instanceDef, staticDef) ->
 		instanceDef ?= {}
 		staticDef ?= {}
@@ -43,20 +54,42 @@ class Falcon.Class
 		return child
 	#END Falcon.Class.extend
 
-	###
+	#--------------------------------------------------------
 	# Local event storage
-	###
-	_events: null
+	#--------------------------------------------------------
+	__falcon_class__events__: null
 
-	###
+	#--------------------------------------------------------
 	# Method: Falcon.Class()
 	#	The constructor method
-	###
+	#--------------------------------------------------------
 	constructor: ->
-		@_events = {}
+		@__falcon_class__events__ = {}
+
+		#Setup the observables
+		if isObject( @observables )
+			for key, value of @observables
+				if isFunction( value )
+					@[key] = ko.computed
+						'read': value
+						'owner': @
+					#END computed
+				else if isObject( value ) and ('read' of value or 'write' of value)
+					@[key] = ko.computed
+						'read': value.read
+						'write': value.write
+						'owner': @
+					#END computed
+				else if isArray( value )
+					@[key] = ko.observableArray( value )
+				else
+					@[key] = ko.observable( value )
+				#END if
+			#END for
+		#END if
 	#END constructor
 
-	###
+	#--------------------------------------------------------
 	# Method: Falcon.Model#on()
 	#	Adds an event listener to a specific event
 	#
@@ -67,7 +100,7 @@ class Falcon.Class
 	#
 	# Returns:
 	#	_(Falcon.Model)_ - This instance
-	###
+	#--------------------------------------------------------
 	on: (event, action, context) ->
 		return this unless isString(event) and isFunction(action)
 
@@ -76,12 +109,12 @@ class Falcon.Class
 
 		return this if isEmpty(event)
 
-		( @_events[event] ?= [] ).push({action, context})
+		( @__falcon_class__events__[event] ?= [] ).push({action, context})
 
 		return this
 	#END on
 
-	###
+	#--------------------------------------------------------
 	# Method: Falcon.Model#off()
 	#	Removes an event listener from an event
 	#
@@ -91,25 +124,25 @@ class Falcon.Class
 	#
 	# Returns:
 	#	_(Falcon.Model)_ - This instance
-	###
+	#--------------------------------------------------------
 	off: (event, action) ->
 		return this unless isString(event)
 
 		event = trim(event).toLowerCase()
 
-		return this if isEmpty(event) or not @_events[event]?
+		return this if isEmpty(event) or not @__falcon_class__events__[event]?
 
 		if isFunction( action )
-			@_events[event] = ( evt for evt in @_events[event] when evt.action isnt action )
-			@_events[event] = null if @_events[event].length <= 0
+			@__falcon_class__events__[event] = ( evt for evt in @__falcon_class__events__[event] when evt.action isnt action )
+			@__falcon_class__events__[event] = null if @__falcon_class__events__[event].length <= 0
 		else
-			@_events[event] = null
+			@__falcon_class__events__[event] = null
 		#END if
 
 		return this
 	#END off
 
-	###
+	#--------------------------------------------------------
 	# Method: Falcon.Model#has
 	#	Method used to see if this model has a specific event attached
 	#
@@ -119,21 +152,21 @@ class Falcon.Class
 	#
 	# Returns:
 	#	_(boolean)_ - Did we find the event?
-	###
+	#--------------------------------------------------------
 	has: (event, action) ->
 		return false unless isString(event)
 
 		event = trim(event).toLowerCase()
 
-		return false if isEmpty(event) or not @_events[event]?
-		return true if @_events[event]? and not isFunction( action )
+		return false if isEmpty(event) or not @__falcon_class__events__[event]?
+		return true if @__falcon_class__events__[event]? and not isFunction( action )
 
-		return true for evt in @_events[event] when evt.action is action
+		return true for evt in @__falcon_class__events__[event] when evt.action is action
 
 		return false
 	#END has
 		
-	###
+	#--------------------------------------------------------
 	# Method: Falcon.Model#trigger()
 	#	Used to trigger a specific event
 	#
@@ -144,14 +177,15 @@ class Falcon.Class
 	#
 	# Returns:
 	#	_(Falcon.Model)_ - This instance
-	###
+	#--------------------------------------------------------
 	trigger: (event, args...) ->
 		return this unless isString(event)
 		event = trim(event).toLowerCase()
 
-		return this if isEmpty(event) or not @_events[event]?
+		return this if isEmpty(event) or not @__falcon_class__events__[event]?
 
-		evt.action.apply(evt.context, args) for evt in @_events[event]
+		evt.action.apply(evt.context, args) for evt in @__falcon_class__events__[event]
 
 		return this
 	#END trigger
+#END Falcon.Class

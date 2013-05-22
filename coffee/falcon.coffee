@@ -1,17 +1,22 @@
-Falcon =
+window.Falcon = Falcon =
 	version: "{{VERSION}}"
 	applicationElement: "body"
 	baseApiUrl: ""
 	baseTemplateUrl: ""
 	cache: true
 
-	apply: (root, element, viewCallback) -> 
-		[element, viewCallback] = [viewCallback, element] if isFunction( element )
+	#----------------------------------------------------------------------------------------------
+	# Method: Falcon.apply
+	#
+	# Arguments:
+	#----------------------------------------------------------------------------------------------
+	apply: (root, element, callback) -> 
+		[element, callback] = [callback, element] if isFunction( element )
 
 		element = "" unless isString( element )
 		element = trim( element )
 		element = (Falcon.applicationElement ? "body") if isEmpty( element )
-		viewCallback = ( -> ko.observable() ) unless isFunction( viewCallback )
+		callback = ( -> ) unless isFunction( callback )
 
 		#We need to create a template element for IE to recognize the tag
 		document.createElement("template")
@@ -24,10 +29,17 @@ Falcon =
 				template.remove()
 			#END each template
 
+			# NOTE
+			# This is hacky, I used to do 'view: $data' but $data is always the unwrapped
+			# observable and hence I couldn't trigger the correct unrender method when the
+			# view was swapped although it should have been able to. I will need to figure
+			# out a better way to do this
+			Falcon.__falcon_root__ = root
 			$element = $(element);
-			$element.attr('data-bind', 'view: $data')
+			$element.attr('data-bind', 'view: Falcon.__falcon_root__')
 			ko.applyBindings( root, $element[0] )
-			viewCallback()
+
+			callback()
 		#END onLoad
 	#END apply
 
@@ -51,7 +63,4 @@ Falcon =
 		object? and ( object instanceof Falcon.Class )
 	#END isFalconObjext
 #END Falcon
-
-#Expose Falcon to the window
-@Falcon = Falcon
 

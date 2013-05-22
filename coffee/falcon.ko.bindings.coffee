@@ -48,19 +48,19 @@ ko.bindingHandlers['view'] = do ->
 			if value? and ko.isSubscribable( value )
 				oldViewModel = ko.utils.unwrapObservable( value )
 				subscription = value.subscribe (newViewModel) ->
-					oldViewModel.destroy() if Falcon.isView(oldViewModel)
+					oldViewModel.unrender() if Falcon.isView(oldViewModel)
 					oldViewModel = newViewModel
 				#END subscribe
 
 				ko.utils.domNodeDisposal.addDisposeCallback element, ->
-					oldViewModel.destroy() if Falcon.isView(oldViewModel)
+					oldViewModel.unrender() if Falcon.isView(oldViewModel)
 					subscription.dispose()
 				#END domDisposal
 			#END if subscribable
 
 			else if Falcon.isView( value )
 				ko.utils.domNodeDisposal.addDisposeCallback element, ->
-					value.destroy()
+					value.unrender()
 				#END domDisposal
 			#END if
 
@@ -87,7 +87,7 @@ ko.bindingHandlers['view'] = do ->
 			return returnVal unless isObject( value )
 
 			#Store the original view context to revert later, otherwise syncing issues occur
-			originalViewContext = context['$view']
+			parentViewContext = context['$view']
 
 			#Setup the new view context
 			context['$view'] = viewModel
@@ -96,11 +96,11 @@ ko.bindingHandlers['view'] = do ->
 			#method are abstracted away during viewModel generation, it's used to notify a view 
 			#which views have been created within its context.  This is then used when destroying 
 			#the view to also ensure that we destroy child views.
-			originalViewContent['__falcon_view__addChildView__']( value ) if Falcon.isView( originalViewContext )
+			parentViewContext['__falcon_view__addChildView__']( value ) if parentViewContext?['__falcon_view__addChildView__']?
 
 			if isEmpty( viewModel ) or isEmpty( template )
 				$(element).empty()
-			else if not (value instanceof Falcon.View) or ko.utils.unwrapObservable( value.__falcon_view__is_loaded__ )
+			else if not (value instanceof Falcon.View) or ko.utils.unwrapObservable( value.is_loaded )
 
 				anonymousTemplate = ko.utils.domData.get(element, '__ko_anon_template__')
 				if anonymousTemplate.containerData?.innerHTML?
@@ -125,12 +125,13 @@ ko.bindingHandlers['view'] = do ->
 						eval( script.text() ) if script.attr('type').toLowerCase() is "text/javascript"
 					)
 				#END if template updated
+
+				#Notify the view that it is being displayed
+				value.render() if Falcon.isView( value )
 			#END if not template?
 
-			value.trigger("render") if Falcon.isView(value)
-
 			#Revert this back to the parent view (so we keep the correct context)
-			context['$view'] = originalViewContext
+			context['$view'] = parentViewContext
 
 			return returnVal
 		#END update
@@ -155,7 +156,7 @@ _getItems = (value) ->
 _shouldUpdate = (element, value) ->
 	return true unless Falcon.isCollection(value)
 
-	changeCount = value.__change_count__
+	changeCount = value.__falcon_collection__change_count__
 	lastChangeCount = ko.utils.domData.get(element, "__falcon_collection___change_count__")
 
 	return false if lastChangeCount is changeCount
@@ -180,12 +181,11 @@ ko.bindingHandlers['foreach'] =
 		if _shouldUpdate(element, value)
 			return ( _foreach['update'] ? (->) )(element, _getItems(value), args...)
 		#END if
-		value.trigger("render") if Falcon.isCollection(value)
 		return
 	#END update
 #END foreach override
 
-#Map the rest of the values in
+#Map the rest of the values in, right now is just makeValueTemplateAccessor
 for key, value of _foreach when key not of ko.bindingHandlers['foreach']
 	ko.bindingHandlers['foreach'][key] = value
 #END for
@@ -208,7 +208,6 @@ ko.bindingHandlers['options'] = do ->
 		if _shouldUpdate(element, value)
 			return ( _options['update'] ? (->) )(element, _getItems(value), args...)
 		#END if
-		value.trigger("render") if Falcon.isCollection(value)
 		return
 	#END update
 #END foreach override

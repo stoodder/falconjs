@@ -7,6 +7,7 @@ describe "Testing Model Methods", ->
 	#--------------------------------------------------------------
 	#
 	# Test the initialize() method
+	#	TODO: Test array 'fields' attribute
 	#
 	#--------------------------------------------------------------
 	it "Should initialize correctly", ->
@@ -131,6 +132,8 @@ describe "Testing Model Methods", ->
 	#--------------------------------------------------------------
 	#
 	# Test the fill() and serialize() methods
+	#	TODO: Test multiple mapping of data (converting server keys to the same
+	#		  model key).
 	#
 	#--------------------------------------------------------------
 	it "Should test the fill and serialize methods", ->
@@ -252,6 +255,17 @@ describe "Testing Model Methods", ->
 		serialized['id'].should.equal 33
 		serialized['_server'].should.equal "Some Data"
 
+		expect( serialized['foo'] ).to.be.undefined
+		expect( serialized['_client'] ).to.be.undefined
+		expect( serialized["model_b"] ).to.be.undefined
+		expect( serialized["model_b2"] ).to.be.undefined
+		expect( serialized["collection_c"] ).to.be.undefined
+
+
+		serialized = modelA.serialize(["_client"])
+		serialized['_server'].should.equal "Some Data"
+
+		expect( serialized['id'] ).to.be.undefined
 		expect( serialized['foo'] ).to.be.undefined
 		expect( serialized['_client'] ).to.be.undefined
 		expect( serialized["model_b"] ).to.be.undefined
@@ -1394,7 +1408,7 @@ describe "Testing Model Methods", ->
 	# Test the copy() method
 	#
 	#--------------------------------------------------------------
-	describe "Testing copy method", ->
+	describe "Testing copy() method", ->
 		class ModelA extends Falcon.Model
 			initialize: ->
 				@foo = ko.observable()
@@ -1487,10 +1501,9 @@ describe "Testing Model Methods", ->
 
 			expect( modelA2.hello ).to.exist
 			expect( modelA2.foo ).to.exist
-			expect( modelA2.id ).to.exist
 			expect( modelA2.parent ).not.to.exist
 
-			expect( modelA2.id ).to.equal 1
+			expect( modelA2.id ).to.equal null
 			expect( ko.isObservable(modelA2.hello) ).to.be.false
 			expect( modelA2.hello ).to.be.equal "world"
 			expect( ko.isObservable(modelA2.foo) ).to.be.true
@@ -1536,11 +1549,10 @@ describe "Testing Model Methods", ->
 
 			expect( modelA2.hello ).to.exist
 			expect( modelA2.foo ).to.exist
-			expect( modelA2.id ).to.exist
 			expect( modelA2.parent ).to.exist
 			expect( modelA2.parent ).to.equal modelC
 
-			expect( modelA2.id ).to.equal 1
+			expect( modelA2.id ).to.equal null
 			expect( ko.isObservable(modelA2.hello) ).to.be.false
 			expect( modelA2.hello ).to.be.equal "world"
 			expect( ko.isObservable(modelA2.foo) ).to.be.true

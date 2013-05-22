@@ -81,12 +81,15 @@ class Falcon.Model extends Falcon.Class
 		data = data.unwrap() if Falcon.isModel(data)
 
 		@parent = parent
-
 		@initialize(data)
 		@fill(data) unless isEmpty( data )
 
 		#Lastly make sure that any of the fields that should exist, do
-		this[model_field] = null for field, model_field of @fields when not this[model_field]? and isString(model_field)
+		if isArray( @fields )
+			this[field] = null for field in @fields when isString(field) and not field of this
+		else if isObject( @fields )
+			this[model_field] = null for field, model_field of @fields when isString(field) and not field of this
+		#END if
 	#END constructor
 
 	#--------------------------------------------------------
@@ -167,7 +170,7 @@ class Falcon.Model extends Falcon.Class
 	#
 	# Arguments:
 	#	**data** _(Object)_ - The xhr response data
-	#	**options** _ - The options fed initiallyinto the XHR request
+	#	**options** _ - The options fed initially into the XHR request
 	#	**xhr** _(Object)_ - The XHR object
 	#
 	# Returns:
@@ -180,30 +183,36 @@ class Falcon.Model extends Falcon.Class
 	#--------------------------------------------------------
 	# Method: Falcon.Model#fill()
 	#	Method used to 'fill in' and add data to this model
+	#
+	# Arguments:
+	#	**data** _(Object)_ - The data to fill
+	#
+	# Returns:
+	#	_(Falcon.Model)_ - This instance
 	#--------------------------------------------------------
-	fill: (_data) ->
-		_data = {'id': _data} if isNumber(_data) or isString(_data)
-		return this unless isObject(_data)
-		_data = _data.unwrap() if Falcon.isModel(_data)
-		return this if isEmpty( _data )
+	fill: (data) ->
+		data = {'id': data} if isNumber(data) or isString(data)
+		return this unless isObject(data)
+		data = data.unwrap() if Falcon.isModel(data)
+		return this if isEmpty( data )
 
-		data = {}
+		_data = {}
 
-		#if the fields is an object, map the data
+		#REMOVE
+		#if the fields is an object, map the _data
 		if isObject(@fields) and not isEmpty(@fields)
-			data[ @fields[key] ? key ] = value for key, value of _data
+			_data[ @fields[key] ? key ] = value for key, value of data
 		#Otherwise just directly map it
 		else
-			data = _data
+			_data = data
 		#END if
 
-		protoKeys = objectKeys(Falcon.Model.prototype)
-		acceptedKeys = arrayRemove( objectKeys(this), protoKeys )
-		rejectedKeys = arrayRemove( protoKeys, acceptedKeys )
-		rejectedKeys = arrayRemove( rejectedKeys, ["id", "url"] )
-		rejectedKeys = arrayUnique( rejectedKeys )
+		rejectedKeys = {}
+		for key, value of Falcon.Model.prototype when key not in ["id", "url"]
+			rejectedKeys[key] = true
+		#END for
 
-		for key, value of data when not (key in rejectedKeys)
+		for key, value of _data when not rejectedKeys[key]
 			value = ko.utils.unwrapObservable( value )
 			if Falcon.isModel(this[key])
 				this[key].fill(value) unless isEmpty( value )
@@ -269,7 +278,13 @@ class Falcon.Model extends Falcon.Class
 
 		fields = null if isEmpty( fields )
 		fields = trim(fields).split(",") if isString( fields )
-		fields = @fields unless fields?
+		#ADD default fields to every acceptable attribute on this model
+		#REMOVE
+		unless fields?
+			fields = @fields
+			fields["id"] = "id" if isObject( fields ) and not fields["id"]?
+			fields.push("id") if isArray( fields ) and "id" not in fields
+		#END unless
 		server_keys = []
 		model_keys = []
 
@@ -299,11 +314,8 @@ class Falcon.Model extends Falcon.Class
 		#END if
 
 		#Make sure we pull in the id
-		server_keys.push("id")
-		server_keys = arrayUnique( server_keys )
-
-		model_keys.push("id")
-		model_keys = arrayUnique( model_keys )
+		#server_keys.push("id") unless "id" in server_keys
+		#model_keys.push("id") unless "id" in model_keys
 
 		for index, model_key of model_keys
 			server_key = server_keys[index]

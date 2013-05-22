@@ -11,8 +11,15 @@
 */
 
 
+/*
+	Knockout JavaScript library v2.2.1
+	(c) Steven Sanderson - http://knockoutjs.com/
+	License: MIT (http://www.opensource.org/licenses/mit-license.php)
+*/
+
+
 (function() {
-  var $document, $window, Falcon, arrayContains, arrayPeek, arrayRemove, arrayUnique, arraysEqual, compact, countSubstrings, defer, delay, endsWith, extend, findKey, flattenObjectKeys, isArray, isBoolean, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, objectValues, objectsEqual, startsWith, trim, trimSlashes, value, _bindingContext, _foreach, _getItems, _options, _ref, _ref1, _shouldUpdate,
+  var Falcon, arrayRemove, arrayUnique, extend, findKey, isArray, isBoolean, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, startsWith, trim, value, _bindingContext, _foreach, _getItems, _options, _ref, _ref1, _shouldUpdate,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -67,20 +74,8 @@
     return str.replace(/^\s+/, '').replace(/\s+$/, '');
   };
 
-  trimSlashes = function(str) {
-    return str.replace(/^\//, '').replace(/\/$/, '');
-  };
-
   startsWith = function(haystack, needle) {
     return haystack.indexOf(needle) === 0;
-  };
-
-  endsWith = function(haystack, needle) {
-    return haystack.indexOf(needle, haystack.length - needle.length) !== -1;
-  };
-
-  countSubstrings = function(str, substr) {
-    return str.split(substr).length - 1;
   };
 
   objectKeys = function(obj) {
@@ -91,51 +86,6 @@
       _results.push(key);
     }
     return _results;
-  };
-
-  objectValues = function(obj) {
-    var key, value, _results;
-
-    _results = [];
-    for (key in obj) {
-      value = obj[key];
-      _results.push(value);
-    }
-    return _results;
-  };
-
-  objectsEqual = function(obj1, obj2) {
-    var key, value;
-
-    for (key in obj1) {
-      value = obj1[key];
-      if (obj2[key] !== value) {
-        return false;
-      }
-    }
-    for (key in obj2) {
-      value = obj2[key];
-      if (obj1[key] !== value) {
-        return false;
-      }
-    }
-    return true;
-  };
-
-  compact = function(obj) {
-    var key, newObj, value;
-
-    if (!isObject(obj)) {
-      obj = {};
-    }
-    newObj = {};
-    for (key in obj) {
-      value = obj[key];
-      if (value != null) {
-        newObj[key] = value;
-      }
-    }
-    return newObj;
   };
 
   extend = function(obj, extender) {
@@ -164,59 +114,6 @@
       }
     }
     return void 0;
-  };
-
-  flattenObjectKeys = function(obj, prefix) {
-    var flat, key, value;
-
-    flat = [];
-    if (!isString(prefix)) {
-      prefix = "";
-    }
-    for (key in obj) {
-      value = obj[key];
-      if (isObject(value)) {
-        flat = flat.concat(flattenObjectKeys(value, "" + prefix + key + "."));
-      } else {
-        flat.push("" + prefix + key);
-      }
-    }
-    return flat;
-  };
-
-  arraysEqual = function(arr1, arr2) {
-    var index, value, _i, _len;
-
-    if (arr1.length !== arr2.length) {
-      return false;
-    }
-    for (index = _i = 0, _len = arr1.length; _i < _len; index = ++_i) {
-      value = arr1[index];
-      if (arr2[index] !== value) {
-        return false;
-      }
-    }
-    return true;
-  };
-
-  arrayPeek = function(arr) {
-    return arr[arr.length - 1];
-  };
-
-  arrayContains = function(haystack, needle) {
-    var hay, _i, _len;
-
-    if (isFunction(haystack.indexOf)) {
-      return haystack.indexOf(needle) !== -1;
-    } else if (isArray(haystack)) {
-      for (_i = 0, _len = haystack.length; _i < _len; _i++) {
-        hay = haystack[_i];
-        if (hay === needle) {
-          return true;
-        }
-      }
-    }
-    return false;
   };
 
   arrayUnique = function(arr) {
@@ -266,42 +163,17 @@
     return arr;
   };
 
-  delay = function(time, callback) {
-    var _ref;
-
-    if (isFunction(time)) {
-      _ref = [callback, time], time = _ref[0], callback = _ref[1];
-    }
-    if (!isNumber(time)) {
-      time = 1;
-    }
-    if (!isFunction(callback)) {
-      callback = (function() {});
-    }
-    if (time < 1) {
-      time = 1;
-    }
-    return setTimeout(callback, time);
-  };
-
-  defer = function(callback) {
-    if (!isFunction(callback)) {
-      callback = (function() {});
-    }
-    return setTimeout(callback, 1);
-  };
-
-  Falcon = {
+  window.Falcon = Falcon = {
     version: "0.3.0",
     applicationElement: "body",
     baseApiUrl: "",
     baseTemplateUrl: "",
     cache: true,
-    apply: function(root, element, viewCallback) {
+    apply: function(root, element, callback) {
       var _ref, _ref1;
 
       if (isFunction(element)) {
-        _ref = [viewCallback, element], element = _ref[0], viewCallback = _ref[1];
+        _ref = [callback, element], element = _ref[0], callback = _ref[1];
       }
       if (!isString(element)) {
         element = "";
@@ -310,10 +182,8 @@
       if (isEmpty(element)) {
         element = (_ref1 = Falcon.applicationElement) != null ? _ref1 : "body";
       }
-      if (!isFunction(viewCallback)) {
-        viewCallback = (function() {
-          return ko.observable();
-        });
+      if (!isFunction(callback)) {
+        callback = (function() {});
       }
       document.createElement("template");
       return $(function() {
@@ -329,10 +199,11 @@
           }
           return template.remove();
         });
+        Falcon.__falcon_root__ = root;
         $element = $(element);
-        $element.attr('data-bind', 'view: $data');
+        $element.attr('data-bind', 'view: Falcon.__falcon_root__');
         ko.applyBindings(root, $element[0]);
-        return viewCallback();
+        return callback();
       });
     },
     isModel: function(object) {
@@ -352,24 +223,9 @@
     }
   };
 
-  this.Falcon = Falcon;
-
-  $window = $(window);
-
-  $document = $(document);
-
   Falcon.Class = (function() {
-    /*
-    	# Method: Falcon.Class.extend
-    	#	Used to extend (as in, inherit) from one class to another
-    	#
-    	# Arguments:
-    	#	**parent** _(Object)_ - The parent to extend from
-    	#	**definition** _(Object)_ - The child's class definition
-    	#
-    	# Returns:
-    	#	_Object_ - The extended class
-    */
+    Class.prototype.observables = null;
+
     Class.extend = function(instanceDef, staticDef) {
       var child, ctor, parent;
 
@@ -400,36 +256,35 @@
       return child;
     };
 
-    /*
-    	# Local event storage
-    */
-
-
-    Class.prototype._events = null;
-
-    /*
-    	# Method: Falcon.Class()
-    	#	The constructor method
-    */
-
+    Class.prototype.__falcon_class__events__ = null;
 
     function Class() {
-      this._events = {};
+      var key, value, _ref;
+
+      this.__falcon_class__events__ = {};
+      if (isObject(this.observables)) {
+        _ref = this.observables;
+        for (key in _ref) {
+          value = _ref[key];
+          if (isFunction(value)) {
+            this[key] = ko.computed({
+              'read': value,
+              'owner': this
+            });
+          } else if (isObject(value) && ('read' in value || 'write' in value)) {
+            this[key] = ko.computed({
+              'read': value.read,
+              'write': value.write,
+              'owner': this
+            });
+          } else if (isArray(value)) {
+            this[key] = ko.observableArray(value);
+          } else {
+            this[key] = ko.observable(value);
+          }
+        }
+      }
     }
-
-    /*
-    	# Method: Falcon.Model#on()
-    	#	Adds an event listener to a specific event
-    	#
-    	# Arguments:
-    	#	**event** _(string)_ - The event to listen tpo
-    	#	**action** _(function)_ - The callback function to attach to this event
-    	#	**context** _(mixed)_ - The context to apply to the callback. Defaults to this model
-    	#
-    	# Returns:
-    	#	_(Falcon.Model)_ - This instance
-    */
-
 
     Class.prototype.on = function(event, action, context) {
       var _base, _ref;
@@ -444,25 +299,12 @@
       if (isEmpty(event)) {
         return this;
       }
-      ((_ref = (_base = this._events)[event]) != null ? _ref : _base[event] = []).push({
+      ((_ref = (_base = this.__falcon_class__events__)[event]) != null ? _ref : _base[event] = []).push({
         action: action,
         context: context
       });
       return this;
     };
-
-    /*
-    	# Method: Falcon.Model#off()
-    	#	Removes an event listener from an event
-    	#
-    	# Arguments:
-    	#	**event** _(string)_ - The event to remove from
-    	#	**action** _(function)_ - The event handler to remove
-    	#
-    	# Returns:
-    	#	_(Falcon.Model)_ - This instance
-    */
-
 
     Class.prototype.off = function(event, action) {
       var evt;
@@ -471,14 +313,14 @@
         return this;
       }
       event = trim(event).toLowerCase();
-      if (isEmpty(event) || (this._events[event] == null)) {
+      if (isEmpty(event) || (this.__falcon_class__events__[event] == null)) {
         return this;
       }
       if (isFunction(action)) {
-        this._events[event] = (function() {
+        this.__falcon_class__events__[event] = (function() {
           var _i, _len, _ref, _results;
 
-          _ref = this._events[event];
+          _ref = this.__falcon_class__events__[event];
           _results = [];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             evt = _ref[_i];
@@ -488,27 +330,14 @@
           }
           return _results;
         }).call(this);
-        if (this._events[event].length <= 0) {
-          this._events[event] = null;
+        if (this.__falcon_class__events__[event].length <= 0) {
+          this.__falcon_class__events__[event] = null;
         }
       } else {
-        this._events[event] = null;
+        this.__falcon_class__events__[event] = null;
       }
       return this;
     };
-
-    /*
-    	# Method: Falcon.Model#has
-    	#	Method used to see if this model has a specific event attached
-    	#
-    	# Arguments:
-    	#	**event** _(string)_ - The event to look at
-    	#	**action** _(function)_ - The event handler to look for
-    	#
-    	# Returns:
-    	#	_(boolean)_ - Did we find the event?
-    */
-
 
     Class.prototype.has = function(event, action) {
       var evt, _i, _len, _ref;
@@ -517,13 +346,13 @@
         return false;
       }
       event = trim(event).toLowerCase();
-      if (isEmpty(event) || (this._events[event] == null)) {
+      if (isEmpty(event) || (this.__falcon_class__events__[event] == null)) {
         return false;
       }
-      if ((this._events[event] != null) && !isFunction(action)) {
+      if ((this.__falcon_class__events__[event] != null) && !isFunction(action)) {
         return true;
       }
-      _ref = this._events[event];
+      _ref = this.__falcon_class__events__[event];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         evt = _ref[_i];
         if (evt.action === action) {
@@ -533,20 +362,6 @@
       return false;
     };
 
-    /*
-    	# Method: Falcon.Model#trigger()
-    	#	Used to trigger a specific event
-    	#
-    	# Arguments:
-    	#	**event** _(string)_ - The event to trigger
-    	#	**args...** _(arguments)_ - Additional arguments to pass into the
-    	#								event listeners
-    	#
-    	# Returns:
-    	#	_(Falcon.Model)_ - This instance
-    */
-
-
     Class.prototype.trigger = function() {
       var args, event, evt, _i, _len, _ref;
 
@@ -555,10 +370,10 @@
         return this;
       }
       event = trim(event).toLowerCase();
-      if (isEmpty(event) || (this._events[event] == null)) {
+      if (isEmpty(event) || (this.__falcon_class__events__[event] == null)) {
         return this;
       }
-      _ref = this._events[event];
+      _ref = this.__falcon_class__events__[event];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         evt = _ref[_i];
         evt.action.apply(evt.context, args);
@@ -586,7 +401,7 @@
     Model.prototype.fields = {};
 
     function Model(data, parent) {
-      var field, model_field, _ref, _ref1, _ref2;
+      var field, model_field, _i, _len, _ref, _ref1, _ref2, _ref3;
 
       Model.__super__.constructor.call(this);
       data = ko.utils.unwrapObservable(data);
@@ -605,11 +420,21 @@
       if (!isEmpty(data)) {
         this.fill(data);
       }
-      _ref2 = this.fields;
-      for (field in _ref2) {
-        model_field = _ref2[field];
-        if ((this[model_field] == null) && isString(model_field)) {
-          this[model_field] = null;
+      if (isArray(this.fields)) {
+        _ref2 = this.fields;
+        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+          field = _ref2[_i];
+          if (isString(field) && !field in this) {
+            this[field] = null;
+          }
+        }
+      } else if (isObject(this.fields)) {
+        _ref3 = this.fields;
+        for (field in _ref3) {
+          model_field = _ref3[field];
+          if (isString(field) && !field in this) {
+            this[model_field] = null;
+          }
         }
       }
     }
@@ -652,40 +477,43 @@
       return data;
     };
 
-    Model.prototype.fill = function(_data) {
-      var acceptedKeys, data, key, protoKeys, rejectedKeys, value, _ref;
+    Model.prototype.fill = function(data) {
+      var key, rejectedKeys, value, _data, _ref, _ref1;
 
-      if (isNumber(_data) || isString(_data)) {
-        _data = {
-          'id': _data
+      if (isNumber(data) || isString(data)) {
+        data = {
+          'id': data
         };
       }
-      if (!isObject(_data)) {
+      if (!isObject(data)) {
         return this;
       }
-      if (Falcon.isModel(_data)) {
-        _data = _data.unwrap();
+      if (Falcon.isModel(data)) {
+        data = data.unwrap();
       }
-      if (isEmpty(_data)) {
+      if (isEmpty(data)) {
         return this;
       }
-      data = {};
+      _data = {};
       if (isObject(this.fields) && !isEmpty(this.fields)) {
-        for (key in _data) {
-          value = _data[key];
-          data[(_ref = this.fields[key]) != null ? _ref : key] = value;
+        for (key in data) {
+          value = data[key];
+          _data[(_ref = this.fields[key]) != null ? _ref : key] = value;
         }
       } else {
-        data = _data;
+        _data = data;
       }
-      protoKeys = objectKeys(Falcon.Model.prototype);
-      acceptedKeys = arrayRemove(objectKeys(this), protoKeys);
-      rejectedKeys = arrayRemove(protoKeys, acceptedKeys);
-      rejectedKeys = arrayRemove(rejectedKeys, ["id", "url"]);
-      rejectedKeys = arrayUnique(rejectedKeys);
-      for (key in data) {
-        value = data[key];
-        if (!(!(__indexOf.call(rejectedKeys, key) >= 0))) {
+      rejectedKeys = {};
+      _ref1 = Falcon.Model.prototype;
+      for (key in _ref1) {
+        value = _ref1[key];
+        if (key !== "id" && key !== "url") {
+          rejectedKeys[key] = true;
+        }
+      }
+      for (key in _data) {
+        value = _data[key];
+        if (!(!rejectedKeys[key])) {
           continue;
         }
         value = ko.utils.unwrapObservable(value);
@@ -740,6 +568,12 @@
       }
       if (fields == null) {
         fields = this.fields;
+        if (isObject(fields) && (fields["id"] == null)) {
+          fields["id"] = "id";
+        }
+        if (isArray(fields) && __indexOf.call(fields, "id") < 0) {
+          fields.push("id");
+        }
       }
       server_keys = [];
       model_keys = [];
@@ -766,10 +600,6 @@
       } else {
         server_keys = model_keys = arrayRemove(objectKeys(this), objectKeys(Falcon.Model.prototype));
       }
-      server_keys.push("id");
-      server_keys = arrayUnique(server_keys);
-      model_keys.push("id");
-      model_keys = arrayUnique(model_keys);
       for (index in model_keys) {
         model_key = model_keys[index];
         server_key = server_keys[index];
@@ -1065,11 +895,11 @@
   })(Falcon.Class);
 
   Falcon.View = (function(_super) {
-    var _template_cache;
+    var __falcon_view__template_cache__;
 
     __extends(View, _super);
 
-    _template_cache = {};
+    __falcon_view__template_cache__ = {};
 
     View.cacheTemplate = function(identifier, template) {
       if (!isString(identifier)) {
@@ -1079,59 +909,38 @@
         template = "";
       }
       identifier = trim(identifier);
-      _template_cache[identifier] = template;
+      __falcon_view__template_cache__[identifier] = template;
+    };
+
+    View.resetCache = function() {
+      return __falcon_view__template_cache__ = {};
     };
 
     View.prototype.url = null;
 
-    View.prototype._loaded_url = null;
+    View.prototype.is_loaded = false;
 
-    View.prototype.__falcon_view__is_loaded__ = false;
+    View.prototype.is_rendered = false;
 
-    View.prototype.__falcon_view__is_destroyed__ = false;
+    View.prototype.__falcon_view__child_views__ = null;
 
-    View.prototype.__falcon_view__child_views__ = [];
-
-    View.prototype.observables = null;
+    View.prototype.__falcon_view__loaded_url__ = null;
 
     function View() {
-      var key, url, value, _loaded, _ref,
+      var url, _loaded,
         _this = this;
 
       View.__super__.constructor.call(this);
       url = this.makeUrl();
-      this.__falcon_view__is_loaded__ = ko.observable(false);
-      this.__falcon_view__is_destroyed__ = false;
+      this.is_rendered = false;
+      this.is_loaded = ko.observable(false);
       this.__falcon_view__child_views__ = [];
-      if (isObject(this.observables)) {
-        _ref = this.observables;
-        for (key in _ref) {
-          value = _ref[key];
-          if (isFunction(value)) {
-            this[key] = ko.computed({
-              'read': value,
-              'owner': this
-            });
-          } else if (isObject(value) && ('read' in value || 'write' in value)) {
-            this[key] = ko.computed({
-              'read': value.read,
-              'write': value.write,
-              'owner': this
-            });
-          } else if (isArray(value)) {
-            this[key] = ko.observableArray(value);
-          } else {
-            this[key] = ko.observable(value);
-          }
-        }
-      }
       _loaded = function() {
-        _this._loaded_url = url;
-        _this.__falcon_view__is_loaded__(true);
-        return _this.trigger("load");
+        _this.__falcon_view__loaded_url__ = url;
+        return _this.is_loaded(true);
       };
       this.initialize.apply(this, arguments);
-      if (isEmpty(url) || url in _template_cache) {
+      if (isEmpty(url) || url in __falcon_view__template_cache__) {
         _loaded();
       } else if (startsWith(url, "#")) {
         Falcon.View.cacheTemplate(url, $(url).html());
@@ -1140,9 +949,9 @@
         $.ajax({
           url: url,
           type: "GET",
-          cache: false,
+          cache: Falcon.cache,
           error: function() {
-            console.log("ERROR LOADING TEMPLATE " + url);
+            console.log("[FALCON] Error Loading Template: '" + url + "'");
             return _this.trigger("error");
           },
           success: function(html) {
@@ -1151,10 +960,11 @@
           }
         });
       }
+      return this;
     }
 
     View.prototype.makeUrl = function() {
-      var url, _ref;
+      var url;
 
       url = ko.utils.unwrapObservable(this.url);
       if (isFunction(url)) {
@@ -1164,47 +974,64 @@
         url = "";
       }
       url = trim(url);
-      if ((_ref = url.slice(0, 1)) !== "/" && _ref !== "#") {
+      if (url.charAt(0) === '#') {
+        return url;
+      }
+      if (url.charAt(0) !== '/') {
         url = "/" + url;
       }
-      if (isString(Falcon.baseTemplateUrl) && startsWith(url, "/")) {
+      if (isString(Falcon.baseTemplateUrl)) {
         url = "" + Falcon.baseTemplateUrl + url;
       }
+      url = url.replace(/([^:])\/\/+/gi, "$1/");
       return url;
     };
 
     View.prototype.template = function() {
       var _ref;
 
-      if (!ko.utils.unwrapObservable(this.__falcon_view__is_loaded__)) {
+      if (!ko.utils.unwrapObservable(this.is_loaded)) {
         return "";
       }
-      return (_ref = _template_cache[this._loaded_url]) != null ? _ref : "";
+      return (_ref = __falcon_view__template_cache__[this.__falcon_view__loaded_url__]) != null ? _ref : "";
     };
 
-    View.prototype.destroy = function() {
+    View.prototype.render = function() {
+      if (this.is_rendered) {
+        return;
+      }
+      this.display.apply(this, arguments);
+      this.is_rendered = true;
+    };
+
+    View.prototype.unrender = function() {
       var child_view, _i, _len, _ref;
 
-      if (this.__falcon_view__is_destroyed__) {
+      if (!this.is_rendered) {
         return;
       }
       _ref = this.__falcon_view__child_views__;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         child_view = _ref[_i];
-        child_view.destroy();
+        child_view.unrender();
       }
+      this.__falcon_view__child_views__ = [];
       this.dispose.apply(this, arguments);
-      this.__falcon_view__child_views__ = null;
-      this.__falcon_view__is_destroyed__ = true;
+      this.is_rendered = false;
+    };
+
+    View.prototype.addChildView = function(view) {
+      if (!Falcon.isView(view)) {
+        return;
+      }
+      return this.__falcon_view__child_views__.push(view);
     };
 
     View.prototype.initialize = (function() {});
 
-    View.prototype.dispose = (function() {});
+    View.prototype.display = (function() {});
 
-    View.prototype.isLoaded = function() {
-      return this.__falcon_view__is_loaded__();
-    };
+    View.prototype.dispose = (function() {});
 
     View.prototype.viewModel = function() {
       var key, value, viewModel,
@@ -1212,10 +1039,7 @@
 
       viewModel = {
         "__falcon_view__addChildView__": function(view) {
-          if (!Falcon.isView(view)) {
-            return;
-          }
-          return _this.__falcon_view__child_views__.push(view);
+          return _this.addChildView(view);
         }
       };
       for (key in this) {
@@ -1225,17 +1049,15 @@
         }
         if (isFunction(value) && !ko.isObservable(value)) {
           value = (function() {
-            var method, _value;
+            var _value;
 
             _value = value;
-            method = function() {
+            return function() {
               var args;
 
               args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
               return _value.call.apply(_value, [_this].concat(__slice.call(args)));
             };
-            method.length = _value.length;
-            return method;
           })();
         }
         viewModel[key] = value;
@@ -1262,7 +1084,7 @@
 
     Collection.prototype.model = null;
 
-    Collection.prototype.__change_count__ = 0;
+    Collection.prototype.__falcon_collection__change_count__ = 0;
 
     Collection.prototype.url = null;
 
@@ -1336,7 +1158,7 @@
       if (method !== 'replace' && isEmpty(items)) {
         return [];
       }
-      this.__change_count__++;
+      this.__falcon_collection__change_count__++;
       for (i = _i = 0, _len = items.length; _i < _len; i = ++_i) {
         m = items[i];
         if (Falcon.isModel(m)) {
@@ -1495,9 +1317,6 @@
       if (!isFunction(options.error)) {
         options.error = (function() {});
       }
-      if (isObject(options.fields)) {
-        options.fields = flattenObjectKeys(options.fields);
-      }
       if (!isArray(options.fields)) {
         options.fields = [];
       }
@@ -1597,7 +1416,7 @@
       if (Falcon.isCollection(items)) {
         items = items.models();
       }
-      this.__change_count__++;
+      this.__falcon_collection__change_count__++;
       removedItems = isArray(items) ? this.models.removeAll(items) : this.models.remove(items);
       if (!isEmpty(removedItems)) {
         this.length(this.models().length);
@@ -1969,7 +1788,7 @@
     };
 
     Collection.prototype.reset = function() {
-      this.__change_count__ += 1;
+      this.__falcon_collection__change_count__ += 1;
       if (this.models != null) {
         this.models([]);
       } else {
@@ -1985,67 +1804,6 @@
     return Collection;
 
   })(Falcon.Class);
-
-  Falcon.Event = (function() {
-    Event.UP_KEY = 38;
-
-    Event.DOWN_KEY = 40;
-
-    Event.RIGHT_KEY = 39;
-
-    Event.LEFT_KEY = 37;
-
-    Event.ENTER_KEY = 13;
-
-    Event.prototype._element = null;
-
-    /*
-    	# Method: Falcon.Event()
-    */
-
-
-    function Event(element) {
-      if (element == null) {
-        throw new Error("Element must be given");
-      }
-      this._element = $(element);
-    }
-
-    /*
-    	# Method: Falcon.Event#on()
-    */
-
-
-    Event.prototype.on = function(event, callback) {
-      var element, _callback;
-
-      if (!isString(event)) {
-        event = "";
-      }
-      element = this._element;
-      if (!isFunction(callback)) {
-        callback = (function() {});
-      }
-      event = trim(event);
-      if (isEmpty(event)) {
-        return;
-      }
-      _callback = function() {
-        var args;
-
-        args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-        if (element.parents('body').length > 0) {
-          return callback.call.apply(callback, [this].concat(__slice.call(args)));
-        } else {
-          return $window.off(event, _callback);
-        }
-      };
-      return $window.on(event, _callback);
-    };
-
-    return Event;
-
-  })();
 
   ko.bindingHandlers['view'] = (function() {
     var getTemplate, getViewModel, makeTemplateValueAccessor, returnVal;
@@ -2098,19 +1856,19 @@
           oldViewModel = ko.utils.unwrapObservable(value);
           subscription = value.subscribe(function(newViewModel) {
             if (Falcon.isView(oldViewModel)) {
-              oldViewModel.destroy();
+              oldViewModel.unrender();
             }
             return oldViewModel = newViewModel;
           });
           ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
             if (Falcon.isView(oldViewModel)) {
-              oldViewModel.destroy();
+              oldViewModel.unrender();
             }
             return subscription.dispose();
           });
         } else if (Falcon.isView(value)) {
           ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-            return value.destroy();
+            return value.unrender();
           });
         }
         value = ko.utils.unwrapObservable(value);
@@ -2119,7 +1877,7 @@
         return returnVal;
       },
       'update': function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
-        var anonymousTemplate, execScripts, originalViewContext, template, value, _ref;
+        var anonymousTemplate, execScripts, parentViewContext, template, value, _ref;
 
         value = valueAccessor();
         value = ko.utils.unwrapObservable(value);
@@ -2128,14 +1886,14 @@
         if (!isObject(value)) {
           return returnVal;
         }
-        originalViewContext = context['$view'];
+        parentViewContext = context['$view'];
         context['$view'] = viewModel;
-        if (Falcon.isView(originalViewContext)) {
-          originalViewContent['__falcon_view__addChildView__'](value);
+        if ((parentViewContext != null ? parentViewContext['__falcon_view__addChildView__'] : void 0) != null) {
+          parentViewContext['__falcon_view__addChildView__'](value);
         }
         if (isEmpty(viewModel) || isEmpty(template)) {
           $(element).empty();
-        } else if (!(value instanceof Falcon.View) || ko.utils.unwrapObservable(value.__falcon_view__is_loaded__)) {
+        } else if (!(value instanceof Falcon.View) || ko.utils.unwrapObservable(value.is_loaded)) {
           anonymousTemplate = ko.utils.domData.get(element, '__ko_anon_template__');
           if (((_ref = anonymousTemplate.containerData) != null ? _ref.innerHTML : void 0) != null) {
             anonymousTemplate.containerData.innerHTML = template;
@@ -2152,11 +1910,11 @@
               }
             });
           }
+          if (Falcon.isView(value)) {
+            value.render();
+          }
         }
-        if (Falcon.isView(value)) {
-          value.trigger("render");
-        }
-        context['$view'] = originalViewContext;
+        context['$view'] = parentViewContext;
         return returnVal;
       }
     };
@@ -2180,7 +1938,7 @@
     if (!Falcon.isCollection(value)) {
       return true;
     }
-    changeCount = value.__change_count__;
+    changeCount = value.__falcon_collection__change_count__;
     lastChangeCount = ko.utils.domData.get(element, "__falcon_collection___change_count__");
     if (lastChangeCount === changeCount) {
       return false;
@@ -2207,9 +1965,6 @@
       value = ko.utils.unwrapObservable(valueAccessor());
       if (_shouldUpdate(element, value)) {
         return ((_ref1 = _foreach['update']) != null ? _ref1 : (function() {})).apply(null, [element, _getItems(value)].concat(__slice.call(args)));
-      }
-      if (Falcon.isCollection(value)) {
-        value.trigger("render");
       }
     }
   };
@@ -2240,9 +1995,6 @@
         value = ko.utils.unwrapObservable(valueAccessor());
         if (_shouldUpdate(element, value)) {
           return ((_ref2 = _options['update']) != null ? _ref2 : (function() {})).apply(null, [element, _getItems(value)].concat(__slice.call(args)));
-        }
-        if (Falcon.isCollection(value)) {
-          value.trigger("render");
         }
       }
     };

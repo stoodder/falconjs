@@ -226,7 +226,10 @@ task 'watch', 'watch coffee/ and tests/ for changes and build', ->
 						try
 							code = ( fs.readFileSync(source) for source in sources when fs.existsSync(source) ).join("\r\n")
 							file_name = destination.replace("{{VERSION}}", version)
-							write_file( file_name, code )
+
+							code = UglifyJS.minify(code, {fromString: true}).code if file_name.match(/\.min/gi)
+							
+							write_file(file_name, code)
 						catch e
 							print_error e, file_name, destination
 						#END try

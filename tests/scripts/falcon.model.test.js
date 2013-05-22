@@ -298,6 +298,14 @@
       expect(serialized['_client']).to.be.undefined;
       expect(serialized["model_b"]).to.be.undefined;
       expect(serialized["model_b2"]).to.be.undefined;
+      expect(serialized["collection_c"]).to.be.undefined;
+      serialized = modelA.serialize(["_client"]);
+      serialized['_server'].should.equal("Some Data");
+      expect(serialized['id']).to.be.undefined;
+      expect(serialized['foo']).to.be.undefined;
+      expect(serialized['_client']).to.be.undefined;
+      expect(serialized["model_b"]).to.be.undefined;
+      expect(serialized["model_b2"]).to.be.undefined;
       return expect(serialized["collection_c"]).to.be.undefined;
     });
     it("Should test the unwrap method", function() {
@@ -1753,7 +1761,7 @@
         return modelA2.foo().should.equal("bar");
       });
     });
-    describe("Testing copy method", function() {
+    describe("Testing copy() method", function() {
       var ModelA, ModelB, ModelC, _ref, _ref1, _ref2;
 
       ModelA = (function(_super) {
@@ -1867,9 +1875,8 @@
         modelA1.should.not.equal(modelA2);
         expect(modelA2.hello).to.exist;
         expect(modelA2.foo).to.exist;
-        expect(modelA2.id).to.exist;
         expect(modelA2.parent).not.to.exist;
-        expect(modelA2.id).to.equal(1);
+        expect(modelA2.id).to.equal(null);
         expect(ko.isObservable(modelA2.hello)).to.be["false"];
         expect(modelA2.hello).to.be.equal("world");
         expect(ko.isObservable(modelA2.foo)).to.be["true"];
@@ -1912,10 +1919,9 @@
         modelA1.should.not.equal(modelA2);
         expect(modelA2.hello).to.exist;
         expect(modelA2.foo).to.exist;
-        expect(modelA2.id).to.exist;
         expect(modelA2.parent).to.exist;
         expect(modelA2.parent).to.equal(modelC);
-        expect(modelA2.id).to.equal(1);
+        expect(modelA2.id).to.equal(null);
         expect(ko.isObservable(modelA2.hello)).to.be["false"];
         expect(modelA2.hello).to.be.equal("world");
         expect(ko.isObservable(modelA2.foo)).to.be["true"];

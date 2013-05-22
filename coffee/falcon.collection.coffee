@@ -5,7 +5,7 @@
 #==============================================================================================
 class Falcon.Collection extends Falcon.Class
 	#----------------------------------------------------------------------------------------------
-	#
+	# 
 	#----------------------------------------------------------------------------------------------
 	_mappings: null
 
@@ -15,19 +15,29 @@ class Falcon.Collection extends Falcon.Class
 	@extend = (definition) -> Falcon.Class.extend(Falcon.Collection, definition)
 
 	#----------------------------------------------------------------------------------------------
+	# Member: Falcon.Collection#models
+	#	The internal observable array of models
 	#
+	# Type: _(ko.observableArray)_
 	#----------------------------------------------------------------------------------------------
 	models: null
 
 	#----------------------------------------------------------------------------------------------
+	# Member: Falcon.Collection#model
+	#	The prototype of the model of each item in this collection
 	#
+	# Type: _(Falcon.Model)_
 	#----------------------------------------------------------------------------------------------
 	model: null
 
 	#----------------------------------------------------------------------------------------------
+	# Member: Falcon.Collection#__falcon_collection__change_count__
+	#	Private variable that tracks the change counts of this collection, used to
+	#	make sure we don't re-render elements when not necessary
 	#
+	# Type: _(Number)_
 	#----------------------------------------------------------------------------------------------
-	__change_count__: 0
+	__falcon_collection__change_count__: 0
 
 	#----------------------------------------------------------------------------------------------
 	# Member: Falcon.Collection#url
@@ -131,7 +141,7 @@ class Falcon.Collection extends Falcon.Class
 		return [] if method isnt 'replace' and isEmpty( items ) 
 
 		#Increment the change count
-		@__change_count__++
+		@__falcon_collection__change_count__++
 
 		# Make sure that each of the elements passed in are a model that this 
 		for m, i in items
@@ -292,7 +302,6 @@ class Falcon.Collection extends Falcon.Class
 		options.success = (->) unless isFunction(options.success)
 		options.complete = (->) unless isFunction(options.complete)
 		options.error = (->) unless isFunction(options.error)
-		options.fields = flattenObjectKeys( options.fields ) if isObject( options.fields )
 		options.fields = [] unless isArray( options.fields )
 		options.params = {} unless isObject( options.params )
 		options.fill = true unless isBoolean( options.fill )
@@ -376,7 +385,7 @@ class Falcon.Collection extends Falcon.Class
 	remove: (items) ->
 		items = ko.utils.unwrapObservable( items )
 		items = items.models() if Falcon.isCollection( items )
-		@__change_count__++
+		@__falcon_collection__change_count__++
 
 		removedItems = if isArray(items) then @models.removeAll(items) else @models.remove(items)
 
@@ -859,7 +868,7 @@ class Falcon.Collection extends Falcon.Class
 	#	_Falcon.Collection_ - This instance
 	#----------------------------------------------------------------------------------------------
 	reset: () -> 
-		@__change_count__ += 1
+		@__falcon_collection__change_count__ += 1
 		if @models?
 			@models([])
 		else

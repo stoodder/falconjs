@@ -4,39 +4,49 @@
 			"coffee/header.coffee",
 			"coffee/utility.coffee",
 			"coffee/falcon.coffee",
-			"coffee/falcon.global.coffee",
 			"coffee/falcon.class.coffee",
 			"coffee/falcon.model.coffee",
 			"coffee/falcon.view.coffee",
 			"coffee/falcon.collection.coffee",
-			"coffee/falcon.event.coffee",
 			"coffee/falcon.ko.bindings.coffee",
-			"coffee/falcon.ko.extenders.coffee",
 			"coffee/falcon.ko.extensions.coffee"
 		],
 
 		"tests/scripts/falcon.class.test.js": "tests/coffee/falcon.class.test.coffee",
 		"tests/scripts/falcon.model.test.js": "tests/coffee/falcon.model.test.coffee",
 		"tests/scripts/falcon.collection.test.js": "tests/coffee/falcon.collection.test.coffee",
+		"tests/scripts/falcon.view.test.js": "tests/coffee/falcon.view.test.coffee",
+		"tests/scripts/falcon.ko.bindings.test.js": "tests/coffee/falcon.ko.bindings.test.coffee",
 		
 		"examples/inline-example.js": "examples/inline-example.coffee"
 	},
 
 	"COMBINED": {
-		"scripts/falcon.js": [
-			"scripts/header.js",
+		"scripts/falcon-combined.js": [
 			"scripts/knockout-2.2.1.js",
 			"scripts/falcon-standalone.js"
+		],
+		"scripts/falcon-combined.min.js": [
+			"scripts/knockout-2.2.1.js",
+			"scripts/falcon-standalone.js"
+		],
+		"scripts/falcon.js": [
+			"scripts/header.js",
+			"scripts/falcon-combined.js"
+		],
+		"scripts/falcon-minified.js": [
+			"scripts/header.js",
+			"scripts/falcon-combined.min.js"
 		]
 	},
 
 	"COPIED": {
 		"releases/falcon-latest.js": "scripts/falcon.js",
-		"releases/falcon-latest.min.js": "scripts/falcon.min.js",
+		"releases/falcon-latest.min.js": "scripts/falcon-minified.js",
 		"releases/falcon-{{VERSION}}.js": "scripts/falcon.js",
-		"releases/falcon-{{VERSION}}.min.js": "scripts/falcon.min.js",
+		"releases/falcon-{{VERSION}}.min.js": "scripts/falcon-minified.js",
 		"tests/scripts/falcon.js": "scripts/falcon.js",
-		"tests/scripts/falcon.min.js": "scripts/falcon.min.js"
+		"tests/scripts/falcon.min.js": "scripts/falcon-minified.js"
 	},
 
 	"HAML": {},
