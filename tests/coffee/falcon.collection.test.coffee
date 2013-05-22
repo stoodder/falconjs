@@ -9,10 +9,6 @@ describe "Test Collection Methods", ->
 
 	class ModelC extends Falcon.Model
 		url: 'model_c'
-
-		fields: {
-			"foo": "_foo"
-		}
 	#END ModelC
 
 	class ModelD extends Falcon.Model
@@ -431,23 +427,13 @@ describe "Test Collection Methods", ->
 			serialized.should.deep.equal models
 		#END it
 
-		it "Should test specific fields for serialize method, just id", ->
-			serialized = collectionA.serialize(["id"])
-
-			serialized.should.deep.equal [
-				{id: 1}
-				{id: 2}
-				{id: 'a'}
-			]
-		#END it
-
 		it "Should test specific fields for serialize method", ->
 			serialized = collectionA.serialize(["foo"])
 
 			serialized.should.deep.equal [
-				{id: 1, "foo": "bar"}
-				{id: 2, "foo": "bar2"}
-				{id: 'a', "foo": "barA"}
+				{"foo": "bar"}
+				{"foo": "bar2"}
+				{"foo": "barA"}
 			]
 		#END it
 
@@ -465,29 +451,9 @@ describe "Test Collection Methods", ->
 			serialized = collectionA.serialize("foo")
 
 			serialized.should.deep.equal [
-				{id: 1, "foo": "bar"}
-				{id: 2, "foo": "bar2"}
-				{id: 'a', "foo": "barA"}
-			]
-		#END it
-
-		it "Should test specific fields for serialize method and serialize correctly", ->
-			serialized = collectionC.serialize(["_foo"])
-
-			serialized.should.deep.equal [
-				{id: 1, "foo": "bar"}
-				{id: 2, "foo": "bar2"}
-				{id: 'a', "foo": "barA"}
-			]
-		#END it
-
-		it "Should test specific fields for serialize method, string value,  and serialize correctly", ->
-			serialized = collectionC.serialize("_foo")
-
-			serialized.should.deep.equal [
-				{id: 1, "foo": "bar"}
-				{id: 2, "foo": "bar2"}
-				{id: 'a', "foo": "barA"}
+				{"foo": "bar"}
+				{"foo": "bar2"}
+				{"foo": "barA"}
 			]
 		#END it
 	#END it

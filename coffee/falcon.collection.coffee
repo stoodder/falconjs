@@ -223,23 +223,20 @@ class Falcon.Collection extends Falcon.Class
 	#	of data
 	#
 	# Arguments:
-	#	**fields** _(Array)_ -	The fields that should be included in the 
+	#	**attributes** _(Array)_ -	The attributes that should be included in the 
 	#	                      	serialization "id" is always included. If 
-	#	                      	none given, all fields from this models 'fields' 
+	#	                      	none given, all attributes from this models 'attributes' 
 	#	                      	member are serialized
-	#
-	#	**deep** _(Boolean)_ -	should we do a deep copy? In otherwords, should 
-	#	                      	we cascade downwards to serialize data about 
-	#	                      	children models.
 	#
 	# Returns:
 	#	_Array_ - an array of the serialized raw data to send to the server
 	#----------------------------------------------------------------------------------------------
-	serialize: (fields, deep) ->
-		raw = []
+	serialize: (attributes) ->
+		serialized = []
 		for i, value of @models()
-			raw[i] = if Falcon.isDataObject(value) then value.serialize(fields, deep) else value
-		return raw
+			serialized[i] = if Falcon.isDataObject(value) then value.serialize(attributes) else value
+		#END for
+		return serialized
 	#END serialize
 
 	#----------------------------------------------------------------------------------------------
@@ -292,8 +289,8 @@ class Falcon.Collection extends Falcon.Class
 	#----------------------------------------------------------------------------------------------
 	sync: (type, options) ->
 		options = {complete: options} if isFunction(options)
-		options = {fields: trim( options ).split(",")} if isString(options)
-		options = {fields: options} if isArray( options )
+		options = {attributes: trim( options ).split(",")} if isString(options)
+		options = {attributes: options} if isArray( options )
 
 		options = {} unless isObject(options)
 		options.data = {} unless isObject(options.data)
@@ -302,7 +299,7 @@ class Falcon.Collection extends Falcon.Class
 		options.success = (->) unless isFunction(options.success)
 		options.complete = (->) unless isFunction(options.complete)
 		options.error = (->) unless isFunction(options.error)
-		options.fields = [] unless isArray( options.fields )
+		options.attributes = null unless options.attributes?
 		options.params = {} unless isObject( options.params )
 		options.fill = true unless isBoolean( options.fill )
 		options.headers = {} unless isObject( options.headers )
@@ -845,17 +842,17 @@ class Falcon.Collection extends Falcon.Class
 	#	was primarily devised to copy collection for use in URL generation/new parent assignment on models
 	#
 	# Arguments:
-	#	**fields** _(Array)_ - The fields to copy over. a special field, 'parent', can also be listed which will copy
+	#	**attributes** _(Array)_ - The attributes to copy over. a special field, 'parent', can also be listed which will copy
 	#						   a reference of the orignal collection's 'parent'
 	#
 	# Returns:
 	#	_Falcon.Collection_ - A copy of this collection
 	#----------------------------------------------------------------------------------------------
-	copy: (fields, parent) ->
-		parent = fields if fields is null or Falcon.isModel( fields )
-		fields = ["id"] unless isArray( fields )
+	copy: (attributes, parent) ->
+		parent = attributes if attributes is null or Falcon.isModel( attributes )
+		attributes = {"id":null} unless isArray( attributes )
 		parent = @parent unless parent is null or Falcon.isModel( parent )
-		return new @constructor( @serialize( fields ), parent )
+		return new @constructor( @serialize( attributes ), parent )
 	#END copy
 
 	#----------------------------------------------------------------------------------------------

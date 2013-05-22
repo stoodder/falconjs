@@ -41,10 +41,6 @@
 
       ModelC.prototype.url = 'model_c';
 
-      ModelC.prototype.fields = {
-        "foo": "_foo"
-      };
-
       return ModelC;
 
     })(Falcon.Model);
@@ -636,33 +632,16 @@
         serialized = collectionA.serialize();
         return serialized.should.deep.equal(models);
       });
-      it("Should test specific fields for serialize method, just id", function() {
-        var serialized;
-
-        serialized = collectionA.serialize(["id"]);
-        return serialized.should.deep.equal([
-          {
-            id: 1
-          }, {
-            id: 2
-          }, {
-            id: 'a'
-          }
-        ]);
-      });
       it("Should test specific fields for serialize method", function() {
         var serialized;
 
         serialized = collectionA.serialize(["foo"]);
         return serialized.should.deep.equal([
           {
-            id: 1,
             "foo": "bar"
           }, {
-            id: 2,
             "foo": "bar2"
           }, {
-            id: 'a',
             "foo": "barA"
           }
         ]);
@@ -681,53 +660,16 @@
           }
         ]);
       });
-      it("Should test specific fields for serialize method, string value", function() {
+      return it("Should test specific fields for serialize method, string value", function() {
         var serialized;
 
         serialized = collectionA.serialize("foo");
         return serialized.should.deep.equal([
           {
-            id: 1,
             "foo": "bar"
           }, {
-            id: 2,
             "foo": "bar2"
           }, {
-            id: 'a',
-            "foo": "barA"
-          }
-        ]);
-      });
-      it("Should test specific fields for serialize method and serialize correctly", function() {
-        var serialized;
-
-        serialized = collectionC.serialize(["_foo"]);
-        return serialized.should.deep.equal([
-          {
-            id: 1,
-            "foo": "bar"
-          }, {
-            id: 2,
-            "foo": "bar2"
-          }, {
-            id: 'a',
-            "foo": "barA"
-          }
-        ]);
-      });
-      return it("Should test specific fields for serialize method, string value,  and serialize correctly", function() {
-        var serialized;
-
-        serialized = collectionC.serialize("_foo");
-        return serialized.should.deep.equal([
-          {
-            id: 1,
-            "foo": "bar"
-          }, {
-            id: 2,
-            "foo": "bar2"
-          }, {
-            id: 'a',
             "foo": "barA"
           }
         ]);

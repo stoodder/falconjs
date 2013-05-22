@@ -2,7 +2,7 @@
 	Falcon.js
 	by Rick Allen (stoodder)
 
-	Version 0.3.0
+	Version 0.4.0
 	Full source at https://github.com/stoodder/falconjs
 	Copyright (c) 2011 RokkinCat, http://www.rokkincat.com
 
@@ -22,8 +22,7 @@
   var Falcon, arrayRemove, arrayUnique, extend, findKey, isArray, isBoolean, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, startsWith, trim, value, _bindingContext, _foreach, _getItems, _options, _ref, _ref1, _shouldUpdate,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   isObject = function(object) {
     return (object != null) && Object.prototype.toString.call(object) === "[object Object]";
@@ -164,7 +163,7 @@
   };
 
   window.Falcon = Falcon = {
-    version: "0.3.0",
+    version: "0.4.0",
     applicationElement: "body",
     baseApiUrl: "",
     baseTemplateUrl: "",
@@ -398,10 +397,8 @@
 
     Model.prototype.parent = null;
 
-    Model.prototype.fields = {};
-
     function Model(data, parent) {
-      var field, model_field, _i, _len, _ref, _ref1, _ref2, _ref3;
+      var _ref, _ref1;
 
       Model.__super__.constructor.call(this);
       data = ko.utils.unwrapObservable(data);
@@ -415,28 +412,13 @@
       if (Falcon.isModel(data)) {
         data = data.unwrap();
       }
+      this.id = null;
       this.parent = parent;
       this.initialize(data);
       if (!isEmpty(data)) {
         this.fill(data);
       }
-      if (isArray(this.fields)) {
-        _ref2 = this.fields;
-        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-          field = _ref2[_i];
-          if (isString(field) && !field in this) {
-            this[field] = null;
-          }
-        }
-      } else if (isObject(this.fields)) {
-        _ref3 = this.fields;
-        for (field in _ref3) {
-          model_field = _ref3[field];
-          if (isString(field) && !field in this) {
-            this[model_field] = null;
-          }
-        }
-      }
+      return this;
     }
 
     Model.prototype.initialize = function(data) {};
@@ -478,7 +460,7 @@
     };
 
     Model.prototype.fill = function(data) {
-      var key, rejectedKeys, value, _data, _ref, _ref1;
+      var attr, rejectedAttributes, value, _ref;
 
       if (isNumber(data) || isString(data)) {
         data = {
@@ -494,125 +476,91 @@
       if (isEmpty(data)) {
         return this;
       }
-      _data = {};
-      if (isObject(this.fields) && !isEmpty(this.fields)) {
-        for (key in data) {
-          value = data[key];
-          _data[(_ref = this.fields[key]) != null ? _ref : key] = value;
-        }
-      } else {
-        _data = data;
-      }
-      rejectedKeys = {};
-      _ref1 = Falcon.Model.prototype;
-      for (key in _ref1) {
-        value = _ref1[key];
-        if (key !== "id" && key !== "url") {
-          rejectedKeys[key] = true;
+      rejectedAttributes = {};
+      _ref = Falcon.Model.prototype;
+      for (attr in _ref) {
+        value = _ref[attr];
+        if (attr !== "id" && attr !== "url") {
+          rejectedAttributes[attr] = true;
         }
       }
-      for (key in _data) {
-        value = _data[key];
-        if (!(!rejectedKeys[key])) {
+      for (attr in data) {
+        value = data[attr];
+        if (!(!rejectedAttributes[attr])) {
           continue;
         }
         value = ko.utils.unwrapObservable(value);
-        if (Falcon.isModel(this[key])) {
+        if (Falcon.isModel(this[attr])) {
           if (!isEmpty(value)) {
-            this[key].fill(value);
+            this[attr].fill(value);
           }
-        } else if (Falcon.isCollection(this[key])) {
-          if (!(isEmpty(value) && this[key].length() <= 0)) {
-            this[key].fill(value);
-          }
-        } else if (ko.isObservable(this[key])) {
-          if (ko.isWriteableObservable(this[key])) {
-            this[key](value);
-          }
+        } else if (Falcon.isCollection(this[attr])) {
+          this[attr].fill(value);
+        } else if (ko.isWriteableObservable(this[attr])) {
+          this[attr](value);
         } else {
-          this[key] = value;
+          this[attr] = value;
         }
       }
       return this;
     };
 
     Model.prototype.unwrap = function() {
-      var key, keys, raw, value, _i, _len;
+      var attr, unwrapped, value;
 
-      raw = {};
-      keys = arrayRemove(objectKeys(this), objectKeys(Falcon.Model.prototype));
-      keys[keys.length] = "id";
-      for (_i = 0, _len = keys.length; _i < _len; _i++) {
-        key = keys[_i];
-        value = this[key];
-        raw[key] = Falcon.isDataObject(value) ? value.unwrap() : value;
+      unwrapped = {};
+      for (attr in this) {
+        if (!(attr === "id" || (Falcon.Model.prototype[attr] == null))) {
+          continue;
+        }
+        value = this[attr];
+        unwrapped[attr] = Falcon.isDataObject(value) ? value.unwrap() : value;
       }
-      return raw;
+      return unwrapped;
     };
 
-    Model.prototype.serialize = function(fields, deep) {
-      var field, index, model_field, model_key, model_keys, raw, server_field, server_key, server_keys, value, _i, _j, _len, _len1, _ref, _ref1;
+    Model.prototype.serialize = function(attributes) {
+      var attr, new_attributes, serialized, sub_attributes, value, _i, _len;
 
-      raw = {};
-      if (!isBoolean(deep) && isBoolean(fields)) {
-        _ref = [fields, deep], deep = _ref[0], fields = _ref[1];
-      }
-      if (!isBoolean(deep)) {
-        deep = true;
-      }
-      if (isEmpty(fields)) {
-        fields = null;
-      }
-      if (isString(fields)) {
-        fields = trim(fields).split(",");
-      }
-      if (fields == null) {
-        fields = this.fields;
-        if (isObject(fields) && (fields["id"] == null)) {
-          fields["id"] = "id";
-        }
-        if (isArray(fields) && __indexOf.call(fields, "id") < 0) {
-          fields.push("id");
-        }
-      }
-      server_keys = [];
-      model_keys = [];
-      if (isArray(fields) && !isEmpty(fields)) {
-        if (isObject(this.fields)) {
-          for (_i = 0, _len = fields.length; _i < _len; _i++) {
-            field = fields[_i];
-            server_keys[server_keys.length] = (_ref1 = findKey(this.fields, field)) != null ? _ref1 : field;
-            model_keys[model_keys.length] = field;
+      serialized = {};
+      if (attributes == null) {
+        attributes = (function() {
+          var _results;
+
+          _results = [];
+          for (attr in this) {
+            if (attr === "id" || !(attr in Falcon.Model.prototype)) {
+              _results.push(attr);
+            }
           }
-        } else {
-          for (_j = 0, _len1 = fields.length; _j < _len1; _j++) {
-            field = fields[_j];
-            server_keys[server_keys.length] = field;
-            model_keys[model_keys.length] = field;
-          }
-        }
-      } else if (isObject(fields) && !isEmpty(fields)) {
-        for (server_field in fields) {
-          model_field = fields[server_field];
-          server_keys[server_keys.length] = server_field;
-          model_keys[model_keys.length] = model_field in this ? model_field : server_field;
-        }
-      } else {
-        server_keys = model_keys = arrayRemove(objectKeys(this), objectKeys(Falcon.Model.prototype));
+          return _results;
+        }).call(this);
+      } else if (isString(attributes)) {
+        attributes = trim(attributes).split(",");
       }
-      for (index in model_keys) {
-        model_key = model_keys[index];
-        server_key = server_keys[index];
-        value = this[model_key];
+      if (isArray(attributes)) {
+        new_attributes = {};
+        for (_i = 0, _len = attributes.length; _i < _len; _i++) {
+          attr = attributes[_i];
+          new_attributes[attr] = null;
+        }
+        attributes = new_attributes;
+      }
+      if (!isObject(attributes)) {
+        return serialized;
+      }
+      for (attr in attributes) {
+        sub_attributes = attributes[attr];
+        value = this[attr];
         if (Falcon.isDataObject(value)) {
-          raw[server_key] = deep ? value.serialize() : value.serialize(["id"]);
+          serialized[attr] = value.serialize(sub_attributes);
         } else if (ko.isObservable(value)) {
-          raw[server_key] = ko.utils.unwrapObservable(value);
+          serialized[attr] = ko.utils.unwrapObservable(value);
         } else if (!isFunction(value)) {
-          raw[server_key] = value;
+          serialized[attr] = value;
         }
       }
-      return raw;
+      return serialized;
     };
 
     Model.prototype.makeUrl = function(type, parent) {
@@ -665,7 +613,7 @@
     };
 
     Model.prototype.sync = function(type, options) {
-      var data, json, key, url, value, _ref, _ref1,
+      var json, key, url, value, _ref,
         _this = this;
 
       if (isFunction(options)) {
@@ -675,19 +623,19 @@
       }
       if (isString(options)) {
         options = {
-          fields: trim(options).split(",")
+          attributes: trim(options).split(",")
         };
       }
       if (isArray(options)) {
         options = {
-          fields: options
+          attributes: options
         };
       }
       if (!isObject(options)) {
         options = {};
       }
       if (!isObject(options.data)) {
-        options.data = {};
+        options.data = null;
       }
       if (!isString(options.dataType)) {
         options.dataType = "json";
@@ -707,8 +655,8 @@
       if (!Falcon.isModel(options.parent)) {
         options.parent = this.parent;
       }
-      if (!isArray(options.fields)) {
-        options.fields = [];
+      if (options.attributes == null) {
+        options.attributes = null;
       }
       if (!isObject(options.params)) {
         options.params = {};
@@ -723,30 +671,22 @@
       if (type !== "GET" && type !== "POST" && type !== "PUT" && type !== "DELETE") {
         type = "GET";
       }
-      data = {};
-      if (!isEmpty(options.data)) {
-        _ref = options.data;
-        for (key in _ref) {
-          value = _ref[key];
-          data[key] = value;
-        }
+      if (options.data === null && (type === "POST" || type === "PUT")) {
+        options.data = this.serialize(options.attributes);
       }
-      if (type === "POST" || type === "PUT") {
-        data = extend(this.serialize(options.fields), data);
-      }
-      json = isEmpty(data) ? "" : JSON.stringify(data);
-      url = (_ref1 = options.url) != null ? _ref1 : this.makeUrl(type, options.parent);
+      json = options.data === null ? "" : JSON.stringify(options.data);
+      url = (_ref = options.url) != null ? _ref : this.makeUrl(type, options.parent);
       if (!isEmpty(options.params)) {
         if (!(url.indexOf("?") > -1)) {
           url += "?";
         }
         url += ((function() {
-          var _ref2, _results;
+          var _ref1, _results;
 
-          _ref2 = options.params;
+          _ref1 = options.params;
           _results = [];
-          for (key in _ref2) {
-            value = _ref2[key];
+          for (key in _ref1) {
+            value = _ref1[key];
             _results.push("" + key + "=" + value);
           }
           return _results;
@@ -873,17 +813,19 @@
       return new this.constructor(this.unwrap(), parent);
     };
 
-    Model.prototype.copy = function(fields, parent) {
-      if (fields === null || Falcon.isModel(fields)) {
-        parent = fields;
+    Model.prototype.copy = function(attributes, parent) {
+      if (attributes === null || Falcon.isModel(attributes)) {
+        parent = attributes;
       }
-      if (!isArray(fields)) {
-        fields = ["id"];
+      if (attributes == null) {
+        attributes = {
+          "id": null
+        };
       }
       if (!(parent === null || Falcon.isModel(parent))) {
         parent = this.parent;
       }
-      return new this.constructor(this.serialize(fields), parent);
+      return new this.constructor(this.serialize(attributes), parent);
     };
 
     Model.prototype.isNew = function() {
@@ -1229,16 +1171,16 @@
       return raw;
     };
 
-    Collection.prototype.serialize = function(fields, deep) {
-      var i, raw, value, _ref;
+    Collection.prototype.serialize = function(attributes) {
+      var i, serialized, value, _ref;
 
-      raw = [];
+      serialized = [];
       _ref = this.models();
       for (i in _ref) {
         value = _ref[i];
-        raw[i] = Falcon.isDataObject(value) ? value.serialize(fields, deep) : value;
+        serialized[i] = Falcon.isDataObject(value) ? value.serialize(attributes) : value;
       }
-      return raw;
+      return serialized;
     };
 
     Collection.prototype.makeUrl = function(type) {
@@ -1288,12 +1230,12 @@
       }
       if (isString(options)) {
         options = {
-          fields: trim(options).split(",")
+          attributes: trim(options).split(",")
         };
       }
       if (isArray(options)) {
         options = {
-          fields: options
+          attributes: options
         };
       }
       if (!isObject(options)) {
@@ -1317,8 +1259,8 @@
       if (!isFunction(options.error)) {
         options.error = (function() {});
       }
-      if (!isArray(options.fields)) {
-        options.fields = [];
+      if (options.attributes == null) {
+        options.attributes = null;
       }
       if (!isObject(options.params)) {
         options.params = {};
@@ -1774,17 +1716,19 @@
       return new this.constructor(this.models(), parent);
     };
 
-    Collection.prototype.copy = function(fields, parent) {
-      if (fields === null || Falcon.isModel(fields)) {
-        parent = fields;
+    Collection.prototype.copy = function(attributes, parent) {
+      if (attributes === null || Falcon.isModel(attributes)) {
+        parent = attributes;
       }
-      if (!isArray(fields)) {
-        fields = ["id"];
+      if (!isArray(attributes)) {
+        attributes = {
+          "id": null
+        };
       }
       if (!(parent === null || Falcon.isModel(parent))) {
         parent = this.parent;
       }
-      return new this.constructor(this.serialize(fields), parent);
+      return new this.constructor(this.serialize(attributes), parent);
     };
 
     Collection.prototype.reset = function() {
