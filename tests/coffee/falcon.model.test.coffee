@@ -144,14 +144,6 @@ describe "Testing Model Methods", ->
 		class ModelA extends Falcon.Model
 			url: "model_a"
 
-			fields: {
-				"foo"
-				"model_b"
-				"model_b2"
-				"collection_c"
-				"_server": "_client"
-				"url": "_url"
-			}
 			initialize: ->
 				@_client = ko.observable()
 				@model_b = modelB = new ModelB
@@ -162,25 +154,18 @@ describe "Testing Model Methods", ->
 
 		class ModelB extends Falcon.Model
 			url: "model_b"
-			fields: {
-				"b_foo": "b_bar"
-			}
 		#END class
 
 		class ModelC extends Falcon.Model
-			fields: {
-				"this": "that"
-			}
 		#END model C
 
 		class CollectionC extends Falcon.Collection
 			model: ModelC
 		#END collection c
 
-		server_data = {
+		data = {
 			"id": 33
 			"foo": "bar"
-			"_server": "Some Data"
 			"url": "MODEL_A2"
 			"model_b": {
 				"b_foo": "B BAR"
@@ -191,86 +176,103 @@ describe "Testing Model Methods", ->
 				"url": "model_b2"
 			},
 			"collection_c": [
-				{"this": "That One"}
-				{"this": "That Two"}
-				{"this": "That Three"}
+				{"that": "That One"}
+				{"that": "That Two"}
+				{"that": "That Three"}
 			]
 		}
 		modelA = new ModelA()
-		modelA.fill( server_data )
+		modelA.fill( data )
 		#END fill
 
-
+		#TEST
 		expect( modelA.get("id") ).to.be.equal 33
 		expect( modelA.get("foo") ).to.be.equal "bar"
-		expect( modelA.get("_server") ).to.be.undefined
-		expect( modelA.get("_client") ).to.be.equal "Some Data"
-		expect( modelA.get("url") ).to.be.equal "model_a"
-		expect( modelA.get("_url") ).to.be.equal "MODEL_A2"
+		expect( modelA.get("url") ).to.be.equal "MODEL_A2"
 		
 		expect( modelA.get("model_b") ).to.be.equal modelB
-		expect( modelA.get("model_b").get("b_foo") ).to.be.undefined
-		expect( modelA.get("model_b").get("b_bar") ).to.be.equal "B BAR"
+		expect( modelA.get("model_b").get("b_foo") ).to.be.equal "B BAR"
 		expect( modelA.get("model_b").get("url") ).to.be.equal "model_b"
 		
 		expect( modelA.get("model_b2") ).to.be.equal modelB2
 		expect( modelA.get("model_b2").get("id") ).to.be.equal "test"
-		expect( modelA.get("model_b2").get("b_foo") ).to.be.undefined
-		expect( modelA.get("model_b2").get("b_bar") ).to.be.equal "B BAR 2"
+		expect( modelA.get("model_b2").get("b_foo") ).to.be.equal "B BAR 2"
 		expect( modelA.get("model_b2").get("url") ).to.be.equal "model_b2"
 		
-		expect( modelA.get("collection_c") ).to.be.instanceOf CollectionC
 		expect( modelA.get("collection_c") ).to.be.equal collectionC
 		expect( modelA.get("collection_c").length() ).to.equal 3
 		expect( modelA.get("collection_c").first() ).to.be.instanceOf ModelC
-		expect( modelA.get("collection_c").first().get("this") ).to.be.undefined
 		expect( modelA.get("collection_c").first().get("that") ).to.equal "That One"
 
 
+		#TEST
 		serialized = modelA.serialize()
-		serialized['id'].should.equal 33
-		serialized['foo'].should.equal "bar"
-		serialized['_server'].should.equal "Some Data"
+		expect( serialized['id'] ).to.equal 33
+		expect( serialized['foo'] ).to.equal "bar"
 
-		serialized['model_b'].should.be.a "object"
+		expect( serialized['model_b'] ).to.be.a "object"
 		expect( serialized['model_b']['id'] ).to.equal null
-		serialized['model_b']['b_foo'].should.equal "B BAR"
+		expect( serialized['model_b']['b_foo'] ).to.equal "B BAR"
 
-		serialized['model_b2'].should.be.a "object"
-		serialized['model_b2']['id'].should.equal "test"
-		serialized['model_b2']['b_foo'].should.equal "B BAR 2"
+		expect( serialized['model_b2'] ).to.be.a "object"
+		expect( serialized['model_b2']['id'] ).to.equal "test"
+		expect( serialized['model_b2']['b_foo'] ).to.equal "B BAR 2"
 
-		serialized['collection_c'].should.be.a "array"
-		serialized['collection_c'].should.have.length 3
-		serialized['collection_c'][0].should.be.a "object"
-		serialized['collection_c'][0]['this'].should.equal "That One"
-
-		expect( serialized['_client'] ).to.be.undefined
-		expect( serialized["model_b"]['b_bar'] ).to.be.undefined
-		expect( serialized["model_b2"]['b_bar'] ).to.be.undefined
-		expect( serialized['collection_c'][0]['that'] ).to.be.undefined
+		expect( serialized['collection_c'] ).to.be.a "array"
+		expect( serialized['collection_c'] ).to.have.length 3
+		expect( serialized['collection_c'][0] ).to.be.a "object"
+		expect( serialized['collection_c'][0]['that'] ).to.equal "That One"
 
 
-		serialized = modelA.serialize(["id", "_client"])
-		serialized['id'].should.equal 33
-		serialized['_server'].should.equal "Some Data"
+		#TEST
+		serialized = modelA.serialize(["id", "foo"])
+		expect( serialized['id'] ).to.equal 33
+		expect( serialized['foo'] ).to.equal "bar"
 
-		expect( serialized['foo'] ).to.be.undefined
-		expect( serialized['_client'] ).to.be.undefined
 		expect( serialized["model_b"] ).to.be.undefined
 		expect( serialized["model_b2"] ).to.be.undefined
 		expect( serialized["collection_c"] ).to.be.undefined
 
 
-		serialized = modelA.serialize(["_client"])
-		serialized['_server'].should.equal "Some Data"
+		#TEST
+		serialized = modelA.serialize(["foo"])
+		expect( serialized['foo'] ).to.equal "bar"
 
 		expect( serialized['id'] ).to.be.undefined
-		expect( serialized['foo'] ).to.be.undefined
-		expect( serialized['_client'] ).to.be.undefined
 		expect( serialized["model_b"] ).to.be.undefined
 		expect( serialized["model_b2"] ).to.be.undefined
 		expect( serialized["collection_c"] ).to.be.undefined
+
+		#TEST
+		serialized = modelA.serialize {
+			"id": null
+			"model_b2": {
+				"b_foo": null
+				"url": null
+			}
+		}
+
+		expect( serialized['id'] ).to.equal 33
+
+		expect( serialized['model_b2'] ).to.be.a "object"
+		expect( serialized['model_b2']['b_foo'] ).to.equal "B BAR 2"
+
+		expect( serialized["model_b"] ).to.be.undefined
+		expect( serialized["collection_c"] ).to.be.undefined
+
+		#TEST serialize shouldn't include prototype elements of Falcon.Class
+		serialized = modelA.serialize()
+
+		for key, value of serialized
+			expect( Falcon.Class.prototype ).to.not.include.keys( key )
+		#END for
+
+		#TEST serialize shouldn't include prototype elements of Falcon.Model
+		serialized = modelA.serialize()
+
+		for key, value of serialized when key isnt "id"
+			expect( Falcon.Model.prototype ).to.not.include.keys( key )
+		#END for
 	#END test fill
 
 
@@ -284,9 +286,6 @@ describe "Testing Model Methods", ->
 		collectionC = null
 
 		class ModelA extends Falcon.Model
-			fields: {
-				"quux": "foo"
-			}
 			initialize: ->
 				@foo = ko.observable()
 				@model_b = modelB = new ModelB
@@ -312,7 +311,7 @@ describe "Testing Model Methods", ->
 
 		modelA = new ModelA
 		modelA.fill
-			"quux": "bar"
+			"foo": "bar"
 			"model_b": {
 				"something": "cool"
 			}
@@ -323,7 +322,6 @@ describe "Testing Model Methods", ->
 		#END fill
 
 		unwrapped = modelA.unwrap()
-		expect( unwrapped['quux'] ).to.be.undefined
 		unwrapped['foo'].should.be.a "function"
 		unwrapped['foo']().should.equal "bar"
 		unwrapped['model_b'].should.be.a "object"
@@ -855,13 +853,13 @@ describe "Testing Model Methods", ->
 				modelA = new ModelA(id: 1)
 				modelA.save()
 
-				ajax_stub.should.have.been.calledOnce
-				ajax_stub.should.have.been.calledWithMatch {type: "PUT"}
-				ajax_stub.should.have.been.calledWithMatch {url: modelA.makeUrl("PUT")}
-				ajax_stub.should.have.been.calledWithMatch {data: JSON.stringify("id": 1) }
-				ajax_stub.should.have.been.calledWithMatch {contentType: "application/json"}
-				ajax_stub.should.have.been.calledWithMatch {cache: false}
-				ajax_stub.should.have.been.calledWithMatch {headers: {}}
+				expect( ajax_stub ).to.have.been.calledOnce
+				expect( ajax_stub ).to.have.been.calledWithMatch {type: "PUT"}
+				expect( ajax_stub ).to.have.been.calledWithMatch {url: modelA.makeUrl("PUT")}
+				expect( ajax_stub ).to.have.been.calledWithMatch {data: JSON.stringify("id": 1) }
+				expect( ajax_stub ).to.have.been.calledWithMatch {contentType: "application/json"}
+				expect( ajax_stub ).to.have.been.calledWithMatch {cache: false}
+				expect( ajax_stub ).to.have.been.calledWithMatch {headers: {}}
 				expect( ajax_stub.firstCall.args[0].success ).to.be.a "function"
 				expect( ajax_stub.firstCall.args[0].success ).to.have.length 3
 				expect( ajax_stub.firstCall.args[0].error ).to.be.a "function"
@@ -886,7 +884,7 @@ describe "Testing Model Methods", ->
 				ajax_stub.should.have.been.calledOnce
 				ajax_stub.should.have.been.calledWithMatch {type: "PUT"}
 				ajax_stub.should.have.been.calledWithMatch {url: "http://www.falconjs.com"}
-				ajax_stub.should.have.been.calledWithMatch {data: JSON.stringify("id": 1, "hello": "world")}
+				ajax_stub.should.have.been.calledWithMatch {data: JSON.stringify("hello": "world")}
 				ajax_stub.should.have.been.calledWithMatch {contentType: "text/html"}
 				ajax_stub.should.have.been.calledWithMatch {cache: true}
 				ajax_stub.should.have.been.calledWithMatch {headers: {"User-Agent", "Chrome"}}
@@ -939,7 +937,7 @@ describe "Testing Model Methods", ->
 				ajax_stub.should.have.been.calledOnce
 				ajax_stub.should.have.been.calledWithMatch {type: "POST"}
 				ajax_stub.should.have.been.calledWithMatch {url: "http://www.falconjs.com"}
-				ajax_stub.should.have.been.calledWithMatch {data: JSON.stringify("id": 1, "hello": "world")}
+				ajax_stub.should.have.been.calledWithMatch {data: JSON.stringify("hello": "world")}
 				ajax_stub.should.have.been.calledWithMatch {contentType: "text/html"}
 				ajax_stub.should.have.been.calledWithMatch {cache: true}
 				ajax_stub.should.have.been.calledWithMatch {headers: {"User-Agent", "Chrome"}}

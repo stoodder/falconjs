@@ -148,7 +148,7 @@
       return expect(modelB.get("something")).to.be.equal("cool");
     });
     it("Should test the fill and serialize methods", function() {
-      var CollectionC, ModelA, ModelB, ModelC, collectionC, modelA, modelB, modelB2, serialized, server_data, _ref, _ref1, _ref2, _ref3;
+      var CollectionC, ModelA, ModelB, ModelC, collectionC, data, key, modelA, modelB, modelB2, serialized, value, _ref, _ref1, _ref2, _ref3, _results;
 
       modelB = null;
       modelB2 = null;
@@ -162,15 +162,6 @@
         }
 
         ModelA.prototype.url = "model_a";
-
-        ModelA.prototype.fields = {
-          "foo": "foo",
-          "model_b": "model_b",
-          "model_b2": "model_b2",
-          "collection_c": "collection_c",
-          "_server": "_client",
-          "url": "_url"
-        };
 
         ModelA.prototype.initialize = function() {
           this._client = ko.observable();
@@ -192,10 +183,6 @@
 
         ModelB.prototype.url = "model_b";
 
-        ModelB.prototype.fields = {
-          "b_foo": "b_bar"
-        };
-
         return ModelB;
 
       })(Falcon.Model);
@@ -206,10 +193,6 @@
           _ref2 = ModelC.__super__.constructor.apply(this, arguments);
           return _ref2;
         }
-
-        ModelC.prototype.fields = {
-          "this": "that"
-        };
 
         return ModelC;
 
@@ -227,10 +210,9 @@
         return CollectionC;
 
       })(Falcon.Collection);
-      server_data = {
+      data = {
         "id": 33,
         "foo": "bar",
-        "_server": "Some Data",
         "url": "MODEL_A2",
         "model_b": {
           "b_foo": "B BAR"
@@ -242,71 +224,81 @@
         },
         "collection_c": [
           {
-            "this": "That One"
+            "that": "That One"
           }, {
-            "this": "That Two"
+            "that": "That Two"
           }, {
-            "this": "That Three"
+            "that": "That Three"
           }
         ]
       };
       modelA = new ModelA();
-      modelA.fill(server_data);
+      modelA.fill(data);
       expect(modelA.get("id")).to.be.equal(33);
       expect(modelA.get("foo")).to.be.equal("bar");
-      expect(modelA.get("_server")).to.be.undefined;
-      expect(modelA.get("_client")).to.be.equal("Some Data");
-      expect(modelA.get("url")).to.be.equal("model_a");
-      expect(modelA.get("_url")).to.be.equal("MODEL_A2");
+      expect(modelA.get("url")).to.be.equal("MODEL_A2");
       expect(modelA.get("model_b")).to.be.equal(modelB);
-      expect(modelA.get("model_b").get("b_foo")).to.be.undefined;
-      expect(modelA.get("model_b").get("b_bar")).to.be.equal("B BAR");
+      expect(modelA.get("model_b").get("b_foo")).to.be.equal("B BAR");
       expect(modelA.get("model_b").get("url")).to.be.equal("model_b");
       expect(modelA.get("model_b2")).to.be.equal(modelB2);
       expect(modelA.get("model_b2").get("id")).to.be.equal("test");
-      expect(modelA.get("model_b2").get("b_foo")).to.be.undefined;
-      expect(modelA.get("model_b2").get("b_bar")).to.be.equal("B BAR 2");
+      expect(modelA.get("model_b2").get("b_foo")).to.be.equal("B BAR 2");
       expect(modelA.get("model_b2").get("url")).to.be.equal("model_b2");
-      expect(modelA.get("collection_c")).to.be.instanceOf(CollectionC);
       expect(modelA.get("collection_c")).to.be.equal(collectionC);
       expect(modelA.get("collection_c").length()).to.equal(3);
       expect(modelA.get("collection_c").first()).to.be.instanceOf(ModelC);
-      expect(modelA.get("collection_c").first().get("this")).to.be.undefined;
       expect(modelA.get("collection_c").first().get("that")).to.equal("That One");
       serialized = modelA.serialize();
-      serialized['id'].should.equal(33);
-      serialized['foo'].should.equal("bar");
-      serialized['_server'].should.equal("Some Data");
-      serialized['model_b'].should.be.a("object");
+      expect(serialized['id']).to.equal(33);
+      expect(serialized['foo']).to.equal("bar");
+      expect(serialized['model_b']).to.be.a("object");
       expect(serialized['model_b']['id']).to.equal(null);
-      serialized['model_b']['b_foo'].should.equal("B BAR");
-      serialized['model_b2'].should.be.a("object");
-      serialized['model_b2']['id'].should.equal("test");
-      serialized['model_b2']['b_foo'].should.equal("B BAR 2");
-      serialized['collection_c'].should.be.a("array");
-      serialized['collection_c'].should.have.length(3);
-      serialized['collection_c'][0].should.be.a("object");
-      serialized['collection_c'][0]['this'].should.equal("That One");
-      expect(serialized['_client']).to.be.undefined;
-      expect(serialized["model_b"]['b_bar']).to.be.undefined;
-      expect(serialized["model_b2"]['b_bar']).to.be.undefined;
-      expect(serialized['collection_c'][0]['that']).to.be.undefined;
-      serialized = modelA.serialize(["id", "_client"]);
-      serialized['id'].should.equal(33);
-      serialized['_server'].should.equal("Some Data");
-      expect(serialized['foo']).to.be.undefined;
-      expect(serialized['_client']).to.be.undefined;
+      expect(serialized['model_b']['b_foo']).to.equal("B BAR");
+      expect(serialized['model_b2']).to.be.a("object");
+      expect(serialized['model_b2']['id']).to.equal("test");
+      expect(serialized['model_b2']['b_foo']).to.equal("B BAR 2");
+      expect(serialized['collection_c']).to.be.a("array");
+      expect(serialized['collection_c']).to.have.length(3);
+      expect(serialized['collection_c'][0]).to.be.a("object");
+      expect(serialized['collection_c'][0]['that']).to.equal("That One");
+      serialized = modelA.serialize(["id", "foo"]);
+      expect(serialized['id']).to.equal(33);
+      expect(serialized['foo']).to.equal("bar");
       expect(serialized["model_b"]).to.be.undefined;
       expect(serialized["model_b2"]).to.be.undefined;
       expect(serialized["collection_c"]).to.be.undefined;
-      serialized = modelA.serialize(["_client"]);
-      serialized['_server'].should.equal("Some Data");
+      serialized = modelA.serialize(["foo"]);
+      expect(serialized['foo']).to.equal("bar");
       expect(serialized['id']).to.be.undefined;
-      expect(serialized['foo']).to.be.undefined;
-      expect(serialized['_client']).to.be.undefined;
       expect(serialized["model_b"]).to.be.undefined;
       expect(serialized["model_b2"]).to.be.undefined;
-      return expect(serialized["collection_c"]).to.be.undefined;
+      expect(serialized["collection_c"]).to.be.undefined;
+      serialized = modelA.serialize({
+        "id": null,
+        "model_b2": {
+          "b_foo": null,
+          "url": null
+        }
+      });
+      expect(serialized['id']).to.equal(33);
+      expect(serialized['model_b2']).to.be.a("object");
+      expect(serialized['model_b2']['b_foo']).to.equal("B BAR 2");
+      expect(serialized["model_b"]).to.be.undefined;
+      expect(serialized["collection_c"]).to.be.undefined;
+      serialized = modelA.serialize();
+      for (key in serialized) {
+        value = serialized[key];
+        expect(Falcon.Class.prototype).to.not.include.keys(key);
+      }
+      serialized = modelA.serialize();
+      _results = [];
+      for (key in serialized) {
+        value = serialized[key];
+        if (key !== "id") {
+          _results.push(expect(Falcon.Model.prototype).to.not.include.keys(key));
+        }
+      }
+      return _results;
     });
     it("Should test the unwrap method", function() {
       var CollectionC, ModelA, ModelB, ModelC, collectionC, modelA, modelB, unwrapped, _ref, _ref1, _ref2, _ref3;
@@ -320,10 +312,6 @@
           _ref = ModelA.__super__.constructor.apply(this, arguments);
           return _ref;
         }
-
-        ModelA.prototype.fields = {
-          "quux": "foo"
-        };
 
         ModelA.prototype.initialize = function() {
           this.foo = ko.observable();
@@ -379,7 +367,7 @@
       })(Falcon.Collection);
       modelA = new ModelA;
       modelA.fill({
-        "quux": "bar",
+        "foo": "bar",
         "model_b": {
           "something": "cool"
         },
@@ -392,7 +380,6 @@
         ]
       });
       unwrapped = modelA.unwrap();
-      expect(unwrapped['quux']).to.be.undefined;
       unwrapped['foo'].should.be.a("function");
       unwrapped['foo']().should.equal("bar");
       unwrapped['model_b'].should.be.a("object");
@@ -1114,25 +1101,25 @@
             id: 1
           });
           modelA.save();
-          ajax_stub.should.have.been.calledOnce;
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledOnce;
+          expect(ajax_stub).to.have.been.calledWithMatch({
             type: "PUT"
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             url: modelA.makeUrl("PUT")
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             data: JSON.stringify({
               "id": 1
             })
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             contentType: "application/json"
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             cache: false
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             headers: {}
           });
           expect(ajax_stub.firstCall.args[0].success).to.be.a("function");
@@ -1172,7 +1159,6 @@
           });
           ajax_stub.should.have.been.calledWithMatch({
             data: JSON.stringify({
-              "id": 1,
               "hello": "world"
             })
           });
@@ -1263,7 +1249,6 @@
           });
           ajax_stub.should.have.been.calledWithMatch({
             data: JSON.stringify({
-              "id": 1,
               "hello": "world"
             })
           });

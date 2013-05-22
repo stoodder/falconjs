@@ -44,24 +44,6 @@ class Falcon.Model extends Falcon.Class
 	parent: null
 
 	#--------------------------------------------------------
-	# Member: Falcon.Model#fields
-	# 	The fields to transfer to/from the server
-	# 	Takes 2 forms
-	#
-	# Form 1: Array
-	#	A list of array to directly map (1-to-1) model 
-	#	attributes to server attributes
-	#
-	# Form 2: Object
-	# 	A object of mapped fields
-	#	The object's keys are the server attributes
-	#	The object's values are the model attributes
-	#
-	# Type: Array, Object
-	#--------------------------------------------------------
-	fields: {}
-
-	#--------------------------------------------------------
 	# Method: Falcon.Model()
 	#	The constructor for a model
 	#
@@ -80,16 +62,12 @@ class Falcon.Model extends Falcon.Class
 
 		data = data.unwrap() if Falcon.isModel(data)
 
+		@id = null
 		@parent = parent
 		@initialize(data)
 		@fill(data) unless isEmpty( data )
 
-		#Lastly make sure that any of the fields that should exist, do
-		if isArray( @fields )
-			this[field] = null for field in @fields when isString(field) and not field of this
-		else if isObject( @fields )
-			this[model_field] = null for field, model_field of @fields when isString(field) and not field of this
-		#END if
+		return this
 	#END constructor
 
 	#--------------------------------------------------------
@@ -196,32 +174,27 @@ class Falcon.Model extends Falcon.Class
 		data = data.unwrap() if Falcon.isModel(data)
 		return this if isEmpty( data )
 
-		_data = {}
-
-		#REMOVE
-		#if the fields is an object, map the _data
-		if isObject(@fields) and not isEmpty(@fields)
-			_data[ @fields[key] ? key ] = value for key, value of data
-		#Otherwise just directly map it
-		else
-			_data = data
-		#END if
-
-		rejectedKeys = {}
-		for key, value of Falcon.Model.prototype when key not in ["id", "url"]
-			rejectedKeys[key] = true
+		rejectedAttributes = {}
+		for attr, value of Falcon.Model.prototype when attr not in ["id", "url"]
+			rejectedAttributes[attr] = true
 		#END for
 
-		for key, value of _data when not rejectedKeys[key]
+		#Fill in the attributes unless they're attempting to override
+		#core functionality
+		for attr, value of data when not rejectedAttributes[attr]
 			value = ko.utils.unwrapObservable( value )
-			if Falcon.isModel(this[key])
-				this[key].fill(value) unless isEmpty( value )
-			else if Falcon.isCollection(this[key])
-				this[key].fill(value) unless isEmpty( value ) and this[key].length() <= 0
-			else if ko.isObservable(this[key])
-				this[key](value) if ko.isWriteableObservable(this[key])
+			
+			if Falcon.isModel(this[attr])
+				this[attr].fill(value) unless isEmpty( value )
+			
+			else if Falcon.isCollection(this[attr])
+				this[attr].fill(value)
+			
+			else if ko.isWriteableObservable(this[attr])
+				this[attr](value)
+			
 			else
-				this[key] = value
+				this[attr] = value
 			#END if
 		#END for
 
@@ -238,99 +211,60 @@ class Falcon.Model extends Falcon.Class
 	#	_(Object)_ - The 'unwrapped' object
 	#--------------------------------------------------------
 	unwrap: () ->
-		raw = {}
+		unwrapped = {}
 
-		#Get the keys that pertain only to this models added attributes
-		keys = arrayRemove( objectKeys(this), objectKeys(Falcon.Model.prototype) )
-		keys[keys.length] = "id"
-
-		for key in keys
-			value = this[key]
-			raw[key] = if Falcon.isDataObject(value) then value.unwrap() else value
+		for attr of this when ( attr is "id" or not Falcon.Model.prototype[attr]? )
+			value = this[attr]
+			unwrapped[attr] = if Falcon.isDataObject(value) then value.unwrap() else value
 		#END for
 
-		return raw
+		return unwrapped
 	#END unwrap
 
 	#--------------------------------------------------------
 	# Method: Falon.Model#serialize()
-	#	Serializes the data into a raw json object and only corresponds to the fields
+	#	Serializes the data into a raw json object and only corresponds to the attributes
 	#	that are primitive and that we wish to be able to send back to the server
 	#
 	# Arguments:
-	#	**fields** _(Araay)_ -	The fields that should be included in the 
-	#	                      	serialization "id" is always included. If 
-	#	                      	none given, all fields from this models 'fields' 
-	#	                      	member are serialized
-	#
-	#	**deep** _(Boolean)_ -	should we do a deep copy? In otherwords, should 
-	#	                      	we cascade downwards to serialize data about 
-	#	                      	children models.
+	#	**attributes** _(Araay)_ -	The attributes that should be included in the 
+	#	                      		serialization "id" is always included. If 
+	#	                      		none given, all attributes from this models 'attributes' 
+	#	                      		member are serialized
 	#
 	# Returns:
 	#	_(Object)_ - The resultant 'raw' object to send to the server
 	#--------------------------------------------------------
-	serialize: (fields, deep) ->
-		raw = {}
+	serialize: (attributes) ->
+		serialized = {}
 
-		[deep, fields] = [fields, deep] if not isBoolean( deep ) and isBoolean( fields )
-		deep = true unless isBoolean( deep )
-
-		fields = null if isEmpty( fields )
-		fields = trim(fields).split(",") if isString( fields )
-		#ADD default fields to every acceptable attribute on this model
-		#REMOVE
-		unless fields?
-			fields = @fields
-			fields["id"] = "id" if isObject( fields ) and not fields["id"]?
-			fields.push("id") if isArray( fields ) and "id" not in fields
+		unless attributes?
+			attributes = ( attr for attr of this when ( attr is "id" or not ( attr of Falcon.Model.prototype ) ) )
+		else if isString( attributes )
+			attributes = trim(attributes).split(",")
 		#END unless
-		server_keys = []
-		model_keys = []
 
-		# Get the keys and mapped keys
-		# Mapped keys are the local attributes
-		# Keys are the server's attributes
-		if isArray(fields) and not isEmpty(fields)
-			if isObject(@fields) #TODO: Can we optimize this at all?
-				for field in fields
-					server_keys[server_keys.length] = findKey( @fields, field ) ? field
-					model_keys[model_keys.length] = field
-				#END for
-			else
-				for field in fields
-					server_keys[server_keys.length] = field
-					model_keys[model_keys.length] = field
-				#END for
-			#END if
-		else if isObject(fields) and not isEmpty(fields)
-			for server_field, model_field of fields
-				server_keys[server_keys.length] = server_field
-				model_keys[model_keys.length] = if model_field of this then model_field else server_field
-			#END for
-
-		else
-			server_keys = model_keys = arrayRemove( objectKeys(this), objectKeys(Falcon.Model.prototype) )
+		if isArray( attributes )
+			new_attributes = {}
+			new_attributes[attr] = null for attr in attributes
+			attributes = new_attributes
 		#END if
+		
+		return serialized unless isObject( attributes )
 
-		#Make sure we pull in the id
-		#server_keys.push("id") unless "id" in server_keys
-		#model_keys.push("id") unless "id" in model_keys
-
-		for index, model_key of model_keys
-			server_key = server_keys[index]
-			value = this[model_key]
+		for attr, sub_attributes of attributes
+			value = this[attr]
 
 			if Falcon.isDataObject(value)
-				raw[server_key] =  if deep then value.serialize() else value.serialize(["id"])
+				serialized[attr] = value.serialize(sub_attributes)
 			else if ko.isObservable(value)
-				raw[server_key] = ko.utils.unwrapObservable( value )
+				serialized[attr] = ko.utils.unwrapObservable( value )
 			else if not isFunction(value)
-				raw[server_key] = value
+				serialized[attr] = value
 			#END if
 		#END for
 
-		return raw
+		return serialized
 	#END serialize
 		
 	#--------------------------------------------------------
@@ -414,18 +348,18 @@ class Falcon.Model extends Falcon.Class
 	#--------------------------------------------------------
 	sync: (type, options) ->
 		options = {complete: options} if isFunction(options)
-		options = {fields: trim( options ).split(",")} if isString(options)
-		options = {fields: options} if isArray( options )
+		options = {attributes: trim( options ).split(",")} if isString(options)
+		options = {attributes: options} if isArray( options )
 
 		options = {} unless isObject(options)
-		options.data = {} unless isObject(options.data)
+		options.data = null unless isObject(options.data)
 		options.dataType = "json" unless isString(options.dataType)
 		options.contentType = "application/json" unless isString(options.contentType)
 		options.success = (->) unless isFunction(options.success)
 		options.complete = (->) unless isFunction(options.complete)
 		options.error = (->) unless isFunction(options.error)
 		options.parent = @parent unless Falcon.isModel(options.parent)
-		options.fields = [] unless isArray( options.fields )
+		options.attributes = null unless options.attributes?
 		options.params = {} unless isObject( options.params ) 
 		options.fill = true unless isBoolean( options.fill )
 		options.headers = {} unless isObject( options.headers )
@@ -433,15 +367,12 @@ class Falcon.Model extends Falcon.Class
 		type = trim( if isString(type) then type.toUpperCase() else "GET" )
 		type = "GET" unless type in ["GET", "POST", "PUT", "DELETE"]
 
-		data = {}
-		unless isEmpty(options.data)
-			data[key] = value for key, value of options.data
-		#END unless
-
-		data = extend(@serialize( options.fields ), data) if type in ["POST", "PUT"]
+		if options.data is null and type in ["POST", "PUT"]
+			options.data = @serialize( options.attributes )
+		#END if
 
 		#serialize the data to json
-		json = if isEmpty(data) then "" else JSON.stringify(data)
+		json = if options.data is null then "" else JSON.stringify(options.data)
 
 		url = options.url ? @makeUrl(type, options.parent)
 
@@ -645,18 +576,18 @@ class Falcon.Model extends Falcon.Class
 	#	Method used to copy this model
 	#
 	# Arguments:
-	#	**fields** _(Array)_ - A list of attributes to copy.
+	#	**attributes** _(Array)_ - A list of attributes to copy.
 	#	**parent** _(Object)_ - The parent to set on the new model, use 
 	#							'null' to unset the parent.
 	#
 	# Returns:
 	#	_(Falcon.Model)_ - A copy of this model
 	#--------------------------------------------------------
-	copy: (fields, parent) ->
-		parent = fields if fields is null or Falcon.isModel( fields )
-		fields = ["id"] unless isArray( fields )
+	copy: (attributes, parent) ->
+		parent = attributes if attributes is null or Falcon.isModel( attributes )
+		attributes = {"id":null} unless attributes?
 		parent = @parent unless parent is null or Falcon.isModel( parent )
-		return new @constructor( @serialize( fields ), parent )
+		return new @constructor( @serialize( attributes ), parent )
 	#END copy
 
 	#--------------------------------------------------------
