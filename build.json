@@ -1,6 +1,6 @@
 {
 	"COFFEE": {
-		"scripts/falcon-standalone.js": [
+		"build/falcon-standalone.js": [
 			"coffee/header.coffee",
 			"coffee/utility.coffee",
 			"coffee/falcon.coffee",
@@ -8,45 +8,42 @@
 			"coffee/falcon.model.coffee",
 			"coffee/falcon.view.coffee",
 			"coffee/falcon.collection.coffee",
-			"coffee/falcon.ko.bindings.coffee",
-			"coffee/falcon.ko.extensions.coffee"
+			"coffee/falcon.ko.bindings.coffee"
 		],
 
 		"tests/scripts/falcon.class.test.js": "tests/coffee/falcon.class.test.coffee",
 		"tests/scripts/falcon.model.test.js": "tests/coffee/falcon.model.test.coffee",
 		"tests/scripts/falcon.collection.test.js": "tests/coffee/falcon.collection.test.coffee",
 		"tests/scripts/falcon.view.test.js": "tests/coffee/falcon.view.test.coffee",
-		"tests/scripts/falcon.ko.bindings.test.js": "tests/coffee/falcon.ko.bindings.test.coffee",
-		
-		"examples/inline-example.js": "examples/inline-example.coffee"
+		"tests/scripts/falcon.ko.bindings.test.js": "tests/coffee/falcon.ko.bindings.test.coffee"
 	},
 
 	"COMBINED": {
-		"scripts/falcon-combined.js": [
+		"build/falcon-combined.js": [
 			"scripts/knockout-2.2.1.js",
-			"scripts/falcon-standalone.js"
+			"build/falcon-standalone.js"
 		],
-		"scripts/falcon-combined.min.js": [
+		"build/falcon-combined.min.js": [
 			"scripts/knockout-2.2.1.js",
-			"scripts/falcon-standalone.js"
+			"build/falcon-standalone.js"
 		],
-		"scripts/falcon.js": [
+		"build/falcon.js": [
 			"scripts/header.js",
-			"scripts/falcon-combined.js"
+			"build/falcon-combined.js"
 		],
-		"scripts/falcon-minified.js": [
+		"build/falcon-minified.js": [
 			"scripts/header.js",
-			"scripts/falcon-combined.min.js"
+			"build/falcon-combined.min.js"
 		]
 	},
 
 	"COPIED": {
-		"releases/falcon-latest.js": "scripts/falcon.js",
-		"releases/falcon-latest.min.js": "scripts/falcon-minified.js",
-		"releases/falcon-{{VERSION}}.js": "scripts/falcon.js",
-		"releases/falcon-{{VERSION}}.min.js": "scripts/falcon-minified.js",
-		"tests/scripts/falcon.js": "scripts/falcon.js",
-		"tests/scripts/falcon.min.js": "scripts/falcon-minified.js"
+		"falcon.js": "build/falcon.js",
+		"falcon.min.js": "build/falcon-minified.js",
+		"releases/falcon-{{VERSION}}.js": "build/falcon.js",
+		"releases/falcon-{{VERSION}}.min.js": "build/falcon-minified.js",
+		"tests/scripts/falcon.js": "build/falcon.js",
+		"tests/scripts/falcon.min.js": "build/falcon-minified.js"
 	},
 
 	"HAML": {},

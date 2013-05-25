@@ -3,7 +3,7 @@
 
 Available for use under the [MIT License](http://en.wikipedia.org/wiki/MIT_License)
 
-Copyright (C) 2011 by [RokkinCat](http://www.rokkincat.com)
+Copyright (C) 2013 by [Rick Allen](http://www.stoodder.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in

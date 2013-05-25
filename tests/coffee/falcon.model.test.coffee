@@ -757,12 +757,14 @@ describe "Testing Model Methods", ->
 				sync_stub.should.have.been.calledWith "POST", {}
 
 			it "Should call sync correctly on save without options", ->
+				modelA.set('id',1)
 				modelA.save()
 				sync_stub.should.have.been.calledOnce
 				sync_stub.should.have.been.calledWith "PUT", undefined
 			#END it
 
 			it "Should call sync correctly on save with options", ->
+				modelA.set('id',1)
 				modelA.save({})
 				sync_stub.should.have.been.calledOnce
 				sync_stub.should.have.been.calledWith "PUT", {}
@@ -1191,6 +1193,7 @@ describe "Testing Model Methods", ->
 			#END it
 
 			it "Should call the success response on save", ->
+				modelA.set('id', 1)
 				modelA.save( options )
 
 				server.respondWith [ 200, {}, JSON.stringify(data) ]

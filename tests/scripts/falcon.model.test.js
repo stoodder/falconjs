@@ -962,11 +962,13 @@
           return sync_stub.should.have.been.calledWith("POST", {});
         });
         it("Should call sync correctly on save without options", function() {
+          modelA.set('id', 1);
           modelA.save();
           sync_stub.should.have.been.calledOnce;
           return sync_stub.should.have.been.calledWith("PUT", void 0);
         });
         it("Should call sync correctly on save with options", function() {
+          modelA.set('id', 1);
           modelA.save({});
           sync_stub.should.have.been.calledOnce;
           return sync_stub.should.have.been.calledWith("PUT", {});
@@ -1516,6 +1518,7 @@
           return complete_spy.should.have.been.calledAfter(success_spy);
         });
         it("Should call the success response on save", function() {
+          modelA.set('id', 1);
           modelA.save(options);
           server.respondWith([200, {}, JSON.stringify(data)]);
           server.respond();

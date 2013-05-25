@@ -1009,6 +1009,16 @@ describe "Test Collection Methods", ->
 			expect( collectionA.at(0) ).to.equal model_a1
 			expect( collectionA.at(1) ).to.equal model_a3
 		#END it
+
+		it "Should be able to remove a different model but with the same id", ->
+			expect( collectionA.length() ).to.equal 4
+
+			collectionA.remove( new ModelA(id: 3) )
+			expect( collectionA.at(0) ).to.equal model_a1
+			expect( collectionA.at(1) ).to.equal model_a2
+			expect( collectionA.at(2) ).to.equal model_a4
+			#END remove
+		#END it
 	#END describe
 
 

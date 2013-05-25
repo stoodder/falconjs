@@ -217,3 +217,21 @@ ko.bindingHandlers['log'] =
 		console.log( ko.utils.unwrapObservable( valueAccessor() ) )
 	#END update
 #END log
+
+#--------------------------------------------------------
+# Extends onto the context varibales utilized in knockout templating
+# to include $view (to access this view's members easily)
+#--------------------------------------------------------
+_bindingContext = ko.bindingContext
+ko.bindingContext = (dataItem, parentBindingContext) ->
+	if not this['$view']? and parentBindingContext?
+		this['$view'] = parentBindingContext['$view'] or parentBindingContext['$root']
+	#end if
+	
+	_bindingContext.call(this, dataItem, parentBindingContext)
+#END ko.bindingContext extension
+ko.bindingContext.prototype = _bindingContext.prototype
+
+#Define which bindings should be allowed to be virtual
+ko.virtualElements.allowedBindings['view'] = true
+ko.virtualElements.allowedBindings['log'] = true

@@ -73,4 +73,92 @@ describe "Tesing event functionality", ->
 
 		mouseover_one.should.have.been.calledOnce
 	#END its
+
+	describe "Test #observables and #defaults", ->
+		class Clazz extends Falcon.Class
+			defaults:
+				'id': 'z'
+				'im': -> 'here'
+			#END defaults
+		#END Clazz
+
+		class Klass extends Falcon.Class
+			defaults:
+				'id': -1
+				'foo': 'bar'
+				'free': 'bird'
+				'clazz': -> new Clazz
+			#END defaults
+
+			observables:
+				'hello': 'world'
+				'foo': 'baz'
+				'test': -> 'method'
+				'_another': 'good'
+				'another':
+					read: -> @_another() + ' ' + @test()
+					write: (value) -> @_another( value )
+				#END another
+			#END observables
+		#END Klass
+
+		klass = null
+
+		beforeEach ->
+			klass = new Klass
+		#END beforeEach
+
+		it "Should have added the correct default attributes", ->
+			expect( klass ).to.include.key 'id'
+			expect( klass ).to.include.key 'foo'
+			expect( klass ).to.include.key 'clazz'
+		#END it
+
+		it "Should have added the correct observable attributes", ->
+			expect( klass ).to.include.key 'hello'
+			expect( klass ).to.include.key 'foo'
+			expect( klass ).to.include.key 'test'
+			expect( klass ).to.include.key '_another'
+			expect( klass ).to.include.key 'another'
+		#END it
+
+		it "Should have added the correct default values", ->
+			expect( klass.id ).to.equal -1
+			expect( klass.foo ).to.not.equal 'bar' #Should have been overitten by
+			expect( klass.free ).to.equal 'bird' 
+			expect( klass.clazz ).to.be.instanceof Clazz
+		#END it
+
+		it "Should have added the correct observable type", ->
+			expect( ko.isObservable( klass.hello ) ).to.be.true
+			expect( ko.isObservable( klass.foo ) ).to.be.true
+			expect( ko.isComputed( klass.test ) ).to.be.true
+			expect( ko.isObservable( klass._another ) ).to.be.true
+			expect( ko.isComputed( klass.another ) ).to.be.true
+		#END it
+
+		it "Should have added the correct writeable observable type", ->
+			expect( ko.isWriteableObservable( klass.hello ) ).to.be.true
+			expect( ko.isWriteableObservable( klass.foo ) ).to.be.true
+			expect( ko.isWriteableObservable( klass.test ) ).to.be.false
+			expect( ko.isWriteableObservable( klass._another ) ).to.be.true
+			expect( ko.isWriteableObservable( klass.another ) ).to.be.true
+		#END it
+
+		it "Should have assigned the correct values to observables", ->
+			expect( ko.utils.unwrapObservable( klass.hello ) ).to.equal "world"
+			expect( ko.utils.unwrapObservable( klass.foo ) ).to.equal "baz"
+			expect( ko.utils.unwrapObservable( klass.test ) ).to.equal "method"
+			expect( ko.utils.unwrapObservable( klass._another ) ).to.equal "good"
+			expect( ko.utils.unwrapObservable( klass.another ) ).to.equal "good method"
+
+			klass.another("great")
+			expect( ko.utils.unwrapObservable( klass.another ) ).to.equal "great method"
+		#END it
+
+		it "Should have propogated defaults in the child class", ->
+			expect( klass.clazz.id ).to.equal 'z'
+			expect( klass.clazz.im ).to.equal 'here'
+		#END it
+	#END describe
 #END describe

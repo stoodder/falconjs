@@ -1,9 +1,9 @@
-#--------------------------------------------------------
+#==============================================================================================
+#
 # Class: Falcon.Model
-#	Represents a model
-#--------------------------------------------------------
+#
+#==============================================================================================
 class Falcon.Model extends Falcon.Class
-
 	#--------------------------------------------------------
 	# Method: Falcon.Model.extend()
 	#	static method used to replicate inhertiance in
@@ -48,8 +48,8 @@ class Falcon.Model extends Falcon.Class
 	#	The constructor for a model
 	#
 	# Arguments:
-	#	**data** _(object)_ - The initial data to load in
-	#	**parent** _(mixed)_ - The parent object of this one
+	#	**models** _(Object)_ - An object of data to initialize this model with
+	#	**parent** _(Falcon.Model)_ - The parent object of this collection
 	#--------------------------------------------------------
 	constructor: (data, parent) ->
 		super()
@@ -62,7 +62,6 @@ class Falcon.Model extends Falcon.Class
 
 		data = data.unwrap() if Falcon.isModel(data)
 
-		@id = null
 		@parent = parent
 		@initialize(data)
 		@fill(data) unless isEmpty( data )
@@ -77,7 +76,7 @@ class Falcon.Model extends Falcon.Class
 	#	having to explicitly call the native Model constructor
 	#
 	# Arguments:
-	#	**data** _(object)_ - The initial data to load in
+	#	**data** _(Object)_ - The initial data to load in
 	#--------------------------------------------------------
 	initialize: (data) ->
 	#END initialize
@@ -106,7 +105,7 @@ class Falcon.Model extends Falcon.Class
 	#	**value** -(mixed)_ - The value to assign
 	#
 	# Arguments:
-	#	**key** _(object)_ - An object of values to set
+	#	**key** _(Object)_ - An object of values to set
 	#
 	# Returns:
 	#	_(Falcon.Model)_ - This Model
@@ -334,6 +333,23 @@ class Falcon.Model extends Falcon.Class
 	#END makeUrl
 
 	#--------------------------------------------------------
+	# Method: Falcon.Model#validate()
+	#	Method used to validate this model before it is sent
+	#	to the server on create or save.  If this method returns
+	#	true, saving will continue but if it returns false then
+	#	saving is halted
+	#
+	# Arguments:
+	#	**options** _(Object)_ - The options passed into the sync method
+	#
+	# Returns:
+	#	_(Boolean)_ - Is this model valid?
+	#--------------------------------------------------------
+	validate: (options) ->
+		return true
+	#END validate
+
+	#--------------------------------------------------------
 	# Method: Falcon.Model#sync()
 	#	Used to dynamically place calls to the server in order
 	#	to create, update, destroy, or read this from/to the
@@ -344,7 +360,7 @@ class Falcon.Model extends Falcon.Class
 	#	**options** _(Object)_ - Optional object of settings to use on this call
 	#
 	# Returns:
-	#	_(Falcon.Model)_ - This instance
+	#	_(XmlHttpRequest)_ - The XmlHttpRequest created
 	#--------------------------------------------------------
 	sync: (type, options) ->
 		options = {complete: options} if isFunction(options)
@@ -366,6 +382,9 @@ class Falcon.Model extends Falcon.Class
 
 		type = trim( if isString(type) then type.toUpperCase() else "GET" )
 		type = "GET" unless type in ["GET", "POST", "PUT", "DELETE"]
+		options.type = type
+
+		return if type in ["PUT", "POST"] and not @validate(options)
 
 		if options.data is null and type in ["POST", "PUT"]
 			options.data = @serialize( options.attributes )
@@ -373,6 +392,9 @@ class Falcon.Model extends Falcon.Class
 
 		#serialize the data to json
 		json = if options.data is null then "" else JSON.stringify(options.data)
+
+		#Determine the context
+		context = options.context ? this
 
 		url = options.url ? @makeUrl(type, options.parent)
 
@@ -406,7 +428,7 @@ class Falcon.Model extends Falcon.Class
 					when "DELETE" then @trigger("destroy", data)
 				#END switch
 
-				options.success.call(this, this, data, status, xhr)
+				options.success.call(context, this, data, status, xhr)
 			#END success
 
 			'error': (xhr) => 
@@ -415,11 +437,11 @@ class Falcon.Model extends Falcon.Class
 					response = JSON.parse(response) if isString(response)
 				catch e
 
-				options.error.call(this, this, response, xhr)
+				options.error.call(context, this, response, xhr)
 			#END error
 
 			'complete': (xhr, status) =>
-				options.complete.call(this, this, xhr, status)
+				options.complete.call(context, this, xhr, status)
 			#END complete
 		#END $.ajax
 	#END sync
@@ -433,7 +455,7 @@ class Falcon.Model extends Falcon.Class
 	#	**options** _(Object)_ - Optional object of settings to use on this call
 	#
 	# Returns:
-	#	_(Falcon.Model)_ - This instance
+	#	_(XmlHttpRequest)_ - The XmlHttpRequest created
 	#--------------------------------------------------------
 	fetch: (options) -> 
 		return @sync('GET', options)
@@ -448,7 +470,7 @@ class Falcon.Model extends Falcon.Class
 	#	**options** _(Object)_ - Optional object of settings to use on this call
 	#
 	# Returns:
-	#	_(Falcon.Model)_ - This instance
+	#	_(XmlHttpRequest)_ - The XmlHttpRequest created
 	#--------------------------------------------------------
 	create: (options) -> 
 		return @sync('POST', options)
@@ -457,16 +479,17 @@ class Falcon.Model extends Falcon.Class
 	#--------------------------------------------------------
 	# Method: Falcon.Model#save()
 	#	Calls the sync method with 'PUT' as the default type
-	#	server. Saves this model to the server.
+	#	server. Saves this model to the server.  If the model
+	#	is new then create() will be called instead
 	#
 	# Arguments:
 	#	**options** _(Object)_ - Optional object of settings to use on this call
 	#
 	# Returns:
-	#	_(Falcon.Model)_ - This instance
+	#	_(XmlHttpRequest)_ - The XmlHttpRequest created
 	#--------------------------------------------------------
 	save: (options) -> 
-		return @sync('PUT', options)
+		return ( if @isNew() then @create(options) else @sync('PUT', options) )
 	#END save
 
 	#--------------------------------------------------------
@@ -478,7 +501,7 @@ class Falcon.Model extends Falcon.Class
 	#	**options** _(Object)_ - Optional object of settings to use on this call
 	#
 	# Returns:
-	#	_(Falcon.Model)_ - This instance
+	#	_(XmlHttpRequest)_ - The XmlHttpRequest created
 	#--------------------------------------------------------
 	destroy: (options) -> 
 		return @sync('DELETE', options)
@@ -595,9 +618,9 @@ class Falcon.Model extends Falcon.Class
 	#	Method used to check if this model is new or is from the server.  Based on id.
 	#
 	# Returns:
-	#	_Boolean_ - Is this a new model?
+	#	_(Boolean)_ - Is this a new model?
 	#--------------------------------------------------------
-	isNew: () ->
+	isNew: ->
 		return ( not @get("id")? )
 	#END isNew
 #END Falcon.Model

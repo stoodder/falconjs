@@ -11,8 +11,21 @@ class Falcon.Class
 	observables: null
 
 	#--------------------------------------------------------
+	# Attribute: Falcon.Class#defaults
+	#	This is a hash map of non-observable defaults to create
+	#	whenever an instance of this class is initialized. If the
+	#	value is a function, the function is called and the return
+	#	value is assigned. Functions are called in context of this
+	#	instance. Defaults are created before observables which
+	#	means that any duplicate attributes between the observables
+	#	and defaults will be overriden by those in the observables
+	#--------------------------------------------------------
+	defaults: null
+
+	#--------------------------------------------------------
 	# Method: Falcon.Class.extend
-	#	Used to extend (as in, inherit) from one class to another
+	#	Method used to create a new subclass that inherits from this
+	#	class.
 	#
 	# Arguments:
 	#	**parent** _(Object)_ - The parent to extend from
@@ -66,24 +79,35 @@ class Falcon.Class
 	constructor: ->
 		@__falcon_class__events__ = {}
 
+		#Setup the other defaults
+		if isObject( @defaults )
+			for attr, value of @defaults
+				if isFunction( value  )
+					this[attr] = value.call(@)
+				else
+					this[attr] = value
+				#ENd if
+			#ENF for
+		#END if
+
 		#Setup the observables
 		if isObject( @observables )
-			for key, value of @observables
+			for attr, value of @observables
 				if isFunction( value )
-					@[key] = ko.computed
+					@[attr] = ko.computed
 						'read': value
 						'owner': @
 					#END computed
 				else if isObject( value ) and ('read' of value or 'write' of value)
-					@[key] = ko.computed
+					@[attr] = ko.computed
 						'read': value.read
 						'write': value.write
 						'owner': @
 					#END computed
 				else if isArray( value )
-					@[key] = ko.observableArray( value )
+					@[attr] = ko.observableArray( value )
 				else
-					@[key] = ko.observable( value )
+					@[attr] = ko.observable( value )
 				#END if
 			#END for
 		#END if
