@@ -1,12 +1,72 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 	<head>
 		<title>Falcon.js | Structure for Knockout</title>
+		
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-		<script src="/scripts/jquery-1.10.0.min.js"></script>
+		<link href="/css/bootstrap.min.css" rel="stylesheet" />
+		<link href="/css/falcon.docs.min.css" rel="stylesheet" />
 	</head>
-	<body>
-		Testing {{ page.hello }}
+	<body data-spy="scroll" data-target="#sidebar" data-offset="-399">
+		<div id="content" class="container">
+			<div id="hero">
+				<div class="hero-headline">
+					Falcon.js
+				</div>
+				<div class="hero-tagline">Structure for Knockout</div>
+				<p class="hero-description">
+					Falcon.js adds structure to knockout.js by incorporting
+					<strong>models</strong>, 
+					<strong>collections</strong>,
+					and <strong>views</strong>.
+					It's setup to make developing single-page web applications a breeze.
+				</p>
+				<div class="hero-actions"></div>
+				</p>
+			</div>
+			<div class="row">
+				<div class="col col-lg-3">
+					<div id="sidebar" data-spy="affix" data-offset-top="500">
+						<ul class="nav sidebar-nav">
+							{% assign category = 'Getting Started' %}
+							{% include navsection.html %}
+							
+							{% assign category = 'Model' %}
+							{% include navsection.html %}
+							
+							{% assign category = 'Collection' %}
+							{% include navsection.html %}
+							
+							{% assign category = 'View' %}
+							{% include navsection.html %}
+							
+							{% assign category = 'Helpers' %}
+							{% include navsection.html %}
+							
+							{% assign category = 'Bindings' %}
+							{% include navsection.html %}
 
-		{{ content }}
+							<li>
+								<a href="/tests" alt="Tests" target="_blank">Tests</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div id="main" class="col col-lg-9">
+					{{ content }}
+				</div>
+			</div>
+		</div>
+		<div id="footer" class="container">
+			<div class="row">
+					<div class="col col-lg-9 col-offset-3">
+						Das Footer
+					</div>
+			</div>
+		</div>
+		<script src="/scripts/jquery-1.10.0.min.js"></script>
+		<script src="/scripts/bootstrap.min.js"></script>
+		<script src="/scripts/falcon.docs.min.js"></script>
 	</body>
 </html>

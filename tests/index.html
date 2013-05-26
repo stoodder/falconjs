@@ -1,0 +1,36 @@
+<html>
+	<head>
+		<title>Falcon JS Test Suite featuring Mocha Js</title>
+		<link rel="stylesheet" type="text/css" href="css/mocha.css" />
+
+	</head>
+
+	<body>
+		<div id="mocha"></div>
+
+		<script type="text/javascript" src="scripts/jquery-1.8.3.min.js"></script>
+		<script type="text/javascript" src="scripts/falcon.js"></script>
+		<script type="text/javascript" src="scripts/mocha.js"></script>
+		<script type="text/javascript" src="scripts/chai.js"></script>
+		<script type="text/javascript" src="scripts/sinon-chai.js"></script>
+		<script type="text/javascript" src="scripts/sinon.js"></script>
+
+		<script>
+			mocha.setup('bdd');
+			expect = chai.expect;
+			chai.should();
+		</script>
+
+		<script type="text/javascript" src="scripts/falcon.object.test.js"></script>
+		<script type="text/javascript" src="scripts/falcon.model.test.js"></script>
+		<script type="text/javascript" src="scripts/falcon.collection.test.js"></script>
+		<script type="text/javascript" src="scripts/falcon.view.test.js"></script>
+		<script type="text/javascript" src="scripts/falcon.ko.bindings.test.js"></script>
+
+		<script>
+			mocha.checkLeaks();
+			mocha.globals(['jQuery', 'expect']);
+			mocha.run();
+		</script>
+	</body>
+</html>

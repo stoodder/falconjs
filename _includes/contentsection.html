@@ -1,0 +1,18 @@
+{% assign category_lower = category | downcase %}
+{% assign category_id = category | replace: ' ', '_'  | downcase %}
+<section id="{{ category_id }}">
+	<div class="page-header">
+		<h1>{{ category }}</h1>
+	</div>
+	{% for post in site.categories.[category_lower] reversed %}
+		{% if hidden != 'true' %}
+			{% assign post_id = post.title | replace: ' ', '_'  | replace: '/', '' | downcase %}
+			<div id="{{ category_id }}-{{ post_id }}">
+				<h3>{{ post.title }}
+					<small>{{ post.method }}</small>
+				</h3>
+				{{ post.content }}
+			</div>
+		{% endif %}
+	{% endfor %}
+</section>
