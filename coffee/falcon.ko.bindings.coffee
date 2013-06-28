@@ -146,7 +146,7 @@ ko.bindingHandlers['view'] = do ->
 #--------------------------------------------------------
 #Interal method used to get a the expected models
 _getItems = (value) ->
-	items = ko.utils.unwrapObservable( if Falcon.isCollection(value) then value.models() else value )
+	items = ko.utils.unwrapObservable( if Falcon.isCollection(value) then value.models else value )
 	items = [items] unless isArray(items)
 
 	return ( -> items )

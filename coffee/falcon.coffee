@@ -155,7 +155,7 @@
 	#	_(Boolean)_ - Is the object a falcon object?
 	#--------------------------------------------------------
 	isFalconObject: (object) ->
-		object? and ( object instanceof Falcon.Class )
+		object? and ( object instanceof Falcon.Object )
 	#END isFalconObjext
 
 	#--------------------------------------------------------

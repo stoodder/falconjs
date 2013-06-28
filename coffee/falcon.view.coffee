@@ -2,8 +2,7 @@
 # Class: Falcon.View
 #	Class that represents a view on the screen
 #--------------------------------------------------------
-class Falcon.View extends Falcon.Class
-
+class Falcon.View extends Falcon.Object
 	#--------------------------------------------------------
 	# The internal cache of each template identified by 
 	# their url or element id
@@ -38,7 +37,7 @@ class Falcon.View extends Falcon.Class
 	#END resetCache
 
 	#--------------------------------------------------------
-	# Attribute: Faclon.View#url
+	# Member: Faclon.View#url
 	#	The url or element id where this template is defined. 
 	#	Can either be a string or a function and can either point 
 	#	to a uri or a DOM object identifier.  This attribute 
@@ -47,7 +46,7 @@ class Falcon.View extends Falcon.Class
 	url: null
 
 	#--------------------------------------------------------
-	# Attribute: Falcon.View#is_loaded
+	# Member: Falcon.View#is_loaded
 	#	This will be an observable that specifies if the view has loaded
 	#	or not. A view is loaded when its template is found and stored
 	#	into the template cache. Making this an observable allows us to
@@ -56,7 +55,7 @@ class Falcon.View extends Falcon.Class
 	is_loaded: false
 
 	#--------------------------------------------------------
-	# Attribute: Falcon.View#is_rendered
+	# Member: Falcon.View#is_rendered
 	#	This will be a flag to determines if the view is being 
 	#	displayed on the screen or not. This also acts as a
 	#	gate check for render() and unrender()
@@ -64,7 +63,7 @@ class Falcon.View extends Falcon.Class
 	is_rendered: false
 
 	#--------------------------------------------------------
-	# Attribute: Falcon.View#__falcon_view__child_views__
+	# Member: Falcon.View#__falcon_view__child_views__
 	#	This private, falcon specific, variable is used to store
 	#	an array of falcon views that have been rendered (via the
 	#	'view' data-binding) within this view's template
@@ -72,7 +71,7 @@ class Falcon.View extends Falcon.Class
 	__falcon_view__child_views__: null
 
 	#--------------------------------------------------------
-	# Attribute: Falcon.View#__falcon_view__loaded_url__
+	# Member: Falcon.View#__falcon_view__loaded_url__
 	#	This private, falcon specific, variable is used to store
 	#	the result of the makeUrl() function so that we can lookup
 	#	and store the resultant template in the template cache
@@ -82,7 +81,7 @@ class Falcon.View extends Falcon.Class
 	#--------------------------------------------------------
 	# Method: Falcon.View()
 	#	The constuctor method for the view class, calls the super
-	#	constructor from Falcon.Class
+	#	constructor from Falcon.Object
 	#--------------------------------------------------------
 	constructor: () ->
 		super()

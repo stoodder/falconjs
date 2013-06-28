@@ -1,6 +1,6 @@
-class Falcon.Class
+class Falcon.Object
 	#--------------------------------------------------------
-	# Attribute: Falcon.Class#observables
+	# Attribute: Falcon.Object#observables
 	#	This is a list of the default observables and values for
 	#	this view on each instantiation. If the value is a function
 	#	a computed is created. If the value is an object with the keys
@@ -11,7 +11,7 @@ class Falcon.Class
 	observables: null
 
 	#--------------------------------------------------------
-	# Attribute: Falcon.Class#defaults
+	# Attribute: Falcon.Object#defaults
 	#	This is a hash map of non-observable defaults to create
 	#	whenever an instance of this class is initialized. If the
 	#	value is a function, the function is called and the return
@@ -23,7 +23,7 @@ class Falcon.Class
 	defaults: null
 
 	#--------------------------------------------------------
-	# Method: Falcon.Class.extend
+	# Method: Falcon.Object.extend
 	#	Method used to create a new subclass that inherits from this
 	#	class.
 	#
@@ -65,7 +65,7 @@ class Falcon.Class
 		child.__super__ = parent.prototype
 
 		return child
-	#END Falcon.Class.extend
+	#END Falcon.Object.extend
 
 	#--------------------------------------------------------
 	# Local event storage
@@ -73,7 +73,7 @@ class Falcon.Class
 	__falcon_class__events__: null
 
 	#--------------------------------------------------------
-	# Method: Falcon.Class()
+	# Method: Falcon.Object()
 	#	The constructor method
 	#--------------------------------------------------------
 	constructor: ->
@@ -212,4 +212,4 @@ class Falcon.Class
 
 		return this
 	#END trigger
-#END Falcon.Class
+#END Falcon.Object

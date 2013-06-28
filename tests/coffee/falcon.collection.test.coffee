@@ -347,6 +347,130 @@ describe "Test Collection Methods", ->
 			#END it
 		#END describe
 
+		describe "Test 'insert' option", ->
+			it "Should properly add items into an empty collection", ->
+				collectionA = new CollectionA
+				collectionA.fill [
+					{id: 1, "hello": "world"}
+					{id: 2, "hello": "world2"}
+				], { 'method': 'insert', 'insert_index': 2 }
+
+				collectionA.length().should.equal 2
+				collectionA.at(0).should.be.instanceof ModelA
+				collectionA.at(0).get('id').should.equal 1
+				collectionA.at(0).get('hello').should.equal "world"
+				collectionA.at(1).should.be.instanceof ModelA
+				collectionA.at(1).get('id').should.equal 2
+				collectionA.at(1).get('hello').should.equal "world2"
+			#END it
+
+			it "Should properly insert items into a populated collection", ->
+				collectionA = new CollectionA [
+					{id: 3, "hello": "world3"}
+					{id: 4, "hello": "world4"}
+				]
+				
+				collectionA.fill [
+					{id: 1, "hello": "world"}
+					{id: 2, "hello": "world2"}
+				], { 'method': 'insert', 'insert_index': 1 }
+
+				index = 0
+				collectionA.length().should.equal 4
+
+
+				collectionA.at(index).should.be.instanceof ModelA
+				collectionA.at(index).get('id').should.equal 3
+				collectionA.at(index).get('hello').should.equal "world3"
+				index++
+
+				collectionA.at(index).should.be.instanceof ModelA
+				collectionA.at(index).get('id').should.equal 1
+				collectionA.at(index).get('hello').should.equal "world"
+				index++
+
+				collectionA.at(index).should.be.instanceof ModelA
+				collectionA.at(index).get('id').should.equal 2
+				collectionA.at(index).get('hello').should.equal "world2"
+				index++
+
+				collectionA.at(index).should.be.instanceof ModelA
+				collectionA.at(index).get('id').should.equal 4
+				collectionA.at(index).get('hello').should.equal "world4"
+				index++
+			#END it
+
+			it "Should properly insert items into a populated collection at an invalid index", ->
+				collectionA = new CollectionA [
+					{id: 3, "hello": "world3"}
+					{id: 4, "hello": "world4"}
+				]
+				
+				collectionA.fill [
+					{id: 1, "hello": "world"}
+					{id: 2, "hello": "world2"}
+				], { 'method': 'insert', 'insert_index': 5 }
+
+				index = 0
+				collectionA.length().should.equal 4
+
+				collectionA.at(index).should.be.instanceof ModelA
+				collectionA.at(index).get('id').should.equal 3
+				collectionA.at(index).get('hello').should.equal "world3"
+				index++
+
+				collectionA.at(index).should.be.instanceof ModelA
+				collectionA.at(index).get('id').should.equal 4
+				collectionA.at(index).get('hello').should.equal "world4"
+				index++
+
+				collectionA.at(index).should.be.instanceof ModelA
+				collectionA.at(index).get('id').should.equal 1
+				collectionA.at(index).get('hello').should.equal "world"
+				index++
+
+				collectionA.at(index).should.be.instanceof ModelA
+				collectionA.at(index).get('id').should.equal 2
+				collectionA.at(index).get('hello').should.equal "world2"
+				index++
+			#END it
+
+			it "Should properly insert items into the beginning of a populated collection", ->
+				collectionA = new CollectionA [
+					{id: 3, "hello": "world3"}
+					{id: 4, "hello": "world4"}
+				]
+				
+				collectionA.fill [
+					{id: 1, "hello": "world"}
+					{id: 2, "hello": "world2"}
+				], { 'method': 'insert', 'insert_index': 0 }
+
+				index = 0
+				collectionA.length().should.equal 4
+
+				collectionA.at(index).should.be.instanceof ModelA
+				collectionA.at(index).get('id').should.equal 1
+				collectionA.at(index).get('hello').should.equal "world"
+				index++
+
+				collectionA.at(index).should.be.instanceof ModelA
+				collectionA.at(index).get('id').should.equal 2
+				collectionA.at(index).get('hello').should.equal "world2"
+				index++
+
+				collectionA.at(index).should.be.instanceof ModelA
+				collectionA.at(index).get('id').should.equal 3
+				collectionA.at(index).get('hello').should.equal "world3"
+				index++
+
+				collectionA.at(index).should.be.instanceof ModelA
+				collectionA.at(index).get('id').should.equal 4
+				collectionA.at(index).get('hello').should.equal "world4"
+				index++
+			#END it
+		#END describe
+
 		describe "Test invalid option", ->
 			it "Should properly add items into an empty collection", ->
 				collectionA = new CollectionA
@@ -950,6 +1074,56 @@ describe "Test Collection Methods", ->
 				complete_spy.should.have.been.calledAfter error_spy
 			#END it
 		#END describe
+
+		describe "Testing sync method options in depth", ->
+			ajax_stub = null
+
+			beforeEach ->
+				ajax_stub = sinon.stub(jQuery, "ajax")
+				Falcon.cache = false
+			#END beforeEach
+
+			afterEach ->
+				ajax_stub.restore()
+			#END afterEach
+
+			it "Should fetch properly without options", ->
+				collectionA.sync('GET')
+
+				ajax_stub.should.have.been.calledOnce
+				ajax_stub.should.have.been.calledWithMatch {type: "GET"}
+				ajax_stub.should.have.been.calledWithMatch {url: collectionA.makeUrl("GET")}
+				ajax_stub.should.have.been.calledWithMatch {data: ""}
+				ajax_stub.should.have.been.calledWithMatch {contentType: "application/json"}
+				ajax_stub.should.have.been.calledWithMatch {cache: false}
+				ajax_stub.should.have.been.calledWithMatch {headers: {}}
+				expect( ajax_stub.firstCall.args[0].success ).to.be.a "function"
+				expect( ajax_stub.firstCall.args[0].success ).to.have.length 3
+
+				expect( ajax_stub.firstCall.args[0].error ).to.be.a "function"
+				expect( ajax_stub.firstCall.args[0].error ).to.have.length 1
+
+				expect( ajax_stub.firstCall.args[0].complete ).to.be.a "function"
+				expect( ajax_stub.firstCall.args[0].complete ).to.have.length 2
+			#END it
+
+			it "Should allow for a specified parent to override", ->
+				collectionA.parent = new ModelB(id: 'b')
+				collectionA.sync 'GET',
+					parent: (model_b = new ModelB(id: 'b2'))
+				#END sync
+
+				ajax_stub.should.have.been.calledWithMatch {url: collectionA.makeUrl("GET", model_b)}
+			#END it
+
+			it "Should allow for a specified parent to override", ->
+				collectionA.parent = new ModelB(id: 'b')
+				collectionA.sync 'GET',
+					parent: null
+				#END sync
+
+				ajax_stub.should.have.been.calledWithMatch {url: collectionA.makeUrl("GET", null)}
+			#END it
 	#END describe
 
 
@@ -1053,6 +1227,54 @@ describe "Test Collection Methods", ->
 
 			fill_stub.should.have.been.calledOnce
 			fill_stub.should.have.been.deep.calledWith input, {'method': 'prepend'}
+		#END it
+	#END describe
+
+
+	#--------------------------------------------------------------
+	#
+	# Test the insert() method
+	#
+	#--------------------------------------------------------------
+	describe "Test the insert method", ->
+		collectionA = null
+		fill_stub = null
+
+		beforeEach ->
+			collectionA = new CollectionA [
+				{id: 1, 'hello': 'foo'}
+				{id: 4, 'hello': 'bar'}
+			]
+
+			fill_stub = sinon.stub( collectionA, "fill" )
+		#END beforeEach
+
+		it "Should call the proper fill method when inserting without a specific model", ->
+			collectionA.insert(input = {'hello': 'world'})
+
+			fill_stub.should.have.been.calledOnce
+			fill_stub.should.have.been.deep.calledWith input, {'method': 'append'}
+		#END it
+
+		it "Should call the proper fill method when inserting with a valid model", ->
+			collectionA.insert(input = {'hello': 'world'}, 4) #4 is the model id
+
+			fill_stub.should.have.been.calledOnce
+			fill_stub.should.have.been.deep.calledWith input, {'method': 'insert', 'insert_index': 1}
+		#END it
+
+		it "Should call the proper fill method when appending with an invalid model", ->
+			collectionA.insert(input = {'hello': 'world'}, 33)
+
+			fill_stub.should.have.been.calledOnce
+			fill_stub.should.have.been.deep.calledWith input, {'method': 'insert', 'insert_index': -1}
+		#END it
+
+		it "Should call the proper fill method when inserting with an iterator", ->
+			collectionA.insert(input = {'hello': 'world'}, ( (m) -> m.get('id') is 1 ) )
+
+			fill_stub.should.have.been.calledOnce
+			fill_stub.should.have.been.deep.calledWith input, {'method': 'insert', 'insert_index': 0}
 		#END it
 	#END describe
 
@@ -1329,6 +1551,48 @@ describe "Test Collection Methods", ->
 			expect( collectionA.at(-1) ).to.equal null
 			expect( collectionA.at(3) ).to.equal null
 			expect( collectionA.at("HELLO") ).to.equal null
+		#END it
+	#END describe
+
+
+	#--------------------------------------------------------------
+	#
+	# Test the indexOf() method
+	#
+	#--------------------------------------------------------------
+	describe "Test the indexOf() method", ->
+		collectionA = null
+		model_a1 = model_a2 = model_a3 = model_a4 = null
+
+		beforeEach ->
+			model_a1 = new ModelA(id: 1)
+			model_a2 = new ModelA(id: 3)
+			model_a3 = new ModelA(id: 5)
+			model_a4 = new ModelA(id: 8)
+
+			collectionA = new CollectionA([model_a1, model_a2, model_a3, model_a4, model_a3])
+		#END beforeEach
+
+		it "Should find the correct index by model", ->
+			expect( collectionA.indexOf( model_a3 ) ).to.equal 2
+		#END it
+
+		it "Should find no match index by model", ->
+			expect( collectionA.indexOf( new ModelA ) ).to.equal -1
+		#END it
+
+		it "Should find the correct match index by id", ->
+			expect( collectionA.indexOf( 3 ) ).to.equal 1
+		#END it
+
+		it "Should find the correct match index by truth test method", ->
+			index = collectionA.indexOf (model) -> model.get('id') > 4
+			expect( index ).to.equal 2
+		#END it
+
+		it "Should find the no match index by truth test method", ->
+			index = collectionA.indexOf (model) -> model.get('id') > 8
+			expect( index ).to.equal -1
 		#END it
 	#END describe
 

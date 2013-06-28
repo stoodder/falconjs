@@ -7,7 +7,7 @@
 
     klass = null;
     beforeEach(function() {
-      return klass = new Falcon.Class;
+      return klass = new Falcon.Object;
     });
     it("Should have correct method definitions", function() {
       expect(klass.on).to.be.a('function');
@@ -78,7 +78,7 @@
 
         return Clazz;
 
-      })(Falcon.Class);
+      })(Falcon.Object);
       Klass = (function(_super) {
         __extends(Klass, _super);
 
@@ -115,7 +115,7 @@
 
         return Klass;
 
-      })(Falcon.Class);
+      })(Falcon.Object);
       klass = null;
       beforeEach(function() {
         return klass = new Klass;

@@ -2,7 +2,7 @@ describe "Tesing event functionality", ->
 	klass = null
 
 	beforeEach ->
-		klass = new Falcon.Class
+		klass = new Falcon.Object
 	#END beforeEach
 
 	it "Should have correct method definitions", ->
@@ -75,14 +75,14 @@ describe "Tesing event functionality", ->
 	#END its
 
 	describe "Test #observables and #defaults", ->
-		class Clazz extends Falcon.Class
+		class Clazz extends Falcon.Object
 			defaults:
 				'id': 'z'
 				'im': -> 'here'
 			#END defaults
 		#END Clazz
 
-		class Klass extends Falcon.Class
+		class Klass extends Falcon.Object
 			defaults:
 				'id': -1
 				'foo': 'bar'

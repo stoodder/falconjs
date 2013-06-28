@@ -3,7 +3,7 @@
 # Class: Falcon.Collection
 #
 #==============================================================================================
-class Falcon.Collection extends Falcon.Class
+class Falcon.Collection extends Falcon.Object
 	#--------------------------------------------------------
 	# Method: Falcon.Collection.extend
 	#	Method used to create a new subclass that inherits from this
@@ -15,7 +15,36 @@ class Falcon.Collection extends Falcon.Class
 	# Returns:
 	#	_(Objec)t_ - The extended class
 	#--------------------------------------------------------
-	@extend = (definition) -> Falcon.Class.extend(Falcon.Collection, definition)
+	@extend = (definition) -> Falcon.Object.extend(Falcon.Collection, definition)
+
+	#--------------------------------------------------------
+	# Method: _makeIterator
+	#	Private method used to consistently generate iterators for 
+	#	the following search functions.  This won't guarentee an
+	#	iterator method, it just tries to provide default handling
+	#	for certain types of input values
+	#--------------------------------------------------------
+	_makeIterator = (iterator) ->
+		if Falcon.isModel( iterator )
+			_model = iterator
+			return (item) ->
+				return false unless Falcon.isModel(item)
+				id = item.get('id')
+				model_id = _model.get('id')
+				return ( id is model_id )
+			#END iterator assignment
+		#END if
+
+		if isNumber(iterator) or isString(iterator)
+			_id = iterator
+			return (model) -> 
+				return false unless Falcon.isModel(model)
+				model.get("id") is _id
+			#END iterator
+		#END if
+
+		return iterator
+	#END _makeIterator
 
 	#--------------------------------------------------------
 	# Member: Falcon.Collection#__falcon_collection__mixins__
@@ -113,7 +142,7 @@ class Falcon.Collection extends Falcon.Class
 	#	having to explicitly call the native Collection constructor
 	#
 	# Arguments:
-	#	**data** _Array_ - The initial models that were loaded
+	#	**data** _(Array)_ - The initial models that were loaded
 	#--------------------------------------------------------
 	initialize: ( (models) -> )
 
@@ -127,7 +156,7 @@ class Falcon.Collection extends Falcon.Class
 	#	**xhr** _(Object)_ - The XHR object
 	#
 	# Returns:
-	#	_Array_ - Parsing on a collection expects an array to be returned
+	#	_(Array)_ - Parsing on a collection expects an array to be returned
 	#--------------------------------------------------------
 	parse: (data, options, xhr) ->
 		return data
@@ -159,7 +188,7 @@ class Falcon.Collection extends Falcon.Class
 		{method} = options
 		method = '' unless isString(method)
 		method = method.toLowerCase()
-		method = 'replace' unless method in ['replace', 'append', 'prepend', 'merge']
+		method = 'replace' unless method in ['replace', 'append', 'prepend', 'insert', 'merge']
 
 		return [] if method isnt 'replace' and isEmpty( items ) 
 
@@ -205,17 +234,39 @@ class Falcon.Collection extends Falcon.Class
 					break
 				#END for
 				
-				if _model then _model.fill( model ) else @models.push( model )
+				if _model then _model.fill( model ) else _models.push( model )
 			#END for
+
+			@models( _models )
 
 		#Add the models to the beginning of the list
 		else if method is 'prepend'
 			_length = models.length-1
-			@models.unshift( models[_length-i] ) for model, i in models
+			_models = @models()
+			_models.unshift( models[_length-i] ) for model, i in models
+			@models( _models )
 
 		#Add the models to the bottom of the list
 		else if method is 'append'
-			@models.push( model ) for model in models
+			_models = @models()
+			_models = _models.concat( models )
+			@models( _models )
+
+		#Insert the models into the list at the specified index, if the index is
+		#invalid, append the models
+		else if method is 'insert'
+			insert_index = options.insert_index ? -1
+			_models = @models()
+
+			if insert_index < 0 or insert_index >= _models.length
+				_models = _models.concat( models )
+			else
+				head = _models[0...insert_index]
+				tail = _models[insert_index..]
+				_models = head.concat( models, tail )
+			#END if
+
+			@models( _models )
 		#END if
 
 		#Update the length
@@ -231,7 +282,7 @@ class Falcon.Collection extends Falcon.Class
 	#	to unwrap newly added member variables/objects
 	#
 	# Returns:
-	#	_Array_ - The 'unwrapped' array
+	#	_(Array)_ - The 'unwrapped' array
 	#--------------------------------------------------------
 	unwrap: () ->
 		raw = []
@@ -252,7 +303,7 @@ class Falcon.Collection extends Falcon.Class
 	#	                      	member are serialized
 	#
 	# Returns:
-	#	_Array_ - an array of the serialized raw data to send to the server
+	#	_(Array)_ - an array of the serialized raw data to send to the server
 	#--------------------------------------------------------
 	serialize: (attributes) ->
 		serialized = []
@@ -267,9 +318,13 @@ class Falcon.Collection extends Falcon.Class
 	#	Attempts to generate a URL for this collection based on its parent
 	#	and the url that is defined
 	#
+	# Arguments:
+	#	**type**
+	#
 	# TODO: Add Patch handling
+	# TODO: Finish Comments
 	#--------------------------------------------------------
-	makeUrl: (type) ->
+	makeUrl: (type, parent) ->
 		url = if isFunction(@url) then @url() else @url
 		url = "" unless isString(url)
 		url = trim(url)
@@ -281,9 +336,11 @@ class Falcon.Collection extends Falcon.Class
 		#Make sure the url is now formatted correctly
 		url = "/#{url}" unless startsWith(url, "/")
 
+		parent = if parent isnt undefined then parent else @parent
+
 		#Check if a parent model is present
-		if Falcon.isModel(@parent)
-			parentUrl = @parent.makeUrl()
+		if Falcon.isModel(parent)
+			parentUrl = parent.makeUrl()
 			parentPeriodIndex = parentUrl.lastIndexOf(".")
 			parentSlashIndex = parentUrl.lastIndexOf("/")
 
@@ -311,7 +368,7 @@ class Falcon.Collection extends Falcon.Class
 	# Method: Falcon.Collection#sync()
 	#	Used to dynamically place calls to the server in order
 	#	to create, update, destroy, or read this from/to the
-	#	server
+	#	server.
 	#
 	# Arguments:
 	#	**type** _(String)_ - The HTTP Method to call to the server with
@@ -332,6 +389,7 @@ class Falcon.Collection extends Falcon.Class
 		options.success = (->) unless isFunction(options.success)
 		options.complete = (->) unless isFunction(options.complete)
 		options.error = (->) unless isFunction(options.error)
+		options.parent = @parent unless Falcon.isModel( options.parent ) or options.parent is null
 		options.attributes = null unless options.attributes?
 		options.params = {} unless isObject( options.params )
 		options.fill = true unless isBoolean( options.fill )
@@ -346,7 +404,7 @@ class Falcon.Collection extends Falcon.Class
 		#Determine the context
 		context = options.context ? this
 
-		url = options.url ? trim(@makeUrl(type))
+		url = options.url ? trim(@makeUrl(type, options.parent))
 
 		unless isEmpty( options.params )
 			url += "?" unless url.indexOf("?") > -1
@@ -367,11 +425,11 @@ class Falcon.Collection extends Falcon.Class
 				data = JSON.parse( xhr.responseText ) if not data? and isString( xhr.responseText )
 				data ?= []
 
-				data = @parse( data, options, xhr )
+				parsed_data = @parse( data, options, xhr )
 				
 				if type is "GET"
-					@fill(data, options) if options.fill
-					@trigger("fetch", data)
+					@fill(parsed_data, options) if options.fill
+					@trigger("fetch", parsed_data)
 				#END if
 
 				options.success.call(context, this, data, status, xhr)
@@ -458,11 +516,11 @@ class Falcon.Collection extends Falcon.Class
 	#	_(XmlHttpRequest)_ - The XmlHttpRequest created
 	#--------------------------------------------------------
 	destroy: (model, options) ->
-		return unless @model?
+		return null unless @model?
 
 		model = @first( ko.utils.unwrapObservable( model ) )
 
-		return unless Falcon.isModel( model )
+		return null unless Falcon.isModel( model )
 
 		options = {success:options} if isFunction(options)
 		options = {} unless isObject(options)
@@ -480,8 +538,9 @@ class Falcon.Collection extends Falcon.Class
 
 	#--------------------------------------------------------
 	# Method: Falcon.Collection#remove
-	#	Used to simplu remove elements from the current collection
-	#	Does not actually delete the data from the server
+	#	Used to remove elements from this collection. This method
+	#	does not make any API delete requests and will simply remove
+	#	an instance of a model from this collection.
 	#
 	# Arguments:
 	#	**items** _(Array)_ - An array (or an item) to remove from the models
@@ -520,7 +579,7 @@ class Falcon.Collection extends Falcon.Class
 	#	Pepends an items or a list of items to the beginning of the collection
 	#
 	# Arguments:
-	#	**item** _(Falcon.Model)_ - The model(s) to add
+	#	**items** _(Falcon.Model)_ - The model(s) to add
 	#
 	# Returns:
 	#	_(Falcon.Collection)_ - This instance
@@ -528,11 +587,37 @@ class Falcon.Collection extends Falcon.Class
 	prepend: (items) -> @fill(items, {'method': 'prepend'})
 
 	#--------------------------------------------------------
+	# Method: Falcon.Collection#insert
+	#	Method used to insert a model before another within the collection.
+	#	If no model is found in the collection, the model is added to the end
+	#	of the collection.  Alternatively, an iterator can be given and the model
+	#	will be inserted before the first model to pass the truth test
+	#
+	# Arguments:
+	#	**insert_model** _(Falcon.Model)_ - The model to insert
+	#	**model** _(Falcon.Model) - The model to insert before
+	#
+	# Arguments:
+	#	**insert_model** _(Falcon.Model)_ - The model to insert
+	#	**iterator** _(Function) - The iterator to truth test each model against
+	#
+	# Returns:
+	#	_(Number)_ - The number of the matched index
+	#--------------------------------------------------------
+	insert: (insert_model, model) ->
+		iterator = _makeIterator( model )
+		return @fill( insert_model, {'method': 'append'} ) unless isFunction( iterator )
+		
+		insert_index = @indexOf( model )
+		return @fill( insert_model, {'method': 'insert', 'insert_index': insert_index })
+	#END insert
+
+	#--------------------------------------------------------
 	# Method: Falcon.Collection#unshift
 	#	Push an element onto the begining of the array, Alias of prepend
 	#
 	# Arguments:
-	#	**item** _(Falcon.Model)_ - The model to add
+	#	**items** _(Falcon.Model)_ - The model to add
 	#
 	# Returns:
 	#	_(Falcon.Collection)_ - This instance
@@ -542,17 +627,20 @@ class Falcon.Collection extends Falcon.Class
 	#--------------------------------------------------------
 	unshift: ->
 		@prepend(arguments...)
-	#END pop
+	#END unshift
 
 	#--------------------------------------------------------
 	# Method: Falcon.Collection#shift
 	#	Shifts the first element from the models and returns it
+	#
+	# Returns:
+	#	_(Falcon.Model)_ - The first mmodel in this collection
 	#--------------------------------------------------------
 	shift: ->
 		item = @models.shift()
 		@length( @models().length )
 		return item
-	#END pop
+	#END shift
 
 	#--------------------------------------------------------
 	# Method: Falcon.Collection#push
@@ -573,7 +661,10 @@ class Falcon.Collection extends Falcon.Class
 
 	#--------------------------------------------------------
 	# Method: Falcon.Collection#pop
-	#	Pops the last element from the models and returns it
+	#	Removes and returns the last model from this collection.
+	#
+	# Returns:
+	#	_(Falcon.Model)_ - The last model on the list, may be null
 	#--------------------------------------------------------
 	pop: ->
 		item = @models.pop()
@@ -616,6 +707,27 @@ class Falcon.Collection extends Falcon.Class
 	#END at
 
 	#--------------------------------------------------------
+	# Method: Falcon.Collection#indexOf
+	#	Find the index for the specified model or where the iterator first returns true.
+	#	-1 is returned if nothing matches.
+	#
+	# Arguments:
+	#	**model** _(Falcon.Model)_ - The model to lookup
+	#
+	# Returns:
+	#	_(Number)_ - The number of the matched index
+	#--------------------------------------------------------
+	indexOf: (model) ->
+		return @models.indexOf( model ) if Falcon.isModel( model )
+		
+		iterator = _makeIterator( model )
+		return -1 unless isFunction( iterator )
+
+		( return index ) for model, index in @models() when iterator( model )
+		return -1
+	#END indexOf
+
+	#--------------------------------------------------------
 	# Method: Falcon.Collection#each
 	#
 	# Arguments:
@@ -642,36 +754,6 @@ class Falcon.Collection extends Falcon.Class
 
 		return this
 	#END each
-
-	#--------------------------------------------------------
-	# Method: _makeIterator
-	#	Private method used to consistently generate iterators for 
-	#	the following search functions.  This won't guarentee an
-	#	iterator method, it just tries to provide default handling
-	#	for certain types of input values
-	#--------------------------------------------------------
-	_makeIterator = (iterator) ->
-		if Falcon.isModel( iterator )
-			_model = iterator
-			return (item) ->
-				return false unless Falcon.isModel(item)
-				id = item.get('id')
-				model_id = _model.get('id')
-				return ( id is model_id )
-			#END iterator assignment
-		#END if
-
-		if isNumber(iterator) or isString(iterator)
-			_id = iterator
-			return (model) -> 
-				return false unless Falcon.isModel(model)
-				model.get("id") is _id
-			#END iterator
-		#END if
-
-		return iterator
-	#END _makeIterator
-
 
 	#--------------------------------------------------------
 	# Method: Falcon.Collection#first
@@ -764,6 +846,12 @@ class Falcon.Collection extends Falcon.Class
 	#--------------------------------------------------------
 	# Method: Falcon.Collection#without
 	#	Returns an array of elements that don't match the iterator
+	#
+	# Arguments:
+	#	**iterator** _(Function)_ - The iterator to check each model against
+	#
+	# Returns:
+	#	_(Array)_ - The list of models after being filtered by the iterator
 	#--------------------------------------------------------
 	without: (iterator) ->
 		iterator = _makeIterator( iterator )
@@ -782,8 +870,7 @@ class Falcon.Collection extends Falcon.Class
 	#							 unwrap values that are observables, default is true
 	#
 	# Returns:
-	#	_(Array)_ - An array of the values from each model coresponding to the keys. 
-	#				If the keys was an array, then this is an array of arrays
+	#	_(Array)_ - An array of the values from each model coresponding to the given attribute. 
 	#--------------------------------------------------------
 	pluck: (attribute, unwrap) ->
 		attribute = "" unless isString( attribute )
@@ -837,7 +924,6 @@ class Falcon.Collection extends Falcon.Class
 	#
 	# TODO:
 	#	Account for knockout observable extensions
-	#	Revisit this, make sure that the way this works actually makes sense
 	#--------------------------------------------------------
 	mixin: (mapping) ->
 		mapping = {} unless isObject(mapping)
@@ -890,11 +976,12 @@ class Falcon.Collection extends Falcon.Class
 	#	was primarily devised to copy collection for use in URL generation/new parent assignment on models
 	#
 	# Arguments:
-	#	**attributes** _(Array)_ - The attributes to copy over. a special field, 'parent', can also be listed which will copy
-	#						   a reference of the orignal collection's 'parent'
+	#	**attributes** _(Array)_ - The attributes of each model to copy to the new collection
 	#
 	# Returns:
 	#	_(Falcon.Collection)_ - A copy of this collection
+	#
+	# TODO: Finish Comments
 	#--------------------------------------------------------
 	copy: (attributes, parent) ->
 		parent = attributes if attributes is null or Falcon.isModel( attributes )
@@ -917,8 +1004,7 @@ class Falcon.Collection extends Falcon.Class
 		if @models?
 			@models([])
 		else
-			@models = ko.observableArray([]) 
-			@models.extend("throttle": 1)
+			@models = ko.observableArray([])
 		#END unless
 		@length(0)
 		return this

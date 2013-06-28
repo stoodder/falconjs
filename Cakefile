@@ -2,7 +2,7 @@
 # Building Falcon requires coffee-script, uglify-js, wrench, and sass. For
 # help installing, try:
 #
-# `npm install coffee-script uglify-js wrench -g`
+# `npm install coffee-script uglify-js wrench`
 # `gem install sass`
 #
 # Original Cake file from Chosen.js - modified for our use
@@ -39,7 +39,7 @@ write_file = (filename, body) ->
 print_error = (error, file_name, file_contents) ->
 	line = error.message.match /line ([0-9]+):/
 	if line && line[1] && line = parseInt(line[1])
-		contents_lines = ( file_contents ? "").split "\n"
+		contents_lines = file_contents.split "\n"
 		first = if line-4 < 0 then 0 else line-4
 		last  = if line+3 > contents_lines.size then contents_lines.size else line+3
 		console.log "Error compiling #{file_name}. \"#{error.message}\"\n"
@@ -72,8 +72,8 @@ task 'watch', 'watch coffee/ and tests/ for changes and build', ->
 			for d, ss of build["COFFEE"]
 				do ->
 					destination = d
+					ss = [ss] if typeof ss is "string"
 					sources = ss
-					sources = [sources] if (Object::toString.call(sources) is "[object String]")
 
 					execute = ->
 						code = minified_code = ""
@@ -111,7 +111,7 @@ task 'watch', 'watch coffee/ and tests/ for changes and build', ->
 									execute()
 								)
 							else
-								console.error("\r\nERROR: Could not find file #{source} to compile\r\n")
+								console.error("\r\nERROR: Could not find file '#{source}'' to compile\r\n")
 							#END if
 						#END do
 					#END for
@@ -164,8 +164,8 @@ task 'watch', 'watch coffee/ and tests/ for changes and build', ->
 
 					for s in sources
 						do ->
-							if fs.existsSync( s )
-									source = s
+							source = s
+							if fs.existsSync( source )
 									console.log "Watching for changes in #{source}"
 									watchers.push fs.watch( source, (curr, prev) ->
 										console.log "#{new Date}: Saw change in #{source}"
@@ -173,7 +173,7 @@ task 'watch', 'watch coffee/ and tests/ for changes and build', ->
 									)
 								#END do
 							else
-								console.error("\r\nERROR: Could not find file #{source} to compile\r\n")
+								console.error("\r\nERROR: Could not find file '#{source}' to compile\r\n")
 							#END if
 						#END do
 					#END for
@@ -183,7 +183,7 @@ task 'watch', 'watch coffee/ and tests/ for changes and build', ->
 			#END for
 
 			console.log "STARTING COMPILED HAML FILES"
-			_require = "-r #{__dirname}/private/haml/helpers.rb"
+			_require = "#{__dirname}/haml/helpers.rb"
 
 			for d, s of build["HAML"]
 				do ->
@@ -194,7 +194,7 @@ task 'watch', 'watch coffee/ and tests/ for changes and build', ->
 						try
 							file_name = destination.replace("{{VERSION}}", version)
 
-							exec "haml --double-quote-attributes --no-escape-attrs #{_require} --trace #{source} #{file_name}", (messages) ->
+							exec "haml --style ugly --double-quote-attributes --no-escape-attrs -r #{_require} --trace #{source} #{file_name}", (messages) ->
 								console.log("Wrote #{file_name}")
 								print_error( messages ) if messages?
 						catch e
@@ -209,7 +209,7 @@ task 'watch', 'watch coffee/ and tests/ for changes and build', ->
 							execute()
 						)
 					else
-						console.error("\r\nERROR: Could not find file #{source} to copy\r\n")
+						console.error("\r\nERROR: Could not find file '#{source}' to copy\r\n")
 					#END if
 
 					execute()
@@ -227,11 +227,15 @@ task 'watch', 'watch coffee/ and tests/ for changes and build', ->
 							code = ( fs.readFileSync(source) for source in sources when fs.existsSync(source) ).join("\r\n")
 							file_name = destination.replace("{{VERSION}}", version)
 
-							code = UglifyJS.minify(code, {fromString: true}).code if file_name.match(/\.min/gi)
+							if file_name.indexOf('.min.js') > -1
+								code = UglifyJS.minify(code, {
+									fromString: true
+								}).code
+							#END if
 							
-							write_file(file_name, code)
+							write_file( file_name, code )
 						catch e
-							print_error e, file_name, destination
+							print_error e, file_name, file_contents
 						#END try
 					#END execute
 
@@ -245,7 +249,7 @@ task 'watch', 'watch coffee/ and tests/ for changes and build', ->
 									execute()
 								)
 							else
-								console.error("\r\nERROR: Could not find file #{source} to combine\r\n")
+								console.error("\r\nERROR: Could not find file '#{source}' to combine\r\n")
 							#END if
 						#END do
 					#END for
@@ -263,7 +267,8 @@ task 'watch', 'watch coffee/ and tests/ for changes and build', ->
 					execute = ->
 						try
 							file_name = destination.replace("{{VERSION}}", version)
-							write_file(file_name, "#{fs.readFileSync(source)}")
+							fs.createReadStream(source).pipe(fs.createWriteStream(file_name))
+							console.log "Wrote #{file_name}"
 						catch e
 							print_error e
 						#END try

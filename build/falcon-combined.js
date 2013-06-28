@@ -3801,7 +3801,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       return (object != null) && (object instanceof Falcon.Model || object instanceof Falcon.Collection);
     },
     isFalconObject: function(object) {
-      return (object != null) && (object instanceof Falcon.Class);
+      return (object != null) && (object instanceof Falcon.Object);
     },
     addBinding: function(name, definition, allowVirtual) {
       var _ref;
@@ -3816,12 +3816,12 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
     }
   };
 
-  Falcon.Class = (function() {
-    Class.prototype.observables = null;
+  Falcon.Object = (function() {
+    Object.prototype.observables = null;
 
-    Class.prototype.defaults = null;
+    Object.prototype.defaults = null;
 
-    Class.extend = function(instanceDef, staticDef) {
+    Object.extend = function(instanceDef, staticDef) {
       var child, ctor, parent;
 
       if (instanceDef == null) {
@@ -3851,9 +3851,9 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       return child;
     };
 
-    Class.prototype.__falcon_class__events__ = null;
+    Object.prototype.__falcon_class__events__ = null;
 
-    function Class() {
+    function Object() {
       var attr, value, _ref, _ref1;
 
       this.__falcon_class__events__ = {};
@@ -3892,7 +3892,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       }
     }
 
-    Class.prototype.on = function(event, action, context) {
+    Object.prototype.on = function(event, action, context) {
       var _base, _ref;
 
       if (!(isString(event) && isFunction(action))) {
@@ -3912,7 +3912,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       return this;
     };
 
-    Class.prototype.off = function(event, action) {
+    Object.prototype.off = function(event, action) {
       var evt;
 
       if (!isString(event)) {
@@ -3945,7 +3945,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       return this;
     };
 
-    Class.prototype.has = function(event, action) {
+    Object.prototype.has = function(event, action) {
       var evt, _i, _len, _ref;
 
       if (!isString(event)) {
@@ -3968,7 +3968,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       return false;
     };
 
-    Class.prototype.trigger = function() {
+    Object.prototype.trigger = function() {
       var args, event, evt, _i, _len, _ref;
 
       event = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -3987,7 +3987,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       return this;
     };
 
-    return Class;
+    return Object;
 
   })();
 
@@ -3995,7 +3995,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
     __extends(Model, _super);
 
     Model.extend = function(properties) {
-      return Falcon.Class.extend(Falcon.Model, properties);
+      return Falcon.Object.extend(Falcon.Model, properties);
     };
 
     Model.prototype.id = null;
@@ -4029,36 +4029,36 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
 
     Model.prototype.initialize = function(data) {};
 
-    Model.prototype.get = function(key) {
-      if (!isString(key)) {
+    Model.prototype.get = function(attribute) {
+      if (!isString(attribute)) {
         return this.undefined;
       }
-      return ko.utils.unwrapObservable(this[key]);
+      return ko.utils.unwrapObservable(this[attribute]);
     };
 
-    Model.prototype.set = function(key, value) {
+    Model.prototype.set = function(attribute, value) {
       var k, v;
 
-      if (isObject(key)) {
-        for (k in key) {
-          v = key[k];
+      if (isObject(attribute)) {
+        for (k in attribute) {
+          v = attribute[k];
           this.set(k, v);
         }
         return this;
       }
-      if (!isString(key)) {
+      if (!isString(attribute)) {
         return this;
       }
-      if (ko.isObservable(this[key])) {
-        this[key](value);
+      if (ko.isObservable(this[attribute])) {
+        this[attribute](value);
       } else {
-        this[key] = value;
+        this[attribute] = value;
       }
       return this;
     };
 
-    Model.prototype.toggle = function(key) {
-      return this.set(key, !this.get(key));
+    Model.prototype.toggle = function(attribute) {
+      return this.set(attribute, !this.get(attribute));
     };
 
     Model.prototype.parse = function(data, options, xhr) {
@@ -4116,11 +4116,10 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
 
       unwrapped = {};
       for (attr in this) {
-        if (!(attr === "id" || (Falcon.Model.prototype[attr] == null))) {
-          continue;
-        }
         value = this[attr];
-        unwrapped[attr] = Falcon.isDataObject(value) ? value.unwrap() : value;
+        if (attr === "id" || !(attr in Falcon.Model.prototype)) {
+          unwrapped[attr] = Falcon.isDataObject(value) ? value.unwrap() : value;
+        }
       }
       return unwrapped;
     };
@@ -4262,7 +4261,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       if (!isFunction(options.error)) {
         options.error = (function() {});
       }
-      if (!Falcon.isModel(options.parent)) {
+      if (!(Falcon.isModel(options.parent) || options.parent === null)) {
         options.parent = this.parent;
       }
       if (options.attributes == null) {
@@ -4316,6 +4315,8 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
         'cache': Falcon.cache,
         'headers': options.headers,
         'success': function(data, status, xhr) {
+          var parsed_data;
+
           if (isString(data)) {
             data = JSON.parse(data);
           }
@@ -4325,22 +4326,22 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
           if (data == null) {
             data = {};
           }
-          data = _this.parse(data, options, xhr);
+          parsed_data = _this.parse(data, options, xhr);
           if (options.fill) {
-            _this.fill(data, options);
+            _this.fill(parsed_data, options);
           }
           switch (type) {
             case "GET":
-              _this.trigger("fetch", data);
+              _this.trigger("fetch", parsed_data);
               break;
             case "POST":
-              _this.trigger("create", data);
+              _this.trigger("create", parsed_data);
               break;
             case "PUT":
-              _this.trigger("save", data);
+              _this.trigger("save", parsed_data);
               break;
             case "DELETE":
-              _this.trigger("destroy", data);
+              _this.trigger("destroy", parsed_data);
           }
           return options.success.call(context, _this, data, status, xhr);
         },
@@ -4380,9 +4381,16 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
     };
 
     Model.prototype.equals = function(model) {
+      var id, other_id;
+
       model = ko.utils.unwrapObservable(model);
       if (Falcon.isModel(model)) {
-        return model.get("id") === this.get("id");
+        id = this.get("id");
+        other_id = model.get("id");
+        if ((id != null) && (other_id != null)) {
+          return model.get("id") === this.get("id");
+        }
+        return model === this;
       } else if (isNumber(model) || isString(model)) {
         return model === this.get("id");
       }
@@ -4449,7 +4457,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
 
     return Model;
 
-  })(Falcon.Class);
+  })(Falcon.Object);
 
   Falcon.View = (function(_super) {
     var __falcon_view__template_cache__;
@@ -4624,7 +4632,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
 
     return View;
 
-  })(Falcon.Class);
+  })(Falcon.Object);
 
   Falcon.Collection = (function(_super) {
     var _makeIterator;
@@ -4632,7 +4640,35 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
     __extends(Collection, _super);
 
     Collection.extend = function(definition) {
-      return Falcon.Class.extend(Falcon.Collection, definition);
+      return Falcon.Object.extend(Falcon.Collection, definition);
+    };
+
+    _makeIterator = function(iterator) {
+      var _id, _model;
+
+      if (Falcon.isModel(iterator)) {
+        _model = iterator;
+        return function(item) {
+          var id, model_id;
+
+          if (!Falcon.isModel(item)) {
+            return false;
+          }
+          id = item.get('id');
+          model_id = _model.get('id');
+          return id === model_id;
+        };
+      }
+      if (isNumber(iterator) || isString(iterator)) {
+        _id = iterator;
+        return function(model) {
+          if (!Falcon.isModel(model)) {
+            return false;
+          }
+          return model.get("id") === _id;
+        };
+      }
+      return iterator;
     };
 
     Collection.prototype.__falcon_collection__mixins__ = null;
@@ -4683,7 +4719,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
     };
 
     Collection.prototype.fill = function(items, options) {
-      var i, iterator, m, mapping, method, model, models, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _length, _m, _model, _models, _n, _ref;
+      var head, i, insert_index, iterator, m, mapping, method, model, models, tail, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _length, _m, _model, _models, _ref, _ref1;
 
       if (this.model == null) {
         return this;
@@ -4709,7 +4745,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
         method = '';
       }
       method = method.toLowerCase();
-      if (method !== 'replace' && method !== 'append' && method !== 'prepend' && method !== 'merge') {
+      if (method !== 'replace' && method !== 'append' && method !== 'prepend' && method !== 'insert' && method !== 'merge') {
         method = 'replace';
       }
       if (method !== 'replace' && isEmpty(items)) {
@@ -4755,20 +4791,33 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
           if (_model) {
             _model.fill(model);
           } else {
-            this.models.push(model);
+            _models.push(model);
           }
         }
+        this.models(_models);
       } else if (method === 'prepend') {
         _length = models.length - 1;
+        _models = this.models();
         for (i = _m = 0, _len4 = models.length; _m < _len4; i = ++_m) {
           model = models[i];
-          this.models.unshift(models[_length - i]);
+          _models.unshift(models[_length - i]);
         }
+        this.models(_models);
       } else if (method === 'append') {
-        for (_n = 0, _len5 = models.length; _n < _len5; _n++) {
-          model = models[_n];
-          this.models.push(model);
+        _models = this.models();
+        _models = _models.concat(models);
+        this.models(_models);
+      } else if (method === 'insert') {
+        insert_index = (_ref1 = options.insert_index) != null ? _ref1 : -1;
+        _models = this.models();
+        if (insert_index < 0 || insert_index >= _models.length) {
+          _models = _models.concat(models);
+        } else {
+          head = _models.slice(0, insert_index);
+          tail = _models.slice(insert_index);
+          _models = head.concat(models, tail);
         }
+        this.models(_models);
       }
       this.length(this.models().length);
       return models;
@@ -4798,7 +4847,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       return serialized;
     };
 
-    Collection.prototype.makeUrl = function(type) {
+    Collection.prototype.makeUrl = function(type, parent) {
       var parentPeriodIndex, parentSlashIndex, parentUrl, url;
 
       url = isFunction(this.url) ? this.url() : this.url;
@@ -4816,8 +4865,9 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       if (!startsWith(url, "/")) {
         url = "/" + url;
       }
-      if (Falcon.isModel(this.parent)) {
-        parentUrl = this.parent.makeUrl();
+      parent = parent !== void 0 ? parent : this.parent;
+      if (Falcon.isModel(parent)) {
+        parentUrl = parent.makeUrl();
         parentPeriodIndex = parentUrl.lastIndexOf(".");
         parentSlashIndex = parentUrl.lastIndexOf("/");
         if (parentSlashIndex < parentPeriodIndex) {
@@ -4874,6 +4924,9 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       if (!isFunction(options.error)) {
         options.error = (function() {});
       }
+      if (!(Falcon.isModel(options.parent) || options.parent === null)) {
+        options.parent = this.parent;
+      }
       if (options.attributes == null) {
         options.attributes = null;
       }
@@ -4892,7 +4945,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       }
       json = options.data === null ? "" : JSON.stringify(options.data);
       context = (_ref = options.context) != null ? _ref : this;
-      url = (_ref1 = options.url) != null ? _ref1 : trim(this.makeUrl(type));
+      url = (_ref1 = options.url) != null ? _ref1 : trim(this.makeUrl(type, options.parent));
       if (!isEmpty(options.params)) {
         if (!(url.indexOf("?") > -1)) {
           url += "?";
@@ -4918,6 +4971,8 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
         'cache': Falcon.cache,
         'headers': options.headers,
         'success': function(data, status, xhr) {
+          var parsed_data;
+
           if (isString(data)) {
             data = JSON.parse(data);
           }
@@ -4927,12 +4982,12 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
           if (data == null) {
             data = [];
           }
-          data = _this.parse(data, options, xhr);
+          parsed_data = _this.parse(data, options, xhr);
           if (type === "GET") {
             if (options.fill) {
-              _this.fill(data, options);
+              _this.fill(parsed_data, options);
             }
-            _this.trigger("fetch", data);
+            _this.trigger("fetch", parsed_data);
           }
           return options.success.call(context, _this, data, status, xhr);
         },
@@ -5001,11 +5056,11 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
         _this = this;
 
       if (this.model == null) {
-        return;
+        return null;
       }
       model = this.first(ko.utils.unwrapObservable(model));
       if (!Falcon.isModel(model)) {
-        return;
+        return null;
       }
       if (isFunction(options)) {
         options = {
@@ -5054,6 +5109,22 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       });
     };
 
+    Collection.prototype.insert = function(insert_model, model) {
+      var insert_index, iterator;
+
+      iterator = _makeIterator(model);
+      if (!isFunction(iterator)) {
+        return this.fill(insert_model, {
+          'method': 'append'
+        });
+      }
+      insert_index = this.indexOf(model);
+      return this.fill(insert_model, {
+        'method': 'insert',
+        'insert_index': insert_index
+      });
+    };
+
     Collection.prototype.unshift = function() {
       return this.prepend.apply(this, arguments);
     };
@@ -5099,6 +5170,26 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       return models[index];
     };
 
+    Collection.prototype.indexOf = function(model) {
+      var index, iterator, _i, _len, _ref;
+
+      if (Falcon.isModel(model)) {
+        return this.models.indexOf(model);
+      }
+      iterator = _makeIterator(model);
+      if (!isFunction(iterator)) {
+        return -1;
+      }
+      _ref = this.models();
+      for (index = _i = 0, _len = _ref.length; _i < _len; index = ++_i) {
+        model = _ref[index];
+        if (iterator(model)) {
+          return index;
+        }
+      }
+      return -1;
+    };
+
     Collection.prototype.each = function(iterator, context) {
       var index, item, _i, _j, _len, _len1, _ref, _ref1;
 
@@ -5122,34 +5213,6 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
         }
       }
       return this;
-    };
-
-    _makeIterator = function(iterator) {
-      var _id, _model;
-
-      if (Falcon.isModel(iterator)) {
-        _model = iterator;
-        return function(item) {
-          var id, model_id;
-
-          if (!Falcon.isModel(item)) {
-            return false;
-          }
-          id = item.get('id');
-          model_id = _model.get('id');
-          return id === model_id;
-        };
-      }
-      if (isNumber(iterator) || isString(iterator)) {
-        _id = iterator;
-        return function(model) {
-          if (!Falcon.isModel(model)) {
-            return false;
-          }
-          return model.get("id") === _id;
-        };
-      }
-      return iterator;
     };
 
     Collection.prototype.first = function(iterator) {
@@ -5345,9 +5408,6 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
         this.models([]);
       } else {
         this.models = ko.observableArray([]);
-        this.models.extend({
-          "throttle": 1
-        });
       }
       this.length(0);
       return this;
@@ -5355,7 +5415,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
 
     return Collection;
 
-  })(Falcon.Class);
+  })(Falcon.Object);
 
   ko.bindingHandlers['view'] = (function() {
     var getTemplate, getViewModel, makeTemplateValueAccessor, returnVal;
@@ -5475,7 +5535,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
   _getItems = function(value) {
     var items;
 
-    items = ko.utils.unwrapObservable(Falcon.isCollection(value) ? value.models() : value);
+    items = ko.utils.unwrapObservable(Falcon.isCollection(value) ? value.models : value);
     if (!isArray(items)) {
       items = [items];
     }

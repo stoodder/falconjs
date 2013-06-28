@@ -530,6 +530,161 @@
           return index++;
         });
       });
+      describe("Test 'insert' option", function() {
+        it("Should properly add items into an empty collection", function() {
+          var collectionA;
+
+          collectionA = new CollectionA;
+          collectionA.fill([
+            {
+              id: 1,
+              "hello": "world"
+            }, {
+              id: 2,
+              "hello": "world2"
+            }
+          ], {
+            'method': 'insert',
+            'insert_index': 2
+          });
+          collectionA.length().should.equal(2);
+          collectionA.at(0).should.be["instanceof"](ModelA);
+          collectionA.at(0).get('id').should.equal(1);
+          collectionA.at(0).get('hello').should.equal("world");
+          collectionA.at(1).should.be["instanceof"](ModelA);
+          collectionA.at(1).get('id').should.equal(2);
+          return collectionA.at(1).get('hello').should.equal("world2");
+        });
+        it("Should properly insert items into a populated collection", function() {
+          var collectionA, index;
+
+          collectionA = new CollectionA([
+            {
+              id: 3,
+              "hello": "world3"
+            }, {
+              id: 4,
+              "hello": "world4"
+            }
+          ]);
+          collectionA.fill([
+            {
+              id: 1,
+              "hello": "world"
+            }, {
+              id: 2,
+              "hello": "world2"
+            }
+          ], {
+            'method': 'insert',
+            'insert_index': 1
+          });
+          index = 0;
+          collectionA.length().should.equal(4);
+          collectionA.at(index).should.be["instanceof"](ModelA);
+          collectionA.at(index).get('id').should.equal(3);
+          collectionA.at(index).get('hello').should.equal("world3");
+          index++;
+          collectionA.at(index).should.be["instanceof"](ModelA);
+          collectionA.at(index).get('id').should.equal(1);
+          collectionA.at(index).get('hello').should.equal("world");
+          index++;
+          collectionA.at(index).should.be["instanceof"](ModelA);
+          collectionA.at(index).get('id').should.equal(2);
+          collectionA.at(index).get('hello').should.equal("world2");
+          index++;
+          collectionA.at(index).should.be["instanceof"](ModelA);
+          collectionA.at(index).get('id').should.equal(4);
+          collectionA.at(index).get('hello').should.equal("world4");
+          return index++;
+        });
+        it("Should properly insert items into a populated collection at an invalid index", function() {
+          var collectionA, index;
+
+          collectionA = new CollectionA([
+            {
+              id: 3,
+              "hello": "world3"
+            }, {
+              id: 4,
+              "hello": "world4"
+            }
+          ]);
+          collectionA.fill([
+            {
+              id: 1,
+              "hello": "world"
+            }, {
+              id: 2,
+              "hello": "world2"
+            }
+          ], {
+            'method': 'insert',
+            'insert_index': 5
+          });
+          index = 0;
+          collectionA.length().should.equal(4);
+          collectionA.at(index).should.be["instanceof"](ModelA);
+          collectionA.at(index).get('id').should.equal(3);
+          collectionA.at(index).get('hello').should.equal("world3");
+          index++;
+          collectionA.at(index).should.be["instanceof"](ModelA);
+          collectionA.at(index).get('id').should.equal(4);
+          collectionA.at(index).get('hello').should.equal("world4");
+          index++;
+          collectionA.at(index).should.be["instanceof"](ModelA);
+          collectionA.at(index).get('id').should.equal(1);
+          collectionA.at(index).get('hello').should.equal("world");
+          index++;
+          collectionA.at(index).should.be["instanceof"](ModelA);
+          collectionA.at(index).get('id').should.equal(2);
+          collectionA.at(index).get('hello').should.equal("world2");
+          return index++;
+        });
+        return it("Should properly insert items into the beginning of a populated collection", function() {
+          var collectionA, index;
+
+          collectionA = new CollectionA([
+            {
+              id: 3,
+              "hello": "world3"
+            }, {
+              id: 4,
+              "hello": "world4"
+            }
+          ]);
+          collectionA.fill([
+            {
+              id: 1,
+              "hello": "world"
+            }, {
+              id: 2,
+              "hello": "world2"
+            }
+          ], {
+            'method': 'insert',
+            'insert_index': 0
+          });
+          index = 0;
+          collectionA.length().should.equal(4);
+          collectionA.at(index).should.be["instanceof"](ModelA);
+          collectionA.at(index).get('id').should.equal(1);
+          collectionA.at(index).get('hello').should.equal("world");
+          index++;
+          collectionA.at(index).should.be["instanceof"](ModelA);
+          collectionA.at(index).get('id').should.equal(2);
+          collectionA.at(index).get('hello').should.equal("world2");
+          index++;
+          collectionA.at(index).should.be["instanceof"](ModelA);
+          collectionA.at(index).get('id').should.equal(3);
+          collectionA.at(index).get('hello').should.equal("world3");
+          index++;
+          collectionA.at(index).should.be["instanceof"](ModelA);
+          collectionA.at(index).get('id').should.equal(4);
+          collectionA.at(index).get('hello').should.equal("world4");
+          return index++;
+        });
+      });
       describe("Test invalid option", function() {
         it("Should properly add items into an empty collection", function() {
           var collectionA;
@@ -1047,7 +1202,7 @@
           return expect(ajax_stub.firstCall.args[0].complete).to.not.equal(_complete);
         });
       });
-      return describe("Testing sync method XHR responses", function() {
+      describe("Testing sync method XHR responses", function() {
         var complete_spy, create_spy, data, destroy_spy, error_data, error_spy, fetch_spy, fill_stub, options, parse_stub, save_spy, server, success_data, success_spy;
 
         server = null;
@@ -1165,6 +1320,72 @@
           return complete_spy.should.have.been.calledAfter(error_spy);
         });
       });
+      return describe("Testing sync method options in depth", function() {
+        var ajax_stub;
+
+        ajax_stub = null;
+        beforeEach(function() {
+          ajax_stub = sinon.stub(jQuery, "ajax");
+          return Falcon.cache = false;
+        });
+        afterEach(function() {
+          return ajax_stub.restore();
+        });
+        it("Should fetch properly without options", function() {
+          collectionA.sync('GET');
+          ajax_stub.should.have.been.calledOnce;
+          ajax_stub.should.have.been.calledWithMatch({
+            type: "GET"
+          });
+          ajax_stub.should.have.been.calledWithMatch({
+            url: collectionA.makeUrl("GET")
+          });
+          ajax_stub.should.have.been.calledWithMatch({
+            data: ""
+          });
+          ajax_stub.should.have.been.calledWithMatch({
+            contentType: "application/json"
+          });
+          ajax_stub.should.have.been.calledWithMatch({
+            cache: false
+          });
+          ajax_stub.should.have.been.calledWithMatch({
+            headers: {}
+          });
+          expect(ajax_stub.firstCall.args[0].success).to.be.a("function");
+          expect(ajax_stub.firstCall.args[0].success).to.have.length(3);
+          expect(ajax_stub.firstCall.args[0].error).to.be.a("function");
+          expect(ajax_stub.firstCall.args[0].error).to.have.length(1);
+          expect(ajax_stub.firstCall.args[0].complete).to.be.a("function");
+          return expect(ajax_stub.firstCall.args[0].complete).to.have.length(2);
+        });
+        it("Should allow for a specified parent to override", function() {
+          var model_b;
+
+          collectionA.parent = new ModelB({
+            id: 'b'
+          });
+          collectionA.sync('GET', {
+            parent: (model_b = new ModelB({
+              id: 'b2'
+            }))
+          });
+          return ajax_stub.should.have.been.calledWithMatch({
+            url: collectionA.makeUrl("GET", model_b)
+          });
+        });
+        return it("Should allow for a specified parent to override", function() {
+          collectionA.parent = new ModelB({
+            id: 'b'
+          });
+          collectionA.sync('GET', {
+            parent: null
+          });
+          return ajax_stub.should.have.been.calledWithMatch({
+            url: collectionA.makeUrl("GET", null)
+          });
+        });
+      });
     });
     describe("Testing the remove method", function() {
       var collectionA, model_a1, model_a2, model_a3, model_a4, models;
@@ -1255,6 +1476,73 @@
         fill_stub.should.have.been.calledOnce;
         return fill_stub.should.have.been.deep.calledWith(input, {
           'method': 'prepend'
+        });
+      });
+    });
+    describe("Test the insert method", function() {
+      var collectionA, fill_stub;
+
+      collectionA = null;
+      fill_stub = null;
+      beforeEach(function() {
+        collectionA = new CollectionA([
+          {
+            id: 1,
+            'hello': 'foo'
+          }, {
+            id: 4,
+            'hello': 'bar'
+          }
+        ]);
+        return fill_stub = sinon.stub(collectionA, "fill");
+      });
+      it("Should call the proper fill method when inserting without a specific model", function() {
+        var input;
+
+        collectionA.insert(input = {
+          'hello': 'world'
+        });
+        fill_stub.should.have.been.calledOnce;
+        return fill_stub.should.have.been.deep.calledWith(input, {
+          'method': 'append'
+        });
+      });
+      it("Should call the proper fill method when inserting with a valid model", function() {
+        var input;
+
+        collectionA.insert(input = {
+          'hello': 'world'
+        }, 4);
+        fill_stub.should.have.been.calledOnce;
+        return fill_stub.should.have.been.deep.calledWith(input, {
+          'method': 'insert',
+          'insert_index': 1
+        });
+      });
+      it("Should call the proper fill method when appending with an invalid model", function() {
+        var input;
+
+        collectionA.insert(input = {
+          'hello': 'world'
+        }, 33);
+        fill_stub.should.have.been.calledOnce;
+        return fill_stub.should.have.been.deep.calledWith(input, {
+          'method': 'insert',
+          'insert_index': -1
+        });
+      });
+      return it("Should call the proper fill method when inserting with an iterator", function() {
+        var input;
+
+        collectionA.insert(input = {
+          'hello': 'world'
+        }, (function(m) {
+          return m.get('id') === 1;
+        }));
+        fill_stub.should.have.been.calledOnce;
+        return fill_stub.should.have.been.deep.calledWith(input, {
+          'method': 'insert',
+          'insert_index': 0
         });
       });
     });
@@ -1513,6 +1801,52 @@
         expect(collectionA.at(-1)).to.equal(null);
         expect(collectionA.at(3)).to.equal(null);
         return expect(collectionA.at("HELLO")).to.equal(null);
+      });
+    });
+    describe("Test the indexOf() method", function() {
+      var collectionA, model_a1, model_a2, model_a3, model_a4;
+
+      collectionA = null;
+      model_a1 = model_a2 = model_a3 = model_a4 = null;
+      beforeEach(function() {
+        model_a1 = new ModelA({
+          id: 1
+        });
+        model_a2 = new ModelA({
+          id: 3
+        });
+        model_a3 = new ModelA({
+          id: 5
+        });
+        model_a4 = new ModelA({
+          id: 8
+        });
+        return collectionA = new CollectionA([model_a1, model_a2, model_a3, model_a4, model_a3]);
+      });
+      it("Should find the correct index by model", function() {
+        return expect(collectionA.indexOf(model_a3)).to.equal(2);
+      });
+      it("Should find no match index by model", function() {
+        return expect(collectionA.indexOf(new ModelA)).to.equal(-1);
+      });
+      it("Should find the correct match index by id", function() {
+        return expect(collectionA.indexOf(3)).to.equal(1);
+      });
+      it("Should find the correct match index by truth test method", function() {
+        var index;
+
+        index = collectionA.indexOf(function(model) {
+          return model.get('id') > 4;
+        });
+        return expect(index).to.equal(2);
+      });
+      return it("Should find the no match index by truth test method", function() {
+        var index;
+
+        index = collectionA.indexOf(function(model) {
+          return model.get('id') > 8;
+        });
+        return expect(index).to.equal(-1);
       });
     });
     describe("Test the each() method", function() {

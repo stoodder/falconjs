@@ -34,40 +34,40 @@
       })(Falcon.Model);
       init_stub = sinon.stub(ModelA.prototype, "initialize");
       model = new ModelA;
-      init_stub.should.have.been.calledOnce;
-      init_stub.should.have.been.calledWith();
+      expect(init_stub).to.have.been.calledOnce;
+      expect(init_stub).to.have.been.calledWith();
       init_stub.reset();
       modelA = new ModelA(modelB = new ModelB);
-      init_stub.should.have.been.calledOnce;
-      init_stub.should.have.been.calledWith();
+      expect(init_stub).to.have.been.calledOnce;
+      expect(init_stub).to.have.been.calledWith();
       expect(modelA.parent).to.be.equal(modelB);
       init_stub.reset();
       modelA = new ModelA(data = {
         "hello": "world"
       });
-      init_stub.should.have.been.calledOnce;
-      init_stub.should.have.been.calledWith(data);
+      expect(init_stub).to.have.been.calledOnce;
+      expect(init_stub).to.have.been.calledWith(data);
       expect(modelA.parent).to.be.undefined;
       init_stub.reset();
       modelA = new ModelA(data = {
         "hello": "world"
       }, modelB = new ModelB);
-      init_stub.should.have.been.calledOnce;
-      init_stub.should.have.been.calledWith(data);
+      expect(init_stub).to.have.been.calledOnce;
+      expect(init_stub).to.have.been.calledWith(data);
       expect(modelA.parent).to.be.equal(modelB);
       init_stub.reset();
       modelA = new ModelA(modelB = new ModelB, data = {
         "hello": "world"
       });
-      init_stub.should.have.been.calledOnce;
-      init_stub.should.have.been.calledWith(data);
+      expect(init_stub).to.have.been.calledOnce;
+      expect(init_stub).to.have.been.calledWith(data);
       expect(modelA.parent).to.be.equal(modelB);
       init_stub.reset();
       modelA = new ModelA(dataModel = new Falcon.Model({
         "hello": "world"
       }), modelB = new ModelB);
-      init_stub.should.have.been.calledOnce;
-      init_stub.should.have.been.calledWith(dataModel.unwrap());
+      expect(init_stub).to.have.been.calledOnce;
+      expect(init_stub).to.have.been.calledWith(dataModel.unwrap());
       expect(modelA.parent).to.be.equal(modelB);
       init_stub.reset();
       return init_stub.restore();
@@ -288,7 +288,7 @@
       serialized = modelA.serialize();
       for (key in serialized) {
         value = serialized[key];
-        expect(Falcon.Class.prototype).to.not.include.keys(key);
+        expect(Falcon.Object.prototype).to.not.include.keys(key);
       }
       serialized = modelA.serialize();
       _results = [];
@@ -365,8 +365,7 @@
         return CollectionC;
 
       })(Falcon.Collection);
-      modelA = new ModelA;
-      modelA.fill({
+      modelA = new ModelA({
         "foo": "bar",
         "model_b": {
           "something": "cool"
@@ -380,15 +379,18 @@
         ]
       });
       unwrapped = modelA.unwrap();
-      unwrapped['foo'].should.be.a("function");
-      unwrapped['foo']().should.equal("bar");
-      unwrapped['model_b'].should.be.a("object");
-      unwrapped['model_b']['something'].should.be.a("function");
-      unwrapped['model_b']['something']().should.equal("cool");
-      unwrapped['collection_c'].should.be.a("array");
-      unwrapped['collection_c'].should.have.length(2);
-      unwrapped['collection_c'][0]['hello'].should.equal("world");
-      return unwrapped['collection_c'][1]['hello'].should.equal("world2");
+      expect(unwrapped['foo']).to.be.a("function");
+      expect(unwrapped['foo']()).to.equal("bar");
+      expect(unwrapped['model_b']).to.be.a("object");
+      expect(unwrapped['model_b']['something']).to.be.a("function");
+      expect(unwrapped['model_b']['something']()).to.equal("cool");
+      expect(unwrapped['collection_c']).to.be.a("array");
+      expect(unwrapped['collection_c']).to.have.length(2);
+      expect(unwrapped['collection_c'][0]['hello']).to.equal("world");
+      expect(unwrapped['collection_c'][1]['hello']).to.equal("world2");
+      expect(unwrapped['id']).to.equal(null);
+      expect(unwrapped['parent']).to.be.undefined;
+      return expect(unwrapped['url']).to.be.undefined;
     });
     describe("Testing makeUrl combinations", function() {
       var ModelA, ModelB, ModelC, ModelD, ModelE, _ref, _ref1, _ref2, _ref3, _ref4;
@@ -469,10 +471,10 @@
         modelA = new ModelA({
           id: 1
         });
-        modelA.makeUrl("GET").should.equal("/model_a/1");
-        modelA.makeUrl("POST").should.equal("/model_a");
-        modelA.makeUrl("PUT").should.equal("/model_a/1");
-        return modelA.makeUrl("DELETE").should.equal("/model_a/1");
+        expect(modelA.makeUrl("GET")).to.equal("/model_a/1");
+        expect(modelA.makeUrl("POST")).to.equal("/model_a");
+        expect(modelA.makeUrl("PUT")).to.equal("/model_a/1");
+        return expect(modelA.makeUrl("DELETE")).to.equal("/model_a/1");
       });
       it("Should test the makeUrl method, string id, no baseUrl, no parent, no extension", function() {
         var modelB;
@@ -480,10 +482,10 @@
         modelB = new ModelB({
           id: "b"
         });
-        modelB.makeUrl("GET").should.equal("/model_b/b");
-        modelB.makeUrl("POST").should.equal("/model_b");
-        modelB.makeUrl("PUT").should.equal("/model_b/b");
-        return modelB.makeUrl("DELETE").should.equal("/model_b/b");
+        expect(modelB.makeUrl("GET")).to.equal("/model_b/b");
+        expect(modelB.makeUrl("POST")).to.equal("/model_b");
+        expect(modelB.makeUrl("PUT")).to.equal("/model_b/b");
+        return expect(modelB.makeUrl("DELETE")).to.equal("/model_b/b");
       });
       it("Should test the makeUrl method, numeric id, with shorter baseUrl, no parent, no extension", function() {
         var modelA;
@@ -492,10 +494,10 @@
           id: 1
         });
         Falcon.baseApiUrl = "http://www.falconjs.com";
-        modelA.makeUrl("GET").should.equal("http://www.falconjs.com/model_a/1");
-        modelA.makeUrl("POST").should.equal("http://www.falconjs.com/model_a");
-        modelA.makeUrl("PUT").should.equal("http://www.falconjs.com/model_a/1");
-        return modelA.makeUrl("DELETE").should.equal("http://www.falconjs.com/model_a/1");
+        expect(modelA.makeUrl("GET")).to.equal("http://www.falconjs.com/model_a/1");
+        expect(modelA.makeUrl("POST")).to.equal("http://www.falconjs.com/model_a");
+        expect(modelA.makeUrl("PUT")).to.equal("http://www.falconjs.com/model_a/1");
+        return expect(modelA.makeUrl("DELETE")).to.equal("http://www.falconjs.com/model_a/1");
       });
       it("Should test the makeUrl method, string id, with shorter baseUrl, no parent, no extension", function() {
         var modelB;
@@ -504,10 +506,10 @@
           id: "b"
         });
         Falcon.baseApiUrl = "http://www.falconjs.com";
-        modelB.makeUrl("GET").should.equal("http://www.falconjs.com/model_b/b");
-        modelB.makeUrl("POST").should.equal("http://www.falconjs.com/model_b");
-        modelB.makeUrl("PUT").should.equal("http://www.falconjs.com/model_b/b");
-        return modelB.makeUrl("DELETE").should.equal("http://www.falconjs.com/model_b/b");
+        expect(modelB.makeUrl("GET")).to.equal("http://www.falconjs.com/model_b/b");
+        expect(modelB.makeUrl("POST")).to.equal("http://www.falconjs.com/model_b");
+        expect(modelB.makeUrl("PUT")).to.equal("http://www.falconjs.com/model_b/b");
+        return expect(modelB.makeUrl("DELETE")).to.equal("http://www.falconjs.com/model_b/b");
       });
       it("Should test the makeUrl method, numeric id, with baseUrl, no parent, no extension", function() {
         var modelA;
@@ -516,10 +518,10 @@
           id: 1
         });
         Falcon.baseApiUrl = "http://www.falconjs.com/";
-        modelA.makeUrl("GET").should.equal("http://www.falconjs.com/model_a/1");
-        modelA.makeUrl("POST").should.equal("http://www.falconjs.com/model_a");
-        modelA.makeUrl("PUT").should.equal("http://www.falconjs.com/model_a/1");
-        return modelA.makeUrl("DELETE").should.equal("http://www.falconjs.com/model_a/1");
+        expect(modelA.makeUrl("GET")).to.equal("http://www.falconjs.com/model_a/1");
+        expect(modelA.makeUrl("POST")).to.equal("http://www.falconjs.com/model_a");
+        expect(modelA.makeUrl("PUT")).to.equal("http://www.falconjs.com/model_a/1");
+        return expect(modelA.makeUrl("DELETE")).to.equal("http://www.falconjs.com/model_a/1");
       });
       it("Should test the makeUrl method, string id, with baseUrl, no parent, no extension", function() {
         var modelB;
@@ -528,10 +530,10 @@
           id: "b"
         });
         Falcon.baseApiUrl = "http://www.falconjs.com/";
-        modelB.makeUrl("GET").should.equal("http://www.falconjs.com/model_b/b");
-        modelB.makeUrl("POST").should.equal("http://www.falconjs.com/model_b");
-        modelB.makeUrl("PUT").should.equal("http://www.falconjs.com/model_b/b");
-        return modelB.makeUrl("DELETE").should.equal("http://www.falconjs.com/model_b/b");
+        expect(modelB.makeUrl("GET")).to.equal("http://www.falconjs.com/model_b/b");
+        expect(modelB.makeUrl("POST")).to.equal("http://www.falconjs.com/model_b");
+        expect(modelB.makeUrl("PUT")).to.equal("http://www.falconjs.com/model_b/b");
+        return expect(modelB.makeUrl("DELETE")).to.equal("http://www.falconjs.com/model_b/b");
       });
       it("Should test the makeUrl method, no baseUrl, with parent, no extension", function() {
         var modelA, modelB;
@@ -542,10 +544,10 @@
         modelA = new ModelA({
           id: 2
         }, modelB);
-        modelA.makeUrl("GET").should.equal("/model_b/b/model_a/2");
-        modelA.makeUrl("POST").should.equal("/model_b/b/model_a");
-        modelA.makeUrl("PUT").should.equal("/model_b/b/model_a/2");
-        return modelA.makeUrl("DELETE").should.equal("/model_b/b/model_a/2");
+        expect(modelA.makeUrl("GET")).to.equal("/model_b/b/model_a/2");
+        expect(modelA.makeUrl("POST")).to.equal("/model_b/b/model_a");
+        expect(modelA.makeUrl("PUT")).to.equal("/model_b/b/model_a/2");
+        return expect(modelA.makeUrl("DELETE")).to.equal("/model_b/b/model_a/2");
       });
       it("Should test the makeUrl method, with baseUrl, with parent, no extension", function() {
         var modelA, modelB;
@@ -557,10 +559,10 @@
           id: 2
         }, modelB);
         Falcon.baseApiUrl = "http://www.falconjs.com/";
-        modelA.makeUrl("GET").should.equal("http://www.falconjs.com/model_b/b/model_a/2");
-        modelA.makeUrl("POST").should.equal("http://www.falconjs.com/model_b/b/model_a");
-        modelA.makeUrl("PUT").should.equal("http://www.falconjs.com/model_b/b/model_a/2");
-        return modelA.makeUrl("DELETE").should.equal("http://www.falconjs.com/model_b/b/model_a/2");
+        expect(modelA.makeUrl("GET")).to.equal("http://www.falconjs.com/model_b/b/model_a/2");
+        expect(modelA.makeUrl("POST")).to.equal("http://www.falconjs.com/model_b/b/model_a");
+        expect(modelA.makeUrl("PUT")).to.equal("http://www.falconjs.com/model_b/b/model_a/2");
+        return expect(modelA.makeUrl("DELETE")).to.equal("http://www.falconjs.com/model_b/b/model_a/2");
       });
       it("Should test the makeUrl method, no baseUrl, with explicit parent, no extension", function() {
         var modelA, modelB;
@@ -571,10 +573,10 @@
         modelA = new ModelA({
           id: 3
         });
-        modelA.makeUrl("GET", modelB).should.equal("/model_b/b/model_a/3");
-        modelA.makeUrl("POST", modelB).should.equal("/model_b/b/model_a");
-        modelA.makeUrl("PUT", modelB).should.equal("/model_b/b/model_a/3");
-        return modelA.makeUrl("DELETE", modelB).should.equal("/model_b/b/model_a/3");
+        expect(modelA.makeUrl("GET", modelB)).to.equal("/model_b/b/model_a/3");
+        expect(modelA.makeUrl("POST", modelB)).to.equal("/model_b/b/model_a");
+        expect(modelA.makeUrl("PUT", modelB)).to.equal("/model_b/b/model_a/3");
+        return expect(modelA.makeUrl("DELETE", modelB)).to.equal("/model_b/b/model_a/3");
       });
       it("Should test the makeUrl method, with baseUrl, with explicit parent, no extension", function() {
         var modelA, modelB;
@@ -586,10 +588,10 @@
           id: 3
         });
         Falcon.baseApiUrl = "http://www.falconjs.com/";
-        modelA.makeUrl("GET", modelB).should.equal("http://www.falconjs.com/model_b/b/model_a/3");
-        modelA.makeUrl("POST", modelB).should.equal("http://www.falconjs.com/model_b/b/model_a");
-        modelA.makeUrl("PUT", modelB).should.equal("http://www.falconjs.com/model_b/b/model_a/3");
-        return modelA.makeUrl("DELETE", modelB).should.equal("http://www.falconjs.com/model_b/b/model_a/3");
+        expect(modelA.makeUrl("GET", modelB)).to.equal("http://www.falconjs.com/model_b/b/model_a/3");
+        expect(modelA.makeUrl("POST", modelB)).to.equal("http://www.falconjs.com/model_b/b/model_a");
+        expect(modelA.makeUrl("PUT", modelB)).to.equal("http://www.falconjs.com/model_b/b/model_a/3");
+        return expect(modelA.makeUrl("DELETE", modelB)).to.equal("http://www.falconjs.com/model_b/b/model_a/3");
       });
       it("Should test the makeUrl method, no baseUrl, with overriden parent, no extension", function() {
         var modelA, modelB;
@@ -600,10 +602,10 @@
         modelA = new ModelA({
           id: 3
         }, modelB);
-        modelA.makeUrl("GET", null).should.equal("/model_a/3");
-        modelA.makeUrl("POST", null).should.equal("/model_a");
-        modelA.makeUrl("PUT", null).should.equal("/model_a/3");
-        return modelA.makeUrl("DELETE", null).should.equal("/model_a/3");
+        expect(modelA.makeUrl("GET", null)).to.equal("/model_a/3");
+        expect(modelA.makeUrl("POST", null)).to.equal("/model_a");
+        expect(modelA.makeUrl("PUT", null)).to.equal("/model_a/3");
+        return expect(modelA.makeUrl("DELETE", null)).to.equal("/model_a/3");
       });
       it("Should test the makeUrl method, with baseUrl, with overriden parent, no extension", function() {
         var modelA, modelB;
@@ -615,10 +617,10 @@
           id: 3
         }, modelB);
         Falcon.baseApiUrl = "http://www.falconjs.com/";
-        modelA.makeUrl("GET", null).should.equal("http://www.falconjs.com/model_a/3");
-        modelA.makeUrl("POST", null).should.equal("http://www.falconjs.com/model_a");
-        modelA.makeUrl("PUT", null).should.equal("http://www.falconjs.com/model_a/3");
-        return modelA.makeUrl("DELETE", null).should.equal("http://www.falconjs.com/model_a/3");
+        expect(modelA.makeUrl("GET", null)).to.equal("http://www.falconjs.com/model_a/3");
+        expect(modelA.makeUrl("POST", null)).to.equal("http://www.falconjs.com/model_a");
+        expect(modelA.makeUrl("PUT", null)).to.equal("http://www.falconjs.com/model_a/3");
+        return expect(modelA.makeUrl("DELETE", null)).to.equal("http://www.falconjs.com/model_a/3");
       });
       it("Should test the makeUrl method, numeric index, no baseUrl, no parent, with extension", function() {
         var modelC;
@@ -626,10 +628,10 @@
         modelC = new ModelC({
           id: 1
         });
-        modelC.makeUrl("GET").should.equal("/model_c/1.json");
-        modelC.makeUrl("POST").should.equal("/model_c.json");
-        modelC.makeUrl("PUT").should.equal("/model_c/1.json");
-        return modelC.makeUrl("DELETE").should.equal("/model_c/1.json");
+        expect(modelC.makeUrl("GET")).to.equal("/model_c/1.json");
+        expect(modelC.makeUrl("POST")).to.equal("/model_c.json");
+        expect(modelC.makeUrl("PUT")).to.equal("/model_c/1.json");
+        return expect(modelC.makeUrl("DELETE")).to.equal("/model_c/1.json");
       });
       it("Should test the makeUrl method, numeric index, with shorter baseUrl, no parent, with extension", function() {
         var modelC;
@@ -638,10 +640,10 @@
           id: 1
         });
         Falcon.baseApiUrl = "http://www.falconjs.com";
-        modelC.makeUrl("GET").should.equal("http://www.falconjs.com/model_c/1.json");
-        modelC.makeUrl("POST").should.equal("http://www.falconjs.com/model_c.json");
-        modelC.makeUrl("PUT").should.equal("http://www.falconjs.com/model_c/1.json");
-        return modelC.makeUrl("DELETE").should.equal("http://www.falconjs.com/model_c/1.json");
+        expect(modelC.makeUrl("GET")).to.equal("http://www.falconjs.com/model_c/1.json");
+        expect(modelC.makeUrl("POST")).to.equal("http://www.falconjs.com/model_c.json");
+        expect(modelC.makeUrl("PUT")).to.equal("http://www.falconjs.com/model_c/1.json");
+        return expect(modelC.makeUrl("DELETE")).to.equal("http://www.falconjs.com/model_c/1.json");
       });
       it("Should test the makeUrl method, numeric index, no baseUrl, no parent, with extension", function() {
         var modelC;
@@ -650,10 +652,10 @@
           id: 1
         });
         Falcon.baseApiUrl = "http://www.falconjs.com/";
-        modelC.makeUrl("GET").should.equal("http://www.falconjs.com/model_c/1.json");
-        modelC.makeUrl("POST").should.equal("http://www.falconjs.com/model_c.json");
-        modelC.makeUrl("PUT").should.equal("http://www.falconjs.com/model_c/1.json");
-        return modelC.makeUrl("DELETE").should.equal("http://www.falconjs.com/model_c/1.json");
+        expect(modelC.makeUrl("GET")).to.equal("http://www.falconjs.com/model_c/1.json");
+        expect(modelC.makeUrl("POST")).to.equal("http://www.falconjs.com/model_c.json");
+        expect(modelC.makeUrl("PUT")).to.equal("http://www.falconjs.com/model_c/1.json");
+        return expect(modelC.makeUrl("DELETE")).to.equal("http://www.falconjs.com/model_c/1.json");
       });
       it("Should test the makeUrl method, no baseUrl, with parent, with extension", function() {
         var modelB, modelC;
@@ -664,10 +666,10 @@
         modelC = new ModelC({
           id: 2
         }, modelB);
-        modelC.makeUrl("GET").should.equal("/model_b/b/model_c/2.json");
-        modelC.makeUrl("POST").should.equal("/model_b/b/model_c.json");
-        modelC.makeUrl("PUT").should.equal("/model_b/b/model_c/2.json");
-        return modelC.makeUrl("DELETE").should.equal("/model_b/b/model_c/2.json");
+        expect(modelC.makeUrl("GET")).to.equal("/model_b/b/model_c/2.json");
+        expect(modelC.makeUrl("POST")).to.equal("/model_b/b/model_c.json");
+        expect(modelC.makeUrl("PUT")).to.equal("/model_b/b/model_c/2.json");
+        return expect(modelC.makeUrl("DELETE")).to.equal("/model_b/b/model_c/2.json");
       });
       it("Should test the makeUrl method, with baseUrl, with parent, with extension", function() {
         var modelB, modelC;
@@ -679,10 +681,10 @@
           id: 2
         }, modelB);
         Falcon.baseApiUrl = "http://www.falconjs.com/";
-        modelC.makeUrl("GET").should.equal("http://www.falconjs.com/model_b/b/model_c/2.json");
-        modelC.makeUrl("POST").should.equal("http://www.falconjs.com/model_b/b/model_c.json");
-        modelC.makeUrl("PUT").should.equal("http://www.falconjs.com/model_b/b/model_c/2.json");
-        return modelC.makeUrl("DELETE").should.equal("http://www.falconjs.com/model_b/b/model_c/2.json");
+        expect(modelC.makeUrl("GET")).to.equal("http://www.falconjs.com/model_b/b/model_c/2.json");
+        expect(modelC.makeUrl("POST")).to.equal("http://www.falconjs.com/model_b/b/model_c.json");
+        expect(modelC.makeUrl("PUT")).to.equal("http://www.falconjs.com/model_b/b/model_c/2.json");
+        return expect(modelC.makeUrl("DELETE")).to.equal("http://www.falconjs.com/model_b/b/model_c/2.json");
       });
       it("Should test the makeUrl method, no baseUrl, with explicit parent, with extension", function() {
         var modelB, modelC;
@@ -693,10 +695,10 @@
         modelC = new ModelC({
           id: 3
         });
-        modelC.makeUrl("GET", modelB).should.equal("/model_b/b/model_c/3.json");
-        modelC.makeUrl("POST", modelB).should.equal("/model_b/b/model_c.json");
-        modelC.makeUrl("PUT", modelB).should.equal("/model_b/b/model_c/3.json");
-        return modelC.makeUrl("DELETE", modelB).should.equal("/model_b/b/model_c/3.json");
+        expect(modelC.makeUrl("GET", modelB)).to.equal("/model_b/b/model_c/3.json");
+        expect(modelC.makeUrl("POST", modelB)).to.equal("/model_b/b/model_c.json");
+        expect(modelC.makeUrl("PUT", modelB)).to.equal("/model_b/b/model_c/3.json");
+        return expect(modelC.makeUrl("DELETE", modelB)).to.equal("/model_b/b/model_c/3.json");
       });
       it("Should test the makeUrl method, with baseUrl, with  explicit parent, with extension", function() {
         var modelB, modelC;
@@ -708,10 +710,10 @@
           id: 3
         });
         Falcon.baseApiUrl = "http://www.falconjs.com/";
-        modelC.makeUrl("GET", modelB).should.equal("http://www.falconjs.com/model_b/b/model_c/3.json");
-        modelC.makeUrl("POST", modelB).should.equal("http://www.falconjs.com/model_b/b/model_c.json");
-        modelC.makeUrl("PUT", modelB).should.equal("http://www.falconjs.com/model_b/b/model_c/3.json");
-        return modelC.makeUrl("DELETE", modelB).should.equal("http://www.falconjs.com/model_b/b/model_c/3.json");
+        expect(modelC.makeUrl("GET", modelB)).to.equal("http://www.falconjs.com/model_b/b/model_c/3.json");
+        expect(modelC.makeUrl("POST", modelB)).to.equal("http://www.falconjs.com/model_b/b/model_c.json");
+        expect(modelC.makeUrl("PUT", modelB)).to.equal("http://www.falconjs.com/model_b/b/model_c/3.json");
+        return expect(modelC.makeUrl("DELETE", modelB)).to.equal("http://www.falconjs.com/model_b/b/model_c/3.json");
       });
       it("Should test the makeUrl method, string index, no baseUrl, no parent, with extension", function() {
         var modelD;
@@ -719,10 +721,10 @@
         modelD = new ModelD({
           id: "d"
         });
-        modelD.makeUrl("GET").should.equal("/model_d/d.json");
-        modelD.makeUrl("POST").should.equal("/model_d.json");
-        modelD.makeUrl("PUT").should.equal("/model_d/d.json");
-        return modelD.makeUrl("DELETE").should.equal("/model_d/d.json");
+        expect(modelD.makeUrl("GET")).to.equal("/model_d/d.json");
+        expect(modelD.makeUrl("POST")).to.equal("/model_d.json");
+        expect(modelD.makeUrl("PUT")).to.equal("/model_d/d.json");
+        return expect(modelD.makeUrl("DELETE")).to.equal("/model_d/d.json");
       });
       it("Should test the makeUrl method, string index, with shorter baseUrl, no parent, with extension", function() {
         var modelD;
@@ -731,10 +733,10 @@
           id: "d"
         });
         Falcon.baseApiUrl = "http://www.falconjs.com";
-        modelD.makeUrl("GET").should.equal("http://www.falconjs.com/model_d/d.json");
-        modelD.makeUrl("POST").should.equal("http://www.falconjs.com/model_d.json");
-        modelD.makeUrl("PUT").should.equal("http://www.falconjs.com/model_d/d.json");
-        return modelD.makeUrl("DELETE").should.equal("http://www.falconjs.com/model_d/d.json");
+        expect(modelD.makeUrl("GET")).to.equal("http://www.falconjs.com/model_d/d.json");
+        expect(modelD.makeUrl("POST")).to.equal("http://www.falconjs.com/model_d.json");
+        expect(modelD.makeUrl("PUT")).to.equal("http://www.falconjs.com/model_d/d.json");
+        return expect(modelD.makeUrl("DELETE")).to.equal("http://www.falconjs.com/model_d/d.json");
       });
       it("Should test the makeUrl method, string index, with baseUrl, no parent, with extension", function() {
         var modelD;
@@ -743,10 +745,10 @@
           id: "d"
         });
         Falcon.baseApiUrl = "http://www.falconjs.com/";
-        modelD.makeUrl("GET").should.equal("http://www.falconjs.com/model_d/d.json");
-        modelD.makeUrl("POST").should.equal("http://www.falconjs.com/model_d.json");
-        modelD.makeUrl("PUT").should.equal("http://www.falconjs.com/model_d/d.json");
-        return modelD.makeUrl("DELETE").should.equal("http://www.falconjs.com/model_d/d.json");
+        expect(modelD.makeUrl("GET")).to.equal("http://www.falconjs.com/model_d/d.json");
+        expect(modelD.makeUrl("POST")).to.equal("http://www.falconjs.com/model_d.json");
+        expect(modelD.makeUrl("PUT")).to.equal("http://www.falconjs.com/model_d/d.json");
+        return expect(modelD.makeUrl("DELETE")).to.equal("http://www.falconjs.com/model_d/d.json");
       });
       it("Should test the makeUrl method, no baseUrl, with non-ext. parent, with extension", function() {
         var modelA, modelD;
@@ -757,10 +759,10 @@
         modelA = new ModelA({
           id: 2
         }, modelD);
-        modelA.makeUrl("GET").should.equal("/model_d/d/model_a/2");
-        modelA.makeUrl("POST").should.equal("/model_d/d/model_a");
-        modelA.makeUrl("PUT").should.equal("/model_d/d/model_a/2");
-        return modelA.makeUrl("DELETE").should.equal("/model_d/d/model_a/2");
+        expect(modelA.makeUrl("GET")).to.equal("/model_d/d/model_a/2");
+        expect(modelA.makeUrl("POST")).to.equal("/model_d/d/model_a");
+        expect(modelA.makeUrl("PUT")).to.equal("/model_d/d/model_a/2");
+        return expect(modelA.makeUrl("DELETE")).to.equal("/model_d/d/model_a/2");
       });
       it("Should test the makeUrl method, with baseUrl, with non-ext. parent, with extension", function() {
         var modelA, modelD;
@@ -772,10 +774,10 @@
           id: 2
         }, modelD);
         Falcon.baseApiUrl = "http://www.falconjs.com/";
-        modelA.makeUrl("GET").should.equal("http://www.falconjs.com/model_d/d/model_a/2");
-        modelA.makeUrl("POST").should.equal("http://www.falconjs.com/model_d/d/model_a");
-        modelA.makeUrl("PUT").should.equal("http://www.falconjs.com/model_d/d/model_a/2");
-        return modelA.makeUrl("DELETE").should.equal("http://www.falconjs.com/model_d/d/model_a/2");
+        expect(modelA.makeUrl("GET")).to.equal("http://www.falconjs.com/model_d/d/model_a/2");
+        expect(modelA.makeUrl("POST")).to.equal("http://www.falconjs.com/model_d/d/model_a");
+        expect(modelA.makeUrl("PUT")).to.equal("http://www.falconjs.com/model_d/d/model_a/2");
+        return expect(modelA.makeUrl("DELETE")).to.equal("http://www.falconjs.com/model_d/d/model_a/2");
       });
       it("Should test the makeUrl method, no baseUrl, with explicit non-ext. parent, with extension", function() {
         var modelA, modelD;
@@ -786,10 +788,10 @@
         modelA = new ModelA({
           id: 3
         });
-        modelA.makeUrl("GET", modelD).should.equal("/model_d/d/model_a/3");
-        modelA.makeUrl("POST", modelD).should.equal("/model_d/d/model_a");
-        modelA.makeUrl("PUT", modelD).should.equal("/model_d/d/model_a/3");
-        return modelA.makeUrl("DELETE", modelD).should.equal("/model_d/d/model_a/3");
+        expect(modelA.makeUrl("GET", modelD)).to.equal("/model_d/d/model_a/3");
+        expect(modelA.makeUrl("POST", modelD)).to.equal("/model_d/d/model_a");
+        expect(modelA.makeUrl("PUT", modelD)).to.equal("/model_d/d/model_a/3");
+        return expect(modelA.makeUrl("DELETE", modelD)).to.equal("/model_d/d/model_a/3");
       });
       it("Should test the makeUrl method, no baseUrl, with explicit non-ext. parent, with extension", function() {
         var modelA, modelD;
@@ -801,10 +803,10 @@
           id: 3
         });
         Falcon.baseApiUrl = "http://www.falconjs.com/";
-        modelA.makeUrl("GET", modelD).should.equal("http://www.falconjs.com/model_d/d/model_a/3");
-        modelA.makeUrl("POST", modelD).should.equal("http://www.falconjs.com/model_d/d/model_a");
-        modelA.makeUrl("PUT", modelD).should.equal("http://www.falconjs.com/model_d/d/model_a/3");
-        return modelA.makeUrl("DELETE", modelD).should.equal("http://www.falconjs.com/model_d/d/model_a/3");
+        expect(modelA.makeUrl("GET", modelD)).to.equal("http://www.falconjs.com/model_d/d/model_a/3");
+        expect(modelA.makeUrl("POST", modelD)).to.equal("http://www.falconjs.com/model_d/d/model_a");
+        expect(modelA.makeUrl("PUT", modelD)).to.equal("http://www.falconjs.com/model_d/d/model_a/3");
+        return expect(modelA.makeUrl("DELETE", modelD)).to.equal("http://www.falconjs.com/model_d/d/model_a/3");
       });
       it("Should test the makeUrl method, no baseUrl, with parent, with extension", function() {
         var modelC, modelD;
@@ -815,10 +817,10 @@
         modelC = new ModelC({
           id: 2
         }, modelD);
-        modelC.makeUrl("GET").should.equal("/model_d/d/model_c/2.json");
-        modelC.makeUrl("POST").should.equal("/model_d/d/model_c.json");
-        modelC.makeUrl("PUT").should.equal("/model_d/d/model_c/2.json");
-        return modelC.makeUrl("DELETE").should.equal("/model_d/d/model_c/2.json");
+        expect(modelC.makeUrl("GET")).to.equal("/model_d/d/model_c/2.json");
+        expect(modelC.makeUrl("POST")).to.equal("/model_d/d/model_c.json");
+        expect(modelC.makeUrl("PUT")).to.equal("/model_d/d/model_c/2.json");
+        return expect(modelC.makeUrl("DELETE")).to.equal("/model_d/d/model_c/2.json");
       });
       it("Should test the makeUrl method, with baseUrl, with parent, with extension", function() {
         var modelC, modelD;
@@ -830,10 +832,10 @@
           id: 2
         }, modelD);
         Falcon.baseApiUrl = "http://www.falconjs.com/";
-        modelC.makeUrl("GET").should.equal("http://www.falconjs.com/model_d/d/model_c/2.json");
-        modelC.makeUrl("POST").should.equal("http://www.falconjs.com/model_d/d/model_c.json");
-        modelC.makeUrl("PUT").should.equal("http://www.falconjs.com/model_d/d/model_c/2.json");
-        return modelC.makeUrl("DELETE").should.equal("http://www.falconjs.com/model_d/d/model_c/2.json");
+        expect(modelC.makeUrl("GET")).to.equal("http://www.falconjs.com/model_d/d/model_c/2.json");
+        expect(modelC.makeUrl("POST")).to.equal("http://www.falconjs.com/model_d/d/model_c.json");
+        expect(modelC.makeUrl("PUT")).to.equal("http://www.falconjs.com/model_d/d/model_c/2.json");
+        return expect(modelC.makeUrl("DELETE")).to.equal("http://www.falconjs.com/model_d/d/model_c/2.json");
       });
       it("Should test the makeUrl method, no baseUrl, with  explicit parent, with extension", function() {
         var modelC, modelD;
@@ -844,10 +846,10 @@
         modelC = new ModelC({
           id: 3
         });
-        modelC.makeUrl("GET", modelD).should.equal("/model_d/d/model_c/3.json");
-        modelC.makeUrl("POST", modelD).should.equal("/model_d/d/model_c.json");
-        modelC.makeUrl("PUT", modelD).should.equal("/model_d/d/model_c/3.json");
-        return modelC.makeUrl("DELETE", modelD).should.equal("/model_d/d/model_c/3.json");
+        expect(modelC.makeUrl("GET", modelD)).to.equal("/model_d/d/model_c/3.json");
+        expect(modelC.makeUrl("POST", modelD)).to.equal("/model_d/d/model_c.json");
+        expect(modelC.makeUrl("PUT", modelD)).to.equal("/model_d/d/model_c/3.json");
+        return expect(modelC.makeUrl("DELETE", modelD)).to.equal("/model_d/d/model_c/3.json");
       });
       it("Should test the makeUrl method, with baseUrl, with explicit parent, with extension", function() {
         var modelC, modelD;
@@ -859,10 +861,10 @@
           id: 3
         });
         Falcon.baseApiUrl = "http://www.falconjs.com/";
-        modelC.makeUrl("GET", modelD).should.equal("http://www.falconjs.com/model_d/d/model_c/3.json");
-        modelC.makeUrl("POST", modelD).should.equal("http://www.falconjs.com/model_d/d/model_c.json");
-        modelC.makeUrl("PUT", modelD).should.equal("http://www.falconjs.com/model_d/d/model_c/3.json");
-        return modelC.makeUrl("DELETE", modelD).should.equal("http://www.falconjs.com/model_d/d/model_c/3.json");
+        expect(modelC.makeUrl("GET", modelD)).to.equal("http://www.falconjs.com/model_d/d/model_c/3.json");
+        expect(modelC.makeUrl("POST", modelD)).to.equal("http://www.falconjs.com/model_d/d/model_c.json");
+        expect(modelC.makeUrl("PUT", modelD)).to.equal("http://www.falconjs.com/model_d/d/model_c/3.json");
+        return expect(modelC.makeUrl("DELETE", modelD)).to.equal("http://www.falconjs.com/model_d/d/model_c/3.json");
       });
       it("Should be able to use url as a function, no parent", function() {
         var modelE;
@@ -870,10 +872,10 @@
         modelE = new ModelE({
           id: "e"
         });
-        modelE.makeUrl("GET").should.equal("/model_e/e");
-        modelE.makeUrl("POST").should.equal("/model_e");
-        modelE.makeUrl("PUT").should.equal("/model_e/e");
-        return modelE.makeUrl("DELETE").should.equal("/model_e/e");
+        expect(modelE.makeUrl("GET")).to.equal("/model_e/e");
+        expect(modelE.makeUrl("POST")).to.equal("/model_e");
+        expect(modelE.makeUrl("PUT")).to.equal("/model_e/e");
+        return expect(modelE.makeUrl("DELETE")).to.equal("/model_e/e");
       });
       it("Should be able to use url as a function, with parent", function() {
         var modelE;
@@ -883,10 +885,10 @@
         }, new ModelB({
           id: "b"
         }));
-        modelE.makeUrl("GET").should.equal("/model_b/b/model_e/e");
-        modelE.makeUrl("POST").should.equal("/model_b/b/model_e");
-        modelE.makeUrl("PUT").should.equal("/model_b/b/model_e/e");
-        return modelE.makeUrl("DELETE").should.equal("/model_b/b/model_e/e");
+        expect(modelE.makeUrl("GET")).to.equal("/model_b/b/model_e/e");
+        expect(modelE.makeUrl("POST")).to.equal("/model_b/b/model_e");
+        expect(modelE.makeUrl("PUT")).to.equal("/model_b/b/model_e/e");
+        return expect(modelE.makeUrl("DELETE")).to.equal("/model_b/b/model_e/e");
       });
       it("Should be able to use override the url, no parent", function() {
         var modelE;
@@ -895,10 +897,10 @@
           id: "e",
           url: "model_e2"
         });
-        modelE.makeUrl("GET").should.equal("/model_e2/e");
-        modelE.makeUrl("POST").should.equal("/model_e2");
-        modelE.makeUrl("PUT").should.equal("/model_e2/e");
-        return modelE.makeUrl("DELETE").should.equal("/model_e2/e");
+        expect(modelE.makeUrl("GET")).to.equal("/model_e2/e");
+        expect(modelE.makeUrl("POST")).to.equal("/model_e2");
+        expect(modelE.makeUrl("PUT")).to.equal("/model_e2/e");
+        return expect(modelE.makeUrl("DELETE")).to.equal("/model_e2/e");
       });
       return it("Should be able to use override the url,with parent", function() {
         var modelE;
@@ -909,10 +911,10 @@
         }, new ModelB({
           id: "b"
         }));
-        modelE.makeUrl("GET").should.equal("/model_b/b/model_e3/e");
-        modelE.makeUrl("POST").should.equal("/model_b/b/model_e3");
-        modelE.makeUrl("PUT").should.equal("/model_b/b/model_e3/e");
-        return modelE.makeUrl("DELETE").should.equal("/model_b/b/model_e3/e");
+        expect(modelE.makeUrl("GET")).to.equal("/model_b/b/model_e3/e");
+        expect(modelE.makeUrl("POST")).to.equal("/model_b/b/model_e3");
+        expect(modelE.makeUrl("PUT")).to.equal("/model_b/b/model_e3/e");
+        return expect(modelE.makeUrl("DELETE")).to.equal("/model_b/b/model_e3/e");
       });
     });
     describe("Tesing model sync methods", function() {
@@ -943,45 +945,45 @@
         });
         it("Should call sync correctly on fetch without options", function() {
           modelA.fetch();
-          sync_stub.should.have.been.calledOnce;
-          return sync_stub.should.have.been.calledWith("GET", void 0);
+          expect(sync_stub).to.have.been.calledOnce;
+          return expect(sync_stub).to.have.been.calledWith("GET", void 0);
         });
         it("Should call sync correctly on fetch with options", function() {
           modelA.fetch({});
-          sync_stub.should.have.been.calledOnce;
-          return sync_stub.should.have.been.calledWith("GET", {});
+          expect(sync_stub).to.have.been.calledOnce;
+          return expect(sync_stub).to.have.been.calledWith("GET", {});
         });
         it("Should call sync correctly on create without options", function() {
           modelA.create();
-          sync_stub.should.have.been.calledOnce;
-          return sync_stub.should.have.been.calledWith("POST", void 0);
+          expect(sync_stub).to.have.been.calledOnce;
+          return expect(sync_stub).to.have.been.calledWith("POST", void 0);
         });
         it("Should call sync correctly on create with options", function() {
           modelA.create({});
-          sync_stub.should.have.been.calledOnce;
-          return sync_stub.should.have.been.calledWith("POST", {});
+          expect(sync_stub).to.have.been.calledOnce;
+          return expect(sync_stub).to.have.been.calledWith("POST", {});
         });
         it("Should call sync correctly on save without options", function() {
           modelA.set('id', 1);
           modelA.save();
-          sync_stub.should.have.been.calledOnce;
-          return sync_stub.should.have.been.calledWith("PUT", void 0);
+          expect(sync_stub).to.have.been.calledOnce;
+          return expect(sync_stub).to.have.been.calledWith("PUT", void 0);
         });
         it("Should call sync correctly on save with options", function() {
           modelA.set('id', 1);
           modelA.save({});
-          sync_stub.should.have.been.calledOnce;
-          return sync_stub.should.have.been.calledWith("PUT", {});
+          expect(sync_stub).to.have.been.calledOnce;
+          return expect(sync_stub).to.have.been.calledWith("PUT", {});
         });
         it("Should call sync correctly on destroy without options", function() {
           modelA.destroy();
-          sync_stub.should.have.been.calledOnce;
-          return sync_stub.should.have.been.calledWith("DELETE", void 0);
+          expect(sync_stub).to.have.been.calledOnce;
+          return expect(sync_stub).to.have.been.calledWith("DELETE", void 0);
         });
         return it("Should call sync correctly on destroy with options", function() {
           modelA.destroy({});
-          sync_stub.should.have.been.calledOnce;
-          return sync_stub.should.have.been.calledWith("DELETE", {});
+          expect(sync_stub).to.have.been.calledOnce;
+          return expect(sync_stub).to.have.been.calledWith("DELETE", {});
         });
       });
       describe("Testing sync method $.ajax calls", function() {
@@ -1015,23 +1017,23 @@
             id: 1
           });
           modelA.fetch();
-          ajax_stub.should.have.been.calledOnce;
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledOnce;
+          expect(ajax_stub).to.have.been.calledWithMatch({
             type: "GET"
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             url: modelA.makeUrl("GET")
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             data: ""
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             contentType: "application/json"
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             cache: false
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             headers: {}
           });
           expect(ajax_stub.firstCall.args[0].success).to.be.a("function");
@@ -1062,25 +1064,25 @@
             error: (_error = function() {}),
             complete: (_complete = function() {})
           });
-          ajax_stub.should.have.been.calledOnce;
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledOnce;
+          expect(ajax_stub).to.have.been.calledWithMatch({
             type: "GET"
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             url: "http://www.falconjs.com"
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             data: JSON.stringify({
               "hello": "world"
             })
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             contentType: "text/html"
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             cache: true
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             headers: {
               "User-Agent": "User-Agent",
               "Chrome": "Chrome"
@@ -1152,25 +1154,25 @@
             error: (_error = function() {}),
             complete: (_complete = function() {})
           });
-          ajax_stub.should.have.been.calledOnce;
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledOnce;
+          expect(ajax_stub).to.have.been.calledWithMatch({
             type: "PUT"
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             url: "http://www.falconjs.com"
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             data: JSON.stringify({
               "hello": "world"
             })
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             contentType: "text/html"
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             cache: true
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             headers: {
               "User-Agent": "User-Agent",
               "Chrome": "Chrome"
@@ -1193,25 +1195,25 @@
             id: 1
           });
           modelA.create();
-          ajax_stub.should.have.been.calledOnce;
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledOnce;
+          expect(ajax_stub).to.have.been.calledWithMatch({
             type: "POST"
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             url: modelA.makeUrl("POST")
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             data: JSON.stringify({
               "id": 1
             })
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             contentType: "application/json"
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             cache: false
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             headers: {}
           });
           expect(ajax_stub.firstCall.args[0].success).to.be.a("function");
@@ -1242,25 +1244,25 @@
             error: (_error = function() {}),
             complete: (_complete = function() {})
           });
-          ajax_stub.should.have.been.calledOnce;
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledOnce;
+          expect(ajax_stub).to.have.been.calledWithMatch({
             type: "POST"
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             url: "http://www.falconjs.com"
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             data: JSON.stringify({
               "hello": "world"
             })
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             contentType: "text/html"
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             cache: true
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             headers: {
               "User-Agent": "User-Agent",
               "Chrome": "Chrome"
@@ -1283,23 +1285,23 @@
             id: 1
           });
           modelA.destroy();
-          ajax_stub.should.have.been.calledOnce;
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledOnce;
+          expect(ajax_stub).to.have.been.calledWithMatch({
             type: "DELETE"
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             url: modelA.makeUrl("DELETE")
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             data: ""
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             contentType: "application/json"
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             cache: false
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             headers: {}
           });
           expect(ajax_stub.firstCall.args[0].success).to.be.a("function");
@@ -1330,25 +1332,25 @@
             error: (_error = function() {}),
             complete: (_complete = function() {})
           });
-          ajax_stub.should.have.been.calledOnce;
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledOnce;
+          expect(ajax_stub).to.have.been.calledWithMatch({
             type: "DELETE"
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             url: "http://www.falconjs.com"
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             data: JSON.stringify({
               "hello": "world"
             })
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             contentType: "text/html"
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             cache: true
           });
-          ajax_stub.should.have.been.calledWithMatch({
+          expect(ajax_stub).to.have.been.calledWithMatch({
             headers: {
               "User-Agent": "User-Agent",
               "Chrome": "Chrome"
@@ -1365,7 +1367,7 @@
           return expect(ajax_stub.firstCall.args[0].complete).to.not.equal(_complete);
         });
       });
-      return describe("Testing sync method XHR responses", function() {
+      describe("Testing sync method XHR responses", function() {
         var ModelA, complete_spy, create_spy, data, destroy_spy, error_data, error_spy, fetch_spy, fill_stub, modelA, options, parse_stub, save_spy, server, success_data, success_spy, _ref;
 
         ModelA = (function(_super) {
@@ -1427,149 +1429,252 @@
           modelA.fetch(options);
           server.respondWith([200, {}, JSON.stringify(data)]);
           server.respond();
-          parse_stub.callCount.should.equal(1);
-          parse_stub.firstCall.args[0].should.deep.equal(data);
-          fill_stub.callCount.should.equal(1);
-          fill_stub.firstCall.args[0].should.deep.equal(success_data);
-          fill_stub.should.have.been.calledAfter(parse_stub);
-          fetch_spy.should.have.been.calledOnce;
-          create_spy.should.not.have.been.called;
-          save_spy.should.not.have.been.called;
-          destroy_spy.should.not.have.been.called;
-          fetch_spy.should.have.been.calledAfter(fill_stub);
-          success_spy.callCount.should.equal(1);
-          success_spy.should.have.been.calledOn(modelA);
-          success_spy.firstCall.args.length.should.equal(4);
-          success_spy.firstCall.args[0].should.equal(modelA);
-          error_spy.should.not.have.been.called;
-          complete_spy.callCount.should.equal(1);
-          complete_spy.should.have.been.calledOn(modelA);
-          complete_spy.firstCall.args.length.should.equal(3);
-          complete_spy.firstCall.args[0].should.equal(modelA);
-          return complete_spy.should.have.been.calledAfter(success_spy);
+          expect(parse_stub.callCount).to.equal(1);
+          expect(parse_stub.firstCall.args[0]).to.deep.equal(data);
+          expect(fill_stub.callCount).to.equal(1);
+          expect(fill_stub.firstCall.args[0]).to.deep.equal(success_data);
+          expect(fill_stub).to.have.been.calledAfter(parse_stub);
+          expect(fetch_spy).to.have.been.calledOnce;
+          expect(create_spy).to.not.have.been.called;
+          expect(save_spy).to.not.have.been.called;
+          expect(destroy_spy).to.not.have.been.called;
+          expect(fetch_spy).to.have.been.calledAfter(fill_stub);
+          expect(success_spy.callCount).to.equal(1);
+          expect(success_spy).to.have.been.calledOn(modelA);
+          expect(success_spy.firstCall.args.length).to.equal(4);
+          expect(success_spy.firstCall.args[0]).to.equal(modelA);
+          expect(error_spy).to.not.have.been.called;
+          expect(complete_spy.callCount).to.equal(1);
+          expect(complete_spy).to.have.been.calledOn(modelA);
+          expect(complete_spy.firstCall.args.length).to.equal(3);
+          expect(complete_spy.firstCall.args[0]).to.equal(modelA);
+          return expect(complete_spy).to.have.been.calledAfter(success_spy);
         });
         it("Should not fill when fill option is false on fetch", function() {
           options.fill = false;
           modelA.fetch(options);
           server.respondWith([200, {}, JSON.stringify(data)]);
           server.respond();
-          parse_stub.callCount.should.equal(1);
-          parse_stub.firstCall.args[0].should.deep.equal(data);
-          fill_stub.callCount.should.equal(0);
-          fetch_spy.should.have.been.calledOnce;
-          create_spy.should.not.have.been.called;
-          save_spy.should.not.have.been.called;
-          destroy_spy.should.not.have.been.called;
-          fetch_spy.should.have.been.calledAfter(parse_stub);
-          success_spy.callCount.should.equal(1);
-          success_spy.should.have.been.calledOn(modelA);
-          success_spy.firstCall.args.length.should.equal(4);
-          success_spy.firstCall.args[0].should.equal(modelA);
-          error_spy.should.not.have.been.called;
-          complete_spy.callCount.should.equal(1);
-          complete_spy.should.have.been.calledOn(modelA);
-          complete_spy.firstCall.args.length.should.equal(3);
-          complete_spy.firstCall.args[0].should.equal(modelA);
-          return complete_spy.should.have.been.calledAfter(success_spy);
+          expect(parse_stub.callCount).to.equal(1);
+          expect(parse_stub.firstCall.args[0]).to.deep.equal(data);
+          expect(fill_stub.callCount).to.equal(0);
+          expect(fetch_spy).to.have.been.calledOnce;
+          expect(create_spy).to.not.have.been.called;
+          expect(save_spy).to.not.have.been.called;
+          expect(destroy_spy).to.not.have.been.called;
+          expect(fetch_spy).to.have.been.calledAfter(parse_stub);
+          expect(success_spy.callCount).to.equal(1);
+          expect(success_spy).to.have.been.calledOn(modelA);
+          expect(success_spy.firstCall.args.length).to.equal(4);
+          expect(success_spy.firstCall.args[0]).to.equal(modelA);
+          expect(error_spy).to.not.have.been.called;
+          expect(complete_spy.callCount).to.equal(1);
+          expect(complete_spy).to.have.been.calledOn(modelA);
+          expect(complete_spy.firstCall.args.length).to.equal(3);
+          expect(complete_spy.firstCall.args[0]).to.equal(modelA);
+          return expect(complete_spy).to.have.been.calledAfter(success_spy);
         });
         it("Should call the error response on an errornous result", function() {
           modelA.fetch(options);
           server.respondWith([400, {}, JSON.stringify(error_data)]);
           server.respond();
-          parse_stub.callCount.should.equal(0);
-          fill_stub.callCount.should.equal(0);
-          fetch_spy.should.not.have.been.called;
-          create_spy.should.not.have.been.called;
-          save_spy.should.not.have.been.called;
-          destroy_spy.should.not.have.been.called;
-          success_spy.callCount.should.equal(0);
-          error_spy.callCount.should.equal(1);
-          error_spy.firstCall.args.length.should.equal(3);
-          error_spy.should.have.been.calledOn(modelA);
-          complete_spy.firstCall.args[0].should.equal(modelA);
-          complete_spy.callCount.should.equal(1);
-          complete_spy.should.have.been.calledOn(modelA);
-          complete_spy.firstCall.args.length.should.equal(3);
-          complete_spy.firstCall.args[0].should.equal(modelA);
-          return complete_spy.should.have.been.calledAfter(error_spy);
+          expect(parse_stub.callCount).to.equal(0);
+          expect(fill_stub.callCount).to.equal(0);
+          expect(fetch_spy).to.not.have.been.called;
+          expect(create_spy).to.not.have.been.called;
+          expect(save_spy).to.not.have.been.called;
+          expect(destroy_spy).to.not.have.been.called;
+          expect(success_spy.callCount).to.equal(0);
+          expect(error_spy.callCount).to.equal(1);
+          expect(error_spy.firstCall.args.length).to.equal(3);
+          expect(error_spy).to.have.been.calledOn(modelA);
+          expect(complete_spy.firstCall.args[0]).to.equal(modelA);
+          expect(complete_spy.callCount).to.equal(1);
+          expect(complete_spy).to.have.been.calledOn(modelA);
+          expect(complete_spy.firstCall.args.length).to.equal(3);
+          expect(complete_spy.firstCall.args[0]).to.equal(modelA);
+          return expect(complete_spy).to.have.been.calledAfter(error_spy);
         });
         it("Should call the success response on create", function() {
           modelA.create(options);
           server.respondWith([200, {}, JSON.stringify(data)]);
           server.respond();
-          parse_stub.callCount.should.equal(1);
-          parse_stub.firstCall.args[0].should.deep.equal(data);
-          fill_stub.callCount.should.equal(1);
-          fill_stub.firstCall.args[0].should.deep.equal(success_data);
-          fill_stub.should.have.been.calledAfter(parse_stub);
-          fetch_spy.should.not.have.been.called;
-          create_spy.callCount.should.equal(1);
-          save_spy.should.not.have.been.called;
-          destroy_spy.should.not.have.been.called;
-          success_spy.callCount.should.equal(1);
-          success_spy.should.have.been.calledOn(modelA);
-          success_spy.firstCall.args.length.should.equal(4);
-          success_spy.firstCall.args[0].should.equal(modelA);
-          error_spy.should.not.have.been.called;
-          complete_spy.callCount.should.equal(1);
-          complete_spy.should.have.been.calledOn(modelA);
-          complete_spy.firstCall.args.length.should.equal(3);
-          complete_spy.firstCall.args[0].should.equal(modelA);
-          return complete_spy.should.have.been.calledAfter(success_spy);
+          expect(parse_stub.callCount).to.equal(1);
+          expect(parse_stub.firstCall.args[0]).to.deep.equal(data);
+          expect(fill_stub.callCount).to.equal(1);
+          expect(fill_stub.firstCall.args[0]).to.deep.equal(success_data);
+          expect(fill_stub).to.have.been.calledAfter(parse_stub);
+          expect(fetch_spy).to.not.have.been.called;
+          expect(create_spy.callCount).to.equal(1);
+          expect(save_spy).to.not.have.been.called;
+          expect(destroy_spy).to.not.have.been.called;
+          expect(success_spy.callCount).to.equal(1);
+          expect(success_spy).to.have.been.calledOn(modelA);
+          expect(success_spy.firstCall.args.length).to.equal(4);
+          expect(success_spy.firstCall.args[0]).to.equal(modelA);
+          expect(error_spy).to.not.have.been.called;
+          expect(complete_spy.callCount).to.equal(1);
+          expect(complete_spy).to.have.been.calledOn(modelA);
+          expect(complete_spy.firstCall.args.length).to.equal(3);
+          expect(complete_spy.firstCall.args[0]).to.equal(modelA);
+          return expect(complete_spy).to.have.been.calledAfter(success_spy);
         });
         it("Should call the success response on save", function() {
           modelA.set('id', 1);
           modelA.save(options);
           server.respondWith([200, {}, JSON.stringify(data)]);
           server.respond();
-          parse_stub.callCount.should.equal(1);
-          parse_stub.firstCall.args[0].should.deep.equal(data);
-          fill_stub.callCount.should.equal(1);
-          fill_stub.firstCall.args[0].should.deep.equal(success_data);
-          fill_stub.should.have.been.calledAfter(parse_stub);
-          fetch_spy.should.not.have.been.called;
-          create_spy.should.not.have.been.called;
-          save_spy.callCount.should.equal(1);
-          destroy_spy.should.not.have.been.called;
-          success_spy.callCount.should.equal(1);
-          success_spy.should.have.been.calledOn(modelA);
-          success_spy.firstCall.args.length.should.equal(4);
-          success_spy.firstCall.args[0].should.equal(modelA);
-          error_spy.should.not.have.been.called;
-          complete_spy.callCount.should.equal(1);
-          complete_spy.should.have.been.calledOn(modelA);
-          complete_spy.firstCall.args.length.should.equal(3);
-          complete_spy.firstCall.args[0].should.equal(modelA);
-          return complete_spy.should.have.been.calledAfter(success_spy);
+          expect(parse_stub.callCount).to.equal(1);
+          expect(parse_stub.firstCall.args[0]).to.deep.equal(data);
+          expect(fill_stub.callCount).to.equal(1);
+          expect(fill_stub.firstCall.args[0]).to.deep.equal(success_data);
+          expect(fill_stub).to.have.been.calledAfter(parse_stub);
+          expect(fetch_spy).to.not.have.been.called;
+          expect(create_spy).to.not.have.been.called;
+          expect(save_spy.callCount).to.equal(1);
+          expect(destroy_spy).to.not.have.been.called;
+          expect(success_spy.callCount).to.equal(1);
+          expect(success_spy).to.have.been.calledOn(modelA);
+          expect(success_spy.firstCall.args.length).to.equal(4);
+          expect(success_spy.firstCall.args[0]).to.equal(modelA);
+          expect(error_spy).to.not.have.been.called;
+          expect(complete_spy.callCount).to.equal(1);
+          expect(complete_spy).to.have.been.calledOn(modelA);
+          expect(complete_spy.firstCall.args.length).to.equal(3);
+          expect(complete_spy.firstCall.args[0]).to.equal(modelA);
+          return expect(complete_spy).to.have.been.calledAfter(success_spy);
         });
         return it("Should call the success response on destroy", function() {
           modelA.destroy(options);
           server.respondWith([200, {}, JSON.stringify(data)]);
           server.respond();
-          parse_stub.callCount.should.equal(1);
-          parse_stub.firstCall.args[0].should.deep.equal(data);
-          fill_stub.callCount.should.equal(1);
-          fill_stub.firstCall.args[0].should.deep.equal(success_data);
-          fill_stub.should.have.been.calledAfter(parse_stub);
-          fetch_spy.should.not.have.been.called;
-          create_spy.should.not.have.been.called;
-          save_spy.should.not.have.been.called;
-          destroy_spy.callCount.should.equal(1);
-          success_spy.callCount.should.equal(1);
-          success_spy.should.have.been.calledOn(modelA);
-          success_spy.firstCall.args.length.should.equal(4);
-          success_spy.firstCall.args[0].should.equal(modelA);
-          error_spy.should.not.have.been.called;
-          complete_spy.callCount.should.equal(1);
-          complete_spy.should.have.been.calledOn(modelA);
-          complete_spy.firstCall.args.length.should.equal(3);
-          complete_spy.firstCall.args[0].should.equal(modelA);
-          return complete_spy.should.have.been.calledAfter(success_spy);
+          expect(parse_stub.callCount).to.equal(1);
+          expect(parse_stub.firstCall.args[0]).to.deep.equal(data);
+          expect(fill_stub.callCount).to.equal(1);
+          expect(fill_stub.firstCall.args[0]).to.deep.equal(success_data);
+          expect(fill_stub).to.have.been.calledAfter(parse_stub);
+          expect(fetch_spy).to.not.have.been.called;
+          expect(create_spy).to.not.have.been.called;
+          expect(save_spy).to.not.have.been.called;
+          expect(destroy_spy.callCount).to.equal(1);
+          expect(success_spy.callCount).to.equal(1);
+          expect(success_spy).to.have.been.calledOn(modelA);
+          expect(success_spy.firstCall.args.length).to.equal(4);
+          expect(success_spy.firstCall.args[0]).to.equal(modelA);
+          expect(error_spy).to.not.have.been.called;
+          expect(complete_spy.callCount).to.equal(1);
+          expect(complete_spy).to.have.been.calledOn(modelA);
+          expect(complete_spy.firstCall.args.length).to.equal(3);
+          expect(complete_spy.firstCall.args[0]).to.equal(modelA);
+          return expect(complete_spy).to.have.been.calledAfter(success_spy);
+        });
+      });
+      return describe("Testing sync method options in depth", function() {
+        var ModelA, ModelB, ajax_stub, _ref, _ref1;
+
+        ModelA = (function(_super) {
+          __extends(ModelA, _super);
+
+          function ModelA() {
+            _ref = ModelA.__super__.constructor.apply(this, arguments);
+            return _ref;
+          }
+
+          ModelA.prototype.url = "model_a";
+
+          return ModelA;
+
+        })(Falcon.Model);
+        ModelB = (function(_super) {
+          __extends(ModelB, _super);
+
+          function ModelB() {
+            _ref1 = ModelB.__super__.constructor.apply(this, arguments);
+            return _ref1;
+          }
+
+          ModelB.prototype.url = "model_b";
+
+          return ModelB;
+
+        })(Falcon.Model);
+        ajax_stub = null;
+        beforeEach(function() {
+          ajax_stub = sinon.stub(jQuery, "ajax");
+          return Falcon.cache = false;
+        });
+        afterEach(function() {
+          return ajax_stub.restore();
+        });
+        it("Should sync properly without options", function() {
+          var modelA;
+
+          modelA = new ModelA({
+            id: 1
+          });
+          modelA.sync('GET');
+          expect(ajax_stub).to.have.been.calledOnce;
+          expect(ajax_stub).to.have.been.calledWithMatch({
+            type: "GET"
+          });
+          expect(ajax_stub).to.have.been.calledWithMatch({
+            url: modelA.makeUrl("GET")
+          });
+          expect(ajax_stub).to.have.been.calledWithMatch({
+            data: ""
+          });
+          expect(ajax_stub).to.have.been.calledWithMatch({
+            contentType: "application/json"
+          });
+          expect(ajax_stub).to.have.been.calledWithMatch({
+            cache: false
+          });
+          expect(ajax_stub).to.have.been.calledWithMatch({
+            headers: {}
+          });
+          expect(ajax_stub.firstCall.args[0].success).to.be.a("function");
+          expect(ajax_stub.firstCall.args[0].success).to.have.length(3);
+          expect(ajax_stub.firstCall.args[0].error).to.be.a("function");
+          expect(ajax_stub.firstCall.args[0].error).to.have.length(1);
+          expect(ajax_stub.firstCall.args[0].complete).to.be.a("function");
+          return expect(ajax_stub.firstCall.args[0].complete).to.have.length(2);
+        });
+        it("Should allow for a specified parent to override", function() {
+          var modelA, model_b;
+
+          modelA = new ModelA({
+            id: 1
+          }, new ModelB({
+            id: 'b'
+          }));
+          modelA.sync('GET', {
+            parent: (model_b = new ModelB({
+              id: 'b2'
+            }))
+          });
+          return expect(ajax_stub).to.have.been.calledWithMatch({
+            url: modelA.makeUrl("GET", model_b)
+          });
+        });
+        return it("Should allow for a null parent", function() {
+          var modelA;
+
+          modelA = new ModelA({
+            id: 1
+          }, new ModelB({
+            id: 'b'
+          }));
+          modelA.sync('GET', {
+            parent: null
+          });
+          return expect(ajax_stub).to.have.been.calledWithMatch({
+            url: modelA.makeUrl("GET", null)
+          });
         });
       });
     });
     it("Should match equality properly", function() {
-      var ModelA, modelA_1, modelA_2, modelA_a, _ref;
+      var ModelA, modelA_1, modelA_2, modelA_a, modelA_null_1, modelA_null_2, _ref;
 
       ModelA = (function(_super) {
         __extends(ModelA, _super);
@@ -1591,6 +1696,8 @@
       modelA_a = new ModelA({
         id: 'a'
       });
+      modelA_null_1 = new ModelA;
+      modelA_null_2 = new ModelA;
       expect(modelA_1.equals(modelA_1)).to.be["true"];
       expect(modelA_1.equals(modelA_2)).to.be["false"];
       expect(modelA_1.equals(1)).to.be["true"];
@@ -1600,9 +1707,11 @@
       expect(modelA_a.equals(modelA_a)).to.be["true"];
       expect(modelA_a.equals(modelA_2)).to.be["false"];
       expect(modelA_a.equals('a')).to.be["true"];
-      return expect(modelA_a.equals(new ModelA({
+      expect(modelA_a.equals(new ModelA({
         id: 'a'
       }))).to.be["true"];
+      expect(modelA_null_1.equals(modelA_null_2)).to.be["false"];
+      return expect(modelA_null_1.equals(modelA_null_1)).to.be["true"];
     });
     it("Should implement mixins properly", function() {
       var ModelA, ModelB, mixin_spy, modelA, _ref, _ref1;
@@ -1651,10 +1760,10 @@
       expect(modelA.model_b.test).not.to.be.undefined;
       expect(modelA.model_b.test).to.equal('123');
       modelA.hello('world');
-      mixin_spy.should.have.been.calledOnce;
-      mixin_spy.should.have.been.calledOn(modelA);
-      mixin_spy.firstCall.args[0].should.equal(modelA);
-      return mixin_spy.firstCall.args[1].should.equal('world');
+      expect(mixin_spy).to.have.been.calledOnce;
+      expect(mixin_spy).to.have.been.calledOn(modelA);
+      expect(mixin_spy.firstCall.args[0]).to.equal(modelA);
+      return expect(mixin_spy.firstCall.args[1]).to.equal('world');
     });
     describe("Testing clone combinations", function() {
       var ModelA, ModelB, ModelC, _ref, _ref1, _ref2;
@@ -1706,12 +1815,12 @@
           foo: "bar"
         }, modelB);
         modelA2 = modelA1.clone();
-        modelA1.should.not.equal(modelA2);
-        modelA1.parent.should.equal(modelA2.parent);
-        modelA1.id.should.equal(modelA2.id);
-        modelA2.hello.should.equal("world");
+        expect(modelA1).to.not.equal(modelA2);
+        expect(modelA1.parent).to.equal(modelA2.parent);
+        expect(modelA1.id).to.equal(modelA2.id);
+        expect(modelA2.hello).to.equal("world");
         expect(ko.isObservable(modelA2.foo)).to.be["true"];
-        return modelA2.foo().should.equal("bar");
+        return expect(modelA2.foo()).to.equal("bar");
       });
       it("Should clone properly with overriden parent", function() {
         var modelA1, modelA2, modelB, modelC;
@@ -1724,12 +1833,12 @@
           foo: ko.observable("bar")
         }, modelB);
         modelA2 = modelA1.clone(modelC);
-        modelA2.should.not.equal(modelA1);
-        modelA2.id.should.equal(modelA1.id);
-        modelA2.parent.should.equal(modelC);
-        modelA2.hello.should.equal("world");
+        expect(modelA2).to.not.equal(modelA1);
+        expect(modelA2.id).to.equal(modelA1.id);
+        expect(modelA2.parent).to.equal(modelC);
+        expect(modelA2.hello).to.equal("world");
         expect(ko.isObservable(modelA2.foo)).to.be["true"];
-        return modelA2.foo().should.equal("bar");
+        return expect(modelA2.foo()).to.equal("bar");
       });
       return it("Should clone properly with overriden null parent", function() {
         var modelA1, modelA2, modelB;
@@ -1741,12 +1850,12 @@
           foo: ko.observable("bar")
         }, modelB);
         modelA2 = modelA1.clone(null);
-        modelA2.should.not.equal(modelA1);
-        modelA2.id.should.equal(modelA1.id);
+        expect(modelA2).to.not.equal(modelA1);
+        expect(modelA2.id).to.equal(modelA1.id);
         expect(modelA2.parent).to.be.equal(null);
-        modelA2.hello.should.equal("world");
+        expect(modelA2.hello).to.equal("world");
         expect(ko.isObservable(modelA2.foo)).to.be["true"];
-        return modelA2.foo().should.equal("bar");
+        return expect(modelA2.foo()).to.equal("bar");
       });
     });
     describe("Testing copy() method", function() {
@@ -1799,7 +1908,7 @@
           foo: ko.observable("bar")
         }, modelB);
         modelA2 = modelA1.copy();
-        modelA1.should.not.equal(modelA2);
+        expect(modelA1).to.not.equal(modelA2);
         expect(modelA2.hello).not.to.exist;
         expect(modelA2.foo).to.exist;
         expect(modelA2.id).to.exist;
@@ -1819,7 +1928,7 @@
           foo: ko.observable("bar")
         }, modelB);
         modelA2 = modelA1.copy(["id", "foo"]);
-        modelA1.should.not.equal(modelA2);
+        expect(modelA1).to.not.equal(modelA2);
         expect(modelA2.hello).not.to.exist;
         expect(modelA2.foo).to.exist;
         expect(modelA2.id).to.exist;
@@ -1839,7 +1948,7 @@
           foo: ko.observable("bar")
         }, modelB);
         modelA2 = modelA1.copy(["id", "hello"], null);
-        modelA1.should.not.equal(modelA2);
+        expect(modelA1).to.not.equal(modelA2);
         expect(modelA2.hello).to.exist;
         expect(modelA2.foo).to.exist;
         expect(modelA2.id).to.exist;
@@ -1860,7 +1969,7 @@
           foo: ko.observable("bar")
         }, modelB);
         modelA2 = modelA1.copy(["hello"], null);
-        modelA1.should.not.equal(modelA2);
+        expect(modelA1).to.not.equal(modelA2);
         expect(modelA2.hello).to.exist;
         expect(modelA2.foo).to.exist;
         expect(modelA2.parent).not.to.exist;
@@ -1881,7 +1990,7 @@
           foo: ko.observable("bar")
         }, modelB);
         modelA2 = modelA1.copy(["id", "hello"], modelC);
-        modelA1.should.not.equal(modelA2);
+        expect(modelA1).to.not.equal(modelA2);
         expect(modelA2.hello).to.exist;
         expect(modelA2.foo).to.exist;
         expect(modelA2.id).to.exist;
@@ -1904,7 +2013,7 @@
           foo: ko.observable("bar")
         }, modelB);
         modelA2 = modelA1.copy(["hello"], modelC);
-        modelA1.should.not.equal(modelA2);
+        expect(modelA1).to.not.equal(modelA2);
         expect(modelA2.hello).to.exist;
         expect(modelA2.foo).to.exist;
         expect(modelA2.parent).to.exist;

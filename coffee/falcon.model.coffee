@@ -3,7 +3,7 @@
 # Class: Falcon.Model
 #
 #==============================================================================================
-class Falcon.Model extends Falcon.Class
+class Falcon.Model extends Falcon.Object
 	#--------------------------------------------------------
 	# Method: Falcon.Model.extend()
 	#	static method used to replicate inhertiance in
@@ -16,7 +16,7 @@ class Falcon.Model extends Falcon.Class
 	# Returns:
 	#	_(Object)_ - The new class definition
 	#--------------------------------------------------------
-	@extend = (properties) -> Falcon.Class.extend(Falcon.Model, properties)
+	@extend = (properties) -> Falcon.Object.extend(Falcon.Model, properties)
 
 	#--------------------------------------------------------
 	# Member: Falcon.Model#id
@@ -83,45 +83,45 @@ class Falcon.Model extends Falcon.Class
 
 	#--------------------------------------------------------
 	# Method: Falcon.Model#get()
-	#	Gets am observable-less value for a specific key
+	#	Gets am observable-less value for a specific attribute
 	#
 	# Arguments:
-	#	**key** _(string)_ - The key to look up
+	#	**attribute** _(string)_ - The attribute to look up
 	#
 	# Returns:
-	#	_(mixed)_ - The unwrapped value at the specific key
+	#	_(mixed)_ - The unwrapped value at the specific attribute
 	#--------------------------------------------------------
-	get: (key) ->
-		return @undefined unless isString( key )
-		return ko.utils.unwrapObservable( @[key] )
+	get: (attribute) ->
+		return @undefined unless isString( attribute )
+		return ko.utils.unwrapObservable( @[attribute] )
 	#END get
 
 	#--------------------------------------------------------
 	# Method: Falcon.Model#set()
-	#	Sets a value for the specific key, creating one if it does nto exist
+	#	Sets a value for the specific attribute, creating one if it does nto exist
 	#
 	# Arguments:
-	#	**key** _(string)_ - The key to look up
+	#	**attribute** _(string)_ - The attribute to look up
 	#	**value** -(mixed)_ - The value to assign
 	#
 	# Arguments:
-	#	**key** _(Object)_ - An object of values to set
+	#	**attribute** _(Object)_ - An object of values to set
 	#
 	# Returns:
 	#	_(Falcon.Model)_ - This Model
 	#--------------------------------------------------------
-	set: (key, value) ->
-		if isObject( key )
-			@set(k, v) for k, v of key
+	set: (attribute, value) ->
+		if isObject( attribute )
+			@set(k, v) for k, v of attribute
 			return this
 		#END if
 		
-		return this unless isString( key )
+		return this unless isString( attribute )
 		
-		if ko.isObservable( @[key] )
-			@[key](value)
+		if ko.isObservable( @[attribute] )
+			@[attribute](value)
 		else
-			@[key] = value
+			@[attribute] = value
 		#END if
 
 		return this
@@ -129,21 +129,21 @@ class Falcon.Model extends Falcon.Class
 
 	#--------------------------------------------------------
 	# Method: Falcon.Model#toggle()
-	#	Toggles the value between true/false on the specific key
+	#	Toggles the value between true/false on the specific attribute
 	#
 	# Arguments:
-	#	**key** _(string)_ - The key to look up
+	#	**attribute** _(string)_ - The attribute to look up
 	#
 	# Returns:
-	#	_(mixed)_ - The unwrapped value at the specific key
+	#	_(mixed)_ - The unwrapped value at the specific attribute
 	#--------------------------------------------------------
-	toggle: (key) ->
-		return @set(key, not @get(key) )
+	toggle: (attribute) ->
+		return @set(attribute, not @get(attribute) )
 	#END toggle
 
 	#----------------------------------------------------------------------------------------------
 	# Method: Falcon.Model#parse()
-	#	parses the response data from an XHR request
+	#	Parses the response data from an XHR request
 	#
 	# Arguments:
 	#	**data** _(Object)_ - The xhr response data
@@ -151,7 +151,7 @@ class Falcon.Model extends Falcon.Class
 	#	**xhr** _(Object)_ - The XHR object
 	#
 	# Returns:
-	#	_Object_ - Parsing on a model expects an object to be returned
+	#	_(Object)_ - Parsing on a model expects an object to be returned
 	#----------------------------------------------------------------------------------------------
 	parse: (data, options, xhr) ->
 		return data
@@ -212,8 +212,7 @@ class Falcon.Model extends Falcon.Class
 	unwrap: () ->
 		unwrapped = {}
 
-		for attr of this when ( attr is "id" or not Falcon.Model.prototype[attr]? )
-			value = this[attr]
+		for attr, value of this when ( attr is "id" or not ( attr of Falcon.Model.prototype ) )
 			unwrapped[attr] = if Falcon.isDataObject(value) then value.unwrap() else value
 		#END for
 
@@ -226,7 +225,7 @@ class Falcon.Model extends Falcon.Class
 	#	that are primitive and that we wish to be able to send back to the server
 	#
 	# Arguments:
-	#	**attributes** _(Araay)_ -	The attributes that should be included in the 
+	#	**attributes** _(Array)_ -	The attributes that should be included in the 
 	#	                      		serialization "id" is always included. If 
 	#	                      		none given, all attributes from this models 'attributes' 
 	#	                      		member are serialized
@@ -268,14 +267,17 @@ class Falcon.Model extends Falcon.Class
 		
 	#--------------------------------------------------------
 	# Method: Falcon.Model#makeURL()
-	#	generates a URL based on this model's url, the parent model of this model, 
+	#	Generates a URL based on this model's url, the parent model of this model, 
 	#	the type of request we're making and Falcon's defined baseApiUrl
 	#
 	# Arguments:
-	#	**type** _(string)_ - The type of request we're making (GET, POST, PUT, DELETE)
+	#	**type** _(String)_ - The type of request we're making (GET, POST, PUT, DELETE)
+	#	**parent** _(Falcon.Model)_ - Optional override of the model's parent to generate 
+	#								  the url with. If parent is 'null' then this model will 
+	#								  act as the root node.
 	#
 	# Returns:
-	#	_String_ - The generated URL
+	#	_(String)_ - The generated URL
 	#--------------------------------------------------------
 	makeUrl: (type, parent) ->
 		url = if isFunction(@url) then @url() else @url
@@ -374,7 +376,7 @@ class Falcon.Model extends Falcon.Class
 		options.success = (->) unless isFunction(options.success)
 		options.complete = (->) unless isFunction(options.complete)
 		options.error = (->) unless isFunction(options.error)
-		options.parent = @parent unless Falcon.isModel(options.parent)
+		options.parent = @parent unless Falcon.isModel( options.parent ) or options.parent is null
 		options.attributes = null unless options.attributes?
 		options.params = {} unless isObject( options.params ) 
 		options.fill = true unless isBoolean( options.fill )
@@ -417,15 +419,15 @@ class Falcon.Model extends Falcon.Class
 				data = JSON.parse( xhr.responseText ) if not data? and isString( xhr.responseText )
 				data ?= {}
 
-				data = @parse( data, options, xhr )
+				parsed_data = @parse( data, options, xhr )
 
-				@fill(data, options) if options.fill
+				@fill(parsed_data, options) if options.fill
 
 				switch type
-					when "GET" then @trigger("fetch", data)
-					when "POST" then @trigger("create", data)
-					when "PUT" then @trigger("save", data)
-					when "DELETE" then @trigger("destroy", data)
+					when "GET" then @trigger("fetch", parsed_data)
+					when "POST" then @trigger("create", parsed_data)
+					when "PUT" then @trigger("save", parsed_data)
+					when "DELETE" then @trigger("destroy", parsed_data)
 				#END switch
 
 				options.success.call(context, this, data, status, xhr)
@@ -524,7 +526,10 @@ class Falcon.Model extends Falcon.Class
 		model = ko.utils.unwrapObservable( model )
 
 		if Falcon.isModel( model )
-			return model.get("id") is @get("id")
+			id = @get("id")
+			other_id = model.get("id")
+			return model.get("id") is @get("id") if id? and other_id?
+			return model is @
 		else if isNumber( model ) or isString( model )
 			return model is @get("id")
 		#END if
