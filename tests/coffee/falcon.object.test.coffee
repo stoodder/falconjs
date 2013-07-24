@@ -93,6 +93,7 @@ describe "Tesing event functionality", ->
 			observables:
 				'hello': 'world'
 				'foo': 'baz'
+				'arr': ['1', '2']
 				'test': -> 'method'
 				'_another': 'good'
 				'another':
@@ -159,6 +160,13 @@ describe "Tesing event functionality", ->
 		it "Should have propogated defaults in the child class", ->
 			expect( klass.clazz.id ).to.equal 'z'
 			expect( klass.clazz.im ).to.equal 'here'
+		#END it
+
+		it "Should have an observable array", ->
+			expect( ko.isObservable( klass.arr ) ).to.be.true
+			expect( klass.arr() ).to.be.instanceof Array
+			expect( klass.arr().length ).to.equal 2
+			expect( klass.arr() ).to.not.equal( Klass::observables.arr ) #Make sure this is a clone, not the original array definition
 		#END it
 	#END describe
 #END describe

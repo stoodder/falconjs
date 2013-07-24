@@ -667,6 +667,7 @@ class Falcon.Collection extends Falcon.Object
 	#	_(Falcon.Model)_ - The last model on the list, may be null
 	#--------------------------------------------------------
 	pop: ->
+		@__falcon_collection__change_count__++
 		item = @models.pop()
 		@length( @models().length )
 		return item
@@ -1000,7 +1001,7 @@ class Falcon.Collection extends Falcon.Object
 	#	_(Falcon.Collection)_ - This instance
 	#--------------------------------------------------------
 	reset: () -> 
-		@__falcon_collection__change_count__ += 1
+		@__falcon_collection__change_count__++
 		if @models?
 			@models([])
 		else

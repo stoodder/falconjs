@@ -1,5 +1,12 @@
 class Falcon.Object
 	#--------------------------------------------------------
+	# Attribute: __falcon_object__current_cid__
+	#	Private variable that acts as a counter for all falcon objects
+	#	so that they have a unique client id.
+	#--------------------------------------------------------
+	__falcon_object__current_cid__ = 0
+
+	#--------------------------------------------------------
 	# Attribute: Falcon.Object#observables
 	#	This is a list of the default observables and values for
 	#	this view on each instantiation. If the value is a function
@@ -70,20 +77,28 @@ class Falcon.Object
 	#--------------------------------------------------------
 	# Local event storage
 	#--------------------------------------------------------
-	__falcon_class__events__: null
+	__falcon_object__events__: null
+
+	#--------------------------------------------------------
+	# The unique client id of this falcon object
+	#--------------------------------------------------------
+	__falcon_object__cid__: null
 
 	#--------------------------------------------------------
 	# Method: Falcon.Object()
 	#	The constructor method
 	#--------------------------------------------------------
 	constructor: ->
-		@__falcon_class__events__ = {}
+		@__falcon_object__events__ = {}
+		@__falcon_object__cid__ = __falcon_object__current_cid__++
 
 		#Setup the other defaults
 		if isObject( @defaults )
 			for attr, value of @defaults
 				if isFunction( value  )
 					this[attr] = value.call(@)
+				else if isObject( value )
+					this[attr] = clone( value )
 				else
 					this[attr] = value
 				#ENd if
@@ -105,7 +120,7 @@ class Falcon.Object
 						'owner': @
 					#END computed
 				else if isArray( value )
-					@[attr] = ko.observableArray( value )
+					@[attr] = ko.observableArray( value.slice(0) )
 				else
 					@[attr] = ko.observable( value )
 				#END if
@@ -133,7 +148,7 @@ class Falcon.Object
 
 		return this if isEmpty(event)
 
-		( @__falcon_class__events__[event] ?= [] ).push({action, context})
+		( @__falcon_object__events__[event] ?= [] ).push({action, context})
 
 		return this
 	#END on
@@ -154,13 +169,13 @@ class Falcon.Object
 
 		event = trim(event).toLowerCase()
 
-		return this if isEmpty(event) or not @__falcon_class__events__[event]?
+		return this if isEmpty(event) or not @__falcon_object__events__[event]?
 
 		if isFunction( action )
-			@__falcon_class__events__[event] = ( evt for evt in @__falcon_class__events__[event] when evt.action isnt action )
-			@__falcon_class__events__[event] = null if @__falcon_class__events__[event].length <= 0
+			@__falcon_object__events__[event] = ( evt for evt in @__falcon_object__events__[event] when evt.action isnt action )
+			@__falcon_object__events__[event] = null if @__falcon_object__events__[event].length <= 0
 		else
-			@__falcon_class__events__[event] = null
+			@__falcon_object__events__[event] = null
 		#END if
 
 		return this
@@ -182,10 +197,10 @@ class Falcon.Object
 
 		event = trim(event).toLowerCase()
 
-		return false if isEmpty(event) or not @__falcon_class__events__[event]?
-		return true if @__falcon_class__events__[event]? and not isFunction( action )
+		return false if isEmpty(event) or not @__falcon_object__events__[event]?
+		return true if @__falcon_object__events__[event]? and not isFunction( action )
 
-		return true for evt in @__falcon_class__events__[event] when evt.action is action
+		return true for evt in @__falcon_object__events__[event] when evt.action is action
 
 		return false
 	#END has
@@ -206,9 +221,9 @@ class Falcon.Object
 		return this unless isString(event)
 		event = trim(event).toLowerCase()
 
-		return this if isEmpty(event) or not @__falcon_class__events__[event]?
+		return this if isEmpty(event) or not @__falcon_object__events__[event]?
 
-		evt.action.apply(evt.context, args) for evt in @__falcon_class__events__[event]
+		evt.action.apply(evt.context, args) for evt in @__falcon_object__events__[event]
 
 		return this
 	#END trigger

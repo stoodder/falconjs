@@ -344,5 +344,13 @@ describe "Test View Methods", ->
 			test_stub.restore()
 			another_stub.restore()
 		#END it
+
+		it "Shoudl create equal viewModels after the first has been generated", ->
+			view = new FullView
+			model1 = view.viewModel()
+			model2 = view.viewModel()
+
+			expect( model1 ).to.equal( model2 )
+		#END it
 	#END describe
 #END describe

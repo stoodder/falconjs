@@ -230,6 +230,409 @@ describe "Test Knockout Bindings", ->
 	#END describe
 
 	describe "Test updated foreach binding", ->
+		$body = $("body")
+		$application = $("<div id='application'></div>")
+
+		foreach_binding = ko.bindingHandlers['foreach']
+		foreach_init_spy = foreach_update_spy = null
+
+		class ModelA extends Falcon.Model
+			defaults:
+				'hello': 'world'
+			#END defaults
+
+			observables:
+				'foo': 'bar'
+			#END observables
+		#END ModelA
+
+		class CollectionA extends Falcon.Collection
+			model: ModelA
+		#END CollectionA
+
+		describe "Test flat bindings against arrays and collections", ->
+			class LayoutView extends Falcon.View
+				url: '#layout-template'
+
+				defaults:
+					'collection_list': -> new CollectionA
+					'collection_list_options': -> new CollectionA
+				#END defaults
+
+				observables:
+					'array_list': []
+					'array_list_options': []
+				#END observables
+
+				afterAdd: ->
+				beforeRemove: (element) -> element.remove()
+			#END class
+			$layout_template = $("
+				<template id='layout-template'>
+					<ul class='array_list' data-bind='foreach: $view.array_list'><li>An Item</li></ul>
+					<ul class='collection_list' data-bind='foreach: $view.collection_list'><li>An Item</li></ul>
+					<ul class='array_list_options' data-bind='foreach: {data: $view.array_list_options, afterAdd: $view.afterAdd, beforeRemove: $view.beforeRemove}'><li>An Item</li></ul>
+					<ul class='collection_list_options' data-bind='foreach: {data: $view.collection_list_options, afterAdd: $view.afterAdd, beforeRemove: $view.beforeRemove}'><li>An Item</li></ul>
+				</template>
+			")
+
+			view = null
+			view_observable = ko.observable()
+			$array_list = $collection_list = null
+			$array_list_options = $collection_list_options = null
+			after_add_spy = before_remove_spy = null
+
+			before ->
+				$body.append($application)
+				$body.append($layout_template)
+
+				foreach_init_spy = sinon.spy( foreach_binding, 'init' )
+				foreach_update_spy = sinon.spy( foreach_binding, 'update' )
+
+				Falcon.apply( view_observable, "#application" )
+			#END before
+
+			beforeEach ->
+				view = new LayoutView
+				view_observable( view )
+
+				after_add_spy = sinon.spy( view.viewModel(), 'afterAdd' )
+				before_remove_spy = sinon.spy( view.viewModel(), 'beforeRemove' )
+
+				prev_array_list = $array_list
+				$array_list = $(".array_list")
+				$collection_list = $(".collection_list")
+				$array_list_options = $(".array_list_options")
+				$collection_list_options = $(".collection_list_options")
+			#END beforeEach
+
+			afterEach ->
+				$application.empty()
+
+				foreach_init_spy.reset()
+				foreach_update_spy.reset()
+
+				after_add_spy.restore()
+				before_remove_spy.restore()
+			#END afterEach
+
+			after ->
+				$application.remove()
+				$layout_template.remove()
+
+				foreach_init_spy.restore()
+				foreach_update_spy.restore()
+			#END after
+
+			it "Should properly list with an observable array", ->
+				expect( foreach_init_spy ).to.have.been.called
+				expect( foreach_update_spy ).to.have.been.called
+				expect( after_add_spy ).to.not.have.been.called
+				expect( before_remove_spy ).to.not.have.been.called
+				
+				expect( foreach_init_spy.callCount ).to.equal 4
+				expect( foreach_update_spy.callCount ).to.equal 4
+
+				expect( $array_list.children().length ).to.equal 0
+				expect( $collection_list.children().length ).to.equal 0
+				expect( $array_list_options.children().length ).to.equal 0
+				expect( $collection_list_options.children().length ).to.equal 0
+
+				foreach_init_spy.reset()
+				foreach_update_spy.reset()
+
+				view.array_list.push("Hello")
+				view.array_list.push("World", "Foo Bar")
+				
+				expect( foreach_init_spy ).to.not.have.been.called
+				expect( foreach_update_spy ).to.have.been.called
+				expect( after_add_spy ).to.not.have.been.called
+				expect( before_remove_spy ).to.not.have.been.called
+				
+				expect( foreach_update_spy.callCount ).to.equal 2
+
+				expect( $array_list.children().length ).to.equal 3
+				expect( $collection_list.children().length ).to.equal 0
+				expect( $array_list_options.children().length ).to.equal 0
+				expect( $collection_list_options.children().length ).to.equal 0
+
+				foreach_update_spy.reset()
+
+				view.array_list.pop()
+				
+				expect( foreach_init_spy ).to.not.have.been.called
+				expect( foreach_update_spy ).to.have.been.called
+				expect( after_add_spy ).to.not.have.been.called
+				expect( before_remove_spy ).to.not.have.been.called
+				
+				expect( foreach_update_spy.callCount ).to.equal 1
+
+				expect( $array_list.children().length ).to.equal 2
+				expect( $collection_list.children().length ).to.equal 0
+				expect( $array_list_options.children().length ).to.equal 0
+				expect( $collection_list_options.children().length ).to.equal 0
+			#END it
+
+			it "Should properly list with a collection", ->
+				expect( foreach_init_spy ).to.have.been.called
+				expect( foreach_update_spy ).to.have.been.called
+				expect( after_add_spy ).to.not.have.been.called
+				expect( before_remove_spy ).to.not.have.been.called
+				
+				expect( foreach_init_spy.callCount ).to.equal 4
+				expect( foreach_update_spy.callCount ).to.equal 4
+
+				expect( $array_list.children().length ).to.equal 0
+				expect( $collection_list.children().length ).to.equal 0
+				expect( $array_list_options.children().length ).to.equal 0
+				expect( $collection_list_options.children().length ).to.equal 0
+
+				foreach_init_spy.reset()
+				foreach_update_spy.reset()
+
+				view.collection_list.push(new ModelA)
+				view.collection_list.push([new ModelA, new ModelA])
+				
+				expect( foreach_init_spy ).to.not.have.been.called
+				expect( foreach_update_spy ).to.have.been.called
+				expect( after_add_spy ).to.not.have.been.called
+				expect( before_remove_spy ).to.not.have.been.called
+				
+				expect( foreach_update_spy.callCount ).to.equal 2
+
+				expect( $array_list.children().length ).to.equal 0
+				expect( $collection_list.children().length ).to.equal 3
+				expect( $array_list_options.children().length ).to.equal 0
+				expect( $collection_list_options.children().length ).to.equal 0
+
+				foreach_update_spy.reset()
+
+				view.collection_list.pop()
+				
+				expect( foreach_init_spy ).to.not.have.been.called
+				expect( foreach_update_spy ).to.have.been.called
+				expect( after_add_spy ).to.not.have.been.called
+				expect( before_remove_spy ).to.not.have.been.called
+				
+				expect( foreach_update_spy.callCount ).to.equal 1
+
+				expect( $array_list.children().length ).to.equal 0
+				expect( $collection_list.children().length ).to.equal 2
+				expect( $array_list_options.children().length ).to.equal 0
+				expect( $collection_list_options.children().length ).to.equal 0
+			#END describe
+
+			it "Should properly list with an observable array including options", ->
+				expect( foreach_init_spy ).to.have.been.called
+				expect( foreach_update_spy ).to.have.been.called
+				expect( after_add_spy ).to.not.have.been.called
+				expect( before_remove_spy ).to.not.have.been.called
+				
+				expect( foreach_init_spy.callCount ).to.equal 4
+				expect( foreach_update_spy.callCount ).to.equal 4
+
+				expect( $array_list.children().length ).to.equal 0
+				expect( $collection_list.children().length ).to.equal 0
+				expect( $array_list_options.children().length ).to.equal 0
+				expect( $collection_list_options.children().length ).to.equal 0
+
+				foreach_init_spy.reset()
+				foreach_update_spy.reset()
+
+				view.array_list_options.push("Hello2")
+				view.array_list_options.push("World2", "Foo Bar2")
+				
+				expect( foreach_init_spy ).to.not.have.been.called
+				expect( foreach_update_spy ).to.have.been.called
+				expect( after_add_spy ).to.have.been.called
+				expect( before_remove_spy ).to.not.have.been.called
+				
+				expect( foreach_update_spy.callCount ).to.equal 2
+				expect( after_add_spy.callCount ).to.equal 3
+
+				expect( $array_list.children().length ).to.equal 0
+				expect( $collection_list.children().length ).to.equal 0
+				expect( $array_list_options.children().length ).to.equal 3
+				expect( $collection_list_options.children().length ).to.equal 0
+
+				foreach_update_spy.reset()
+				after_add_spy.reset()
+
+				view.array_list_options.pop()
+				view.array_list_options.pop()
+				
+				expect( foreach_init_spy ).to.not.have.been.called
+				expect( foreach_update_spy ).to.have.been.called
+				expect( after_add_spy ).to.not.have.been.called
+				expect( before_remove_spy ).to.have.been.called
+				
+				expect( foreach_update_spy.callCount ).to.equal 2
+				expect( before_remove_spy.callCount ).to.equal 2
+
+				expect( $array_list.children().length ).to.equal 0
+				expect( $collection_list.children().length ).to.equal 0
+				expect( $array_list_options.children().length ).to.equal 1
+				expect( $collection_list_options.children().length ).to.equal 0
+			#END it
+
+			it "Should properly list with a collection including options", ->
+				expect( foreach_init_spy ).to.have.been.called
+				expect( foreach_update_spy ).to.have.been.called
+				expect( after_add_spy ).to.not.have.been.called
+				expect( before_remove_spy ).to.not.have.been.called
+				
+				expect( foreach_init_spy.callCount ).to.equal 4
+				expect( foreach_update_spy.callCount ).to.equal 4
+
+				expect( $array_list.children().length ).to.equal 0
+				expect( $collection_list.children().length ).to.equal 0
+				expect( $array_list_options.children().length ).to.equal 0
+				expect( $collection_list_options.children().length ).to.equal 0
+
+				foreach_init_spy.reset()
+				foreach_update_spy.reset()
+
+				view.collection_list_options.push(new ModelA)
+				view.collection_list_options.push([new ModelA, new ModelA])
+				
+				expect( foreach_init_spy ).to.not.have.been.called
+				expect( foreach_update_spy ).to.have.been.called
+				expect( after_add_spy ).to.have.been.called
+				expect( before_remove_spy ).to.not.have.been.called
+				
+				expect( foreach_update_spy.callCount ).to.equal 2
+				expect( after_add_spy.callCount ).to.equal 3
+
+				expect( $array_list.children().length ).to.equal 0
+				expect( $collection_list.children().length ).to.equal 0
+				expect( $array_list_options.children().length ).to.equal 0
+				expect( $collection_list_options.children().length ).to.equal 3
+
+				foreach_update_spy.reset()
+				after_add_spy.reset()
+
+				view.collection_list_options.pop()
+				view.collection_list_options.pop()
+				
+				expect( foreach_init_spy ).to.not.have.been.called
+				expect( foreach_update_spy ).to.have.been.called
+				expect( after_add_spy ).to.not.have.been.called
+				expect( before_remove_spy ).to.have.been.called
+				
+				expect( foreach_update_spy.callCount ).to.equal 2
+				expect( before_remove_spy.callCount ).to.equal 2
+
+				expect( $array_list.children().length ).to.equal 0
+				expect( $collection_list.children().length ).to.equal 0
+				expect( $array_list_options.children().length ).to.equal 0
+				expect( $collection_list_options.children().length ).to.equal 1
+			#END it
+		#END describe
+
+		describe "Test observable bindings against collections", ->
+			class LayoutView extends Falcon.View
+				url: '#layout-template'
+
+				defaults:
+					'collection_a1': -> new CollectionA
+					'collection_a2': -> new CollectionA
+				#END defaults
+
+				observables:
+					'selected_number': 1
+					'selected_collection': ->
+						return ( if @selected_number() is 1 then @collection_a1 else @collection_a2 )
+					#END selected_collection
+				#END observables
+			#END class
+			$layout_template = $("
+				<template id='layout-template'>
+					<ul class='collection_list' data-bind='foreach: $view.selected_collection'><li>An Item</li></ul>
+				</template>
+			")
+
+			view = null
+			view_observable = ko.observable()
+			$collection_list = null
+			after_add_spy = before_remove_spy = null
+
+			before ->
+				$body.append($application)
+				$body.append($layout_template)
+
+				foreach_init_spy = sinon.spy( foreach_binding, 'init' )
+				foreach_update_spy = sinon.spy( foreach_binding, 'update' )
+
+				Falcon.apply( view_observable, "#application" )
+			#END before
+
+			beforeEach ->
+				view = new LayoutView
+				view_observable( view )
+
+				$collection_list = $(".collection_list")
+			#END beforeEach
+
+			afterEach ->
+				$application.empty()
+
+				foreach_init_spy.reset()
+				foreach_update_spy.reset()
+			#END afterEach
+
+			after ->
+				$application.remove()
+				$layout_template.remove()
+
+				foreach_init_spy.restore()
+				foreach_update_spy.restore()
+			#END after
+
+			it "Should properly update if collection is switched to another with same update count", ->
+				expect( foreach_init_spy ).to.have.been.called
+				expect( foreach_update_spy ).to.have.been.called
+
+				expect( foreach_init_spy.callCount ).to.equal 1
+				expect( foreach_update_spy.callCount ).to.equal 1
+
+				foreach_init_spy.reset()
+				foreach_update_spy.reset()
+
+				view.collection_a1.fill([new ModelA, new ModelA])
+				view.collection_a2.fill([new ModelA, new ModelA, new ModelA, new ModelA, new ModelA])
+
+				expect( foreach_init_spy ).to.have.not.been.called
+				expect( foreach_update_spy ).to.have.been.called
+
+				expect( foreach_update_spy.callCount ).to.equal 1
+
+				expect( $collection_list.children().length ).to.equal( 2 )
+
+				foreach_init_spy.reset()
+				foreach_update_spy.reset()
+
+				view.selected_number( 2 )
+
+				expect( foreach_init_spy ).to.have.not.been.called
+				expect( foreach_update_spy ).to.have.been.called
+
+				expect( foreach_update_spy.callCount ).to.equal 1
+
+				expect( $collection_list.children().length ).to.equal( 5 )
+
+				foreach_init_spy.reset()
+				foreach_update_spy.reset()
+
+				view.selected_number( 1 )
+
+				expect( foreach_init_spy ).to.have.not.been.called
+				expect( foreach_update_spy ).to.have.been.called
+
+				expect( foreach_update_spy.callCount ).to.equal 1
+
+				expect( $collection_list.children().length ).to.equal( 2 )
+			#END it
+		#END describe
 	#END describe
 
 	describe "Test updated options binding", ->

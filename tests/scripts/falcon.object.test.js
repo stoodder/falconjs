@@ -99,6 +99,7 @@
         Klass.prototype.observables = {
           'hello': 'world',
           'foo': 'baz',
+          'arr': ['1', '2'],
           'test': function() {
             return 'method';
           },
@@ -161,9 +162,15 @@
         klass.another("great");
         return expect(ko.utils.unwrapObservable(klass.another)).to.equal("great method");
       });
-      return it("Should have propogated defaults in the child class", function() {
+      it("Should have propogated defaults in the child class", function() {
         expect(klass.clazz.id).to.equal('z');
         return expect(klass.clazz.im).to.equal('here');
+      });
+      return it("Should have an observable array", function() {
+        expect(ko.isObservable(klass.arr)).to.be["true"];
+        expect(klass.arr()).to.be["instanceof"](Array);
+        expect(klass.arr().length).to.equal(2);
+        return expect(klass.arr()).to.not.equal(Klass.prototype.observables.arr);
       });
     });
   });

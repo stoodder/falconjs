@@ -19,7 +19,7 @@
 
 
 (function() {
-  var Falcon, arrayRemove, arrayUnique, extend, findKey, isArray, isBoolean, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, startsWith, trim, value, _bindingContext, _foreach, _getItems, _options, _ref, _ref1, _shouldUpdate,
+  var Falcon, arrayRemove, arrayUnique, clone, extend, findKey, isArray, isBoolean, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, startsWith, trim, value, _bindingContext, _foreach, _getItems, _options, _ref, _ref1, _shouldUpdate,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -113,6 +113,38 @@
       }
     }
     return void 0;
+  };
+
+  clone = function(object) {
+    var flags, key, newInstance;
+
+    if (!isObject(object)) {
+      return object;
+    }
+    if (object instanceof Date) {
+      return new Date(object.getTime());
+    }
+    if (object instanceof RegExp) {
+      flags = '';
+      if (object.global != null) {
+        flags += 'g';
+      }
+      if (object.ignoreCase != null) {
+        flags += 'i';
+      }
+      if (object.multiline != null) {
+        flags += 'm';
+      }
+      if (object.sticky != null) {
+        flags += 'y';
+      }
+      return new RegExp(object.source, flags);
+    }
+    newInstance = new object.constructor();
+    for (key in object) {
+      newInstance[key] = clone(object[key]);
+    }
+    return newInstance;
   };
 
   arrayUnique = function(arr) {
@@ -233,6 +265,10 @@
   };
 
   Falcon.Object = (function() {
+    var __falcon_object__current_cid__;
+
+    __falcon_object__current_cid__ = 0;
+
     Object.prototype.observables = null;
 
     Object.prototype.defaults = null;
@@ -267,18 +303,23 @@
       return child;
     };
 
-    Object.prototype.__falcon_class__events__ = null;
+    Object.prototype.__falcon_object__events__ = null;
+
+    Object.prototype.__falcon_object__cid__ = null;
 
     function Object() {
       var attr, value, _ref, _ref1;
 
-      this.__falcon_class__events__ = {};
+      this.__falcon_object__events__ = {};
+      this.__falcon_object__cid__ = __falcon_object__current_cid__++;
       if (isObject(this.defaults)) {
         _ref = this.defaults;
         for (attr in _ref) {
           value = _ref[attr];
           if (isFunction(value)) {
             this[attr] = value.call(this);
+          } else if (isObject(value)) {
+            this[attr] = clone(value);
           } else {
             this[attr] = value;
           }
@@ -300,7 +341,7 @@
               'owner': this
             });
           } else if (isArray(value)) {
-            this[attr] = ko.observableArray(value);
+            this[attr] = ko.observableArray(value.slice(0));
           } else {
             this[attr] = ko.observable(value);
           }
@@ -321,7 +362,7 @@
       if (isEmpty(event)) {
         return this;
       }
-      ((_ref = (_base = this.__falcon_class__events__)[event]) != null ? _ref : _base[event] = []).push({
+      ((_ref = (_base = this.__falcon_object__events__)[event]) != null ? _ref : _base[event] = []).push({
         action: action,
         context: context
       });
@@ -335,14 +376,14 @@
         return this;
       }
       event = trim(event).toLowerCase();
-      if (isEmpty(event) || (this.__falcon_class__events__[event] == null)) {
+      if (isEmpty(event) || (this.__falcon_object__events__[event] == null)) {
         return this;
       }
       if (isFunction(action)) {
-        this.__falcon_class__events__[event] = (function() {
+        this.__falcon_object__events__[event] = (function() {
           var _i, _len, _ref, _results;
 
-          _ref = this.__falcon_class__events__[event];
+          _ref = this.__falcon_object__events__[event];
           _results = [];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             evt = _ref[_i];
@@ -352,11 +393,11 @@
           }
           return _results;
         }).call(this);
-        if (this.__falcon_class__events__[event].length <= 0) {
-          this.__falcon_class__events__[event] = null;
+        if (this.__falcon_object__events__[event].length <= 0) {
+          this.__falcon_object__events__[event] = null;
         }
       } else {
-        this.__falcon_class__events__[event] = null;
+        this.__falcon_object__events__[event] = null;
       }
       return this;
     };
@@ -368,13 +409,13 @@
         return false;
       }
       event = trim(event).toLowerCase();
-      if (isEmpty(event) || (this.__falcon_class__events__[event] == null)) {
+      if (isEmpty(event) || (this.__falcon_object__events__[event] == null)) {
         return false;
       }
-      if ((this.__falcon_class__events__[event] != null) && !isFunction(action)) {
+      if ((this.__falcon_object__events__[event] != null) && !isFunction(action)) {
         return true;
       }
-      _ref = this.__falcon_class__events__[event];
+      _ref = this.__falcon_object__events__[event];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         evt = _ref[_i];
         if (evt.action === action) {
@@ -392,10 +433,10 @@
         return this;
       }
       event = trim(event).toLowerCase();
-      if (isEmpty(event) || (this.__falcon_class__events__[event] == null)) {
+      if (isEmpty(event) || (this.__falcon_object__events__[event] == null)) {
         return this;
       }
-      _ref = this.__falcon_class__events__[event];
+      _ref = this.__falcon_object__events__[event];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         evt = _ref[_i];
         evt.action.apply(evt.context, args);
@@ -1014,10 +1055,15 @@
 
     View.prototype.dispose = (function() {});
 
+    View.__falcon_view__viewModel__ = null;
+
     View.prototype.viewModel = function() {
       var key, value, viewModel,
         _this = this;
 
+      if (this.__falcon_view__viewModel__ != null) {
+        return this.__falcon_view__viewModel__;
+      }
       viewModel = {
         "__falcon_view__addChildView__": function(view) {
           return _this.addChildView(view);
@@ -1043,7 +1089,7 @@
         }
         viewModel[key] = value;
       }
-      return viewModel;
+      return (this.__falcon_view__viewModel__ = viewModel);
     };
 
     return View;
@@ -1560,6 +1606,7 @@
     Collection.prototype.pop = function() {
       var item;
 
+      this.__falcon_collection__change_count__++;
       item = this.models.pop();
       this.length(this.models().length);
       return item;
@@ -1819,7 +1866,7 @@
     };
 
     Collection.prototype.reset = function() {
-      this.__falcon_collection__change_count__ += 1;
+      this.__falcon_collection__change_count__++;
       if (this.models != null) {
         this.models([]);
       } else {
@@ -1911,6 +1958,8 @@
         value = ko.utils.unwrapObservable(value);
         viewModel = getViewModel(value);
         template = getTemplate(value);
+        window.prev_viewModel = window.current_viewModel;
+        window.current_viewModel = viewModel;
         if (!isObject(value)) {
           return returnVal;
         }
@@ -1949,50 +1998,65 @@
   })();
 
   _getItems = function(value) {
-    var items;
+    var _ref;
 
-    items = ko.utils.unwrapObservable(Falcon.isCollection(value) ? value.models : value);
-    if (!isArray(items)) {
-      items = [items];
+    value = ko.utils.peekObservable(value);
+    if (Falcon.isCollection(value) || isArray(value)) {
+      value = {
+        data: value
+      };
+    }
+    if (!isObject(value)) {
+      value = {};
+    }
+    value.data = ko.utils.unwrapObservable(value.data);
+    if (Falcon.isCollection(value.data)) {
+      value.data = value.data.models();
+    }
+    if ((_ref = value.data) == null) {
+      value.data = [];
     }
     return (function() {
-      return items;
+      return value;
     });
   };
 
   _shouldUpdate = function(element, value) {
-    var changeCount, lastChangeCount;
+    var CId, changeCount, lastCId, lastChangeCount;
 
     if (!Falcon.isCollection(value)) {
       return true;
     }
+    lastCId = ko.utils.domData.get(element, "__falcon_object__cid__");
+    CId = value.__falcon_object__cid__;
     changeCount = value.__falcon_collection__change_count__;
     lastChangeCount = ko.utils.domData.get(element, "__falcon_collection___change_count__");
-    if (lastChangeCount === changeCount) {
+    if (lastChangeCount === changeCount && lastCId === CId) {
       return false;
     }
+    ko.utils.domData.set(element, '__falcon_object__cid__', CId);
     ko.utils.domData.set(element, '__falcon_collection___change_count__', changeCount);
     return true;
   };
 
-  _foreach = (_ref = ko.bindingHandlers['foreach']) != null ? _ref : (function() {});
+  _foreach = (_ref = ko.bindingHandlers['foreach']) != null ? _ref : {};
 
   ko.bindingHandlers['foreach'] = {
     'init': function() {
-      var args, element, value, valueAccessor, _ref1;
+      var args, element, value, valueAccessor;
 
       element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
       value = ko.utils.unwrapObservable(valueAccessor());
       ko.utils.domData.set(element, '__falcon_collection___change_count__', -1);
-      return ((_ref1 = _foreach['init']) != null ? _ref1 : (function() {})).apply(null, [element, _getItems(value)].concat(__slice.call(args)));
+      return _foreach['init'].apply(_foreach, [element, _getItems(value)].concat(__slice.call(args)));
     },
     'update': function() {
-      var args, element, value, valueAccessor, _ref1;
+      var args, element, value, valueAccessor;
 
       element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
       value = ko.utils.unwrapObservable(valueAccessor());
       if (_shouldUpdate(element, value)) {
-        return ((_ref1 = _foreach['update']) != null ? _ref1 : (function() {})).apply(null, [element, _getItems(value)].concat(__slice.call(args)));
+        return _foreach['update'].apply(_foreach, [element, _getItems(value)].concat(__slice.call(args)));
       }
     }
   };

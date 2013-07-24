@@ -269,7 +269,10 @@ class Falcon.View extends Falcon.Object
 	#	this view are converted to be able retain 'this' view as
 	#	the context of this instance.
 	#--------------------------------------------------------
+	@__falcon_view__viewModel__: null
 	viewModel: () ->
+		return @__falcon_view__viewModel__ if @__falcon_view__viewModel__?
+
 		viewModel = { "__falcon_view__addChildView__": (view) => @addChildView(view) }
 
 		for key, value of this when not ( key of Falcon.View.prototype )
@@ -283,6 +286,6 @@ class Falcon.View extends Falcon.Object
 			viewModel[key] = value
 		#END for
 
-		return viewModel
+		return (@__falcon_view__viewModel__ = viewModel)
 	#END viewModel
 #END Falcon.View

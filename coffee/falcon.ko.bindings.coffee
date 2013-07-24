@@ -83,6 +83,8 @@ ko.bindingHandlers['view'] = do ->
 			value = ko.utils.unwrapObservable(value)
 			viewModel = getViewModel(value)
 			template = getTemplate(value)
+			window.prev_viewModel = window.current_viewModel
+			window.current_viewModel = viewModel
 
 			return returnVal unless isObject( value )
 
@@ -146,40 +148,49 @@ ko.bindingHandlers['view'] = do ->
 #--------------------------------------------------------
 #Interal method used to get a the expected models
 _getItems = (value) ->
-	items = ko.utils.unwrapObservable( if Falcon.isCollection(value) then value.models else value )
-	items = [items] unless isArray(items)
+	value = ko.utils.peekObservable( value )
+	value = {data: value} if Falcon.isCollection( value ) or isArray( value )
+	value = {} unless isObject( value )
 
-	return ( -> items )
+	value.data = ko.utils.unwrapObservable( value.data )
+	value.data = value.data.models() if Falcon.isCollection( value.data )
+	value.data ?= []
+
+	return ( -> value )
 #END _getItems
 
 #Checks to see (and keeps track) if a collection is actually updated
 _shouldUpdate = (element, value) ->
 	return true unless Falcon.isCollection(value)
 
+	lastCId = ko.utils.domData.get(element, "__falcon_object__cid__")
+	CId = value.__falcon_object__cid__
+
 	changeCount = value.__falcon_collection__change_count__
 	lastChangeCount = ko.utils.domData.get(element, "__falcon_collection___change_count__")
 
-	return false if lastChangeCount is changeCount
+	return false if lastChangeCount is changeCount and lastCId is CId
 
+	ko.utils.domData.set(element, '__falcon_object__cid__', CId)
 	ko.utils.domData.set(element, '__falcon_collection___change_count__', changeCount)
 
 	return true
 #END _shouldUpdate
 
 #Store a copy of the old foreach
-_foreach = ko.bindingHandlers['foreach'] ? (->)
+_foreach = ko.bindingHandlers['foreach'] ? {}
 
 ko.bindingHandlers['foreach'] = 
 	'init': (element, valueAccessor, args...) ->
 		value = ko.utils.unwrapObservable( valueAccessor() )
 		ko.utils.domData.set(element, '__falcon_collection___change_count__', -1)
-		return ( _foreach['init'] ? (->) )(element, _getItems(value), args...)
+		return _foreach['init'](element, _getItems(value), args...)
 	#END init
 
 	'update': (element, valueAccessor, args...) ->
 		value = ko.utils.unwrapObservable( valueAccessor() )
 		if _shouldUpdate(element, value)
-			return ( _foreach['update'] ? (->) )(element, _getItems(value), args...)
+			return _foreach['update'](element, _getItems(value), args...)
 		#END if
 		return
 	#END update
