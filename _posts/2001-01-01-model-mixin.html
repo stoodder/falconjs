@@ -1,9 +1,15 @@
 ---
 title: mixin
-method: Falcon.Model#mixin( mapping )
-returnType: undefined
-returnDescription: undefined
+method: model.mixin( mapping )
+returnType: Falcon.Model
+returnDescription: This instance
 complete: false
 category: model
 ---
-Waiting for Description
+<dl>
+	<dt data-bind="Object">mapping</dt>
+	<dd>The mapping to augment this model with</dd>
+</dl>
+<p>
+	Maps extra atributes and methods onto this model for use later, mostly in Falcon views. Will ensure that any method that is not a knockout observable will be called in the context of this model as well as pass this model in as the first argument, pushing the other arguments down the list.
+</p>

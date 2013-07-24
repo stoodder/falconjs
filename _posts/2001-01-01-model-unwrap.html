@@ -1,9 +1,11 @@
 ---
 title: unwrap
-method: Falcon.Model#unwrap()
-returnType: undefined
-returnDescription: undefined
+method: model.unwrap()
+returnType: Object
+returnDescription: The 'unwrapped' object
 complete: false
 category: model
 ---
-Waiting for Description
+<p>
+	Method used to 'unwrap' this model. Unwrapping makes this into a basic javascript object, recurring inward for other Falcon data objects (Collections and Models), and leaving observables and computed observables in tact in the resultant object.  This method is primarily used for creating clones of this model.
+</p>

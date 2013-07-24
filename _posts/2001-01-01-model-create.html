@@ -1,9 +1,15 @@
 ---
 title: create
-method: Falcon.Model#create( options )
-returnType: undefined
-returnDescription: undefined
+method: model.create( options )
+returnType: XmlHttpRequest
+returnDescription: The XmlHttpRequest object
 complete: false
 category: model
 ---
-Waiting for Description
+<dl>
+	<dt data-type="Object">options</dt>
+	<dd>The options to pass into the 'sync' method</dd>
+</dl>
+<p>
+	Method used to create a new model, with this model's data, on the server. This method is really just a wrapper around the 'sync' method with a request type of 'POST' auto-filled.
+</p>

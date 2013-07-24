@@ -1,9 +1,17 @@
 ---
 title: initialize
-method: new Falcon.Collection( models, parent )
-returnType: undefined
-returnDescription: undefined
+method: new Falcon.Collection( [models], [parent] )
+returnType: Falcon.Collection
+returnDescription: This instance.
 complete: false
 category: collection
 ---
-Waiting for Description
+<dl>
+	<dt data-type="Array">models</dt>
+	<dd>An initial set of models to populate the collection with</dd>
+	<dt data-type="Falcon.Model">parent</dt>
+	<dd>The owner of this collection, used for generating urls when making requests to the server.</dd>
+</dl>
+<p>
+	The constructor method for a Falcon Collection.  Creates a new instance of a Falcon Collection.
+</p>

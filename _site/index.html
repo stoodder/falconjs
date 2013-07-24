@@ -8,7 +8,7 @@
 		<link href="css/bootstrap.min.css" rel="stylesheet" />
 		<link href="css/falcon.docs.min.css" rel="stylesheet" />
 	</head>
-	<body data-spy="scroll" data-target="#sidebar" data-offset="-399">
+	<body data-spy="scroll" data-target="#sidebar" data-offset="-499">
 		<div id="content" class="container">
 			<div id="hero">
 				<div class="hero-headline">
@@ -28,6 +28,9 @@
 			<div class="row">
 				<div class="col col-lg-3">
 					<div id="sidebar" data-spy="affix" data-offset-top="500">
+						<div id="sidebar-header">
+							Falcon.js
+						</div>
 						<ul class="nav sidebar-nav">
 							
 							
@@ -730,9 +733,15 @@
 			
 			<div id="model-clone">
 				<h3>clone
-					<small>Falcon.Model#clone( parent )</small>
+					<small>model.clone( [parent] )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="Falcon.Model">parent</dt>
+	<dd>An optional parent to assign to the new clone. If 'null' is explicitly given, then the clone will not have a parent. If no parent is given, then by default, the new model inherits this model's parent.</dd>
+</dl>
+<p>
+	Creates a clone of the current model. This method has the ability to also update the parent on the cloned model. If 'null' is explicitly given for the parent argument, then the cloned model will be parent-free.
+</p>
 			</div>
 		
 	
@@ -740,9 +749,17 @@
 			
 			<div id="model-initialize">
 				<h3>initialize
-					<small>new Model( data, parent )</small>
+					<small>new Model( [data], [parent] )</small>
 				</h3>
-				Testing Things
+				<dl>
+	<dt data-type="Object">data</dt>
+	<dd>An object of initial data for this model</dd>
+	<dt data-type="Falcon.Model">parent</dt>
+	<dd>The object that 'owns' this model. This is used for generating urls in the 'makeUrl' function when syncing data between client and server.</dd>
+</dl>
+<p>
+	The initialize method is called within the actual constructor method of the model. The constructor method has specific set up code that should alway be run when creating a model and hence, having the initialize method available, allows developers to override this funciton to ensure that everything that the actual constructor needs to do is executed prior to the initialize method and everything custom that the developer needs won't interfere with the required operations.
+</p>
 			</div>
 		
 	
@@ -750,9 +767,17 @@
 			
 			<div id="model-copy">
 				<h3>copy
-					<small>Falcon.Model#copy( attributes, parent )</small>
+					<small>model.copy( [attributes], [parent] )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="Object">attributes</dt>
+	<dd>An object (or an array which will be converted to an object) of attributes to copy from this model to the new model. If this is not provided, only the id of this model is carried into the new model.</dd>
+	<dt data-type="Falcon.Model">parent</dt>
+	<dd> An override of the parent to set in the resultant model. If 'null' is explicitly given, then the resultant model will be parent-free</dd>
+</dl>
+<p>
+	Method used to create a copy (similar to the clone method) of this model. This method is useful for only selecting certain attributes from this model.  If a parent is given, then the resultant model will have that parent rather than this model's parent. If 'null' is given for parent, then the resultant model will not have a parent.
+</p>
 			</div>
 		
 	
@@ -760,9 +785,15 @@
 			
 			<div id="model-create">
 				<h3>create
-					<small>Falcon.Model#create( options )</small>
+					<small>model.create( options )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="Object">options</dt>
+	<dd>The options to pass into the 'sync' method</dd>
+</dl>
+<p>
+	Method used to create a new model, with this model's data, on the server. This method is really just a wrapper around the 'sync' method with a request type of 'POST' auto-filled.
+</p>
 			</div>
 		
 	
@@ -770,9 +801,15 @@
 			
 			<div id="model-destroy">
 				<h3>destroy
-					<small>Falcon.Model#destroy( options )</small>
+					<small>model.destroy( options )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="Object">options</dt>
+	<dd>The options to pass into the 'sync' method</dd>
+</dl>
+<p>
+	Method used to delete this model from the server. This method just called 'sync' with the 'DELETE' request type pre-filled.
+</p>
 			</div>
 		
 	
@@ -780,9 +817,19 @@
 			
 			<div id="model-equals">
 				<h3>equals
-					<small>Falcon.Model#equals( model )</small>
+					<small>model.equals( model )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="Falcon.Model">model</dt>
+	<dd>A model to compare against this model. Models are compared using ids. If either or both IDs are 'null' then these models will always be unequal</dd>
+</dl>
+<dl>
+	<dt data-type="String or Number">id</dt>
+	<dd>An id to check against this model's id</dd>
+</dl>
+<p>
+	Method used to determine if this model matches the given model or id. If any model as 'null' id then this method will always consider the result to be unequal.
+</p>
 			</div>
 		
 	
@@ -792,7 +839,13 @@
 				<h3>extend
 					<small>Falcon.Model.extend( properties )</small>
 				</h3>
-				BOOM
+				<dl>
+	<dt data-type="Object">properties</dt>
+	<dd>The instance properties that should exist on the inheritting class</dd>
+</dl>
+<p>
+	Method used to create a new model that inherits from the base Falcon Model.
+</p>
 			</div>
 		
 	
@@ -800,9 +853,15 @@
 			
 			<div id="model-fetch">
 				<h3>fetch
-					<small>Falcon.Model#fetch( options )</small>
+					<small>model.fetch( [options] )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="Object">options</dt>
+	<dd>The options to pass into the 'sync' method</dd>
+</dl>
+<p>
+	Method used to 'fetch' data from the server about this specific model. This method just called 'sync' with the 'GET' request type pre-filled.
+</p>
 			</div>
 		
 	
@@ -810,9 +869,17 @@
 			
 			<div id="model-fill">
 				<h3>fill
-					<small>Falcon.Model#fill( data )</small>
+					<small>model.fill( data )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="Object">data</dt>
+	<dd>The data to fill this object with.</dd>
+</dl>
+<p>
+	Method used to fill this model with data. This is more advanced than the 'set' method as it won't overwrite certain data if it exists.  Specificaly this will recurse data into any Falcon Model of Collection 'fill' method as necessary. Additionally, this will put data into observables if a specific attribute identifies as a writeable observable. Lastly, this will do a basic assignment of a given attribute if it isn't a Falcon Data Object or an observable.
+
+	Note: This method will, intentionally, ignore any attribute/method defined in the Falcon.Model.prototype except for 'id' and 'url'
+</p>
 			</div>
 		
 	
@@ -820,9 +887,15 @@
 			
 			<div id="model-get">
 				<h3>get
-					<small>Falcon.Model#get( attribute )</small>
+					<small>model.get( attribute )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="String">attribute</dt>
+	<dd>The attribute to lookup</dd>
+</dl>
+<p>
+	Method used to lookup the value of an attribute on this model. If the attribute is an observable, then the observable is unwrapped and its internal value is returned.
+</p>
 			</div>
 		
 	
@@ -830,9 +903,11 @@
 			
 			<div id="model-id">
 				<h3>id
-					<small>Falcon.Model#id</small>
+					<small>model.id</small>
 				</h3>
-				
+				<p>
+	The id of this model. By default this is null unless it is set by the server. The id expected to be a Number or a String.
+</p>
 			</div>
 		
 	
@@ -840,9 +915,11 @@
 			
 			<div id="model-isnew">
 				<h3>isNew
-					<small>Falcon.Model#isNew()</small>
+					<small>model.isNew()</small>
 				</h3>
-				Waiting for Description
+				<p>
+	Method used to determine if this model is 'new' or not. A model is deemed new if no id has been set (it's still null).
+</p>
 			</div>
 		
 	
@@ -850,9 +927,17 @@
 			
 			<div id="model-makeurl">
 				<h3>makeUrl
-					<small>Falcon.Model#makeUrl( type, parent )</small>
+					<small>model.makeUrl( type, [parent] )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="String">type</dt>
+	<dd>The type of request we're making (GET, POST, PUT, DELETE)</dd>
+	<dt data-type="Falcon.Model">parent</dt>
+	<dd>Optional override of the model's parent to generate the url with. If parent is 'null' then this model will act as the root node.</dd>
+</dl>
+<p>
+	Generates a URL based on this model's url, the parent model of this model, the type of request we're making and Falcon's defined baseApiUrl
+</p>
 			</div>
 		
 	
@@ -860,9 +945,15 @@
 			
 			<div id="model-mixin">
 				<h3>mixin
-					<small>Falcon.Model#mixin( mapping )</small>
+					<small>model.mixin( mapping )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-bind="Object">mapping</dt>
+	<dd>The mapping to augment this model with</dd>
+</dl>
+<p>
+	Maps extra atributes and methods onto this model for use later, mostly in Falcon views. Will ensure that any method that is not a knockout observable will be called in the context of this model as well as pass this model in as the first argument, pushing the other arguments down the list.
+</p>
 			</div>
 		
 	
@@ -870,9 +961,11 @@
 			
 			<div id="model-parent">
 				<h3>parent
-					<small>Falcon.Model#parent</small>
+					<small>model.parent</small>
 				</h3>
-				Waiting for Description
+				<p>
+	This represents the 'parent' object that holds this model.  Generally this is used for determining the URL structure of rest objects in the makeURL() routine. This should also be a Model.
+</p>
 			</div>
 		
 	
@@ -880,9 +973,19 @@
 			
 			<div id="model-parse">
 				<h3>parse
-					<small>Falcon.Model#parse( data, options, xhr )</small>
+					<small>model.parse( data, [options], [xhr] )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="Object">data</dt>
+	<dd>The raw response data</dd>
+	<dt data-type="Object">options</dt>
+	<dd>The options fed initially into the 'sync' request</dd>
+	<dt data-type="XmlHttpRequest">xhr</dt>
+	<dd>The XmlHttpRequest object</dd>
+</dl>
+<p>
+	Parses the response data from an XmlHttpRequest request.  A json object must be returned from this method in order for the data to be filled back into the model.
+</p>
 			</div>
 		
 	
@@ -890,9 +993,15 @@
 			
 			<div id="model-save">
 				<h3>save
-					<small>Falcon.Model#save( options )</small>
+					<small>model.save( [options] )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type-"Object">options</dt>
+	<dd>Optional object of settings to use on this call.</dd>
+</dl>
+<p>
+	Calls the sync method with 'PUT' as the default request type. Saves this model to the server.  If the model is new then 'create' will be called instead.
+</p>
 			</div>
 		
 	
@@ -900,9 +1009,21 @@
 			
 			<div id="model-serialize">
 				<h3>serialize
-					<small>Falcon.Model#serialize( attributes )</small>
+					<small>model.serialize( [attributes] )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt>attributes</dt>
+	<dd>
+		The attributes that should be included in the serialization. If none given, all attributes from this model (except for functions) are serialized
+	</dd>
+</dl>
+<p>
+	Serializes the data into a raw json object and only corresponds to the attributes that are primitive and that we wish to be able to send back to the server.
+</p>
+<!--
+	TODO:
+	Expand on the attributes description
+-->
 			</div>
 		
 	
@@ -910,9 +1031,21 @@
 			
 			<div id="model-set">
 				<h3>set
-					<small>Falcon.Model#set( attribute, value )</small>
+					<small>model.set( attribute, [value] )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="String">attribute</dt>
+	<dd>The attribute to look up</dd>
+	<dt>value</dt>
+	<dd>The value to assign</dd>
+</dl>
+<dl>
+	<dt data-type="Object">values</dt>
+	<dd>An object of values to set</dd>
+</dl>
+<p>
+	Sets a value for the specific attribute, creating one if it does nto exist.  If an object is passed into the first argument of this method, each of the object's key value pairs will be set on this model.
+</p>
 			</div>
 		
 	
@@ -920,9 +1053,78 @@
 			
 			<div id="model-sync">
 				<h3>sync
-					<small>Falcon.Model#sync( type, options )</small>
+					<small>model.sync( type, [options] )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="String">type</dt>
+	<dd>The HTTP Method to call to the server with. Valid options options include "GET", "POST", "PUT", "DELETE".</dd>
+	<dt data-type="Object">options</dt>
+	<dd>Optional object of settings to use on this call.  This is usefull for configuring ajax callbacks, url parameters, fill paramaters, and attribute serialization handling. The avilable options are:
+		<ul>
+			<li>
+				<strong>url</strong> - The url to make our request to. If the url isn't specified, then the 'makeUrl' method will be called with the given request type to generate a url.
+			</li>
+			<li>
+				<strong>parent</strong> - An override of the parent object to use when generating a url with 'makeUrl'. If the parent option isn't set, then this model's parent is used.
+			</li>
+			<li>
+				<strong>attributes</strong> - An object (or an array) of attributes to actually serialize and send to the server. This is the same attributes specifiation that will be passed into the 'serialize' method which is useful for reducing the load of data that is sent to the server.  See the 'serialize' method for more information on the attributes option.
+			</li>
+			<li>
+				<strong>params</strong> - An object of query parameters to add to the request url.  This is useful for allowing the 'makeUrl' to generate a url for this model but still being able to add specific query parameters without having to modify the makeUrl method.
+			</li>
+			<li>
+				<strong>data</strong> - An object of additional data to send through to the server.  This data is automatically JSON stringified if it is present and valid.  By default, this is set to the serialized version of this model with whatever attributes, if any, are specified in the 'attributes' parameter of the options object.
+			</li>
+			<li>
+				<strong>dataType</strong> - The type of data to send to the server, the default is 'json'.
+			</li>
+			<li>
+				<strong>headers</strong> - An object of HTTP headers to add to this request.
+			</li>
+			<li>
+				<strong>context</strong> - The context to call the ajax callbacks (success, error, complete), on.
+			</li>
+			<li>
+				<strong>success( model, data, status, xhr)</strong> - The callback that will be executed when the ajax request has completed with a 200 level response. The callback will be called on the context of this model unless the context option has been specified. The callback will be given four arguments: This model, the data after being passed through the parse method, the request status, and the XmlHttpRequest object.
+			</li>
+			<li>
+				<strong>error( model, response, xhr )</strong> - A callback method to be executed whenever a 400 or above level response is returned from the server. This method will be called on the context of this model or the context given in the options if one is set.  This callback will be called with three arguments given: This model, the response text, and the XmlHttpRequest object. 
+			<li>
+				<strong>complete( model, xhr, status )</strong> - A callback method to be executed whenever any status resonse is completed. This method is called after success/error. It will be called on the context of this model unless the context was specified in the options. It will be called with three arguments given: This model, the XmlHttpRequest object, and the server status.
+			</li>
+			<li>
+				<strong>fill</strong> - A flag to specify whether the 'fill' methos should be called once this request has completed successfully. By default, this is set to true.
+			</li>
+		</ul>
+	</dd>
+</dl>
+<p>
+	Method used to interact with the backend API and this model. This method utilizes and extend on to the jQuery $.ajax method.  This method may be called with for different request types:
+	<ul>
+		<li><strong>GET</strong> - Retrieve this model's data</li>
+		<li><strong>POST</strong> - Create a model with this data on the server</li>
+		<li><strong>PUT</strong> - Update this model's data on the server</li>
+		<li><strong>DELETE</strong> - Delete this model from the server</li>
+	</ul>
+</p>
+<p>
+	The sync mehtod takes an optional 'options' argument which can be used for specifying how this method should hane sync requests of the request types mentioned and how it should handle serializing and reacting to success/errornous responses.
+</p>
+<p>
+	If a PUT or POST request type or being issue, this model's 'validate' method is executed to check if this model is valid and if we should continue sending data to the server.  If the validate method returns false, the process is halted and no interaction with the server occurs
+</p>
+<p>
+	Following the validation of the model, this method will automatically call the 'serialize' method on this model with whatever attributes, if any, are specified by the 'attributes' parameter of the options object if this is a POST or PUT request.  Please refer to the 'serialize' method for more advaned detail on how the 'attributes' option performs.
+</p>
+<p>
+	Lastly, after the ajax method responds successfully, a success response will occur. Prior to calling the 'success' callback on the options, the raw data returned from the server will be send to the 'parse' method. The resultant data from the parse method is then sent to the 'fill' method (if the fill flag is enabled). Following that, an event is triggered depending on the request type.  (GET = 'fetch', POST = 'create', PUT = 'save', DELETE = 'destroy'). Lastly, the success callback method specified in the options parameter is called with this model as a conext, and with 4 arguments: This model, the parsed raw data, the response status, and the XmlHttpRequest object.
+</p>
+<!--
+	TODO:
+	Warning for no PATH support
+	Warning for no jsonp
+-->
 			</div>
 		
 	
@@ -930,9 +1132,15 @@
 			
 			<div id="model-toggle">
 				<h3>toggle
-					<small>Falcon.Model#toggle( attribute )</small>
+					<small>model.toggle( attribute )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="String">attribute</dt>
+	<dd>The attribute in the model to look up.</dd>
+</dl>
+<p>
+	Toggles the value between true/false on the specific attribute of this model.
+</p>
 			</div>
 		
 	
@@ -940,9 +1148,11 @@
 			
 			<div id="model-unwrap">
 				<h3>unwrap
-					<small>Falcon.Model#unwrap()</small>
+					<small>model.unwrap()</small>
 				</h3>
-				Waiting for Description
+				<p>
+	Method used to 'unwrap' this model. Unwrapping makes this into a basic javascript object, recurring inward for other Falcon data objects (Collections and Models), and leaving observables and computed observables in tact in the resultant object.  This method is primarily used for creating clones of this model.
+</p>
 			</div>
 		
 	
@@ -950,9 +1160,11 @@
 			
 			<div id="model-url">
 				<h3>url
-					<small>Falcon.Model#url</small>
+					<small>model.url</small>
 				</h3>
-				Waiting for Description
+				<p>
+	This is the top level url for the model.
+</p>
 			</div>
 		
 	
@@ -960,9 +1172,15 @@
 			
 			<div id="model-validate">
 				<h3>validate
-					<small>Falcon.Model#validate( options )</small>
+					<small>model.validate( [options] )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="Object">options</dt>
+	<dd>The options passed into the sync method</dd>
+</dl>
+<p>
+	Method used to validate this model before it is sent to the server on create or save.  If this method returns true, saving will continue but if it returns false then saving is halted and no request to the server will be made.
+</p>
 			</div>
 		
 	
@@ -980,9 +1198,23 @@
 			
 			<div id="collection-all">
 				<h3>all
-					<small>Falcon.Collection#all( [iterator] )</small>
+					<small>collection.all( [iterator] )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="Function">iterator</dt>
+	<dd>An iterator to truth-test each model in the collection against</dd>
+</dl>
+<dl>
+	<dt data-type="String or Number">id</dt>
+	<dd>The id of models to match against in the collection</dd>
+</dl>
+<dl>
+	<dt data-type="Falcon.Model">model</dt>
+	<dd>A model to lookup in the collection</dd>
+</dl>
+<p>
+	Method used to get an array of all the models that match the truth-test.
+</p>
 			</div>
 		
 	
@@ -990,9 +1222,23 @@
 			
 			<div id="collection-any">
 				<h3>any
-					<small>Falcon.Collection#any( iterator )</small>
+					<small>collection.any( iterator )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="Function">iterator</dt>
+	<dd>Method used to test each model against.</dd>
+</dl>
+<dl>
+	<dt data-type="String or Number">id</dt>
+	<dd>The id to compare against each model in the collection.</dd>
+</dl>
+<dl>
+	<dt data-type="Falcon.Model">model</dt>
+	<dd>A model to compate against each of the collection's models using an id-based comparison.</dd>
+</dl>
+<p>
+	Method used to check if any of the models in the collection match the given iterator, id, or model. Returns true if at least of the models match the truth test.
+</p>
 			</div>
 		
 	
@@ -1000,9 +1246,19 @@
 			
 			<div id="collection-append">
 				<h3>append
-					<small>Falcon.Collection#append( items )</small>
+					<small>collection.append( items )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="Falcon.Model">item</dt>
+	<dd>A model to add to the end of the collection</dd>
+</dl>
+<dl>
+	<dt data-type="Array">items</dt>
+	<dd>An array of models to add to the end of the collection</dd>
+</dl>
+<p>
+	A a single or an array of models to the end of this collection. append is simply a wrapper for the full method with the option {'method': 'append'} pre-filled.
+</p>
 			</div>
 		
 	
@@ -1010,9 +1266,15 @@
 			
 			<div id="collection-at">
 				<h3>at
-					<small>Falcon.Collection#at( index )</small>
+					<small>collection.at( index )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="Number">index</dt>
+	<dd>zero-based index of the model to lookup in the collection</dd>
+</dl>
+<p>
+	Method used to retrieve a model from this collection at a specific, zero-based, index. If no model exists at the specified inex, or the index is invalid, 'null' is returned.
+</p>
 			</div>
 		
 	
@@ -1020,9 +1282,15 @@
 			
 			<div id="collection-clone">
 				<h3>clone
-					<small>Falcon.Collection#clone( parent )</small>
+					<small>collection.clone( parent )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="Falcon.Model">parent</dt>
+	<dd>An optional parent to set in the resultant collection. If 'null' is set, then the resultant collection will be parent-free</dd>
+</dl>
+<p>
+	This method does a shallow clone of this collection with the resultant collection containing the same model instances as the original collection. Optionally, if the parent argument is set, the resultant collection will reference that as its parent. If the parent argument is explicitly set to 'null' then the resultant collection will be parent-free.
+</p>
 			</div>
 		
 	
@@ -1030,9 +1298,17 @@
 			
 			<div id="collection-initialize">
 				<h3>initialize
-					<small>new Falcon.Collection( models, parent )</small>
+					<small>new Falcon.Collection( [models], [parent] )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="Array">models</dt>
+	<dd>An initial set of models to populate the collection with</dd>
+	<dt data-type="Falcon.Model">parent</dt>
+	<dd>The owner of this collection, used for generating urls when making requests to the server.</dd>
+</dl>
+<p>
+	The constructor method for a Falcon Collection.  Creates a new instance of a Falcon Collection.
+</p>
 			</div>
 		
 	
@@ -1040,9 +1316,17 @@
 			
 			<div id="collection-copy">
 				<h3>copy
-					<small>Falcon.Collection#copy( [attributes], [parent] )</small>
+					<small>collection.copy( [attributes], [parent] )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="Object">attributes</dt>
+	<dd>An object (or an array which will be converted to an object) of attributes to copy from each model in this collection. If this is not provided, only the id of each model is carried into the new collection.</dd>
+	<dt data-type="Falcon.Model">parent</dt>
+	<dd> An override of the parent to set in the resultant collection. If 'null' is explicitly given, then the resultant collection will be parent-free</dd>
+</dl>
+<p>
+	Method used to create a copy (similar to the clone method) of this collection and it's models. This method is useful for only selecting certain attributes from each of the models in the collection.  If a parent is given, then the resultant collection will have that parent rather than this collection's parent. If 'null' is given for parent, then the resultant model will have no parent set.
+</p>
 			</div>
 		
 	
@@ -1050,9 +1334,23 @@
 			
 			<div id="collection-create">
 				<h3>create
-					<small>Falcon.Collection#create( data, options )</small>
+					<small>collection.create( data, [options] )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="Object">data</dt>
+	<dd>The raw data that defines the model to be created based on the collection's 'model' attribute.</dd>
+	<dt data-type="Object">options</dt>
+	<dd>The options to pass to the sync and fill methods.</dd>
+</dl>
+<dl>
+	<dt data-type="Falcon.Model">data</dt>
+	<dd>The model to create on the server and to add to this collection. This model's data will be unwrapped and a new model will be created in this collection if this argument is set.</dd>
+	<dt data-type="Object">options</dt>
+	<dd>See Above.</dd>
+</dl>
+<p>
+	Method used to both create and add a model on the server and to this collection.  An optional options argument can be set to define options for the sync and fill methods.
+</p>
 			</div>
 		
 	
@@ -1060,9 +1358,29 @@
 			
 			<div id="collection-destroy">
 				<h3>destroy
-					<small>Falcon.Collection#destroy( model, options )</small>
+					<small>collection.destroy( model, [options] )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="Falcon.Model">model</dt>
+	<dd>The model to delete from the server and, upon successful delete, remove from this collection.</dd>
+	<dt data-type="Object">options</dt>
+	<dd>An optional set of options to pass into the 'sync' method when deleteing the model from the server</dd>
+</dl>
+<dl>
+	<dt data-type="String or Integer">id</dt>
+	<dd>The id of the model to remove</dd>
+	<dt data-type="Object">options</dt>
+	<dd>See Above</dd>
+</dl>
+<dl>
+	<dt data-type="Function">iterator</dt>
+	<dd>Iterator that can be used to find the first instance of a matching model in this collection.</dd>
+	<dt data-type="Object">options</dt>
+	<dd>See Above</dd>
+</dl>
+<p>
+	Method used to both remove a model from this collection and delete it on the server. This method takes either an iterator, a model id, or a model to look up an existing model within this collection. If a model is given, it does not need to be the same instance of any model in this collection but rather an identical model based on its 'id'. If no models are found, then null is returned.  If the delete method from the server fails, this method does not remove anything from the collection.
+</p>
 			</div>
 		
 	
@@ -1070,9 +1388,17 @@
 			
 			<div id="collection-each">
 				<h3>each
-					<small>Falcon.Collection#each( [iterator], [context] )</small>
+					<small>collection.each( iterator, [context] )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="Function">iterator</dt>
+	<dd>A function used to iterate over each model in this collection. The method will be called with each model passed in as the first argument and, optionally, the current index being as the second aguments.</dd>
+	<dt data=type="mixed">context</dt>
+	<dd>Optionally, the context to apply to the iterator</dd>
+</dl>
+<p>
+	Iterates over each model in this collection based on a given iterator. For each model that exists in this collection, the iterator method is called with the model passed into the first argument and that model's index in the collection passed into the second argument.
+</p>
 			</div>
 		
 	
@@ -1082,7 +1408,11 @@
 				<h3>extend
 					<small>Falcon.Collection.extend( definition )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="Object">definition</dt>
+	<dd>The definition of the extending class' instance attributes and methods</dd>
+</dl>
+<p>Method used to create a new class that inherits from this class</p>
 			</div>
 		
 	
@@ -1090,9 +1420,15 @@
 			
 			<div id="collection-fetch">
 				<h3>fetch
-					<small>Falcon.Collection#fetch( options )</small>
+					<small>collection.fetch( [options] )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="Object">options</dt>
+	<dd>The options to pass to the 'sync' method</dd>
+</dl>
+<p>
+	Shorthand method to fetch ("GET") all of the models from the server. This method delegates its execution to the 'sync method'.
+</p>
 			</div>
 		
 	
@@ -1100,9 +1436,39 @@
 			
 			<div id="collection-fill">
 				<h3>fill
-					<small>Falcon.Collection#fill( items, options )</small>
+					<small>collection.fill( items, [options] )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="Array">items</dt>
+	<dd>An array of models to add to the collection.</dd>
+	<dt data-type="Object">options</dt>
+	<dd>A hash of options to use when filling this collection with the given models. The 'method' attribute of options can be used to dictate how the models are added to this collection. The possible options are:
+		<ul>
+			<li>
+				<strong>replace</strong> - Replaces all of the elements in the current list of models.
+			</li>
+			<li>
+				<strong>append</strong> - Append the items to the end of the collection
+			</li>
+			<li>
+				<strong>prepend</strong> - Prepend the items to the beginning of the collection
+			</li>
+			<li>
+				<strong>merge</strong> - Update existing models in this collection (based on checking against models with matching 'id' attributes) and push any new items to the end of the collection.
+			</li>
+		</ul>
+		by default, the 'replace' method is chosen.
+	</dd>
+</dl>
+<dl>
+	<dt data-type="Falcon.Model">item</dt>
+	<dd>A model to add to the collection.</dd>
+	<dt data-type="Object">options</dt>
+	<dd>See Above</dd>
+</dl>
+<p>
+	Method used to add new models to the collection. By default, this method just replaces all of the existing models in the collection. Optionally, one may define how models are added to the colleciton by defining the 'method' attribute of the options argument. 'method' can be either 'replace', 'append', 'prepend', or 'merge'. By default, 'replace' is chosen.
+</p>
 			</div>
 		
 	
@@ -1110,9 +1476,15 @@
 			
 			<div id="collection-first">
 				<h3>first
-					<small>Falcon.Collection#first( [iterator] )</small>
+					<small>collection.first( [iterator] )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="Function">iterator</dt>
+	<dd>A function to check each model in this collection against. If the iterator returns true then that model is selected.</dd>
+</dl>
+<p>
+	Method used to obtain the first model in the collection. If an iterator is given, then each model starting from the beginning and moving towards the end of the collection, is tested. The first model to pass the truth test is returned. If no model could be found, then 'null' is returned.
+</p>
 			</div>
 		
 	
@@ -1120,9 +1492,15 @@
 			
 			<div id="collection-last">
 				<h3>last
-					<small>Falcon.Collection#last( [iterator] )</small>
+					<small>collection.last( [iterator] )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="Function">iterator</dt>
+	<dd>A function to check each model in this collection against. If the iterator returns true then that model is selected.</dd>
+</dl>
+<p>
+	Method used to obtain the last model in the collection. If an iterator is given, then each model starting from the end and moving towards the beginning of the collection, is tested. The first model to pass the truth test is returned. If no model could be found, then 'null' is returned.
+</p>
 			</div>
 		
 	
@@ -1130,9 +1508,11 @@
 			
 			<div id="collection-length">
 				<h3>length
-					<small>Falcon.Collection#length</small>
+					<small>collection.length</small>
 				</h3>
-				Waiting for Description
+				<p>
+	The total number of models in this collection. This is an observable so if being bound against, model additions/removals to this collectionwill cause any subscribed object to the length attribute to also be updated.
+</p>
 			</div>
 		
 	
@@ -1140,9 +1520,20 @@
 			
 			<div id="collection-makeurl">
 				<h3>makeUrl
-					<small>Falcon.Collection#makeUrl( type, parent )</small>
+					<small>collection.makeUrl( type, [parent] )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="String">type</dt>
+	<dd>The type of request that is trying to be executed. Type can be either "GET", "POST", "PUT", "DELETE".</dd>
+	<dt data-type="Falcon.Model">parent</dt>
+	<dd>An override to the parent model of this collection. If 'null' is explicity stated, then no parent will be used meaning this collection's model prototype will be used to find the the base relative url for this request.</dd>
+</dl>
+<p>
+	Attempts to generate url for a specific type of request being made. Url's are generated based on this collection's relative url (extracted from the collection's model prototype), the parent model for this collection, and the Falcon.baseApiUrl setting. 
+</p>
+<p>
+	An optional override to the 'parent' attribute can be passed into the second argument of this method. If the parent argument is set, then that will be used instead of the instance parent attribute. Alternatively, if 'null' is explicitly set for the parent attribute, then this collection's url will be used as the base url for the full url generation.
+</p>
 			</div>
 		
 	
@@ -1150,9 +1541,15 @@
 			
 			<div id="collection-mixin">
 				<h3>mixin
-					<small>Falcon.Collection#mixin( mapping )</small>
+					<small>collection.mixin( mapping )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="Object">mapping</dt>
+	<dd>The mapping to apply to each of the current models and any future models that are added to the collection.</dd>
+</dl>
+<p>
+	Adds attributes and functions to all of the current and future models in the collection.  This is especially useful for adding one-off functions or observables where needed on each item in the collection that isn't really necessary for everytime this specific collection is created. A good example of this would be adding a 'deleteing' flag to each current and future model in the collection to signify if the model is currently being deleted (hence allowing us to show a loader and ignore any additional delete requests).
+</p>
 			</div>
 		
 	
@@ -1160,9 +1557,11 @@
 			
 			<div id="collection-model">
 				<h3>model
-					<small>Falcon.Collection#model</small>
+					<small>collection.model</small>
 				</h3>
-				Waiting for Description
+				<p>
+	The prototype of the model of each item in this collection. This is used to ensure that all models within this collection are the correct type. It is also used to determine the relative url for models in this collection when making sync requests to the server.
+</p>
 			</div>
 		
 	
@@ -1170,9 +1569,11 @@
 			
 			<div id="collection-models">
 				<h3>models
-					<small>Falcon.Collection#models</small>
+					<small>collection.models</small>
 				</h3>
-				Waiting for Description
+				<p>
+	The internal observable array that contains all of the models added to this collection.
+</p>
 			</div>
 		
 	
@@ -1180,9 +1581,11 @@
 			
 			<div id="collection-parent">
 				<h3>parent
-					<small>Falcon.Collection#parent</small>
+					<small>collection.parent</small>
 				</h3>
-				Waiting for Description
+				<p>
+	This represents the 'parent' object that holds these models.  Generally this is used for determining the URL structure of rest objects in the makeURL() routine. This should also be a Model.
+</p>
 			</div>
 		
 	
@@ -1190,9 +1593,19 @@
 			
 			<div id="collection-parse">
 				<h3>parse
-					<small>Falcon.Collection#parse( data, options, xhr )</small>
+					<small>collection.parse( data, options, xhr )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type='Object'>data</dt>
+	<dd>The raw data returned from the server</dd>
+	<dt data-type='Object'>options</dt>
+	<dd>The options that were passed into the sync function</dd>
+	<dt data-type="XmlHttpRequest">xhr</dt>
+	<dd>The XmlHttpRequest that was created when making this request</dd>
+</dl>
+<p>
+	The parse method is called after any successful request is completed but before any of the data is actually filled into the collection. It's purpose is to allow you to intercept and parse through the raw server data in order to format it correctly to how this collection expects to see it. This method must return an array of objects in order for the collection to be filled correctly.
+</p>
 			</div>
 		
 	
@@ -1200,9 +1613,17 @@
 			
 			<div id="collection-pluck">
 				<h3>pluck
-					<small>Falcon.Collection#pluck( attribute, [unwrap] )</small>
+					<small>collection.pluck( attribute, [unwrap] )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="String">attribute</dt>
+	<dd>The attribute to pluck from each model in the collecton</dd>
+	<dt data-type="Boolean" data-default="true">unwrap</dt>
+	<dd>Flag that states if we should unwrap the values that are observables.</dd>
+</dl>
+<p>
+	This method extracts a specific attribute from each model in the collection and returns it in an array. If the unwrap flag is set to true (which it is by default), each attribute is removed from its observable container if it exists wihin one.  If the attribute given isn't found in a model, 'undefined' is returned in the resultant array.
+</p>
 			</div>
 		
 	
@@ -1210,9 +1631,11 @@
 			
 			<div id="collection-pop">
 				<h3>pop
-					<small>Falcon.Collection#pop()</small>
+					<small>collection.pop()</small>
 				</h3>
-				Waiting for Description
+				<p>
+	Removes and returns the last model from this collection.  If this collection is empty, 'null' is returned instead.
+</p>
 			</div>
 		
 	
@@ -1220,9 +1643,19 @@
 			
 			<div id="collection-prepend">
 				<h3>prepend
-					<small>Falcon.Collection#prepend( items )</small>
+					<small>collection.prepend( items )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt type="Falcon.Model">item</dt>
+	<dd>A model to prepend to the beginning of this colleciton.</dd>
+</dl>
+<dl>
+	<dt type="Array">items</dt>
+	<dd>An array of models to prepend to the beginning of this colleciton.</dd>
+</dl>
+<p>
+	Adds a model or an array of models to the beginning of this collection.
+</p>
 			</div>
 		
 	
@@ -1230,9 +1663,15 @@
 			
 			<div id="collection-push">
 				<h3>push
-					<small>Falcon.Collection#push( items )</small>
+					<small>collection.push( items )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt type="Falcon.Model">item</dt>
+	<dd>A model to add to the colleciton</dd>
+</dl>
+<p>
+	Push an element on to the end of this collection. This method is an alias od append.
+</p>
 			</div>
 		
 	
@@ -1240,9 +1679,23 @@
 			
 			<div id="collection-remove">
 				<h3>remove
-					<small>Falcon.Collection#remove( items )</small>
+					<small>collection.remove( items )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="Array">items</dt>
+	<dd>An array of models to remove from this colleciton.</dd>
+</dl>
+<dl>
+	<dt data-type="Falcon.Model">item</dt>
+	<dd>An item to remove from this collection.</dd>
+</dl>
+<dl>
+	<dt data-type="Function">iterator</dt>
+	<dd>An iterator function to compare each model in this collection against. If the iterator is true, then the model is removed.</dd>
+</dl>
+<p>
+	Used to remove elements from this collection. This method does not make any API delete requests and will simply remove an instance of a model from this collection.
+</p>
 			</div>
 		
 	
@@ -1250,9 +1703,11 @@
 			
 			<div id="collection-reset">
 				<h3>reset
-					<small>Falcon.Collection#reset()</small>
+					<small>collection.reset()</small>
 				</h3>
-				Waiting for Description
+				<p>
+	'resets' the internal observable array of this collection. This will make sure the model list is an observable array, has no elements, and the length of the collection is restored to zero.
+</p>
 			</div>
 		
 	
@@ -1260,9 +1715,12 @@
 			
 			<div id="collection-serialize">
 				<h3>serialize
-					<small>Falcon.Collection#serialize( attributes )</small>
+					<small>collection.serialize( [attributes] )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt data-type="Array">attributes</dt>
+	<dd>The attributes that should be included in the serialization of each model in this collection. If none given, all attributes unique to each model is included.</dd>
+</dl>
 			</div>
 		
 	
@@ -1270,9 +1728,11 @@
 			
 			<div id="collection-shift">
 				<h3>shift
-					<small>Falcon.Collection#shift()</small>
+					<small>collection.shift()</small>
 				</h3>
-				Waiting for Description
+				<p>
+	Removes the first element from the models and returns it.
+</p>
 			</div>
 		
 	
@@ -1280,9 +1740,17 @@
 			
 			<div id="collection-slice">
 				<h3>slice
-					<small>Falcon.Collection#slice( start, end )</small>
+					<small>collection.slice( start, [end] )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt>start</dt>
+	<dd>An integer that specifies where to start the selection (The first element has an index of 0).  Use negative numbers to select from the end of an array.</dd>
+	<dt>end</dt>
+	<dd>An integer that specifies where to end the selection.  If omitted, all elements from the start position and to the end of the array will be selected. Use negative numbers to select from the end of an array</dd>
+</dl>
+<p>
+	Slices the underlying collection the same way slice works on an array.
+</p>
 			</div>
 		
 	
@@ -1290,9 +1758,15 @@
 			
 			<div id="collection-sort">
 				<h3>sort
-					<small>Falcon.Collection#sort( sorter )</small>
+					<small>collection.sort( sorter )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt>sorter</dt>
+	<dd>An iterator to sort the collection with.</dd>
+</dl>
+<p>
+	Sorts the collection by a given sorter function.
+</p>
 			</div>
 		
 	
@@ -1300,9 +1774,17 @@
 			
 			<div id="collection-sync">
 				<h3>sync
-					<small>Falcon.Collection#sync( type, options )</small>
+					<small>collection.sync( type, [options] )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt>type</dt>
+	<dd>The HTTP Method to call to the server with</dd>
+	<dt>options</dt>
+	<dd>Optional object of settings to use on this call</dd>
+</dl>
+<p>
+	Used to dynamically place calls to the server in order to create, update, destroy, or read this from/to the server.
+</p>
 			</div>
 		
 	
@@ -1310,9 +1792,22 @@
 			
 			<div id="collection-unshift">
 				<h3>unshift
-					<small>Falcon.Collection#unshift( items )</small>
+					<small>collection.unshift( items )</small>
 				</h3>
-				Waiting for Description
+				<!--
+	TODO: Link to prepend
+-->
+<dl>
+	<dt>items</dt>
+	<dd>A list of models to add to the collection</dd>
+</dl>
+<dl>
+	<dt>item</dt>
+	<dd>A model to add to the collection</dd>
+</dl>
+<p>
+	Push an element onto the begining of the array, Alias of prepend.
+</p>
 			</div>
 		
 	
@@ -1320,9 +1815,11 @@
 			
 			<div id="collection-unwrap">
 				<h3>unwrap
-					<small>Falcon.Collection#unwrap()</small>
+					<small>collection.unwrap()</small>
 				</h3>
-				Waiting for Description
+				<p>
+	Method used to 'unwrap' this object into an anonymous object Needed to cascade inwards on other Falcon Data objects (like models) to unwrap newly added member variables/objects
+</p>
 			</div>
 		
 	
@@ -1330,9 +1827,9 @@
 			
 			<div id="collection-url">
 				<h3>url
-					<small>Falcon.Collection#url</small>
+					<small>collection.url</small>
 				</h3>
-				Waiting for Description
+				<p>This is the top level url for the collection.</p>
 			</div>
 		
 	
@@ -1340,9 +1837,13 @@
 			
 			<div id="collection-without">
 				<h3>without
-					<small>Falcon.Collection#without( iterator )</small>
+					<small>collection.without( iterator )</small>
 				</h3>
-				Waiting for Description
+				<dl>
+	<dt>iterator</dt>
+	<dd>The iterator to check each model against</dd>
+</dl>
+<p>Returns an array of elements that don't match the iterator</p>
 			</div>
 		
 	
@@ -1582,7 +2083,7 @@
 				<h3>foreach
 					<small></small>
 				</h3>
-				Waiting for Description
+				<p>This is the same as the <a href="http://knockoutjs.com/documentation/foreach-binding.html" alt="Knockout's Foreach binding">Knockout's Foreach binding</a> except that it has been modified to handle Falcon Collection's as well</p>
 			</div>
 		
 	
@@ -1592,7 +2093,7 @@
 				<h3>log
 					<small></small>
 				</h3>
-				Waiting for Description
+				<p>This is a helper binding that can be used to dump whatever is passed into it, into the browser console. Useful for debugging and understanding context</p>
 			</div>
 		
 	
@@ -1602,7 +2103,7 @@
 				<h3>options
 					<small></small>
 				</h3>
-				Waiting for Description
+				<p>This is the same as the <a href="http://knockoutjs.com/documentation/options-binding.html" alt="Knockout's Options binding">Knockout's Options binding</a> except that it has been modified to handle Falcon Collection's as well.</p>
 			</div>
 		
 	
@@ -1612,7 +2113,7 @@
 				<h3>view
 					<small></small>
 				</h3>
-				Waiting for Description
+				<p>Method used to handle Falcon.View obects. This will handle fetching a view's viewmodel and html template.  This method expects to use the native Knockout templating engine.</p>
 			</div>
 		
 	

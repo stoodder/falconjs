@@ -1,9 +1,78 @@
 ---
 title: sync
-method: Falcon.Model#sync( type, options )
-returnType: undefined
-returnDescription: undefined
+method: model.sync( type, [options] )
+returnType: XmlHttpRequest
+returnDescription: The XmlHttpRequest created
 complete: false
 category: model
 ---
-Waiting for Description
+<dl>
+	<dt data-type="String">type</dt>
+	<dd>The HTTP Method to call to the server with. Valid options options include "GET", "POST", "PUT", "DELETE".</dd>
+	<dt data-type="Object">options</dt>
+	<dd>Optional object of settings to use on this call.  This is usefull for configuring ajax callbacks, url parameters, fill paramaters, and attribute serialization handling. The avilable options are:
+		<ul>
+			<li>
+				<strong>url</strong> - The url to make our request to. If the url isn't specified, then the 'makeUrl' method will be called with the given request type to generate a url.
+			</li>
+			<li>
+				<strong>parent</strong> - An override of the parent object to use when generating a url with 'makeUrl'. If the parent option isn't set, then this model's parent is used.
+			</li>
+			<li>
+				<strong>attributes</strong> - An object (or an array) of attributes to actually serialize and send to the server. This is the same attributes specifiation that will be passed into the 'serialize' method which is useful for reducing the load of data that is sent to the server.  See the 'serialize' method for more information on the attributes option.
+			</li>
+			<li>
+				<strong>params</strong> - An object of query parameters to add to the request url.  This is useful for allowing the 'makeUrl' to generate a url for this model but still being able to add specific query parameters without having to modify the makeUrl method.
+			</li>
+			<li>
+				<strong>data</strong> - An object of additional data to send through to the server.  This data is automatically JSON stringified if it is present and valid.  By default, this is set to the serialized version of this model with whatever attributes, if any, are specified in the 'attributes' parameter of the options object.
+			</li>
+			<li>
+				<strong>dataType</strong> - The type of data to send to the server, the default is 'json'.
+			</li>
+			<li>
+				<strong>headers</strong> - An object of HTTP headers to add to this request.
+			</li>
+			<li>
+				<strong>context</strong> - The context to call the ajax callbacks (success, error, complete), on.
+			</li>
+			<li>
+				<strong>success( model, data, status, xhr)</strong> - The callback that will be executed when the ajax request has completed with a 200 level response. The callback will be called on the context of this model unless the context option has been specified. The callback will be given four arguments: This model, the data after being passed through the parse method, the request status, and the XmlHttpRequest object.
+			</li>
+			<li>
+				<strong>error( model, response, xhr )</strong> - A callback method to be executed whenever a 400 or above level response is returned from the server. This method will be called on the context of this model or the context given in the options if one is set.  This callback will be called with three arguments given: This model, the response text, and the XmlHttpRequest object. 
+			<li>
+				<strong>complete( model, xhr, status )</strong> - A callback method to be executed whenever any status resonse is completed. This method is called after success/error. It will be called on the context of this model unless the context was specified in the options. It will be called with three arguments given: This model, the XmlHttpRequest object, and the server status.
+			</li>
+			<li>
+				<strong>fill</strong> - A flag to specify whether the 'fill' methos should be called once this request has completed successfully. By default, this is set to true.
+			</li>
+		</ul>
+	</dd>
+</dl>
+<p>
+	Method used to interact with the backend API and this model. This method utilizes and extend on to the jQuery $.ajax method.  This method may be called with for different request types:
+	<ul>
+		<li><strong>GET</strong> - Retrieve this model's data</li>
+		<li><strong>POST</strong> - Create a model with this data on the server</li>
+		<li><strong>PUT</strong> - Update this model's data on the server</li>
+		<li><strong>DELETE</strong> - Delete this model from the server</li>
+	</ul>
+</p>
+<p>
+	The sync mehtod takes an optional 'options' argument which can be used for specifying how this method should hane sync requests of the request types mentioned and how it should handle serializing and reacting to success/errornous responses.
+</p>
+<p>
+	If a PUT or POST request type or being issue, this model's 'validate' method is executed to check if this model is valid and if we should continue sending data to the server.  If the validate method returns false, the process is halted and no interaction with the server occurs
+</p>
+<p>
+	Following the validation of the model, this method will automatically call the 'serialize' method on this model with whatever attributes, if any, are specified by the 'attributes' parameter of the options object if this is a POST or PUT request.  Please refer to the 'serialize' method for more advaned detail on how the 'attributes' option performs.
+</p>
+<p>
+	Lastly, after the ajax method responds successfully, a success response will occur. Prior to calling the 'success' callback on the options, the raw data returned from the server will be send to the 'parse' method. The resultant data from the parse method is then sent to the 'fill' method (if the fill flag is enabled). Following that, an event is triggered depending on the request type.  (GET = 'fetch', POST = 'create', PUT = 'save', DELETE = 'destroy'). Lastly, the success callback method specified in the options parameter is called with this model as a conext, and with 4 arguments: This model, the parsed raw data, the response status, and the XmlHttpRequest object.
+</p>
+<!--
+	TODO:
+	Warning for no PATH support
+	Warning for no jsonp
+-->

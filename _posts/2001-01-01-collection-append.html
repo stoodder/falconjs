@@ -1,9 +1,19 @@
 ---
 title: append
-method: Falcon.Collection#append( items )
-returnType: undefined
-returnDescription: undefined
+method: collection.append( items )
+returnType: Falcon.Collection
+returnDescription: This instance
 complete: false
 category: collection
 ---
-Waiting for Description
+<dl>
+	<dt data-type="Falcon.Model">item</dt>
+	<dd>A model to add to the end of the collection</dd>
+</dl>
+<dl>
+	<dt data-type="Array">items</dt>
+	<dd>An array of models to add to the end of the collection</dd>
+</dl>
+<p>
+	A a single or an array of models to the end of this collection. append is simply a wrapper for the full method with the option {'method': 'append'} pre-filled.
+</p>

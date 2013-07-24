@@ -1,1 +1,31 @@
-Waiting for Description
+<dl>
+	<dt data-type="Array">items</dt>
+	<dd>An array of models to add to the collection.</dd>
+	<dt data-type="Object">options</dt>
+	<dd>A hash of options to use when filling this collection with the given models. The 'method' attribute of options can be used to dictate how the models are added to this collection. The possible options are:
+		<ul>
+			<li>
+				<strong>replace</strong> - Replaces all of the elements in the current list of models.
+			</li>
+			<li>
+				<strong>append</strong> - Append the items to the end of the collection
+			</li>
+			<li>
+				<strong>prepend</strong> - Prepend the items to the beginning of the collection
+			</li>
+			<li>
+				<strong>merge</strong> - Update existing models in this collection (based on checking against models with matching 'id' attributes) and push any new items to the end of the collection.
+			</li>
+		</ul>
+		by default, the 'replace' method is chosen.
+	</dd>
+</dl>
+<dl>
+	<dt data-type="Falcon.Model">item</dt>
+	<dd>A model to add to the collection.</dd>
+	<dt data-type="Object">options</dt>
+	<dd>See Above</dd>
+</dl>
+<p>
+	Method used to add new models to the collection. By default, this method just replaces all of the existing models in the collection. Optionally, one may define how models are added to the colleciton by defining the 'method' attribute of the options argument. 'method' can be either 'replace', 'append', 'prepend', or 'merge'. By default, 'replace' is chosen.
+</p>

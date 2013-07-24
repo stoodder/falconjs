@@ -1,9 +1,15 @@
 ---
 title: fetch
-method: Falcon.Collection#fetch( options )
-returnType: undefined
-returnDescription: undefined
+method: collection.fetch( [options] )
+returnType: XmlHttpRequest
+returnDescription: The XmlHttpRequest created
 complete: false
 category: collection
 ---
-Waiting for Description
+<dl>
+	<dt data-type="Object">options</dt>
+	<dd>The options to pass to the 'sync' method</dd>
+</dl>
+<p>
+	Shorthand method to fetch ("GET") all of the models from the server. This method delegates its execution to the 'sync method'.
+</p>

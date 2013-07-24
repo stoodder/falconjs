@@ -4132,11 +4132,10 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
 
       unwrapped = {};
       for (attr in this) {
-        if (!(attr === "id" || (Falcon.Model.prototype[attr] == null))) {
-          continue;
-        }
         value = this[attr];
-        unwrapped[attr] = Falcon.isDataObject(value) ? value.unwrap() : value;
+        if (attr === "id" || !(attr in Falcon.Model.prototype)) {
+          unwrapped[attr] = Falcon.isDataObject(value) ? value.unwrap() : value;
+        }
       }
       return unwrapped;
     };
@@ -4332,6 +4331,8 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
         'cache': Falcon.cache,
         'headers': options.headers,
         'success': function(data, status, xhr) {
+          var parsed_data;
+
           if (isString(data)) {
             data = JSON.parse(data);
           }
@@ -4341,22 +4342,22 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
           if (data == null) {
             data = {};
           }
-          data = _this.parse(data, options, xhr);
+          parsed_data = _this.parse(data, options, xhr);
           if (options.fill) {
-            _this.fill(data, options);
+            _this.fill(parsed_data, options);
           }
           switch (type) {
             case "GET":
-              _this.trigger("fetch", data);
+              _this.trigger("fetch", parsed_data);
               break;
             case "POST":
-              _this.trigger("create", data);
+              _this.trigger("create", parsed_data);
               break;
             case "PUT":
-              _this.trigger("save", data);
+              _this.trigger("save", parsed_data);
               break;
             case "DELETE":
-              _this.trigger("destroy", data);
+              _this.trigger("destroy", parsed_data);
           }
           return options.success.call(context, _this, data, status, xhr);
         },
@@ -4771,20 +4772,25 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
           if (_model) {
             _model.fill(model);
           } else {
-            this.models.push(model);
+            _models.push(model);
           }
         }
+        this.models(_models);
       } else if (method === 'prepend') {
         _length = models.length - 1;
+        _models = this.models();
         for (i = _m = 0, _len4 = models.length; _m < _len4; i = ++_m) {
           model = models[i];
-          this.models.unshift(models[_length - i]);
+          _models.unshift(models[_length - i]);
         }
+        this.models(_models);
       } else if (method === 'append') {
+        _models = this.models();
         for (_n = 0, _len5 = models.length; _n < _len5; _n++) {
           model = models[_n];
-          this.models.push(model);
+          _models.push(model);
         }
+        this.models(_models);
       }
       this.length(this.models().length);
       return models;
@@ -4935,6 +4941,8 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
         'cache': Falcon.cache,
         'headers': options.headers,
         'success': function(data, status, xhr) {
+          var parsed_data;
+
           if (isString(data)) {
             data = JSON.parse(data);
           }
@@ -4944,12 +4952,12 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
           if (data == null) {
             data = [];
           }
-          data = _this.parse(data, options, xhr);
+          parsed_data = _this.parse(data, options, xhr);
           if (type === "GET") {
             if (options.fill) {
-              _this.fill(data, options);
+              _this.fill(parsed_data, options);
             }
-            _this.trigger("fetch", data);
+            _this.trigger("fetch", parsed_data);
           }
           return options.success.call(context, _this, data, status, xhr);
         },
@@ -5018,11 +5026,11 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
         _this = this;
 
       if (this.model == null) {
-        return;
+        return null;
       }
       model = this.first(ko.utils.unwrapObservable(model));
       if (!Falcon.isModel(model)) {
-        return;
+        return null;
       }
       if (isFunction(options)) {
         options = {
@@ -5362,9 +5370,6 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
         this.models([]);
       } else {
         this.models = ko.observableArray([]);
-        this.models.extend({
-          "throttle": 1
-        });
       }
       this.length(0);
       return this;
@@ -5492,7 +5497,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
   _getItems = function(value) {
     var items;
 
-    items = ko.utils.unwrapObservable(Falcon.isCollection(value) ? value.models() : value);
+    items = ko.utils.unwrapObservable(Falcon.isCollection(value) ? value.models : value);
     if (!isArray(items)) {
       items = [items];
     }

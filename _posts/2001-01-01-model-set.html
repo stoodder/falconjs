@@ -1,9 +1,21 @@
 ---
 title: set
-method: Falcon.Model#set( attribute, value )
-returnType: undefined
-returnDescription: undefined
+method: model.set( attribute, [value] )
+returnType: Falcon.Model
+returnDescription: This instance
 complete: false
 category: model
 ---
-Waiting for Description
+<dl>
+	<dt data-type="String">attribute</dt>
+	<dd>The attribute to look up</dd>
+	<dt>value</dt>
+	<dd>The value to assign</dd>
+</dl>
+<dl>
+	<dt data-type="Object">values</dt>
+	<dd>An object of values to set</dd>
+</dl>
+<p>
+	Sets a value for the specific attribute, creating one if it does nto exist.  If an object is passed into the first argument of this method, each of the object's key value pairs will be set on this model.
+</p>

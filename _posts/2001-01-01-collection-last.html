@@ -1,9 +1,15 @@
 ---
 title: last
-method: Falcon.Collection#last( [iterator] )
-returnType: undefined
-returnDescription: undefined
+method: collection.last( [iterator] )
+returnType: Falcon.Model
+returnDescription: The last model in this collection or the last model that passed the iterator's truth test. If no model was found, then 'null' is returned.
 complete: false
 category: collection
 ---
-Waiting for Description
+<dl>
+	<dt data-type="Function">iterator</dt>
+	<dd>A function to check each model in this collection against. If the iterator returns true then that model is selected.</dd>
+</dl>
+<p>
+	Method used to obtain the last model in the collection. If an iterator is given, then each model starting from the end and moving towards the beginning of the collection, is tested. The first model to pass the truth test is returned. If no model could be found, then 'null' is returned.
+</p>

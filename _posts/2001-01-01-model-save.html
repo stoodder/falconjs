@@ -1,9 +1,15 @@
 ---
 title: save
-method: Falcon.Model#save( options )
-returnType: undefined
-returnDescription: undefined
+method: model.save( [options] )
+returnType: XmlHttpRequest
+returnDescription: The XmlHttpRequest created
 complete: false
 category: model
 ---
-Waiting for Description
+<dl>
+	<dt data-type-"Object">options</dt>
+	<dd>Optional object of settings to use on this call.</dd>
+</dl>
+<p>
+	Calls the sync method with 'PUT' as the default request type. Saves this model to the server.  If the model is new then 'create' will be called instead.
+</p>

@@ -1,1 +1,9 @@
-Waiting for Description
+<dl>
+	<dt data-type="String">type</dt>
+	<dd>The type of request we're making (GET, POST, PUT, DELETE)</dd>
+	<dt data-type="Falcon.Model">parent</dt>
+	<dd>Optional override of the model's parent to generate the url with. If parent is 'null' then this model will act as the root node.</dd>
+</dl>
+<p>
+	Generates a URL based on this model's url, the parent model of this model, the type of request we're making and Falcon's defined baseApiUrl
+</p>

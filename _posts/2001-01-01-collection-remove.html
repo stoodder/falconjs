@@ -1,9 +1,23 @@
 ---
 title: remove
-method: Falcon.Collection#remove( items )
-returnType: undefined
-returnDescription: undefined
+method: collection.remove( items )
+returnType: Falcon.Collection
+returnDescription: This instance
 complete: false
 category: collection
 ---
-Waiting for Description
+<dl>
+	<dt data-type="Array">items</dt>
+	<dd>An array of models to remove from this colleciton.</dd>
+</dl>
+<dl>
+	<dt data-type="Falcon.Model">item</dt>
+	<dd>An item to remove from this collection.</dd>
+</dl>
+<dl>
+	<dt data-type="Function">iterator</dt>
+	<dd>An iterator function to compare each model in this collection against. If the iterator is true, then the model is removed.</dd>
+</dl>
+<p>
+	Used to remove elements from this collection. This method does not make any API delete requests and will simply remove an instance of a model from this collection.
+</p>

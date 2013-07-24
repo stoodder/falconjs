@@ -1,9 +1,21 @@
 ---
 title: serialize
-method: Falcon.Model#serialize( attributes )
-returnType: undefined
-returnDescription: undefined
+method: model.serialize( [attributes] )
+returnType: Object
+returnDescription: The resultant 'raw' object to send to the server
 complete: false
 category: model
 ---
-Waiting for Description
+<dl>
+	<dt>attributes</dt>
+	<dd>
+		The attributes that should be included in the serialization. If none given, all attributes from this model (except for functions) are serialized
+	</dd>
+</dl>
+<p>
+	Serializes the data into a raw json object and only corresponds to the attributes that are primitive and that we wish to be able to send back to the server.
+</p>
+<!--
+	TODO:
+	Expand on the attributes description
+-->

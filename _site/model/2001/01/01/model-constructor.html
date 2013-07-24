@@ -1,1 +1,9 @@
-Testing Things
+<dl>
+	<dt data-type="Object">data</dt>
+	<dd>An object of initial data for this model</dd>
+	<dt data-type="Falcon.Model">parent</dt>
+	<dd>The object that 'owns' this model. This is used for generating urls in the 'makeUrl' function when syncing data between client and server.</dd>
+</dl>
+<p>
+	The initialize method is called within the actual constructor method of the model. The constructor method has specific set up code that should alway be run when creating a model and hence, having the initialize method available, allows developers to override this funciton to ensure that everything that the actual constructor needs to do is executed prior to the initialize method and everything custom that the developer needs won't interfere with the required operations.
+</p>

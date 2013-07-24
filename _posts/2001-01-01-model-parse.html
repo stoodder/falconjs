@@ -1,9 +1,19 @@
 ---
 title: parse
-method: Falcon.Model#parse( data, options, xhr )
-returnType: undefined
-returnDescription: undefined
+method: model.parse( data, [options], [xhr] )
+returnType: Object
+returnDescription: Parsing on a model expects an object to be returned
 complete: false
 category: model
 ---
-Waiting for Description
+<dl>
+	<dt data-type="Object">data</dt>
+	<dd>The raw response data</dd>
+	<dt data-type="Object">options</dt>
+	<dd>The options fed initially into the 'sync' request</dd>
+	<dt data-type="XmlHttpRequest">xhr</dt>
+	<dd>The XmlHttpRequest object</dd>
+</dl>
+<p>
+	Parses the response data from an XmlHttpRequest request.  A json object must be returned from this method in order for the data to be filled back into the model.
+</p>

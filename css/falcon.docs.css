@@ -7,8 +7,13 @@ h1, h2, h3, h4, h5, h6 {
   margin-top: 0px;
 }
 
+section {
+  padding: 60px 0px 0px 0px;
+}
+
 .page-header {
-  padding-top: 30px;
+  padding-top: 0px;
+  margin-top: 0px;
 }
 
 #hero {
@@ -47,6 +52,13 @@ h1, h2, h3, h4, h5, h6 {
   bottom: 0px;
   height: auto;
   background-color: #f8f8f8;
+}
+#sidebar.affix #sidebar-header {
+  opacity: 1;
+  -moz-opacity: 1;
+  -webkit-opacity: 1;
+  -o-opacity: 1;
+  filter: alpha(opacity=100);
 }
 #sidebar.affix ul.sidebar-nav {
   list-style: none;
@@ -105,16 +117,39 @@ h1, h2, h3, h4, h5, h6 {
   -webkit-transform: translate3d(0, 0, 0);
   transform-style: preserve-3d;
   transform: translate3d(0, 0, 0);
-  border-radius: 0px;
-  -moz-border-radius: 0px;
   width: 270px;
   overflow: scroll;
   background-color: transparent;
+  margin: 0px;
+  padding: 0px;
+}
+#sidebar #sidebar-header {
+  -moz-transition-duration: 0.25s;
+  -webkit-transition-duration: 0.25s;
+  -o-transition-duration: 0.25s;
+  -ms-transition-duration: 0.25s;
+  transition-duration: 0.25s;
+  -webkit-transform-style: preserve-3d;
+  -webkit-transform: translate3d(0, 0, 0);
+  transform-style: preserve-3d;
+  transform: translate3d(0, 0, 0);
+  opacity: 0;
+  -moz-opacity: 0;
+  -webkit-opacity: 0;
+  -o-opacity: 0;
+  filter: alpha(opacity=0);
+  height: 50px;
+  padding: 10px;
+  font-size: 22px;
+  line-height: 30px;
+  color: #aa0000;
+  border-bottom: 1px solid #e8e8e8;
+  background-color: white;
 }
 #sidebar ul.sidebar-nav {
   list-style: none;
   padding: 0px;
-  margin: 40px 0px 0px 0px;
+  margin: 0px;
   font-size: 17px;
 }
 #sidebar ul.sidebar-nav li {

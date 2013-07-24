@@ -1,1 +1,11 @@
-Waiting for Description
+<dl>
+	<dt data-type='Object'>data</dt>
+	<dd>The raw data returned from the server</dd>
+	<dt data-type='Object'>options</dt>
+	<dd>The options that were passed into the sync function</dd>
+	<dt data-type="XmlHttpRequest">xhr</dt>
+	<dd>The XmlHttpRequest that was created when making this request</dd>
+</dl>
+<p>
+	The parse method is called after any successful request is completed but before any of the data is actually filled into the collection. It's purpose is to allow you to intercept and parse through the raw server data in order to format it correctly to how this collection expects to see it. This method must return an array of objects in order for the collection to be filled correctly.
+</p>

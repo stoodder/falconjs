@@ -4,8 +4,12 @@
 h1, h2, h3, h4, h5, h6
 	margin-top: 0px
 
+section
+	padding: 60px 0px 0px 0px
+
 .page-header
-	padding-top: 30px
+	padding-top: 0px
+	margin-top: 0px
 
 #hero
 	height: 500px
@@ -43,6 +47,9 @@ h1, h2, h3, h4, h5, h6
 	bottom: 0px
 	height: auto
 	background-color: $white-darker
+
+	#sidebar-header
+		@include opacity( 1 )
 
 	ul.sidebar-nav
 		list-style: none
@@ -93,15 +100,27 @@ h1, h2, h3, h4, h5, h6
 
 #sidebar
 	@include transition-duration( .25s )
-	@include border-radius( 0px )
 	width: 270px
 	overflow: scroll
 	background-color: transparent
+	margin: 0px
+	padding: 0px
+
+	#sidebar-header
+		@include transition-duration( .25s )
+		@include opacity( 0 )
+		height: 50px
+		padding: 10px
+		font-size: 22px
+		line-height: 30px
+		color: $red
+		border-bottom: 1px solid mix( $white-darkest, $grey-lightest )
+		background-color: $white
 
 	ul.sidebar-nav
 		list-style: none
 		padding: 0px
-		margin: 40px 0px 0px 0px
+		margin: 0px
 		font-size: 17px
 
 		li
