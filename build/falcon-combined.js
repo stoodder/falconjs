@@ -3679,7 +3679,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
 	Falcon.js
 	by Rick Allen (stoodder)
 
-	Version 0.5.1
+	Version 0.5.2
 	Full source at https://github.com/stoodder/falconjs
 	Copyright (c) 2011 RokkinCat, http://www.rokkincat.com
 
@@ -3872,7 +3872,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
   };
 
   this.Falcon = Falcon = {
-    version: "0.5.1",
+    version: "0.5.2",
     applicationElement: "body",
     baseApiUrl: "",
     baseTemplateUrl: "",
