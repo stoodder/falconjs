@@ -2,7 +2,7 @@
 	Falcon.js
 	by Rick Allen (stoodder)
 
-	Version 0.6.0
+	Version 0.6.1
 	Full source at https://github.com/stoodder/falconjs
 	Copyright (c) 2013 Rick Allen, http://www.stoodder.com
 
@@ -3695,7 +3695,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
 	Falcon.js
 	by Rick Allen (stoodder)
 
-	Version 0.6.0
+	Version 0.6.1
 	Full source at https://github.com/stoodder/falconjs
 	Copyright (c) 2011 RokkinCat, http://www.rokkincat.com
 
@@ -3888,7 +3888,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
   };
 
   this.Falcon = Falcon = {
-    version: "0.6.0",
+    version: "0.6.1",
     applicationElement: "body",
     baseApiUrl: "",
     baseTemplateUrl: "",
@@ -4799,20 +4799,30 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
     Collection.extend = Falcon.Object.extend;
 
     _makeIterator = function(iterator) {
-      var _id, _model;
+      var _id, _model, _model_id;
 
       if (Falcon.isModel(iterator)) {
         _model = iterator;
-        return function(item) {
-          var id, model_id;
+        _model_id = _model.get('id');
+        if (_model_id != null) {
+          return function(item) {
+            var id, model_id;
 
-          if (!Falcon.isModel(item)) {
-            return false;
-          }
-          id = item.get('id');
-          model_id = _model.get('id');
-          return id === model_id;
-        };
+            if (!Falcon.isModel(item)) {
+              return false;
+            }
+            id = item.get('id');
+            model_id = _model.get('id');
+            return id === model_id;
+          };
+        } else {
+          return function(item) {
+            if (!Falcon.isModel(item)) {
+              return false;
+            }
+            return item === _model;
+          };
+        }
       }
       if (isNumber(iterator) || isString(iterator)) {
         _id = iterator;

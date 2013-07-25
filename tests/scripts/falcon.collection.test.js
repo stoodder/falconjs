@@ -1434,7 +1434,7 @@
         expect(collectionA.at(0)).to.equal(model_a1);
         return expect(collectionA.at(1)).to.equal(model_a3);
       });
-      return it("Should be able to remove a different model but with the same id", function() {
+      it("Should be able to remove a different model but with the same id", function() {
         expect(collectionA.length()).to.equal(4);
         collectionA.remove(new ModelA({
           id: 3
@@ -1442,6 +1442,22 @@
         expect(collectionA.at(0)).to.equal(model_a1);
         expect(collectionA.at(1)).to.equal(model_a2);
         return expect(collectionA.at(2)).to.equal(model_a4);
+      });
+      return it("Should be able to remove models who don't have an id, properly", function() {
+        collectionA = new CollectionA();
+        collectionA.append([
+          {
+            'text': '1'
+          }, {
+            'text': '2'
+          }, {
+            'text': '3'
+          }
+        ]);
+        expect(collectionA.length()).to.equal(3);
+        model_a1 = collectionA.first();
+        collectionA.remove(model_a1);
+        return expect(collectionA.length()).to.equal(2);
       });
     });
     describe("Test the append and prepend methods", function() {
