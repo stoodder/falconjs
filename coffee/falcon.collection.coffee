@@ -20,12 +20,24 @@ class Falcon.Collection extends Falcon.Object
 	_makeIterator = (iterator) ->
 		if Falcon.isModel( iterator )
 			_model = iterator
-			return (item) ->
-				return false unless Falcon.isModel(item)
-				id = item.get('id')
-				model_id = _model.get('id')
-				return ( id is model_id )
-			#END iterator assignment
+			_model_id = _model.get('id')
+
+			#If the id of the model is set, remove all models with the same id
+			if _model_id?
+				return (item) ->
+					return false unless Falcon.isModel(item)
+					id = item.get('id')
+					model_id = _model.get('id')
+					return ( id is model_id )
+				#END return
+
+			#Otherwise remove based on reference
+			else
+				return (item) ->
+					return false unless Falcon.isModel(item)
+					return ( item is _model )
+				#END return
+			#END if
 		#END if
 
 		if isNumber(iterator) or isString(iterator)
