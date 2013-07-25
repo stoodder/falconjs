@@ -5,17 +5,10 @@
 #==============================================================================================
 class Falcon.Collection extends Falcon.Object
 	#--------------------------------------------------------
-	# Method: Falcon.Collection.extend
-	#	Method used to create a new subclass that inherits from this
-	#	class.
-	#
-	# Arguments:
-	#	**definition** _(Object)_ - The child's class definition
-	#
-	# Returns:
-	#	_(Objec)t_ - The extended class
+	# Method: Falcon.Collection.extend()
+	#	Inherit the global extend method
 	#--------------------------------------------------------
-	@extend = (definition) -> Falcon.Object.extend(Falcon.Collection, definition)
+	@extend = Falcon.Object.extend
 
 	#--------------------------------------------------------
 	# Method: _makeIterator

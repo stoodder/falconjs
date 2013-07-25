@@ -169,4 +169,226 @@ describe "Tesing event functionality", ->
 			expect( klass.arr() ).to.not.equal( Klass::observables.arr ) #Make sure this is a clone, not the original array definition
 		#END it
 	#END describe
+
+	describe "Test the extend method on objects", ->
+		ajax_stub = null
+		beforeEach ->
+			ajax_stub = sinon.stub( $, 'ajax' )
+		#END beforeEach
+
+		afterEach ->
+			ajax_stub.restore()
+		#END afterEach
+
+		it "Should extend Falcon.Object properly", ->
+			custom_spy = sinon.spy()
+			things_spy = sinon.spy()
+
+			Klass = Falcon.Object.extend({
+				'custom': -> custom_spy.call( @ )
+				'text': 'test'
+			},{
+				'things': -> things_spy.call( @ )
+			});
+
+			my_klass = new Klass
+
+			expect( my_klass ).to.be.instanceof Falcon.Object
+			expect( my_klass ).not.to.be.instanceof Falcon.Model
+			expect( my_klass ).not.to.be.instanceof Falcon.Collection
+			expect( my_klass ).not.to.be.instanceof Falcon.View
+
+			expect( Klass::custom ).to.be.a 'function'
+			expect( Klass::text ).to.be.a 'string'
+			expect( Klass.things ).to.be.a 'function'
+
+			expect( my_klass.custom ).to.be.a 'function'
+			expect( my_klass.text ).to.be.a 'string'
+
+			my_klass.custom()
+
+			expect( custom_spy ).to.have.been.called
+			expect( custom_spy.firstCall ).to.have.been.calledOn my_klass
+
+			Klass.things()
+
+			expect( things_spy ).to.have.been.called
+			expect( things_spy.firstCall ).to.have.been.calledOn Klass
+		#END it
+
+		it "Should extend Falcon.Model properly", ->
+			custom_spy = sinon.spy()
+			things_spy = sinon.spy()
+			init_spy = sinon.spy()
+
+			Klass = Falcon.Model.extend({
+				'initialize': -> init_spy.call( @ )
+				'custom': -> custom_spy.call( @ )
+				'text': 'test'
+			},{
+				'things': -> things_spy.call( @ )
+			});
+
+			my_klass = new Klass
+
+			expect( my_klass ).to.be.instanceof Falcon.Object
+			expect( my_klass ).to.be.instanceof Falcon.Model
+			expect( my_klass ).not.to.be.instanceof Falcon.Collection
+			expect( my_klass ).not.to.be.instanceof Falcon.View
+
+			expect( Klass::initialize ).to.be.a 'function'
+			expect( Klass::custom ).to.be.a 'function'
+			expect( Klass::text ).to.be.a 'string'
+			expect( Klass.things ).to.be.a 'function'
+
+			expect( my_klass.initialize ).to.be.a 'function'
+			expect( my_klass.custom ).to.be.a 'function'
+			expect( my_klass.text ).to.be.a 'string'
+
+			expect( init_spy ).to.have.been.called
+			expect( init_spy.firstCall ).to.have.been.calledOn my_klass
+
+			my_klass.custom()
+
+			expect( custom_spy ).to.have.been.called
+			expect( custom_spy.firstCall ).to.have.been.calledOn my_klass
+
+			Klass.things()
+
+			expect( things_spy ).to.have.been.called
+			expect( things_spy.firstCall ).to.have.been.calledOn Klass
+		#END it
+
+		it "Should extend Falcon.Collection properly", ->
+			custom_spy = sinon.spy()
+			things_spy = sinon.spy()
+			init_spy = sinon.spy()
+
+			Klass = Falcon.Collection.extend({
+				'initialize': -> init_spy.call( @ )
+				'custom': -> custom_spy.call( @ )
+				'text': 'test'
+			},{
+				'things': -> things_spy.call( @ )
+			});
+
+			my_klass = new Klass
+
+			expect( my_klass ).to.be.instanceof Falcon.Object
+			expect( my_klass ).not.to.be.instanceof Falcon.Model
+			expect( my_klass ).to.be.instanceof Falcon.Collection
+			expect( my_klass ).not.to.be.instanceof Falcon.View
+
+			expect( Klass::initialize ).to.be.a 'function'
+			expect( Klass::custom ).to.be.a 'function'
+			expect( Klass::text ).to.be.a 'string'
+			expect( Klass.things ).to.be.a 'function'
+
+			expect( my_klass.initialize ).to.be.a 'function'
+			expect( my_klass.custom ).to.be.a 'function'
+			expect( my_klass.text ).to.be.a 'string'
+
+			expect( init_spy ).to.have.been.called
+			expect( init_spy.firstCall ).to.have.been.calledOn my_klass
+
+			my_klass.custom()
+
+			expect( custom_spy ).to.have.been.called
+			expect( custom_spy.firstCall ).to.have.been.calledOn my_klass
+
+			Klass.things()
+
+			expect( things_spy ).to.have.been.called
+			expect( things_spy.firstCall ).to.have.been.calledOn Klass
+		#END it
+
+		it "Should extend Falcon.View properly", ->
+			custom_spy = sinon.spy()
+			things_spy = sinon.spy()
+			init_spy = sinon.spy()
+
+			Klass = Falcon.View.extend({
+				'initialize': -> init_spy.call( @ )
+				'custom': -> custom_spy.call( @ )
+				'text': 'test'
+			},{
+				'things': -> things_spy.call( @ )
+			});
+
+			my_klass = new Klass
+
+			expect( my_klass ).to.be.instanceof Falcon.Object
+			expect( my_klass ).not.to.be.instanceof Falcon.Model
+			expect( my_klass ).not.to.be.instanceof Falcon.Collection
+			expect( my_klass ).to.be.instanceof Falcon.View
+
+			expect( Klass::initialize ).to.be.a 'function'
+			expect( Klass::custom ).to.be.a 'function'
+			expect( Klass::text ).to.be.a 'string'
+			expect( Klass.things ).to.be.a 'function'
+
+			expect( my_klass.initialize ).to.be.a 'function'
+			expect( my_klass.custom ).to.be.a 'function'
+			expect( my_klass.text ).to.be.a 'string'
+
+			expect( init_spy ).to.have.been.called
+			expect( init_spy.firstCall ).to.have.been.calledOn my_klass
+
+			my_klass.custom()
+
+			expect( custom_spy ).to.have.been.called
+			expect( custom_spy.firstCall ).to.have.been.calledOn my_klass
+
+			Klass.things()
+
+			expect( things_spy ).to.have.been.called
+			expect( things_spy.firstCall ).to.have.been.calledOn Klass
+		#END it
+
+		it "Should allow for deep inheritence", ->
+			custom_spy = sinon.spy()
+			things_spy = sinon.spy()
+
+			Klass = Falcon.Object.extend({
+				'custom': -> custom_spy.call( @ )
+				'text': 'test'
+			},{
+				'things': -> things_spy.call( @ )
+			});
+
+			ChildKlass = Klass.extend({
+				'another': (->)
+			},{
+				'foo': 'bar'
+			})
+
+			child_klass = new ChildKlass
+
+			expect( child_klass ).to.be.instanceof Falcon.Object
+			expect( child_klass ).to.be.instanceof Klass
+			expect( child_klass ).not.to.be.instanceof Falcon.Model
+			expect( child_klass ).not.to.be.instanceof Falcon.Collection
+			expect( child_klass ).not.to.be.instanceof Falcon.View
+
+			expect( ChildKlass::custom ).to.be.a 'function'
+			expect( ChildKlass::text ).to.be.a 'string'
+			expect( ChildKlass::another ).to.be.a 'function'
+			expect( ChildKlass.things ).to.be.a 'function'
+			expect( ChildKlass.foo ).to.be.a 'string'
+
+			expect( child_klass.custom ).to.be.a 'function'
+			expect( child_klass.text ).to.be.a 'string'
+			expect( child_klass.another ).to.be.a 'function'
+
+			child_klass.custom()
+
+			expect( custom_spy ).to.have.been.called
+			expect( custom_spy.firstCall ).to.have.been.calledOn child_klass
+
+			ChildKlass.things()
+
+			expect( things_spy ).to.have.been.called
+			expect( things_spy.firstCall ).to.have.been.calledOn ChildKlass
+		#END it
+	#END describe
 #END describe

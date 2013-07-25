@@ -3966,32 +3966,34 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
 
     Object.prototype.defaults = null;
 
-    Object.extend = function(instanceDef, staticDef) {
-      var child, ctor, parent;
+    Object.extend = function(protoProps, staticProps) {
+      var Surrogate, child, key, parent, value;
 
-      if (instanceDef == null) {
-        instanceDef = {};
-      }
-      if (staticDef == null) {
-        staticDef = {};
-      }
       parent = this;
-      child = null;
-      if (Object.prototype.hasOwnProperty.call(instanceDef, "constructor")) {
-        child = instanceDef.constructor;
+      if (protoProps && protoProps.hasOwnProperty('constructor')) {
+        child = protoProps.constructor;
       } else {
         child = function() {
           return parent.apply(this, arguments);
         };
       }
-      ctor = (function() {
-        return this.constructor = child;
-      });
-      ctor.prototype = parent.prototype;
-      child.prototype = new ctor;
-      extend(child.prototype, instanceDef);
-      extend(child, parent);
-      extend(child, staticDef);
+      for (key in parent) {
+        value = parent[key];
+        child[key] = value;
+      }
+      for (key in staticProps) {
+        value = staticProps[key];
+        child[key] = value;
+      }
+      Surrogate = function() {
+        this.constructor = child;
+      };
+      Surrogate.prototype = parent.prototype;
+      child.prototype = new Surrogate;
+      for (key in protoProps) {
+        value = protoProps[key];
+        child.prototype[key] = value;
+      }
       child.__super__ = parent.prototype;
       return child;
     };
@@ -4144,9 +4146,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
   Falcon.Model = (function(_super) {
     __extends(Model, _super);
 
-    Model.extend = function(properties) {
-      return Falcon.Object.extend(Falcon.Model, properties);
-    };
+    Model.extend = Falcon.Object.extend;
 
     Model.prototype.id = null;
 
@@ -4631,6 +4631,8 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       return __falcon_view__template_cache__ = {};
     };
 
+    View.extend = Falcon.Object.extend;
+
     View.prototype.url = null;
 
     View.prototype.is_loaded = false;
@@ -4794,9 +4796,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
 
     __extends(Collection, _super);
 
-    Collection.extend = function(definition) {
-      return Falcon.Object.extend(Falcon.Collection, definition);
-    };
+    Collection.extend = Falcon.Object.extend;
 
     _makeIterator = function(iterator) {
       var _id, _model;

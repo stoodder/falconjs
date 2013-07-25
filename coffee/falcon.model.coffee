@@ -6,17 +6,9 @@
 class Falcon.Model extends Falcon.Object
 	#--------------------------------------------------------
 	# Method: Falcon.Model.extend()
-	#	static method used to replicate inhertiance in
-	#	javascript applications.  Used to create a new
-	#	model that inherits from the base Falcon.Model
-	#
-	# Arguments:
-	#	**properties** _(Object)_ -  The new class definition
-	#
-	# Returns:
-	#	_(Object)_ - The new class definition
+	#	Inherit the global extend method
 	#--------------------------------------------------------
-	@extend = (properties) -> Falcon.Object.extend(Falcon.Model, properties)
+	@extend = Falcon.Object.extend
 
 	#--------------------------------------------------------
 	# Member: Falcon.Model#id

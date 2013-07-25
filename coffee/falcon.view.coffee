@@ -37,6 +37,12 @@ class Falcon.View extends Falcon.Object
 	#END resetCache
 
 	#--------------------------------------------------------
+	# Method: Falcon.View.extend()
+	#	Inherit the global extend method
+	#--------------------------------------------------------
+	@extend = Falcon.Object.extend
+
+	#--------------------------------------------------------
 	# Member: Faclon.View#url
 	#	The url or element id where this template is defined. 
 	#	Can either be a string or a function and can either point 

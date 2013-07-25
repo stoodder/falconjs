@@ -32,43 +32,44 @@ class Falcon.Object
 	#--------------------------------------------------------
 	# Method: Falcon.Object.extend
 	#	Method used to create a new subclass that inherits from this
-	#	class.
+	#	class. Credit to Backbone js, snagged code from there
 	#
 	# Arguments:
-	#	**parent** _(Object)_ - The parent to extend from
-	#	**definition** _(Object)_ - The child's class definition
+	#	**protoProps** _(Object)_ - Properties for the prototype of a class
+	#	**staticProps** _(Object)_ - Static properties for a given object
 	#
 	# Returns:
 	#	_(Objec)t_ - The extended class
 	#--------------------------------------------------------
-	@extend = (instanceDef, staticDef) ->
-		instanceDef ?= {}
-		staticDef ?= {}
+	@extend = (protoProps, staticProps) ->
+		parent = @
 
-		parent = this
-		child = null
-
-		#Check if the instance defintion has a constrctor,
-		#if not, generate one that calls the parent constructor
-		if Object::hasOwnProperty.call(instanceDef, "constructor")
-			child = instanceDef.constructor
+		# The constructor function for the new subclass is either defined by you
+		# (the "constructor" property in your `extend` definition), or defaulted
+		# by us to simply call the parent's constructor.
+		if( protoProps and protoProps.hasOwnProperty('constructor') )
+			child = protoProps.constructor
 		else
 			child = -> parent.apply(this, arguments)
 		#END if
 
-		#Setup the prototype chain
-		ctor = ( -> this.constructor = child )
-		ctor.prototype = parent.prototype
-		child.prototype = new ctor
+		child[key] = value for key, value of parent
+		child[key] = value for key, value of staticProps
 
-		#Add instance methods
-		extend( child.prototype, instanceDef )
+		# Set the prototype chain to inherit from `parent`, without calling
+		# `parent`'s constructor function.
+		Surrogate = ->
+			@constructor = child
+			return
+		Surrogate.prototype = parent.prototype
+		child.prototype = new Surrogate
 
-		#Add static methods
-		extend( child, parent ) #First add any static attributes from the parent
-		extend( child, staticDef ) #Now add any static method being defined
+		# Add prototype properties (instance properties) to the subclass,
+		# if supplied.
+		child.prototype[key] = value for key, value of protoProps
 
-		#Store the parent's prototype for use later
+		# Set a convenience property in case the parent's prototype is needed
+		# later.
 		child.__super__ = parent.prototype
 
 		return child
