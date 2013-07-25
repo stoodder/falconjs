@@ -58,7 +58,7 @@
       click_two.should.have.been.calledWith(4, 5, 6);
       return mouseover_one.should.have.been.calledOnce;
     });
-    return describe("Test #observables and #defaults", function() {
+    describe("Test #observables and #defaults", function() {
       var Clazz, Klass, _ref, _ref1;
 
       Clazz = (function(_super) {
@@ -171,6 +171,210 @@
         expect(klass.arr()).to.be["instanceof"](Array);
         expect(klass.arr().length).to.equal(2);
         return expect(klass.arr()).to.not.equal(Klass.prototype.observables.arr);
+      });
+    });
+    return describe("Test the extend method on objects", function() {
+      var ajax_stub;
+
+      ajax_stub = null;
+      beforeEach(function() {
+        return ajax_stub = sinon.stub($, 'ajax');
+      });
+      afterEach(function() {
+        return ajax_stub.restore();
+      });
+      it("Should extend Falcon.Object properly", function() {
+        var Klass, custom_spy, my_klass, things_spy;
+
+        custom_spy = sinon.spy();
+        things_spy = sinon.spy();
+        Klass = Falcon.Object.extend({
+          'custom': function() {
+            return custom_spy.call(this);
+          },
+          'text': 'test'
+        }, {
+          'things': function() {
+            return things_spy.call(this);
+          }
+        });
+        my_klass = new Klass;
+        expect(my_klass).to.be["instanceof"](Falcon.Object);
+        expect(my_klass).not.to.be["instanceof"](Falcon.Model);
+        expect(my_klass).not.to.be["instanceof"](Falcon.Collection);
+        expect(my_klass).not.to.be["instanceof"](Falcon.View);
+        expect(Klass.prototype.custom).to.be.a('function');
+        expect(Klass.prototype.text).to.be.a('string');
+        expect(Klass.things).to.be.a('function');
+        expect(my_klass.custom).to.be.a('function');
+        expect(my_klass.text).to.be.a('string');
+        my_klass.custom();
+        expect(custom_spy).to.have.been.called;
+        expect(custom_spy.firstCall).to.have.been.calledOn(my_klass);
+        Klass.things();
+        expect(things_spy).to.have.been.called;
+        return expect(things_spy.firstCall).to.have.been.calledOn(Klass);
+      });
+      it("Should extend Falcon.Model properly", function() {
+        var Klass, custom_spy, init_spy, my_klass, things_spy;
+
+        custom_spy = sinon.spy();
+        things_spy = sinon.spy();
+        init_spy = sinon.spy();
+        Klass = Falcon.Model.extend({
+          'initialize': function() {
+            return init_spy.call(this);
+          },
+          'custom': function() {
+            return custom_spy.call(this);
+          },
+          'text': 'test'
+        }, {
+          'things': function() {
+            return things_spy.call(this);
+          }
+        });
+        my_klass = new Klass;
+        expect(my_klass).to.be["instanceof"](Falcon.Object);
+        expect(my_klass).to.be["instanceof"](Falcon.Model);
+        expect(my_klass).not.to.be["instanceof"](Falcon.Collection);
+        expect(my_klass).not.to.be["instanceof"](Falcon.View);
+        expect(Klass.prototype.initialize).to.be.a('function');
+        expect(Klass.prototype.custom).to.be.a('function');
+        expect(Klass.prototype.text).to.be.a('string');
+        expect(Klass.things).to.be.a('function');
+        expect(my_klass.initialize).to.be.a('function');
+        expect(my_klass.custom).to.be.a('function');
+        expect(my_klass.text).to.be.a('string');
+        expect(init_spy).to.have.been.called;
+        expect(init_spy.firstCall).to.have.been.calledOn(my_klass);
+        my_klass.custom();
+        expect(custom_spy).to.have.been.called;
+        expect(custom_spy.firstCall).to.have.been.calledOn(my_klass);
+        Klass.things();
+        expect(things_spy).to.have.been.called;
+        return expect(things_spy.firstCall).to.have.been.calledOn(Klass);
+      });
+      it("Should extend Falcon.Collection properly", function() {
+        var Klass, custom_spy, init_spy, my_klass, things_spy;
+
+        custom_spy = sinon.spy();
+        things_spy = sinon.spy();
+        init_spy = sinon.spy();
+        Klass = Falcon.Collection.extend({
+          'initialize': function() {
+            return init_spy.call(this);
+          },
+          'custom': function() {
+            return custom_spy.call(this);
+          },
+          'text': 'test'
+        }, {
+          'things': function() {
+            return things_spy.call(this);
+          }
+        });
+        my_klass = new Klass;
+        expect(my_klass).to.be["instanceof"](Falcon.Object);
+        expect(my_klass).not.to.be["instanceof"](Falcon.Model);
+        expect(my_klass).to.be["instanceof"](Falcon.Collection);
+        expect(my_klass).not.to.be["instanceof"](Falcon.View);
+        expect(Klass.prototype.initialize).to.be.a('function');
+        expect(Klass.prototype.custom).to.be.a('function');
+        expect(Klass.prototype.text).to.be.a('string');
+        expect(Klass.things).to.be.a('function');
+        expect(my_klass.initialize).to.be.a('function');
+        expect(my_klass.custom).to.be.a('function');
+        expect(my_klass.text).to.be.a('string');
+        expect(init_spy).to.have.been.called;
+        expect(init_spy.firstCall).to.have.been.calledOn(my_klass);
+        my_klass.custom();
+        expect(custom_spy).to.have.been.called;
+        expect(custom_spy.firstCall).to.have.been.calledOn(my_klass);
+        Klass.things();
+        expect(things_spy).to.have.been.called;
+        return expect(things_spy.firstCall).to.have.been.calledOn(Klass);
+      });
+      it("Should extend Falcon.View properly", function() {
+        var Klass, custom_spy, init_spy, my_klass, things_spy;
+
+        custom_spy = sinon.spy();
+        things_spy = sinon.spy();
+        init_spy = sinon.spy();
+        Klass = Falcon.View.extend({
+          'initialize': function() {
+            return init_spy.call(this);
+          },
+          'custom': function() {
+            return custom_spy.call(this);
+          },
+          'text': 'test'
+        }, {
+          'things': function() {
+            return things_spy.call(this);
+          }
+        });
+        my_klass = new Klass;
+        expect(my_klass).to.be["instanceof"](Falcon.Object);
+        expect(my_klass).not.to.be["instanceof"](Falcon.Model);
+        expect(my_klass).not.to.be["instanceof"](Falcon.Collection);
+        expect(my_klass).to.be["instanceof"](Falcon.View);
+        expect(Klass.prototype.initialize).to.be.a('function');
+        expect(Klass.prototype.custom).to.be.a('function');
+        expect(Klass.prototype.text).to.be.a('string');
+        expect(Klass.things).to.be.a('function');
+        expect(my_klass.initialize).to.be.a('function');
+        expect(my_klass.custom).to.be.a('function');
+        expect(my_klass.text).to.be.a('string');
+        expect(init_spy).to.have.been.called;
+        expect(init_spy.firstCall).to.have.been.calledOn(my_klass);
+        my_klass.custom();
+        expect(custom_spy).to.have.been.called;
+        expect(custom_spy.firstCall).to.have.been.calledOn(my_klass);
+        Klass.things();
+        expect(things_spy).to.have.been.called;
+        return expect(things_spy.firstCall).to.have.been.calledOn(Klass);
+      });
+      return it("Should allow for deep inheritence", function() {
+        var ChildKlass, Klass, child_klass, custom_spy, things_spy;
+
+        custom_spy = sinon.spy();
+        things_spy = sinon.spy();
+        Klass = Falcon.Object.extend({
+          'custom': function() {
+            return custom_spy.call(this);
+          },
+          'text': 'test'
+        }, {
+          'things': function() {
+            return things_spy.call(this);
+          }
+        });
+        ChildKlass = Klass.extend({
+          'another': (function() {})
+        }, {
+          'foo': 'bar'
+        });
+        child_klass = new ChildKlass;
+        expect(child_klass).to.be["instanceof"](Falcon.Object);
+        expect(child_klass).to.be["instanceof"](Klass);
+        expect(child_klass).not.to.be["instanceof"](Falcon.Model);
+        expect(child_klass).not.to.be["instanceof"](Falcon.Collection);
+        expect(child_klass).not.to.be["instanceof"](Falcon.View);
+        expect(ChildKlass.prototype.custom).to.be.a('function');
+        expect(ChildKlass.prototype.text).to.be.a('string');
+        expect(ChildKlass.prototype.another).to.be.a('function');
+        expect(ChildKlass.things).to.be.a('function');
+        expect(ChildKlass.foo).to.be.a('string');
+        expect(child_klass.custom).to.be.a('function');
+        expect(child_klass.text).to.be.a('string');
+        expect(child_klass.another).to.be.a('function');
+        child_klass.custom();
+        expect(custom_spy).to.have.been.called;
+        expect(custom_spy.firstCall).to.have.been.calledOn(child_klass);
+        ChildKlass.things();
+        expect(things_spy).to.have.been.called;
+        return expect(things_spy.firstCall).to.have.been.calledOn(ChildKlass);
       });
     });
   });
