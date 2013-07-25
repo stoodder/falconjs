@@ -1,1 +1,3 @@
-[http://stoodder.github.io/falconjs/](Github Page WIP Documentation)
+WIP Documentation:
+
+http://stoodder.github.io/falconjs/

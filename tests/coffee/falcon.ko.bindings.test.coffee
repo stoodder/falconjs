@@ -1,8 +1,17 @@
 describe "Test Knockout Bindings", ->
+	$application = null
+	application_index = 0
+	$body = $("body")
+
+	applyApp = (view) ->
+		application_index++
+		$application.remove() if $application?
+		$body.append( $application = $("<div id='application_#{application_index}'></div>") )
+		Falcon.apply( view, "#application_#{application_index}" )
+	#END applyApp
+
 	describe "Test view binding", ->
 		view_binding = ko.bindingHandlers['view']
-		$body = $("body")
-		$application = $("<div id='application'></div>")
 
 		class LayoutView extends Falcon.View
 			url: '#layout-template'
@@ -44,11 +53,9 @@ describe "Test Knockout Bindings", ->
 			</template>
 		")
 
-		_application = _layout_template = _footer_template = _conent_template = null
 		view_init_spy = view_update_spy = null
 
 		before ->
-			$body.append($application)
 			$body.append($layout_template)
 			$body.append($footer_template)
 			$body.append($content_template)
@@ -58,7 +65,6 @@ describe "Test Knockout Bindings", ->
 		#END beforeEach
 
 		after ->
-			$application.remove()
 			$layout_template.remove()
 			$footer_template.remove()
 			$content_template.remove()
@@ -78,7 +84,7 @@ describe "Test Knockout Bindings", ->
 			expect( render_spy ).to.not.have.been.called
 			expect( unrender_spy ).to.not.have.been.called
 
-			Falcon.apply( view, "#application" )
+			applyApp(view)
 
 			expect( view_init_spy ).to.have.been.calledOnce
 			expect( view_update_spy ).to.have.been.calledOnce
@@ -129,7 +135,7 @@ describe "Test Knockout Bindings", ->
 			#END _resetAll
 
 			it "Should not call any render or unrender methods on unassigned observable", ->
-				Falcon.apply( obs, "#application" )
+				applyApp( obs )
 
 				expect( view_init_spy ).to.have.been.calledOnce
 				expect( view_update_spy ).to.have.been.calledOnce
@@ -151,7 +157,7 @@ describe "Test Knockout Bindings", ->
 				expect( footer_dispose_spy ).to.not.have.been.called
 			#END it
 
-			it "Should call init, update, and render the correct number od times", ->
+			it "Should call init, update, and render the correct number of times", ->
 				obs( view )
 
 				expect( view_init_spy ).to.have.been.calledTwice
@@ -230,9 +236,6 @@ describe "Test Knockout Bindings", ->
 	#END describe
 
 	describe "Test updated foreach binding", ->
-		$body = $("body")
-		$application = $("<div id='application'></div>")
-
 		foreach_binding = ko.bindingHandlers['foreach']
 		foreach_init_spy = foreach_update_spy = null
 
@@ -289,7 +292,7 @@ describe "Test Knockout Bindings", ->
 				foreach_init_spy = sinon.spy( foreach_binding, 'init' )
 				foreach_update_spy = sinon.spy( foreach_binding, 'update' )
 
-				Falcon.apply( view_observable, "#application" )
+				applyApp( view_observable )
 			#END before
 
 			beforeEach ->
@@ -557,13 +560,12 @@ describe "Test Knockout Bindings", ->
 			after_add_spy = before_remove_spy = null
 
 			before ->
-				$body.append($application)
 				$body.append($layout_template)
 
 				foreach_init_spy = sinon.spy( foreach_binding, 'init' )
 				foreach_update_spy = sinon.spy( foreach_binding, 'update' )
 
-				Falcon.apply( view_observable, "#application" )
+				applyApp(view_observable)
 			#END before
 
 			beforeEach ->

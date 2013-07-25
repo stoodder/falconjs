@@ -2,7 +2,7 @@
 	Falcon.js
 	by Rick Allen (stoodder)
 
-	Version 0.5.0
+	Version 0.5.1
 	Full source at https://github.com/stoodder/falconjs
 	Copyright (c) 2011 RokkinCat, http://www.rokkincat.com
 
@@ -195,7 +195,7 @@
   };
 
   this.Falcon = Falcon = {
-    version: "0.5.0",
+    version: "0.5.1",
     applicationElement: "body",
     baseApiUrl: "",
     baseTemplateUrl: "",

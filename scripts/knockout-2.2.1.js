@@ -3,7 +3,7 @@
 // License: MIT (http://www.opensource.org/licenses/mit-license.php)
 
 (function(){
-var DEBUG=true;
+var DEBUG=false;
 (function(window,document,navigator,jQuery,undefined){
 !function(factory) {
     // Support three module loading scenarios

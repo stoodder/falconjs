@@ -20,11 +20,11 @@
 
 	"COMBINED": {
 		"build/falcon-combined.js": [
-			"scripts/knockout-2.2.1.js",
+			"scripts/knockout-2.3.0.js",
 			"build/falcon-standalone.js"
 		],
 		"build/falcon-combined.min.js": [
-			"scripts/knockout-2.2.1.js",
+			"scripts/knockout-2.3.0.js",
 			"build/falcon-standalone.js"
 		],
 		"build/falcon.js": [
