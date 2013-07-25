@@ -1367,7 +1367,7 @@
           return expect(ajax_stub.firstCall.args[0].complete).to.not.equal(_complete);
         });
       });
-      return describe("Testing sync method XHR responses", function() {
+      describe("Testing sync method XHR responses", function() {
         var ModelA, complete_spy, create_spy, data, destroy_spy, error_data, error_spy, fetch_spy, fill_stub, modelA, options, parse_stub, save_spy, server, success_data, success_spy, _ref;
 
         ModelA = (function(_super) {
@@ -1569,9 +1569,112 @@
           return expect(complete_spy).to.have.been.calledAfter(success_spy);
         });
       });
+      return describe("Testing sync method options in depth", function() {
+        var ModelA, ModelB, ajax_stub, _ref, _ref1;
+
+        ModelA = (function(_super) {
+          __extends(ModelA, _super);
+
+          function ModelA() {
+            _ref = ModelA.__super__.constructor.apply(this, arguments);
+            return _ref;
+          }
+
+          ModelA.prototype.url = "model_a";
+
+          return ModelA;
+
+        })(Falcon.Model);
+        ModelB = (function(_super) {
+          __extends(ModelB, _super);
+
+          function ModelB() {
+            _ref1 = ModelB.__super__.constructor.apply(this, arguments);
+            return _ref1;
+          }
+
+          ModelB.prototype.url = "model_b";
+
+          return ModelB;
+
+        })(Falcon.Model);
+        ajax_stub = null;
+        beforeEach(function() {
+          ajax_stub = sinon.stub(jQuery, "ajax");
+          return Falcon.cache = false;
+        });
+        afterEach(function() {
+          return ajax_stub.restore();
+        });
+        it("Should sync properly without options", function() {
+          var modelA;
+
+          modelA = new ModelA({
+            id: 1
+          });
+          modelA.sync('GET');
+          expect(ajax_stub).to.have.been.calledOnce;
+          expect(ajax_stub).to.have.been.calledWithMatch({
+            type: "GET"
+          });
+          expect(ajax_stub).to.have.been.calledWithMatch({
+            url: modelA.makeUrl("GET")
+          });
+          expect(ajax_stub).to.have.been.calledWithMatch({
+            data: ""
+          });
+          expect(ajax_stub).to.have.been.calledWithMatch({
+            contentType: "application/json"
+          });
+          expect(ajax_stub).to.have.been.calledWithMatch({
+            cache: false
+          });
+          expect(ajax_stub).to.have.been.calledWithMatch({
+            headers: {}
+          });
+          expect(ajax_stub.firstCall.args[0].success).to.be.a("function");
+          expect(ajax_stub.firstCall.args[0].success).to.have.length(3);
+          expect(ajax_stub.firstCall.args[0].error).to.be.a("function");
+          expect(ajax_stub.firstCall.args[0].error).to.have.length(1);
+          expect(ajax_stub.firstCall.args[0].complete).to.be.a("function");
+          return expect(ajax_stub.firstCall.args[0].complete).to.have.length(2);
+        });
+        it("Should allow for a specified parent to override", function() {
+          var modelA, model_b;
+
+          modelA = new ModelA({
+            id: 1
+          }, new ModelB({
+            id: 'b'
+          }));
+          modelA.sync('GET', {
+            parent: (model_b = new ModelB({
+              id: 'b2'
+            }))
+          });
+          return expect(ajax_stub).to.have.been.calledWithMatch({
+            url: modelA.makeUrl("GET", model_b)
+          });
+        });
+        return it("Should allow for a null parent", function() {
+          var modelA;
+
+          modelA = new ModelA({
+            id: 1
+          }, new ModelB({
+            id: 'b'
+          }));
+          modelA.sync('GET', {
+            parent: null
+          });
+          return expect(ajax_stub).to.have.been.calledWithMatch({
+            url: modelA.makeUrl("GET", null)
+          });
+        });
+      });
     });
     it("Should match equality properly", function() {
-      var ModelA, modelA_1, modelA_2, modelA_a, _ref;
+      var ModelA, modelA_1, modelA_2, modelA_a, modelA_null_1, modelA_null_2, _ref;
 
       ModelA = (function(_super) {
         __extends(ModelA, _super);
@@ -1593,6 +1696,8 @@
       modelA_a = new ModelA({
         id: 'a'
       });
+      modelA_null_1 = new ModelA;
+      modelA_null_2 = new ModelA;
       expect(modelA_1.equals(modelA_1)).to.be["true"];
       expect(modelA_1.equals(modelA_2)).to.be["false"];
       expect(modelA_1.equals(1)).to.be["true"];
@@ -1602,9 +1707,11 @@
       expect(modelA_a.equals(modelA_a)).to.be["true"];
       expect(modelA_a.equals(modelA_2)).to.be["false"];
       expect(modelA_a.equals('a')).to.be["true"];
-      return expect(modelA_a.equals(new ModelA({
+      expect(modelA_a.equals(new ModelA({
         id: 'a'
       }))).to.be["true"];
+      expect(modelA_null_1.equals(modelA_null_2)).to.be["false"];
+      return expect(modelA_null_1.equals(modelA_null_1)).to.be["true"];
     });
     it("Should implement mixins properly", function() {
       var ModelA, ModelB, mixin_spy, modelA, _ref, _ref1;

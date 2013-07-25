@@ -318,7 +318,7 @@
       afterEach(function() {
         return ajax_stub.restore();
       });
-      return it("Should create a valid view model", function() {
+      it("Should create a valid view model", function() {
         var another_stub, test_stub, view, viewModel;
 
         view = new FullView;
@@ -354,6 +354,14 @@
         expect(another_stub).to.have.been.calledOn(view);
         test_stub.restore();
         return another_stub.restore();
+      });
+      return it("Shoudl create equal viewModels after the first has been generated", function() {
+        var model1, model2, view;
+
+        view = new FullView;
+        model1 = view.viewModel();
+        model2 = view.viewModel();
+        return expect(model1).to.equal(model2);
       });
     });
   });
