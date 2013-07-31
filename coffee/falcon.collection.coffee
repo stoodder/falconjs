@@ -341,7 +341,7 @@ class Falcon.Collection extends Falcon.Object
 		#Make sure the url is now formatted correctly
 		url = "/#{url}" unless startsWith(url, "/")
 
-		parent = if parent isnt undefined then parent else @parent
+		parent = if parent is undefined then @parent else parent
 
 		#Check if a parent model is present
 		if Falcon.isModel(parent)
@@ -530,7 +530,7 @@ class Falcon.Collection extends Falcon.Object
 		options = {success:options} if isFunction(options)
 		options = {} unless isObject(options)
 		options.success = (->) unless isFunction(options.success)
-		options.parent = @parent
+		options.parent = @parent if options.parent is undefined
 
 		_success = options.success
 		options.success = (model) =>

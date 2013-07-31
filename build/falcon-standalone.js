@@ -2,7 +2,7 @@
 	Falcon.js
 	by Rick Allen (stoodder)
 
-	Version 0.6.1
+	Version 0.6.2
 	Full source at https://github.com/stoodder/falconjs
 	Copyright (c) 2011 RokkinCat, http://www.rokkincat.com
 
@@ -195,7 +195,7 @@
   };
 
   this.Falcon = Falcon = {
-    version: "0.6.1",
+    version: "0.6.2",
     applicationElement: "body",
     baseApiUrl: "",
     baseTemplateUrl: "",
@@ -1337,7 +1337,7 @@
       if (!startsWith(url, "/")) {
         url = "/" + url;
       }
-      parent = parent !== void 0 ? parent : this.parent;
+      parent = parent === void 0 ? this.parent : parent;
       if (Falcon.isModel(parent)) {
         parentUrl = parent.makeUrl();
         parentPeriodIndex = parentUrl.lastIndexOf(".");
@@ -1545,7 +1545,9 @@
       if (!isFunction(options.success)) {
         options.success = (function() {});
       }
-      options.parent = this.parent;
+      if (options.parent === void 0) {
+        options.parent = this.parent;
+      }
       _success = options.success;
       options.success = function(model) {
         _this.remove(model);

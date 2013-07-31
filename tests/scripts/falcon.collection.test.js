@@ -1771,7 +1771,7 @@
         destroy_stub.should.have.been.calledWith(options);
         return destroy_stub.restore();
       });
-      return it("Should respond correctly from the server", function() {
+      it("Should respond correctly from the server", function() {
         var remove_stub, removed_model, server;
 
         server = sinon.fakeServer.create();
@@ -1789,6 +1789,28 @@
         expect(success_spy.firstCall.args[0]).to.equal(removed_model);
         remove_stub.restore();
         return server.restore();
+      });
+      return it("Should destroy using the overriden parent", function() {
+        var ajax_args, ajax_spy, collectionA2, model_b, server;
+
+        model_b = new ModelB({
+          id: 'b'
+        });
+        collectionA2 = new CollectionA([model_a1, model_a2], model_b);
+        server = sinon.fakeServer.create();
+        ajax_spy = sinon.spy($, "ajax");
+        collectionA2.destroy(model_a1, {
+          parent: null
+        });
+        server.respondWith([200, {}, JSON.stringify({})]);
+        server.respond();
+        ajax_spy.restore();
+        server.restore();
+        expect(ajax_spy).to.have.been.called;
+        expect(ajax_spy.callCount).to.equal(1);
+        ajax_args = ajax_spy.firstCall.args[0];
+        expect(ajax_args['type']).to.equal("DELETE");
+        return expect(ajax_args['url']).to.equal(model_a1.makeUrl("DELETE", null));
       });
     });
     describe("Test the at() method", function() {

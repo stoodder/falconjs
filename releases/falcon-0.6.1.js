@@ -5030,7 +5030,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       if (!startsWith(url, "/")) {
         url = "/" + url;
       }
-      parent = parent !== void 0 ? parent : this.parent;
+      parent = parent === void 0 ? this.parent : parent;
       if (Falcon.isModel(parent)) {
         parentUrl = parent.makeUrl();
         parentPeriodIndex = parentUrl.lastIndexOf(".");
@@ -5238,7 +5238,9 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       if (!isFunction(options.success)) {
         options.success = (function() {});
       }
-      options.parent = this.parent;
+      if (options.parent === void 0) {
+        options.parent = this.parent;
+      }
       _success = options.success;
       options.success = function(model) {
         _this.remove(model);
