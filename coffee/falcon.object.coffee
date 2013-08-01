@@ -97,7 +97,7 @@ class Falcon.Object
 		if isObject( @defaults )
 			for attr, value of @defaults
 				if isFunction( value  )
-					this[attr] = value.call(@)
+					this[attr] = value.apply(@, arguments)
 				else if isObject( value )
 					this[attr] = clone( value )
 				else
@@ -118,7 +118,7 @@ class Falcon.Object
 					@[attr] = ko.computed
 						'read': value.read
 						'write': value.write
-						'owner': @
+						'owner': value.owner ? @
 					#END computed
 				else if isArray( value )
 					@[attr] = ko.observableArray( value.slice(0) )

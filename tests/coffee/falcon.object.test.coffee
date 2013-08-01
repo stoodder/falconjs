@@ -168,6 +168,28 @@ describe "Tesing event functionality", ->
 			expect( klass.arr().length ).to.equal 2
 			expect( klass.arr() ).to.not.equal( Klass::observables.arr ) #Make sure this is a clone, not the original array definition
 		#END it
+
+		it "Should create RawrClass with defaults that have the correct arguments", ->
+			hello_spy = null
+
+			class RawrClass extends Falcon.Object
+				defaults:
+					'hello': ( hello_spy = sinon.spy() )
+				#END defaults
+			#END RawrClass
+			
+			expect( hello_spy ).to.not.have.been.called
+
+			rawr_class = new RawrClass("one", "two", "three")
+
+			expect( hello_spy ).to.have.been.called
+			expect( hello_spy.callCount ).to.equal 1
+			expect( hello_spy.firstCall.args.length ).to.equal 3
+			expect( hello_spy.firstCall.args[0] ).to.equal "one"
+			expect( hello_spy.firstCall.args[1] ).to.equal "two"
+			expect( hello_spy.firstCall.args[2] ).to.equal "three"
+		#END it
+
 	#END describe
 
 	describe "Test the extend method on objects", ->

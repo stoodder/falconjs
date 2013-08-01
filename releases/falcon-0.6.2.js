@@ -4003,7 +4003,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
     Object.prototype.__falcon_object__cid__ = null;
 
     function Object() {
-      var attr, value, _ref, _ref1;
+      var attr, value, _ref, _ref1, _ref2;
 
       this.__falcon_object__events__ = {};
       this.__falcon_object__cid__ = __falcon_object__current_cid__++;
@@ -4012,7 +4012,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
         for (attr in _ref) {
           value = _ref[attr];
           if (isFunction(value)) {
-            this[attr] = value.call(this);
+            this[attr] = value.apply(this, arguments);
           } else if (isObject(value)) {
             this[attr] = clone(value);
           } else {
@@ -4033,7 +4033,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
             this[attr] = ko.computed({
               'read': value.read,
               'write': value.write,
-              'owner': this
+              'owner': (_ref2 = value.owner) != null ? _ref2 : this
             });
           } else if (isArray(value)) {
             this[attr] = ko.observableArray(value.slice(0));
