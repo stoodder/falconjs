@@ -2,7 +2,7 @@
 	Falcon.js
 	by Rick Allen (stoodder)
 
-	Version 0.6.3
+	Version 0.6.4
 	Full source at https://github.com/stoodder/falconjs
 	Copyright (c) 2011 RokkinCat, http://www.rokkincat.com
 
@@ -195,7 +195,7 @@
   };
 
   this.Falcon = Falcon = {
-    version: "0.6.3",
+    version: "0.6.4",
     applicationElement: "body",
     baseApiUrl: "",
     baseTemplateUrl: "",
@@ -678,8 +678,8 @@
       return true;
     };
 
-    Model.prototype.sync = function(type, options) {
-      var context, json, key, url, value, _ref, _ref1,
+    Model.prototype.sync = function(type, options, context) {
+      var json, key, url, value, _ref, _ref1,
         _this = this;
 
       if (isFunction(options)) {
@@ -745,7 +745,7 @@
         options.data = this.serialize(options.attributes);
       }
       json = options.data === null ? "" : JSON.stringify(options.data);
-      context = (_ref = options.context) != null ? _ref : this;
+      context = (_ref = context != null ? context : options.context) != null ? _ref : this;
       url = (_ref1 = options.url) != null ? _ref1 : this.makeUrl(type, options.parent);
       if (!isEmpty(options.params)) {
         if (!(url.indexOf("?") > -1)) {
@@ -821,20 +821,20 @@
       });
     };
 
-    Model.prototype.fetch = function(options) {
-      return this.sync('GET', options);
+    Model.prototype.fetch = function(options, context) {
+      return this.sync('GET', options, context);
     };
 
-    Model.prototype.create = function(options) {
-      return this.sync('POST', options);
+    Model.prototype.create = function(options, context) {
+      return this.sync('POST', options, context);
     };
 
-    Model.prototype.save = function(options) {
-      return (this.isNew() ? this.create(options) : this.sync('PUT', options));
+    Model.prototype.save = function(options, context) {
+      return (this.isNew() ? this.create(options, context) : this.sync('PUT', options, context));
     };
 
-    Model.prototype.destroy = function(options) {
-      return this.sync('DELETE', options);
+    Model.prototype.destroy = function(options, context) {
+      return this.sync('DELETE', options, context);
     };
 
     Model.prototype.equals = function(model) {
@@ -1356,8 +1356,8 @@
       return url;
     };
 
-    Collection.prototype.sync = function(type, options) {
-      var context, json, key, url, value, _ref, _ref1,
+    Collection.prototype.sync = function(type, options, context) {
+      var json, key, url, value, _ref, _ref1,
         _this = this;
 
       if (isFunction(options)) {
@@ -1416,7 +1416,7 @@
         type = "GET";
       }
       json = options.data === null ? "" : JSON.stringify(options.data);
-      context = (_ref = options.context) != null ? _ref : this;
+      context = (_ref = context != null ? context : options.context) != null ? _ref : this;
       url = (_ref1 = options.url) != null ? _ref1 : trim(this.makeUrl(type, options.parent));
       if (!isEmpty(options.params)) {
         if (!(url.indexOf("?") > -1)) {
@@ -1482,11 +1482,11 @@
       });
     };
 
-    Collection.prototype.fetch = function(options) {
-      return this.sync('GET', options);
+    Collection.prototype.fetch = function(options, context) {
+      return this.sync('GET', options, context);
     };
 
-    Collection.prototype.create = function(data, options) {
+    Collection.prototype.create = function(data, options, context) {
       var _success,
         _this = this;
 
@@ -1520,10 +1520,10 @@
         models = _this.fill(model, options);
         return _success.apply((_ref = models[0]) != null ? _ref : model, arguments);
       };
-      return new this.model(data, this.parent).create(options);
+      return new this.model(data, this.parent).create(options, context);
     };
 
-    Collection.prototype.destroy = function(model, options) {
+    Collection.prototype.destroy = function(model, options, context) {
       var _success,
         _this = this;
 
@@ -1553,7 +1553,7 @@
         _this.remove(model);
         return _success.apply(model, arguments);
       };
-      return model.destroy(options);
+      return model.destroy(options, context);
     };
 
     Collection.prototype.remove = function(items) {

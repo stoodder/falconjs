@@ -352,11 +352,12 @@ class Falcon.Model extends Falcon.Object
 	# Arguments:
 	#	**type** _(String)_ - The HTTP Method to call to the server with
 	#	**options** _(Object)_ - Optional object of settings to use on this call
+	#	**context** _(Object)_ - Optional object to set the context of the request
 	#
 	# Returns:
 	#	_(XmlHttpRequest)_ - The XmlHttpRequest created
 	#--------------------------------------------------------
-	sync: (type, options) ->
+	sync: (type, options, context) ->
 		options = {complete: options} if isFunction(options)
 		options = {attributes: trim( options ).split(",")} if isString(options)
 		options = {attributes: options} if isArray( options )
@@ -388,7 +389,7 @@ class Falcon.Model extends Falcon.Object
 		json = if options.data is null then "" else JSON.stringify(options.data)
 
 		#Determine the context
-		context = options.context ? this
+		context = context ? options.context ? this
 
 		url = options.url ? @makeUrl(type, options.parent)
 
@@ -447,12 +448,13 @@ class Falcon.Model extends Falcon.Object
 	#
 	# Arguments:
 	#	**options** _(Object)_ - Optional object of settings to use on this call
+	#	**context** _(Object)_ - Optional object to set the context of the request
 	#
 	# Returns:
 	#	_(XmlHttpRequest)_ - The XmlHttpRequest created
 	#--------------------------------------------------------
-	fetch: (options) -> 
-		return @sync('GET', options)
+	fetch: (options, context) -> 
+		return @sync('GET', options, context)
 	#END fetch
 
 	#--------------------------------------------------------
@@ -462,12 +464,13 @@ class Falcon.Model extends Falcon.Object
 	#
 	# Arguments:
 	#	**options** _(Object)_ - Optional object of settings to use on this call
+	#	**context** _(Object)_ - Optional object to set the context of the request
 	#
 	# Returns:
 	#	_(XmlHttpRequest)_ - The XmlHttpRequest created
 	#--------------------------------------------------------
-	create: (options) -> 
-		return @sync('POST', options)
+	create: (options, context) -> 
+		return @sync('POST', options, context)
 	#END create
 
 	#--------------------------------------------------------
@@ -478,12 +481,13 @@ class Falcon.Model extends Falcon.Object
 	#
 	# Arguments:
 	#	**options** _(Object)_ - Optional object of settings to use on this call
+	#	**context** _(Object)_ - Optional object to set the context of the request
 	#
 	# Returns:
 	#	_(XmlHttpRequest)_ - The XmlHttpRequest created
 	#--------------------------------------------------------
-	save: (options) -> 
-		return ( if @isNew() then @create(options) else @sync('PUT', options) )
+	save: (options, context) -> 
+		return ( if @isNew() then @create(options, context) else @sync('PUT', options, context) )
 	#END save
 
 	#--------------------------------------------------------
@@ -493,12 +497,13 @@ class Falcon.Model extends Falcon.Object
 	#
 	# Arguments:
 	#	**options** _(Object)_ - Optional object of settings to use on this call
+	#	**context** _(Object)_ - Optional object to set the context of the request
 	#
 	# Returns:
 	#	_(XmlHttpRequest)_ - The XmlHttpRequest created
 	#--------------------------------------------------------
-	destroy: (options) -> 
-		return @sync('DELETE', options)
+	destroy: (options, context) -> 
+		return @sync('DELETE', options, context)
 	#END destroy
 
 	#--------------------------------------------------------

@@ -1320,6 +1320,88 @@ describe "Testing Model Methods", ->
 
 				expect( ajax_stub ).to.have.been.calledWithMatch {url: modelA.makeUrl("GET", null)}
 			#END it
+		#END describe
+
+		describe "Additional miscellaneous sync tests", ->
+			class ModelA extends Falcon.Model
+				url: "model_a"
+			#END ModelA
+
+			class ModelB extends Falcon.Model
+				url: "model_b"
+			#END class
+
+			server = null
+
+			beforeEach ->
+				server = sinon.fakeServer.create()
+				Falcon.cache = false
+			#END beforeEach
+
+			afterEach ->
+				server.restore()
+			#END afterEach
+
+			it "Should allow for a third parameter to define the context", ->
+				modelB = new ModelB(id: 'b')
+				modelA = new ModelA(id: 1)
+				modelA.sync("GET", ( success_spy = sinon.spy() ), modelB)
+
+				server.respondWith [ 200, {}, JSON.stringify(modelA.serialize()) ]
+				server.respond()
+
+				expect( success_spy ).to.have.been.called
+				expect( success_spy ).to.have.been.calledOn modelB
+			#END it
+
+			it "Should let pass context from fetch to sync", ->
+				modelB = new ModelB(id: 'b')
+				modelA = new ModelA(id: 1)
+
+				sync_stub = sinon.stub( modelA, "sync" )
+				modelA.fetch( ( success_spy = sinon.spy() ), modelB )
+
+				expect( sync_stub ).to.have.been.called
+				expect( sync_stub.firstCall.args[1] ).to.equal success_spy
+				expect( sync_stub.firstCall.args[2] ).to.equal modelB
+			#END it
+
+			it "Should let pass context from create to sync", ->
+				modelB = new ModelB(id: 'b')
+				modelA = new ModelA(id: 1)
+
+				sync_stub = sinon.stub( modelA, "sync" )
+				modelA.create( ( success_spy = sinon.spy() ), modelB )
+
+				expect( sync_stub ).to.have.been.called
+				expect( sync_stub.firstCall.args[1] ).to.equal success_spy
+				expect( sync_stub.firstCall.args[2] ).to.equal modelB
+			#END it
+
+			it "Should let pass context from save to sync", ->
+				modelB = new ModelB(id: 'b')
+				modelA = new ModelA(id: 1)
+
+				sync_stub = sinon.stub( modelA, "sync" )
+				modelA.save( ( success_spy = sinon.spy() ), modelB )
+
+				expect( sync_stub ).to.have.been.called
+				expect( sync_stub.firstCall.args[1] ).to.equal success_spy
+				expect( sync_stub.firstCall.args[2] ).to.equal modelB
+			#END it
+
+			it "Should let pass context from destroy to sync", ->
+				modelB = new ModelB(id: 'b')
+				modelA = new ModelA(id: 1)
+
+				sync_stub = sinon.stub( modelA, "sync" )
+				modelA.destroy( ( success_spy = sinon.spy() ), modelB )
+
+				expect( sync_stub ).to.have.been.called
+				expect( sync_stub.firstCall.args[1] ).to.equal success_spy
+				expect( sync_stub.firstCall.args[2] ).to.equal modelB
+			#END it
+		#END describe
 	#END describe
 
 

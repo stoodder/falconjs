@@ -382,7 +382,7 @@ class Falcon.Collection extends Falcon.Object
 	# Returns:
 	#	_(XmlHttpRequest)_ - The XmlHttpRequest created
 	#--------------------------------------------------------
-	sync: (type, options) ->
+	sync: (type, options, context) ->
 		options = {complete: options} if isFunction(options)
 		options = {attributes: trim( options ).split(",")} if isString(options)
 		options = {attributes: options} if isArray( options )
@@ -407,7 +407,7 @@ class Falcon.Collection extends Falcon.Object
 		json = if options.data is null then "" else JSON.stringify(options.data)
 
 		#Determine the context
-		context = options.context ? this
+		context = context ? options.context ? this
 
 		url = options.url ? trim(@makeUrl(type, options.parent))
 
@@ -462,12 +462,13 @@ class Falcon.Collection extends Falcon.Object
 	#
 	# Arguments:
 	#	**options** _(Object)_ - Optional object of settings to use on this call
+	#	**context** _(Object)_ - Optional object to set the context of the request
 	#
 	# Returns:
 	#	_(XmlHttpRequest)_ - The XmlHttpRequest created
 	#--------------------------------------------------------
-	fetch: (options) -> 
-		return @sync('GET', options)
+	fetch: (options, context) -> 
+		return @sync('GET', options, context)
 	#END fetch
 
 	#--------------------------------------------------------
@@ -478,11 +479,12 @@ class Falcon.Collection extends Falcon.Object
 	# Arguments:
 	#	**data** _(Object)_ - The model data to create
 	#	**options** _(Object)_ - optional options for the ajax request
+	#	**context** _(Object)_ - Optional object to set the context of the request
 	#
 	# Returns:
 	#	_(XmlHttpRequest)_ - The XmlHttpRequest created
 	#--------------------------------------------------------
-	create: (data, options) ->
+	create: (data, options, context) ->
 		return unless @model?
 		
 		data = data.unwrap() if Falcon.isModel(data)
@@ -499,7 +501,7 @@ class Falcon.Collection extends Falcon.Object
 			_success.apply(models[0] ? model, arguments)
 		#END success
 
-		return ( new @model(data, @parent).create(options) )
+		return ( new @model(data, @parent).create(options, context) )
 	#END create
 
 	#--------------------------------------------------------
@@ -515,12 +517,14 @@ class Falcon.Collection extends Falcon.Object
 	#						   string 'all'), we'll destroy everything.
 	#
 	#	**options** _(Object)_ - An optional object of the settings to call when onto each 
-	#							 of the destroy methods of the 
+	#							 of the destroy methods of the
+	#
+	#	**context** _(Object)_ - Optional object to set the context of the request
 	#
 	# Returns:
 	#	_(XmlHttpRequest)_ - The XmlHttpRequest created
 	#--------------------------------------------------------
-	destroy: (model, options) ->
+	destroy: (model, options, context) ->
 		return null unless @model?
 
 		model = @first( ko.utils.unwrapObservable( model ) )
@@ -538,7 +542,7 @@ class Falcon.Collection extends Falcon.Object
 			_success.apply(model, arguments)
 		#END success
 
-		return model.destroy(options)
+		return model.destroy(options, context)
 	#END destroy
 
 	#--------------------------------------------------------

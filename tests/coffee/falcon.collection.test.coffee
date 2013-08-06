@@ -1124,6 +1124,44 @@ describe "Test Collection Methods", ->
 
 				ajax_stub.should.have.been.calledWithMatch {url: collectionA.makeUrl("GET", null)}
 			#END it
+		#END describe
+
+		describe "Additional miscellaneous sync tests", ->
+			server = null
+
+			beforeEach ->
+				server = sinon.fakeServer.create()
+				Falcon.cache = false
+			#END beforeEach
+
+			afterEach ->
+				server.restore()
+			#END afterEach
+
+			it "Should allow for a third parameter to define the context", ->
+				collectionB = new CollectionB
+				collectionA = new CollectionA
+				collectionA.sync("GET", ( success_spy = sinon.spy() ), collectionB)
+
+				server.respondWith [ 200, {}, JSON.stringify(collectionA.serialize()) ]
+				server.respond()
+
+				expect( success_spy ).to.have.been.called
+				expect( success_spy ).to.have.been.calledOn collectionB
+			#END it
+
+			it "Should pass context from fetch to sync", ->
+				collectionB = new CollectionB
+				collectionA = new CollectionA
+
+				sync_stub = sinon.stub( collectionA, "sync" )
+				collectionA.fetch( ( success_spy = sinon.spy() ), collectionB )
+
+				expect( sync_stub ).to.have.been.called
+				expect( sync_stub.firstCall.args[1] ).to.equal success_spy
+				expect( sync_stub.firstCall.args[2] ).to.equal collectionB
+			#END it
+		#END describe
 	#END describe
 
 
@@ -1432,23 +1470,25 @@ describe "Test Collection Methods", ->
 		#END afterEach
 
 		it "Should attempt to initialize and create a new model", ->
+			collectionB = new CollectionB
 			initialize_stub = sinon.stub( ModelA::, "initialize")
 			create_stub = sinon.stub( ModelA::, "create")
 
 			expect( initialize_stub ).to.not.have.been.called
 			expect( create_stub ).to.not.have.been.called
 
-			collectionA.create(data = {id: 2}, options)
+			collectionA.create(data = {id: 2}, options, collectionB)
 
 			expect( initialize_stub ).to.have.been.calledOnce
 			expect( initialize_stub ).to.have.been.calledWith( data )
 
 			expect( create_stub ).to.have.been.calledOnce
 			expect( create_stub ).to.have.been.calledAfter initialize_stub
-			expect( create_stub.firstCall.args.length ).to.equal 1
+			expect( create_stub.firstCall.args.length ).to.equal 2
 			expect( create_stub.firstCall.args[0] ).to.equal options
 			expect( create_stub.firstCall.args[0].success ).to.be.a 'function'
 			expect( create_stub.firstCall.args[0].method ).to.equal 'append'
+			expect( create_stub.firstCall.args[1] ).to.equal collectionB
 
 			initialize_stub.restore()
 			create_stub.restore()
@@ -1486,7 +1526,7 @@ describe "Test Collection Methods", ->
 	#
 	#--------------------------------------------------------------
 	describe "Test the detroy method", ->
-		collectionA = null
+		collectionA = collectionB = null
 		model_a1 = model_a2 = null
 		options = null
 		success_spy = null
@@ -1495,6 +1535,7 @@ describe "Test Collection Methods", ->
 			model_a1 = new ModelA(id: 1)
 			model_a2 = new ModelA(id: 2)
 			collectionA = new CollectionA([model_a1, model_a2])
+			collectionB = new CollectionB
 
 			options =
 				success: ( success_spy = sinon.spy() )
@@ -1506,10 +1547,10 @@ describe "Test Collection Methods", ->
 
 			destroy_stub.should.not.have.been.called
 
-			collectionA.destroy( model_a1, options )
+			collectionA.destroy( model_a1, options, collectionB )
 
 			destroy_stub.should.have.been.calledOnce
-			destroy_stub.should.have.been.calledWith options
+			destroy_stub.should.have.been.calledWith options, collectionB
 
 			destroy_stub.restore()
 		#END it
