@@ -97,6 +97,7 @@ class Falcon.Object
 		if isObject( @defaults )
 			for attr, value of @defaults
 				if isFunction( value  )
+					console.log("HERE!!!", arguments)
 					this[attr] = value.apply(@, arguments)
 				else if isObject( value )
 					this[attr] = clone( value )

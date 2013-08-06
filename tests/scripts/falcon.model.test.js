@@ -72,6 +72,36 @@
       init_stub.reset();
       return init_stub.restore();
     });
+    it("Should create RawrModel with defaults that have correct arguments", function() {
+      var RawrModel, hello_spy, input_data, rawr_class, _ref;
+
+      hello_spy = null;
+      RawrModel = (function(_super) {
+        __extends(RawrModel, _super);
+
+        function RawrModel() {
+          _ref = RawrModel.__super__.constructor.apply(this, arguments);
+          return _ref;
+        }
+
+        RawrModel.prototype.defaults = {
+          'hello': (hello_spy = sinon.spy())
+        };
+
+        return RawrModel;
+
+      })(Falcon.Model);
+      expect(hello_spy).to.not.have.been.called;
+      rawr_class = new RawrModel(input_data = {
+        "one": "one",
+        "two": "two",
+        "three": "three"
+      });
+      expect(hello_spy).to.have.been.called;
+      expect(hello_spy.callCount).to.equal(1);
+      expect(hello_spy.firstCall.args.length).to.equal(1);
+      return expect(hello_spy.firstCall.args[0]).to.equal(input_data);
+    });
     it("Should test the get, set, and toggle methods", function() {
       var ModelA, ModelB, modelA, modelB, _ref, _ref1;
 

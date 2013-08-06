@@ -3996,6 +3996,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
         for (attr in _ref) {
           value = _ref[attr];
           if (isFunction(value)) {
+            console.log("HERE!!!", arguments);
             this[attr] = value.apply(this, arguments);
           } else if (isObject(value)) {
             this[attr] = clone(value);
@@ -4141,7 +4142,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
     function Model(data, parent) {
       var _ref, _ref1;
 
-      Model.__super__.constructor.call(this);
+      Model.__super__.constructor.apply(this, arguments);
       data = ko.utils.unwrapObservable(data);
       parent = ko.utils.unwrapObservable(parent);
       if ((parent != null) && !Falcon.isModel(parent) && Falcon.isModel(data)) {
@@ -4631,7 +4632,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       var url, _loaded,
         _this = this;
 
-      View.__super__.constructor.call(this);
+      View.__super__.constructor.apply(this, arguments);
       url = this.makeUrl();
       this.is_rendered = false;
       this.is_loaded = ko.observable(false);
@@ -4837,7 +4838,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
     function Collection(models, parent) {
       var _ref, _ref1, _ref2;
 
-      Collection.__super__.constructor.call(this);
+      Collection.__super__.constructor.apply(this, arguments);
       models = ko.utils.unwrapObservable(models);
       parent = ko.utils.unwrapObservable(parent);
       if ((parent == null) && Falcon.isModel(models)) {

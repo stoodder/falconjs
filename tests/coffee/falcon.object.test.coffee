@@ -190,6 +190,7 @@ describe "Tesing event functionality", ->
 			expect( hello_spy.firstCall.args[2] ).to.equal "three"
 		#END it
 
+
 	#END describe
 
 	describe "Test the extend method on objects", ->

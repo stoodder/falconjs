@@ -156,6 +156,32 @@ describe "Test View Methods", ->
 		#END it
 	#END describe
 
+	#--------------------------------------------------------------
+	#
+	# Test the defaults initialization
+	#
+	#--------------------------------------------------------------
+	it "Should create RawrView with defaults that have correct arguments", ->
+		hello_spy = null
+
+		class RawrView extends Falcon.View
+			defaults:
+				'hello': ( hello_spy = sinon.spy() )
+			#END defaults
+		#END RawrView
+		
+		expect( hello_spy ).to.not.have.been.called
+
+		rawr_class = new RawrView("one", "two", "three")
+
+		expect( hello_spy ).to.have.been.called
+		expect( hello_spy.callCount ).to.equal 1
+		expect( hello_spy.firstCall.args.length ).to.equal 3
+		expect( hello_spy.firstCall.args[0] ).to.equal "one"
+		expect( hello_spy.firstCall.args[1] ).to.equal "two"
+		expect( hello_spy.firstCall.args[2] ).to.equal "three"
+	#END it
+
 
 	#--------------------------------------------------------------
 	#

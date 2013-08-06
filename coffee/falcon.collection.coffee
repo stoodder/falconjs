@@ -122,7 +122,7 @@ class Falcon.Collection extends Falcon.Object
 	#	**parent** _(Falcon.Model)_ - The parent object of this collection
 	#--------------------------------------------------------
 	constructor: (models, parent) ->
-		super()
+		super(arguments...)
 		
 		models = ko.utils.unwrapObservable(models)
 		parent = ko.utils.unwrapObservable(parent)

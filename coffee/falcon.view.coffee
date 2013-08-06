@@ -90,7 +90,7 @@ class Falcon.View extends Falcon.Object
 	#	constructor from Falcon.Object
 	#--------------------------------------------------------
 	constructor: () ->
-		super()
+		super(arguments...)
 
 		# Validate the public variables
 		url = @makeUrl()
