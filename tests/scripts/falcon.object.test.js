@@ -166,11 +166,39 @@
         expect(klass.clazz.id).to.equal('z');
         return expect(klass.clazz.im).to.equal('here');
       });
-      return it("Should have an observable array", function() {
+      it("Should have an observable array", function() {
         expect(ko.isObservable(klass.arr)).to.be["true"];
         expect(klass.arr()).to.be["instanceof"](Array);
         expect(klass.arr().length).to.equal(2);
         return expect(klass.arr()).to.not.equal(Klass.prototype.observables.arr);
+      });
+      return it("Should create RawrClass with defaults that have the correct arguments", function() {
+        var RawrClass, hello_spy, rawr_class, _ref2;
+
+        hello_spy = null;
+        RawrClass = (function(_super) {
+          __extends(RawrClass, _super);
+
+          function RawrClass() {
+            _ref2 = RawrClass.__super__.constructor.apply(this, arguments);
+            return _ref2;
+          }
+
+          RawrClass.prototype.defaults = {
+            'hello': (hello_spy = sinon.spy())
+          };
+
+          return RawrClass;
+
+        })(Falcon.Object);
+        expect(hello_spy).to.not.have.been.called;
+        rawr_class = new RawrClass("one", "two", "three");
+        expect(hello_spy).to.have.been.called;
+        expect(hello_spy.callCount).to.equal(1);
+        expect(hello_spy.firstCall.args.length).to.equal(3);
+        expect(hello_spy.firstCall.args[0]).to.equal("one");
+        expect(hello_spy.firstCall.args[1]).to.equal("two");
+        return expect(hello_spy.firstCall.args[2]).to.equal("three");
       });
     });
     return describe("Test the extend method on objects", function() {

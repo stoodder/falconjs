@@ -1320,7 +1320,7 @@
           return complete_spy.should.have.been.calledAfter(error_spy);
         });
       });
-      return describe("Testing sync method options in depth", function() {
+      describe("Testing sync method options in depth", function() {
         var ajax_stub;
 
         ajax_stub = null;
@@ -1384,6 +1384,40 @@
           return ajax_stub.should.have.been.calledWithMatch({
             url: collectionA.makeUrl("GET", null)
           });
+        });
+      });
+      return describe("Additional miscellaneous sync tests", function() {
+        var server;
+
+        server = null;
+        beforeEach(function() {
+          server = sinon.fakeServer.create();
+          return Falcon.cache = false;
+        });
+        afterEach(function() {
+          return server.restore();
+        });
+        it("Should allow for a third parameter to define the context", function() {
+          var collectionB, success_spy;
+
+          collectionB = new CollectionB;
+          collectionA = new CollectionA;
+          collectionA.sync("GET", (success_spy = sinon.spy()), collectionB);
+          server.respondWith([200, {}, JSON.stringify(collectionA.serialize())]);
+          server.respond();
+          expect(success_spy).to.have.been.called;
+          return expect(success_spy).to.have.been.calledOn(collectionB);
+        });
+        return it("Should pass context from fetch to sync", function() {
+          var collectionB, success_spy, sync_stub;
+
+          collectionB = new CollectionB;
+          collectionA = new CollectionA;
+          sync_stub = sinon.stub(collectionA, "sync");
+          collectionA.fetch((success_spy = sinon.spy()), collectionB);
+          expect(sync_stub).to.have.been.called;
+          expect(sync_stub.firstCall.args[1]).to.equal(success_spy);
+          return expect(sync_stub.firstCall.args[2]).to.equal(collectionB);
         });
       });
     });
@@ -1702,23 +1736,25 @@
         return server.restore();
       });
       it("Should attempt to initialize and create a new model", function() {
-        var create_stub, initialize_stub;
+        var collectionB, create_stub, initialize_stub;
 
+        collectionB = new CollectionB;
         initialize_stub = sinon.stub(ModelA.prototype, "initialize");
         create_stub = sinon.stub(ModelA.prototype, "create");
         expect(initialize_stub).to.not.have.been.called;
         expect(create_stub).to.not.have.been.called;
         collectionA.create(data = {
           id: 2
-        }, options);
+        }, options, collectionB);
         expect(initialize_stub).to.have.been.calledOnce;
         expect(initialize_stub).to.have.been.calledWith(data);
         expect(create_stub).to.have.been.calledOnce;
         expect(create_stub).to.have.been.calledAfter(initialize_stub);
-        expect(create_stub.firstCall.args.length).to.equal(1);
+        expect(create_stub.firstCall.args.length).to.equal(2);
         expect(create_stub.firstCall.args[0]).to.equal(options);
         expect(create_stub.firstCall.args[0].success).to.be.a('function');
         expect(create_stub.firstCall.args[0].method).to.equal('append');
+        expect(create_stub.firstCall.args[1]).to.equal(collectionB);
         initialize_stub.restore();
         return create_stub.restore();
       });
@@ -1743,9 +1779,9 @@
       });
     });
     describe("Test the detroy method", function() {
-      var collectionA, model_a1, model_a2, options, success_spy;
+      var collectionA, collectionB, model_a1, model_a2, options, success_spy;
 
-      collectionA = null;
+      collectionA = collectionB = null;
       model_a1 = model_a2 = null;
       options = null;
       success_spy = null;
@@ -1757,6 +1793,7 @@
           id: 2
         });
         collectionA = new CollectionA([model_a1, model_a2]);
+        collectionB = new CollectionB;
         return options = {
           success: (success_spy = sinon.spy())
         };
@@ -1766,12 +1803,12 @@
 
         destroy_stub = sinon.stub(model_a1, "destroy");
         destroy_stub.should.not.have.been.called;
-        collectionA.destroy(model_a1, options);
+        collectionA.destroy(model_a1, options, collectionB);
         destroy_stub.should.have.been.calledOnce;
-        destroy_stub.should.have.been.calledWith(options);
+        destroy_stub.should.have.been.calledWith(options, collectionB);
         return destroy_stub.restore();
       });
-      return it("Should respond correctly from the server", function() {
+      it("Should respond correctly from the server", function() {
         var remove_stub, removed_model, server;
 
         server = sinon.fakeServer.create();
@@ -1789,6 +1826,28 @@
         expect(success_spy.firstCall.args[0]).to.equal(removed_model);
         remove_stub.restore();
         return server.restore();
+      });
+      return it("Should destroy using the overriden parent", function() {
+        var ajax_args, ajax_spy, collectionA2, model_b, server;
+
+        model_b = new ModelB({
+          id: 'b'
+        });
+        collectionA2 = new CollectionA([model_a1, model_a2], model_b);
+        server = sinon.fakeServer.create();
+        ajax_spy = sinon.spy($, "ajax");
+        collectionA2.destroy(model_a1, {
+          parent: null
+        });
+        server.respondWith([200, {}, JSON.stringify({})]);
+        server.respond();
+        ajax_spy.restore();
+        server.restore();
+        expect(ajax_spy).to.have.been.called;
+        expect(ajax_spy.callCount).to.equal(1);
+        ajax_args = ajax_spy.firstCall.args[0];
+        expect(ajax_args['type']).to.equal("DELETE");
+        return expect(ajax_args['url']).to.equal(model_a1.makeUrl("DELETE", null));
       });
     });
     describe("Test the at() method", function() {

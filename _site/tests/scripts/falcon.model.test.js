@@ -1569,7 +1569,7 @@
           return expect(complete_spy).to.have.been.calledAfter(success_spy);
         });
       });
-      return describe("Testing sync method options in depth", function() {
+      describe("Testing sync method options in depth", function() {
         var ModelA, ModelB, ajax_stub, _ref, _ref1;
 
         ModelA = (function(_super) {
@@ -1670,6 +1670,119 @@
           return expect(ajax_stub).to.have.been.calledWithMatch({
             url: modelA.makeUrl("GET", null)
           });
+        });
+      });
+      return describe("Additional miscellaneous sync tests", function() {
+        var ModelA, ModelB, server, _ref, _ref1;
+
+        ModelA = (function(_super) {
+          __extends(ModelA, _super);
+
+          function ModelA() {
+            _ref = ModelA.__super__.constructor.apply(this, arguments);
+            return _ref;
+          }
+
+          ModelA.prototype.url = "model_a";
+
+          return ModelA;
+
+        })(Falcon.Model);
+        ModelB = (function(_super) {
+          __extends(ModelB, _super);
+
+          function ModelB() {
+            _ref1 = ModelB.__super__.constructor.apply(this, arguments);
+            return _ref1;
+          }
+
+          ModelB.prototype.url = "model_b";
+
+          return ModelB;
+
+        })(Falcon.Model);
+        server = null;
+        beforeEach(function() {
+          server = sinon.fakeServer.create();
+          return Falcon.cache = false;
+        });
+        afterEach(function() {
+          return server.restore();
+        });
+        it("Should allow for a third parameter to define the context", function() {
+          var modelA, modelB, success_spy;
+
+          modelB = new ModelB({
+            id: 'b'
+          });
+          modelA = new ModelA({
+            id: 1
+          });
+          modelA.sync("GET", (success_spy = sinon.spy()), modelB);
+          server.respondWith([200, {}, JSON.stringify(modelA.serialize())]);
+          server.respond();
+          expect(success_spy).to.have.been.called;
+          return expect(success_spy).to.have.been.calledOn(modelB);
+        });
+        it("Should let pass context from fetch to sync", function() {
+          var modelA, modelB, success_spy, sync_stub;
+
+          modelB = new ModelB({
+            id: 'b'
+          });
+          modelA = new ModelA({
+            id: 1
+          });
+          sync_stub = sinon.stub(modelA, "sync");
+          modelA.fetch((success_spy = sinon.spy()), modelB);
+          expect(sync_stub).to.have.been.called;
+          expect(sync_stub.firstCall.args[1]).to.equal(success_spy);
+          return expect(sync_stub.firstCall.args[2]).to.equal(modelB);
+        });
+        it("Should let pass context from create to sync", function() {
+          var modelA, modelB, success_spy, sync_stub;
+
+          modelB = new ModelB({
+            id: 'b'
+          });
+          modelA = new ModelA({
+            id: 1
+          });
+          sync_stub = sinon.stub(modelA, "sync");
+          modelA.create((success_spy = sinon.spy()), modelB);
+          expect(sync_stub).to.have.been.called;
+          expect(sync_stub.firstCall.args[1]).to.equal(success_spy);
+          return expect(sync_stub.firstCall.args[2]).to.equal(modelB);
+        });
+        it("Should let pass context from save to sync", function() {
+          var modelA, modelB, success_spy, sync_stub;
+
+          modelB = new ModelB({
+            id: 'b'
+          });
+          modelA = new ModelA({
+            id: 1
+          });
+          sync_stub = sinon.stub(modelA, "sync");
+          modelA.save((success_spy = sinon.spy()), modelB);
+          expect(sync_stub).to.have.been.called;
+          expect(sync_stub.firstCall.args[1]).to.equal(success_spy);
+          return expect(sync_stub.firstCall.args[2]).to.equal(modelB);
+        });
+        return it("Should let pass context from destroy to sync", function() {
+          var modelA, modelB, success_spy, sync_stub;
+
+          modelB = new ModelB({
+            id: 'b'
+          });
+          modelA = new ModelA({
+            id: 1
+          });
+          sync_stub = sinon.stub(modelA, "sync");
+          modelA.destroy((success_spy = sinon.spy()), modelB);
+          expect(sync_stub).to.have.been.called;
+          expect(sync_stub.firstCall.args[1]).to.equal(success_spy);
+          return expect(sync_stub.firstCall.args[2]).to.equal(modelB);
         });
       });
     });
