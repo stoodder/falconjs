@@ -26,7 +26,7 @@ var TEMPLATES = {
           "<button data-bind=\"click: $view.addTodo\">Add</button>" +
       "<!-- /ko -->",
 
-  "edit_todo_list.tmpl": "" +
+  "todo_list_form.tmpl": "" +
       "<form class=\"form-horizontal\" data-bind=\"submit: $view.saveTodoList\">" +
           "<div class=\"control-group\">" +
               "<label class=\"control-label\">Title</label>" +
