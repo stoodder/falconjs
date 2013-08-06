@@ -2733,4 +2733,3089 @@ ko.bindingHandlers['submit'] = {
     }
 };
 ko.bindingHandlers['text'] = {
-    'update': function (element, v
+    'update': function (element, valueAccessor) {
+        ko.utils.setTextContent(element, valueAccessor());
+    }
+};
+ko.virtualElements.allowedBindings['text'] = true;
+ko.bindingHandlers['uniqueName'] = {
+    'init': function (element, valueAccessor) {
+        if (valueAccessor()) {
+            var name = "ko_unique_" + (++ko.bindingHandlers['uniqueName'].currentIndex);
+            ko.utils.setElementName(element, name);
+        }
+    }
+};
+ko.bindingHandlers['uniqueName'].currentIndex = 0;
+ko.bindingHandlers['value'] = {
+    'init': function (element, valueAccessor, allBindingsAccessor) {
+        // Always catch "change" event; possibly other events too if asked
+        var eventsToCatch = ["change"];
+        var requestedEventsToCatch = allBindingsAccessor()["valueUpdate"];
+        var propertyChangedFired = false;
+        if (requestedEventsToCatch) {
+            if (typeof requestedEventsToCatch == "string") // Allow both individual event names, and arrays of event names
+                requestedEventsToCatch = [requestedEventsToCatch];
+            ko.utils.arrayPushAll(eventsToCatch, requestedEventsToCatch);
+            eventsToCatch = ko.utils.arrayGetDistinctValues(eventsToCatch);
+        }
+
+        var valueUpdateHandler = function() {
+            propertyChangedFired = false;
+            var modelValue = valueAccessor();
+            var elementValue = ko.selectExtensions.readValue(element);
+            ko.expressionRewriting.writeValueToProperty(modelValue, allBindingsAccessor, 'value', elementValue);
+        }
+
+        // Workaround for https://github.com/SteveSanderson/knockout/issues/122
+        // IE doesn't fire "change" events on textboxes if the user selects a value from its autocomplete list
+        var ieAutoCompleteHackNeeded = ko.utils.ieVersion && element.tagName.toLowerCase() == "input" && element.type == "text"
+                                       && element.autocomplete != "off" && (!element.form || element.form.autocomplete != "off");
+        if (ieAutoCompleteHackNeeded && ko.utils.arrayIndexOf(eventsToCatch, "propertychange") == -1) {
+            ko.utils.registerEventHandler(element, "propertychange", function () { propertyChangedFired = true });
+            ko.utils.registerEventHandler(element, "blur", function() {
+                if (propertyChangedFired) {
+                    valueUpdateHandler();
+                }
+            });
+        }
+
+        ko.utils.arrayForEach(eventsToCatch, function(eventName) {
+            // The syntax "after<eventname>" means "run the handler asynchronously after the event"
+            // This is useful, for example, to catch "keydown" events after the browser has updated the control
+            // (otherwise, ko.selectExtensions.readValue(this) will receive the control's value *before* the key event)
+            var handler = valueUpdateHandler;
+            if (ko.utils.stringStartsWith(eventName, "after")) {
+                handler = function() { setTimeout(valueUpdateHandler, 0) };
+                eventName = eventName.substring("after".length);
+            }
+            ko.utils.registerEventHandler(element, eventName, handler);
+        });
+    },
+    'update': function (element, valueAccessor) {
+        var valueIsSelectOption = ko.utils.tagNameLower(element) === "select";
+        var newValue = ko.utils.unwrapObservable(valueAccessor());
+        var elementValue = ko.selectExtensions.readValue(element);
+        var valueHasChanged = (newValue !== elementValue);
+
+        if (valueHasChanged) {
+            var applyValueAction = function () { ko.selectExtensions.writeValue(element, newValue); };
+            applyValueAction();
+
+            // Workaround for IE6 bug: It won't reliably apply values to SELECT nodes during the same execution thread
+            // right after you've changed the set of OPTION nodes on it. So for that node type, we'll schedule a second thread
+            // to apply the value as well.
+            var alsoApplyAsynchronously = valueIsSelectOption;
+            if (alsoApplyAsynchronously)
+                setTimeout(applyValueAction, 0);
+        }
+
+        // If you try to set a model value that can't be represented in an already-populated dropdown, reject that change,
+        // because you're not allowed to have a model value that disagrees with a visible UI selection.
+        if (valueIsSelectOption && (element.length > 0))
+            ensureDropdownSelectionIsConsistentWithModelValue(element, newValue, /* preferModelValue */ false);
+    }
+};
+ko.bindingHandlers['visible'] = {
+    'update': function (element, valueAccessor) {
+        var value = ko.utils.unwrapObservable(valueAccessor());
+        var isCurrentlyVisible = !(element.style.display == "none");
+        if (value && !isCurrentlyVisible)
+            element.style.display = "";
+        else if ((!value) && isCurrentlyVisible)
+            element.style.display = "none";
+    }
+};
+// 'click' is just a shorthand for the usual full-length event:{click:handler}
+makeEventHandlerShortcut('click');
+// If you want to make a custom template engine,
+//
+// [1] Inherit from this class (like ko.nativeTemplateEngine does)
+// [2] Override 'renderTemplateSource', supplying a function with this signature:
+//
+//        function (templateSource, bindingContext, options) {
+//            // - templateSource.text() is the text of the template you should render
+//            // - bindingContext.$data is the data you should pass into the template
+//            //   - you might also want to make bindingContext.$parent, bindingContext.$parents,
+//            //     and bindingContext.$root available in the template too
+//            // - options gives you access to any other properties set on "data-bind: { template: options }"
+//            //
+//            // Return value: an array of DOM nodes
+//        }
+//
+// [3] Override 'createJavaScriptEvaluatorBlock', supplying a function with this signature:
+//
+//        function (script) {
+//            // Return value: Whatever syntax means "Evaluate the JavaScript statement 'script' and output the result"
+//            //               For example, the jquery.tmpl template engine converts 'someScript' to '${ someScript }'
+//        }
+//
+//     This is only necessary if you want to allow data-bind attributes to reference arbitrary template variables.
+//     If you don't want to allow that, you can set the property 'allowTemplateRewriting' to false (like ko.nativeTemplateEngine does)
+//     and then you don't need to override 'createJavaScriptEvaluatorBlock'.
+
+ko.templateEngine = function () { };
+
+ko.templateEngine.prototype['renderTemplateSource'] = function (templateSource, bindingContext, options) {
+    throw new Error("Override renderTemplateSource");
+};
+
+ko.templateEngine.prototype['createJavaScriptEvaluatorBlock'] = function (script) {
+    throw new Error("Override createJavaScriptEvaluatorBlock");
+};
+
+ko.templateEngine.prototype['makeTemplateSource'] = function(template, templateDocument) {
+    // Named template
+    if (typeof template == "string") {
+        templateDocument = templateDocument || document;
+        var elem = templateDocument.getElementById(template);
+        if (!elem)
+            throw new Error("Cannot find template with ID " + template);
+        return new ko.templateSources.domElement(elem);
+    } else if ((template.nodeType == 1) || (template.nodeType == 8)) {
+        // Anonymous template
+        return new ko.templateSources.anonymousTemplate(template);
+    } else
+        throw new Error("Unknown template type: " + template);
+};
+
+ko.templateEngine.prototype['renderTemplate'] = function (template, bindingContext, options, templateDocument) {
+    var templateSource = this['makeTemplateSource'](template, templateDocument);
+    return this['renderTemplateSource'](templateSource, bindingContext, options);
+};
+
+ko.templateEngine.prototype['isTemplateRewritten'] = function (template, templateDocument) {
+    // Skip rewriting if requested
+    if (this['allowTemplateRewriting'] === false)
+        return true;
+    return this['makeTemplateSource'](template, templateDocument)['data']("isRewritten");
+};
+
+ko.templateEngine.prototype['rewriteTemplate'] = function (template, rewriterCallback, templateDocument) {
+    var templateSource = this['makeTemplateSource'](template, templateDocument);
+    var rewritten = rewriterCallback(templateSource['text']());
+    templateSource['text'](rewritten);
+    templateSource['data']("isRewritten", true);
+};
+
+ko.exportSymbol('templateEngine', ko.templateEngine);
+
+ko.templateRewriting = (function () {
+    var memoizeDataBindingAttributeSyntaxRegex = /(<([a-z]+\d*)(?:\s+(?!data-bind\s*=\s*)[a-z0-9\-]+(?:=(?:\"[^\"]*\"|\'[^\']*\'))?)*\s+)data-bind\s*=\s*(["'])([\s\S]*?)\3/gi;
+    var memoizeVirtualContainerBindingSyntaxRegex = /<!--\s*ko\b\s*([\s\S]*?)\s*-->/g;
+
+    function validateDataBindValuesForRewriting(keyValueArray) {
+        var allValidators = ko.expressionRewriting.bindingRewriteValidators;
+        for (var i = 0; i < keyValueArray.length; i++) {
+            var key = keyValueArray[i]['key'];
+            if (allValidators.hasOwnProperty(key)) {
+                var validator = allValidators[key];
+
+                if (typeof validator === "function") {
+                    var possibleErrorMessage = validator(keyValueArray[i]['value']);
+                    if (possibleErrorMessage)
+                        throw new Error(possibleErrorMessage);
+                } else if (!validator) {
+                    throw new Error("This template engine does not support the '" + key + "' binding within its templates");
+                }
+            }
+        }
+    }
+
+    function constructMemoizedTagReplacement(dataBindAttributeValue, tagToRetain, nodeName, templateEngine) {
+        var dataBindKeyValueArray = ko.expressionRewriting.parseObjectLiteral(dataBindAttributeValue);
+        validateDataBindValuesForRewriting(dataBindKeyValueArray);
+        var rewrittenDataBindAttributeValue = ko.expressionRewriting.preProcessBindings(dataBindKeyValueArray);
+
+        // For no obvious reason, Opera fails to evaluate rewrittenDataBindAttributeValue unless it's wrapped in an additional
+        // anonymous function, even though Opera's built-in debugger can evaluate it anyway. No other browser requires this
+        // extra indirection.
+        var applyBindingsToNextSiblingScript =
+            "ko.__tr_ambtns(function($context,$element){return(function(){return{ " + rewrittenDataBindAttributeValue + " } })()},'" + nodeName.toLowerCase() + "')";
+        return templateEngine['createJavaScriptEvaluatorBlock'](applyBindingsToNextSiblingScript) + tagToRetain;
+    }
+
+    return {
+        ensureTemplateIsRewritten: function (template, templateEngine, templateDocument) {
+            if (!templateEngine['isTemplateRewritten'](template, templateDocument))
+                templateEngine['rewriteTemplate'](template, function (htmlString) {
+                    return ko.templateRewriting.memoizeBindingAttributeSyntax(htmlString, templateEngine);
+                }, templateDocument);
+        },
+
+        memoizeBindingAttributeSyntax: function (htmlString, templateEngine) {
+            return htmlString.replace(memoizeDataBindingAttributeSyntaxRegex, function () {
+                return constructMemoizedTagReplacement(/* dataBindAttributeValue: */ arguments[4], /* tagToRetain: */ arguments[1], /* nodeName: */ arguments[2], templateEngine);
+            }).replace(memoizeVirtualContainerBindingSyntaxRegex, function() {
+                return constructMemoizedTagReplacement(/* dataBindAttributeValue: */ arguments[1], /* tagToRetain: */ "<!-- ko -->", /* nodeName: */ "#comment", templateEngine);
+            });
+        },
+
+        applyMemoizedBindingsToNextSibling: function (bindings, nodeName) {
+            return ko.memoization.memoize(function (domNode, bindingContext) {
+                var nodeToBind = domNode.nextSibling;
+                if (nodeToBind && nodeToBind.nodeName.toLowerCase() === nodeName) {
+                    ko.applyBindingsToNode(nodeToBind, bindings, bindingContext);
+                }
+            });
+        }
+    }
+})();
+
+
+// Exported only because it has to be referenced by string lookup from within rewritten template
+ko.exportSymbol('__tr_ambtns', ko.templateRewriting.applyMemoizedBindingsToNextSibling);
+(function() {
+    // A template source represents a read/write way of accessing a template. This is to eliminate the need for template loading/saving
+    // logic to be duplicated in every template engine (and means they can all work with anonymous templates, etc.)
+    //
+    // Two are provided by default:
+    //  1. ko.templateSources.domElement       - reads/writes the text content of an arbitrary DOM element
+    //  2. ko.templateSources.anonymousElement - uses ko.utils.domData to read/write text *associated* with the DOM element, but
+    //                                           without reading/writing the actual element text content, since it will be overwritten
+    //                                           with the rendered template output.
+    // You can implement your own template source if you want to fetch/store templates somewhere other than in DOM elements.
+    // Template sources need to have the following functions:
+    //   text() 			- returns the template text from your storage location
+    //   text(value)		- writes the supplied template text to your storage location
+    //   data(key)			- reads values stored using data(key, value) - see below
+    //   data(key, value)	- associates "value" with this template and the key "key". Is used to store information like "isRewritten".
+    //
+    // Optionally, template sources can also have the following functions:
+    //   nodes()            - returns a DOM element containing the nodes of this template, where available
+    //   nodes(value)       - writes the given DOM element to your storage location
+    // If a DOM element is available for a given template source, template engines are encouraged to use it in preference over text()
+    // for improved speed. However, all templateSources must supply text() even if they don't supply nodes().
+    //
+    // Once you've implemented a templateSource, make your template engine use it by subclassing whatever template engine you were
+    // using and overriding "makeTemplateSource" to return an instance of your custom template source.
+
+    ko.templateSources = {};
+
+    // ---- ko.templateSources.domElement -----
+
+    ko.templateSources.domElement = function(element) {
+        this.domElement = element;
+    }
+
+    ko.templateSources.domElement.prototype['text'] = function(/* valueToWrite */) {
+        var tagNameLower = ko.utils.tagNameLower(this.domElement),
+            elemContentsProperty = tagNameLower === "script" ? "text"
+                                 : tagNameLower === "textarea" ? "value"
+                                 : "innerHTML";
+
+        if (arguments.length == 0) {
+            return this.domElement[elemContentsProperty];
+        } else {
+            var valueToWrite = arguments[0];
+            if (elemContentsProperty === "innerHTML")
+                ko.utils.setHtml(this.domElement, valueToWrite);
+            else
+                this.domElement[elemContentsProperty] = valueToWrite;
+        }
+    };
+
+    ko.templateSources.domElement.prototype['data'] = function(key /*, valueToWrite */) {
+        if (arguments.length === 1) {
+            return ko.utils.domData.get(this.domElement, "templateSourceData_" + key);
+        } else {
+            ko.utils.domData.set(this.domElement, "templateSourceData_" + key, arguments[1]);
+        }
+    };
+
+    // ---- ko.templateSources.anonymousTemplate -----
+    // Anonymous templates are normally saved/retrieved as DOM nodes through "nodes".
+    // For compatibility, you can also read "text"; it will be serialized from the nodes on demand.
+    // Writing to "text" is still supported, but then the template data will not be available as DOM nodes.
+
+    var anonymousTemplatesDomDataKey = "__ko_anon_template__";
+    ko.templateSources.anonymousTemplate = function(element) {
+        this.domElement = element;
+    }
+    ko.templateSources.anonymousTemplate.prototype = new ko.templateSources.domElement();
+    ko.templateSources.anonymousTemplate.prototype.constructor = ko.templateSources.anonymousTemplate;
+    ko.templateSources.anonymousTemplate.prototype['text'] = function(/* valueToWrite */) {
+        if (arguments.length == 0) {
+            var templateData = ko.utils.domData.get(this.domElement, anonymousTemplatesDomDataKey) || {};
+            if (templateData.textData === undefined && templateData.containerData)
+                templateData.textData = templateData.containerData.innerHTML;
+            return templateData.textData;
+        } else {
+            var valueToWrite = arguments[0];
+            ko.utils.domData.set(this.domElement, anonymousTemplatesDomDataKey, {textData: valueToWrite});
+        }
+    };
+    ko.templateSources.domElement.prototype['nodes'] = function(/* valueToWrite */) {
+        if (arguments.length == 0) {
+            var templateData = ko.utils.domData.get(this.domElement, anonymousTemplatesDomDataKey) || {};
+            return templateData.containerData;
+        } else {
+            var valueToWrite = arguments[0];
+            ko.utils.domData.set(this.domElement, anonymousTemplatesDomDataKey, {containerData: valueToWrite});
+        }
+    };
+
+    ko.exportSymbol('templateSources', ko.templateSources);
+    ko.exportSymbol('templateSources.domElement', ko.templateSources.domElement);
+    ko.exportSymbol('templateSources.anonymousTemplate', ko.templateSources.anonymousTemplate);
+})();
+(function () {
+    var _templateEngine;
+    ko.setTemplateEngine = function (templateEngine) {
+        if ((templateEngine != undefined) && !(templateEngine instanceof ko.templateEngine))
+            throw new Error("templateEngine must inherit from ko.templateEngine");
+        _templateEngine = templateEngine;
+    }
+
+    function invokeForEachNodeOrCommentInContinuousRange(firstNode, lastNode, action) {
+        var node, nextInQueue = firstNode, firstOutOfRangeNode = ko.virtualElements.nextSibling(lastNode);
+        while (nextInQueue && ((node = nextInQueue) !== firstOutOfRangeNode)) {
+            nextInQueue = ko.virtualElements.nextSibling(node);
+            if (node.nodeType === 1 || node.nodeType === 8)
+                action(node);
+        }
+    }
+
+    function activateBindingsOnContinuousNodeArray(continuousNodeArray, bindingContext) {
+        // To be used on any nodes that have been rendered by a template and have been inserted into some parent element
+        // Walks through continuousNodeArray (which *must* be continuous, i.e., an uninterrupted sequence of sibling nodes, because
+        // the algorithm for walking them relies on this), and for each top-level item in the virtual-element sense,
+        // (1) Does a regular "applyBindings" to associate bindingContext with this node and to activate any non-memoized bindings
+        // (2) Unmemoizes any memos in the DOM subtree (e.g., to activate bindings that had been memoized during template rewriting)
+
+        if (continuousNodeArray.length) {
+            var firstNode = continuousNodeArray[0], lastNode = continuousNodeArray[continuousNodeArray.length - 1];
+
+            // Need to applyBindings *before* unmemoziation, because unmemoization might introduce extra nodes (that we don't want to re-bind)
+            // whereas a regular applyBindings won't introduce new memoized nodes
+            invokeForEachNodeOrCommentInContinuousRange(firstNode, lastNode, function(node) {
+                ko.applyBindings(bindingContext, node);
+            });
+            invokeForEachNodeOrCommentInContinuousRange(firstNode, lastNode, function(node) {
+                ko.memoization.unmemoizeDomNodeAndDescendants(node, [bindingContext]);
+            });
+        }
+    }
+
+    function getFirstNodeFromPossibleArray(nodeOrNodeArray) {
+        return nodeOrNodeArray.nodeType ? nodeOrNodeArray
+                                        : nodeOrNodeArray.length > 0 ? nodeOrNodeArray[0]
+                                        : null;
+    }
+
+    function executeTemplate(targetNodeOrNodeArray, renderMode, template, bindingContext, options) {
+        options = options || {};
+        var firstTargetNode = targetNodeOrNodeArray && getFirstNodeFromPossibleArray(targetNodeOrNodeArray);
+        var templateDocument = firstTargetNode && firstTargetNode.ownerDocument;
+        var templateEngineToUse = (options['templateEngine'] || _templateEngine);
+        ko.templateRewriting.ensureTemplateIsRewritten(template, templateEngineToUse, templateDocument);
+        var renderedNodesArray = templateEngineToUse['renderTemplate'](template, bindingContext, options, templateDocument);
+
+        // Loosely check result is an array of DOM nodes
+        if ((typeof renderedNodesArray.length != "number") || (renderedNodesArray.length > 0 && typeof renderedNodesArray[0].nodeType != "number"))
+            throw new Error("Template engine must return an array of DOM nodes");
+
+        var haveAddedNodesToParent = false;
+        switch (renderMode) {
+            case "replaceChildren":
+                ko.virtualElements.setDomNodeChildren(targetNodeOrNodeArray, renderedNodesArray);
+                haveAddedNodesToParent = true;
+                break;
+            case "replaceNode":
+                ko.utils.replaceDomNodes(targetNodeOrNodeArray, renderedNodesArray);
+                haveAddedNodesToParent = true;
+                break;
+            case "ignoreTargetNode": break;
+            default:
+                throw new Error("Unknown renderMode: " + renderMode);
+        }
+
+        if (haveAddedNodesToParent) {
+            activateBindingsOnContinuousNodeArray(renderedNodesArray, bindingContext);
+            if (options['afterRender'])
+                ko.dependencyDetection.ignore(options['afterRender'], null, [renderedNodesArray, bindingContext['$data']]);
+        }
+
+        return renderedNodesArray;
+    }
+
+    ko.renderTemplate = function (template, dataOrBindingContext, options, targetNodeOrNodeArray, renderMode) {
+        options = options || {};
+        if ((options['templateEngine'] || _templateEngine) == undefined)
+            throw new Error("Set a template engine before calling renderTemplate");
+        renderMode = renderMode || "replaceChildren";
+
+        if (targetNodeOrNodeArray) {
+            var firstTargetNode = getFirstNodeFromPossibleArray(targetNodeOrNodeArray);
+
+            var whenToDispose = function () { return (!firstTargetNode) || !ko.utils.domNodeIsAttachedToDocument(firstTargetNode); }; // Passive disposal (on next evaluation)
+            var activelyDisposeWhenNodeIsRemoved = (firstTargetNode && renderMode == "replaceNode") ? firstTargetNode.parentNode : firstTargetNode;
+
+            return ko.dependentObservable( // So the DOM is automatically updated when any dependency changes
+                function () {
+                    // Ensure we've got a proper binding context to work with
+                    var bindingContext = (dataOrBindingContext && (dataOrBindingContext instanceof ko.bindingContext))
+                        ? dataOrBindingContext
+                        : new ko.bindingContext(ko.utils.unwrapObservable(dataOrBindingContext));
+
+                    // Support selecting template as a function of the data being rendered
+                    var templateName = typeof(template) == 'function' ? template(bindingContext['$data'], bindingContext) : template;
+
+                    var renderedNodesArray = executeTemplate(targetNodeOrNodeArray, renderMode, templateName, bindingContext, options);
+                    if (renderMode == "replaceNode") {
+                        targetNodeOrNodeArray = renderedNodesArray;
+                        firstTargetNode = getFirstNodeFromPossibleArray(targetNodeOrNodeArray);
+                    }
+                },
+                null,
+                { disposeWhen: whenToDispose, disposeWhenNodeIsRemoved: activelyDisposeWhenNodeIsRemoved }
+            );
+        } else {
+            // We don't yet have a DOM node to evaluate, so use a memo and render the template later when there is a DOM node
+            return ko.memoization.memoize(function (domNode) {
+                ko.renderTemplate(template, dataOrBindingContext, options, domNode, "replaceNode");
+            });
+        }
+    };
+
+    ko.renderTemplateForEach = function (template, arrayOrObservableArray, options, targetNode, parentBindingContext) {
+        // Since setDomNodeChildrenFromArrayMapping always calls executeTemplateForArrayItem and then
+        // activateBindingsCallback for added items, we can store the binding context in the former to use in the latter.
+        var arrayItemContext;
+
+        // This will be called by setDomNodeChildrenFromArrayMapping to get the nodes to add to targetNode
+        var executeTemplateForArrayItem = function (arrayValue, index) {
+            // Support selecting template as a function of the data being rendered
+            arrayItemContext = parentBindingContext['createChildContext'](ko.utils.unwrapObservable(arrayValue), options['as']);
+            arrayItemContext['$index'] = index;
+            var templateName = typeof(template) == 'function' ? template(arrayValue, arrayItemContext) : template;
+            return executeTemplate(null, "ignoreTargetNode", templateName, arrayItemContext, options);
+        }
+
+        // This will be called whenever setDomNodeChildrenFromArrayMapping has added nodes to targetNode
+        var activateBindingsCallback = function(arrayValue, addedNodesArray, index) {
+            activateBindingsOnContinuousNodeArray(addedNodesArray, arrayItemContext);
+            if (options['afterRender'])
+                options['afterRender'](addedNodesArray, arrayValue);
+        };
+
+        return ko.dependentObservable(function () {
+            var unwrappedArray = ko.utils.unwrapObservable(arrayOrObservableArray) || [];
+            if (typeof unwrappedArray.length == "undefined") // Coerce single value into array
+                unwrappedArray = [unwrappedArray];
+
+            // Filter out any entries marked as destroyed
+            var filteredArray = ko.utils.arrayFilter(unwrappedArray, function(item) {
+                return options['includeDestroyed'] || item === undefined || item === null || !ko.utils.unwrapObservable(item['_destroy']);
+            });
+
+            // Call setDomNodeChildrenFromArrayMapping, ignoring any observables unwrapped within (most likely from a callback function).
+            // If the array items are observables, though, they will be unwrapped in executeTemplateForArrayItem and managed within setDomNodeChildrenFromArrayMapping.
+            ko.dependencyDetection.ignore(ko.utils.setDomNodeChildrenFromArrayMapping, null, [targetNode, filteredArray, executeTemplateForArrayItem, options, activateBindingsCallback]);
+
+        }, null, { disposeWhenNodeIsRemoved: targetNode });
+    };
+
+    var templateComputedDomDataKey = '__ko__templateComputedDomDataKey__';
+    function disposeOldComputedAndStoreNewOne(element, newComputed) {
+        var oldComputed = ko.utils.domData.get(element, templateComputedDomDataKey);
+        if (oldComputed && (typeof(oldComputed.dispose) == 'function'))
+            oldComputed.dispose();
+        ko.utils.domData.set(element, templateComputedDomDataKey, (newComputed && newComputed.isActive()) ? newComputed : undefined);
+    }
+
+    ko.bindingHandlers['template'] = {
+        'init': function(element, valueAccessor) {
+            // Support anonymous templates
+            var bindingValue = ko.utils.unwrapObservable(valueAccessor());
+            if ((typeof bindingValue != "string") && (!bindingValue['name']) && (element.nodeType == 1 || element.nodeType == 8)) {
+                // It's an anonymous template - store the element contents, then clear the element
+                var templateNodes = element.nodeType == 1 ? element.childNodes : ko.virtualElements.childNodes(element),
+                    container = ko.utils.moveCleanedNodesToContainerElement(templateNodes); // This also removes the nodes from their current parent
+                new ko.templateSources.anonymousTemplate(element)['nodes'](container);
+            }
+            return { 'controlsDescendantBindings': true };
+        },
+        'update': function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+            var templateName = ko.utils.unwrapObservable(valueAccessor()),
+                options = {},
+                shouldDisplay = true,
+                dataValue,
+                templateComputed = null;
+
+            if (typeof templateName != "string") {
+                options = templateName;
+                templateName = ko.utils.unwrapObservable(options['name']);
+
+                // Support "if"/"ifnot" conditions
+                if ('if' in options)
+                    shouldDisplay = ko.utils.unwrapObservable(options['if']);
+                if (shouldDisplay && 'ifnot' in options)
+                    shouldDisplay = !ko.utils.unwrapObservable(options['ifnot']);
+
+                dataValue = ko.utils.unwrapObservable(options['data']);
+            }
+
+            if ('foreach' in options) {
+                // Render once for each data point (treating data set as empty if shouldDisplay==false)
+                var dataArray = (shouldDisplay && options['foreach']) || [];
+                templateComputed = ko.renderTemplateForEach(templateName || element, dataArray, options, element, bindingContext);
+            } else if (!shouldDisplay) {
+                ko.virtualElements.emptyNode(element);
+            } else {
+                // Render once for this single data point (or use the viewModel if no data was provided)
+                var innerBindingContext = ('data' in options) ?
+                    bindingContext['createChildContext'](dataValue, options['as']) :  // Given an explitit 'data' value, we create a child binding context for it
+                    bindingContext;                                                        // Given no explicit 'data' value, we retain the same binding context
+                templateComputed = ko.renderTemplate(templateName || element, innerBindingContext, options, element);
+            }
+
+            // It only makes sense to have a single template computed per element (otherwise which one should have its output displayed?)
+            disposeOldComputedAndStoreNewOne(element, templateComputed);
+        }
+    };
+
+    // Anonymous templates can't be rewritten. Give a nice error message if you try to do it.
+    ko.expressionRewriting.bindingRewriteValidators['template'] = function(bindingValue) {
+        var parsedBindingValue = ko.expressionRewriting.parseObjectLiteral(bindingValue);
+
+        if ((parsedBindingValue.length == 1) && parsedBindingValue[0]['unknown'])
+            return null; // It looks like a string literal, not an object literal, so treat it as a named template (which is allowed for rewriting)
+
+        if (ko.expressionRewriting.keyValueArrayContainsKey(parsedBindingValue, "name"))
+            return null; // Named templates can be rewritten, so return "no error"
+        return "This template engine does not support anonymous templates nested within its templates";
+    };
+
+    ko.virtualElements.allowedBindings['template'] = true;
+})();
+
+ko.exportSymbol('setTemplateEngine', ko.setTemplateEngine);
+ko.exportSymbol('renderTemplate', ko.renderTemplate);
+
+ko.utils.compareArrays = (function () {
+    var statusNotInOld = 'added', statusNotInNew = 'deleted';
+
+    // Simple calculation based on Levenshtein distance.
+    function compareArrays(oldArray, newArray, dontLimitMoves) {
+        oldArray = oldArray || [];
+        newArray = newArray || [];
+
+        if (oldArray.length <= newArray.length)
+            return compareSmallArrayToBigArray(oldArray, newArray, statusNotInOld, statusNotInNew, dontLimitMoves);
+        else
+            return compareSmallArrayToBigArray(newArray, oldArray, statusNotInNew, statusNotInOld, dontLimitMoves);
+    }
+
+    function compareSmallArrayToBigArray(smlArray, bigArray, statusNotInSml, statusNotInBig, dontLimitMoves) {
+        var myMin = Math.min,
+            myMax = Math.max,
+            editDistanceMatrix = [],
+            smlIndex, smlIndexMax = smlArray.length,
+            bigIndex, bigIndexMax = bigArray.length,
+            compareRange = (bigIndexMax - smlIndexMax) || 1,
+            maxDistance = smlIndexMax + bigIndexMax + 1,
+            thisRow, lastRow,
+            bigIndexMaxForRow, bigIndexMinForRow;
+
+        for (smlIndex = 0; smlIndex <= smlIndexMax; smlIndex++) {
+            lastRow = thisRow;
+            editDistanceMatrix.push(thisRow = []);
+            bigIndexMaxForRow = myMin(bigIndexMax, smlIndex + compareRange);
+            bigIndexMinForRow = myMax(0, smlIndex - 1);
+            for (bigIndex = bigIndexMinForRow; bigIndex <= bigIndexMaxForRow; bigIndex++) {
+                if (!bigIndex)
+                    thisRow[bigIndex] = smlIndex + 1;
+                else if (!smlIndex)  // Top row - transform empty array into new array via additions
+                    thisRow[bigIndex] = bigIndex + 1;
+                else if (smlArray[smlIndex - 1] === bigArray[bigIndex - 1])
+                    thisRow[bigIndex] = lastRow[bigIndex - 1];                  // copy value (no edit)
+                else {
+                    var northDistance = lastRow[bigIndex] || maxDistance;       // not in big (deletion)
+                    var westDistance = thisRow[bigIndex - 1] || maxDistance;    // not in small (addition)
+                    thisRow[bigIndex] = myMin(northDistance, westDistance) + 1;
+                }
+            }
+        }
+
+        var editScript = [], meMinusOne, notInSml = [], notInBig = [];
+        for (smlIndex = smlIndexMax, bigIndex = bigIndexMax; smlIndex || bigIndex;) {
+            meMinusOne = editDistanceMatrix[smlIndex][bigIndex] - 1;
+            if (bigIndex && meMinusOne === editDistanceMatrix[smlIndex][bigIndex-1]) {
+                notInSml.push(editScript[editScript.length] = {     // added
+                    'status': statusNotInSml,
+                    'value': bigArray[--bigIndex],
+                    'index': bigIndex });
+            } else if (smlIndex && meMinusOne === editDistanceMatrix[smlIndex - 1][bigIndex]) {
+                notInBig.push(editScript[editScript.length] = {     // deleted
+                    'status': statusNotInBig,
+                    'value': smlArray[--smlIndex],
+                    'index': smlIndex });
+            } else {
+                editScript.push({
+                    'status': "retained",
+                    'value': bigArray[--bigIndex] });
+                --smlIndex;
+            }
+        }
+
+        if (notInSml.length && notInBig.length) {
+            // Set a limit on the number of consecutive non-matching comparisons; having it a multiple of
+            // smlIndexMax keeps the time complexity of this algorithm linear.
+            var limitFailedCompares = smlIndexMax * 10, failedCompares,
+                a, d, notInSmlItem, notInBigItem;
+            // Go through the items that have been added and deleted and try to find matches between them.
+            for (failedCompares = a = 0; (dontLimitMoves || failedCompares < limitFailedCompares) && (notInSmlItem = notInSml[a]); a++) {
+                for (d = 0; notInBigItem = notInBig[d]; d++) {
+                    if (notInSmlItem['value'] === notInBigItem['value']) {
+                        notInSmlItem['moved'] = notInBigItem['index'];
+                        notInBigItem['moved'] = notInSmlItem['index'];
+                        notInBig.splice(d,1);       // This item is marked as moved; so remove it from notInBig list
+                        failedCompares = d = 0;     // Reset failed compares count because we're checking for consecutive failures
+                        break;
+                    }
+                }
+                failedCompares += d;
+            }
+        }
+        return editScript.reverse();
+    }
+
+    return compareArrays;
+})();
+
+ko.exportSymbol('utils.compareArrays', ko.utils.compareArrays);
+
+(function () {
+    // Objective:
+    // * Given an input array, a container DOM node, and a function from array elements to arrays of DOM nodes,
+    //   map the array elements to arrays of DOM nodes, concatenate together all these arrays, and use them to populate the container DOM node
+    // * Next time we're given the same combination of things (with the array possibly having mutated), update the container DOM node
+    //   so that its children is again the concatenation of the mappings of the array elements, but don't re-map any array elements that we
+    //   previously mapped - retain those nodes, and just insert/delete other ones
+
+    // "callbackAfterAddingNodes" will be invoked after any "mapping"-generated nodes are inserted into the container node
+    // You can use this, for example, to activate bindings on those nodes.
+
+    function fixUpNodesToBeMovedOrRemoved(contiguousNodeArray) {
+        // Before moving, deleting, or replacing a set of nodes that were previously outputted by the "map" function, we have to reconcile
+        // them against what is in the DOM right now. It may be that some of the nodes have already been removed from the document,
+        // or that new nodes might have been inserted in the middle, for example by a binding. Also, there may previously have been
+        // leading comment nodes (created by rewritten string-based templates) that have since been removed during binding.
+        // So, this function translates the old "map" output array into its best guess of what set of current DOM nodes should be removed.
+        //
+        // Rules:
+        //   [A] Any leading nodes that aren't in the document any more should be ignored
+        //       These most likely correspond to memoization nodes that were already removed during binding
+        //       See https://github.com/SteveSanderson/knockout/pull/440
+        //   [B] We want to output a contiguous series of nodes that are still in the document. So, ignore any nodes that
+        //       have already been removed, and include any nodes that have been inserted among the previous collection
+
+        // Rule [A]
+        while (contiguousNodeArray.length && !ko.utils.domNodeIsAttachedToDocument(contiguousNodeArray[0]))
+            contiguousNodeArray.splice(0, 1);
+
+        // Rule [B]
+        if (contiguousNodeArray.length > 1) {
+            // Build up the actual new contiguous node set
+            var current = contiguousNodeArray[0], last = contiguousNodeArray[contiguousNodeArray.length - 1], newContiguousSet = [current];
+            while (current !== last) {
+                current = current.nextSibling;
+                if (!current) // Won't happen, except if the developer has manually removed some DOM elements (then we're in an undefined scenario)
+                    return;
+                newContiguousSet.push(current);
+            }
+
+            // ... then mutate the input array to match this.
+            // (The following line replaces the contents of contiguousNodeArray with newContiguousSet)
+            Array.prototype.splice.apply(contiguousNodeArray, [0, contiguousNodeArray.length].concat(newContiguousSet));
+        }
+        return contiguousNodeArray;
+    }
+
+    function mapNodeAndRefreshWhenChanged(containerNode, mapping, valueToMap, callbackAfterAddingNodes, index) {
+        // Map this array value inside a dependentObservable so we re-map when any dependency changes
+        var mappedNodes = [];
+        var dependentObservable = ko.dependentObservable(function() {
+            var newMappedNodes = mapping(valueToMap, index, fixUpNodesToBeMovedOrRemoved(mappedNodes)) || [];
+
+            // On subsequent evaluations, just replace the previously-inserted DOM nodes
+            if (mappedNodes.length > 0) {
+                ko.utils.replaceDomNodes(mappedNodes, newMappedNodes);
+                if (callbackAfterAddingNodes)
+                    ko.dependencyDetection.ignore(callbackAfterAddingNodes, null, [valueToMap, newMappedNodes, index]);
+            }
+
+            // Replace the contents of the mappedNodes array, thereby updating the record
+            // of which nodes would be deleted if valueToMap was itself later removed
+            mappedNodes.splice(0, mappedNodes.length);
+            ko.utils.arrayPushAll(mappedNodes, newMappedNodes);
+        }, null, { disposeWhenNodeIsRemoved: containerNode, disposeWhen: function() { return !ko.utils.anyDomNodeIsAttachedToDocument(mappedNodes); } });
+        return { mappedNodes : mappedNodes, dependentObservable : (dependentObservable.isActive() ? dependentObservable : undefined) };
+    }
+
+    var lastMappingResultDomDataKey = "setDomNodeChildrenFromArrayMapping_lastMappingResult";
+
+    ko.utils.setDomNodeChildrenFromArrayMapping = function (domNode, array, mapping, options, callbackAfterAddingNodes) {
+        // Compare the provided array against the previous one
+        array = array || [];
+        options = options || {};
+        var isFirstExecution = ko.utils.domData.get(domNode, lastMappingResultDomDataKey) === undefined;
+        var lastMappingResult = ko.utils.domData.get(domNode, lastMappingResultDomDataKey) || [];
+        var lastArray = ko.utils.arrayMap(lastMappingResult, function (x) { return x.arrayEntry; });
+        var editScript = ko.utils.compareArrays(lastArray, array, options['dontLimitMoves']);
+
+        // Build the new mapping result
+        var newMappingResult = [];
+        var lastMappingResultIndex = 0;
+        var newMappingResultIndex = 0;
+
+        var nodesToDelete = [];
+        var itemsToProcess = [];
+        var itemsForBeforeRemoveCallbacks = [];
+        var itemsForMoveCallbacks = [];
+        var itemsForAfterAddCallbacks = [];
+        var mapData;
+
+        function itemMovedOrRetained(editScriptIndex, oldPosition) {
+            mapData = lastMappingResult[oldPosition];
+            if (newMappingResultIndex !== oldPosition)
+                itemsForMoveCallbacks[editScriptIndex] = mapData;
+            // Since updating the index might change the nodes, do so before calling fixUpNodesToBeMovedOrRemoved
+            mapData.indexObservable(newMappingResultIndex++);
+            fixUpNodesToBeMovedOrRemoved(mapData.mappedNodes);
+            newMappingResult.push(mapData);
+            itemsToProcess.push(mapData);
+        }
+
+        function callCallback(callback, items) {
+            if (callback) {
+                for (var i = 0, n = items.length; i < n; i++) {
+                    if (items[i]) {
+                        ko.utils.arrayForEach(items[i].mappedNodes, function(node) {
+                            callback(node, i, items[i].arrayEntry);
+                        });
+                    }
+                }
+            }
+        }
+
+        for (var i = 0, editScriptItem, movedIndex; editScriptItem = editScript[i]; i++) {
+            movedIndex = editScriptItem['moved'];
+            switch (editScriptItem['status']) {
+                case "deleted":
+                    if (movedIndex === undefined) {
+                        mapData = lastMappingResult[lastMappingResultIndex];
+
+                        // Stop tracking changes to the mapping for these nodes
+                        if (mapData.dependentObservable)
+                            mapData.dependentObservable.dispose();
+
+                        // Queue these nodes for later removal
+                        nodesToDelete.push.apply(nodesToDelete, fixUpNodesToBeMovedOrRemoved(mapData.mappedNodes));
+                        if (options['beforeRemove']) {
+                            itemsForBeforeRemoveCallbacks[i] = mapData;
+                            itemsToProcess.push(mapData);
+                        }
+                    }
+                    lastMappingResultIndex++;
+                    break;
+
+                case "retained":
+                    itemMovedOrRetained(i, lastMappingResultIndex++);
+                    break;
+
+                case "added":
+                    if (movedIndex !== undefined) {
+                        itemMovedOrRetained(i, movedIndex);
+                    } else {
+                        mapData = { arrayEntry: editScriptItem['value'], indexObservable: ko.observable(newMappingResultIndex++) };
+                        newMappingResult.push(mapData);
+                        itemsToProcess.push(mapData);
+                        if (!isFirstExecution)
+                            itemsForAfterAddCallbacks[i] = mapData;
+                    }
+                    break;
+            }
+        }
+
+        // Call beforeMove first before any changes have been made to the DOM
+        callCallback(options['beforeMove'], itemsForMoveCallbacks);
+
+        // Next remove nodes for deleted items (or just clean if there's a beforeRemove callback)
+        ko.utils.arrayForEach(nodesToDelete, options['beforeRemove'] ? ko.cleanNode : ko.removeNode);
+
+        // Next add/reorder the remaining items (will include deleted items if there's a beforeRemove callback)
+        for (var i = 0, nextNode = ko.virtualElements.firstChild(domNode), lastNode, node; mapData = itemsToProcess[i]; i++) {
+            // Get nodes for newly added items
+            if (!mapData.mappedNodes)
+                ko.utils.extend(mapData, mapNodeAndRefreshWhenChanged(domNode, mapping, mapData.arrayEntry, callbackAfterAddingNodes, mapData.indexObservable));
+
+            // Put nodes in the right place if they aren't there already
+            for (var j = 0; node = mapData.mappedNodes[j]; nextNode = node.nextSibling, lastNode = node, j++) {
+                if (node !== nextNode)
+                    ko.virtualElements.insertAfter(domNode, node, lastNode);
+            }
+
+            // Run the callbacks for newly added nodes (for example, to apply bindings, etc.)
+            if (!mapData.initialized && callbackAfterAddingNodes) {
+                callbackAfterAddingNodes(mapData.arrayEntry, mapData.mappedNodes, mapData.indexObservable);
+                mapData.initialized = true;
+            }
+        }
+
+        // If there's a beforeRemove callback, call it after reordering.
+        // Note that we assume that the beforeRemove callback will usually be used to remove the nodes using
+        // some sort of animation, which is why we first reorder the nodes that will be removed. If the
+        // callback instead removes the nodes right away, it would be more efficient to skip reordering them.
+        // Perhaps we'll make that change in the future if this scenario becomes more common.
+        callCallback(options['beforeRemove'], itemsForBeforeRemoveCallbacks);
+
+        // Finally call afterMove and afterAdd callbacks
+        callCallback(options['afterMove'], itemsForMoveCallbacks);
+        callCallback(options['afterAdd'], itemsForAfterAddCallbacks);
+
+        // Store a copy of the array items we just considered so we can difference it next time
+        ko.utils.domData.set(domNode, lastMappingResultDomDataKey, newMappingResult);
+    }
+})();
+
+ko.exportSymbol('utils.setDomNodeChildrenFromArrayMapping', ko.utils.setDomNodeChildrenFromArrayMapping);
+ko.nativeTemplateEngine = function () {
+    this['allowTemplateRewriting'] = false;
+}
+
+ko.nativeTemplateEngine.prototype = new ko.templateEngine();
+ko.nativeTemplateEngine.prototype.constructor = ko.nativeTemplateEngine;
+ko.nativeTemplateEngine.prototype['renderTemplateSource'] = function (templateSource, bindingContext, options) {
+    var useNodesIfAvailable = !(ko.utils.ieVersion < 9), // IE<9 cloneNode doesn't work properly
+        templateNodesFunc = useNodesIfAvailable ? templateSource['nodes'] : null,
+        templateNodes = templateNodesFunc ? templateSource['nodes']() : null;
+
+    if (templateNodes) {
+        return ko.utils.makeArray(templateNodes.cloneNode(true).childNodes);
+    } else {
+        var templateText = templateSource['text']();
+        return ko.utils.parseHtmlFragment(templateText);
+    }
+};
+
+ko.nativeTemplateEngine.instance = new ko.nativeTemplateEngine();
+ko.setTemplateEngine(ko.nativeTemplateEngine.instance);
+
+ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
+(function() {
+    ko.jqueryTmplTemplateEngine = function () {
+        // Detect which version of jquery-tmpl you're using. Unfortunately jquery-tmpl
+        // doesn't expose a version number, so we have to infer it.
+        // Note that as of Knockout 1.3, we only support jQuery.tmpl 1.0.0pre and later,
+        // which KO internally refers to as version "2", so older versions are no longer detected.
+        var jQueryTmplVersion = this.jQueryTmplVersion = (function() {
+            if ((typeof(jQuery) == "undefined") || !(jQuery['tmpl']))
+                return 0;
+            // Since it exposes no official version number, we use our own numbering system. To be updated as jquery-tmpl evolves.
+            try {
+                if (jQuery['tmpl']['tag']['tmpl']['open'].toString().indexOf('__') >= 0) {
+                    // Since 1.0.0pre, custom tags should append markup to an array called "__"
+                    return 2; // Final version of jquery.tmpl
+                }
+            } catch(ex) { /* Apparently not the version we were looking for */ }
+
+            return 1; // Any older version that we don't support
+        })();
+
+        function ensureHasReferencedJQueryTemplates() {
+            if (jQueryTmplVersion < 2)
+                throw new Error("Your version of jQuery.tmpl is too old. Please upgrade to jQuery.tmpl 1.0.0pre or later.");
+        }
+
+        function executeTemplate(compiledTemplate, data, jQueryTemplateOptions) {
+            return jQuery['tmpl'](compiledTemplate, data, jQueryTemplateOptions);
+        }
+
+        this['renderTemplateSource'] = function(templateSource, bindingContext, options) {
+            options = options || {};
+            ensureHasReferencedJQueryTemplates();
+
+            // Ensure we have stored a precompiled version of this template (don't want to reparse on every render)
+            var precompiled = templateSource['data']('precompiled');
+            if (!precompiled) {
+                var templateText = templateSource['text']() || "";
+                // Wrap in "with($whatever.koBindingContext) { ... }"
+                templateText = "{{ko_with $item.koBindingContext}}" + templateText + "{{/ko_with}}";
+
+                precompiled = jQuery['template'](null, templateText);
+                templateSource['data']('precompiled', precompiled);
+            }
+
+            var data = [bindingContext['$data']]; // Prewrap the data in an array to stop jquery.tmpl from trying to unwrap any arrays
+            var jQueryTemplateOptions = jQuery['extend']({ 'koBindingContext': bindingContext }, options['templateOptions']);
+
+            var resultNodes = executeTemplate(precompiled, data, jQueryTemplateOptions);
+            resultNodes['appendTo'](document.createElement("div")); // Using "appendTo" forces jQuery/jQuery.tmpl to perform necessary cleanup work
+
+            jQuery['fragments'] = {}; // Clear jQuery's fragment cache to avoid a memory leak after a large number of template renders
+            return resultNodes;
+        };
+
+        this['createJavaScriptEvaluatorBlock'] = function(script) {
+            return "{{ko_code ((function() { return " + script + " })()) }}";
+        };
+
+        this['addTemplate'] = function(templateName, templateMarkup) {
+            document.write("<script type='text/html' id='" + templateName + "'>" + templateMarkup + "<" + "/script>");
+        };
+
+        if (jQueryTmplVersion > 0) {
+            jQuery['tmpl']['tag']['ko_code'] = {
+                open: "__.push($1 || '');"
+            };
+            jQuery['tmpl']['tag']['ko_with'] = {
+                open: "with($1) {",
+                close: "} "
+            };
+        }
+    };
+
+    ko.jqueryTmplTemplateEngine.prototype = new ko.templateEngine();
+    ko.jqueryTmplTemplateEngine.prototype.constructor = ko.jqueryTmplTemplateEngine;
+
+    // Use this one by default *only if jquery.tmpl is referenced*
+    var jqueryTmplTemplateEngineInstance = new ko.jqueryTmplTemplateEngine();
+    if (jqueryTmplTemplateEngineInstance.jQueryTmplVersion > 0)
+        ko.setTemplateEngine(jqueryTmplTemplateEngineInstance);
+
+    ko.exportSymbol('jqueryTmplTemplateEngine', ko.jqueryTmplTemplateEngine);
+})();
+}));
+}());
+})();
+
+/*
+	Falcon.js
+	by Rick Allen (stoodder)
+
+	Version 0.6.4
+	Full source at https://github.com/stoodder/falconjs
+	Copyright (c) 2011 RokkinCat, http://www.rokkincat.com
+
+	MIT License, https://github.com/stoodder/falconjs/blob/master/LICENSE.md
+	This file is generated by `cake build`, do not edit it by hand.
+*/
+
+
+/*
+	Knockout JavaScript library v2.2.1
+	(c) Steven Sanderson - http://knockoutjs.com/
+	License: MIT (http://www.opensource.org/licenses/mit-license.php)
+*/
+
+
+(function() {
+  var Falcon, arrayRemove, arrayUnique, clone, extend, findKey, isArray, isBoolean, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, startsWith, trim, value, _bindingContext, _foreach, _getItems, _options, _ref, _ref1, _shouldUpdate,
+    __slice = [].slice,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  isObject = function(object) {
+    return (object != null) && Object.prototype.toString.call(object) === "[object Object]";
+  };
+
+  isFunction = function(object) {
+    return (object != null) && Object.prototype.toString.call(object) === "[object Function]";
+  };
+
+  isBoolean = function(object) {
+    return (object != null) && Object.prototype.toString.call(object) === "[object Boolean]";
+  };
+
+  isArray = function(object) {
+    return (object != null) && Object.prototype.toString.call(object) === "[object Array]";
+  };
+
+  isString = function(object) {
+    return (object != null) && Object.prototype.toString.call(object) === "[object String]";
+  };
+
+  isNumber = function(object) {
+    return (object != null) && Object.prototype.toString.call(object) === "[object Number]";
+  };
+
+  isNaN = function(object) {
+    return isNumber(object) && object !== object;
+  };
+
+  isEmpty = function(object) {
+    var key, value;
+
+    if (isObject(object)) {
+      for (key in object) {
+        value = object[key];
+        return false;
+      }
+      return true;
+    } else if (isString(object) || isArray(object)) {
+      return object.length === 0;
+    } else if (object === null || typeof object === "undefined") {
+      return true;
+    }
+    return false;
+  };
+
+  trim = function(str) {
+    return str.replace(/^\s+/, '').replace(/\s+$/, '');
+  };
+
+  startsWith = function(haystack, needle) {
+    return haystack.indexOf(needle) === 0;
+  };
+
+  objectKeys = function(obj) {
+    var key, _results;
+
+    _results = [];
+    for (key in obj) {
+      _results.push(key);
+    }
+    return _results;
+  };
+
+  extend = function(obj, extender) {
+    var key, value;
+
+    if (obj == null) {
+      obj = {};
+    }
+    if (!isObject(extender)) {
+      extender = {};
+    }
+    for (key in extender) {
+      value = extender[key];
+      obj[key] = value;
+    }
+    return obj;
+  };
+
+  findKey = function(obj, value) {
+    var k, v;
+
+    for (k in obj) {
+      v = obj[k];
+      if (v === value) {
+        return k;
+      }
+    }
+    return void 0;
+  };
+
+  clone = function(object) {
+    var flags, key, newInstance;
+
+    if (!isObject(object)) {
+      return object;
+    }
+    if (object instanceof Date) {
+      return new Date(object.getTime());
+    }
+    if (object instanceof RegExp) {
+      flags = '';
+      if (object.global != null) {
+        flags += 'g';
+      }
+      if (object.ignoreCase != null) {
+        flags += 'i';
+      }
+      if (object.multiline != null) {
+        flags += 'm';
+      }
+      if (object.sticky != null) {
+        flags += 'y';
+      }
+      return new RegExp(object.source, flags);
+    }
+    newInstance = new object.constructor();
+    for (key in object) {
+      newInstance[key] = clone(object[key]);
+    }
+    return newInstance;
+  };
+
+  arrayUnique = function(arr) {
+    var key, obj, value, _i, _len;
+
+    obj = {};
+    for (_i = 0, _len = arr.length; _i < _len; _i++) {
+      key = arr[_i];
+      obj[key] = true;
+    }
+    return (function() {
+      var _results;
+
+      _results = [];
+      for (key in obj) {
+        value = obj[key];
+        _results.push(key);
+      }
+      return _results;
+    })();
+  };
+
+  arrayRemove = function(arr, items) {
+    var item, _i, _item, _len;
+
+    if (!isArray(arr)) {
+      return [];
+    }
+    if (!isArray(items)) {
+      items = [items];
+    }
+    for (_i = 0, _len = items.length; _i < _len; _i++) {
+      item = items[_i];
+      arr = (function() {
+        var _j, _len1, _results;
+
+        _results = [];
+        for (_j = 0, _len1 = arr.length; _j < _len1; _j++) {
+          _item = arr[_j];
+          if (_item !== item) {
+            _results.push(_item);
+          }
+        }
+        return _results;
+      })();
+    }
+    return arr;
+  };
+
+  this.Falcon = Falcon = {
+    version: "0.6.4",
+    applicationElement: "body",
+    baseApiUrl: "",
+    baseTemplateUrl: "",
+    cache: true,
+    apply: function(root, element, callback) {
+      var _ref, _ref1;
+
+      if (isFunction(element)) {
+        _ref = [callback, element], element = _ref[0], callback = _ref[1];
+      }
+      if (!isString(element)) {
+        element = "";
+      }
+      element = trim(element);
+      if (isEmpty(element)) {
+        element = (_ref1 = Falcon.applicationElement) != null ? _ref1 : "body";
+      }
+      if (!isFunction(callback)) {
+        callback = (function() {});
+      }
+      document.createElement("template");
+      $(function() {
+        var $element;
+
+        $('template').each(function(index, template) {
+          var identifier;
+
+          template = $(template);
+          identifier = template.attr("id");
+          if (identifier != null) {
+            Falcon.View.cacheTemplate("#" + identifier, template.html());
+          }
+          return template.remove();
+        });
+        $element = $(element);
+        $element.attr('data-bind', 'view: $data');
+        ko.applyBindings(ko.observable(root), $element[0]);
+        return callback();
+      });
+    },
+    isModel: function(object) {
+      return (object != null) && object instanceof Falcon.Model;
+    },
+    isCollection: function(object) {
+      return (object != null) && object instanceof Falcon.Collection;
+    },
+    isView: function(object) {
+      return (object != null) && object instanceof Falcon.View;
+    },
+    isDataObject: function(object) {
+      return (object != null) && (object instanceof Falcon.Model || object instanceof Falcon.Collection);
+    },
+    isFalconObject: function(object) {
+      return (object != null) && (object instanceof Falcon.Object);
+    },
+    addBinding: function(name, definition, allowVirtual) {
+      var _ref;
+
+      if (isBoolean(definition)) {
+        _ref = [allowVirtual, definition], definition = _ref[0], allowVirtual = _ref[1];
+      }
+      if (allowVirtual) {
+        ko.virtualElements.allowedBindings[name] = true;
+      }
+      return ko.bindingHandlers[name] = definition;
+    }
+  };
+
+  Falcon.Object = (function() {
+    var __falcon_object__current_cid__;
+
+    __falcon_object__current_cid__ = 0;
+
+    Object.prototype.observables = null;
+
+    Object.prototype.defaults = null;
+
+    Object.extend = function(protoProps, staticProps) {
+      var Surrogate, child, key, parent, value;
+
+      parent = this;
+      if (protoProps && protoProps.hasOwnProperty('constructor')) {
+        child = protoProps.constructor;
+      } else {
+        child = function() {
+          return parent.apply(this, arguments);
+        };
+      }
+      for (key in parent) {
+        value = parent[key];
+        child[key] = value;
+      }
+      for (key in staticProps) {
+        value = staticProps[key];
+        child[key] = value;
+      }
+      Surrogate = function() {
+        this.constructor = child;
+      };
+      Surrogate.prototype = parent.prototype;
+      child.prototype = new Surrogate;
+      for (key in protoProps) {
+        value = protoProps[key];
+        child.prototype[key] = value;
+      }
+      child.__super__ = parent.prototype;
+      return child;
+    };
+
+    Object.prototype.__falcon_object__events__ = null;
+
+    Object.prototype.__falcon_object__cid__ = null;
+
+    function Object() {
+      var attr, value, _ref, _ref1, _ref2;
+
+      this.__falcon_object__events__ = {};
+      this.__falcon_object__cid__ = __falcon_object__current_cid__++;
+      if (isObject(this.defaults)) {
+        _ref = this.defaults;
+        for (attr in _ref) {
+          value = _ref[attr];
+          if (isFunction(value)) {
+            this[attr] = value.apply(this, arguments);
+          } else if (isObject(value)) {
+            this[attr] = clone(value);
+          } else {
+            this[attr] = value;
+          }
+        }
+      }
+      if (isObject(this.observables)) {
+        _ref1 = this.observables;
+        for (attr in _ref1) {
+          value = _ref1[attr];
+          if (isFunction(value)) {
+            this[attr] = ko.computed({
+              'read': value,
+              'owner': this
+            });
+          } else if (isObject(value) && ('read' in value || 'write' in value)) {
+            this[attr] = ko.computed({
+              'read': value.read,
+              'write': value.write,
+              'owner': (_ref2 = value.owner) != null ? _ref2 : this
+            });
+          } else if (isArray(value)) {
+            this[attr] = ko.observableArray(value.slice(0));
+          } else {
+            this[attr] = ko.observable(value);
+          }
+        }
+      }
+    }
+
+    Object.prototype.on = function(event, action, context) {
+      var _base, _ref;
+
+      if (!(isString(event) && isFunction(action))) {
+        return this;
+      }
+      if (context == null) {
+        context = this;
+      }
+      event = trim(event).toLowerCase();
+      if (isEmpty(event)) {
+        return this;
+      }
+      ((_ref = (_base = this.__falcon_object__events__)[event]) != null ? _ref : _base[event] = []).push({
+        action: action,
+        context: context
+      });
+      return this;
+    };
+
+    Object.prototype.off = function(event, action) {
+      var evt;
+
+      if (!isString(event)) {
+        return this;
+      }
+      event = trim(event).toLowerCase();
+      if (isEmpty(event) || (this.__falcon_object__events__[event] == null)) {
+        return this;
+      }
+      if (isFunction(action)) {
+        this.__falcon_object__events__[event] = (function() {
+          var _i, _len, _ref, _results;
+
+          _ref = this.__falcon_object__events__[event];
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            evt = _ref[_i];
+            if (evt.action !== action) {
+              _results.push(evt);
+            }
+          }
+          return _results;
+        }).call(this);
+        if (this.__falcon_object__events__[event].length <= 0) {
+          this.__falcon_object__events__[event] = null;
+        }
+      } else {
+        this.__falcon_object__events__[event] = null;
+      }
+      return this;
+    };
+
+    Object.prototype.has = function(event, action) {
+      var evt, _i, _len, _ref;
+
+      if (!isString(event)) {
+        return false;
+      }
+      event = trim(event).toLowerCase();
+      if (isEmpty(event) || (this.__falcon_object__events__[event] == null)) {
+        return false;
+      }
+      if ((this.__falcon_object__events__[event] != null) && !isFunction(action)) {
+        return true;
+      }
+      _ref = this.__falcon_object__events__[event];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        evt = _ref[_i];
+        if (evt.action === action) {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    Object.prototype.trigger = function() {
+      var args, event, evt, _i, _len, _ref;
+
+      event = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      if (!isString(event)) {
+        return this;
+      }
+      event = trim(event).toLowerCase();
+      if (isEmpty(event) || (this.__falcon_object__events__[event] == null)) {
+        return this;
+      }
+      _ref = this.__falcon_object__events__[event];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        evt = _ref[_i];
+        evt.action.apply(evt.context, args);
+      }
+      return this;
+    };
+
+    return Object;
+
+  })();
+
+  Falcon.Model = (function(_super) {
+    __extends(Model, _super);
+
+    Model.extend = Falcon.Object.extend;
+
+    Model.prototype.id = null;
+
+    Model.prototype.url = null;
+
+    Model.prototype.parent = null;
+
+    function Model(data, parent) {
+      var _ref, _ref1;
+
+      Model.__super__.constructor.apply(this, arguments);
+      data = ko.utils.unwrapObservable(data);
+      parent = ko.utils.unwrapObservable(parent);
+      if ((parent != null) && !Falcon.isModel(parent) && Falcon.isModel(data)) {
+        _ref = [data, parent], parent = _ref[0], data = _ref[1];
+      }
+      if ((parent == null) && Falcon.isModel(data)) {
+        _ref1 = [data, parent], parent = _ref1[0], data = _ref1[1];
+      }
+      if (Falcon.isModel(data)) {
+        data = data.unwrap();
+      }
+      this.parent = parent;
+      this.initialize(data);
+      if (!isEmpty(data)) {
+        this.fill(data);
+      }
+      return this;
+    }
+
+    Model.prototype.initialize = function(data) {};
+
+    Model.prototype.get = function(attribute) {
+      if (!isString(attribute)) {
+        return this.undefined;
+      }
+      return ko.utils.unwrapObservable(this[attribute]);
+    };
+
+    Model.prototype.set = function(attribute, value) {
+      var k, v;
+
+      if (isObject(attribute)) {
+        for (k in attribute) {
+          v = attribute[k];
+          this.set(k, v);
+        }
+        return this;
+      }
+      if (!isString(attribute)) {
+        return this;
+      }
+      if (ko.isObservable(this[attribute])) {
+        this[attribute](value);
+      } else {
+        this[attribute] = value;
+      }
+      return this;
+    };
+
+    Model.prototype.toggle = function(attribute) {
+      return this.set(attribute, !this.get(attribute));
+    };
+
+    Model.prototype.parse = function(data, options, xhr) {
+      return data;
+    };
+
+    Model.prototype.fill = function(data) {
+      var attr, rejectedAttributes, value, _ref;
+
+      if (isNumber(data) || isString(data)) {
+        data = {
+          'id': data
+        };
+      }
+      if (!isObject(data)) {
+        return this;
+      }
+      if (Falcon.isModel(data)) {
+        data = data.unwrap();
+      }
+      if (isEmpty(data)) {
+        return this;
+      }
+      rejectedAttributes = {};
+      _ref = Falcon.Model.prototype;
+      for (attr in _ref) {
+        value = _ref[attr];
+        if (attr !== "id" && attr !== "url") {
+          rejectedAttributes[attr] = true;
+        }
+      }
+      for (attr in data) {
+        value = data[attr];
+        if (!(!rejectedAttributes[attr])) {
+          continue;
+        }
+        value = ko.utils.unwrapObservable(value);
+        if (Falcon.isModel(this[attr])) {
+          if (!isEmpty(value)) {
+            this[attr].fill(value);
+          }
+        } else if (Falcon.isCollection(this[attr])) {
+          this[attr].fill(value);
+        } else if (ko.isWriteableObservable(this[attr])) {
+          this[attr](value);
+        } else {
+          this[attr] = value;
+        }
+      }
+      return this;
+    };
+
+    Model.prototype.unwrap = function() {
+      var attr, unwrapped, value;
+
+      unwrapped = {};
+      for (attr in this) {
+        value = this[attr];
+        if (attr === "id" || !(attr in Falcon.Model.prototype)) {
+          unwrapped[attr] = Falcon.isDataObject(value) ? value.unwrap() : value;
+        }
+      }
+      return unwrapped;
+    };
+
+    Model.prototype.serialize = function(attributes) {
+      var attr, new_attributes, serialized, sub_attributes, value, _i, _len;
+
+      serialized = {};
+      if (attributes == null) {
+        attributes = (function() {
+          var _results;
+
+          _results = [];
+          for (attr in this) {
+            if (attr === "id" || !(attr in Falcon.Model.prototype)) {
+              _results.push(attr);
+            }
+          }
+          return _results;
+        }).call(this);
+      } else if (isString(attributes)) {
+        attributes = trim(attributes).split(",");
+      }
+      if (isArray(attributes)) {
+        new_attributes = {};
+        for (_i = 0, _len = attributes.length; _i < _len; _i++) {
+          attr = attributes[_i];
+          new_attributes[attr] = null;
+        }
+        attributes = new_attributes;
+      }
+      if (!isObject(attributes)) {
+        return serialized;
+      }
+      for (attr in attributes) {
+        sub_attributes = attributes[attr];
+        value = this[attr];
+        if (Falcon.isDataObject(value)) {
+          serialized[attr] = value.serialize(sub_attributes);
+        } else if (ko.isObservable(value)) {
+          serialized[attr] = ko.utils.unwrapObservable(value);
+        } else if (!isFunction(value)) {
+          serialized[attr] = value;
+        }
+      }
+      return serialized;
+    };
+
+    Model.prototype.makeUrl = function(type, parent) {
+      var ext, parentPeriodIndex, parentSlashIndex, parentUrl, periodIndex, url;
+
+      url = isFunction(this.url) ? this.url() : this.url;
+      if (!isString(url)) {
+        url = "";
+      }
+      url = trim(url);
+      if (!isString(type)) {
+        type = "";
+      }
+      type = type.toUpperCase();
+      if (type !== 'GET' && type !== 'PUT' && type !== 'POST' && type !== 'DELETE') {
+        type = 'GET';
+      }
+      parent = parent !== void 0 ? parent : this.parent;
+      ext = "";
+      periodIndex = url.lastIndexOf(".");
+      if (periodIndex > -1) {
+        ext = url.slice(periodIndex);
+        url = url.slice(0, periodIndex);
+      }
+      if (!startsWith(url, "/")) {
+        url = "/" + url;
+      }
+      if (Falcon.isModel(parent)) {
+        parentUrl = parent.makeUrl();
+        parentPeriodIndex = parentUrl.lastIndexOf(".");
+        parentSlashIndex = parentUrl.lastIndexOf("/");
+        if (parentSlashIndex < parentPeriodIndex) {
+          if (parentPeriodIndex > -1) {
+            parentUrl = parentUrl.slice(0, parentPeriodIndex);
+          }
+          parentUrl = trim(parentUrl);
+        }
+        url = "" + parentUrl + url;
+      } else if (isString(Falcon.baseApiUrl)) {
+        url = "" + Falcon.baseApiUrl + url;
+      }
+      if (type === "GET" || type === "PUT" || type === "DELETE") {
+        if (url.slice(-1) !== "/") {
+          url += "/";
+        }
+        url += ko.utils.unwrapObservable(this.id);
+      }
+      url = url.replace(/([^:])\/\/+/gi, "$1/");
+      return "" + url + ext;
+    };
+
+    Model.prototype.validate = function(options) {
+      return true;
+    };
+
+    Model.prototype.sync = function(type, options, context) {
+      var json, key, url, value, _ref, _ref1,
+        _this = this;
+
+      if (isFunction(options)) {
+        options = {
+          complete: options
+        };
+      }
+      if (isString(options)) {
+        options = {
+          attributes: trim(options).split(",")
+        };
+      }
+      if (isArray(options)) {
+        options = {
+          attributes: options
+        };
+      }
+      if (!isObject(options)) {
+        options = {};
+      }
+      if (!isObject(options.data)) {
+        options.data = null;
+      }
+      if (!isString(options.dataType)) {
+        options.dataType = "json";
+      }
+      if (!isString(options.contentType)) {
+        options.contentType = "application/json";
+      }
+      if (!isFunction(options.success)) {
+        options.success = (function() {});
+      }
+      if (!isFunction(options.complete)) {
+        options.complete = (function() {});
+      }
+      if (!isFunction(options.error)) {
+        options.error = (function() {});
+      }
+      if (!(Falcon.isModel(options.parent) || options.parent === null)) {
+        options.parent = this.parent;
+      }
+      if (options.attributes == null) {
+        options.attributes = null;
+      }
+      if (!isObject(options.params)) {
+        options.params = {};
+      }
+      if (!isBoolean(options.fill)) {
+        options.fill = true;
+      }
+      if (!isObject(options.headers)) {
+        options.headers = {};
+      }
+      type = trim(isString(type) ? type.toUpperCase() : "GET");
+      if (type !== "GET" && type !== "POST" && type !== "PUT" && type !== "DELETE") {
+        type = "GET";
+      }
+      options.type = type;
+      if ((type === "PUT" || type === "POST") && !this.validate(options)) {
+        return;
+      }
+      if (options.data === null && (type === "POST" || type === "PUT")) {
+        options.data = this.serialize(options.attributes);
+      }
+      json = options.data === null ? "" : JSON.stringify(options.data);
+      context = (_ref = context != null ? context : options.context) != null ? _ref : this;
+      url = (_ref1 = options.url) != null ? _ref1 : this.makeUrl(type, options.parent);
+      if (!isEmpty(options.params)) {
+        if (!(url.indexOf("?") > -1)) {
+          url += "?";
+        }
+        url += ((function() {
+          var _ref2, _results;
+
+          _ref2 = options.params;
+          _results = [];
+          for (key in _ref2) {
+            value = _ref2[key];
+            _results.push("" + key + "=" + value);
+          }
+          return _results;
+        })()).join("&");
+      }
+      return $.ajax({
+        'type': type,
+        'url': url,
+        'data': json,
+        'dataType': options.dataType,
+        'contentType': options.contentType,
+        'cache': Falcon.cache,
+        'headers': options.headers,
+        'success': function(data, status, xhr) {
+          var parsed_data;
+
+          if (isString(data)) {
+            data = JSON.parse(data);
+          }
+          if ((data == null) && isString(xhr.responseText)) {
+            data = JSON.parse(xhr.responseText);
+          }
+          if (data == null) {
+            data = {};
+          }
+          parsed_data = _this.parse(data, options, xhr);
+          if (options.fill) {
+            _this.fill(parsed_data, options);
+          }
+          switch (type) {
+            case "GET":
+              _this.trigger("fetch", parsed_data);
+              break;
+            case "POST":
+              _this.trigger("create", parsed_data);
+              break;
+            case "PUT":
+              _this.trigger("save", parsed_data);
+              break;
+            case "DELETE":
+              _this.trigger("destroy", parsed_data);
+          }
+          return options.success.call(context, _this, data, status, xhr);
+        },
+        'error': function(xhr) {
+          var e, response;
+
+          response = xhr.responseText;
+          try {
+            if (isString(response)) {
+              response = JSON.parse(response);
+            }
+          } catch (_error) {
+            e = _error;
+          }
+          return options.error.call(context, _this, response, xhr);
+        },
+        'complete': function(xhr, status) {
+          return options.complete.call(context, _this, xhr, status);
+        }
+      });
+    };
+
+    Model.prototype.fetch = function(options, context) {
+      return this.sync('GET', options, context);
+    };
+
+    Model.prototype.create = function(options, context) {
+      return this.sync('POST', options, context);
+    };
+
+    Model.prototype.save = function(options, context) {
+      return (this.isNew() ? this.create(options, context) : this.sync('PUT', options, context));
+    };
+
+    Model.prototype.destroy = function(options, context) {
+      return this.sync('DELETE', options, context);
+    };
+
+    Model.prototype.equals = function(model) {
+      var id, other_id;
+
+      model = ko.utils.unwrapObservable(model);
+      if (Falcon.isModel(model)) {
+        id = this.get("id");
+        other_id = model.get("id");
+        if ((id != null) && (other_id != null)) {
+          return model.get("id") === this.get("id");
+        }
+        return model === this;
+      } else if (isNumber(model) || isString(model)) {
+        return model === this.get("id");
+      }
+      return false;
+    };
+
+    Model.prototype.mixin = function(mapping) {
+      var key, value,
+        _this = this;
+
+      if (!isObject(mapping)) {
+        mapping = {};
+      }
+      for (key in mapping) {
+        value = mapping[key];
+        if (Falcon.isDataObject(this[key])) {
+          this[key].mixin(value);
+        } else {
+          if (ko.isObservable(value)) {
+            this[key] = ko.observable(ko.utils.unwrapObservable(value));
+          } else if (isFunction(value)) {
+            (function() {
+              var _value;
+
+              _value = value;
+              return _this[key] = function() {
+                var args;
+
+                args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+                return _value.call.apply(_value, [_this, _this].concat(__slice.call(args)));
+              };
+            })();
+          } else {
+            this[key] = value;
+          }
+        }
+      }
+      return this;
+    };
+
+    Model.prototype.clone = function(parent) {
+      parent = (parent != null) || parent === null ? parent : this.parent;
+      return new this.constructor(this.unwrap(), parent);
+    };
+
+    Model.prototype.copy = function(attributes, parent) {
+      if (attributes === null || Falcon.isModel(attributes)) {
+        parent = attributes;
+      }
+      if (attributes == null) {
+        attributes = {
+          "id": null
+        };
+      }
+      if (!(parent === null || Falcon.isModel(parent))) {
+        parent = this.parent;
+      }
+      return new this.constructor(this.serialize(attributes), parent);
+    };
+
+    Model.prototype.isNew = function() {
+      return this.get("id") == null;
+    };
+
+    return Model;
+
+  })(Falcon.Object);
+
+  Falcon.View = (function(_super) {
+    var __falcon_view__template_cache__;
+
+    __extends(View, _super);
+
+    __falcon_view__template_cache__ = {};
+
+    View.cacheTemplate = function(identifier, template) {
+      if (!isString(identifier)) {
+        identifier = "";
+      }
+      if (!isString(template)) {
+        template = "";
+      }
+      identifier = trim(identifier);
+      __falcon_view__template_cache__[identifier] = template;
+    };
+
+    View.resetCache = function() {
+      return __falcon_view__template_cache__ = {};
+    };
+
+    View.extend = Falcon.Object.extend;
+
+    View.prototype.url = null;
+
+    View.prototype.is_loaded = false;
+
+    View.prototype.is_rendered = false;
+
+    View.prototype.__falcon_view__child_views__ = null;
+
+    View.prototype.__falcon_view__loaded_url__ = null;
+
+    function View() {
+      var url, _loaded,
+        _this = this;
+
+      View.__super__.constructor.apply(this, arguments);
+      url = this.makeUrl();
+      this.is_rendered = false;
+      this.is_loaded = ko.observable(false);
+      this.__falcon_view__child_views__ = [];
+      _loaded = function() {
+        _this.__falcon_view__loaded_url__ = url;
+        return _this.is_loaded(true);
+      };
+      this.initialize.apply(this, arguments);
+      if (isEmpty(url) || url in __falcon_view__template_cache__) {
+        _loaded();
+      } else if (startsWith(url, "#")) {
+        Falcon.View.cacheTemplate(url, $(url).html());
+        _loaded();
+      } else {
+        $.ajax({
+          url: url,
+          type: "GET",
+          cache: Falcon.cache,
+          error: function() {
+            console.log("[FALCON] Error Loading Template: '" + url + "'");
+            return _this.trigger("error");
+          },
+          success: function(html) {
+            Falcon.View.cacheTemplate(url, html);
+            return _loaded();
+          }
+        });
+      }
+      return this;
+    }
+
+    View.prototype.makeUrl = function() {
+      var url;
+
+      url = ko.utils.unwrapObservable(this.url);
+      if (isFunction(url)) {
+        url = url();
+      }
+      if (!isString(url)) {
+        url = "";
+      }
+      url = trim(url);
+      if (url.charAt(0) === '#') {
+        return url;
+      }
+      if (url.charAt(0) !== '/') {
+        url = "/" + url;
+      }
+      if (isString(Falcon.baseTemplateUrl)) {
+        url = "" + Falcon.baseTemplateUrl + url;
+      }
+      url = url.replace(/([^:])\/\/+/gi, "$1/");
+      return url;
+    };
+
+    View.prototype.template = function() {
+      var _ref;
+
+      if (!ko.utils.unwrapObservable(this.is_loaded)) {
+        return "";
+      }
+      return (_ref = __falcon_view__template_cache__[this.__falcon_view__loaded_url__]) != null ? _ref : "";
+    };
+
+    View.prototype.render = function() {
+      if (this.is_rendered) {
+        return;
+      }
+      this.display.apply(this, arguments);
+      this.is_rendered = true;
+    };
+
+    View.prototype.unrender = function() {
+      var child_view, _i, _len, _ref;
+
+      if (!this.is_rendered) {
+        return;
+      }
+      _ref = this.__falcon_view__child_views__;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        child_view = _ref[_i];
+        child_view.unrender();
+      }
+      this.__falcon_view__child_views__ = [];
+      this.dispose.apply(this, arguments);
+      this.is_rendered = false;
+    };
+
+    View.prototype.addChildView = function(view) {
+      if (!Falcon.isView(view)) {
+        return;
+      }
+      return this.__falcon_view__child_views__.push(view);
+    };
+
+    View.prototype.initialize = (function() {});
+
+    View.prototype.display = (function() {});
+
+    View.prototype.dispose = (function() {});
+
+    View.__falcon_view__viewModel__ = null;
+
+    View.prototype.viewModel = function() {
+      var key, value, viewModel,
+        _this = this;
+
+      if (this.__falcon_view__viewModel__ != null) {
+        return this.__falcon_view__viewModel__;
+      }
+      viewModel = {
+        "__falcon_view__addChildView__": function(view) {
+          return _this.addChildView(view);
+        }
+      };
+      for (key in this) {
+        value = this[key];
+        if (!(!(key in Falcon.View.prototype))) {
+          continue;
+        }
+        if (isFunction(value) && !ko.isObservable(value)) {
+          value = (function() {
+            var _value;
+
+            _value = value;
+            return function() {
+              var args;
+
+              args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+              return _value.call.apply(_value, [_this].concat(__slice.call(args)));
+            };
+          })();
+        }
+        viewModel[key] = value;
+      }
+      return (this.__falcon_view__viewModel__ = viewModel);
+    };
+
+    return View;
+
+  })(Falcon.Object);
+
+  Falcon.Collection = (function(_super) {
+    var _makeIterator;
+
+    __extends(Collection, _super);
+
+    Collection.extend = Falcon.Object.extend;
+
+    _makeIterator = function(iterator) {
+      var _id, _model, _model_id;
+
+      if (Falcon.isModel(iterator)) {
+        _model = iterator;
+        _model_id = _model.get('id');
+        if (_model_id != null) {
+          return function(item) {
+            var id, model_id;
+
+            if (!Falcon.isModel(item)) {
+              return false;
+            }
+            id = item.get('id');
+            model_id = _model.get('id');
+            return id === model_id;
+          };
+        } else {
+          return function(item) {
+            if (!Falcon.isModel(item)) {
+              return false;
+            }
+            return item === _model;
+          };
+        }
+      }
+      if (isNumber(iterator) || isString(iterator)) {
+        _id = iterator;
+        return function(model) {
+          if (!Falcon.isModel(model)) {
+            return false;
+          }
+          return model.get("id") === _id;
+        };
+      }
+      return iterator;
+    };
+
+    Collection.prototype.__falcon_collection__mixins__ = null;
+
+    Collection.prototype.__falcon_collection__change_count__ = 0;
+
+    Collection.prototype.models = null;
+
+    Collection.prototype.model = null;
+
+    Collection.prototype.url = null;
+
+    Collection.prototype.length = 0;
+
+    Collection.prototype.parent = null;
+
+    function Collection(models, parent) {
+      var _ref, _ref1, _ref2;
+
+      Collection.__super__.constructor.apply(this, arguments);
+      models = ko.utils.unwrapObservable(models);
+      parent = ko.utils.unwrapObservable(parent);
+      if ((parent == null) && Falcon.isModel(models)) {
+        _ref = [models, parent], parent = _ref[0], models = _ref[1];
+      }
+      if (Falcon.isModel(models) && isArray(parent)) {
+        _ref1 = [models, parent], parent = _ref1[0], models = _ref1[1];
+      }
+      if (this.model != null) {
+        if ((_ref2 = this.url) == null) {
+          this.url = this.model.prototype.url;
+        }
+      }
+      this.length = ko.observable(0);
+      this.parent = parent;
+      this.__falcon_collection__mixins__ = [];
+      this.reset();
+      if (!isEmpty(models)) {
+        this.fill(models);
+      }
+      this.initialize(models);
+    }
+
+    Collection.prototype.initialize = (function(models) {});
+
+    Collection.prototype.parse = function(data, options, xhr) {
+      return data;
+    };
+
+    Collection.prototype.fill = function(items, options) {
+      var head, i, insert_index, iterator, m, mapping, method, model, models, tail, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _length, _m, _model, _models, _ref, _ref1;
+
+      if (this.model == null) {
+        return this;
+      }
+      if (items == null) {
+        items = [];
+      }
+      if (Falcon.isCollection(items)) {
+        items = items.models();
+      }
+      if (ko.isObservable(items)) {
+        items = ko.utils.unwrapObservable(items);
+      }
+      if (!isArray(items)) {
+        items = [items];
+      }
+      models = [];
+      if (!isObject(options)) {
+        options = {};
+      }
+      method = options.method;
+      if (!isString(method)) {
+        method = '';
+      }
+      method = method.toLowerCase();
+      if (method !== 'replace' && method !== 'append' && method !== 'prepend' && method !== 'insert' && method !== 'merge') {
+        method = 'replace';
+      }
+      if (method !== 'replace' && isEmpty(items)) {
+        return [];
+      }
+      this.__falcon_collection__change_count__++;
+      for (i = _i = 0, _len = items.length; _i < _len; i = ++_i) {
+        m = items[i];
+        if (Falcon.isModel(m)) {
+          if (m instanceof this.model) {
+            models[i] = items[i];
+            if (this.parent != null) {
+              models[i].parent = this.parent;
+            }
+          } else {
+            models[i] = new this.model(m.serialize(), this.parent);
+          }
+        } else {
+          models[i] = new this.model(m, this.parent);
+        }
+        _ref = this.__falcon_collection__mixins__;
+        for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+          mapping = _ref[_j];
+          models[i].mixin(mapping);
+        }
+      }
+      if (method === 'replace') {
+        this.models(models);
+      } else if (method === 'merge') {
+        _models = this.models();
+        for (_k = 0, _len2 = models.length; _k < _len2; _k++) {
+          model = models[_k];
+          iterator = _makeIterator(model);
+          _model = null;
+          for (_l = 0, _len3 = _models.length; _l < _len3; _l++) {
+            m = _models[_l];
+            if (!(iterator(m))) {
+              continue;
+            }
+            _model = m;
+            break;
+          }
+          if (_model) {
+            _model.fill(model);
+          } else {
+            _models.push(model);
+          }
+        }
+        this.models(_models);
+      } else if (method === 'prepend') {
+        _length = models.length - 1;
+        _models = this.models();
+        for (i = _m = 0, _len4 = models.length; _m < _len4; i = ++_m) {
+          model = models[i];
+          _models.unshift(models[_length - i]);
+        }
+        this.models(_models);
+      } else if (method === 'append') {
+        _models = this.models();
+        _models = _models.concat(models);
+        this.models(_models);
+      } else if (method === 'insert') {
+        insert_index = (_ref1 = options.insert_index) != null ? _ref1 : -1;
+        _models = this.models();
+        if (insert_index < 0 || insert_index >= _models.length) {
+          _models = _models.concat(models);
+        } else {
+          head = _models.slice(0, insert_index);
+          tail = _models.slice(insert_index);
+          _models = head.concat(models, tail);
+        }
+        this.models(_models);
+      }
+      this.length(this.models().length);
+      return models;
+    };
+
+    Collection.prototype.unwrap = function() {
+      var i, raw, value, _ref;
+
+      raw = [];
+      _ref = this.models();
+      for (i in _ref) {
+        value = _ref[i];
+        raw[i] = Falcon.isDataObject(value) ? value.unwrap() : value;
+      }
+      return raw;
+    };
+
+    Collection.prototype.serialize = function(attributes) {
+      var i, serialized, value, _ref;
+
+      serialized = [];
+      _ref = this.models();
+      for (i in _ref) {
+        value = _ref[i];
+        serialized[i] = Falcon.isDataObject(value) ? value.serialize(attributes) : value;
+      }
+      return serialized;
+    };
+
+    Collection.prototype.makeUrl = function(type, parent) {
+      var parentPeriodIndex, parentSlashIndex, parentUrl, url;
+
+      url = isFunction(this.url) ? this.url() : this.url;
+      if (!isString(url)) {
+        url = "";
+      }
+      url = trim(url);
+      if (!isString(type)) {
+        type = "";
+      }
+      type = type.toUpperCase();
+      if (type !== 'GET' && type !== 'PUT' && type !== 'POST' && type !== 'DELETE') {
+        type = 'GET';
+      }
+      if (!startsWith(url, "/")) {
+        url = "/" + url;
+      }
+      parent = parent === void 0 ? this.parent : parent;
+      if (Falcon.isModel(parent)) {
+        parentUrl = parent.makeUrl();
+        parentPeriodIndex = parentUrl.lastIndexOf(".");
+        parentSlashIndex = parentUrl.lastIndexOf("/");
+        if (parentSlashIndex < parentPeriodIndex) {
+          if (parentPeriodIndex > -1) {
+            parentUrl = parentUrl.slice(0, parentPeriodIndex);
+          }
+          parentUrl = trim(parentUrl);
+        }
+        url = "" + parentUrl + url;
+      } else if (isString(Falcon.baseApiUrl)) {
+        url = "" + Falcon.baseApiUrl + url;
+      }
+      url = url.replace(/([^:])\/\/+/gi, "$1/");
+      return url;
+    };
+
+    Collection.prototype.sync = function(type, options, context) {
+      var json, key, url, value, _ref, _ref1,
+        _this = this;
+
+      if (isFunction(options)) {
+        options = {
+          complete: options
+        };
+      }
+      if (isString(options)) {
+        options = {
+          attributes: trim(options).split(",")
+        };
+      }
+      if (isArray(options)) {
+        options = {
+          attributes: options
+        };
+      }
+      if (!isObject(options)) {
+        options = {};
+      }
+      if (!isObject(options.data)) {
+        options.data = null;
+      }
+      if (!isString(options.dataType)) {
+        options.dataType = "json";
+      }
+      if (!isString(options.contentType)) {
+        options.contentType = "application/json";
+      }
+      if (!isFunction(options.success)) {
+        options.success = (function() {});
+      }
+      if (!isFunction(options.complete)) {
+        options.complete = (function() {});
+      }
+      if (!isFunction(options.error)) {
+        options.error = (function() {});
+      }
+      if (!(Falcon.isModel(options.parent) || options.parent === null)) {
+        options.parent = this.parent;
+      }
+      if (options.attributes == null) {
+        options.attributes = null;
+      }
+      if (!isObject(options.params)) {
+        options.params = {};
+      }
+      if (!isBoolean(options.fill)) {
+        options.fill = true;
+      }
+      if (!isObject(options.headers)) {
+        options.headers = {};
+      }
+      type = trim(isString(type) ? type.toUpperCase() : "GET");
+      if (type !== "GET" && type !== "POST" && type !== "PUT" && type !== "DELETE") {
+        type = "GET";
+      }
+      json = options.data === null ? "" : JSON.stringify(options.data);
+      context = (_ref = context != null ? context : options.context) != null ? _ref : this;
+      url = (_ref1 = options.url) != null ? _ref1 : trim(this.makeUrl(type, options.parent));
+      if (!isEmpty(options.params)) {
+        if (!(url.indexOf("?") > -1)) {
+          url += "?";
+        }
+        url += ((function() {
+          var _ref2, _results;
+
+          _ref2 = options.params;
+          _results = [];
+          for (key in _ref2) {
+            value = _ref2[key];
+            _results.push("" + key + "=" + value);
+          }
+          return _results;
+        })()).join("&");
+      }
+      return $.ajax({
+        'url': url,
+        'type': type,
+        'data': json,
+        'dataType': options.dataType,
+        'contentType': options.contentType,
+        'cache': Falcon.cache,
+        'headers': options.headers,
+        'success': function(data, status, xhr) {
+          var parsed_data;
+
+          if (isString(data)) {
+            data = JSON.parse(data);
+          }
+          if ((data == null) && isString(xhr.responseText)) {
+            data = JSON.parse(xhr.responseText);
+          }
+          if (data == null) {
+            data = [];
+          }
+          parsed_data = _this.parse(data, options, xhr);
+          if (type === "GET") {
+            if (options.fill) {
+              _this.fill(parsed_data, options);
+            }
+            _this.trigger("fetch", parsed_data);
+          }
+          return options.success.call(context, _this, data, status, xhr);
+        },
+        'error': function(xhr) {
+          var e, response;
+
+          response = xhr.responseText;
+          try {
+            if (isString(response)) {
+              response = JSON.parse(response);
+            }
+          } catch (_error) {
+            e = _error;
+          }
+          return options.error.call(context, _this, response, xhr);
+        },
+        'complete': function(xhr, status) {
+          return options.complete.call(context, _this, xhr, status);
+        }
+      });
+    };
+
+    Collection.prototype.fetch = function(options, context) {
+      return this.sync('GET', options, context);
+    };
+
+    Collection.prototype.create = function(data, options, context) {
+      var _success,
+        _this = this;
+
+      if (this.model == null) {
+        return;
+      }
+      if (Falcon.isModel(data)) {
+        data = data.unwrap();
+      }
+      if (!isObject(data)) {
+        data = {};
+      }
+      if (isFunction(options)) {
+        options = {
+          success: options
+        };
+      }
+      if (!isObject(options)) {
+        options = {};
+      }
+      if (!isFunction(options.success)) {
+        options.success = (function() {});
+      }
+      if (!isString(options.method)) {
+        options.method = 'append';
+      }
+      _success = options.success;
+      options.success = function(model) {
+        var models, _ref;
+
+        models = _this.fill(model, options);
+        return _success.apply((_ref = models[0]) != null ? _ref : model, arguments);
+      };
+      return new this.model(data, this.parent).create(options, context);
+    };
+
+    Collection.prototype.destroy = function(model, options, context) {
+      var _success,
+        _this = this;
+
+      if (this.model == null) {
+        return null;
+      }
+      model = this.first(ko.utils.unwrapObservable(model));
+      if (!Falcon.isModel(model)) {
+        return null;
+      }
+      if (isFunction(options)) {
+        options = {
+          success: options
+        };
+      }
+      if (!isObject(options)) {
+        options = {};
+      }
+      if (!isFunction(options.success)) {
+        options.success = (function() {});
+      }
+      if (options.parent === void 0) {
+        options.parent = this.parent;
+      }
+      _success = options.success;
+      options.success = function(model) {
+        _this.remove(model);
+        return _success.apply(model, arguments);
+      };
+      return model.destroy(options, context);
+    };
+
+    Collection.prototype.remove = function(items) {
+      var removedItems;
+
+      items = ko.utils.unwrapObservable(items);
+      if (Falcon.isCollection(items)) {
+        items = items.models();
+      }
+      this.__falcon_collection__change_count__++;
+      removedItems = isArray(items) ? this.models.removeAll(items) : this.models.remove(_makeIterator(items));
+      if (!isEmpty(removedItems)) {
+        this.length(this.models().length);
+      }
+      return this;
+    };
+
+    Collection.prototype.append = function(items) {
+      return this.fill(items, {
+        'method': 'append'
+      });
+    };
+
+    Collection.prototype.prepend = function(items) {
+      return this.fill(items, {
+        'method': 'prepend'
+      });
+    };
+
+    Collection.prototype.insert = function(insert_model, model) {
+      var insert_index, iterator;
+
+      iterator = _makeIterator(model);
+      if (!isFunction(iterator)) {
+        return this.fill(insert_model, {
+          'method': 'append'
+        });
+      }
+      insert_index = this.indexOf(model);
+      return this.fill(insert_model, {
+        'method': 'insert',
+        'insert_index': insert_index
+      });
+    };
+
+    Collection.prototype.unshift = function() {
+      return this.prepend.apply(this, arguments);
+    };
+
+    Collection.prototype.shift = function() {
+      var item;
+
+      item = this.models.shift();
+      this.length(this.models().length);
+      return item;
+    };
+
+    Collection.prototype.push = function() {
+      return this.append.apply(this, arguments);
+    };
+
+    Collection.prototype.pop = function() {
+      var item;
+
+      this.__falcon_collection__change_count__++;
+      item = this.models.pop();
+      this.length(this.models().length);
+      return item;
+    };
+
+    Collection.prototype.sort = function(sorter) {
+      if (!isFunction(sorter)) {
+        return models;
+      }
+      return this.models.sort(sorter);
+    };
+
+    Collection.prototype.at = function(index) {
+      var models;
+
+      index = parseInt(index);
+      if (isNaN(index)) {
+        return null;
+      }
+      models = this.models();
+      if (index < 0 || index >= models.length) {
+        return null;
+      }
+      return models[index];
+    };
+
+    Collection.prototype.indexOf = function(model) {
+      var index, iterator, _i, _len, _ref;
+
+      if (Falcon.isModel(model)) {
+        return this.models.indexOf(model);
+      }
+      iterator = _makeIterator(model);
+      if (!isFunction(iterator)) {
+        return -1;
+      }
+      _ref = this.models();
+      for (index = _i = 0, _len = _ref.length; _i < _len; index = ++_i) {
+        model = _ref[index];
+        if (iterator(model)) {
+          return index;
+        }
+      }
+      return -1;
+    };
+
+    Collection.prototype.each = function(iterator, context) {
+      var index, item, _i, _j, _len, _len1, _ref, _ref1;
+
+      if (!isFunction(iterator)) {
+        return this;
+      }
+      if (context == null) {
+        context = this;
+      }
+      if (iterator.length === 1) {
+        _ref = this.models();
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          item = _ref[_i];
+          iterator.call(context, item);
+        }
+      } else {
+        _ref1 = this.models();
+        for (index = _j = 0, _len1 = _ref1.length; _j < _len1; index = ++_j) {
+          item = _ref1[index];
+          iterator.call(context, index, item);
+        }
+      }
+      return this;
+    };
+
+    Collection.prototype.first = function(iterator) {
+      var item, _i, _len, _ref;
+
+      iterator = _makeIterator(iterator);
+      if (!isFunction(iterator)) {
+        iterator = (function() {
+          return true;
+        });
+      }
+      _ref = this.models();
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        item = _ref[_i];
+        if (iterator(item)) {
+          return item;
+        }
+      }
+      return null;
+    };
+
+    Collection.prototype.last = function(iterator) {
+      var index, item, length, models, _i, _len;
+
+      iterator = _makeIterator(iterator);
+      if (!isFunction(iterator)) {
+        iterator = (function() {
+          return true;
+        });
+      }
+      models = this.models();
+      length = models.length;
+      for (index = _i = 0, _len = models.length; _i < _len; index = ++_i) {
+        item = models[index];
+        item = models[length - index - 1];
+        if (iterator(item)) {
+          return item;
+        }
+      }
+      return null;
+    };
+
+    Collection.prototype.all = function(iterator) {
+      var item;
+
+      iterator = _makeIterator(iterator);
+      if (!isFunction(iterator)) {
+        return this.models();
+      }
+      return (function() {
+        var _i, _len, _ref, _results;
+
+        _ref = this.models();
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          item = _ref[_i];
+          if (iterator(item)) {
+            _results.push(item);
+          }
+        }
+        return _results;
+      }).call(this);
+    };
+
+    Collection.prototype.any = function(iterator) {
+      var item, _i, _len, _ref;
+
+      iterator = _makeIterator(iterator);
+      if (!isFunction(iterator)) {
+        return false;
+      }
+      _ref = this.models();
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        item = _ref[_i];
+        if (iterator(item)) {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    Collection.prototype.without = function(iterator) {
+      var item;
+
+      iterator = _makeIterator(iterator);
+      if (!isFunction(iterator)) {
+        return this.models();
+      }
+      return (function() {
+        var _i, _len, _ref, _results;
+
+        _ref = this.models();
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          item = _ref[_i];
+          if (!iterator(item)) {
+            _results.push(item);
+          }
+        }
+        return _results;
+      }).call(this);
+    };
+
+    Collection.prototype.pluck = function(attribute, unwrap) {
+      var model, models, plucked_values, _i, _len;
+
+      if (!isString(attribute)) {
+        attribute = "";
+      }
+      if (!isBoolean(unwrap)) {
+        unwrap = true;
+      }
+      plucked_values = [];
+      models = this.models();
+      for (_i = 0, _len = models.length; _i < _len; _i++) {
+        model = models[_i];
+        if (model != null) {
+          plucked_values.push(unwrap ? ko.utils.unwrapObservable(model[attribute]) : model[attribute]);
+        } else {
+          plucked_values.push(void 0);
+        }
+      }
+      return plucked_values;
+    };
+
+    Collection.prototype.slice = function(start, end) {
+      return this.models.slice(start, end);
+    };
+
+    Collection.prototype.mixin = function(mapping) {
+      var key, model, models, value, _i, _len, _mapping,
+        _this = this;
+
+      if (!isObject(mapping)) {
+        mapping = {};
+      }
+      _mapping = {};
+      for (key in mapping) {
+        value = mapping[key];
+        if (ko.isObservable(value)) {
+          _mapping[key] = ko.observable(ko.utils.unwrapObservable(value));
+        } else if (isFunction(value)) {
+          (function() {
+            var _value;
+
+            _value = value;
+            _mapping[key] = function() {
+              var args;
+
+              args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+              return _value.apply(args[0], [args[0], _this].concat(args.slice(1)));
+            };
+            return _mapping[key].length = _value.length;
+          })();
+        } else {
+          _mapping[key] = value;
+        }
+      }
+      models = this.models();
+      for (_i = 0, _len = models.length; _i < _len; _i++) {
+        model = models[_i];
+        if (Falcon.isDataObject(model)) {
+          model.mixin(_mapping);
+        }
+      }
+      this.__falcon_collection__mixins__.push(_mapping);
+      return this;
+    };
+
+    Collection.prototype.clone = function(parent) {
+      parent = parent === null || Falcon.isModel(parent) ? parent : this.parent;
+      return new this.constructor(this.models(), parent);
+    };
+
+    Collection.prototype.copy = function(attributes, parent) {
+      if (attributes === null || Falcon.isModel(attributes)) {
+        parent = attributes;
+      }
+      if (!isArray(attributes)) {
+        attributes = {
+          "id": null
+        };
+      }
+      if (!(parent === null || Falcon.isModel(parent))) {
+        parent = this.parent;
+      }
+      return new this.constructor(this.serialize(attributes), parent);
+    };
+
+    Collection.prototype.reset = function() {
+      this.__falcon_collection__change_count__++;
+      if (this.models != null) {
+        this.models([]);
+      } else {
+        this.models = ko.observableArray([]);
+      }
+      this.length(0);
+      return this;
+    };
+
+    return Collection;
+
+  })(Falcon.Object);
+
+  ko.bindingHandlers['view'] = (function() {
+    var getTemplate, getViewModel, makeTemplateValueAccessor, returnVal;
+
+    makeTemplateValueAccessor = function(viewModel) {
+      return function() {
+        return {
+          'data': viewModel,
+          'templateEngine': ko.nativeTemplateEngine.instance
+        };
+      };
+    };
+    getViewModel = function(value) {
+      var viewModel, _ref;
+
+      viewModel = {};
+      if (value == null) {
+        value = {};
+      }
+      if (value instanceof Falcon.View) {
+        viewModel = value.viewModel();
+      } else {
+        viewModel = ko.utils.unwrapObservable((_ref = value.viewModel) != null ? _ref : {});
+      }
+      return viewModel;
+    };
+    getTemplate = function(value) {
+      var template, _ref;
+
+      template = "";
+      if (value == null) {
+        value = {};
+      }
+      if (value instanceof Falcon.View) {
+        template = value.template();
+      } else {
+        template = ko.utils.unwrapObservable((_ref = value.template) != null ? _ref : "");
+      }
+      return template;
+    };
+    returnVal = {
+      controlsDescendantBindings: true
+    };
+    return {
+      'init': function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
+        var oldViewModel, subscription, value;
+
+        value = valueAccessor();
+        if ((value != null) && ko.isSubscribable(value)) {
+          oldViewModel = ko.utils.unwrapObservable(value);
+          subscription = value.subscribe(function(newViewModel) {
+            if (Falcon.isView(oldViewModel)) {
+              oldViewModel.unrender();
+            }
+            return oldViewModel = newViewModel;
+          });
+          ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+            if (Falcon.isView(oldViewModel)) {
+              oldViewModel.unrender();
+            }
+            return subscription.dispose();
+          });
+        } else if (Falcon.isView(value)) {
+          ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+            return value.unrender();
+          });
+        }
+        value = ko.utils.unwrapObservable(value);
+        viewModel = getViewModel(value);
+        ko.bindingHandlers['template']['init'](element, makeTemplateValueAccessor(viewModel), allBindingsAccessor, viewModel, context);
+        return returnVal;
+      },
+      'update': function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
+        var anonymousTemplate, execScripts, parentViewContext, template, value, _ref;
+
+        value = valueAccessor();
+        value = ko.utils.unwrapObservable(value);
+        viewModel = getViewModel(value);
+        template = getTemplate(value);
+        window.prev_viewModel = window.current_viewModel;
+        window.current_viewModel = viewModel;
+        if (!isObject(value)) {
+          return returnVal;
+        }
+        parentViewContext = context['$view'];
+        context['$view'] = viewModel;
+        if ((parentViewContext != null ? parentViewContext['__falcon_view__addChildView__'] : void 0) != null) {
+          parentViewContext['__falcon_view__addChildView__'](value);
+        }
+        if (isEmpty(viewModel) || isEmpty(template)) {
+          $(element).empty();
+        } else if (!(value instanceof Falcon.View) || ko.utils.unwrapObservable(value.is_loaded)) {
+          anonymousTemplate = ko.utils.domData.get(element, '__ko_anon_template__');
+          if (((_ref = anonymousTemplate.containerData) != null ? _ref.innerHTML : void 0) != null) {
+            anonymousTemplate.containerData.innerHTML = template;
+          } else {
+            anonymousTemplate.textData = template;
+          }
+          ko.bindingHandlers['template']['update'](element, makeTemplateValueAccessor(viewModel), allBindingsAccessor, viewModel, context);
+          execScripts = !!ko.utils.unwrapObservable(value.execScripts);
+          if (template !== anonymousTemplate && execScripts === true) {
+            $(element).find("script").each(function(index, script) {
+              script = $(script);
+              if (script.attr('type').toLowerCase() === "text/javascript") {
+                return eval(script.text());
+              }
+            });
+          }
+          if (Falcon.isView(value)) {
+            value.render();
+          }
+        }
+        context['$view'] = parentViewContext;
+        return returnVal;
+      }
+    };
+  })();
+
+  _getItems = function(value) {
+    var _ref;
+
+    value = ko.utils.peekObservable(value);
+    if (Falcon.isCollection(value) || isArray(value)) {
+      value = {
+        data: value
+      };
+    }
+    if (!isObject(value)) {
+      value = {};
+    }
+    value.data = ko.utils.unwrapObservable(value.data);
+    if (Falcon.isCollection(value.data)) {
+      value.data = value.data.models();
+    }
+    if ((_ref = value.data) == null) {
+      value.data = [];
+    }
+    return (function() {
+      return value;
+    });
+  };
+
+  _shouldUpdate = function(element, value) {
+    var CId, changeCount, lastCId, lastChangeCount;
+
+    if (!Falcon.isCollection(value)) {
+      return true;
+    }
+    lastCId = ko.utils.domData.get(element, "__falcon_object__cid__");
+    CId = value.__falcon_object__cid__;
+    changeCount = value.__falcon_collection__change_count__;
+    lastChangeCount = ko.utils.domData.get(element, "__falcon_collection___change_count__");
+    if (lastChangeCount === changeCount && lastCId === CId) {
+      return false;
+    }
+    ko.utils.domData.set(element, '__falcon_object__cid__', CId);
+    ko.utils.domData.set(element, '__falcon_collection___change_count__', changeCount);
+    return true;
+  };
+
+  _foreach = (_ref = ko.bindingHandlers['foreach']) != null ? _ref : {};
+
+  ko.bindingHandlers['foreach'] = {
+    'init': function() {
+      var args, element, value, valueAccessor;
+
+      element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
+      value = ko.utils.unwrapObservable(valueAccessor());
+      ko.utils.domData.set(element, '__falcon_collection___change_count__', -1);
+      return _foreach['init'].apply(_foreach, [element, _getItems(value)].concat(__slice.call(args)));
+    },
+    'update': function() {
+      var args, element, value, valueAccessor;
+
+      element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
+      value = ko.utils.unwrapObservable(valueAccessor());
+      if (_shouldUpdate(element, value)) {
+        return _foreach['update'].apply(_foreach, [element, _getItems(value)].concat(__slice.call(args)));
+      }
+    }
+  };
+
+  for (key in _foreach) {
+    value = _foreach[key];
+    if (!(key in ko.bindingHandlers['foreach'])) {
+      ko.bindingHandlers['foreach'][key] = value;
+    }
+  }
+
+  _options = (_ref1 = ko.bindingHandlers['options']) != null ? _ref1 : (function() {});
+
+  ko.bindingHandlers['options'] = (function() {
+    return {
+      'init': function() {
+        var args, element, valueAccessor, _ref2;
+
+        element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
+        value = ko.utils.unwrapObservable(valueAccessor());
+        ko.utils.domData.set(element, '__falcon_collection___change_count__', -1);
+        return ((_ref2 = _options['init']) != null ? _ref2 : (function() {})).apply(null, [element, _getItems(value)].concat(__slice.call(args)));
+      },
+      'update': function() {
+        var args, element, valueAccessor, _ref2;
+
+        element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
+        value = ko.utils.unwrapObservable(valueAccessor());
+        if (_shouldUpdate(element, value)) {
+          return ((_ref2 = _options['update']) != null ? _ref2 : (function() {})).apply(null, [element, _getItems(value)].concat(__slice.call(args)));
+        }
+      }
+    };
+  })();
+
+  ko.bindingHandlers['log'] = {
+    update: function(element, valueAccessor) {
+      return console.log(ko.utils.unwrapObservable(valueAccessor()));
+    }
+  };
+
+  _bindingContext = ko.bindingContext;
+
+  ko.bindingContext = function(dataItem, parentBindingContext) {
+    if ((this['$view'] == null) && (parentBindingContext != null)) {
+      this['$view'] = parentBindingContext['$view'] || parentBindingContext['$root'];
+    }
+    return _bindingContext.call(this, dataItem, parentBindingContext);
+  };
+
+  ko.bindingContext.prototype = _bindingContext.prototype;
+
+  ko.virtualElements.allowedBindings['view'] = true;
+
+  ko.virtualElements.allowedBindings['log'] = true;
+
+}).call(this);

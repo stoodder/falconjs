@@ -2,7 +2,7 @@
 	Falcon.js
 	by Rick Allen (stoodder)
 
-	Version 0.6.4
+	Version 0.6.5
 	Full source at https://github.com/stoodder/falconjs
 	Copyright (c) 2013 Rick Allen, http://www.stoodder.com
 
@@ -3695,7 +3695,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
 	Falcon.js
 	by Rick Allen (stoodder)
 
-	Version 0.6.4
+	Version 0.6.5
 	Full source at https://github.com/stoodder/falconjs
 	Copyright (c) 2011 RokkinCat, http://www.rokkincat.com
 
@@ -3888,7 +3888,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
   };
 
   this.Falcon = Falcon = {
-    version: "0.6.4",
+    version: "0.6.5",
     applicationElement: "body",
     baseApiUrl: "",
     baseTemplateUrl: "",
@@ -4012,7 +4012,6 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
         for (attr in _ref) {
           value = _ref[attr];
           if (isFunction(value)) {
-            console.log("HERE!!!", arguments);
             this[attr] = value.apply(this, arguments);
           } else if (isObject(value)) {
             this[attr] = clone(value);
