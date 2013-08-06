@@ -242,6 +242,32 @@
       init_stub.reset();
       return init_stub.restore();
     });
+    it("Should create RawrCollection with defaults that have correct arguments", function() {
+      var RawrCollection, hello_spy, input_data, rawr_class, _ref12;
+
+      hello_spy = null;
+      RawrCollection = (function(_super) {
+        __extends(RawrCollection, _super);
+
+        function RawrCollection() {
+          _ref12 = RawrCollection.__super__.constructor.apply(this, arguments);
+          return _ref12;
+        }
+
+        RawrCollection.prototype.defaults = {
+          'hello': (hello_spy = sinon.spy())
+        };
+
+        return RawrCollection;
+
+      })(Falcon.Collection);
+      expect(hello_spy).to.not.have.been.called;
+      rawr_class = new RawrCollection(input_data = ["one", "two", "three"]);
+      expect(hello_spy).to.have.been.called;
+      expect(hello_spy.callCount).to.equal(1);
+      expect(hello_spy.firstCall.args.length).to.equal(1);
+      return expect(hello_spy.firstCall.args[0]).to.equal(input_data);
+    });
     describe("Testing the different fill method combinations", function() {
       describe("Test default option", function() {
         it("Should properly add items into an empty collection", function() {

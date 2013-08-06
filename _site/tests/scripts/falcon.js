@@ -2,7 +2,7 @@
 	Falcon.js
 	by Rick Allen (stoodder)
 
-	Version 0.6.4
+	Version 0.6.5
 	Full source at https://github.com/stoodder/falconjs
 	Copyright (c) 2013 Rick Allen, http://www.stoodder.com
 
@@ -3695,7 +3695,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
 	Falcon.js
 	by Rick Allen (stoodder)
 
-	Version 0.6.4
+	Version 0.6.5
 	Full source at https://github.com/stoodder/falconjs
 	Copyright (c) 2011 RokkinCat, http://www.rokkincat.com
 
@@ -3888,7 +3888,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
   };
 
   this.Falcon = Falcon = {
-    version: "0.6.4",
+    version: "0.6.5",
     applicationElement: "body",
     baseApiUrl: "",
     baseTemplateUrl: "",
@@ -4157,7 +4157,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
     function Model(data, parent) {
       var _ref, _ref1;
 
-      Model.__super__.constructor.call(this);
+      Model.__super__.constructor.apply(this, arguments);
       data = ko.utils.unwrapObservable(data);
       parent = ko.utils.unwrapObservable(parent);
       if ((parent != null) && !Falcon.isModel(parent) && Falcon.isModel(data)) {
@@ -4647,7 +4647,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       var url, _loaded,
         _this = this;
 
-      View.__super__.constructor.call(this);
+      View.__super__.constructor.apply(this, arguments);
       url = this.makeUrl();
       this.is_rendered = false;
       this.is_loaded = ko.observable(false);
@@ -4853,7 +4853,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
     function Collection(models, parent) {
       var _ref, _ref1, _ref2;
 
-      Collection.__super__.constructor.call(this);
+      Collection.__super__.constructor.apply(this, arguments);
       models = ko.utils.unwrapObservable(models);
       parent = ko.utils.unwrapObservable(parent);
       if ((parent == null) && Falcon.isModel(models)) {

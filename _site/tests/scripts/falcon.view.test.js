@@ -200,6 +200,34 @@
         return expect(ajax_stub).to.not.have.been.called;
       });
     });
+    it("Should create RawrView with defaults that have correct arguments", function() {
+      var RawrView, hello_spy, rawr_class, _ref7;
+
+      hello_spy = null;
+      RawrView = (function(_super) {
+        __extends(RawrView, _super);
+
+        function RawrView() {
+          _ref7 = RawrView.__super__.constructor.apply(this, arguments);
+          return _ref7;
+        }
+
+        RawrView.prototype.defaults = {
+          'hello': (hello_spy = sinon.spy())
+        };
+
+        return RawrView;
+
+      })(Falcon.View);
+      expect(hello_spy).to.not.have.been.called;
+      rawr_class = new RawrView("one", "two", "three");
+      expect(hello_spy).to.have.been.called;
+      expect(hello_spy.callCount).to.equal(1);
+      expect(hello_spy.firstCall.args.length).to.equal(3);
+      expect(hello_spy.firstCall.args[0]).to.equal("one");
+      expect(hello_spy.firstCall.args[1]).to.equal("two");
+      return expect(hello_spy.firstCall.args[2]).to.equal("three");
+    });
     describe("Test the makeUrl() method", function() {
       var ajax_stub;
 
