@@ -7,6 +7,7 @@
 
 		<link href="css/bootstrap.min.css" rel="stylesheet" />
 		<link href="css/falcon.docs.min.css" rel="stylesheet" />
+
 	</head>
 	<body data-spy="scroll" data-target="#sidebar" data-offset="-499">
 		<div id="content" class="container">
@@ -27,13 +28,15 @@
 			</div>
 			<div class="row">
 				<div class="col col-lg-3">
-					<div id="sidebar" data-spy="affix" data-offset-top="500">
+					<div id="sidebar" data-spy="affix" data-offset-top="499">
 						<div id="sidebar-header">
 							Falcon.js
 						</div>
 						<ul class="nav sidebar-nav">
 							{% assign category = 'Getting Started' %}
 							{% include navsection.html %}
+
+							<li class="nav-divider"></li>
 							
 							{% assign category = 'Model' %}
 							{% include navsection.html %}
@@ -50,8 +53,10 @@
 							{% assign category = 'Bindings' %}
 							{% include navsection.html %}
 
+							<li class="nav-divider"></li>
+
 							<li>
-								<a href="/tests" alt="Tests" target="_blank">Tests</a>
+								<a href="/tests/index.html" alt="Tests" target="_blank">Tests</a>
 							</li>
 						</ul>
 					</div>
