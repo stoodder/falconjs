@@ -11,6 +11,18 @@ section {
   padding: 60px 0px 0px 0px;
 }
 
+p + h3 {
+  margin-top: 40px;
+}
+
+p + h4 {
+  margin-top: 30px;
+}
+
+iframe {
+  margin-bottom: 30px;
+}
+
 .page-header {
   padding-top: 0px;
   margin-top: 0px;
