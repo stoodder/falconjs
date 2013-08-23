@@ -1,1 +1,20 @@
+<p>
+	In this next example, we go a bit more complex with our application.Instead of letting users manage a single todo list, we've set it up so that users can have a list of multiple todo lists each with a title, description, and multiple todos.  The user is able to create new todo lists at will, edit that todo list, and remove the todo list. Different views will be presented to the user (create todo list form, view todo list, etc) within a general layout that will contain a list of all of the user's current todo lists.
+</p>
+<p>
+	The point of this example is to show how Falcon allows for multiple views to be created and injected inside one-another (for example, like having a global layout with many different 'pages').  Also we show how Falcon implements an event messaging architecture to help pass messages and listen to events between objects.
+</p>
+<p>
+	Some key things to look out for in this example are the <strong>on()</strong> method, the <strong>trigger()</strong> method, and the <strong>view</strong> binding (in the html tab of the jsFiddle).
+</p>
+<ul>
+	<li>
+		<strong>on()</strong> - Method used to listen to a specific event being fired on an object. For example, if a view triggered a custom 'edit' event, a different view could listen for the 'edit' event by using the 'on' method like so: <br/><code>view.on('edit', function(){ ... callback ... })</code><br/> The first argument of the 'on' method is that event that you would like to listen for and the second argument is the callback method that should be triggered whenever a specific event is encountered.  An optional third argument can be passed to this method which defined the context (the value of 'this') in which the callback method should be fire with.
+	</li>
+	<li>
+		<strong>trigger()</strong> - Method used to send a custom event to any listeners (who used the 'on' method described above).  This method takes N number of arguments, where the first argument is the event that we would like to trigger and any additional arguments are variables that should be passed into any of the listener's callback methods.
+	</li>
+	<li>
+		<strong>view binding</strong> - The view binding is a new binding added by Falcon that allows us to inject a view within another view. This binding takes in a Falcon View or a Knockout observable and injects the rendered view within the current view's rendered template. If an observable is given (like in our example), the child view will dynamically change whenever the observables is updated with a new view. An example of how this is used can be seen in the example's html tab within the '#layout_template' element.  This binding is useful for dynamic apps that have common widgets spread throughout them or with apps that have multiple hierarchies of views (such as with a todo list manager that has a layout with multiple pages and edit forms).
+</ul>
 <iframe width="100%" height="650" src="http://jsfiddle.net/stoodder/7rEax/embedded/js,html,result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>

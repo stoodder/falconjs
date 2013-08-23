@@ -1,3 +1,6 @@
+---
+version: 0.6.3
+---
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -9,13 +12,13 @@
 		<link href="css/falcon.docs.min.css" rel="stylesheet" />
 
 	</head>
-	<body data-spy="scroll" data-target="#sidebar" data-offset="-499">
+	<body data-spy="scroll" data-target="#sidebar">
 		<div id="content" class="container">
 			<div id="hero">
 				<div class="hero-headline">
 					Falcon.js
 				</div>
-				<div class="hero-tagline">Structure for Knockout</div>
+				<div class="hero-tagline">Structure for Knockout.js</div>
 				<p class="hero-description">
 					Falcon.js adds structure to knockout.js by incorporting
 					<strong>models</strong>, 
@@ -23,7 +26,14 @@
 					and <strong>views</strong>.
 					It's setup to make developing single-page web applications a breeze.
 				</p>
-				<div class="hero-actions"></div>
+				<div class="hero-actions">
+					<a class="btn btn-danger">
+						Download v{{ page.version }}
+						<small>
+							Knockout.js 2.3.0 Included
+						</small>
+					</a>
+				</div>
 				</p>
 			</div>
 			<div class="row">
@@ -31,6 +41,9 @@
 					<div id="sidebar" data-spy="affix" data-offset-top="499">
 						<div id="sidebar-header">
 							Falcon.js
+							<a class="btn btn-xs btn-danger pull-right">
+								Download v{{ page.version }}
+							</a>
 						</div>
 						<ul class="nav sidebar-nav">
 							{% assign category = 'Getting Started' %}
@@ -58,6 +71,10 @@
 							<li>
 								<a href="/tests/index.html" alt="Tests" target="_blank">Tests</a>
 							</li>
+
+							<li>
+								<a href="http://knockoutjs.com/" alt="Knckout.js Homepage" target="_blank">Knockout.js</a>
+							</li>
 						</ul>
 					</div>
 				</div>
@@ -67,11 +84,6 @@
 			</div>
 		</div>
 		<div id="footer" class="container">
-			<div class="row">
-					<div class="col col-lg-9 col-offset-3">
-						Das Footer
-					</div>
-			</div>
 		</div>
 		<script src="scripts/jquery-1.10.0.min.js"></script>
 		<script src="scripts/bootstrap.min.js"></script>

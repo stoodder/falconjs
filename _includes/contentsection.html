@@ -7,12 +7,10 @@
 	{% for post in site.categories.[category_lower] reversed %}
 		{% if hidden != 'true' %}
 			{% assign post_id = post.title | replace: ' ', '_'  | replace: '/', '' | downcase %}
-			<div id="{{ category_id }}-{{ post_id }}">
-				<h3>{{ post.title }}
-					<small>{{ post.method }}</small>
-				</h3>
-				{{ post.content }}
-			</div>
+			<h3 id="{{ category_id }}-{{ post_id }}">{{ post.title }}
+				<small>{{ post.method }}</small>
+			</h3>
+			{{ post.content }}
 		{% endif %}
 	{% endfor %}
 </section>

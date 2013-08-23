@@ -8,7 +8,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 section {
-  padding: 60px 0px 0px 0px;
+  padding: 45px 0px 0px 0px;
+}
+
+h3 {
+  padding-top: 25px;
 }
 
 p + h3 {
@@ -19,8 +23,27 @@ p + h4 {
   margin-top: 30px;
 }
 
+.page-header + h3 {
+  padding-top: 0px;
+}
+
 iframe {
   margin-bottom: 30px;
+}
+
+.btn {
+  border-radius: 0px;
+  -moz-border-radius: 0px;
+}
+
+.btn.btn-danger {
+  background-color: #aa0000;
+  border: 1px solid #aa0000;
+}
+
+.btn.btn-danger:hover {
+  background-color: #c30000;
+  border: 1px solid #c30000;
 }
 
 .page-header {
@@ -54,6 +77,18 @@ iframe {
   font-size: 18px;
   width: 450px;
   margin: auto;
+}
+#hero .hero-actions {
+  margin-top: 25px;
+}
+#hero .hero-actions .btn {
+  padding: 10px 30px;
+  font-size: 24px;
+}
+#hero .hero-actions .btn small {
+  display: block;
+  margin-top: 5px;
+  font-size: 11px;
 }
 
 #sidebar.affix {
@@ -158,14 +193,19 @@ iframe {
   border-bottom: 1px solid #e8e8e8;
   background-color: white;
 }
+#sidebar #sidebar-header .btn {
+  margin-top: 6px;
+}
 #sidebar ul.sidebar-nav {
   list-style: none;
   padding: 0px;
   margin: 0px;
   font-size: 17px;
+  overflow: hidden;
 }
 #sidebar ul.sidebar-nav li {
   padding: 0px;
+  overflow: hidden;
 }
 #sidebar ul.sidebar-nav li a {
   -moz-transition-duration: 0.1s;
@@ -188,5 +228,5 @@ iframe {
 }
 
 #footer {
-  height: 500px;
+  height: 700px;
 }
