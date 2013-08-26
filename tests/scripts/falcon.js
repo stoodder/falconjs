@@ -2,7 +2,7 @@
 	Falcon.js
 	by Rick Allen (stoodder)
 
-	Version 0.6.5
+	Version 0.6.6
 	Full source at https://github.com/stoodder/falconjs
 	Copyright (c) 2013 Rick Allen, http://www.stoodder.com
 
@@ -3695,7 +3695,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
 	Falcon.js
 	by Rick Allen (stoodder)
 
-	Version 0.6.5
+	Version 0.6.6
 	Full source at https://github.com/stoodder/falconjs
 	Copyright (c) 2011 RokkinCat, http://www.rokkincat.com
 
@@ -3888,7 +3888,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
   };
 
   this.Falcon = Falcon = {
-    version: "0.6.5",
+    version: "0.6.6",
     applicationElement: "body",
     baseApiUrl: "",
     baseTemplateUrl: "",
@@ -4850,6 +4850,8 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
 
     Collection.prototype.parent = null;
 
+    Collection.prototype.comparator = null;
+
     function Collection(models, parent) {
       var _ref, _ref1, _ref2;
 
@@ -4884,7 +4886,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
     };
 
     Collection.prototype.fill = function(items, options) {
-      var head, i, insert_index, iterator, m, mapping, method, model, models, tail, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _length, _m, _model, _models, _ref, _ref1;
+      var comparator, head, i, insert_index, iterator, m, mapping, method, model, models, tail, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _length, _m, _model, _models, _ref, _ref1, _ref2;
 
       if (this.model == null) {
         return this;
@@ -4913,6 +4915,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       if (method !== 'replace' && method !== 'append' && method !== 'prepend' && method !== 'insert' && method !== 'merge') {
         method = 'replace';
       }
+      comparator = (_ref = options.comparator) != null ? _ref : this.comparator;
       if (method !== 'replace' && isEmpty(items)) {
         return [];
       }
@@ -4931,14 +4934,14 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
         } else {
           models[i] = new this.model(m, this.parent);
         }
-        _ref = this.__falcon_collection__mixins__;
-        for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-          mapping = _ref[_j];
+        _ref1 = this.__falcon_collection__mixins__;
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          mapping = _ref1[_j];
           models[i].mixin(mapping);
         }
       }
       if (method === 'replace') {
-        this.models(models);
+        _models = models;
       } else if (method === 'merge') {
         _models = this.models();
         for (_k = 0, _len2 = models.length; _k < _len2; _k++) {
@@ -4959,7 +4962,6 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
             _models.push(model);
           }
         }
-        this.models(_models);
       } else if (method === 'prepend') {
         _length = models.length - 1;
         _models = this.models();
@@ -4967,13 +4969,11 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
           model = models[i];
           _models.unshift(models[_length - i]);
         }
-        this.models(_models);
       } else if (method === 'append') {
         _models = this.models();
         _models = _models.concat(models);
-        this.models(_models);
       } else if (method === 'insert') {
-        insert_index = (_ref1 = options.insert_index) != null ? _ref1 : -1;
+        insert_index = (_ref2 = options.insert_index) != null ? _ref2 : -1;
         _models = this.models();
         if (insert_index < 0 || insert_index >= _models.length) {
           _models = _models.concat(models);
@@ -4982,8 +4982,11 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
           tail = _models.slice(insert_index);
           _models = head.concat(models, tail);
         }
-        this.models(_models);
       }
+      if (isFunction(comparator)) {
+        _models.sort(comparator);
+      }
+      this.models(_models);
       this.length(this.models().length);
       return models;
     };
@@ -5317,11 +5320,11 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       return item;
     };
 
-    Collection.prototype.sort = function(sorter) {
-      if (!isFunction(sorter)) {
+    Collection.prototype.sort = function(comparator) {
+      if (!isFunction(comparator)) {
         return models;
       }
-      return this.models.sort(sorter);
+      return this.models.sort(comparator);
     };
 
     Collection.prototype.at = function(index) {

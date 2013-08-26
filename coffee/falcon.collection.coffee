@@ -114,6 +114,15 @@ class Falcon.Collection extends Falcon.Object
 	parent: null
 
 	#--------------------------------------------------------
+	# Member: Falcon.Collection#comparator
+	#	Method used to sort this collection when a new model(s) is
+	#	added.  If left null, no sorting will occur
+	#
+	# Type: _(Falcon.Model)_
+	#--------------------------------------------------------
+	comparator: null
+
+	#--------------------------------------------------------
 	# Method: Falcon.Collection()
 	#	The constructor for a collection
 	#
@@ -194,6 +203,7 @@ class Falcon.Collection extends Falcon.Object
 		method = '' unless isString(method)
 		method = method.toLowerCase()
 		method = 'replace' unless method in ['replace', 'append', 'prepend', 'insert', 'merge']
+		comparator = options.comparator ? @comparator
 
 		return [] if method isnt 'replace' and isEmpty( items ) 
 
@@ -221,7 +231,7 @@ class Falcon.Collection extends Falcon.Object
 		
 		#Determine how we should proceed adding models to the models
 		if method is 'replace'
-			@models(models)
+			_models = models
 
 		#merging the models adds new models and updates existing models
 		else if method is 'merge'
@@ -242,20 +252,16 @@ class Falcon.Collection extends Falcon.Object
 				if _model then _model.fill( model ) else _models.push( model )
 			#END for
 
-			@models( _models )
-
 		#Add the models to the beginning of the list
 		else if method is 'prepend'
 			_length = models.length-1
 			_models = @models()
 			_models.unshift( models[_length-i] ) for model, i in models
-			@models( _models )
 
 		#Add the models to the bottom of the list
 		else if method is 'append'
 			_models = @models()
 			_models = _models.concat( models )
-			@models( _models )
 
 		#Insert the models into the list at the specified index, if the index is
 		#invalid, append the models
@@ -270,9 +276,10 @@ class Falcon.Collection extends Falcon.Object
 				tail = _models[insert_index..]
 				_models = head.concat( models, tail )
 			#END if
-
-			@models( _models )
 		#END if
+
+		_models.sort( comparator ) if isFunction( comparator )
+		@models( _models )
 
 		#Update the length
 		@length( @models().length )
@@ -684,17 +691,17 @@ class Falcon.Collection extends Falcon.Object
 
 	#--------------------------------------------------------
 	# Method: Falcon.Collection#sort
-	#	Sorts the collection by a given sorter
+	#	Sorts the collection by a given comparator
 	#
 	# Arguments:
-	#	**sorter** _(Function)_ - An iterator to sort the array with
+	#	**comparator** _(Function)_ - An iterator to sort the array with
 	#
 	# Returns:
 	#	_(Array)_ - The sorted array
 	#--------------------------------------------------------
-	sort: (sorter) ->
-		return models unless isFunction( sorter )
-		return @models.sort( sorter )
+	sort: (comparator) ->
+		return models unless isFunction( comparator )
+		return @models.sort( comparator )
 	#END sort
 
 	#--------------------------------------------------------

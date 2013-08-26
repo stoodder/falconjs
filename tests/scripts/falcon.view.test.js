@@ -200,33 +200,61 @@
         return expect(ajax_stub).to.not.have.been.called;
       });
     });
-    it("Should create RawrView with defaults that have correct arguments", function() {
-      var RawrView, hello_spy, rawr_class, _ref7;
+    describe("Testing the 'defaults' implementation", function() {
+      it("Should create RawrView with defaults that have correct arguments", function() {
+        var RawrView, hello_spy, rawr_class, _ref7;
 
-      hello_spy = null;
-      RawrView = (function(_super) {
-        __extends(RawrView, _super);
+        hello_spy = null;
+        RawrView = (function(_super) {
+          __extends(RawrView, _super);
 
-        function RawrView() {
-          _ref7 = RawrView.__super__.constructor.apply(this, arguments);
-          return _ref7;
-        }
+          function RawrView() {
+            _ref7 = RawrView.__super__.constructor.apply(this, arguments);
+            return _ref7;
+          }
 
-        RawrView.prototype.defaults = {
-          'hello': (hello_spy = sinon.spy())
-        };
+          RawrView.prototype.defaults = {
+            'hello': (hello_spy = sinon.spy())
+          };
 
-        return RawrView;
+          return RawrView;
 
-      })(Falcon.View);
-      expect(hello_spy).to.not.have.been.called;
-      rawr_class = new RawrView("one", "two", "three");
-      expect(hello_spy).to.have.been.called;
-      expect(hello_spy.callCount).to.equal(1);
-      expect(hello_spy.firstCall.args.length).to.equal(3);
-      expect(hello_spy.firstCall.args[0]).to.equal("one");
-      expect(hello_spy.firstCall.args[1]).to.equal("two");
-      return expect(hello_spy.firstCall.args[2]).to.equal("three");
+        })(Falcon.View);
+        expect(hello_spy).to.not.have.been.called;
+        rawr_class = new RawrView("one", "two", "three");
+        expect(hello_spy).to.have.been.called;
+        expect(hello_spy.callCount).to.equal(1);
+        expect(hello_spy.firstCall.args.length).to.equal(3);
+        expect(hello_spy.firstCall.args[0]).to.equal("one");
+        expect(hello_spy.firstCall.args[1]).to.equal("two");
+        return expect(hello_spy.firstCall.args[2]).to.equal("three");
+      });
+      return it("Should create RawrVIew with defaults that are numbers", function() {
+        var RawrView, hello_spy, rawr_class, _ref7;
+
+        hello_spy = null;
+        RawrView = (function(_super) {
+          __extends(RawrView, _super);
+
+          function RawrView() {
+            _ref7 = RawrView.__super__.constructor.apply(this, arguments);
+            return _ref7;
+          }
+
+          RawrView.prototype.defaults = {
+            'hello': (hello_spy = sinon.spy())
+          };
+
+          return RawrView;
+
+        })(Falcon.View);
+        expect(hello_spy).to.not.have.been.called;
+        rawr_class = new RawrView(1234);
+        expect(hello_spy).to.have.been.called;
+        expect(hello_spy.callCount).to.equal(1);
+        expect(hello_spy.firstCall.args.length).to.equal(1);
+        return expect(hello_spy.firstCall.args[0]).to.equal(1234);
+      });
     });
     describe("Test the makeUrl() method", function() {
       var ajax_stub;
