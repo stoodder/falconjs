@@ -76,8 +76,8 @@ describe "Test Knockout Bindings", ->
 		it "Should call the view binding on initialization without an observable", ->
 			view = new ContentView
 
-			render_spy = sinon.spy( view, 'render' )
-			unrender_spy = sinon.spy( view, 'unrender' )
+			render_spy = sinon.spy( view, '_render' )
+			unrender_spy = sinon.spy( view, '_unrender' )
 
 			expect( view_init_spy ).to.not.have.been.called
 			expect( view_update_spy ).to.not.have.been.called
@@ -98,18 +98,18 @@ describe "Test Knockout Bindings", ->
 			footer_view = view.footer_view()
 			obs = ko.observable( null )
 
-			render_spy = sinon.spy( view, 'render' )
-			unrender_spy = sinon.spy( view, 'unrender' )
+			render_spy = sinon.spy( view, '_render' )
+			unrender_spy = sinon.spy( view, '_unrender' )
 			display_spy = sinon.spy( view, 'display' )
 			dispose_spy = sinon.spy( view, 'dispose' )
 			
-			content_render_spy = sinon.spy( content_view, 'render' )
-			content_unrender_spy = sinon.spy( content_view, 'unrender' )
+			content_render_spy = sinon.spy( content_view, '_render' )
+			content_unrender_spy = sinon.spy( content_view, '_unrender' )
 			content_display_spy = sinon.spy( content_view, 'display' )
 			content_dispose_spy = sinon.spy( content_view, 'dispose' )
 			
-			footer_render_spy = sinon.spy( footer_view, 'render' )
-			footer_unrender_spy = sinon.spy( footer_view, 'unrender' )
+			footer_render_spy = sinon.spy( footer_view, '_render' )
+			footer_unrender_spy = sinon.spy( footer_view, '_unrender' )
 			footer_display_spy = sinon.spy( footer_view, 'display' )
 			footer_dispose_spy = sinon.spy( footer_view, 'dispose' )
 

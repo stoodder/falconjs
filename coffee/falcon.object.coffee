@@ -39,7 +39,7 @@ class Falcon.Object
 	#	**staticProps** _(Object)_ - Static properties for a given object
 	#
 	# Returns:
-	#	_(Objec)t_ - The extended class
+	#	_(Object)_ - The extended class
 	#--------------------------------------------------------
 	@extend = (protoProps, staticProps) ->
 		parent = @
@@ -130,26 +130,26 @@ class Falcon.Object
 	#END constructor
 
 	#--------------------------------------------------------
-	# Method: Falcon.Model#on()
+	# Method: Falcon.Object#on()
 	#	Adds an event listener to a specific event
 	#
 	# Arguments:
 	#	**event** _(string)_ - The event to listen tpo
-	#	**action** _(function)_ - The callback function to attach to this event
-	#	**context** _(mixed)_ - The context to apply to the callback. Defaults to this model
+	#	**callback** _(function)_ - The callback function to attach to this event
+	#	**context** _(mixed)_ - The context to apply to the callback. Defaults to this object
 	#
 	# Returns:
-	#	_(Falcon.Model)_ - This instance
+	#	_(Falcon.Object)_ - This instance
 	#--------------------------------------------------------
-	on: (event, action, context) ->
-		return this unless isString(event) and isFunction(action)
+	on: (event, callback, context) ->
+		return this unless isString(event) and isFunction(callback)
 
 		context ?= this
 		event = trim(event).toLowerCase()
 
 		return this if isEmpty(event)
 
-		( @__falcon_object__events__[event] ?= [] ).push({action, context})
+		( @__falcon_object__events__[event] ?= [] ).push({callback, context})
 
 		return this
 	#END on
@@ -160,20 +160,20 @@ class Falcon.Object
 	#
 	# Arguments:
 	#	**event** _(string)_ - The event to remove from
-	#	**action** _(function)_ - The event handler to remove
+	#	**callback** _(function)_ - The event handler to remove
 	#
 	# Returns:
 	#	_(Falcon.Model)_ - This instance
 	#--------------------------------------------------------
-	off: (event, action) ->
+	off: (event, callback) ->
 		return this unless isString(event)
 
 		event = trim(event).toLowerCase()
 
 		return this if isEmpty(event) or not @__falcon_object__events__[event]?
 
-		if isFunction( action )
-			@__falcon_object__events__[event] = ( evt for evt in @__falcon_object__events__[event] when evt.action isnt action )
+		if isFunction( callback )
+			@__falcon_object__events__[event] = ( evt for evt in @__falcon_object__events__[event] when evt.callback isnt callback )
 			@__falcon_object__events__[event] = null if @__falcon_object__events__[event].length <= 0
 		else
 			@__falcon_object__events__[event] = null
@@ -188,20 +188,20 @@ class Falcon.Object
 	#
 	# Arguments:
 	#	**event** _(string)_ - The event to look at
-	#	**action** _(function)_ - The event handler to look for
+	#	**callback** _(function)_ - The event handler to look for
 	#
 	# Returns:
 	#	_(boolean)_ - Did we find the event?
 	#--------------------------------------------------------
-	has: (event, action) ->
+	has: (event, callback) ->
 		return false unless isString(event)
 
 		event = trim(event).toLowerCase()
 
 		return false if isEmpty(event) or not @__falcon_object__events__[event]?
-		return true if @__falcon_object__events__[event]? and not isFunction( action )
+		return true if @__falcon_object__events__[event]? and not isFunction( callback )
 
-		return true for evt in @__falcon_object__events__[event] when evt.action is action
+		return true for evt in @__falcon_object__events__[event] when evt.callback is callback
 
 		return false
 	#END has
@@ -224,7 +224,7 @@ class Falcon.Object
 
 		return this if isEmpty(event) or not @__falcon_object__events__[event]?
 
-		evt.action.apply(evt.context, args) for evt in @__falcon_object__events__[event]
+		evt.callback.apply(evt.context, args) for evt in @__falcon_object__events__[event]
 
 		return this
 	#END trigger

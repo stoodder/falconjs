@@ -561,7 +561,7 @@ class Falcon.Model extends Falcon.Object
 				this[key].mixin(value)
 			else 
 				if ko.isObservable(value)
-					this[key] = ko.observable( ko.utils.unwrapObservable(value) )
+					this[key] = ko.observable( this[key] ? ko.utils.unwrapObservable(value) )
 				else if isFunction(value)
 					do =>
 						_value = value
@@ -570,7 +570,7 @@ class Falcon.Model extends Falcon.Object
 						#END
 					#END do
 				else
-					this[key] = value 
+					this[key] ?= value 
 				#END if
 			#END if
 		#END for

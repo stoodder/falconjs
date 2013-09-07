@@ -1463,41 +1463,63 @@ describe "Testing Model Methods", ->
 	# Test the mixin() method
 	#
 	#--------------------------------------------------------------
-	it "Should implement mixins properly", ->
-		class ModelA extends Falcon.Model
-			initialize: -> @model_b = new ModelB
-		#END model a
+	describe "Testing the mixin method", ->
+		it "Should implement mixins properly", ->
+			class ModelA extends Falcon.Model
+				initialize: -> @model_b = new ModelB
+			#END model a
 
-		class ModelB extends Falcon.Model
-		#END ModelB
+			class ModelB extends Falcon.Model
+			#END ModelB
 
-		modelA = new ModelA
+			modelA = new ModelA
 
-		expect( modelA.hello ).to.be.undefined
-		expect( modelA.foo ).to.be.undefined
-		expect( modelA.model_b.test ).to.be.undefined
+			expect( modelA.hello ).to.be.undefined
+			expect( modelA.foo ).to.be.undefined
+			expect( modelA.model_b.test ).to.be.undefined
 
-		modelA.mixin {
-			"hello": ( mixin_spy = sinon.spy() )
-			"foo": ko.observable( "bar" )
-			"model_b": {
-				"test": "123"
+			modelA.mixin {
+				"hello": ( mixin_spy = sinon.spy() )
+				"foo": ko.observable( "bar" )
+				"model_b": {
+					"test": "123"
+				}
 			}
-		}
 
-		expect( modelA.hello ).not.to.be.undefined
-		expect( modelA.hello ).to.be.a 'function'
-		expect( ko.isObservable( modelA.foo ) ).to.be.true
-		expect( modelA.foo() ).to.equal 'bar'
-		expect( modelA.model_b.test ).not.to.be.undefined
-		expect( modelA.model_b.test ).to.equal '123'
+			expect( modelA.hello ).not.to.be.undefined
+			expect( modelA.hello ).to.be.a 'function'
+			expect( ko.isObservable( modelA.foo ) ).to.be.true
+			expect( modelA.foo() ).to.equal 'bar'
+			expect( modelA.model_b.test ).not.to.be.undefined
+			expect( modelA.model_b.test ).to.equal '123'
 
-		modelA.hello('world')
-		expect( mixin_spy ).to.have.been.calledOnce
-		expect( mixin_spy ).to.have.been.calledOn modelA
-		expect( mixin_spy.firstCall.args[0] ).to.equal modelA
-		expect( mixin_spy.firstCall.args[1] ).to.equal 'world'
-	#END it
+			modelA.hello('world')
+			expect( mixin_spy ).to.have.been.calledOnce
+			expect( mixin_spy ).to.have.been.calledOn modelA
+			expect( mixin_spy.firstCall.args[0] ).to.equal modelA
+			expect( mixin_spy.firstCall.args[1] ).to.equal 'world'
+		#END it
+
+		it "Should preserve existing values in the model", ->
+			class ModelA extends Falcon.Model
+			#END model a
+
+			model_a = new ModelA({"hello": "world", "foo": "bar"})
+
+			expect( model_a.get("hello") ).to.equal "world"
+			expect( model_a.get("foo") ).to.equal "bar"
+			expect( ko.isObservable( model_a.hello ) ).to.be.false
+
+			model_a.mixin
+				"hello": ko.observable()
+				"foo": "baz"
+			#END mixin
+
+			expect( model_a.get("hello") ).to.equal "world"
+			expect( model_a.get("foo") ).to.equal "bar"
+			expect( ko.isObservable( model_a.hello ) ).to.be.true
+		#END it
+	#END describe
 
 
 	#--------------------------------------------------------------

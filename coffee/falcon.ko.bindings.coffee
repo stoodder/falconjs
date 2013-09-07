@@ -48,19 +48,19 @@ ko.bindingHandlers['view'] = do ->
 			if value? and ko.isSubscribable( value )
 				oldViewModel = ko.utils.unwrapObservable( value )
 				subscription = value.subscribe (newViewModel) ->
-					oldViewModel.unrender() if Falcon.isView(oldViewModel)
+					oldViewModel._unrender() if Falcon.isView(oldViewModel)
 					oldViewModel = newViewModel
 				#END subscribe
 
 				ko.utils.domNodeDisposal.addDisposeCallback element, ->
-					oldViewModel.unrender() if Falcon.isView(oldViewModel)
+					oldViewModel._unrender() if Falcon.isView(oldViewModel)
 					subscription.dispose()
 				#END domDisposal
 			#END if subscribable
 
 			else if Falcon.isView( value )
 				ko.utils.domNodeDisposal.addDisposeCallback element, ->
-					value.unrender()
+					value._unrender()
 				#END domDisposal
 			#END if
 
@@ -129,7 +129,7 @@ ko.bindingHandlers['view'] = do ->
 				#END if template updated
 
 				#Notify the view that it is being displayed
-				value.render() if Falcon.isView( value )
+				value._render() if Falcon.isView( value )
 			#END if not template?
 
 			#Revert this back to the parent view (so we keep the correct context)

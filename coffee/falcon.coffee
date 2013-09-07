@@ -43,7 +43,7 @@
 
 	#--------------------------------------------------------
 	# Method: Falcon.apply
-	#	The method to initialize falcon and apply its bindings
+	#	The method to initialize a Falcon application and apply its bindings against an initial view.
 	#
 	# Arguments:
 	#	**root** _(Falcon.View|ko.observable)_ - A view or an observable containing a view to be 
@@ -80,7 +80,7 @@
 			ko.applyBindings( ko.observable( root ), $element[0] )
 
 			#Trigger any callback to notify the application that
-			#the app has been initialize and the bindings are applied.
+			#the app has been initialized and the bindings are applied.
 			callback()
 		#END onLoad
 
@@ -131,7 +131,7 @@
 
 	#--------------------------------------------------------
 	# Method: Falcon.isDataObject()
-	#	Method used to test if an object is a Falcon Model or Colleciton
+	#	Method used to test if an object is a Falcon Model or Collection
 	#
 	# Arguments:
 	#	**object** _(mixed)_ -  The object to test

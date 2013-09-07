@@ -618,7 +618,7 @@ class Falcon.Collection extends Falcon.Object
 	#	**iterator** _(Function) - The iterator to truth test each model against
 	#
 	# Returns:
-	#	_(Number)_ - The number of the matched index
+	#	_(Falcon.Model)_ - The inserted models
 	#--------------------------------------------------------
 	insert: (insert_model, model) ->
 		iterator = _makeIterator( model )

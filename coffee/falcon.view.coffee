@@ -14,7 +14,7 @@ class Falcon.View extends Falcon.Object
 	#	Method used to manually cache a template
 	#
 	# Arguments:
-	#	**identifier** _(String)_ - The identifier for the templae
+	#	**identifier** _(String)_ - The unique identifier for the template (usually a url or an element id)
 	#	**template** _(String)_ - The template to store
 	#--------------------------------------------------------
 	@cacheTemplate = (identifier, template) ->
@@ -34,6 +34,8 @@ class Falcon.View extends Falcon.Object
 	#--------------------------------------------------------
 	@resetCache = () ->
 		__falcon_view__template_cache__ = {}
+
+		return
 	#END resetCache
 
 	#--------------------------------------------------------
@@ -61,12 +63,12 @@ class Falcon.View extends Falcon.Object
 	is_loaded: false
 
 	#--------------------------------------------------------
-	# Member: Falcon.View#is_rendered
+	# Member: Falcon.View#_is_rendered
 	#	This will be a flag to determines if the view is being 
 	#	displayed on the screen or not. This also acts as a
 	#	gate check for render() and unrender()
 	#--------------------------------------------------------
-	is_rendered: false
+	_is_rendered: false
 
 	#--------------------------------------------------------
 	# Member: Falcon.View#__falcon_view__child_views__
@@ -96,7 +98,7 @@ class Falcon.View extends Falcon.Object
 		url = @makeUrl()
 
 		# Setup the is_loaded variable
-		@is_rendered = false
+		@_is_rendered = false
 		@is_loaded = ko.observable( false )
 		@__falcon_view__child_views__ = []
 		
@@ -177,7 +179,7 @@ class Falcon.View extends Falcon.Object
 	#END template
 
 	#--------------------------------------------------------
-	# Method: Falcon.View#render
+	# Method: Falcon.View#_render
 	#	Method used to render this and any left-over child views
 	#	that will appear as part of this view's rendered template.
 	#	This is called by the 'view' binding when this view's template
@@ -189,17 +191,17 @@ class Falcon.View extends Falcon.Object
 	#	This method should stay as is. Instead, overwrite the 'display'
 	#	method when you need to run any custom display routine.
 	#--------------------------------------------------------
-	render: () ->
-		return if @is_rendered
+	_render: () ->
+		return if @_is_rendered
 
 		@display.apply(this, arguments)
 
-		@is_rendered = true
+		@_is_rendered = true
 		return
-	#END create
+	#END _render
 
 	#--------------------------------------------------------
-	# Method: Falcon.View#unrender
+	# Method: Falcon.View#_unrender
 	#	Method used to unrender this view. This is called when
 	#	the rendered template is removed from the DOM by knockout
 	#	or when the containing observable holding this view changed
@@ -213,19 +215,19 @@ class Falcon.View extends Falcon.Object
 	#	This method should stay as is. Instead, overwrite the 'dispose'
 	#	method when you need to run any custom disposal routine.
 	#--------------------------------------------------------
-	unrender: () ->
-		return unless @is_rendered
+	_unrender: () ->
+		return unless @_is_rendered
 
 		child_view.unrender() for child_view in @__falcon_view__child_views__
 		@__falcon_view__child_views__ = []
 		@dispose.apply(this, arguments)
 
-		@is_rendered = false
+		@_is_rendered = false
 		return
-	#END destroy
+	#END _unrender
 
 	#--------------------------------------------------------
-	# Method: Falcon.View#addChildView
+	# Method: Falcon.View#_addChildView
 	#	Method that is called withtin the 'view' binding to add
 	#	a reference to a child view that was rendered in this views
 	#	template.  These views are then used to be handled when this
@@ -235,10 +237,10 @@ class Falcon.View extends Falcon.Object
 	#	This method should not be called manually, it is only meant to
 	#	be called by the 'view' binding
 	#--------------------------------------------------------
-	addChildView: (view) ->
+	_addChildView: (view) ->
 		return unless Falcon.isView( view )
 		@__falcon_view__child_views__.push( view )
-	#END addChildView
+	#END _addChildView
 
 	#--------------------------------------------------------
 	# Method: Falcon.View#initialize
@@ -279,7 +281,7 @@ class Falcon.View extends Falcon.Object
 	viewModel: () ->
 		return @__falcon_view__viewModel__ if @__falcon_view__viewModel__?
 
-		viewModel = { "__falcon_view__addChildView__": (view) => @addChildView(view) }
+		viewModel = { "__falcon_view__addChildView__": (view) => @_addChildView(view) }
 
 		for key, value of this when not ( key of Falcon.View.prototype )
 			if isFunction(value) and not ko.isObservable(value)

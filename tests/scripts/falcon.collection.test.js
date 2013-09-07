@@ -2433,7 +2433,7 @@
       });
     });
     describe("Testing the mixin() method", function() {
-      return it("Should implement mixins properly", function() {
+      it("Should implement mixins properly", function() {
         var collectionA, mixin_spy, modelA, modelB;
 
         modelB = new ModelB;
@@ -2462,6 +2462,46 @@
         mixin_spy.firstCall.args[0].should.equal(modelA);
         mixin_spy.firstCall.args[1].should.equal(collectionA);
         return mixin_spy.firstCall.args[2].should.equal('world');
+      });
+      return it("Should allow for models with values to be added post mixin", function() {
+        var TheCollection, TheModel, theCollection, theModel, _ref12, _ref13;
+
+        TheModel = (function(_super) {
+          __extends(TheModel, _super);
+
+          function TheModel() {
+            _ref12 = TheModel.__super__.constructor.apply(this, arguments);
+            return _ref12;
+          }
+
+          TheModel.prototype.defaults = {
+            "hello": "world"
+          };
+
+          return TheModel;
+
+        })(Falcon.Model);
+        TheCollection = (function(_super) {
+          __extends(TheCollection, _super);
+
+          function TheCollection() {
+            _ref13 = TheCollection.__super__.constructor.apply(this, arguments);
+            return _ref13;
+          }
+
+          TheCollection.prototype.model = TheModel;
+
+          return TheCollection;
+
+        })(Falcon.Collection);
+        theCollection = new TheCollection();
+        theCollection.mixin({
+          "hello": ko.observable()
+        });
+        theModel = new TheModel;
+        expect(theModel.get("hello")).to.equal("world");
+        theCollection.append(theModel);
+        return expect(theModel.get("hello")).to.equal("world");
       });
     });
     describe("Testing the clone() method", function() {

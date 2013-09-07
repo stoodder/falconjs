@@ -2158,6 +2158,32 @@ describe "Test Collection Methods", ->
 			mixin_spy.firstCall.args[1].should.equal collectionA
 			mixin_spy.firstCall.args[2].should.equal 'world'
 		#END it
+
+		it "Should allow for models with values to be added post mixin", ->
+			class TheModel extends Falcon.Model
+				defaults:
+					"hello": "world"
+				#END defaults
+			#END TheModel
+
+			class TheCollection extends Falcon.Collection
+				model: TheModel
+			#END theCollection
+
+			theCollection = new TheCollection()
+
+			theCollection.mixin
+				"hello": ko.observable()
+			#END mixin
+
+			theModel = new TheModel
+
+			expect( theModel.get("hello") ).to.equal "world"
+
+			theCollection.append( theModel )
+			
+			expect( theModel.get("hello") ).to.equal "world"
+		#END it
 	#END describe
 
 

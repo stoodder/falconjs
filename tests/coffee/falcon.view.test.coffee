@@ -54,7 +54,7 @@ describe "Test View Methods", ->
 			view = new ViewA("Hello", 123)
 
 			expect( view.is_loaded() ).to.be.false
-			expect( view.is_rendered ).to.be.false
+			expect( view._is_rendered ).to.be.false
 
 			expect( init_stub ).to.have.been.calledOnce
 			expect( init_stub ).to.have.been.calledWith "Hello", 123
@@ -75,7 +75,7 @@ describe "Test View Methods", ->
 			view = new ViewC("Hello", 123)
 
 			expect( view.is_loaded() ).to.be.true
-			expect( view.is_rendered ).to.be.false
+			expect( view._is_rendered ).to.be.false
 
 			expect( init_stub ).to.have.been.calledOnce
 			expect( init_stub ).to.have.been.calledWith "Hello", 123
