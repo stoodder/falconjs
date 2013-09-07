@@ -1,22 +1,19 @@
 (function() {
   $(function() {
-    var startBodyScroll, stopBodyScroll;
+    return $("code").each(function(index, element) {
+      var $element, $runner, code;
 
-    startBodyScroll = function(event) {
-      document.body.style.overflow = "auto";
-      document.body.removeAttribute("scroll");
-      event.stopPropagation();
-      return event.preventDefault();
-    };
-    stopBodyScroll = function(event) {
-      document.body.style.overflow = "hidden";
-      document.body.setAttribute("scroll", "no");
-      event.stopPropagation();
-      return event.preventDefault();
-    };
-    $("iframe").on("mouseenter", stopBodyScroll);
-    $("iframe").on("mouseleave", startBodyScroll);
-    return $("body").on("mouseenter", startBodyScroll);
+      $element = $(element);
+      $element.text($element.html());
+      if ($element.hasClass("runnable")) {
+        code = $element.text();
+        $runner = $("<div class='runner'><i class='glyphicon glyphicon-play'></div>");
+        $element.append($runner);
+        return $runner.on("click", function() {
+          return eval(code);
+        });
+      }
+    });
   });
 
 }).call(this);

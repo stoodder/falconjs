@@ -4,3 +4,19 @@ complete: false
 category: bindings
 ---
 <p>This is the same as the <a href="http://knockoutjs.com/documentation/foreach-binding.html" alt="Knockout's Foreach binding">Knockout's Foreach binding</a> except that it has been modified to handle Falcon Collection's as well</p>
+<code class="multiline">
+	// ----------------------------------------
+	// Javascript
+	// ----------------------------------------
+	var Cats = Falcon.Collection.extend({ ... });
+
+	var cats = new Cats();
+	var dogs = ko.observableArray([]);
+	
+
+	// ----------------------------------------
+	// HTML
+	// ----------------------------------------
+	<div data-bind="foreach: cats"> ... A Bunch of Cats ...</div>
+	<div data-bind="foreach: dogs"> ... A Bunch of Dogs ...</div>
+</code>

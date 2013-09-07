@@ -2,7 +2,7 @@
 	Falcon.js
 	by Rick Allen (stoodder)
 
-	Version 0.6.5
+	Version 0.6.7
 	Full source at https://github.com/stoodder/falconjs
 	Copyright (c) 2013 Rick Allen, http://www.stoodder.com
 
@@ -3695,7 +3695,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
 	Falcon.js
 	by Rick Allen (stoodder)
 
-	Version 0.6.5
+	Version 0.6.7
 	Full source at https://github.com/stoodder/falconjs
 	Copyright (c) 2011 RokkinCat, http://www.rokkincat.com
 
@@ -3888,7 +3888,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
   };
 
   this.Falcon = Falcon = {
-    version: "0.6.5",
+    version: "0.6.7",
     applicationElement: "body",
     baseApiUrl: "",
     baseTemplateUrl: "",
@@ -4044,10 +4044,10 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       }
     }
 
-    Object.prototype.on = function(event, action, context) {
+    Object.prototype.on = function(event, callback, context) {
       var _base, _ref;
 
-      if (!(isString(event) && isFunction(action))) {
+      if (!(isString(event) && isFunction(callback))) {
         return this;
       }
       if (context == null) {
@@ -4058,13 +4058,13 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
         return this;
       }
       ((_ref = (_base = this.__falcon_object__events__)[event]) != null ? _ref : _base[event] = []).push({
-        action: action,
+        callback: callback,
         context: context
       });
       return this;
     };
 
-    Object.prototype.off = function(event, action) {
+    Object.prototype.off = function(event, callback) {
       var evt;
 
       if (!isString(event)) {
@@ -4074,7 +4074,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       if (isEmpty(event) || (this.__falcon_object__events__[event] == null)) {
         return this;
       }
-      if (isFunction(action)) {
+      if (isFunction(callback)) {
         this.__falcon_object__events__[event] = (function() {
           var _i, _len, _ref, _results;
 
@@ -4082,7 +4082,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
           _results = [];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             evt = _ref[_i];
-            if (evt.action !== action) {
+            if (evt.callback !== callback) {
               _results.push(evt);
             }
           }
@@ -4097,7 +4097,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       return this;
     };
 
-    Object.prototype.has = function(event, action) {
+    Object.prototype.has = function(event, callback) {
       var evt, _i, _len, _ref;
 
       if (!isString(event)) {
@@ -4107,13 +4107,13 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       if (isEmpty(event) || (this.__falcon_object__events__[event] == null)) {
         return false;
       }
-      if ((this.__falcon_object__events__[event] != null) && !isFunction(action)) {
+      if ((this.__falcon_object__events__[event] != null) && !isFunction(callback)) {
         return true;
       }
       _ref = this.__falcon_object__events__[event];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         evt = _ref[_i];
-        if (evt.action === action) {
+        if (evt.callback === callback) {
           return true;
         }
       }
@@ -4134,7 +4134,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       _ref = this.__falcon_object__events__[event];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         evt = _ref[_i];
-        evt.action.apply(evt.context, args);
+        evt.callback.apply(evt.context, args);
       }
       return this;
     };
@@ -4548,7 +4548,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
     };
 
     Model.prototype.mixin = function(mapping) {
-      var key, value,
+      var key, value, _ref, _ref1,
         _this = this;
 
       if (!isObject(mapping)) {
@@ -4560,7 +4560,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
           this[key].mixin(value);
         } else {
           if (ko.isObservable(value)) {
-            this[key] = ko.observable(ko.utils.unwrapObservable(value));
+            this[key] = ko.observable((_ref = this[key]) != null ? _ref : ko.utils.unwrapObservable(value));
           } else if (isFunction(value)) {
             (function() {
               var _value;
@@ -4574,7 +4574,9 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
               };
             })();
           } else {
-            this[key] = value;
+            if ((_ref1 = this[key]) == null) {
+              this[key] = value;
+            }
           }
         }
       }
@@ -4628,7 +4630,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
     };
 
     View.resetCache = function() {
-      return __falcon_view__template_cache__ = {};
+      __falcon_view__template_cache__ = {};
     };
 
     View.extend = Falcon.Object.extend;
@@ -4637,7 +4639,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
 
     View.prototype.is_loaded = false;
 
-    View.prototype.is_rendered = false;
+    View.prototype._is_rendered = false;
 
     View.prototype.__falcon_view__child_views__ = null;
 
@@ -4649,7 +4651,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
 
       View.__super__.constructor.apply(this, arguments);
       url = this.makeUrl();
-      this.is_rendered = false;
+      this._is_rendered = false;
       this.is_loaded = ko.observable(false);
       this.__falcon_view__child_views__ = [];
       _loaded = function() {
@@ -4713,18 +4715,18 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       return (_ref = __falcon_view__template_cache__[this.__falcon_view__loaded_url__]) != null ? _ref : "";
     };
 
-    View.prototype.render = function() {
-      if (this.is_rendered) {
+    View.prototype._render = function() {
+      if (this._is_rendered) {
         return;
       }
       this.display.apply(this, arguments);
-      this.is_rendered = true;
+      this._is_rendered = true;
     };
 
-    View.prototype.unrender = function() {
+    View.prototype._unrender = function() {
       var child_view, _i, _len, _ref;
 
-      if (!this.is_rendered) {
+      if (!this._is_rendered) {
         return;
       }
       _ref = this.__falcon_view__child_views__;
@@ -4734,10 +4736,10 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       }
       this.__falcon_view__child_views__ = [];
       this.dispose.apply(this, arguments);
-      this.is_rendered = false;
+      this._is_rendered = false;
     };
 
-    View.prototype.addChildView = function(view) {
+    View.prototype._addChildView = function(view) {
       if (!Falcon.isView(view)) {
         return;
       }
@@ -4761,7 +4763,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       }
       viewModel = {
         "__falcon_view__addChildView__": function(view) {
-          return _this.addChildView(view);
+          return _this._addChildView(view);
         }
       };
       for (key in this) {
@@ -4850,6 +4852,8 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
 
     Collection.prototype.parent = null;
 
+    Collection.prototype.comparator = null;
+
     function Collection(models, parent) {
       var _ref, _ref1, _ref2;
 
@@ -4884,7 +4888,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
     };
 
     Collection.prototype.fill = function(items, options) {
-      var head, i, insert_index, iterator, m, mapping, method, model, models, tail, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _length, _m, _model, _models, _ref, _ref1;
+      var comparator, head, i, insert_index, iterator, m, mapping, method, model, models, tail, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _length, _m, _model, _models, _ref, _ref1, _ref2;
 
       if (this.model == null) {
         return this;
@@ -4913,6 +4917,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       if (method !== 'replace' && method !== 'append' && method !== 'prepend' && method !== 'insert' && method !== 'merge') {
         method = 'replace';
       }
+      comparator = (_ref = options.comparator) != null ? _ref : this.comparator;
       if (method !== 'replace' && isEmpty(items)) {
         return [];
       }
@@ -4931,14 +4936,14 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
         } else {
           models[i] = new this.model(m, this.parent);
         }
-        _ref = this.__falcon_collection__mixins__;
-        for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-          mapping = _ref[_j];
+        _ref1 = this.__falcon_collection__mixins__;
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          mapping = _ref1[_j];
           models[i].mixin(mapping);
         }
       }
       if (method === 'replace') {
-        this.models(models);
+        _models = models;
       } else if (method === 'merge') {
         _models = this.models();
         for (_k = 0, _len2 = models.length; _k < _len2; _k++) {
@@ -4959,7 +4964,6 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
             _models.push(model);
           }
         }
-        this.models(_models);
       } else if (method === 'prepend') {
         _length = models.length - 1;
         _models = this.models();
@@ -4967,13 +4971,11 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
           model = models[i];
           _models.unshift(models[_length - i]);
         }
-        this.models(_models);
       } else if (method === 'append') {
         _models = this.models();
         _models = _models.concat(models);
-        this.models(_models);
       } else if (method === 'insert') {
-        insert_index = (_ref1 = options.insert_index) != null ? _ref1 : -1;
+        insert_index = (_ref2 = options.insert_index) != null ? _ref2 : -1;
         _models = this.models();
         if (insert_index < 0 || insert_index >= _models.length) {
           _models = _models.concat(models);
@@ -4982,8 +4984,11 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
           tail = _models.slice(insert_index);
           _models = head.concat(models, tail);
         }
-        this.models(_models);
       }
+      if (isFunction(comparator)) {
+        _models.sort(comparator);
+      }
+      this.models(_models);
       this.length(this.models().length);
       return models;
     };
@@ -5317,11 +5322,11 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       return item;
     };
 
-    Collection.prototype.sort = function(sorter) {
-      if (!isFunction(sorter)) {
+    Collection.prototype.sort = function(comparator) {
+      if (!isFunction(comparator)) {
         return models;
       }
-      return this.models.sort(sorter);
+      return this.models.sort(comparator);
     };
 
     Collection.prototype.at = function(index) {
@@ -5636,19 +5641,19 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
           oldViewModel = ko.utils.unwrapObservable(value);
           subscription = value.subscribe(function(newViewModel) {
             if (Falcon.isView(oldViewModel)) {
-              oldViewModel.unrender();
+              oldViewModel._unrender();
             }
             return oldViewModel = newViewModel;
           });
           ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
             if (Falcon.isView(oldViewModel)) {
-              oldViewModel.unrender();
+              oldViewModel._unrender();
             }
             return subscription.dispose();
           });
         } else if (Falcon.isView(value)) {
           ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-            return value.unrender();
+            return value._unrender();
           });
         }
         value = ko.utils.unwrapObservable(value);
@@ -5693,7 +5698,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
             });
           }
           if (Falcon.isView(value)) {
-            value.render();
+            value._render();
           }
         }
         context['$view'] = parentViewContext;

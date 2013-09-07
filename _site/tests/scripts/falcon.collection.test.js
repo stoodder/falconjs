@@ -510,7 +510,7 @@
           collectionA.at(1).get('id').should.equal(2);
           return collectionA.at(1).get('hello').should.equal("world2");
         });
-        return it("Should properly merge items into a populated collection", function() {
+        it("Should properly merge items into a populated collection", function() {
           var collectionA, index;
 
           collectionA = new CollectionA([
@@ -553,6 +553,64 @@
           collectionA.at(index).should.be["instanceof"](ModelA);
           collectionA.at(index).get('id').should.equal(2);
           collectionA.at(index).get('hello').should.equal("world2");
+          return index++;
+        });
+        return it("Should properly merge items into a populated collection that has a specified comparator", function() {
+          var collectionA, index;
+
+          collectionA = new CollectionA([
+            {
+              id: 3,
+              "hello": "world3"
+            }, {
+              id: 4,
+              "hello": "world4"
+            }
+          ]);
+          collectionA.comparator = function(model_a, model_b) {
+            var a_id, b_id;
+
+            a_id = parseInt(model_a.get("id"));
+            b_id = parseInt(model_b.get("id"));
+            if (a_id > b_id) {
+              return -1;
+            }
+            if (a_id < b_id) {
+              return 1;
+            }
+            return 0;
+          };
+          collectionA.fill([
+            {
+              id: 1,
+              "hello": "world"
+            }, {
+              id: 2,
+              "hello": "world2"
+            }, {
+              id: 4,
+              "hello": "world5"
+            }
+          ], {
+            'method': 'merge'
+          });
+          index = 0;
+          collectionA.length().should.equal(4);
+          collectionA.at(index).should.be["instanceof"](ModelA);
+          collectionA.at(index).get('id').should.equal(4);
+          collectionA.at(index).get('hello').should.equal("world5");
+          index++;
+          collectionA.at(index).should.be["instanceof"](ModelA);
+          collectionA.at(index).get('id').should.equal(3);
+          collectionA.at(index).get('hello').should.equal("world3");
+          index++;
+          collectionA.at(index).should.be["instanceof"](ModelA);
+          collectionA.at(index).get('id').should.equal(2);
+          collectionA.at(index).get('hello').should.equal("world2");
+          index++;
+          collectionA.at(index).should.be["instanceof"](ModelA);
+          collectionA.at(index).get('id').should.equal(1);
+          collectionA.at(index).get('hello').should.equal("world");
           return index++;
         });
       });
@@ -2375,7 +2433,7 @@
       });
     });
     describe("Testing the mixin() method", function() {
-      return it("Should implement mixins properly", function() {
+      it("Should implement mixins properly", function() {
         var collectionA, mixin_spy, modelA, modelB;
 
         modelB = new ModelB;
@@ -2404,6 +2462,46 @@
         mixin_spy.firstCall.args[0].should.equal(modelA);
         mixin_spy.firstCall.args[1].should.equal(collectionA);
         return mixin_spy.firstCall.args[2].should.equal('world');
+      });
+      return it("Should allow for models with values to be added post mixin", function() {
+        var TheCollection, TheModel, theCollection, theModel, _ref12, _ref13;
+
+        TheModel = (function(_super) {
+          __extends(TheModel, _super);
+
+          function TheModel() {
+            _ref12 = TheModel.__super__.constructor.apply(this, arguments);
+            return _ref12;
+          }
+
+          TheModel.prototype.defaults = {
+            "hello": "world"
+          };
+
+          return TheModel;
+
+        })(Falcon.Model);
+        TheCollection = (function(_super) {
+          __extends(TheCollection, _super);
+
+          function TheCollection() {
+            _ref13 = TheCollection.__super__.constructor.apply(this, arguments);
+            return _ref13;
+          }
+
+          TheCollection.prototype.model = TheModel;
+
+          return TheCollection;
+
+        })(Falcon.Collection);
+        theCollection = new TheCollection();
+        theCollection.mixin({
+          "hello": ko.observable()
+        });
+        theModel = new TheModel;
+        expect(theModel.get("hello")).to.equal("world");
+        theCollection.append(theModel);
+        return expect(theModel.get("hello")).to.equal("world");
       });
     });
     describe("Testing the clone() method", function() {

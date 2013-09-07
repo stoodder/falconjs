@@ -4,17 +4,23 @@ layout: layout
 {% assign category = 'Getting Started' %}
 {% include contentsection.html %}
 
+{% assign category = 'Object' %}
+{% include contentsection.html %}
+
 {% assign category = 'Model' %}
+{% assign extends = 'Falcon.Object' %}
 {% include contentsection.html %}
 
 {% assign category = 'Collection' %}
+{% assign extends = 'Falcon.Object' %}
 {% include contentsection.html %}
 
 {% assign category = 'View' %}
-{% include contentsection.html %}
-
-{% assign category = 'Helpers' %}
+{% assign extends = 'Falcon.Object' %}
 {% include contentsection.html %}
 
 {% assign category = 'Bindings' %}
+{% include contentsection.html %}
+
+{% assign category = 'Utility' %}
 {% include contentsection.html %}

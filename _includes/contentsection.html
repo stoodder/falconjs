@@ -2,7 +2,13 @@
 {% assign category_id = category | replace: ' ', '_'  | downcase %}
 <section id="{{ category_id }}">
 	<div class="page-header">
-		<h1>{{ category }}</h1>
+		<h1>
+			{{ category }}
+			{% if extends %}
+				<small>extends {{ extends }}</small>
+			{% endif %}
+		</h1>
+		
 	</div>
 	{% for post in site.categories.[category_lower] reversed %}
 		{% if hidden != 'true' %}
@@ -14,3 +20,4 @@
 		{% endif %}
 	{% endfor %}
 </section>
+{% assign extends = nil %}

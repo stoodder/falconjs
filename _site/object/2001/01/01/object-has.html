@@ -1,0 +1,28 @@
+<p>
+	Checks to see if a specific event is defined for an object. Optionally, if a callback is given, this method will check to see if that callback is defined for the specified event.
+</p>
+<dl>
+	<dt data-type="String">event</dt>
+	<dd>The event to check.</dd>
+	<dt data=type="Function">callback</dt>
+	<dd>A specific callback for an event to check.</dd>
+</dl>
+<code class="multiline runnable">
+	var obj = new Falcon.Object();
+
+	var alert_function = function() {
+		alert("Hello World")
+	};
+
+	var foo_function = function() {
+		alert("Foo Bar")
+	};
+
+	obj.on("alert", alert_function);
+
+	console.log( obj.has("alert") ); // => true
+	console.log( obj.has("click") ); // => false
+
+	console.log( obj.has("alert", alert_function) ); // => true
+	console.log( obj.has("alert", foo_function) ); // => false
+</code>

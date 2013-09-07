@@ -1856,57 +1856,88 @@
       expect(modelA_null_1.equals(modelA_null_2)).to.be["false"];
       return expect(modelA_null_1.equals(modelA_null_1)).to.be["true"];
     });
-    it("Should implement mixins properly", function() {
-      var ModelA, ModelB, mixin_spy, modelA, _ref, _ref1;
+    describe("Testing the mixin method", function() {
+      it("Should implement mixins properly", function() {
+        var ModelA, ModelB, mixin_spy, modelA, _ref, _ref1;
 
-      ModelA = (function(_super) {
-        __extends(ModelA, _super);
+        ModelA = (function(_super) {
+          __extends(ModelA, _super);
 
-        function ModelA() {
-          _ref = ModelA.__super__.constructor.apply(this, arguments);
-          return _ref;
-        }
+          function ModelA() {
+            _ref = ModelA.__super__.constructor.apply(this, arguments);
+            return _ref;
+          }
 
-        ModelA.prototype.initialize = function() {
-          return this.model_b = new ModelB;
-        };
+          ModelA.prototype.initialize = function() {
+            return this.model_b = new ModelB;
+          };
 
-        return ModelA;
+          return ModelA;
 
-      })(Falcon.Model);
-      ModelB = (function(_super) {
-        __extends(ModelB, _super);
+        })(Falcon.Model);
+        ModelB = (function(_super) {
+          __extends(ModelB, _super);
 
-        function ModelB() {
-          _ref1 = ModelB.__super__.constructor.apply(this, arguments);
-          return _ref1;
-        }
+          function ModelB() {
+            _ref1 = ModelB.__super__.constructor.apply(this, arguments);
+            return _ref1;
+          }
 
-        return ModelB;
+          return ModelB;
 
-      })(Falcon.Model);
-      modelA = new ModelA;
-      expect(modelA.hello).to.be.undefined;
-      expect(modelA.foo).to.be.undefined;
-      expect(modelA.model_b.test).to.be.undefined;
-      modelA.mixin({
-        "hello": (mixin_spy = sinon.spy()),
-        "foo": ko.observable("bar"),
-        "model_b": {
-          "test": "123"
-        }
+        })(Falcon.Model);
+        modelA = new ModelA;
+        expect(modelA.hello).to.be.undefined;
+        expect(modelA.foo).to.be.undefined;
+        expect(modelA.model_b.test).to.be.undefined;
+        modelA.mixin({
+          "hello": (mixin_spy = sinon.spy()),
+          "foo": ko.observable("bar"),
+          "model_b": {
+            "test": "123"
+          }
+        });
+        expect(modelA.hello).not.to.be.undefined;
+        expect(modelA.hello).to.be.a('function');
+        expect(ko.isObservable(modelA.foo)).to.be["true"];
+        expect(modelA.foo()).to.equal('bar');
+        expect(modelA.model_b.test).not.to.be.undefined;
+        expect(modelA.model_b.test).to.equal('123');
+        modelA.hello('world');
+        expect(mixin_spy).to.have.been.calledOnce;
+        expect(mixin_spy).to.have.been.calledOn(modelA);
+        expect(mixin_spy.firstCall.args[0]).to.equal(modelA);
+        return expect(mixin_spy.firstCall.args[1]).to.equal('world');
       });
-      expect(modelA.hello).not.to.be.undefined;
-      expect(modelA.hello).to.be.a('function');
-      expect(ko.isObservable(modelA.foo)).to.be["true"];
-      expect(modelA.foo()).to.equal('bar');
-      expect(modelA.model_b.test).not.to.be.undefined;
-      expect(modelA.model_b.test).to.equal('123');
-      modelA.hello('world');
-      expect(mixin_spy).to.have.been.calledOnce;
-      expect(mixin_spy).to.have.been.calledOn(modelA);
-      expect(mixin_spy.firstCall.args[0]).to.equal(modelA);
-      return expect(mixin_spy.firstCall.args[1]).to.equal('world');
+      return it("Should preserve existing values in the model", function() {
+        var ModelA, model_a, _ref;
+
+        ModelA = (function(_super) {
+          __extends(ModelA, _super);
+
+          function ModelA() {
+            _ref = ModelA.__super__.constructor.apply(this, arguments);
+            return _ref;
+          }
+
+          return ModelA;
+
+        })(Falcon.Model);
+        model_a = new ModelA({
+          "hello": "world",
+          "foo": "bar"
+        });
+        expect(model_a.get("hello")).to.equal("world");
+        expect(model_a.get("foo")).to.equal("bar");
+        expect(ko.isObservable(model_a.hello)).to.be["false"];
+        model_a.mixin({
+          "hello": ko.observable(),
+          "foo": "baz"
+        });
+        expect(model_a.get("hello")).to.equal("world");
+        expect(model_a.get("foo")).to.equal("bar");
+        return expect(ko.isObservable(model_a.hello)).to.be["true"];
+      });
     });
     describe("Testing clone combinations", function() {
       var ModelA, ModelB, ModelC, _ref, _ref1, _ref2;

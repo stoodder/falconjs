@@ -1,9 +1,11 @@
 ---
 title: makeUrl
-method: Falcon.View#makeUrl
-returnType: undefined
-returnDescription: undefined
+method: view.makeUrl()
+returnType: String
+returnDescription: The full url to the template
 complete: false
-category: view
+category: View
 ---
-Waiting for Description
+<p>
+	Method used to 'intelligently' make a url to point to the remote version of this template. If the URL begins with a '#' it will leave the url as is because we're identifying an on-page template element to lookup rather than a remote resource.
+</p>

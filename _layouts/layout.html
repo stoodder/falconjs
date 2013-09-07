@@ -1,5 +1,5 @@
 ---
-version: 0.6.3
+version: 0.6.7
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -51,6 +51,9 @@ version: 0.6.3
 
 							<li class="nav-divider"></li>
 							
+							{% assign category = 'Object' %}
+							{% include navsection.html %}
+							
 							{% assign category = 'Model' %}
 							{% include navsection.html %}
 							
@@ -60,11 +63,12 @@ version: 0.6.3
 							{% assign category = 'View' %}
 							{% include navsection.html %}
 							
-							{% assign category = 'Helpers' %}
-							{% include navsection.html %}
-							
 							{% assign category = 'Bindings' %}
 							{% include navsection.html %}
+							
+							{% assign category = 'Utility' %}
+							{% include navsection.html %}
+							
 
 							<li class="nav-divider"></li>
 
@@ -87,6 +91,7 @@ version: 0.6.3
 		</div>
 		<script src="scripts/jquery-1.10.0.min.js"></script>
 		<script src="scripts/bootstrap.min.js"></script>
+		<script src="scripts/falcon.min.js"></script>
 		<script src="scripts/falcon.docs.min.js"></script>
 	</body>
 </html>

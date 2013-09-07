@@ -1,0 +1,42 @@
+<p>
+	Removes event listening for a specific event. Optionally, if a callback is given, only that callback will be removed from the list of calbacks for the specified event.
+</p>
+<dl>
+	<dt data-type="String">event</dt>
+	<dd>The event to stop listening for.</dd>
+	<dt data=type="Function">callback</dt>
+	<dd>The speicifc callback function to remove.</dd>
+</dl>
+<code class="multiline runnable">
+	var obj = new Falcon.Object();
+
+	obj.on("alert", function() {
+		alert("Hello World");
+	});
+
+	obj.trigger("alert");
+
+	obj.off("alert");
+
+	obj.trigger("alert");
+</code>
+<code class="multiline runnable">
+	var obj = new Falcon.Object();
+
+	var alert_callback_one = function() {
+		alert("Alert One");
+	};
+
+	var alert_callback_two = function() {
+		alert("Alert Two");
+	};
+
+	obj.on("alert", alert_callback_one);
+	obj.on("alert", alert_callback_two);
+
+	obj.trigger("alert");
+
+	obj.off("alert", alert_callback_one);
+
+	obj.trigger("alert");
+</code>

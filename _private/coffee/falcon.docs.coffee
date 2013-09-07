@@ -1,20 +1,14 @@
 
 $ ->
-	startBodyScroll = (event) ->
-		document.body.style.overflow = "auto"
-		document.body.removeAttribute("scroll")
-		event.stopPropagation()
-		event.preventDefault()
-	#END startBodyScroll
+	$("code").each (index, element) ->
+		$element = $(element)
+		$element.text( $element.html() )
 
-	stopBodyScroll = (event) ->
-		document.body.style.overflow = "hidden"
-		document.body.setAttribute("scroll", "no")
-		event.stopPropagation()
-		event.preventDefault()
-	#END stopBodyScroll
-
-	$("iframe").on("mouseenter", stopBodyScroll)
-	$("iframe").on("mouseleave", startBodyScroll)
-	$("body").on("mouseenter", startBodyScroll)
+		if $element.hasClass("runnable")
+			code = $element.text()
+			$runner = $("<div class='runner'><i class='glyphicon glyphicon-play'></div>")
+			$element.append($runner)
+			$runner.on "click", -> eval( code )
+		#END if
+	#END
 #END onload
