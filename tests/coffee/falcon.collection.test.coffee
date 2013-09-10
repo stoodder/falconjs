@@ -1746,6 +1746,48 @@ describe "Test Collection Methods", ->
 
 	#--------------------------------------------------------------
 	#
+	# Test the lastIndexOf() method
+	#
+	#--------------------------------------------------------------
+	describe "Test the lastIndexOf() method", ->
+		collectionA = null
+		model_a1 = model_a2 = model_a3 = model_a4 = null
+
+		beforeEach ->
+			model_a1 = new ModelA(id: 1)
+			model_a2 = new ModelA(id: 3)
+			model_a3 = new ModelA(id: 5)
+			model_a4 = new ModelA(id: 8)
+
+			collectionA = new CollectionA([model_a1, model_a2, model_a3, model_a4, model_a2, model_a3])
+		#END beforeEach
+
+		it "Should find the correct index by model", ->
+			expect( collectionA.lastIndexOf( model_a3 ) ).to.equal 5
+		#END it
+
+		it "Should find no match index by model", ->
+			expect( collectionA.lastIndexOf( new ModelA ) ).to.equal -1
+		#END it
+
+		it "Should find the correct match index by id", ->
+			expect( collectionA.lastIndexOf( 3 ) ).to.equal 4
+		#END it
+
+		it "Should find the correct match index by truth test method", ->
+			index = collectionA.lastIndexOf (model) -> model.get('id') > 4
+			expect( index ).to.equal 5
+		#END it
+
+		it "Should find the no match index by truth test method", ->
+			index = collectionA.lastIndexOf (model) -> model.get('id') > 8
+			expect( index ).to.equal -1
+		#END it
+	#END describe
+
+
+	#--------------------------------------------------------------
+	#
 	# Test the each() method
 	#
 	#--------------------------------------------------------------
@@ -1913,10 +1955,10 @@ describe "Test Collection Methods", ->
 
 	#--------------------------------------------------------------
 	#
-	# Test the all() method
+	# Test the filter() method
 	#
 	#--------------------------------------------------------------
-	describe "Test the all() method", ->
+	describe "Test the filter() method", ->
 		model_a1 = new ModelA(id: 1)
 		model_a2 = new ModelA(id: 2)
 		model_ab = new ModelA(id: 'b')
@@ -1928,35 +1970,35 @@ describe "Test Collection Methods", ->
 		collectionA = new CollectionA(models)
 
 		it "Should return the all of the models", ->
-			all = collectionA.all()
+			all = collectionA.filter()
 			expect( all.length ).to.equal 6
 			expect( all ).to.deep.equal models
 		#END it
 
 		it "Should return a limited set of models by function", ->
-			all = collectionA.all (model) -> return model in [model_a1, model_ab]
+			all = collectionA.filter (model) -> return model in [model_a1, model_ab]
 			expect( all.length ).to.equal 3
 			expect( all ).to.deep.equal [model_a1, model_ab, model_ab]
 		#END it
 
 		it "Should return a limited set of models by model", ->
-			all = collectionA.all( model_a2 )
+			all = collectionA.filter( model_a2 )
 			expect( all.length ).to.equal 1
 			expect( all ).to.deep.equal [model_a2]
 		#END it
 
 		it "Should return a limited set of models by id", ->
-			all = collectionA.all( 3 )
+			all = collectionA.filter( 3 )
 			expect( all.length ).to.equal 1
 			expect( all ).to.deep.equal [model_a3 ]
 
-			all = collectionA.all( 'b' )
+			all = collectionA.filter( 'b' )
 			expect( all.length ).to.equal 3
 			expect( all ).to.deep.equal [model_ab, model_ab, model_ab2]
 		#END it
 
 		it "Should return an empty set of models", ->
-			all = collectionA.all (model) -> return false
+			all = collectionA.filter (model) -> return false
 			expect( all.length ).to.equal 0
 			expect( all ).to.deep.equal []
 		#END it
@@ -2192,153 +2234,111 @@ describe "Test Collection Methods", ->
 	# Test the clone() method
 	#
 	#--------------------------------------------------------------
-	describe "Testing the clone() method", ->
+	describe "Test the clone() method", ->
 		collectionA = null
 		model_a1 = model_a2 = model_a3 = null
 
 		beforeEach ->
-			model_a1 = new ModelA(id: 1)
-			model_a2 = new ModelA(id: 2)
-			model_a3 = new ModelA(id: 3)
-
-			collectionA = new CollectionA([model_a1, model_a2, model_a3], new ModelB)
-		#END beforeEach
-
-		it "Should clone properly with same parent", ->
-			clone = collectionA.clone()
-
-			expect( clone ).to.not.equal collectionA
-			expect( clone.length() ).to.equal 3
-			expect( clone.at(0) ).to.equal( model_a1 )
-			expect( clone.at(1) ).to.equal( model_a2 )
-			expect( clone.at(2) ).to.equal( model_a3 )
-			expect( clone.parent ).to.equal( collectionA.parent )
-		#END it
-
-		it "Should clone properly with different parent", ->
-			clone = collectionA.clone( parent = new ModelD )
-
-			expect( clone ).to.not.equal collectionA
-			expect( clone.length() ).to.equal 3
-			expect( clone.at(0) ).to.equal( model_a1 )
-			expect( clone.at(1) ).to.equal( model_a2 )
-			expect( clone.at(2) ).to.equal( model_a3 )
-			expect( clone.parent ).to.not.equal( collectionA.parent )
-			expect( clone.parent ).to.equal( parent )
-		#END it
-
-		it "Should clone properly with different no parent", ->
-			clone = collectionA.clone( null )
-
-			expect( clone ).to.not.equal collectionA
-			expect( clone.length() ).to.equal 3
-			expect( clone.at(0) ).to.equal( model_a1 )
-			expect( clone.at(1) ).to.equal( model_a2 )
-			expect( clone.at(2) ).to.equal( model_a3 )
-			expect( clone.parent ).to.not.equal( collectionA.parent )
-			expect( clone.parent ).to.equal( null )
-		#END it
-	#END describe
-
-
-	#--------------------------------------------------------------
-	#
-	# Test the copy() method
-	#
-	#--------------------------------------------------------------
-	describe "Test the copy() method", ->
-		collectionA = null
-		model_a1 = model_a2 = model_a3 = null
-
-		beforeEach ->
-			model_a1 = new ModelA({id: 1, 'title': 'Hello World'})
-			model_a2 = new ModelA({id: 2, 'title': 'Foo Bar'})
+			model_a1 = new ModelA({id: 1, 'title': 'Hello World', 'extra': 'things'})
+			model_a2 = new ModelA({id: 2, 'title': 'Foo Bar', 'extra': 'things2'})
 
 			collectionA = new CollectionA([model_a1, model_a2], new ModelB)
 		#END beforeEach
 
-		it "Should do a basic copy properly", ->
-			copy = collectionA.copy()
+		it "Should do a basic clone properly", ->
+			clone = collectionA.clone()
 
-			expect( copy ).to.not.equal collectionA
-			expect( copy.parent ).to.equal collectionA.parent
-			expect( copy.length() ).to.equal 2
-			expect( copy.at(0) ).to.not.equal( model_a1 )
-			expect( copy.at(0).get('id') ).to.equal 1
-			expect( copy.at(0).get('title') ).to.be.undefined
-			expect( copy.at(1) ).to.not.equal( model_a2 )
-			expect( copy.at(1).get('id') ).to.equal 2
-			expect( copy.at(1).get('title') ).to.be.undefined
+			expect( clone ).to.not.equal collectionA
+			expect( clone.parent ).to.equal collectionA.parent
+			expect( clone.length() ).to.equal 2
+			expect( clone.at(0) ).to.not.equal( model_a1 )
+			expect( clone.at(0).get('id') ).to.equal 1
+			expect( clone.at(0).get('title') ).to.be.equal "Hello World"
+			expect( clone.at(0).get('extra') ).to.be.equal "things"
+			expect( clone.at(1) ).to.not.equal( model_a2 )
+			expect( clone.at(1).get('id') ).to.equal 2
+			expect( clone.at(1).get('title') ).to.be.equal "Foo Bar"
+			expect( clone.at(1).get('extra') ).to.be.equal "things2"
 		#END it
 
-		it "Should do a basic copy properly with extra fields", ->
-			copy = collectionA.copy(["id", "title"])
+		it "Should do a basic clone properly with extra fields", ->
+			clone = collectionA.clone(["id", "title"])
 
-			expect( copy ).to.not.equal collectionA
-			expect( copy.parent ).to.equal collectionA.parent
-			expect( copy.length() ).to.equal 2
-			expect( copy.at(0) ).to.not.equal( model_a1 )
-			expect( copy.at(0).get('id') ).to.equal 1
-			expect( copy.at(0).get('title') ).to.be.equal "Hello World"
-			expect( copy.at(1) ).to.not.equal( model_a2 )
-			expect( copy.at(1).get('id') ).to.equal 2
-			expect( copy.at(1).get('title') ).to.be.equal "Foo Bar"
+			expect( clone ).to.not.equal collectionA
+			expect( clone.parent ).to.equal collectionA.parent
+			expect( clone.length() ).to.equal 2
+			expect( clone.at(0) ).to.not.equal( model_a1 )
+			expect( clone.at(0).get('id') ).to.equal 1
+			expect( clone.at(0).get('title') ).to.be.equal "Hello World"
+			expect( clone.at(0).get('extra') ).to.be.undefined
+			expect( clone.at(1) ).to.not.equal( model_a2 )
+			expect( clone.at(1).get('id') ).to.equal 2
+			expect( clone.at(1).get('title') ).to.be.equal "Foo Bar"
+			expect( clone.at(1).get('extra') ).to.be.undefined
 		#END it
 
-		it "Should do a basic copy properly without a parent", ->
-			copy = collectionA.copy(null)
+		it "Should do a basic clone properly without a parent", ->
+			clone = collectionA.clone(null)
 
-			expect( copy ).to.not.equal collectionA
-			expect( copy.parent ).to.equal null
-			expect( copy.length() ).to.equal 2
-			expect( copy.at(0) ).to.not.equal( model_a1 )
-			expect( copy.at(0).get('id') ).to.equal 1
-			expect( copy.at(0).get('title') ).to.be.undefined
-			expect( copy.at(1) ).to.not.equal( model_a2 )
-			expect( copy.at(1).get('id') ).to.equal 2
-			expect( copy.at(1).get('title') ).to.be.undefined
+			expect( clone ).to.not.equal collectionA
+			expect( clone.parent ).to.equal null
+			expect( clone.length() ).to.equal 2
+			expect( clone.at(0) ).to.not.equal( model_a1 )
+			expect( clone.at(0).get('id') ).to.equal 1
+			expect( clone.at(0).get('title') ).to.be.equal "Hello World"
+			expect( clone.at(0).get('extra') ).to.be.equal "things"
+			expect( clone.at(1) ).to.not.equal( model_a2 )
+			expect( clone.at(1).get('id') ).to.equal 2
+			expect( clone.at(1).get('title') ).to.be.equal "Foo Bar"
+			expect( clone.at(1).get('extra') ).to.be.equal "things2"
 		#END it
 
-		it "Should do a basic copy properly with extra fields without a parent", ->
-			copy = collectionA.copy(["id", "title"], null)
+		it "Should do a basic clone properly with extra fields without a parent", ->
+			clone = collectionA.clone(["id", "title"], null)
 
-			expect( copy ).to.not.equal collectionA
-			expect( copy.parent ).to.equal null
-			expect( copy.length() ).to.equal 2
-			expect( copy.at(0) ).to.not.equal( model_a1 )
-			expect( copy.at(0).get('id') ).to.equal 1
-			expect( copy.at(0).get('title') ).to.be.equal "Hello World"
-			expect( copy.at(1) ).to.not.equal( model_a2 )
-			expect( copy.at(1).get('id') ).to.equal 2
-			expect( copy.at(1).get('title') ).to.be.equal "Foo Bar"
+			expect( clone ).to.not.equal collectionA
+			expect( clone.parent ).to.equal null
+			expect( clone.length() ).to.equal 2
+			expect( clone.at(0) ).to.not.equal( model_a1 )
+			expect( clone.at(0).get('id') ).to.equal 1
+			expect( clone.at(0).get('title') ).to.be.equal "Hello World"
+			expect( clone.at(0).get('extra') ).to.be.undefined
+			expect( clone.at(1) ).to.not.equal( model_a2 )
+			expect( clone.at(1).get('id') ).to.equal 2
+			expect( clone.at(1).get('title') ).to.be.equal "Foo Bar"
+			expect( clone.at(1).get('extra') ).to.be.undefined
 		#END it
 
-		it "Should do a basic copy properly without a parent", ->
-			copy = collectionA.copy( parent = new ModelC )
+		it "Should do a basic clone properly with a new parent", ->
+			clone = collectionA.clone( parent = new ModelC )
 
-			expect( copy ).to.not.equal collectionA
-			expect( copy.parent ).to.equal parent
-			expect( copy.length() ).to.equal 2
-			expect( copy.at(0) ).to.not.equal( model_a1 )
-			expect( copy.at(0).get('id') ).to.equal 1
-			expect( copy.at(0).get('title') ).to.be.undefined
-			expect( copy.at(1) ).to.not.equal( model_a2 )
-			expect( copy.at(1).get('id') ).to.equal 2
-			expect( copy.at(1).get('title') ).to.be.undefined
+			expect( clone ).to.not.equal collectionA
+			expect( clone.parent ).to.equal parent
+			expect( clone.length() ).to.equal 2
+			expect( clone.at(0) ).to.not.equal( model_a1 )
+			expect( clone.at(0).get('id') ).to.equal 1
+			expect( clone.at(0).get('title') ).to.be.equal "Hello World"
+			expect( clone.at(0).get('extra') ).to.be.equal "things"
+			expect( clone.at(1) ).to.not.equal( model_a2 )
+			expect( clone.at(1).get('id') ).to.equal 2
+			expect( clone.at(1).get('title') ).to.be.equal "Foo Bar"
+			expect( clone.at(1).get('extra') ).to.be.equal "things2"
 		#END it
 
-		it "Should do a basic copy properly with extra fields without a parent", ->
-			copy = collectionA.copy(["id", "title"],  parent = new ModelC )
+		it "Should do a basic clone properly with extra fields without a parent", ->
+			clone = collectionA.clone(["id", "title"],  parent = new ModelC )
 
-			expect( copy ).to.not.equal collectionA
-			expect( copy.parent ).to.equal parent
-			expect( copy.length() ).to.equal 2
-			expect( copy.at(0) ).to.not.equal( model_a1 )
-			expect( copy.at(0).get('id') ).to.equal 1
-			expect( copy.at(0).get('title') ).to.be.equal "Hello World"
-			expect( copy.at(1) ).to.not.equal( model_a2 )
-			expect( copy.at(1).get('id') ).to.equal 2
-			expect( copy.at(1).get('title') ).to.be.equal "Foo Bar"
+			expect( clone ).to.not.equal collectionA
+			expect( clone.parent ).to.equal parent
+			expect( clone.length() ).to.equal 2
+			expect( clone.at(0) ).to.not.equal( model_a1 )
+			expect( clone.at(0).get('id') ).to.equal 1
+			expect( clone.at(0).get('title') ).to.be.equal "Hello World"
+			expect( clone.at(0).get('extra') ).to.be.undefined
+			expect( clone.at(1) ).to.not.equal( model_a2 )
+			expect( clone.at(1).get('id') ).to.equal 2
+			expect( clone.at(1).get('title') ).to.be.equal "Foo Bar"
+			expect( clone.at(1).get('extra') ).to.be.undefined
 		#END it
 	#END describe
 
@@ -2370,6 +2370,61 @@ describe "Test Collection Methods", ->
 
 			expect( collectionA.length() ).to.equal 0
 			expect( collectionA.models() ).to.deep.equal []
+		#END it
+	#END describe
+
+	#--------------------------------------------------------------
+	#
+	# Test the chain() method
+	#
+	#--------------------------------------------------------------
+	describe "Test the chain() method", ->
+		collectionA = null
+		model_a1 = model_a2 = model_a3  = model_a4 = model_a5 = null
+
+		beforeEach ->
+			model_a1 = new ModelA({id: 1, title: "Model A 1"})
+			model_a2 = new ModelA({id: 2, title: "Model A 2"})
+			model_a3 = new ModelA({id: 3, title: "Model A 3"})
+			model_a4 = new ModelA({id: 4, title: "Model A 4"})
+			model_a5 = new ModelA({id: 5, title: "Model A 5"})
+
+			collectionA = new CollectionA([model_a1, model_a2, model_a3, model_a4, model_a5])
+		#END beforeEach
+
+		it "Should be able to chain slice methods", ->
+			chain_result = collectionA.chain().slice(1).slice(0, 4).models()
+
+			expect( chain_result ).to.be.instanceof Array
+			expect( chain_result.length ).to.equal 4
+		#END it
+
+		it "Should be able to chain filter methods", ->
+			chain_result = collectionA.chain().filter( (model) -> model.get("id") < 4 ).filter( (model) -> model.get("id") isnt 2 ).models()
+
+			expect( chain_result ).to.be.instanceof Array
+			expect( chain_result.length ).to.equal 2
+			expect( chain_result ).to.deep.equal [model_a1, model_a3]
+		#END it
+
+		it "Should be able to chain without methods", ->
+			chain_result = collectionA.chain().without(2).without(model_a5).models()
+
+			expect( chain_result ).to.be.instanceof Array
+			expect( chain_result.length ).to.equal 3
+			expect( chain_result ).to.deep.equal [model_a1, model_a3, model_a4]
+		#END it
+
+		it "Should be able to chain a without method and sort method", ->
+			chain_result = collectionA.chain().without(2).sort((a, b) ->
+				return -1 if a.id > b.id
+				return 1 if a.id < b.id
+				return 0
+			).models()
+
+			expect( chain_result ).to.be.instanceof Array
+			expect( chain_result.length ).to.equal 4
+			expect( chain_result ).to.deep.equal [model_a5, model_a4, model_a3, model_a1]
 		#END it
 	#END describe
 #END describe

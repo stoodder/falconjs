@@ -745,6 +745,31 @@ class Falcon.Collection extends Falcon.Object
 	#END indexOf
 
 	#--------------------------------------------------------
+	# Method: Falcon.Collection#lastIndexOf
+	#	Find the last index for the specified model or where the iterator first returns true.
+	#	-1 is returned if nothing matches.
+	#
+	# Arguments:
+	#	**model** _(Falcon.Model)_ - The model to lookup
+	#
+	# Returns:
+	#	_(Number)_ - The number of the matched index
+	#--------------------------------------------------------
+	lastIndexOf: (model) ->
+		iterator = _makeIterator( model )
+		return -1 unless isFunction( iterator )
+
+		models = @models()
+		length = models.length
+		for model, i in models
+			index = length - i - 1
+			return index if iterator( models[index] )
+		#END for
+
+		return -1
+	#END indexOf
+
+	#--------------------------------------------------------
 	# Method: Falcon.Collection#each
 	#
 	# Arguments:
@@ -822,8 +847,8 @@ class Falcon.Collection extends Falcon.Object
 	#END last
 
 	#--------------------------------------------------------
-	# Method: Falcon.Collection#all
-	#	Gets a models of all items that match the iterator.
+	# Method: Falcon.Collection#filter
+	#	Gets a list of all items that match the iterator.
 	#	If no iterator is present, all of the models are returned
 	#
 	# Arguments:
@@ -832,7 +857,7 @@ class Falcon.Collection extends Falcon.Object
 	# Returns:
 	#	_(Array)_ - An array of all the matched items
 	#--------------------------------------------------------
-	all: (iterator) ->
+	filter: (iterator) ->
 		iterator = _makeIterator( iterator )
 		return @models() unless isFunction(iterator)
 		return ( item for item in @models() when iterator(item) )
@@ -928,6 +953,23 @@ class Falcon.Collection extends Falcon.Object
 	#END slice
 
 	#--------------------------------------------------------
+	# Method: Falcon.Collection#chain
+	#	Chains collection operations together so we can execute more than one.
+	#
+	# Returns:
+	#	_(Chain Object)_ -  A Chain object with wrapped first, last, slice, without, 
+	#						filter, any, and pluck, each, indexOf, lastIndexOf sort, push
+	#						methods
+	#--------------------------------------------------------
+	chain: ->
+		#Create a new chained collection which is defined at the bottom of this file
+		chainedCollection = new ChainedCollection()
+		chainedCollection.model = @model
+		chainedCollection.fill( @models() )
+		return chainedCollection
+	#END chain
+
+	#--------------------------------------------------------
 	# Method: Falcon.Collection#mixin
 	#	Adds attributes to all of the models in the current models and any future models that are added.
 	#	Mappings are added onto a stack of mappings.  When the models changes, all of the mappings will
@@ -970,42 +1012,21 @@ class Falcon.Collection extends Falcon.Object
 
 	#--------------------------------------------------------
 	# Method: Falcon.Collection#clone
-	# 	Method used to deeply clone this colleciton
+	# 	Method used to create a clone of this collection.
 	#
 	# Arguments:
-	#	**parent** _(Falcon.Model)_ - The parent of the clone. optional
+	#	**attributes** _(Array)_ - The attributes of each model to clone to the new collection
+	#	**parent** _(Falcon.Model)_ - An override of the parent when attempting to clone. If set to null, 
+	#								  no parent will be present on the cloned collection
 	#
 	# Returns:
 	#	_(Falcon.Collection)_ - A clone of this collection
-	#
-	# TODO:
-	#	Add deep cloning
 	#--------------------------------------------------------
-	clone: (parent) ->
-		parent = if parent is null or Falcon.isModel(parent) then parent else @parent
-		return new @constructor(@models(), parent )
-	#END clone
-
-	#--------------------------------------------------------
-	# Method: Falcon.Collection#copy
-	# 	Method used to primitively 'copy' this collection.  A copy only carries over very basic information
-	#	rather than an entire copy of the internal array associated with the original collection. This method
-	#	was primarily devised to copy collection for use in URL generation/new parent assignment on models
-	#
-	# Arguments:
-	#	**attributes** _(Array)_ - The attributes of each model to copy to the new collection
-	#
-	# Returns:
-	#	_(Falcon.Collection)_ - A copy of this collection
-	#
-	# TODO: Finish Comments
-	#--------------------------------------------------------
-	copy: (attributes, parent) ->
-		parent = attributes if attributes is null or Falcon.isModel( attributes )
-		attributes = {"id":null} unless isArray( attributes )
+	clone: (attributes, parent) ->
+		[ attributes, parent ] = [ undefined, attributes ] if attributes is null or Falcon.isModel( attributes )
 		parent = @parent unless parent is null or Falcon.isModel( parent )
 		return new @constructor( @serialize( attributes ), parent )
-	#END copy
+	#END clone
 
 	#--------------------------------------------------------
 	# Method: Falcon.Collection#reset
@@ -1027,3 +1048,30 @@ class Falcon.Collection extends Falcon.Object
 		return this
 	#END reset
 #END Falcon.Collection
+
+#==============================================================================================
+#
+# Class: Falcon.Collection
+#
+#==============================================================================================
+class ChainedCollection extends Falcon.Collection
+	slice: ->
+		@models( super(arguments...) )
+		return this
+	#END slice
+
+	sort: ->
+		@models( super(arguments...) )
+		return this
+	#END sort
+
+	filter: ->
+		@models( super(arguments...) )
+		return this
+	#END filter
+
+	without: ->
+		@models( super(arguments...) )
+		return this
+	#END without
+#END ChainedCollection

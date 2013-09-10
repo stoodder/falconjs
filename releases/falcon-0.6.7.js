@@ -3712,7 +3712,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
 
 
 (function() {
-  var Falcon, arrayRemove, arrayUnique, clone, extend, findKey, isArray, isBoolean, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, startsWith, trim, value, _bindingContext, _foreach, _getItems, _options, _ref, _ref1, _shouldUpdate,
+  var ChainedCollection, Falcon, arrayRemove, arrayUnique, clone, extend, findKey, isArray, isBoolean, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, startsWith, trim, value, _bindingContext, _foreach, _getItems, _options, _ref, _ref1, _ref2, _shouldUpdate,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -4583,19 +4583,11 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       return this;
     };
 
-    Model.prototype.clone = function(parent) {
-      parent = (parent != null) || parent === null ? parent : this.parent;
-      return new this.constructor(this.unwrap(), parent);
-    };
+    Model.prototype.clone = function(attributes, parent) {
+      var _ref;
 
-    Model.prototype.copy = function(attributes, parent) {
       if (attributes === null || Falcon.isModel(attributes)) {
-        parent = attributes;
-      }
-      if (attributes == null) {
-        attributes = {
-          "id": null
-        };
+        _ref = [void 0, attributes], attributes = _ref[0], parent = _ref[1];
       }
       if (!(parent === null || Falcon.isModel(parent))) {
         parent = this.parent;
@@ -4732,7 +4724,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       _ref = this.__falcon_view__child_views__;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         child_view = _ref[_i];
-        child_view.unrender();
+        child_view._unrender();
       }
       this.__falcon_view__child_views__ = [];
       this.dispose.apply(this, arguments);
@@ -5363,6 +5355,25 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       return -1;
     };
 
+    Collection.prototype.lastIndexOf = function(model) {
+      var i, index, iterator, length, models, _i, _len;
+
+      iterator = _makeIterator(model);
+      if (!isFunction(iterator)) {
+        return -1;
+      }
+      models = this.models();
+      length = models.length;
+      for (i = _i = 0, _len = models.length; _i < _len; i = ++_i) {
+        model = models[i];
+        index = length - i - 1;
+        if (iterator(models[index])) {
+          return index;
+        }
+      }
+      return -1;
+    };
+
     Collection.prototype.each = function(iterator, context) {
       var index, item, _i, _j, _len, _len1, _ref, _ref1;
 
@@ -5428,7 +5439,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       return null;
     };
 
-    Collection.prototype.all = function(iterator) {
+    Collection.prototype.filter = function(iterator) {
       var item;
 
       iterator = _makeIterator(iterator);
@@ -5515,6 +5526,15 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       return this.models.slice(start, end);
     };
 
+    Collection.prototype.chain = function() {
+      var chainedCollection;
+
+      chainedCollection = new ChainedCollection();
+      chainedCollection.model = this.model;
+      chainedCollection.fill(this.models());
+      return chainedCollection;
+    };
+
     Collection.prototype.mixin = function(mapping) {
       var key, model, models, value, _i, _len, _mapping,
         _this = this;
@@ -5555,19 +5575,11 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       return this;
     };
 
-    Collection.prototype.clone = function(parent) {
-      parent = parent === null || Falcon.isModel(parent) ? parent : this.parent;
-      return new this.constructor(this.models(), parent);
-    };
+    Collection.prototype.clone = function(attributes, parent) {
+      var _ref;
 
-    Collection.prototype.copy = function(attributes, parent) {
       if (attributes === null || Falcon.isModel(attributes)) {
-        parent = attributes;
-      }
-      if (!isArray(attributes)) {
-        attributes = {
-          "id": null
-        };
+        _ref = [void 0, attributes], attributes = _ref[0], parent = _ref[1];
       }
       if (!(parent === null || Falcon.isModel(parent))) {
         parent = this.parent;
@@ -5590,6 +5602,38 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
 
   })(Falcon.Object);
 
+  ChainedCollection = (function(_super) {
+    __extends(ChainedCollection, _super);
+
+    function ChainedCollection() {
+      _ref = ChainedCollection.__super__.constructor.apply(this, arguments);
+      return _ref;
+    }
+
+    ChainedCollection.prototype.slice = function() {
+      this.models(ChainedCollection.__super__.slice.apply(this, arguments));
+      return this;
+    };
+
+    ChainedCollection.prototype.sort = function() {
+      this.models(ChainedCollection.__super__.sort.apply(this, arguments));
+      return this;
+    };
+
+    ChainedCollection.prototype.filter = function() {
+      this.models(ChainedCollection.__super__.filter.apply(this, arguments));
+      return this;
+    };
+
+    ChainedCollection.prototype.without = function() {
+      this.models(ChainedCollection.__super__.without.apply(this, arguments));
+      return this;
+    };
+
+    return ChainedCollection;
+
+  })(Falcon.Collection);
+
   ko.bindingHandlers['view'] = (function() {
     var getTemplate, getViewModel, makeTemplateValueAccessor, returnVal;
 
@@ -5602,7 +5646,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       };
     };
     getViewModel = function(value) {
-      var viewModel, _ref;
+      var viewModel, _ref1;
 
       viewModel = {};
       if (value == null) {
@@ -5611,12 +5655,12 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       if (value instanceof Falcon.View) {
         viewModel = value.viewModel();
       } else {
-        viewModel = ko.utils.unwrapObservable((_ref = value.viewModel) != null ? _ref : {});
+        viewModel = ko.utils.unwrapObservable((_ref1 = value.viewModel) != null ? _ref1 : {});
       }
       return viewModel;
     };
     getTemplate = function(value) {
-      var template, _ref;
+      var template, _ref1;
 
       template = "";
       if (value == null) {
@@ -5625,7 +5669,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
       if (value instanceof Falcon.View) {
         template = value.template();
       } else {
-        template = ko.utils.unwrapObservable((_ref = value.template) != null ? _ref : "");
+        template = ko.utils.unwrapObservable((_ref1 = value.template) != null ? _ref1 : "");
       }
       return template;
     };
@@ -5662,7 +5706,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
         return returnVal;
       },
       'update': function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
-        var anonymousTemplate, execScripts, parentViewContext, template, value, _ref;
+        var anonymousTemplate, execScripts, parentViewContext, template, value, _ref1;
 
         value = valueAccessor();
         value = ko.utils.unwrapObservable(value);
@@ -5682,7 +5726,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
           $(element).empty();
         } else if (!(value instanceof Falcon.View) || ko.utils.unwrapObservable(value.is_loaded)) {
           anonymousTemplate = ko.utils.domData.get(element, '__ko_anon_template__');
-          if (((_ref = anonymousTemplate.containerData) != null ? _ref.innerHTML : void 0) != null) {
+          if (((_ref1 = anonymousTemplate.containerData) != null ? _ref1.innerHTML : void 0) != null) {
             anonymousTemplate.containerData.innerHTML = template;
           } else {
             anonymousTemplate.textData = template;
@@ -5708,7 +5752,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
   })();
 
   _getItems = function(value) {
-    var _ref;
+    var _ref1;
 
     value = ko.utils.peekObservable(value);
     if (Falcon.isCollection(value) || isArray(value)) {
@@ -5723,7 +5767,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
     if (Falcon.isCollection(value.data)) {
       value.data = value.data.models();
     }
-    if ((_ref = value.data) == null) {
+    if ((_ref1 = value.data) == null) {
       value.data = [];
     }
     return (function() {
@@ -5749,7 +5793,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
     return true;
   };
 
-  _foreach = (_ref = ko.bindingHandlers['foreach']) != null ? _ref : {};
+  _foreach = (_ref1 = ko.bindingHandlers['foreach']) != null ? _ref1 : {};
 
   ko.bindingHandlers['foreach'] = {
     'init': function() {
@@ -5778,25 +5822,25 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
     }
   }
 
-  _options = (_ref1 = ko.bindingHandlers['options']) != null ? _ref1 : (function() {});
+  _options = (_ref2 = ko.bindingHandlers['options']) != null ? _ref2 : (function() {});
 
   ko.bindingHandlers['options'] = (function() {
     return {
       'init': function() {
-        var args, element, valueAccessor, _ref2;
+        var args, element, valueAccessor, _ref3;
 
         element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
         value = ko.utils.unwrapObservable(valueAccessor());
         ko.utils.domData.set(element, '__falcon_collection___change_count__', -1);
-        return ((_ref2 = _options['init']) != null ? _ref2 : (function() {})).apply(null, [element, _getItems(value)].concat(__slice.call(args)));
+        return ((_ref3 = _options['init']) != null ? _ref3 : (function() {})).apply(null, [element, _getItems(value)].concat(__slice.call(args)));
       },
       'update': function() {
-        var args, element, valueAccessor, _ref2;
+        var args, element, valueAccessor, _ref3;
 
         element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
         value = ko.utils.unwrapObservable(valueAccessor());
         if (_shouldUpdate(element, value)) {
-          return ((_ref2 = _options['update']) != null ? _ref2 : (function() {})).apply(null, [element, _getItems(value)].concat(__slice.call(args)));
+          return ((_ref3 = _options['update']) != null ? _ref3 : (function() {})).apply(null, [element, _getItems(value)].concat(__slice.call(args)));
         }
       }
     };

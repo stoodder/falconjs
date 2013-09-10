@@ -392,7 +392,7 @@ describe "Test View Methods", ->
 			another_stub.restore()
 		#END it
 
-		it "Shoudl create equal viewModels after the first has been generated", ->
+		it "Should create equal viewModels after the first has been generated", ->
 			view = new FullView
 			model1 = view.viewModel()
 			model2 = view.viewModel()

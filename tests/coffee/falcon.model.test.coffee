@@ -1521,88 +1521,12 @@ describe "Testing Model Methods", ->
 		#END it
 	#END describe
 
-
 	#--------------------------------------------------------------
 	#
 	# Test the clone() method
 	#
 	#--------------------------------------------------------------
-	describe "Testing clone combinations", ->
-		class ModelA extends Falcon.Model
-			initialize: ->
-				@foo = ko.observable()
-			#END initialzie
-		#END ModelA
-
-		class ModelB extends Falcon.Model
-		#END ModelB
-
-		class ModelC extends Falcon.Model
-		#END ModelC
-
-		it "Should clone properly without overridden parent", ->
-			modelB = new ModelB
-			modelA1 = new ModelA({
-				id:		1
-				hello:	"world"
-				foo:	"bar"
-			}, modelB)
-			modelA2 = modelA1.clone()
-
-			expect( modelA1 ).to.not.equal modelA2
-			expect( modelA1.parent ).to.equal modelA2.parent
-			expect( modelA1.id ).to.equal modelA2.id
-
-			expect( modelA2.hello ).to.equal "world"
-			expect( ko.isObservable( modelA2.foo ) ).to.be.true
-			expect( modelA2.foo() ).to.equal "bar"
-		#END it
-
-		it "Should clone properly with overriden parent", ->
-			modelB = new ModelB
-			modelC = new ModelC
-			modelA1 = new ModelA({
-				id:		1
-				hello:	"world"
-				foo:	ko.observable("bar")
-			}, modelB)
-			modelA2 = modelA1.clone(modelC)
-
-			expect( modelA2 ).to.not.equal modelA1
-			expect( modelA2.id ).to.equal modelA1.id
-			expect( modelA2.parent ).to.equal modelC
-
-			expect( modelA2.hello ).to.equal "world"
-			expect( ko.isObservable( modelA2.foo ) ).to.be.true
-			expect( modelA2.foo() ).to.equal "bar"
-		#END it
-
-		it "Should clone properly with overriden null parent", ->
-			modelB = new ModelB
-			modelA1 = new ModelA({
-				id:		1
-				hello:	"world"
-				foo:	ko.observable("bar")
-			}, modelB)
-			modelA2 = modelA1.clone(null)
-
-			expect( modelA2 ).to.not.equal modelA1
-			expect( modelA2.id ).to.equal modelA1.id
-			expect( modelA2.parent ).to.be.equal null
-
-			expect( modelA2.hello ).to.equal "world"
-			expect( ko.isObservable( modelA2.foo ) ).to.be.true
-			expect( modelA2.foo() ).to.equal "bar"
-		#END it
-	#END it
-
-
-	#--------------------------------------------------------------
-	#
-	# Test the copy() method
-	#
-	#--------------------------------------------------------------
-	describe "Testing copy() method", ->
+	describe "Testing clone() method", ->
 		class ModelA extends Falcon.Model
 			initialize: ->
 				@foo = ko.observable()
@@ -1615,18 +1539,18 @@ describe "Testing Model Methods", ->
 		class ModelC extends Falcon.Model
 		#END ModelB
 
-		it "Should do a basic copy properly", ->
+		it "Should do a basic clone properly", ->
 			modelB  = new ModelB()
 			modelA1 = new ModelA({
 				id:		1
 				hello:	"world"
 				foo:	ko.observable("bar")
 			}, modelB)
-			modelA2 = modelA1.copy()
+			modelA2 = modelA1.clone()
 
 			expect( modelA1 ).to.not.equal modelA2
 
-			expect( modelA2.hello ).not.to.exist
+			expect( modelA2.hello ).to.exist
 			expect( modelA2.foo ).to.exist
 			expect( modelA2.id ).to.exist
 			expect( modelA2.parent ).to.exist
@@ -1634,17 +1558,17 @@ describe "Testing Model Methods", ->
 			expect( modelA2.id ).to.equal 1
 			expect( modelA2.parent ).to.equal modelB
 			expect( ko.isObservable(modelA2.foo) ).to.be.true
-			expect( modelA2.foo() ).to.be.undefined
+			expect( modelA2.foo() ).to.be.equal "bar"
 		#END it
 
-		it "Should do copy properly additional fields properly", ->
+		it "Should do clone properly additional fields properly", ->
 			modelB  = new ModelB()
 			modelA1 = new ModelA({
 				id:		1
 				hello:	"world"
 				foo:	ko.observable("bar")
 			}, modelB)
-			modelA2 = modelA1.copy(["id", "foo"])
+			modelA2 = modelA1.clone(["id", "foo"])
 
 			expect( modelA1 ).to.not.equal modelA2
 
@@ -1659,14 +1583,14 @@ describe "Testing Model Methods", ->
 			expect( modelA2.foo() ).to.be.equal "bar"
 		#END it
 
-		it "Should do copy properly additional fields properly without parent", ->
+		it "Should do clone properly additional fields properly without parent", ->
 			modelB  = new ModelB()
 			modelA1 = new ModelA({
 				id:		1
 				hello:	"world"
 				foo:	ko.observable("bar")
 			}, modelB)
-			modelA2 = modelA1.copy(["id", "hello"], null)
+			modelA2 = modelA1.clone(["id", "hello"], null)
 
 			expect( modelA1 ).to.not.equal modelA2
 
@@ -1676,20 +1600,21 @@ describe "Testing Model Methods", ->
 			expect( modelA2.parent ).not.to.exist
 
 			expect( modelA2.id ).to.equal 1
+			expect( modelA2.parent ).to.equal null
 			expect( ko.isObservable(modelA2.hello) ).to.be.false
 			expect( modelA2.hello ).to.be.equal "world"
 			expect( ko.isObservable(modelA2.foo) ).to.be.true
 			expect( modelA2.foo() ).to.be.undefined
 		#END it
 
-		it "Should do copy properly additional fields properly without parent or id fields", ->
+		it "Should do clone properly with additional fields properly without parent or id fields", ->
 			modelB  = new ModelB()
 			modelA1 = new ModelA({
 				id:		1
 				hello:	"world"
 				foo:	ko.observable("bar")
 			}, modelB)
-			modelA2 = modelA1.copy(["hello"], null)
+			modelA2 = modelA1.clone(["hello"], null)
 
 			expect( modelA1 ).to.not.equal modelA2
 
@@ -1698,13 +1623,14 @@ describe "Testing Model Methods", ->
 			expect( modelA2.parent ).not.to.exist
 
 			expect( modelA2.id ).to.equal null
+			expect( modelA2.parent ).to.equal null
 			expect( ko.isObservable(modelA2.hello) ).to.be.false
 			expect( modelA2.hello ).to.be.equal "world"
 			expect( ko.isObservable(modelA2.foo) ).to.be.true
 			expect( modelA2.foo() ).to.be.undefined
 		#END it
 
-		it "Should do copy properly additional fields properly with new parent", ->
+		it "Should do clone properly additional fields properly with new parent", ->
 			modelC = new ModelC()
 			modelB  = new ModelB()
 			modelA1 = new ModelA({
@@ -1712,7 +1638,7 @@ describe "Testing Model Methods", ->
 				hello:	"world"
 				foo:	ko.observable("bar")
 			}, modelB)
-			modelA2 = modelA1.copy(["id", "hello"], modelC)
+			modelA2 = modelA1.clone(["id", "hello"], modelC)
 
 			expect( modelA1 ).to.not.equal modelA2
 
@@ -1723,13 +1649,14 @@ describe "Testing Model Methods", ->
 			expect( modelA2.parent ).to.equal modelC
 
 			expect( modelA2.id ).to.equal 1
+			expect( modelA2.parent ).to.equal modelC
 			expect( ko.isObservable(modelA2.hello) ).to.be.false
 			expect( modelA2.hello ).to.be.equal "world"
 			expect( ko.isObservable(modelA2.foo) ).to.be.true
 			expect( modelA2.foo() ).to.be.undefined
 		#END it
 
-		it "Should do copy properly additional fields properly with new parent or id fields", ->
+		it "Should do clone properly additional fields properly with new parent or id fields", ->
 			modelC = new ModelC()
 			modelB  = new ModelB()
 			modelA1 = new ModelA({
@@ -1737,7 +1664,7 @@ describe "Testing Model Methods", ->
 				hello:	"world"
 				foo:	ko.observable("bar")
 			}, modelB)
-			modelA2 = modelA1.copy(["hello"], modelC)
+			modelA2 = modelA1.clone(["hello"], modelC)
 
 			expect( modelA1 ).to.not.equal modelA2
 
@@ -1747,6 +1674,7 @@ describe "Testing Model Methods", ->
 			expect( modelA2.parent ).to.equal modelC
 
 			expect( modelA2.id ).to.equal null
+			expect( modelA2.parent ).to.equal modelC
 			expect( ko.isObservable(modelA2.hello) ).to.be.false
 			expect( modelA2.hello ).to.be.equal "world"
 			expect( ko.isObservable(modelA2.foo) ).to.be.true

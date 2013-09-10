@@ -580,25 +580,7 @@ class Falcon.Model extends Falcon.Object
 
 	#--------------------------------------------------------
 	# Method: Falcon.Model#clone()
-	#	Method used to deeply clone this model
-	#
-	# Arguments:
-	#	**parent** _(Falcon.Model)_ - The parent of the clone. optional
-	#
-	# Returns:
-	#	_Falcon.Model_ - A clone of this model
-	#
-	# TODO:
-	#	Add deep cloning
-	#--------------------------------------------------------
-	clone: (parent) ->
-		parent = if parent? or parent is null then parent else @parent
-		return new @constructor(this.unwrap(), parent )
-	#END clone
-
-	#--------------------------------------------------------
-	# Method: Falcon.Model#copy()
-	#	Method used to copy this model
+	#	Method used to clone this model
 	#
 	# Arguments:
 	#	**attributes** _(Array)_ - A list of attributes to copy.
@@ -606,11 +588,10 @@ class Falcon.Model extends Falcon.Object
 	#							'null' to unset the parent.
 	#
 	# Returns:
-	#	_(Falcon.Model)_ - A copy of this model
+	#	_(Falcon.Model)_ - A clone of this model
 	#--------------------------------------------------------
-	copy: (attributes, parent) ->
-		parent = attributes if attributes is null or Falcon.isModel( attributes )
-		attributes = {"id":null} unless attributes?
+	clone: (attributes, parent) ->
+		[ attributes, parent ] = [ undefined, attributes ] if attributes is null or Falcon.isModel( attributes )
 		parent = @parent unless parent is null or Falcon.isModel( parent )
 		return new @constructor( @serialize( attributes ), parent )
 	#END copy

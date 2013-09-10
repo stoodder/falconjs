@@ -218,7 +218,7 @@ class Falcon.View extends Falcon.Object
 	_unrender: () ->
 		return unless @_is_rendered
 
-		child_view.unrender() for child_view in @__falcon_view__child_views__
+		child_view._unrender() for child_view in @__falcon_view__child_views__
 		@__falcon_view__child_views__ = []
 		@dispose.apply(this, arguments)
 
