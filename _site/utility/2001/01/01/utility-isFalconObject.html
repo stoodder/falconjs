@@ -1,7 +1,20 @@
+<p>
+	Method used to test if an object is a Falcon Model, View, or Collection.
+</p>
 <dl>
 	<dt data-type="object">object</dt>
 	<dd>The Object to test</dd>
 </dl>
-<p>
-	Method used to test if an object is a Falcon Model, View, or Collection.
-</p>
+<code class="multiline runnable">
+	var array		= [];
+	var object		= new Falcon.Object();
+	var collection	= new Falcon.Collection();
+	var model 		= new Falcon.Model();
+	var view 		= new Falcon.View();
+
+	console.log( Falcon.isFalconObject(array) );// => false
+	console.log( Falcon.isFalconObject(object) );// => true
+	console.log( Falcon.isFalconObject(model) );// => true
+	console.log( Falcon.isFalconObject(collection) ); // => true
+	console.log( Falcon.isFalconObject(view) );// => true
+</code>

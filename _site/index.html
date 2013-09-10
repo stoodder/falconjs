@@ -25,7 +25,7 @@
 					It's set up to make developing single-page web applications a breeze.
 				</p>
 				<div class="hero-actions">
-					<a class="btn btn-danger">
+					<a class="btn btn-danger" href="scripts/falcon.min.js">
 						Download v0.7.0
 						<small>
 							Knockout.js 2.3.0 Included
@@ -39,7 +39,7 @@
 					<div id="sidebar" data-spy="affix" data-offset-top="499">
 						<div id="sidebar-header">
 							Falcon.js
-							<a class="btn btn-xs btn-danger pull-right">
+							<a class="btn btn-xs btn-danger pull-right" href="scripts/falcon.min.js">
 								Download v0.7.0
 							</a>
 						</div>
@@ -3900,13 +3900,26 @@
 			<h3 id="utility-iscollection">isCollection
 				<small>Falcon.isCollection( object )</small>
 			</h3>
-			<dl>
-	<dt data-type="object">object</dt>
+			<p>
+	Method used to test if an object is a Falcon Collection.
+</p>
+<dl>
+	<dt data-type="Object">object</dt>
 	<dd>The Object to test</dd>
 </dl>
-<p>
-	Method used to test if an object is a Falcon Collection
-</p>
+<code class="multiline runnable">
+	var array		= [];
+	var object		= new Falcon.Object();
+	var collection	= new Falcon.Collection();
+	var model 		= new Falcon.Model();
+	var view 		= new Falcon.View();
+
+	console.log( Falcon.isCollection(array) );// => false
+	console.log( Falcon.isCollection(object) );// => false
+	console.log( Falcon.isCollection(model) );// => false
+	console.log( Falcon.isCollection(collection) ); // => true
+	console.log( Falcon.isCollection(view) );// => false
+</code>
 		
 	
 		
@@ -3914,13 +3927,26 @@
 			<h3 id="utility-isdataobject">isDataObject
 				<small>Falcon.isDataObject( object )</small>
 			</h3>
-			<dl>
+			<p>
+	Method used to test if an object is a Falcon Model or Collection
+</p>
+<dl>
 	<dt data-type="object">object</dt>
 	<dd>The Object to test</dd>
 </dl>
-<p>
-	Method used to test if an object is a Falcon Model or Collection
-</p>
+<code class="multiline runnable">
+	var array		= [];
+	var object		= new Falcon.Object();
+	var collection	= new Falcon.Collection();
+	var model 		= new Falcon.Model();
+	var view 		= new Falcon.View();
+
+	console.log( Falcon.isDataObject(array) );// => false
+	console.log( Falcon.isDataObject(object) );// => false
+	console.log( Falcon.isDataObject(model) );// => true
+	console.log( Falcon.isDataObject(collection) ); // => true
+	console.log( Falcon.isDataObject(view) );// => false
+</code>
 		
 	
 		
@@ -3928,13 +3954,26 @@
 			<h3 id="utility-isfalconobject">isFalconObject
 				<small>Falcon.isFalconObject( object )</small>
 			</h3>
-			<dl>
+			<p>
+	Method used to test if an object is a Falcon Model, View, or Collection.
+</p>
+<dl>
 	<dt data-type="object">object</dt>
 	<dd>The Object to test</dd>
 </dl>
-<p>
-	Method used to test if an object is a Falcon Model, View, or Collection.
-</p>
+<code class="multiline runnable">
+	var array		= [];
+	var object		= new Falcon.Object();
+	var collection	= new Falcon.Collection();
+	var model 		= new Falcon.Model();
+	var view 		= new Falcon.View();
+
+	console.log( Falcon.isFalconObject(array) );// => false
+	console.log( Falcon.isFalconObject(object) );// => true
+	console.log( Falcon.isFalconObject(model) );// => true
+	console.log( Falcon.isFalconObject(collection) ); // => true
+	console.log( Falcon.isFalconObject(view) );// => true
+</code>
 		
 	
 		
@@ -3942,13 +3981,26 @@
 			<h3 id="utility-ismodel">isModel
 				<small>Falcon.isModel( object )</small>
 			</h3>
-			<dl>
+			<p>
+	Method used to test if an object is a Falcon Model.
+</p>
+<dl>
 	<dt data-type="object">object</dt>
 	<dd>The Object to test</dd>
 </dl>
-<p>
-	Method used to test if an object is a Falcon Model.
-</p>
+<code class="multiline runnable">
+	var array		= [];
+	var object		= new Falcon.Object();
+	var collection	= new Falcon.Collection();
+	var model 		= new Falcon.Model();
+	var view 		= new Falcon.View();
+
+	console.log( Falcon.isModel(array) );// => false
+	console.log( Falcon.isModel(object) );// => false
+	console.log( Falcon.isModel(model) );// => true
+	console.log( Falcon.isModel(collection) ); // => false
+	console.log( Falcon.isModel(view) );// => false
+</code>
 		
 	
 		
@@ -3956,13 +4008,26 @@
 			<h3 id="utility-isview">isView
 				<small>Falcon.isView( object )</small>
 			</h3>
-			<dl>
+			<p>
+	Method used to test if an object is a Falcon View.
+</p>
+<dl>
 	<dt data-type="object">object</dt>
 	<dd>The Object to test</dd>
 </dl>
-<p>
-	Method used to test if an object is a Falcon View.
-</p>
+<code class="multiline runnable">
+	var array		= [];
+	var object		= new Falcon.Object();
+	var collection	= new Falcon.Collection();
+	var model 		= new Falcon.Model();
+	var view 		= new Falcon.View();
+
+	console.log( Falcon.isView(array) );// => false
+	console.log( Falcon.isView(object) );// => false
+	console.log( Falcon.isView(model) );// => false
+	console.log( Falcon.isView(collection) ); // => false
+	console.log( Falcon.isView(view) );// => true
+</code>
 		
 	
 </section>
