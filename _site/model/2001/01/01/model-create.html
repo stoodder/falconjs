@@ -1,7 +1,14 @@
+<p>
+	Method used to create a new model, with this model's data, on the server. This method is really just a wrapper around the 'sync' method with a request type of 'POST' auto-filled.
+</p>
 <dl>
 	<dt data-type="Object">options</dt>
 	<dd>The options to pass into the 'sync' method</dd>
 </dl>
-<p>
-	Method used to create a new model, with this model's data, on the server. This method is really just a wrapper around the 'sync' method with a request type of 'POST' auto-filled.
-</p>
+<code class="multiline">
+	var Dog = Falcon.Model.extend({ url: "dog.json" });
+
+	var dog = new Dog({name: "Fido"});
+
+	dog.create(); // => POST to '/dog.json' with {"name": "fido"}
+</code>

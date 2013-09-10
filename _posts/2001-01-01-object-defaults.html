@@ -1,0 +1,34 @@
+---
+title: defaults
+method: object.defaults
+returnType: undefined
+returnDescription: undefined
+complete: false
+category: Object
+---
+<p>
+	This is a hash map of non-observable defaults to create whenever an instance of this class is initialized. If the value is a function, the function is called and the return value is assigned. Functions are called in context of this instance and with all the same arguments from the constructor method. Defaults are created before observables which means that any duplicate attributes between the observables (as in the 'observables' attribute on Falcon.Object) and default attributes will be overriden by those in the observables
+</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Object.extend({
+		defaults: {
+			"name": "Fido",
+			"is_tame": true,
+			"child_of_lassie": function(parent_dog_name)
+			{
+				return parent_dog_name === "Lassie";
+			}
+		}
+	});
+
+	var dog = new Dog("Skip"); // Dog not related to Lassie
+	var dog_child_of_lassie = new Dog("Lassie"); // Dog related to Lassie
+
+	console.log( dog.name ); // => Fido
+	console.log( dog.is_tame ); // => true
+	console.log( dog.child_of_lassie ); // => false
+
+	console.log( dog_child_of_lassie.name ); // => Fido
+	console.log( dog_child_of_lassie.is_tame ); // => true
+	console.log( dog_child_of_lassie.child_of_lassie ); // => true
+</code>

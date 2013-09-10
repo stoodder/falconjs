@@ -7,3 +7,13 @@ category: View
 <p>
 	Initializes this class, this is called within the default contructor and is expected to be overridden by inheritting classes.  Internally this also called the Falcon.Object constructor to in itialize any 'defaults' or 'observables'.
 </p>
+<code class="multiline runnable">
+	var DogView = Falcon.View.extend({
+		initialize: function()
+		{
+			console.log("Initialized the Dog View");
+		}
+	});
+
+	new DogView(); // => Initialized the Dog View
+</code>

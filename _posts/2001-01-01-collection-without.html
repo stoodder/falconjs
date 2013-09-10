@@ -6,8 +6,37 @@ returnDescription: The list of models after being filtered by the iterator
 complete: false
 category: collection
 ---
+<p>Used to generate an array of models from this collection without the matching models included.</p>
+<dl>
+	<dt>model</dt>
+	<dd>The model to remove from the list.</dd>
+</dl>
+<dl>
+	<dt>id</dt>
+	<dd>The id of the model to remove from the list.</dd>
+</dl>
 <dl>
 	<dt>iterator</dt>
-	<dd>The iterator to check each model against</dd>
+	<dd>A truth test iterator to check each model against.</dd>
 </dl>
-<p>Returns an array of elements that don't match the iterator</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var fido = new Dog({"id": 1, "name": "Fido"});
+	var skip = new Dog({"id": 2, "name": "Skip"});
+	var bump = new Dog({"id": 3, "name": "Bump"});
+	var bucko = new Dog({"id": 4, "name": "Bucko"});
+
+	var dogs = new Dogs([ fido, skip, bump, bucko ]);
+
+	var without_skip = dogs.without( skip );
+	var without_bump = dogs.without( 3 );
+	var without_b_dogs = dogs.without(function(dog) {
+		return dog.get("name").charAt(0) === "B";
+	});
+
+	console.log( without_skip ); // => [Fido, Bump, Bucko]
+	console.log( without_bump ); // => [Fido, Skip, Bucko]
+	console.log( without_b_dogs ); // => [Fido, Skip]
+</code>

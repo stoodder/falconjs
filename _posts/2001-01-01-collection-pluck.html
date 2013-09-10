@@ -6,12 +6,25 @@ returnDescription: An array of the values from each model coresponding to the gi
 complete: false
 category: collection
 ---
+<p>
+	This method extracts a specific attribute from each model in the collection and returns it in an array. If the unwrap flag is set to true (which it is by default), each attribute is removed from its observable container if it exists wihin one.  If the attribute given isn't found in a model, 'undefined' is returned in the resultant array.
+</p>
 <dl>
 	<dt data-type="String">attribute</dt>
 	<dd>The attribute to pluck from each model in the collecton</dd>
 	<dt data-type="Boolean" data-default="true">unwrap</dt>
-	<dd>Flag that states if we should unwrap the values that are observables.</dd>
+	<dd>Flag that states if we should unwrap the values that are observables. This is true by default.</dd>
 </dl>
-<p>
-	This method extracts a specific attribute from each model in the collection and returns it in an array. If the unwrap flag is set to true (which it is by default), each attribute is removed from its observable container if it exists wihin one.  If the attribute given isn't found in a model, 'undefined' is returned in the resultant array.
-</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var dogs = new Dogs([
+		{"name": "Fido"},
+		{"name": "Skip"},
+		{"name": "Bump"},
+		{"name": "Bucko"}
+	]);
+
+	console.log(dogs.pluck("name")); // => [Fido, Skip, Bump, Bucko]
+</code>

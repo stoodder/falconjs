@@ -6,12 +6,24 @@ returnDescription: This instance.
 complete: false
 category: collection
 ---
+<p>
+	The constructor method for a Falcon Collection.  Creates a new instance of a Falcon Collection and should be overriden instead of overriding the internal constructor method.
+</p>
 <dl>
 	<dt data-type="Array">models</dt>
 	<dd>An initial set of models to populate the collection with</dd>
 	<dt data-type="Falcon.Model">parent</dt>
 	<dd>The owner of this collection, used for generating urls when making requests to the server.</dd>
 </dl>
-<p>
-	The constructor method for a Falcon Collection.  Creates a new instance of a Falcon Collection.
-</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({
+		model: Dog,
+
+		initialize: function() {
+			console.log("Collecting Dogs");
+		}
+	});
+
+	new Dogs(); // => Collecting Dogs
+</code>

@@ -1,9 +1,26 @@
+<p>
+	Method used to create a new view that inherits from the base Falcon View.
+</p>
 <dl>
 	<dt data-type="Object">protoProps</dt>
 	<dd>Properties for the prototype of a class</dd>
 	<dt data-type="Object">staticProps</dt>
 	<dd>Static properties for a given object</dd>
 </dl>
-<p>
-	Method used to create a new view that inherits from the base Falcon View.
-</p>
+<code class="multiline runnable">
+	var DogView = Falcon.View.extend({
+		bark: function()
+		{
+			console.log("The dog view barks");
+		}
+	},{
+		says: function() {
+			console.log("Woof!");
+		}
+	});
+
+	var my_dog_view = new DogView();
+	
+	DogView.says(); // => Woof!
+	my_dog_view.bark(); // => The dog view barks
+</code>

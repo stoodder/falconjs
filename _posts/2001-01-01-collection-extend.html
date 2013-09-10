@@ -1,17 +1,36 @@
 ---
 title: extend
-method: Falcon.Collection.extend( definition )
+method: Falcon.Collection.extend( protoProps, [staticProps] )
 returnType: undefined
 returnDescription: undefined
 complete: false
 category: collection
 ---
+<p>
+	Method used to create a new collection that inherits from the base Falcon Collection.
+</p>
 <dl>
 	<dt data-type="Object">protoProps</dt>
 	<dd>Properties for the prototype of a class</dd>
 	<dt data-type="Object">staticProps</dt>
 	<dd>Static properties for a given object</dd>
 </dl>
-<p>
-	Method used to create a new collection that inherits from the base Falcon Collection.
-</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({
+		model: Dog,
+		bark: function()
+		{
+			console.log("All the dogs bark");
+		}
+	},{
+		say: function() {
+			console.log("Woof!");
+		}
+	});
+
+	var dogs = new Dogs();
+	
+	Dogs.say(); // => Woof!
+	dogs.bark(); // => "All the dogs bark";
+</code>

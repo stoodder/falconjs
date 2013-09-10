@@ -6,10 +6,25 @@ returnDescription: This instance.
 complete: false
 category: model
 ---
+<p>
+	Toggles the value between true/false on the specific attribute of this model.
+</p>
 <dl>
 	<dt data-type="String">attribute</dt>
 	<dd>The attribute in the model to look up.</dd>
 </dl>
-<p>
-	Toggles the value between true/false on the specific attribute of this model.
-</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend({
+		defaults: {
+			"is_tame": true
+		}
+	});
+
+	var dog = new Dog({"is_tame": true});
+
+	console.log( dog.get("is_tame") ); // => true
+
+	dog.toggle("is_tame");
+
+	console.log( dog.get("is_tame") ); // => false
+</code>

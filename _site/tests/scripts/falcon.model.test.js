@@ -1939,7 +1939,7 @@
         return expect(ko.isObservable(model_a.hello)).to.be["true"];
       });
     });
-    describe("Testing clone combinations", function() {
+    describe("Testing clone() method", function() {
       var ModelA, ModelB, ModelC, _ref, _ref1, _ref2;
 
       ModelA = (function(_super) {
@@ -1979,100 +1979,7 @@
         return ModelC;
 
       })(Falcon.Model);
-      it("Should clone properly without overridden parent", function() {
-        var modelA1, modelA2, modelB;
-
-        modelB = new ModelB;
-        modelA1 = new ModelA({
-          id: 1,
-          hello: "world",
-          foo: "bar"
-        }, modelB);
-        modelA2 = modelA1.clone();
-        expect(modelA1).to.not.equal(modelA2);
-        expect(modelA1.parent).to.equal(modelA2.parent);
-        expect(modelA1.id).to.equal(modelA2.id);
-        expect(modelA2.hello).to.equal("world");
-        expect(ko.isObservable(modelA2.foo)).to.be["true"];
-        return expect(modelA2.foo()).to.equal("bar");
-      });
-      it("Should clone properly with overriden parent", function() {
-        var modelA1, modelA2, modelB, modelC;
-
-        modelB = new ModelB;
-        modelC = new ModelC;
-        modelA1 = new ModelA({
-          id: 1,
-          hello: "world",
-          foo: ko.observable("bar")
-        }, modelB);
-        modelA2 = modelA1.clone(modelC);
-        expect(modelA2).to.not.equal(modelA1);
-        expect(modelA2.id).to.equal(modelA1.id);
-        expect(modelA2.parent).to.equal(modelC);
-        expect(modelA2.hello).to.equal("world");
-        expect(ko.isObservable(modelA2.foo)).to.be["true"];
-        return expect(modelA2.foo()).to.equal("bar");
-      });
-      return it("Should clone properly with overriden null parent", function() {
-        var modelA1, modelA2, modelB;
-
-        modelB = new ModelB;
-        modelA1 = new ModelA({
-          id: 1,
-          hello: "world",
-          foo: ko.observable("bar")
-        }, modelB);
-        modelA2 = modelA1.clone(null);
-        expect(modelA2).to.not.equal(modelA1);
-        expect(modelA2.id).to.equal(modelA1.id);
-        expect(modelA2.parent).to.be.equal(null);
-        expect(modelA2.hello).to.equal("world");
-        expect(ko.isObservable(modelA2.foo)).to.be["true"];
-        return expect(modelA2.foo()).to.equal("bar");
-      });
-    });
-    describe("Testing copy() method", function() {
-      var ModelA, ModelB, ModelC, _ref, _ref1, _ref2;
-
-      ModelA = (function(_super) {
-        __extends(ModelA, _super);
-
-        function ModelA() {
-          _ref = ModelA.__super__.constructor.apply(this, arguments);
-          return _ref;
-        }
-
-        ModelA.prototype.initialize = function() {
-          return this.foo = ko.observable();
-        };
-
-        return ModelA;
-
-      })(Falcon.Model);
-      ModelB = (function(_super) {
-        __extends(ModelB, _super);
-
-        function ModelB() {
-          _ref1 = ModelB.__super__.constructor.apply(this, arguments);
-          return _ref1;
-        }
-
-        return ModelB;
-
-      })(Falcon.Model);
-      ModelC = (function(_super) {
-        __extends(ModelC, _super);
-
-        function ModelC() {
-          _ref2 = ModelC.__super__.constructor.apply(this, arguments);
-          return _ref2;
-        }
-
-        return ModelC;
-
-      })(Falcon.Model);
-      it("Should do a basic copy properly", function() {
+      it("Should do a basic clone properly", function() {
         var modelA1, modelA2, modelB;
 
         modelB = new ModelB();
@@ -2081,18 +1988,18 @@
           hello: "world",
           foo: ko.observable("bar")
         }, modelB);
-        modelA2 = modelA1.copy();
+        modelA2 = modelA1.clone();
         expect(modelA1).to.not.equal(modelA2);
-        expect(modelA2.hello).not.to.exist;
+        expect(modelA2.hello).to.exist;
         expect(modelA2.foo).to.exist;
         expect(modelA2.id).to.exist;
         expect(modelA2.parent).to.exist;
         expect(modelA2.id).to.equal(1);
         expect(modelA2.parent).to.equal(modelB);
         expect(ko.isObservable(modelA2.foo)).to.be["true"];
-        return expect(modelA2.foo()).to.be.undefined;
+        return expect(modelA2.foo()).to.be.equal("bar");
       });
-      it("Should do copy properly additional fields properly", function() {
+      it("Should do clone properly additional fields properly", function() {
         var modelA1, modelA2, modelB;
 
         modelB = new ModelB();
@@ -2101,7 +2008,7 @@
           hello: "world",
           foo: ko.observable("bar")
         }, modelB);
-        modelA2 = modelA1.copy(["id", "foo"]);
+        modelA2 = modelA1.clone(["id", "foo"]);
         expect(modelA1).to.not.equal(modelA2);
         expect(modelA2.hello).not.to.exist;
         expect(modelA2.foo).to.exist;
@@ -2112,7 +2019,7 @@
         expect(ko.isObservable(modelA2.foo)).to.be["true"];
         return expect(modelA2.foo()).to.be.equal("bar");
       });
-      it("Should do copy properly additional fields properly without parent", function() {
+      it("Should do clone properly additional fields properly without parent", function() {
         var modelA1, modelA2, modelB;
 
         modelB = new ModelB();
@@ -2121,19 +2028,20 @@
           hello: "world",
           foo: ko.observable("bar")
         }, modelB);
-        modelA2 = modelA1.copy(["id", "hello"], null);
+        modelA2 = modelA1.clone(["id", "hello"], null);
         expect(modelA1).to.not.equal(modelA2);
         expect(modelA2.hello).to.exist;
         expect(modelA2.foo).to.exist;
         expect(modelA2.id).to.exist;
         expect(modelA2.parent).not.to.exist;
         expect(modelA2.id).to.equal(1);
+        expect(modelA2.parent).to.equal(null);
         expect(ko.isObservable(modelA2.hello)).to.be["false"];
         expect(modelA2.hello).to.be.equal("world");
         expect(ko.isObservable(modelA2.foo)).to.be["true"];
         return expect(modelA2.foo()).to.be.undefined;
       });
-      it("Should do copy properly additional fields properly without parent or id fields", function() {
+      it("Should do clone properly with additional fields properly without parent or id fields", function() {
         var modelA1, modelA2, modelB;
 
         modelB = new ModelB();
@@ -2142,18 +2050,19 @@
           hello: "world",
           foo: ko.observable("bar")
         }, modelB);
-        modelA2 = modelA1.copy(["hello"], null);
+        modelA2 = modelA1.clone(["hello"], null);
         expect(modelA1).to.not.equal(modelA2);
         expect(modelA2.hello).to.exist;
         expect(modelA2.foo).to.exist;
         expect(modelA2.parent).not.to.exist;
         expect(modelA2.id).to.equal(null);
+        expect(modelA2.parent).to.equal(null);
         expect(ko.isObservable(modelA2.hello)).to.be["false"];
         expect(modelA2.hello).to.be.equal("world");
         expect(ko.isObservable(modelA2.foo)).to.be["true"];
         return expect(modelA2.foo()).to.be.undefined;
       });
-      it("Should do copy properly additional fields properly with new parent", function() {
+      it("Should do clone properly additional fields properly with new parent", function() {
         var modelA1, modelA2, modelB, modelC;
 
         modelC = new ModelC();
@@ -2163,7 +2072,7 @@
           hello: "world",
           foo: ko.observable("bar")
         }, modelB);
-        modelA2 = modelA1.copy(["id", "hello"], modelC);
+        modelA2 = modelA1.clone(["id", "hello"], modelC);
         expect(modelA1).to.not.equal(modelA2);
         expect(modelA2.hello).to.exist;
         expect(modelA2.foo).to.exist;
@@ -2171,12 +2080,13 @@
         expect(modelA2.parent).to.exist;
         expect(modelA2.parent).to.equal(modelC);
         expect(modelA2.id).to.equal(1);
+        expect(modelA2.parent).to.equal(modelC);
         expect(ko.isObservable(modelA2.hello)).to.be["false"];
         expect(modelA2.hello).to.be.equal("world");
         expect(ko.isObservable(modelA2.foo)).to.be["true"];
         return expect(modelA2.foo()).to.be.undefined;
       });
-      return it("Should do copy properly additional fields properly with new parent or id fields", function() {
+      return it("Should do clone properly additional fields properly with new parent or id fields", function() {
         var modelA1, modelA2, modelB, modelC;
 
         modelC = new ModelC();
@@ -2186,13 +2096,14 @@
           hello: "world",
           foo: ko.observable("bar")
         }, modelB);
-        modelA2 = modelA1.copy(["hello"], modelC);
+        modelA2 = modelA1.clone(["hello"], modelC);
         expect(modelA1).to.not.equal(modelA2);
         expect(modelA2.hello).to.exist;
         expect(modelA2.foo).to.exist;
         expect(modelA2.parent).to.exist;
         expect(modelA2.parent).to.equal(modelC);
         expect(modelA2.id).to.equal(null);
+        expect(modelA2.parent).to.equal(modelC);
         expect(ko.isObservable(modelA2.hello)).to.be["false"];
         expect(modelA2.hello).to.be.equal("world");
         expect(ko.isObservable(modelA2.foo)).to.be["true"];

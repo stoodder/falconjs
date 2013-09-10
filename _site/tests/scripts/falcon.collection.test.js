@@ -2008,6 +2008,52 @@
         return expect(index).to.equal(-1);
       });
     });
+    describe("Test the lastIndexOf() method", function() {
+      var collectionA, model_a1, model_a2, model_a3, model_a4;
+
+      collectionA = null;
+      model_a1 = model_a2 = model_a3 = model_a4 = null;
+      beforeEach(function() {
+        model_a1 = new ModelA({
+          id: 1
+        });
+        model_a2 = new ModelA({
+          id: 3
+        });
+        model_a3 = new ModelA({
+          id: 5
+        });
+        model_a4 = new ModelA({
+          id: 8
+        });
+        return collectionA = new CollectionA([model_a1, model_a2, model_a3, model_a4, model_a2, model_a3]);
+      });
+      it("Should find the correct index by model", function() {
+        return expect(collectionA.lastIndexOf(model_a3)).to.equal(5);
+      });
+      it("Should find no match index by model", function() {
+        return expect(collectionA.lastIndexOf(new ModelA)).to.equal(-1);
+      });
+      it("Should find the correct match index by id", function() {
+        return expect(collectionA.lastIndexOf(3)).to.equal(4);
+      });
+      it("Should find the correct match index by truth test method", function() {
+        var index;
+
+        index = collectionA.lastIndexOf(function(model) {
+          return model.get('id') > 4;
+        });
+        return expect(index).to.equal(5);
+      });
+      return it("Should find the no match index by truth test method", function() {
+        var index;
+
+        index = collectionA.lastIndexOf(function(model) {
+          return model.get('id') > 8;
+        });
+        return expect(index).to.equal(-1);
+      });
+    });
     describe("Test the each() method", function() {
       var collectionA, model_a1, model_a2, model_a3;
 
@@ -2196,7 +2242,7 @@
         return expect(last).to.equal(null);
       });
     });
-    describe("Test the all() method", function() {
+    describe("Test the filter() method", function() {
       var collectionA, model_a1, model_a2, model_a3, model_ab, model_ab2, models;
 
       model_a1 = new ModelA({
@@ -2219,14 +2265,14 @@
       it("Should return the all of the models", function() {
         var all;
 
-        all = collectionA.all();
+        all = collectionA.filter();
         expect(all.length).to.equal(6);
         return expect(all).to.deep.equal(models);
       });
       it("Should return a limited set of models by function", function() {
         var all;
 
-        all = collectionA.all(function(model) {
+        all = collectionA.filter(function(model) {
           return model === model_a1 || model === model_ab;
         });
         expect(all.length).to.equal(3);
@@ -2235,24 +2281,24 @@
       it("Should return a limited set of models by model", function() {
         var all;
 
-        all = collectionA.all(model_a2);
+        all = collectionA.filter(model_a2);
         expect(all.length).to.equal(1);
         return expect(all).to.deep.equal([model_a2]);
       });
       it("Should return a limited set of models by id", function() {
         var all;
 
-        all = collectionA.all(3);
+        all = collectionA.filter(3);
         expect(all.length).to.equal(1);
         expect(all).to.deep.equal([model_a3]);
-        all = collectionA.all('b');
+        all = collectionA.filter('b');
         expect(all.length).to.equal(3);
         return expect(all).to.deep.equal([model_ab, model_ab, model_ab2]);
       });
       return it("Should return an empty set of models", function() {
         var all;
 
-        all = collectionA.all(function(model) {
+        all = collectionA.filter(function(model) {
           return false;
         });
         expect(all.length).to.equal(0);
@@ -2504,60 +2550,7 @@
         return expect(theModel.get("hello")).to.equal("world");
       });
     });
-    describe("Testing the clone() method", function() {
-      var collectionA, model_a1, model_a2, model_a3;
-
-      collectionA = null;
-      model_a1 = model_a2 = model_a3 = null;
-      beforeEach(function() {
-        model_a1 = new ModelA({
-          id: 1
-        });
-        model_a2 = new ModelA({
-          id: 2
-        });
-        model_a3 = new ModelA({
-          id: 3
-        });
-        return collectionA = new CollectionA([model_a1, model_a2, model_a3], new ModelB);
-      });
-      it("Should clone properly with same parent", function() {
-        var clone;
-
-        clone = collectionA.clone();
-        expect(clone).to.not.equal(collectionA);
-        expect(clone.length()).to.equal(3);
-        expect(clone.at(0)).to.equal(model_a1);
-        expect(clone.at(1)).to.equal(model_a2);
-        expect(clone.at(2)).to.equal(model_a3);
-        return expect(clone.parent).to.equal(collectionA.parent);
-      });
-      it("Should clone properly with different parent", function() {
-        var clone, parent;
-
-        clone = collectionA.clone(parent = new ModelD);
-        expect(clone).to.not.equal(collectionA);
-        expect(clone.length()).to.equal(3);
-        expect(clone.at(0)).to.equal(model_a1);
-        expect(clone.at(1)).to.equal(model_a2);
-        expect(clone.at(2)).to.equal(model_a3);
-        expect(clone.parent).to.not.equal(collectionA.parent);
-        return expect(clone.parent).to.equal(parent);
-      });
-      return it("Should clone properly with different no parent", function() {
-        var clone;
-
-        clone = collectionA.clone(null);
-        expect(clone).to.not.equal(collectionA);
-        expect(clone.length()).to.equal(3);
-        expect(clone.at(0)).to.equal(model_a1);
-        expect(clone.at(1)).to.equal(model_a2);
-        expect(clone.at(2)).to.equal(model_a3);
-        expect(clone.parent).to.not.equal(collectionA.parent);
-        return expect(clone.parent).to.equal(null);
-      });
-    });
-    describe("Test the copy() method", function() {
+    describe("Test the clone() method", function() {
       var collectionA, model_a1, model_a2, model_a3;
 
       collectionA = null;
@@ -2565,100 +2558,114 @@
       beforeEach(function() {
         model_a1 = new ModelA({
           id: 1,
-          'title': 'Hello World'
+          'title': 'Hello World',
+          'extra': 'things'
         });
         model_a2 = new ModelA({
           id: 2,
-          'title': 'Foo Bar'
+          'title': 'Foo Bar',
+          'extra': 'things2'
         });
         return collectionA = new CollectionA([model_a1, model_a2], new ModelB);
       });
-      it("Should do a basic copy properly", function() {
-        var copy;
+      it("Should do a basic clone properly", function() {
+        var clone;
 
-        copy = collectionA.copy();
-        expect(copy).to.not.equal(collectionA);
-        expect(copy.parent).to.equal(collectionA.parent);
-        expect(copy.length()).to.equal(2);
-        expect(copy.at(0)).to.not.equal(model_a1);
-        expect(copy.at(0).get('id')).to.equal(1);
-        expect(copy.at(0).get('title')).to.be.undefined;
-        expect(copy.at(1)).to.not.equal(model_a2);
-        expect(copy.at(1).get('id')).to.equal(2);
-        return expect(copy.at(1).get('title')).to.be.undefined;
+        clone = collectionA.clone();
+        expect(clone).to.not.equal(collectionA);
+        expect(clone.parent).to.equal(collectionA.parent);
+        expect(clone.length()).to.equal(2);
+        expect(clone.at(0)).to.not.equal(model_a1);
+        expect(clone.at(0).get('id')).to.equal(1);
+        expect(clone.at(0).get('title')).to.be.equal("Hello World");
+        expect(clone.at(0).get('extra')).to.be.equal("things");
+        expect(clone.at(1)).to.not.equal(model_a2);
+        expect(clone.at(1).get('id')).to.equal(2);
+        expect(clone.at(1).get('title')).to.be.equal("Foo Bar");
+        return expect(clone.at(1).get('extra')).to.be.equal("things2");
       });
-      it("Should do a basic copy properly with extra fields", function() {
-        var copy;
+      it("Should do a basic clone properly with extra fields", function() {
+        var clone;
 
-        copy = collectionA.copy(["id", "title"]);
-        expect(copy).to.not.equal(collectionA);
-        expect(copy.parent).to.equal(collectionA.parent);
-        expect(copy.length()).to.equal(2);
-        expect(copy.at(0)).to.not.equal(model_a1);
-        expect(copy.at(0).get('id')).to.equal(1);
-        expect(copy.at(0).get('title')).to.be.equal("Hello World");
-        expect(copy.at(1)).to.not.equal(model_a2);
-        expect(copy.at(1).get('id')).to.equal(2);
-        return expect(copy.at(1).get('title')).to.be.equal("Foo Bar");
+        clone = collectionA.clone(["id", "title"]);
+        expect(clone).to.not.equal(collectionA);
+        expect(clone.parent).to.equal(collectionA.parent);
+        expect(clone.length()).to.equal(2);
+        expect(clone.at(0)).to.not.equal(model_a1);
+        expect(clone.at(0).get('id')).to.equal(1);
+        expect(clone.at(0).get('title')).to.be.equal("Hello World");
+        expect(clone.at(0).get('extra')).to.be.undefined;
+        expect(clone.at(1)).to.not.equal(model_a2);
+        expect(clone.at(1).get('id')).to.equal(2);
+        expect(clone.at(1).get('title')).to.be.equal("Foo Bar");
+        return expect(clone.at(1).get('extra')).to.be.undefined;
       });
-      it("Should do a basic copy properly without a parent", function() {
-        var copy;
+      it("Should do a basic clone properly without a parent", function() {
+        var clone;
 
-        copy = collectionA.copy(null);
-        expect(copy).to.not.equal(collectionA);
-        expect(copy.parent).to.equal(null);
-        expect(copy.length()).to.equal(2);
-        expect(copy.at(0)).to.not.equal(model_a1);
-        expect(copy.at(0).get('id')).to.equal(1);
-        expect(copy.at(0).get('title')).to.be.undefined;
-        expect(copy.at(1)).to.not.equal(model_a2);
-        expect(copy.at(1).get('id')).to.equal(2);
-        return expect(copy.at(1).get('title')).to.be.undefined;
+        clone = collectionA.clone(null);
+        expect(clone).to.not.equal(collectionA);
+        expect(clone.parent).to.equal(null);
+        expect(clone.length()).to.equal(2);
+        expect(clone.at(0)).to.not.equal(model_a1);
+        expect(clone.at(0).get('id')).to.equal(1);
+        expect(clone.at(0).get('title')).to.be.equal("Hello World");
+        expect(clone.at(0).get('extra')).to.be.equal("things");
+        expect(clone.at(1)).to.not.equal(model_a2);
+        expect(clone.at(1).get('id')).to.equal(2);
+        expect(clone.at(1).get('title')).to.be.equal("Foo Bar");
+        return expect(clone.at(1).get('extra')).to.be.equal("things2");
       });
-      it("Should do a basic copy properly with extra fields without a parent", function() {
-        var copy;
+      it("Should do a basic clone properly with extra fields without a parent", function() {
+        var clone;
 
-        copy = collectionA.copy(["id", "title"], null);
-        expect(copy).to.not.equal(collectionA);
-        expect(copy.parent).to.equal(null);
-        expect(copy.length()).to.equal(2);
-        expect(copy.at(0)).to.not.equal(model_a1);
-        expect(copy.at(0).get('id')).to.equal(1);
-        expect(copy.at(0).get('title')).to.be.equal("Hello World");
-        expect(copy.at(1)).to.not.equal(model_a2);
-        expect(copy.at(1).get('id')).to.equal(2);
-        return expect(copy.at(1).get('title')).to.be.equal("Foo Bar");
+        clone = collectionA.clone(["id", "title"], null);
+        expect(clone).to.not.equal(collectionA);
+        expect(clone.parent).to.equal(null);
+        expect(clone.length()).to.equal(2);
+        expect(clone.at(0)).to.not.equal(model_a1);
+        expect(clone.at(0).get('id')).to.equal(1);
+        expect(clone.at(0).get('title')).to.be.equal("Hello World");
+        expect(clone.at(0).get('extra')).to.be.undefined;
+        expect(clone.at(1)).to.not.equal(model_a2);
+        expect(clone.at(1).get('id')).to.equal(2);
+        expect(clone.at(1).get('title')).to.be.equal("Foo Bar");
+        return expect(clone.at(1).get('extra')).to.be.undefined;
       });
-      it("Should do a basic copy properly without a parent", function() {
-        var copy, parent;
+      it("Should do a basic clone properly with a new parent", function() {
+        var clone, parent;
 
-        copy = collectionA.copy(parent = new ModelC);
-        expect(copy).to.not.equal(collectionA);
-        expect(copy.parent).to.equal(parent);
-        expect(copy.length()).to.equal(2);
-        expect(copy.at(0)).to.not.equal(model_a1);
-        expect(copy.at(0).get('id')).to.equal(1);
-        expect(copy.at(0).get('title')).to.be.undefined;
-        expect(copy.at(1)).to.not.equal(model_a2);
-        expect(copy.at(1).get('id')).to.equal(2);
-        return expect(copy.at(1).get('title')).to.be.undefined;
+        clone = collectionA.clone(parent = new ModelC);
+        expect(clone).to.not.equal(collectionA);
+        expect(clone.parent).to.equal(parent);
+        expect(clone.length()).to.equal(2);
+        expect(clone.at(0)).to.not.equal(model_a1);
+        expect(clone.at(0).get('id')).to.equal(1);
+        expect(clone.at(0).get('title')).to.be.equal("Hello World");
+        expect(clone.at(0).get('extra')).to.be.equal("things");
+        expect(clone.at(1)).to.not.equal(model_a2);
+        expect(clone.at(1).get('id')).to.equal(2);
+        expect(clone.at(1).get('title')).to.be.equal("Foo Bar");
+        return expect(clone.at(1).get('extra')).to.be.equal("things2");
       });
-      return it("Should do a basic copy properly with extra fields without a parent", function() {
-        var copy, parent;
+      return it("Should do a basic clone properly with extra fields without a parent", function() {
+        var clone, parent;
 
-        copy = collectionA.copy(["id", "title"], parent = new ModelC);
-        expect(copy).to.not.equal(collectionA);
-        expect(copy.parent).to.equal(parent);
-        expect(copy.length()).to.equal(2);
-        expect(copy.at(0)).to.not.equal(model_a1);
-        expect(copy.at(0).get('id')).to.equal(1);
-        expect(copy.at(0).get('title')).to.be.equal("Hello World");
-        expect(copy.at(1)).to.not.equal(model_a2);
-        expect(copy.at(1).get('id')).to.equal(2);
-        return expect(copy.at(1).get('title')).to.be.equal("Foo Bar");
+        clone = collectionA.clone(["id", "title"], parent = new ModelC);
+        expect(clone).to.not.equal(collectionA);
+        expect(clone.parent).to.equal(parent);
+        expect(clone.length()).to.equal(2);
+        expect(clone.at(0)).to.not.equal(model_a1);
+        expect(clone.at(0).get('id')).to.equal(1);
+        expect(clone.at(0).get('title')).to.be.equal("Hello World");
+        expect(clone.at(0).get('extra')).to.be.undefined;
+        expect(clone.at(1)).to.not.equal(model_a2);
+        expect(clone.at(1).get('id')).to.equal(2);
+        expect(clone.at(1).get('title')).to.be.equal("Foo Bar");
+        return expect(clone.at(1).get('extra')).to.be.undefined;
       });
     });
-    return describe("Test the reset() method", function() {
+    describe("Test the reset() method", function() {
       var collectionA, model_a1, model_a2, model_a3, models;
 
       collectionA = null;
@@ -2683,6 +2690,78 @@
         collectionA.reset();
         expect(collectionA.length()).to.equal(0);
         return expect(collectionA.models()).to.deep.equal([]);
+      });
+    });
+    return describe("Test the chain() method", function() {
+      var collectionA, model_a1, model_a2, model_a3, model_a4, model_a5;
+
+      collectionA = null;
+      model_a1 = model_a2 = model_a3 = model_a4 = model_a5 = null;
+      beforeEach(function() {
+        model_a1 = new ModelA({
+          id: 1,
+          title: "Model A 1"
+        });
+        model_a2 = new ModelA({
+          id: 2,
+          title: "Model A 2"
+        });
+        model_a3 = new ModelA({
+          id: 3,
+          title: "Model A 3"
+        });
+        model_a4 = new ModelA({
+          id: 4,
+          title: "Model A 4"
+        });
+        model_a5 = new ModelA({
+          id: 5,
+          title: "Model A 5"
+        });
+        return collectionA = new CollectionA([model_a1, model_a2, model_a3, model_a4, model_a5]);
+      });
+      it("Should be able to chain slice methods", function() {
+        var chain_result;
+
+        chain_result = collectionA.chain().slice(1).slice(0, 4).models();
+        expect(chain_result).to.be["instanceof"](Array);
+        return expect(chain_result.length).to.equal(4);
+      });
+      it("Should be able to chain filter methods", function() {
+        var chain_result;
+
+        chain_result = collectionA.chain().filter(function(model) {
+          return model.get("id") < 4;
+        }).filter(function(model) {
+          return model.get("id") !== 2;
+        }).models();
+        expect(chain_result).to.be["instanceof"](Array);
+        expect(chain_result.length).to.equal(2);
+        return expect(chain_result).to.deep.equal([model_a1, model_a3]);
+      });
+      it("Should be able to chain without methods", function() {
+        var chain_result;
+
+        chain_result = collectionA.chain().without(2).without(model_a5).models();
+        expect(chain_result).to.be["instanceof"](Array);
+        expect(chain_result.length).to.equal(3);
+        return expect(chain_result).to.deep.equal([model_a1, model_a3, model_a4]);
+      });
+      return it("Should be able to chain a without method and sort method", function() {
+        var chain_result;
+
+        chain_result = collectionA.chain().without(2).sort(function(a, b) {
+          if (a.id > b.id) {
+            return -1;
+          }
+          if (a.id < b.id) {
+            return 1;
+          }
+          return 0;
+        }).models();
+        expect(chain_result).to.be["instanceof"](Array);
+        expect(chain_result.length).to.equal(4);
+        return expect(chain_result).to.deep.equal([model_a5, model_a4, model_a3, model_a1]);
       });
     });
   });

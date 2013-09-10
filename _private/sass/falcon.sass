@@ -47,7 +47,26 @@ code
 	color: $red
 	background-color: mix( $red-lightest, $white, 7.5% )
 
+code.multiline[data-caption]:after
+	content: attr(data-caption)
+	position: absolute
+	bottom: 0px
+	left: 0px
+	height: 2.5em
+	line-height: 2.5em
+	padding: 0px 10px
+	width: 100%
+	color: $red
+	background-color: mix( $red-lightest, $white, 2.5% )
+	font-family: "Helvetica Neue", "Helvetica"
+	font-size: 14px
+	border-top: 1px solid mix( $red-lightest, $white, 15% )
+
+code.multiline[data-caption]
+	padding-bottom: 5em
+
 code.multiline
+	position: relative
 	display: block
 	white-space: pre
 	-moz-tab-size: 3
@@ -55,13 +74,13 @@ code.multiline
 	tab-size: 3
 	font-size: 11px
 	padding-bottom: 1.5em
+	background-color: mix( $red-lightest, $white, 1% )
+	border-left: 5px solid mix( $red-lightest, $white, 25% )
 
 code.multiline + code.multiline
 	margin-top: 10px
 
 code.runnable
-	position: relative
-
 	.runner:hover
 		+opacity(1)
 

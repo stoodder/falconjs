@@ -1,7 +1,15 @@
+<p>
+	Shorthand method for a GET sync request to get all of the models from the server.
+</p>
 <dl>
 	<dt data-type="Object">options</dt>
 	<dd>The options to pass to the 'sync' method</dd>
 </dl>
-<p>
-	Shorthand method to fetch ("GET") all of the models from the server. This method delegates its execution to the 'sync method'.
-</p>
+<code class="multiline">
+	var Dog = Falcon.Model.extend({url: 'dog.json'});
+	var Dogs = Falcon.Collection.extend({model: Dog});
+
+	var dogs = new Dogs()
+
+	dogs.fetch() // 'GET' request to '/dog.json'
+</code>

@@ -5,5 +5,39 @@ complete: false
 category: model
 ---
 <p>
-	This is the top level url for the model.
+	This is the top level url piece that relates to this specific model.  This is used in the makeUrl() method to dynamically generate urls for how to interact with the server API. Falcon assumes a typical RESTful url structure when generating urls and hence assumes that each individual model correlates to a common url name. For example if we had a Dog model who's url was 'dog.json', then sending a GET request for a dog with id '1' would generate a URL of: '/dog/1.json'. If this model has a parent model (such as Owner with url 'owner.json' and id of 2), then calling the same GET request with the Owner as the parent, we would get '/owner/2/dog/1.json'.  Optionally, url can be a function that returns a string rather than being defined as a string if you need the URL to be dynamic based on environment or other variables.
 </p>
+<code class="multiline">
+	var Dog = Falcon.Model.extend({
+		url: "dog.json"
+	});
+</code>
+<code class="multiline">
+	var Dog = Falcon.Model.extend({
+		url: function() {
+			return "dog.json"
+		}
+	});
+</code>
+
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend({
+		url: "dog.json"
+	});
+	var Owner = Falcon.Model.extend({
+		url: function() { return "owner.json"; }
+	});
+
+	var owner = new Owner({id: 2});
+	var dog = new Dog({id: 1}, owner);
+
+	console.log( owner.makeUrl("GET") ); // => /owner/2.json
+	console.log( owner.makeUrl("POST") ); // => /owner/.json
+	console.log( owner.makeUrl("PUT") ); // => /owner/2.json
+	console.log( owner.makeUrl("DELETE") ); // => /owner/2.json
+
+	console.log( dog.makeUrl("GET") ); // => /owner/2/dog/1.json
+	console.log( dog.makeUrl("POST") ); // => /owner/2/dog.json
+	console.log( dog.makeUrl("PUT") ); // => /owner/2/dog/1.json
+	console.log( dog.makeUrl("DELETE") ); // => /owner/2/dog/1.json
+</code>

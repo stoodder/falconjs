@@ -411,7 +411,7 @@
         test_stub.restore();
         return another_stub.restore();
       });
-      return it("Shoudl create equal viewModels after the first has been generated", function() {
+      return it("Should create equal viewModels after the first has been generated", function() {
         var model1, model2, view;
 
         view = new FullView;

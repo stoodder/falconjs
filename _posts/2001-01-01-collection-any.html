@@ -6,6 +6,9 @@ returnDescription: Does this collection match any of the itertor tests or models
 complete: false
 category: collection
 ---
+<p>
+	Method used to check if any of the models in the collection match the given iterator, id, or model. Returns true if at least of the models match the truth test.
+</p>
 <dl>
 	<dt data-type="Function">iterator</dt>
 	<dd>Method used to test each model against.</dd>
@@ -18,6 +21,25 @@ category: collection
 	<dt data-type="Falcon.Model">model</dt>
 	<dd>A model to compate against each of the collection's models using an id-based comparison.</dd>
 </dl>
-<p>
-	Method used to check if any of the models in the collection match the given iterator, id, or model. Returns true if at least of the models match the truth test.
-</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var dogs = new Dogs([
+		{"name": "Fido"},
+		{"name": "Skip"},
+		{"name": "Bump"},
+		{"name": "Bucko"}
+	]);
+
+	var has_fido = dogs.any(function(dog) {
+		return dog.get("name") === "Fido";
+	});
+
+	var has_spot = dogs.any(function(dog) {
+		return dog.get("name") === "Spot";
+	});
+
+	console.log(has_fido); // => true
+	console.log(has_spot); // => false
+</code>

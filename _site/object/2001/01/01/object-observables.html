@@ -1,0 +1,29 @@
+<p>
+	This is a hash map of the default observables and values that will become members of this class when a new instance is created. If the value of a specific key is a function a computed observable is created. If the value is an object with the keys 'read' and/or 'write' a computed is created with those object keys as the definition for the computed observable. All computed observables are created with this objects's instance as their context.
+</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Object.extend({
+		observables: {
+			"name": "Fido",
+			"parent_dog_name": "",
+			"child_of_lassie": function(parent_dog_name)
+			{
+				return this.parent_dog_name() === "Lassie";
+			}
+		}
+	});
+
+	var dog = new Dog(); // Dog not related to Lassie
+
+	console.log( ko.isObservable( dog.name ) ); // => true
+	console.log( ko.isComputed( dog.child_of_lassie ) ); // => true
+	
+	console.log( dog.name() ); // => Fido
+	console.log( dog.child_of_lassie() ); // => false
+
+	dog.name("Spot")
+	dog.parent_dog_name("Lassie")
+
+	console.log( dog.name() ); // => Spot
+	console.log( dog.child_of_lassie() ); // => true
+</code>

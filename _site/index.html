@@ -10,6 +10,7 @@
 
 	</head>
 	<body data-spy="scroll" data-target="#sidebar">
+		<a href="https://github.com/stoodder/falconjs"><img style="position: fixed; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
 		<div id="content" class="container">
 			<div id="hero">
 				<div class="hero-headline">
@@ -25,7 +26,7 @@
 				</p>
 				<div class="hero-actions">
 					<a class="btn btn-danger">
-						Download v0.6.7
+						Download v0.7.0
 						<small>
 							Knockout.js 2.3.0 Included
 						</small>
@@ -39,7 +40,7 @@
 						<div id="sidebar-header">
 							Falcon.js
 							<a class="btn btn-xs btn-danger pull-right">
-								Download v0.6.7
+								Download v0.7.0
 							</a>
 						</div>
 						<ul class="nav sidebar-nav">
@@ -100,7 +101,28 @@
 			
 			
 				<li>
+					<a href="#object-defaults" alt="defaults">defaults</a>
+				</li>
+			
+		
+			
+			
+				<li>
+					<a href="#object-extend" alt="extend">extend</a>
+				</li>
+			
+		
+			
+			
+				<li>
 					<a href="#object-has" alt="has">has</a>
+				</li>
+			
+		
+			
+			
+				<li>
+					<a href="#object-observables" alt="observables">observables</a>
 				</li>
 			
 		
@@ -146,13 +168,6 @@
 			
 				<li>
 					<a href="#model-initialize" alt="initialize">initialize</a>
-				</li>
-			
-		
-			
-			
-				<li>
-					<a href="#model-copy" alt="copy">copy</a>
 				</li>
 			
 		
@@ -285,13 +300,6 @@
 			
 			
 				<li>
-					<a href="#model-unwrap" alt="unwrap">unwrap</a>
-				</li>
-			
-		
-			
-			
-				<li>
 					<a href="#model-url" alt="url">url</a>
 				</li>
 			
@@ -312,13 +320,6 @@
 <li>
 	<a href="#collection" alt="Collection">Collection</a>
 	<ul class="nav navbar-nav">
-		
-			
-			
-				<li>
-					<a href="#collection-all" alt="all">all</a>
-				</li>
-			
 		
 			
 			
@@ -344,6 +345,13 @@
 			
 			
 				<li>
+					<a href="#collection-chain" alt="chain">chain</a>
+				</li>
+			
+		
+			
+			
+				<li>
 					<a href="#collection-clone" alt="clone">clone</a>
 				</li>
 			
@@ -359,13 +367,6 @@
 			
 				<li>
 					<a href="#collection-initialize" alt="initialize">initialize</a>
-				</li>
-			
-		
-			
-			
-				<li>
-					<a href="#collection-copy" alt="copy">copy</a>
 				</li>
 			
 		
@@ -414,6 +415,13 @@
 			
 			
 				<li>
+					<a href="#collection-filter" alt="filter">filter</a>
+				</li>
+			
+		
+			
+			
+				<li>
 					<a href="#collection-first" alt="first">first</a>
 				</li>
 			
@@ -436,6 +444,13 @@
 			
 				<li>
 					<a href="#collection-last" alt="last">last</a>
+				</li>
+			
+		
+			
+			
+				<li>
+					<a href="#collection-lastindexof" alt="lastIndexOf">lastIndexOf</a>
 				</li>
 			
 		
@@ -575,20 +590,6 @@
 			
 			
 				<li>
-					<a href="#collection-unwrap" alt="unwrap">unwrap</a>
-				</li>
-			
-		
-			
-			
-				<li>
-					<a href="#collection-url" alt="url">url</a>
-				</li>
-			
-		
-			
-			
-				<li>
 					<a href="#collection-without" alt="without">without</a>
 				</li>
 			
@@ -602,13 +603,6 @@
 <li>
 	<a href="#view" alt="View">View</a>
 	<ul class="nav navbar-nav">
-		
-			
-			
-				<li>
-					<a href="#view-cachetemplate" alt="cacheTemplate">cacheTemplate</a>
-				</li>
-			
 		
 			
 			
@@ -649,13 +643,6 @@
 			
 				<li>
 					<a href="#view-makeurl" alt="makeUrl">makeUrl</a>
-				</li>
-			
-		
-			
-			
-				<li>
-					<a href="#view-resetcache" alt="resetCache">resetCache</a>
 				</li>
 			
 		
@@ -964,6 +951,72 @@
 	
 		
 			
+			<h3 id="object-defaults">defaults
+				<small>object.defaults</small>
+			</h3>
+			<p>
+	This is a hash map of non-observable defaults to create whenever an instance of this class is initialized. If the value is a function, the function is called and the return value is assigned. Functions are called in context of this instance and with all the same arguments from the constructor method. Defaults are created before observables which means that any duplicate attributes between the observables (as in the 'observables' attribute on Falcon.Object) and default attributes will be overriden by those in the observables
+</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Object.extend({
+		defaults: {
+			"name": "Fido",
+			"is_tame": true,
+			"child_of_lassie": function(parent_dog_name)
+			{
+				return parent_dog_name === "Lassie";
+			}
+		}
+	});
+
+	var dog = new Dog("Skip"); // Dog not related to Lassie
+	var dog_child_of_lassie = new Dog("Lassie"); // Dog related to Lassie
+
+	console.log( dog.name ); // => Fido
+	console.log( dog.is_tame ); // => true
+	console.log( dog.child_of_lassie ); // => false
+
+	console.log( dog_child_of_lassie.name ); // => Fido
+	console.log( dog_child_of_lassie.is_tame ); // => true
+	console.log( dog_child_of_lassie.child_of_lassie ); // => true
+</code>
+		
+	
+		
+			
+			<h3 id="object-extend">extend
+				<small>Falcon.Object.extend( protoProps, [staticProps] )</small>
+			</h3>
+			<p>
+	Method used to create a new subclass that inherits from this class.  Props to Backbone.js for the code behind this implementation.
+</p>
+<dl>
+	<dt data-type="Object">protoProps</dt>
+	<dd>Properties for the prototype of a class</dd>
+	<dt data-type="Object">staticProps</dt>
+	<dd>Static properties for a given object</dd>
+</dl>
+<code class="multiline runnable">
+	var Dog = Falcon.Object.extend({
+		bark: function()
+		{
+			console.log("The dog barks");
+		}
+	},{
+		says: function() {
+			console.log("Woof!");
+		}
+	});
+
+	var my_dog = new Dog();
+	
+	Dog.says(); // => Woof!
+	my_dog.bark(); // => The dog barks
+</code>
+		
+	
+		
+			
 			<h3 id="object-has">has
 				<small>object.has( event, callback )</small>
 			</h3>
@@ -979,21 +1032,57 @@
 <code class="multiline runnable">
 	var obj = new Falcon.Object();
 
-	var alert_function = function() {
-		alert("Hello World")
+	var log_function = function() {
+		log("Hello World")
 	};
 
 	var foo_function = function() {
-		alert("Foo Bar")
+		log("Foo Bar")
 	};
 
-	obj.on("alert", alert_function);
+	obj.on("log", log_function);
 
-	console.log( obj.has("alert") ); // => true
+	console.log( obj.has("log") ); // => true
 	console.log( obj.has("click") ); // => false
 
-	console.log( obj.has("alert", alert_function) ); // => true
-	console.log( obj.has("alert", foo_function) ); // => false
+	console.log( obj.has("log", log_function) ); // => true
+	console.log( obj.has("log", foo_function) ); // => false
+</code>
+		
+	
+		
+			
+			<h3 id="object-observables">observables
+				<small>object.observables</small>
+			</h3>
+			<p>
+	This is a hash map of the default observables and values that will become members of this class when a new instance is created. If the value of a specific key is a function a computed observable is created. If the value is an object with the keys 'read' and/or 'write' a computed is created with those object keys as the definition for the computed observable. All computed observables are created with this objects's instance as their context.
+</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Object.extend({
+		observables: {
+			"name": "Fido",
+			"parent_dog_name": "",
+			"child_of_lassie": function(parent_dog_name)
+			{
+				return this.parent_dog_name() === "Lassie";
+			}
+		}
+	});
+
+	var dog = new Dog(); // Dog not related to Lassie
+
+	console.log( ko.isObservable( dog.name ) ); // => true
+	console.log( ko.isComputed( dog.child_of_lassie ) ); // => true
+	
+	console.log( dog.name() ); // => Fido
+	console.log( dog.child_of_lassie() ); // => false
+
+	dog.name("Spot")
+	dog.parent_dog_name("Lassie")
+
+	console.log( dog.name() ); // => Spot
+	console.log( dog.child_of_lassie() ); // => true
 </code>
 		
 	
@@ -1014,35 +1103,35 @@
 <code class="multiline runnable">
 	var obj = new Falcon.Object();
 
-	obj.on("alert", function() {
-		alert("Hello World");
+	obj.on("log", function() {
+		console.log("Hello World");
 	});
 
-	obj.trigger("alert");
+	obj.trigger("log");
 
-	obj.off("alert");
+	obj.off("log");
 
-	obj.trigger("alert");
+	obj.trigger("log");
 </code>
 <code class="multiline runnable">
 	var obj = new Falcon.Object();
 
-	var alert_callback_one = function() {
-		alert("Alert One");
+	var log_callback_one = function() {
+		console.log("Log One");
 	};
 
-	var alert_callback_two = function() {
-		alert("Alert Two");
+	var log_callback_two = function() {
+		console.log("Log Two");
 	};
 
-	obj.on("alert", alert_callback_one);
-	obj.on("alert", alert_callback_two);
+	obj.on("log", log_callback_one);
+	obj.on("log", log_callback_two);
 
-	obj.trigger("alert");
+	obj.trigger("log");
 
-	obj.off("alert", alert_callback_one);
+	obj.off("log", log_callback_one);
 
-	obj.trigger("alert");
+	obj.trigger("log");
 </code>
 		
 	
@@ -1085,18 +1174,18 @@
 <code class="multiline runnable">
 	var obj = new Falcon.Object();
 
-	obj.on("alert", function()
+	obj.on("log", function()
 	{
-		alert("Hello World");
+		console.log("Hello World");
 	});
 
-	obj.on("custom_alert", function(message)
+	obj.on("custom_log", function(message)
 	{
-		alert( message );
+		console.log( message );
 	});
 
-	obj.trigger("alert");
-	obj.trigger("custom_alert", "Foo Bar");
+	obj.trigger("log");
+	obj.trigger("custom_log", "Foo Bar");
 </code>
 		
 	
@@ -1121,15 +1210,26 @@
 		
 			
 			<h3 id="model-clone">clone
-				<small>model.clone( [parent] )</small>
+				<small>model.clone( [attributes], [parent] )</small>
 			</h3>
-			<dl>
-	<dt data-type="Falcon.Model">parent</dt>
-	<dd>An optional parent to assign to the new clone. If 'null' is explicitly given, then the clone will not have a parent. If no parent is given, then by default, the new model inherits this model's parent.</dd>
-</dl>
-<p>
-	Creates a clone of the current model. This method has the ability to also update the parent on the cloned model. If 'null' is explicitly given for the parent argument, then the cloned model will be parent-free.
+			<p>
+	Method used to create a clone of this model. This method is can be used to only copy certain attributes from this model by stating so in the 'attributes' argument.  If a 'parent' argument is given, then the resultant model will have that parent rather than the original model's parent. If 'null' is given for parent, then the resultant model will not have a parent.
 </p>
+<dl>
+	<dt data-type="Object">attributes</dt>
+	<dd>An object or an array attributes to copy from this model to the new model. If this is not provided all attributes will be copied.</dd>
+	<dt data-type="Falcon.Model">parent</dt>
+	<dd>An override of the parent to set in the resultant model. If 'null' is explicitly given, then the resultant model will be parent-free</dd>
+</dl>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend({name: ""});
+
+	var dog = new Dog({"name": "fido"});
+	var fido_clone = dog.clone();
+
+	console.log( dog.get("name"), fido_clone.get("name") ); // fido, fido
+	console.log( dog === fido_clone ); // false
+</code>
 		
 	
 		
@@ -1137,31 +1237,26 @@
 			<h3 id="model-initialize">initialize
 				<small>new Model( [data], [parent] )</small>
 			</h3>
-			<dl>
+			<p>
+	The initialize method is called within the actual constructor method of the model. The constructor method has specific set up code that should alway be run when creating a model and hence, having the initialize method available, allows developers to override this funciton to ensure that everything that the actual constructor needs to do is executed prior to the initialize method and everything custom that the developer needs won't interfere with the required operations.
+</p>
+<dl>
 	<dt data-type="Object">data</dt>
 	<dd>An object of initial data for this model</dd>
 	<dt data-type="Falcon.Model">parent</dt>
 	<dd>The object that 'owns' this model. This is used for generating urls in the 'makeUrl' function when syncing data between client and server.</dd>
 </dl>
-<p>
-	The initialize method is called within the actual constructor method of the model. The constructor method has specific set up code that should alway be run when creating a model and hence, having the initialize method available, allows developers to override this funciton to ensure that everything that the actual constructor needs to do is executed prior to the initialize method and everything custom that the developer needs won't interfere with the required operations.
-</p>
-		
-	
-		
-			
-			<h3 id="model-copy">copy
-				<small>model.copy( [attributes], [parent] )</small>
-			</h3>
-			<dl>
-	<dt data-type="Object">attributes</dt>
-	<dd>An object (or an array which will be converted to an object) of attributes to copy from this model to the new model. If this is not provided, only the id of this model is carried into the new model.</dd>
-	<dt data-type="Falcon.Model">parent</dt>
-	<dd> An override of the parent to set in the resultant model. If 'null' is explicitly given, then the resultant model will be parent-free</dd>
-</dl>
-<p>
-	Method used to create a copy (similar to the clone method) of this model. This method is useful for only selecting certain attributes from this model.  If a parent is given, then the resultant model will have that parent rather than this model's parent. If 'null' is given for parent, then the resultant model will not have a parent.
-</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend({
+		initialize: function() {
+			this.name = "Fido";
+		}
+	});
+
+	var dog = new Dog();
+
+	console.log( dog.get("name") ); // => Fido
+</code>
 		
 	
 		
@@ -1169,13 +1264,20 @@
 			<h3 id="model-create">create
 				<small>model.create( options )</small>
 			</h3>
-			<dl>
+			<p>
+	Method used to create a new model, with this model's data, on the server. This method is really just a wrapper around the 'sync' method with a request type of 'POST' auto-filled.
+</p>
+<dl>
 	<dt data-type="Object">options</dt>
 	<dd>The options to pass into the 'sync' method</dd>
 </dl>
-<p>
-	Method used to create a new model, with this model's data, on the server. This method is really just a wrapper around the 'sync' method with a request type of 'POST' auto-filled.
-</p>
+<code class="multiline">
+	var Dog = Falcon.Model.extend({ url: "dog.json" });
+
+	var dog = new Dog({name: "Fido"});
+
+	dog.create(); // => POST to '/dog.json' with {"name": "fido"}
+</code>
 		
 	
 		
@@ -1183,13 +1285,20 @@
 			<h3 id="model-destroy">destroy
 				<small>model.destroy( options )</small>
 			</h3>
-			<dl>
+			<p>
+	Method used to delete this model from the server. This method just called 'sync' with the 'DELETE' request type pre-filled.
+</p>
+<dl>
 	<dt data-type="Object">options</dt>
 	<dd>The options to pass into the 'sync' method</dd>
 </dl>
-<p>
-	Method used to delete this model from the server. This method just called 'sync' with the 'DELETE' request type pre-filled.
-</p>
+<code class="multiline">
+	var Dog = Falcon.Model.extend({ url: "dog.json" });
+
+	var dog = new Dog({id: '1', name: "Fido"});
+
+	dog.destroy(); // => DELETE to '/dog/1.json' with {"id": 1, "name": "fido"}
+</code>
 		
 	
 		
@@ -1197,7 +1306,10 @@
 			<h3 id="model-equals">equals
 				<small>model.equals( model )</small>
 			</h3>
-			<dl>
+			<p>
+	Method used to determine if this model matches the given model or id. If any model as 'null' id then this method will always consider the result to be unequal.
+</p>
+<dl>
 	<dt data-type="Falcon.Model">model</dt>
 	<dd>A model to compare against this model. Models are compared using ids. If either or both IDs are 'null' then these models will always be unequal</dd>
 </dl>
@@ -1205,25 +1317,43 @@
 	<dt data-type="String or Number">id</dt>
 	<dd>An id to check against this model's id</dd>
 </dl>
-<p>
-	Method used to determine if this model matches the given model or id. If any model as 'null' id then this method will always consider the result to be unequal.
-</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend({ name: "" });
+
+	var dog = new Dog({"id": 1, "name": "Fido"});
+	var another_dog = new Dog({"id": 2, "name": "Another"});
+
+	console.log( dog.equals(1) ); // => true
+	console.log( dog.equals(another_dog) ); // => false
+	console.log( dog.equals(dog.clone()) ); // => true, checks based on id
+</code>
 		
 	
 		
 			
 			<h3 id="model-extend">extend
-				<small>Falcon.Model.extend( properties )</small>
+				<small>Falcon.Model.extend( protoProps, [staticProps] )</small>
 			</h3>
-			<dl>
+			<p>
+	Method used to create a new model that inherits from the base Falcon Model.
+</p>
+<dl>
 	<dt data-type="Object">protoProps</dt>
 	<dd>Properties for the prototype of a class</dd>
 	<dt data-type="Object">staticProps</dt>
 	<dd>Static properties for a given object</dd>
 </dl>
-<p>
-	Method used to create a new model that inherits from the base Falcon Model.
-</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend({
+		url: "dog.json"
+	});
+
+	var dog = new Dog();
+
+	console.log( dog instanceof Falcon.Object ); // => true
+	console.log( dog instanceof Falcon.Model ); // => true
+	console.log( dog instanceof Dog ); // => true
+</code>
 		
 	
 		
@@ -1231,13 +1361,20 @@
 			<h3 id="model-fetch">fetch
 				<small>model.fetch( [options] )</small>
 			</h3>
-			<dl>
+			<p>
+	Method used to 'fetch' data from the server about this specific model. This method just called 'sync' with the 'GET' request type pre-filled.
+</p>
+<dl>
 	<dt data-type="Object">options</dt>
 	<dd>The options to pass into the 'sync' method</dd>
 </dl>
-<p>
-	Method used to 'fetch' data from the server about this specific model. This method just called 'sync' with the 'GET' request type pre-filled.
-</p>
+<code class="multiline">
+	var Dog = Falcon.Model.extend({ url: "dog.json" });
+
+	var dog = new Dog({id: '1', name: "Fido"});
+
+	dog.fetch(); // => GET to '/dog/1.json'
+</code>
 		
 	
 		
@@ -1245,15 +1382,24 @@
 			<h3 id="model-fill">fill
 				<small>model.fill( data )</small>
 			</h3>
-			<dl>
-	<dt data-type="Object">data</dt>
-	<dd>The data to fill this object with.</dd>
-</dl>
-<p>
+			<p>
 	Method used to fill this model with data. This is more advanced than the 'set' method as it won't overwrite certain data if it exists.  Specificaly this will recurse data into any Falcon Model of Collection 'fill' method as necessary. Additionally, this will put data into observables if a specific attribute identifies as a writeable observable. Lastly, this will do a basic assignment of a given attribute if it isn't a Falcon Data Object or an observable.
 
 	Note: This method will, intentionally, ignore any attribute/method defined in the Falcon.Model.prototype except for 'id' and 'url'
 </p>
+<dl>
+	<dt data-type="Object">data</dt>
+	<dd>The data to fill this object with.</dd>
+</dl>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend({"name": ""});
+
+	var dog = new Dog();
+
+	dog.fill({"name": "Fido"});
+
+	console.log( dog.get("name") ); // => Fido
+</code>
 		
 	
 		
@@ -1261,13 +1407,31 @@
 			<h3 id="model-get">get
 				<small>model.get( attribute )</small>
 			</h3>
-			<dl>
+			<p>
+	Method used to lookup the value of an attribute on this model. If the attribute is an observable, then the observable is unwrapped and its internal value is returned.
+</p>
+<dl>
 	<dt data-type="String">attribute</dt>
 	<dd>The attribute to lookup</dd>
 </dl>
-<p>
-	Method used to lookup the value of an attribute on this model. If the attribute is an observable, then the observable is unwrapped and its internal value is returned.
-</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend({
+		defaults: {
+			"name": "Fido"
+		},
+
+		observables: {
+			"hello": "world"
+		}
+	});
+
+	var dog = new Dog();
+
+	console.log( ko.isObservable( dog.name ) ); // => false
+	console.log( ko.isObservable( dog.hello ) ); // => true
+	console.log( dog.get("name") ); // => Fido
+	console.log( dog.get("hello") ); // => world
+</code>
 		
 	
 		
@@ -1278,6 +1442,18 @@
 			<p>
 	The id of this model. By default this is null unless it is set by the server. The id expected to be a Number or a String.
 </p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend({
+		defaults: {
+			"name": "Fido"
+		}
+	});
+
+	var dog = new Dog({id: 1});
+
+	console.log( dog.id ); // => 1
+	console.log( dog.get("id") ); // => 1
+</code>
 		
 	
 		
@@ -1288,6 +1464,21 @@
 			<p>
 	Method used to determine if this model is 'new' or not. A model is deemed new if no id has been set (it's still null).
 </p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend({
+		defaults: {
+			"name": "Fido"
+		}
+	});
+
+	var dog = new Dog()
+
+	console.log( dog.isNew() ); // => true
+
+	dog.set("id", 1)
+
+	console.log( dog.isNew() ); // => false
+</code>
 		
 	
 		
@@ -1295,15 +1486,29 @@
 			<h3 id="model-makeurl">makeUrl
 				<small>model.makeUrl( type, [parent] )</small>
 			</h3>
-			<dl>
+			<p>
+	Generates a URL based on this model's url, the parent model of this model, the type of request we're making and Falcon's defined baseApiUrl
+</p>
+<dl>
 	<dt data-type="String">type</dt>
 	<dd>The type of request we're making (GET, POST, PUT, DELETE)</dd>
 	<dt data-type="Falcon.Model">parent</dt>
 	<dd>Optional override of the model's parent to generate the url with. If parent is 'null' then this model will act as the root node.</dd>
 </dl>
-<p>
-	Generates a URL based on this model's url, the parent model of this model, the type of request we're making and Falcon's defined baseApiUrl
-</p>
+<code class="multiline runnable">
+	Falcon.baseApiUrl = "http://www.falconjs.com/";
+	var Dog = Falcon.Model.extend({'url': "dog.json"});
+	var Owner = Falcon.Model.extend({'url': "owner.json"});
+
+	var owner = new Owner({"id": 1});
+	var dog = new Dog({"id": 2}, owner); // owner is the 'parent' model
+
+	console.log( dog.makeUrl("GET") ); // => http://www.falconjs.com/owner/1/dog/2.json
+	console.log( dog.makeUrl("POST") ); // => http://www.falconjs.com/owner/1/dog.json
+	console.log( dog.makeUrl("PUT") ); // => http://www.falconjs.com/owner/1/dog/2.json
+	console.log( dog.makeUrl("DELETE") ); // => http://www.falconjs.com/owner/1/dog/2.json
+	console.log( dog.makeUrl("GET", null) ); // => http://www.falconjs.com/dog/2.json
+</code>
 		
 	
 		
@@ -1311,13 +1516,37 @@
 			<h3 id="model-mixin">mixin
 				<small>model.mixin( mapping )</small>
 			</h3>
-			<dl>
+			<p>
+	Maps extra atributes and methods onto this model for use later, mostly in Falcon views. Will ensure that any method that is not a knockout observable will be called in the context of this model as well as pass this model in as the first argument, pushing the other arguments down the list.
+</p>
+<dl>
 	<dt data-bind="Object">mapping</dt>
 	<dd>The mapping to augment this model with</dd>
 </dl>
-<p>
-	Maps extra atributes and methods onto this model for use later, mostly in Falcon views. Will ensure that any method that is not a knockout observable will be called in the context of this model as well as pass this model in as the first argument, pushing the other arguments down the list.
-</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend({
+		defaults: {
+			"name": "Fido"
+		}
+	});
+
+	var dog = new Dog();
+
+	console.log( ko.isObservable( dog.name ) ); // => false
+	console.log( dog.bark instanceof Function ); // => false
+
+	dog.mixin({
+		"name": ko.observable(),
+		"bark": function() {
+			console.log( this.get("name") + " says woof!");
+		}
+	});
+
+	console.log( ko.isObservable( dog.name ) ); // => true
+	console.log( dog.bark instanceof Function ); // => true
+
+	dog.bark() // => Fido says woof!
+</code>
 		
 	
 		
@@ -1328,6 +1557,15 @@
 			<p>
 	This represents the 'parent' object that holds this model.  Generally this is used for determining the URL structure of rest objects in the makeURL() routine. This should also be a Model.
 </p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend({"url": "dog.json"});
+	var Owner = Falcon.Model.extend({"url": "owner.json"});
+
+	var owner = new Owner();
+	var dog = new Dog( owner ); // Owner becomes the 'parent' of dog
+
+	console.log( dog.parent === owner ); // => true
+</code>
 		
 	
 		
@@ -1335,7 +1573,10 @@
 			<h3 id="model-parse">parse
 				<small>model.parse( data, [options], [xhr] )</small>
 			</h3>
-			<dl>
+			<p>
+	Parses the response data from an XmlHttpRequest request.  A json object must be returned from this method in order for the data to be filled back into the model properly.  This is useful if you're in need of converting a server response into a different format before attempting to fill all of the model's data.
+</p>
+<dl>
 	<dt data-type="Object">data</dt>
 	<dd>The raw response data</dd>
 	<dt data-type="Object">options</dt>
@@ -1343,9 +1584,46 @@
 	<dt data-type="XmlHttpRequest">xhr</dt>
 	<dd>The XmlHttpRequest object</dd>
 </dl>
-<p>
-	Parses the response data from an XmlHttpRequest request.  A json object must be returned from this method in order for the data to be filled back into the model.
-</p>
+<code class="multiline">
+	// -------------------------------------
+	// Example Server Response JSON for /dog.json
+	// -------------------------------------
+	{
+		data: {
+			"id": 1,
+			"name": "Fido"
+		},
+		created_at: "01/01/1970",
+		updated_at: "01/01/1970"
+	}
+
+
+	// -------------------------------------
+	// Javascript
+	// -------------------------------------
+	var Dog = Falcon.Model.extend({
+		'url': "dog.json",
+
+		defaults: {
+			"name": ""
+		}
+
+		// Example parse method, the object that is returned from 
+		// this will be passed into the model's fill() method.
+		parse: function( response ) {
+			return response["data"];
+		}
+	});
+
+	var dog = new Dog();
+
+	// Get's the server data and runs the parse method
+	// Callback is called on complete
+	dog.fetch(function() {
+		console.log( dog.get("id") ); // => 1
+		console.log( dog.get("name") ); // => Fido
+	});
+</code>
 		
 	
 		
@@ -1353,13 +1631,20 @@
 			<h3 id="model-save">save
 				<small>model.save( [options] )</small>
 			</h3>
-			<dl>
+			<p>
+	Calls the sync method with 'PUT' as the default request type. Saves this model to the server.  If the model is new then 'create' will be called instead.
+</p>
+<dl>
 	<dt data-type-"Object">options</dt>
 	<dd>Optional object of settings to use on this call.</dd>
 </dl>
-<p>
-	Calls the sync method with 'PUT' as the default request type. Saves this model to the server.  If the model is new then 'create' will be called instead.
-</p>
+<code class="multiline">
+	var Dog = Falcon.Model.extend({ url: "dog.json" });
+
+	var dog = new Dog({id: '1', name: "Fido"});
+
+	dog.save(); // => PUT to '/dog/1.json' with {"id": 1, "name": "fido"}
+</code>
 		
 	
 		
@@ -1367,19 +1652,33 @@
 			<h3 id="model-serialize">serialize
 				<small>model.serialize( [attributes] )</small>
 			</h3>
-			<dl>
+			<p>
+	Serializes the data into a raw json object and only corresponds to the attributes that are primitive and that we wish to be able to send back to the server.
+</p>
+<dl>
 	<dt>attributes</dt>
 	<dd>
 		The attributes that should be included in the serialization. If none given, all attributes from this model (except for functions) are serialized
 	</dd>
 </dl>
-<p>
-	Serializes the data into a raw json object and only corresponds to the attributes that are primitive and that we wish to be able to send back to the server.
-</p>
-<!--
-	TODO:
-	Expand on the attributes description
--->
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend({
+		url: 'dog.json',
+
+		defaults: {
+			"name": "Fido",
+			"color": "Black"
+		}
+	});
+
+	var dog = new Dog({"id": 1});
+
+	console.log( dog.serialize() ); // => {"id": 1, "name": "Fido", "color": "Black"}
+
+	dog.set("name", "Spot");
+
+	console.log( dog.serialize(["name"]) ); // => {"name": "Spot"}
+</code>
 		
 	
 		
@@ -1387,7 +1686,10 @@
 			<h3 id="model-set">set
 				<small>model.set( attribute, [value] )</small>
 			</h3>
-			<dl>
+			<p>
+	Sets a value for the specific attribute, creating one if it does nto exist.  If an object is passed into the first argument of this method, each of the object's key value pairs will be set on this model.
+</p>
+<dl>
 	<dt data-type="String">attribute</dt>
 	<dd>The attribute to look up</dd>
 	<dt>value</dt>
@@ -1397,9 +1699,32 @@
 	<dt data-type="Object">values</dt>
 	<dd>An object of values to set</dd>
 </dl>
-<p>
-	Sets a value for the specific attribute, creating one if it does nto exist.  If an object is passed into the first argument of this method, each of the object's key value pairs will be set on this model.
-</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend({
+		url: "dog.json",
+
+		defaults: {
+			"name": "",
+			"color": ""
+		}
+	});
+
+	var dog = new Dog({'id': 1});
+
+	dog.set("name", "Fido");
+	dog.set("color", "Black");
+
+	console.log( dog.get("name") ); // => Fido
+	console.log( dog.get("color") ); // => Black
+
+	dog.set({
+		"name": "Spot",
+		"color": "Tan"
+	});
+
+	console.log( dog.get("name") ); // => Spot
+	console.log( dog.get("color") ); // => Tan
+</code>
 		
 	
 		
@@ -1407,7 +1732,28 @@
 			<h3 id="model-sync">sync
 				<small>model.sync( type, [options] )</small>
 			</h3>
-			<dl>
+			<p>
+	Method used to interact with the backend API and this model. This method utilizes and extend on to the jQuery $.ajax method.  This method may be called with for different request types:
+	<ul>
+		<li><strong>GET</strong> - Retrieve this model's data</li>
+		<li><strong>POST</strong> - Create a model with this data on the server</li>
+		<li><strong>PUT</strong> - Update this model's data on the server</li>
+		<li><strong>DELETE</strong> - Delete this model from the server</li>
+	</ul>
+</p>
+<p>
+	The sync mehtod takes an optional 'options' argument which can be used for specifying how this method should handle sync requests for each of the request types and how it should handle serializing and reacting to success/errornous responses.
+</p>
+<p>
+	If a PUT or POST request type or being issue, this model's 'validate' method is executed to check if this model is valid and if we should continue sending data to the server.  If the validate method returns false, the process is halted and no interaction with the server occurs.
+</p>
+<p>
+	Following the validation of the model, this method will automatically call the 'serialize' method on this model with whatever attributes, if any, are specified by the 'attributes' parameter of the options object if this is a POST or PUT request.  Please refer to the 'serialize' method for more advaned detail on how the 'attributes' option performs.
+</p>
+<p>
+	Lastly, after the ajax method responds successfully, a success response will occur. Prior to calling the 'success' callback on the options, the raw data returned from the server will be send to the 'parse' method. The resultant data from the parse method is then sent to the 'fill' method (if the fill flag is enabled). Following that, an event is triggered depending on the request type.  (GET = 'fetch', POST = 'create', PUT = 'save', DELETE = 'destroy'). Lastly, the success callback method specified in the options parameter is called with this model as a conext, and with 4 arguments: This model, the parsed raw data, the response status, and the XmlHttpRequest object.
+</p>
+<dl>
 	<dt data-type="String">type</dt>
 	<dd>The HTTP Method to call to the server with. Valid options options include "GET", "POST", "PUT", "DELETE".</dd>
 	<dt data-type="Object">options</dt>
@@ -1446,32 +1792,36 @@
 				<strong>complete( model, xhr, status )</strong> - A callback method to be executed whenever any status resonse is completed. This method is called after success/error. It will be called on the context of this model unless the context was specified in the options. It will be called with three arguments given: This model, the XmlHttpRequest object, and the server status.
 			</li>
 			<li>
-				<strong>fill</strong> - A flag to specify whether the 'fill' methos should be called once this request has completed successfully. By default, this is set to true.
+				<strong>fill</strong> - A flag to specify whether the 'fill' method should be called once this request has completed successfully. By default, this is set to true.
 			</li>
 		</ul>
 	</dd>
 </dl>
-<p>
-	Method used to interact with the backend API and this model. This method utilizes and extend on to the jQuery $.ajax method.  This method may be called with for different request types:
-	<ul>
-		<li><strong>GET</strong> - Retrieve this model's data</li>
-		<li><strong>POST</strong> - Create a model with this data on the server</li>
-		<li><strong>PUT</strong> - Update this model's data on the server</li>
-		<li><strong>DELETE</strong> - Delete this model from the server</li>
-	</ul>
-</p>
-<p>
-	The sync mehtod takes an optional 'options' argument which can be used for specifying how this method should hane sync requests of the request types mentioned and how it should handle serializing and reacting to success/errornous responses.
-</p>
-<p>
-	If a PUT or POST request type or being issue, this model's 'validate' method is executed to check if this model is valid and if we should continue sending data to the server.  If the validate method returns false, the process is halted and no interaction with the server occurs
-</p>
-<p>
-	Following the validation of the model, this method will automatically call the 'serialize' method on this model with whatever attributes, if any, are specified by the 'attributes' parameter of the options object if this is a POST or PUT request.  Please refer to the 'serialize' method for more advaned detail on how the 'attributes' option performs.
-</p>
-<p>
-	Lastly, after the ajax method responds successfully, a success response will occur. Prior to calling the 'success' callback on the options, the raw data returned from the server will be send to the 'parse' method. The resultant data from the parse method is then sent to the 'fill' method (if the fill flag is enabled). Following that, an event is triggered depending on the request type.  (GET = 'fetch', POST = 'create', PUT = 'save', DELETE = 'destroy'). Lastly, the success callback method specified in the options parameter is called with this model as a conext, and with 4 arguments: This model, the parsed raw data, the response status, and the XmlHttpRequest object.
-</p>
+<code class="multiline">
+	var Dog = Falcon.Model.extend({
+		"url": "dog.json"
+	});
+
+	var dog = new Dog({id: 1});
+
+	// Creates a GET ajax request that is sent to /dog/1.json
+	// Complete is always called, success is called if called if we found
+	// the dog on the server, otherwise error is called if something
+	// went wrong.
+	dog.sync("GET", {
+		complete: function(dog, data, xhr, status) {
+			console.log("Completed trying to find the Dog.");
+		},
+
+		success: function(dog, data, status, xhr) {
+			console.log("Successfully found the Dog!");
+		},
+
+		error: function(dog, response, xhr ) {
+			console.log("Couldn't find the dog :(");
+		}
+	});
+</code>
 <!--
 	TODO:
 	Warning for no PATH support
@@ -1484,23 +1834,28 @@
 			<h3 id="model-toggle">toggle
 				<small>model.toggle( attribute )</small>
 			</h3>
-			<dl>
+			<p>
+	Toggles the value between true/false on the specific attribute of this model.
+</p>
+<dl>
 	<dt data-type="String">attribute</dt>
 	<dd>The attribute in the model to look up.</dd>
 </dl>
-<p>
-	Toggles the value between true/false on the specific attribute of this model.
-</p>
-		
-	
-		
-			
-			<h3 id="model-unwrap">unwrap
-				<small>model.unwrap()</small>
-			</h3>
-			<p>
-	Method used to 'unwrap' this model. Unwrapping makes this into a basic javascript object, recurring inward for other Falcon data objects (Collections and Models), and leaving observables and computed observables in tact in the resultant object.  This method is primarily used for creating clones of this model.
-</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend({
+		defaults: {
+			"is_tame": true
+		}
+	});
+
+	var dog = new Dog({"is_tame": true});
+
+	console.log( dog.get("is_tame") ); // => true
+
+	dog.toggle("is_tame");
+
+	console.log( dog.get("is_tame") ); // => false
+</code>
 		
 	
 		
@@ -1509,8 +1864,42 @@
 				<small>model.url</small>
 			</h3>
 			<p>
-	This is the top level url for the model.
+	This is the top level url piece that relates to this specific model.  This is used in the makeUrl() method to dynamically generate urls for how to interact with the server API. Falcon assumes a typical RESTful url structure when generating urls and hence assumes that each individual model correlates to a common url name. For example if we had a Dog model who's url was 'dog.json', then sending a GET request for a dog with id '1' would generate a URL of: '/dog/1.json'. If this model has a parent model (such as Owner with url 'owner.json' and id of 2), then calling the same GET request with the Owner as the parent, we would get '/owner/2/dog/1.json'.  Optionally, url can be a function that returns a string rather than being defined as a string if you need the URL to be dynamic based on environment or other variables.
 </p>
+<code class="multiline">
+	var Dog = Falcon.Model.extend({
+		url: "dog.json"
+	});
+</code>
+<code class="multiline">
+	var Dog = Falcon.Model.extend({
+		url: function() {
+			return "dog.json"
+		}
+	});
+</code>
+
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend({
+		url: "dog.json"
+	});
+	var Owner = Falcon.Model.extend({
+		url: function() { return "owner.json"; }
+	});
+
+	var owner = new Owner({id: 2});
+	var dog = new Dog({id: 1}, owner);
+
+	console.log( owner.makeUrl("GET") ); // => /owner/2.json
+	console.log( owner.makeUrl("POST") ); // => /owner/.json
+	console.log( owner.makeUrl("PUT") ); // => /owner/2.json
+	console.log( owner.makeUrl("DELETE") ); // => /owner/2.json
+
+	console.log( dog.makeUrl("GET") ); // => /owner/2/dog/1.json
+	console.log( dog.makeUrl("POST") ); // => /owner/2/dog.json
+	console.log( dog.makeUrl("PUT") ); // => /owner/2/dog/1.json
+	console.log( dog.makeUrl("DELETE") ); // => /owner/2/dog/1.json
+</code>
 		
 	
 		
@@ -1518,13 +1907,38 @@
 			<h3 id="model-validate">validate
 				<small>model.validate( [options] )</small>
 			</h3>
-			<dl>
+			<p>
+	Method used to validate this model before it is sent to the server on create or save.  If this method returns true, saving will continue but if it returns false then saving is halted and no request to the server will be made.
+</p>
+<dl>
 	<dt data-type="Object">options</dt>
 	<dd>The options passed into the sync method</dd>
 </dl>
-<p>
-	Method used to validate this model before it is sent to the server on create or save.  If this method returns true, saving will continue but if it returns false then saving is halted and no request to the server will be made.
-</p>
+<code class="multiline">
+	var Dog = Falcon.Model.extend({
+		url: "dog.json",
+
+		defaults: {
+			"name": ""
+		},
+
+		validate: function() {
+			if( name.length === 0 ) {
+				return false;
+			}
+
+			return true;
+		}
+	});
+
+	var dog = new Dog();
+
+	dog.create(); // Attempts to send a POST request but nothing happens, dog's name is empty
+
+	dog.set("name", "Fido");
+
+	dog.create(); // Allows the model to be saved to the server
+</code>
 		
 	
 </section>
@@ -1547,32 +1961,13 @@
 	
 		
 			
-			<h3 id="collection-all">all
-				<small>collection.all( [iterator] )</small>
-			</h3>
-			<dl>
-	<dt data-type="Function">iterator</dt>
-	<dd>An iterator to truth-test each model in the collection against</dd>
-</dl>
-<dl>
-	<dt data-type="String or Number">id</dt>
-	<dd>The id of models to match against in the collection</dd>
-</dl>
-<dl>
-	<dt data-type="Falcon.Model">model</dt>
-	<dd>A model to lookup in the collection</dd>
-</dl>
-<p>
-	Method used to get an array of all the models that match the truth-test.
-</p>
-		
-	
-		
-			
 			<h3 id="collection-any">any
 				<small>collection.any( iterator )</small>
 			</h3>
-			<dl>
+			<p>
+	Method used to check if any of the models in the collection match the given iterator, id, or model. Returns true if at least of the models match the truth test.
+</p>
+<dl>
 	<dt data-type="Function">iterator</dt>
 	<dd>Method used to test each model against.</dd>
 </dl>
@@ -1584,9 +1979,28 @@
 	<dt data-type="Falcon.Model">model</dt>
 	<dd>A model to compate against each of the collection's models using an id-based comparison.</dd>
 </dl>
-<p>
-	Method used to check if any of the models in the collection match the given iterator, id, or model. Returns true if at least of the models match the truth test.
-</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var dogs = new Dogs([
+		{"name": "Fido"},
+		{"name": "Skip"},
+		{"name": "Bump"},
+		{"name": "Bucko"}
+	]);
+
+	var has_fido = dogs.any(function(dog) {
+		return dog.get("name") === "Fido";
+	});
+
+	var has_spot = dogs.any(function(dog) {
+		return dog.get("name") === "Spot";
+	});
+
+	console.log(has_fido); // => true
+	console.log(has_spot); // => false
+</code>
 		
 	
 		
@@ -1594,7 +2008,10 @@
 			<h3 id="collection-append">append
 				<small>collection.append( items )</small>
 			</h3>
-			<dl>
+			<p>
+	Append a single model or an array of models to the end of a collection. Append is simply a wrapper for the fill method with the option {'method': 'append'} pre-set.
+</p>
+<dl>
 	<dt data-type="Falcon.Model">item</dt>
 	<dd>A model to add to the end of the collection</dd>
 </dl>
@@ -1602,9 +2019,24 @@
 	<dt data-type="Array">items</dt>
 	<dd>An array of models to add to the end of the collection</dd>
 </dl>
-<p>
-	A a single or an array of models to the end of this collection. append is simply a wrapper for the full method with the option {'method': 'append'} pre-filled.
-</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({model: Dog});
+
+	var dogs = new Dogs();
+
+	dogs.append({"name": "Fido"});
+	console.log( dogs.pluck("name") ); // => [Fido]
+
+	dogs.append( new Dog({name: "Spot"}) ); 
+	console.log( dogs.pluck("name") ); // => [Fido, Spot]
+
+	dogs.append([
+		{name: "Skip"},
+		{name: "Bump"}
+	]);
+	console.log( dogs.pluck("name") ); // => [Fido, Spot, Skip, Bump]
+</code>
 		
 	
 		
@@ -1612,27 +2044,110 @@
 			<h3 id="collection-at">at
 				<small>collection.at( index )</small>
 			</h3>
-			<dl>
+			<p>
+	Method used to retrieve a model from this collection at a specific, zero-based, index. If no model exists at the specified inex, or the index is invalid, 'null' is returned.
+</p>
+<dl>
 	<dt data-type="Number">index</dt>
 	<dd>zero-based index of the model to lookup in the collection</dd>
 </dl>
-<p>
-	Method used to retrieve a model from this collection at a specific, zero-based, index. If no model exists at the specified inex, or the index is invalid, 'null' is returned.
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({model: Dog});
+
+	var dogs = new Dogs([
+		{"name": "Fido"},
+		{"name": "Skip"},
+		{"name": "Bump"},
+		{"name": "Bucko"}
+	]);
+
+	console.log( dogs.at(1).get("name") ); // => Skip
+	console.log( dogs.at(5) ); // => null
+</code>
+		
+	
+		
+			
+			<h3 id="collection-chain">chain
+				<small>collection.chain()</small>
+			</h3>
+			<p>
+	Method used to create a chained version of this collection. A Chained Collection allows us to chain together mutliple filter methods.  Typically, when calling 'sort', 'without', 'filter', or 'slice', a javascript array is returned and no other collection filter methods can be called on the resultant array. 'chain' fixes this and allows us to string together multiple filter methods.
 </p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var dogs = new Dogs([
+		{"id": 1, "name": "Fido", "is_tame": true},
+		{"id": 2, "name": "Skip", "is_tame": true},
+		{"id": 3, "name": "Bump", "is_tame": true},
+		{"id": 4, "name": "Bucko", "is_tame": false},
+		{"id": 5, "name": "Spot", "is_tame": true},
+		{"id": 6, "name": "Biscuit", "is_tame": true}
+	]);
+
+	var odd_dogs = dogs.chain().without(2).without(4).without(6);
+	
+	var tame_b_dogs = dogs.chain().filter(function(dog) {
+		return dog.get("name").charAt(0) === "B";
+	}).filter(function(dog) {
+		return dog.get("is_tame")
+	});
+
+	var sorted_b_dogs = dogs.chain().filter(function(dog) {
+		return dog.get("name").charAt(0) === "B";
+	}).sort(function(dog_a, dog_b) {
+		var name_a = dog_a.get("name");
+		var name_b = dog_b.get("name");
+
+		if( name_a < name_b ) { return -1; }
+		if( name_a > name_b ) { return 1; }
+		return 0;
+	});
+
+	console.log( odd_dogs.pluck("name") ); // => [Fido, Bump, Spot]
+	console.log( tame_b_dogs.pluck("name") ); // => [Bump, Biscuit]
+	console.log( sorted_b_dogs.pluck("name") ); // => [Biscuit, Bucko, Bump]
+</code>
 		
 	
 		
 			
 			<h3 id="collection-clone">clone
-				<small>collection.clone( parent )</small>
+				<small>collection.clone( [attributes], [parent] )</small>
 			</h3>
-			<dl>
-	<dt data-type="Falcon.Model">parent</dt>
-	<dd>An optional parent to set in the resultant collection. If 'null' is set, then the resultant collection will be parent-free</dd>
-</dl>
-<p>
-	This method does a shallow clone of this collection with the resultant collection containing the same model instances as the original collection. Optionally, if the parent argument is set, the resultant collection will reference that as its parent. If the parent argument is explicitly set to 'null' then the resultant collection will be parent-free.
+			<p>
+	Method used to create a deep clone of this collection and it's models. This method can only select certain attributes from each of the models in the collection.  If a parent is given, then the resultant collection will have that parent rather than the original collection's parent. If 'null' is given for parent, then the resultant collection will have no parent set.
 </p>
+<dl>
+	<dt data-type="Object">attributes</dt>
+	<dd>An object or an array of attributes to copy from each model in this collection. If this is not provided all attributes will be copied.</dd>
+	<dt data-type="Falcon.Model">parent</dt>
+	<dd> An override of the parent to set in the resultant collection. If 'null' is explicitly given, then the resultant collection will be parent-free</dd>
+</dl>
+<code class="multiline runnable">
+	var Owner = Falcon.Model.extend();
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({model: Dog});
+
+	var owner = new Owner();
+	var dogs = new Dogs([
+		{"name": "Fido"},
+		{"name": "Skip"},
+		{"name": "Bump"},
+		{"name": "Bucko"}
+	], owner);
+
+	var dogs_clone = dogs.clone(null);
+
+	console.log( dogs === dogs_clone ); // => false
+	console.log( dogs.length() === dogs_clone.length() ); // => true
+	console.log( dogs.at(2) === dogs_clone.at(2) ); // => false
+	console.log( dogs.parent === owner); // => true
+	console.log( dogs_clone.parent === null); // => true
+</code>
 		
 	
 		
@@ -1641,8 +2156,36 @@
 				<small>collection.comparator</small>
 			</h3>
 			<p>
-	Method used to sort this collection when a new model(s) is added.  If left null, no sorting will occur.
+	Method used to sort this collection when a new model(s) is added.  By default, this is null and no sorting will occur.  Note: If this is set then any model that is inserted into this collection will be sorted (regardless of append, prepend, etc.).
 </p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({
+		model: Dog,
+
+		//Sort names ascending
+		comparator: function(dog_a, dog_b) {
+			name_a = dog_a.get("name");
+			name_b = dog_b.get("name");
+
+			if(name_a < name_b) { return -1; }
+			if(name_a > name_b) { return 1; }
+			return 0;
+		}
+	});
+
+	var dogs = new Dogs([
+		{"name": "Fido"},
+		{"name": "Skip"},
+		{"name": "Bump"},
+		{"name": "Bucko"}
+	]);
+
+	console.log( dogs.at(0).get("name") ); // => Bucko
+	console.log( dogs.at(1).get("name") ); // => Bump
+	console.log( dogs.at(2).get("name") ); // => Fido
+	console.log( dogs.at(3).get("name") ); // => Skip
+</code>
 		
 	
 		
@@ -1650,31 +2193,27 @@
 			<h3 id="collection-initialize">initialize
 				<small>new Falcon.Collection( [models], [parent] )</small>
 			</h3>
-			<dl>
+			<p>
+	The constructor method for a Falcon Collection.  Creates a new instance of a Falcon Collection and should be overriden instead of overriding the internal constructor method.
+</p>
+<dl>
 	<dt data-type="Array">models</dt>
 	<dd>An initial set of models to populate the collection with</dd>
 	<dt data-type="Falcon.Model">parent</dt>
 	<dd>The owner of this collection, used for generating urls when making requests to the server.</dd>
 </dl>
-<p>
-	The constructor method for a Falcon Collection.  Creates a new instance of a Falcon Collection.
-</p>
-		
-	
-		
-			
-			<h3 id="collection-copy">copy
-				<small>collection.copy( [attributes], [parent] )</small>
-			</h3>
-			<dl>
-	<dt data-type="Object">attributes</dt>
-	<dd>An object (or an array which will be converted to an object) of attributes to copy from each model in this collection. If this is not provided, only the id of each model is carried into the new collection.</dd>
-	<dt data-type="Falcon.Model">parent</dt>
-	<dd> An override of the parent to set in the resultant collection. If 'null' is explicitly given, then the resultant collection will be parent-free</dd>
-</dl>
-<p>
-	Method used to create a copy (similar to the clone method) of this collection and it's models. This method is useful for only selecting certain attributes from each of the models in the collection.  If a parent is given, then the resultant collection will have that parent rather than this collection's parent. If 'null' is given for parent, then the resultant model will have no parent set.
-</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({
+		model: Dog,
+
+		initialize: function() {
+			console.log("Collecting Dogs");
+		}
+	});
+
+	new Dogs(); // => Collecting Dogs
+</code>
 		
 	
 		
@@ -1682,21 +2221,32 @@
 			<h3 id="collection-create">create
 				<small>collection.create( data, [options] )</small>
 			</h3>
-			<dl>
+			<p>
+	Method used to both create and add a model on the server and to this collection.  An optional options argument can be set to define options for the sync and fill methods.
+</p>
+<dl>
 	<dt data-type="Object">data</dt>
 	<dd>The raw data that defines the model to be created based on the collection's 'model' attribute.</dd>
 	<dt data-type="Object">options</dt>
 	<dd>The options to pass to the sync and fill methods.</dd>
 </dl>
 <dl>
-	<dt data-type="Falcon.Model">data</dt>
+	<dt data-type="Falcon.Model">model</dt>
 	<dd>The model to create on the server and to add to this collection. This model's data will be unwrapped and a new model will be created in this collection if this argument is set.</dd>
 	<dt data-type="Object">options</dt>
 	<dd>See Above.</dd>
 </dl>
-<p>
-	Method used to both create and add a model on the server and to this collection.  An optional options argument can be set to define options for the sync and fill methods.
-</p>
+<code class="multiline">
+	var Dog = Falcon.Model.extend({url: "dog.json"});
+	var Dogs = Falcon.Collection.extend({model: Dog});
+
+	var dogs = new Dogs();
+
+	// Sends a POST request to '/dog.json'. Upon success, appends
+	// the new dog model to the end of the dogs collection.
+	dogs.create({"name": "Fido"}); 
+	dogs.create(new Dog({"name": "Spot"})); 
+</code>
 		
 	
 		
@@ -1704,7 +2254,10 @@
 			<h3 id="collection-destroy">destroy
 				<small>collection.destroy( model, [options] )</small>
 			</h3>
-			<dl>
+			<p>
+	Method used to both remove a model from this collection and delete it on the server. This method takes either an iterator, a model id, or a model to look up an existing model within this collection. If a model is given, it does not need to be the same instance of any model in this collection but rather an identical model based on its 'id'. If no models are found, then null is returned.  If the delete method from the server fails, this method does not remove anything from the collection.
+</p>
+<dl>
 	<dt data-type="Falcon.Model">model</dt>
 	<dd>The model to delete from the server and, upon successful delete, remove from this collection.</dd>
 	<dt data-type="Object">options</dt>
@@ -1714,17 +2267,38 @@
 	<dt data-type="String or Integer">id</dt>
 	<dd>The id of the model to remove</dd>
 	<dt data-type="Object">options</dt>
-	<dd>See Above</dd>
+	<dd>An optional set of options to pass into the 'sync' method when deleteing the model from the server</dd>
 </dl>
 <dl>
 	<dt data-type="Function">iterator</dt>
 	<dd>Iterator that can be used to find the first instance of a matching model in this collection.</dd>
 	<dt data-type="Object">options</dt>
-	<dd>See Above</dd>
+	<dd>An optional set of options to pass into the 'sync' method when deleteing the model from the server</dd>
 </dl>
-<p>
-	Method used to both remove a model from this collection and delete it on the server. This method takes either an iterator, a model id, or a model to look up an existing model within this collection. If a model is given, it does not need to be the same instance of any model in this collection but rather an identical model based on its 'id'. If no models are found, then null is returned.  If the delete method from the server fails, this method does not remove anything from the collection.
-</p>
+<code class="multiline">
+	var Dog = Falcon.Model.extend({url: "dog.json"});
+	var Dogs = Falcon.Collection.extend({model: Dog});
+
+	var fido = new Dog({"id": 1, "name": "Fido"});
+	var spot = new Dog({"id": 2, "name": "Spot"});
+	var skip = new Dog({"id": 3, "name": "Skip"});
+
+	var dogs = new Dogs([ fido, spot, skip ]);
+
+	// Sends a DELETE request to '/dog/{dog_id}.json'. Upon success, removes
+	// the specific model from the collection.
+
+	// deletes fido
+	dogs.destroy(fido); 
+
+	 // deletes spot
+	dogs.destroy(2);
+
+	 // deletes skip
+	dogs.destroy(function(dog) {
+		return dog.get("name") === "Skip";
+	});
+</code>
 		
 	
 		
@@ -1732,31 +2306,69 @@
 			<h3 id="collection-each">each
 				<small>collection.each( iterator, [context] )</small>
 			</h3>
-			<dl>
-	<dt data-type="Function">iterator</dt>
-	<dd>A function used to iterate over each model in this collection. The method will be called with each model passed in as the first argument and, optionally, the current index being as the second aguments.</dd>
-	<dt data=type="mixed">context</dt>
-	<dd>Optionally, the context to apply to the iterator</dd>
-</dl>
-<p>
+			<p>
 	Iterates over each model in this collection based on a given iterator. For each model that exists in this collection, the iterator method is called with the model passed into the first argument and that model's index in the collection passed into the second argument.
 </p>
+<dl>
+	<dt data-type="Function">iterator([index], model)</dt>
+	<dd>A function used to iterate over each model in this collection. The method will be called with each model passed in as the first argument and, optionally, the current index being as the second aguments.</dd>
+	<dt data=type="mixed">context</dt>
+	<dd>Optionally, the context to apply to the iterator function.</dd>
+</dl>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var dogs = new Dogs([
+		{"name": "Fido"},
+		{"name": "Skip"},
+		{"name": "Bump"},
+		{"name": "Bucko"}
+	]);
+
+	// => Dog's name is Fido
+	// => Dog's name is Skip
+	// => Dog's name is Bump
+	// => Dog's name is Bucko
+	dogs.each(function(dog) {
+		console.log("Dog's name is " + dog.get("name") );
+	});
+</code>
 		
 	
 		
 			
 			<h3 id="collection-extend">extend
-				<small>Falcon.Collection.extend( definition )</small>
+				<small>Falcon.Collection.extend( protoProps, [staticProps] )</small>
 			</h3>
-			<dl>
+			<p>
+	Method used to create a new collection that inherits from the base Falcon Collection.
+</p>
+<dl>
 	<dt data-type="Object">protoProps</dt>
 	<dd>Properties for the prototype of a class</dd>
 	<dt data-type="Object">staticProps</dt>
 	<dd>Static properties for a given object</dd>
 </dl>
-<p>
-	Method used to create a new collection that inherits from the base Falcon Collection.
-</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({
+		model: Dog,
+		bark: function()
+		{
+			console.log("All the dogs bark");
+		}
+	},{
+		say: function() {
+			console.log("Woof!");
+		}
+	});
+
+	var dogs = new Dogs();
+	
+	Dogs.say(); // => Woof!
+	dogs.bark(); // => "All the dogs bark";
+</code>
 		
 	
 		
@@ -1764,13 +2376,21 @@
 			<h3 id="collection-fetch">fetch
 				<small>collection.fetch( [options] )</small>
 			</h3>
-			<dl>
+			<p>
+	Shorthand method for a GET sync request to get all of the models from the server.
+</p>
+<dl>
 	<dt data-type="Object">options</dt>
 	<dd>The options to pass to the 'sync' method</dd>
 </dl>
-<p>
-	Shorthand method to fetch ("GET") all of the models from the server. This method delegates its execution to the 'sync method'.
-</p>
+<code class="multiline">
+	var Dog = Falcon.Model.extend({url: 'dog.json'});
+	var Dogs = Falcon.Collection.extend({model: Dog});
+
+	var dogs = new Dogs()
+
+	dogs.fetch() // 'GET' request to '/dog.json'
+</code>
 		
 	
 		
@@ -1778,23 +2398,29 @@
 			<h3 id="collection-fill">fill
 				<small>collection.fill( items, [options] )</small>
 			</h3>
-			<dl>
+			<p>
+	Method used to add new models to the collection. By default, this method just replaces all of the existing models in the collection. Optionally, one may define how models are added to the colleciton by defining the 'method' attribute of the options argument. 'method' can be either 'replace', 'append', 'prepend', 'merge', or 'insert'. By default, 'replace' is chosen.
+</p>
+<dl>
 	<dt data-type="Array">items</dt>
 	<dd>An array of models to add to the collection.</dd>
 	<dt data-type="Object">options</dt>
 	<dd>A hash of options to use when filling this collection with the given models. The 'method' attribute of options can be used to dictate how the models are added to this collection. The possible options are:
 		<ul>
 			<li>
-				<strong>replace</strong> - Replaces all of the elements in the current list of models.
+				<strong>{method: 'replace'}</strong> - Replaces all of the elements in the current list of models.
 			</li>
 			<li>
-				<strong>append</strong> - Append the items to the end of the collection
+				<strong>{method: 'append'}</strong> - Append the items to the end of the collection
 			</li>
 			<li>
-				<strong>prepend</strong> - Prepend the items to the beginning of the collection
+				<strong>{method: 'prepend'}</strong> - Prepend the items to the beginning of the collection
 			</li>
 			<li>
-				<strong>merge</strong> - Update existing models in this collection (based on checking against models with matching 'id' attributes) and push any new items to the end of the collection.
+				<strong>{method: 'merge'}</strong> - Update existing models in this collection (based on checking against models with matching 'id' attributes) and push any new items to the end of the collection.
+			</li>
+			<li>
+				<strong>{method: 'insert', 'insert_index': 0}</strong> - Insert the models at a specific index in the collection. The 'insert_index' option is used to determine which index to insert at. If the insert_index is out of range, the models are appended to the end of the collection otherwise their added before the current model at the specied index.
 			</li>
 		</ul>
 		by default, the 'replace' method is chosen.
@@ -1806,9 +2432,143 @@
 	<dt data-type="Object">options</dt>
 	<dd>See Above</dd>
 </dl>
-<p>
-	Method used to add new models to the collection. By default, this method just replaces all of the existing models in the collection. Optionally, one may define how models are added to the colleciton by defining the 'method' attribute of the options argument. 'method' can be either 'replace', 'append', 'prepend', or 'merge'. By default, 'replace' is chosen.
+
+<code class="multiline runnable" data-caption="Example of default fill method">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({model: Dog});
+
+	var dogs = new Dogs([
+		{name: "Skip"},
+		{name: "Spot"}
+	]);
+
+	console.log( dogs.pluck("name") ); // [Skip, Spot]
+
+	dogs.fill([
+		{'name': "Fido"},
+		{'name': "Bump"}
+	]);
+
+	console.log( dogs.pluck("name") ); // [Fido, Bump]
+</code>
+
+<code class="multiline runnable" data-caption="Example of append fill method">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({model: Dog});
+
+	var dogs = new Dogs([
+		{name: "Skip"},
+		{name: "Spot"}
+	]);
+
+	console.log( dogs.pluck("name") ); // [Skip, Spot]
+
+	dogs.fill([
+		{'name': "Fido"},
+		{'name': "Bump"}
+	], {method: 'append'});
+
+	console.log( dogs.pluck("name") ); // [Skip, Spot, Fido, Bump]
+</code>
+
+<code class="multiline runnable" data-caption="Example of prepend fill method">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({model: Dog});
+
+	var dogs = new Dogs([
+		{name: "Skip"},
+		{name: "Spot"}
+	]);
+
+	console.log( dogs.pluck("name") ); // [Skip, Spot]
+
+	dogs.fill([
+		{'name': "Fido"},
+		{'name': "Bump"}
+	], {method: 'prepend'});
+
+	console.log( dogs.pluck("name") ); // [Fido, Bump, Skip, Spot]
+</code>
+
+<code class="multiline runnable" data-caption="Example of merge fill method">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({model: Dog});
+
+	var dogs = new Dogs([
+		{id: 1, name: "Skip"},
+		{id: 2, name: "Spot"}
+	]);
+
+	console.log( dogs.pluck("name") ); // [Skip, Spot]
+
+	dogs.fill([
+		{id: 2, 'name': "Fido"},
+		{id: 3, 'name': "Bump"}
+	], {method: 'merge'});
+
+	console.log( dogs.pluck("name") ); // [Skip, Fido, Bump]
+</code>
+
+<code class="multiline runnable" data-caption="Example of insert fill method">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({model: Dog});
+
+	var dogs = new Dogs([
+		{name: "Skip"},
+		{name: "Spot"}
+	]);
+
+	console.log( dogs.pluck("name") ); // [Skip, Spot]
+
+	dogs.fill([
+		{'name': "Fido"},
+		{'name': "Bump"}
+	], {
+		method: 'insert',
+		insert_index: 1
+	});
+
+	console.log( dogs.pluck("name") ); // [Skip, Fido, Bump, Spot]
+</code>
+		
+	
+		
+			
+			<h3 id="collection-filter">filter
+				<small>collection.filter( [iterator] )</small>
+			</h3>
+			<p>
+	Filter method used to get an array of all the models that match the given truth-test iterator.
 </p>
+<dl>
+	<dt data-type="Function">iterator</dt>
+	<dd>An iterator to truth-test each model in the collection.</dd>
+</dl>
+<dl>
+	<dt data-type="String | Number">id</dt>
+	<dd>The id of models to match against in the collection</dd>
+</dl>
+<dl>
+	<dt data-type="Falcon.Model">model</dt>
+	<dd>A model to lookup in the collection</dd>
+</dl>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var my_dogs = new Dogs([
+		{"name": "Fido"},
+		{"name": "Skip"},
+		{"name": "Bump"},
+		{"name": "Bucko"}
+	]);
+
+	var dogs_with_b_names = my_dogs.filter(function(dog) {
+		return dog.get("name").charAt(0) === "B";
+	});
+
+	console.log( dogs_with_b_names ); // [Bump, Bucko]
+</code>
 		
 	
 		
@@ -1816,13 +2576,32 @@
 			<h3 id="collection-first">first
 				<small>collection.first( [iterator] )</small>
 			</h3>
-			<dl>
+			<p>
+	Method used to obtain the first model in the collection. If an iterator is given, then each model starting from the beginning and moving towards the end of the collection, is tested. The first model to pass the truth test is returned. If no model could be found, then 'null' is returned.
+</p>
+<dl>
 	<dt data-type="Function">iterator</dt>
 	<dd>A function to check each model in this collection against. If the iterator returns true then that model is selected.</dd>
 </dl>
-<p>
-	Method used to obtain the first model in the collection. If an iterator is given, then each model starting from the beginning and moving towards the end of the collection, is tested. The first model to pass the truth test is returned. If no model could be found, then 'null' is returned.
-</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var dogs = new Dogs([
+		{id: 1, "name": "Fido"},
+		{id: 2, "name": "Skip"},
+		{id: 3, "name": "Bump"},
+		{id: 4, "name": "Bucko"}
+	]);
+
+	var first_dog = dogs.first();
+	var first_b_dog = dogs.first(function(dog) {
+		return dog.get("name").charAt(0) === "B";
+	});
+
+	console.log( first_dog.get("name") ); // => Fido
+	console.log( first_b_dog.get("name") ); // => Bump
+</code>
 		
 	
 		
@@ -1830,13 +2609,42 @@
 			<h3 id="collection-indexof">indexOf
 				<small>collection.indexOf( model )</small>
 			</h3>
-			<dl>
-	<dt data-type="Falcon.Model">insert_model</dt>
-	<dd>The model to lookup</dd>
-</dl>
-<p>
+			<p>
 	Find the index for the specified model or where the iterator first returns true. -1 is returned if nothing matches.
 </p>
+<dl>
+	<dt data-type="Falcon.Model">model</dt>
+	<dd>The model to lookup.</dd>
+</dl>
+<dl>
+	<dt data-type="Number | String">id</dt>
+	<dd>The id of the model to look up.</dd>
+</dl>
+<dl>
+	<dt data-type="Function">iterator</dt>
+	<dd>Truth test iterator function to test each model with.</dd>
+</dl>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var fido = new Dog({id: 1, "name": "Fido"});
+	var skip = new Dog({id: 2, "name": "Skip"});
+	var bump = new Dog({id: 3, "name": "Bump"});
+	var bucko = new Dog({id: 4, "name": "Bucko"});
+
+	var dogs = new Dogs([fido, skip, bump, bucko]);
+
+	var index_bump = dogs.indexOf(bump);
+	var index_id = dogs.indexOf(2);
+	var index_iterator = dogs.indexOf(function(dog) {
+		return dog.get("name") === "Bucko";
+	});
+
+	console.log( index_bump );  // => 2
+	console.log( index_id );  // => 1
+	console.log( index_iterator );  // => 3
+</code>
 		
 	
 		
@@ -1844,21 +2652,50 @@
 			<h3 id="collection-insert">insert
 				<small>collection.insert( insert_model, model )</small>
 			</h3>
-			<dl>
+			<p>
+	Method used to insert a model before another within the collection. If no model is found in the collection, the model is added to the end of the collection.  Alternatively, an iterator can be given and the model will be inserted before the first model to pass the truth test
+</p>
+<dl>
 	<dt data-type="Falcon.Model">insert_model</dt>
 	<dd>The model to insert</dd>
 	<dt data-type="Falcon.Model">model</dt>
-	<dd>The model to insert before</dd>
+	<dd>The model to insert before.</dd>
 </dl>
 <dl>
 	<dt data-type="Falcon.Model">insert_model</dt>
 	<dd>The model to insert</dd>
+	<dt data-type="Number | String">id</dt>
+	<dd>The model id to insert before.</dd>
+</dl>
+<dl>
+	<dt data-type="Falcon.Model">insert_model.</dt>
+	<dd>The model to insert</dd>
 	<dt data-type="Function">iterator</dt>
 	<dd>The iterator to truth test each model against</dd>
 </dl>
-<p>
-	Method used to insert a model before another within the collection. If no model is found in the collection, the model is added to the end of the collection.  Alternatively, an iterator can be given and the model will be inserted before the first model to pass the truth test
-</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var fido = new Dog({id: 1, "name": "Fido"});
+	var skip = new Dog({id: 2, "name": "Skip"});
+	var bump = new Dog({id: 3, "name": "Bump"});
+	var bucko = new Dog({id: 4, "name": "Bucko"});
+	var spot = new Dog({id: 5, "name": "Spot"});
+
+	var dogs = new Dogs([ fido, skip ]);
+
+	dogs.insert( bump, skip ); // insert bump before skip
+	console.log( dogs.pluck("name") ); // [Fido, Bump, Skip]
+
+	dogs.insert( bucko, 2 ); // insert bucko before skip
+	console.log( dogs.pluck("name") ); // [Fido, Bump, Bucko, Skip]
+
+	dogs.insert( spot, function(dog) {
+		return dog.get("name") === "Bump";
+	});
+	console.log( dogs.pluck("name") ); // [Fido, Spot, Bump, Bucko, Skip]
+</code>
 		
 	
 		
@@ -1866,23 +2703,103 @@
 			<h3 id="collection-last">last
 				<small>collection.last( [iterator] )</small>
 			</h3>
-			<dl>
+			<p>
+	Method used to obtain the last model in the collection. If an iterator is given, then each model starting from the end and moving towards the beginning of the collection, is tested. The first model to pass the truth test is returned. If no model could be found, then 'null' is returned.
+</p>
+<dl>
 	<dt data-type="Function">iterator</dt>
 	<dd>A function to check each model in this collection against. If the iterator returns true then that model is selected.</dd>
 </dl>
-<p>
-	Method used to obtain the last model in the collection. If an iterator is given, then each model starting from the end and moving towards the beginning of the collection, is tested. The first model to pass the truth test is returned. If no model could be found, then 'null' is returned.
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var dogs = new Dogs([
+		{"name": "Fido"},
+		{"name": "Bump"},
+		{"name": "Bucko"},
+		{"name": "Skip"}
+	]);
+
+	var last_dog = dogs.last();
+	var last_b_dog = dogs.last(function(dog) {
+		return dog.get("name").charAt(0) === "B";
+	});
+
+	console.log(last_dog.get("name")); // => Skip
+	console.log(last_b_dog.get("name")); // => Bucko
+</code>
+		
+	
+		
+			
+			<h3 id="collection-lastindexof">lastIndexOf
+				<small>collection.lastIndexOf( model )</small>
+			</h3>
+			<p>
+	Find the last index for the specified model or where the iterator first returns true. -1 is returned if nothing matches.
 </p>
+<dl>
+	<dt data-type="Falcon.Model">model</dt>
+	<dd>The model to lookup.</dd>
+</dl>
+<dl>
+	<dt data-type="Number | String">id</dt>
+	<dd>The id of the model to look up.</dd>
+</dl>
+<dl>
+	<dt data-type="Function">iterator</dt>
+	<dd>Truth test iterator function to test each model with.</dd>
+</dl>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var fido = new Dog({id: 1, "name": "Fido"});
+	var skip = new Dog({id: 2, "name": "Skip"});
+	var bump = new Dog({id: 3, "name": "Bump"});
+	var bucko = new Dog({id: 4, "name": "Bucko"});
+
+	var dogs = new Dogs([fido, skip, bump, bucko, bump, skip, fido]);
+
+	var index_bump = dogs.lastIndexOf(bump);
+	var index_id = dogs.lastIndexOf(2);
+	var index_iterator = dogs.lastIndexOf(function(dog) {
+		return dog.get("name") === "Bucko";
+	});
+
+	console.log( index_bump );  // => 4
+	console.log( index_id );  // => 5
+	console.log( index_iterator );  // => 3
+</code>
 		
 	
 		
 			
 			<h3 id="collection-length">length
-				<small>collection.length</small>
+				<small>collection.length()</small>
 			</h3>
 			<p>
-	The total number of models in this collection. This is an observable so if being bound against, model additions/removals to this collectionwill cause any subscribed object to the length attribute to also be updated.
+	The total number of models in this collection. This is an observable so anything that is bound against this will also be updated when any models are added or removed from the collection.
 </p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var dogs = new Dogs([
+		{"name": "Fido"},
+		{"name": "Bump"}
+	]);
+
+	console.log( dogs.length() ); // => 2
+
+	dogs.append([
+		{"name": "Bucko"},
+		{"name": "Skip"}
+	]);
+
+	console.log( dogs.length() ); // => 4
+</code>
 		
 	
 		
@@ -1890,18 +2807,30 @@
 			<h3 id="collection-makeurl">makeUrl
 				<small>collection.makeUrl( type, [parent] )</small>
 			</h3>
-			<dl>
-	<dt data-type="String">type</dt>
-	<dd>The type of request that is trying to be executed. Type can be either "GET", "POST", "PUT", "DELETE".</dd>
-	<dt data-type="Falcon.Model">parent</dt>
-	<dd>An override to the parent model of this collection. If 'null' is explicity stated, then no parent will be used meaning this collection's model prototype will be used to find the the base relative url for this request.</dd>
-</dl>
-<p>
+			<p>
 	Attempts to generate url for a specific type of request being made. Url's are generated based on this collection's relative url (extracted from the collection's model prototype), the parent model for this collection, and the Falcon.baseApiUrl setting. 
 </p>
 <p>
 	An optional override to the 'parent' attribute can be passed into the second argument of this method. If the parent argument is set, then that will be used instead of the instance parent attribute. Alternatively, if 'null' is explicitly set for the parent attribute, then this collection's url will be used as the base url for the full url generation.
 </p>
+<dl>
+	<dt data-type="String">type</dt>
+	<dd>The type of request that is trying to be executed. Type can be either "GET", "POST", "PUT", "DELETE".</dd>
+	<dt data-type="Falcon.Model">parent</dt>
+	<dd>An override to the parent model of this collection. If 'null' is explicity stated, then no parent will be used meaning this collection's model prototype will be used to find the the base relative url for this request.</dd>
+</dl>
+<code class="multiline runnable">
+	Falcon.baseApiUrl = "http://www.falconjs.com/"
+	var Owner = Falcon.Model.extend({"url": "owner.json"});
+	var Dog = Falcon.Model.extend({"url": "dog.json"});
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var owner = new Owner({'id': 1});
+	var dogs = new Dogs( owner ); // Owner is the parent
+
+	console.log( dogs.makeUrl("GET") ); // => http://www.falconjs.com/owner/1/dog.json
+	console.log( dogs.makeUrl("GET", null) ); // => http://www.falconjs.com/dog.json
+</code>
 		
 	
 		
@@ -1909,13 +2838,46 @@
 			<h3 id="collection-mixin">mixin
 				<small>collection.mixin( mapping )</small>
 			</h3>
-			<dl>
-	<dt data-type="Object">mapping</dt>
-	<dd>The mapping to apply to each of the current models and any future models that are added to the collection.</dd>
-</dl>
-<p>
+			<p>
 	Adds attributes and functions to all of the current and future models in the collection.  This is especially useful for adding one-off functions or observables where needed on each item in the collection that isn't really necessary for everytime this specific collection is created. A good example of this would be adding a 'deleteing' flag to each current and future model in the collection to signify if the model is currently being deleted (hence allowing us to show a loader and ignore any additional delete requests).
 </p>
+<dl>
+	<dt data-type="Object">mapping</dt>
+	<dd>The mapping to apply to each of the current models and any future models that are added to the collection.  This should be an object of values, observables, and functions to add to this collection's models.</dd>
+</dl>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var dogs = new Dogs([
+		{"name": "Fido"}
+	]);
+
+	dogs.mixin({
+		"color": "Black",
+		"is_tame": ko.observable( true ),
+		"bark": function() {
+			console.log(this.get("name") + " says woof!");
+		}
+	});
+
+	dogs.append({"name": "Spot"});
+
+	var fido = dogs.at( 0 );
+	var spot = dogs.at( 1 );
+
+	console.log( fido.get("name") ); // => Fido
+	console.log( fido.get("color") ); // => Black
+	console.log( ko.isObservable( fido.is_tame ) ); // => true
+	console.log( fido.get("is_tame") ); // => true
+	fido.bark(); // => Fido says woof!
+
+	console.log( spot.get("name") ); // => Spot
+	console.log( spot.get("color") ); // => Black
+	console.log( ko.isObservable( spot.is_tame ) ); // => true
+	console.log( spot.get("is_tame") ); // => true
+	spot.bark(); // => Spot says woof!
+</code>
 		
 	
 		
@@ -1926,6 +2888,10 @@
 			<p>
 	The prototype of the model of each item in this collection. This is used to ensure that all models within this collection are the correct type. It is also used to determine the relative url for models in this collection when making sync requests to the server.
 </p>
+<code class="multiline">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({model: Dog});
+</code>
 		
 	
 		
@@ -1936,6 +2902,20 @@
 			<p>
 	The internal observable array that contains all of the models added to this collection.
 </p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var dogs = new Dogs([
+		{"name": "Fido"},
+		{"name": "Skip"},
+		{"name": "Bump"},
+		{"name": "Bucko"}
+	]);
+
+	console.log( ko.isObservable( dogs.models ) ); // => true 
+	console.log( dogs.models() );  // => [Dog, Dog, Dog, Dog]
+</code>
 		
 	
 		
@@ -1946,6 +2926,16 @@
 			<p>
 	This represents the 'parent' object that holds these models.  Generally this is used for determining the URL structure of rest objects in the makeURL() routine. This should also be a Model.
 </p>
+<code class="multiline runnable">
+	var Owner = Falcon.Model.extend();
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({model: Dog});
+
+	var owner = new Owner();
+	var dogs = new Dogs( owner ); // Owner becomes the 'parent' of dogs
+
+	console.log( dogs.parent === owner ); // => true
+</code>
 		
 	
 		
@@ -1953,7 +2943,10 @@
 			<h3 id="collection-parse">parse
 				<small>collection.parse( data, options, xhr )</small>
 			</h3>
-			<dl>
+			<p>
+	The parse method is called after any successful request is completed but before any of the data is actually filled into the collection. It's purpose is to allow you to intercept and parse through the raw server data in order to format it correctly to how this collection expects to see it. This method must return an array of objects in order for the collection to be filled correctly.
+</p>
+<dl>
 	<dt data-type='Object'>data</dt>
 	<dd>The raw data returned from the server</dd>
 	<dt data-type='Object'>options</dt>
@@ -1961,9 +2954,45 @@
 	<dt data-type="XmlHttpRequest">xhr</dt>
 	<dd>The XmlHttpRequest that was created when making this request</dd>
 </dl>
-<p>
-	The parse method is called after any successful request is completed but before any of the data is actually filled into the collection. It's purpose is to allow you to intercept and parse through the raw server data in order to format it correctly to how this collection expects to see it. This method must return an array of objects in order for the collection to be filled correctly.
-</p>
+<code class="multiline">
+	// -------------------------------------
+	// Example Server Response JSON for GET /dog.json
+	// -------------------------------------
+	{
+		data: [
+			{"id": 1, "name": "Fido"},
+			{"id": 2, "name": "Spot"},
+			{"id": 3, "name": "Skip"}
+		],
+		created_at: "01/01/1970",
+		updated_at: "01/01/1970"
+	}
+
+
+	// -------------------------------------
+	// Javascript
+	// -------------------------------------
+	var Dog = Falcon.Model.extend({'url': "dog.json"});
+	var Dogs = Falcon.Collection.extend({
+		model: Dog,
+
+		// Example parse method, the array that is returned from 
+		// this will be passed into the collection's fill() method.
+		parse: function( response ) {
+			return response["data"];
+		}
+	});
+
+	var dogs = new Dogs();
+
+	// Get's the server data and runs the parse method
+	// Callback is called on complete
+	dogs.fetch(function(dogs) {
+		console.log( dogs.length() ); // => 3
+		console.log( dogs.at(0).get("id") ); // => 1
+		console.log( dogs.at(0).get("name") ); // => Fido
+	});
+</code>
 		
 	
 		
@@ -1971,15 +3000,28 @@
 			<h3 id="collection-pluck">pluck
 				<small>collection.pluck( attribute, [unwrap] )</small>
 			</h3>
-			<dl>
+			<p>
+	This method extracts a specific attribute from each model in the collection and returns it in an array. If the unwrap flag is set to true (which it is by default), each attribute is removed from its observable container if it exists wihin one.  If the attribute given isn't found in a model, 'undefined' is returned in the resultant array.
+</p>
+<dl>
 	<dt data-type="String">attribute</dt>
 	<dd>The attribute to pluck from each model in the collecton</dd>
 	<dt data-type="Boolean" data-default="true">unwrap</dt>
-	<dd>Flag that states if we should unwrap the values that are observables.</dd>
+	<dd>Flag that states if we should unwrap the values that are observables. This is true by default.</dd>
 </dl>
-<p>
-	This method extracts a specific attribute from each model in the collection and returns it in an array. If the unwrap flag is set to true (which it is by default), each attribute is removed from its observable container if it exists wihin one.  If the attribute given isn't found in a model, 'undefined' is returned in the resultant array.
-</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var dogs = new Dogs([
+		{"name": "Fido"},
+		{"name": "Skip"},
+		{"name": "Bump"},
+		{"name": "Bucko"}
+	]);
+
+	console.log(dogs.pluck("name")); // => [Fido, Skip, Bump, Bucko]
+</code>
 		
 	
 		
@@ -1990,6 +3032,22 @@
 			<p>
 	Removes and returns the last model from this collection.  If this collection is empty, 'null' is returned instead.
 </p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var dogs = new Dogs([
+		{"name": "Fido"},
+		{"name": "Skip"},
+		{"name": "Bump"},
+		{"name": "Bucko"}
+	]);
+
+	var last_dog = dogs.pop();
+
+	console.log( dogs.length() ); // => 3
+	console.log( last_dog.get("name") ); // => Bucko
+</code>
 		
 	
 		
@@ -1997,7 +3055,10 @@
 			<h3 id="collection-prepend">prepend
 				<small>collection.prepend( items )</small>
 			</h3>
-			<dl>
+			<p>
+	Adds a model or an array of models to the beginning of this collection.
+</p>
+<dl>
 	<dt type="Falcon.Model">item</dt>
 	<dd>A model to prepend to the beginning of this colleciton.</dd>
 </dl>
@@ -2005,9 +3066,24 @@
 	<dt type="Array">items</dt>
 	<dd>An array of models to prepend to the beginning of this colleciton.</dd>
 </dl>
-<p>
-	Adds a model or an array of models to the beginning of this collection.
-</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({model: Dog});
+
+	var dogs = new Dogs();
+
+	dogs.prepend({"name": "Fido"});
+	console.log( dogs.pluck("name") ); // => [Fido]
+
+	dogs.prepend( new Dog({name: "Spot"}) ); 
+	console.log( dogs.pluck("name") ); // => [Spot, Fido]
+
+	dogs.prepend([
+		{name: "Skip"},
+		{name: "Bump"}
+	]);
+	console.log( dogs.pluck("name") ); // => [Skip, Bump, Spot, Fido]
+</code>
 		
 	
 		
@@ -2015,35 +3091,84 @@
 			<h3 id="collection-push">push
 				<small>collection.push( items )</small>
 			</h3>
-			<dl>
+			<p>
+	Push an element on to the end of this collection. This method is an alias of append.
+</p>
+<dl>
 	<dt type="Falcon.Model">item</dt>
 	<dd>A model to add to the colleciton</dd>
 </dl>
-<p>
-	Push an element on to the end of this collection. This method is an alias od append.
-</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({model: Dog});
+
+	var dogs = new Dogs();
+
+	dogs.push({"name": "Fido"});
+	console.log( dogs.pluck("name") ); // => [Fido]
+
+	dogs.push( new Dog({name: "Spot"}) ); 
+	console.log( dogs.pluck("name") ); // => [Fido, Spot]
+
+	dogs.push([
+		{name: "Skip"},
+		{name: "Bump"}
+	]);
+	console.log( dogs.pluck("name") ); // => [Fido, Spot, Skip, Bump]
+</code>
 		
 	
 		
 			
 			<h3 id="collection-remove">remove
-				<small>collection.remove( items )</small>
+				<small>collection.remove( models )</small>
 			</h3>
-			<dl>
-	<dt data-type="Array">items</dt>
-	<dd>An array of models to remove from this colleciton.</dd>
+			<p>
+	Used to remove elements from this collection. This method does not make any API delete requests and will simply remove an instance of a model from this collection.
+</p>
+<dl>
+	<dt data-type="Array">models</dt>
+	<dd>An array of models to remove from this collection.</dd>
 </dl>
 <dl>
-	<dt data-type="Falcon.Model">item</dt>
-	<dd>An item to remove from this collection.</dd>
+	<dt data-type="Falcon.Model">model</dt>
+	<dd>A model to remove from this collection.</dd>
 </dl>
 <dl>
 	<dt data-type="Function">iterator</dt>
-	<dd>An iterator function to compare each model in this collection against. If the iterator is true, then the model is removed.</dd>
+	<dd>An iterator function to truth test each of this collection's models with. If the iterator is true, then the model is removed.</dd>
 </dl>
-<p>
-	Used to remove elements from this collection. This method does not make any API delete requests and will simply remove an instance of a model from this collection.
-</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var fido = new Dog({"name": "Fido"});
+	var skip = new Dog({"name": "Skip"});
+	var bump = new Dog({"name": "Bump"});
+	var bucko = new Dog({"name": "Bucko"});
+	var spot = new Dog({"name": "Spot"});
+	var zeus = new Dog({"name": "Zeus"});
+
+	var dogs = new Dogs([fido, skip, bump, bucko, spot, zeus]);
+
+	dogs.remove( skip );
+	console.log( dogs.length() ); // => 5
+	console.log( dogs.any(skip) ); // => false
+
+	dogs.remove( [fido, spot] );
+	console.log( dogs.length() ); // => 3
+	console.log( dogs.any(fido) ); // => false
+	console.log( dogs.any(spot) ); // => false
+
+	dogs.remove(function(dog) {
+		return dog.get("name").charAt(0) === "B";
+	});
+	console.log( dogs.length() ); // => 1
+	console.log( dogs.any(bump) ); // => false
+	console.log( dogs.any(bucko) ); // => false
+
+	console.log( dogs.any(zeus) ); // => true
+</code>
 		
 	
 		
@@ -2054,6 +3179,23 @@
 			<p>
 	'resets' the internal observable array of this collection. This will make sure the model list is an observable array, has no elements, and the length of the collection is restored to zero.
 </p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var dogs = new Dogs([
+		{"name": "Fido"},
+		{"name": "Skip"},
+		{"name": "Bump"},
+		{"name": "Bucko"}
+	]);
+
+	console.log( dogs.length() ); // => 4
+
+	dogs.reset();
+
+	console.log( dogs.length() ); // => 0
+</code>
 		
 	
 		
@@ -2065,6 +3207,20 @@
 	<dt data-type="Array">attributes</dt>
 	<dd>The attributes that should be included in the serialization of each model in this collection. If none given, all attributes unique to each model is included.</dd>
 </dl>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var dogs = new Dogs([
+		{id: 1, "name": "Fido"},
+		{id: 2, "name": "Skip"},
+		{id: 3, "name": "Bump"}
+	]);
+
+	console.log( dogs.serialize() ); // => [{id: 1, name: "Fido"}, {id: 2, name: "Skip"}, {id: 3, name: "Bump"}]
+
+	console.log( dogs.serialize(["name"]) ); // => [{name: "Fido"}, {name: "Skip"}, {name: "Bump"}]
+</code>
 		
 	
 		
@@ -2073,8 +3229,24 @@
 				<small>collection.shift()</small>
 			</h3>
 			<p>
-	Removes the first element from the models and returns it.
+	Removes the first element from the collection and returns it.
 </p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var dogs = new Dogs([
+		{"name": "Fido"},
+		{"name": "Skip"},
+		{"name": "Bump"},
+		{"name": "Bucko"}
+	]);
+
+	var first_dog = dogs.shift();
+
+	console.log( dogs.length() ); // => 3
+	console.log( first_dog.get("name") ); // => Fido
+</code>
 		
 	
 		
@@ -2082,29 +3254,66 @@
 			<h3 id="collection-slice">slice
 				<small>collection.slice( start, [end] )</small>
 			</h3>
-			<dl>
+			<p>
+	Slices the collection the same way slice works on an array.  Returns an array of the models within the range.
+</p>
+<dl>
 	<dt>start</dt>
 	<dd>An integer that specifies where to start the selection (The first element has an index of 0).  Use negative numbers to select from the end of an array.</dd>
 	<dt>end</dt>
 	<dd>An integer that specifies where to end the selection.  If omitted, all elements from the start position and to the end of the array will be selected. Use negative numbers to select from the end of an array</dd>
 </dl>
-<p>
-	Slices the underlying collection the same way slice works on an array.
-</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var dogs = new Dogs([
+		{"name": "Fido"},
+		{"name": "Skip"},
+		{"name": "Bump"},
+		{"name": "Bucko"}
+	]);
+
+	console.log( dogs.slice( 1 ) ); // => [Skip, Bump, Bucko]
+	console.log( dogs.slice( 1, 3 ) );  // => [Skip, Bump]
+</code>
 		
 	
 		
 			
 			<h3 id="collection-sort">sort
-				<small>collection.sort( sorter )</small>
+				<small>collection.sort( comparator )</small>
 			</h3>
-			<dl>
-	<dt>sorter</dt>
-	<dd>An iterator to sort the collection with.</dd>
-</dl>
-<p>
-	Sorts the collection by a given sorter function.
+			<p>
+	Sorts the collection by a given comparator function.
 </p>
+<dl>
+	<dt>comparator(a, b)</dt>
+	<dd>A comparator function to sort the collection with.</dd>
+</dl>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var dogs = new Dogs([
+		{"name": "Fido"},
+		{"name": "Skip"},
+		{"name": "Bump"},
+		{"name": "Bucko"}
+	]);
+
+	// Sort names from A->Z
+	dogs.sort(function(dog_a, dog_b) {
+		name_a = dog_a.get("name");
+		name_b = dog_b.get("name");
+
+		if(name_a < name_b) { return -1; }
+		if(name_a > name_b) { return 1; }
+		return 0;
+	});
+
+	console.log( dogs.pluck("name") ); // => [Bucko, Bump, Fido, Skip]
+</code>
 		
 	
 		
@@ -2112,15 +3321,86 @@
 			<h3 id="collection-sync">sync
 				<small>collection.sync( type, [options] )</small>
 			</h3>
-			<dl>
-	<dt>type</dt>
-	<dd>The HTTP Method to call to the server with</dd>
-	<dt>options</dt>
-	<dd>Optional object of settings to use on this call</dd>
-</dl>
-<p>
-	Used to dynamically place calls to the server in order to create, update, destroy, or read this from/to the server.
+			<p>
+	Method used to interact with the backend API and this collection. This method utilizes and extends on to the jQuery $.ajax method.  This method currently only supports the GET request type when being used for a collection.  A GET request should return an array of models that belong to this collection.
 </p>
+<p>
+	The sync method also takes an optional 'options' argument which can be used for specifying how this method should handle requests and how it should handle serializing and reacting to success/errornous responses.
+</p>
+<p>
+	Lastly, after the ajax method responds successfully, a success response will occur. Prior to calling the 'success' callback on the options, the raw data returned from the server will be send to the 'parse' method. The resultant data from the parse method is then sent to the 'fill' method (if the fill flag is enabled). Following that, a 'fetch' event is triggered.  Lastly, the success callback method specified in the options is called with this collection as the context, and with the following 4 arguments: This collection, the parsed raw data, the response status, and the XmlHttpRequest object.
+</p>
+<dl>
+	<dt data-type="String">type</dt>
+	<dd>The HTTP Method to call to the server with. Valid options options include "GET", "POST", "PUT", "DELETE".</dd>
+	<dt data-type="Object">options</dt>
+	<dd>Optional object of settings to use on this call.  This is usefull for configuring ajax callbacks, url parameters, fill paramaters, and attribute serialization handling. The avilable options are:
+		<ul>
+			<li>
+				<strong>url</strong> - The url to make our request to. If the url isn't specified, then the 'makeUrl' method will be called with the given request type to generate a url.
+			</li>
+			<li>
+				<strong>parent</strong> - An override of the parent object to use when generating a url through 'makeUrl'. If the parent option isn't set, then this model's parent is used.  If parent is set to 'null', then no parent will be used.
+			</li>
+			<li>
+				<strong>attributes</strong> - An object or an array of attributes to actually serialize and send to the server. This is the same attributes specifiation that will be passed into the 'serialize' method which is useful for reducing the load of data that is sent to the server.  See the 'serialize' method for more information on the attributes option.
+			</li>
+			<li>
+				<strong>method</strong> - The fill method to use when receiving data from the server. By default this is 'replace'. Other available options include: 'append', 'prepend', 'merge', 'insert'.  If 'insert' is specified, then 'insert_index' may also be provided in the options.
+			</li>
+			<li>
+				<strong>params</strong> - An object of query parameters to append to the request url.  This is useful for allowing the 'makeUrl' to generate a url for this model but still being able to add specific query parameters without having to modify the makeUrl method.
+			</li>
+			<li>
+				<strong>data</strong> - An object of additional data to send through to the server.  This data is automatically JSON stringified if it is present and valid.  By default, this is set to an empty string.
+			</li>
+			<li>
+				<strong>dataType</strong> - The type of data to send to the server, the default is 'json'.
+			</li>
+			<li>
+				<strong>headers</strong> - An object of HTTP headers to add to this request.
+			</li>
+			<li>
+				<strong>context</strong> - The context to call the ajax callbacks (success, error, complete), on. By default it is set to this collection.
+			</li>
+			<li>
+				<strong>success( collection, data, status, xhr)</strong> - The callback that will be executed when the ajax request has completed with a 200 level response. The callback will be called on the context of this collection unless the context option has been specified. The callback will be given four arguments: This collection, the data after being passed through the parse method, the request status, and the XmlHttpRequest object.
+			</li>
+			<li>
+				<strong>error( collection, response, xhr )</strong> - A callback method to be executed whenever a 400 or above level response is returned from the server. This method will be called on the context of this collection or the context given in the options if one is set.  This callback will be called with three arguments given: This collection, the response text, and the XmlHttpRequest object. 
+			<li>
+				<strong>complete( collection, xhr, status )</strong> - A callback method to be executed whenever any status resonse is completed. This method is called after success/error. It will be called on the context of this collection unless the context was specified in the options. It will be called with three arguments given: This collection, the XmlHttpRequest object, and the server status.
+			</li>
+			<li>
+				<strong>fill</strong> - A flag to specify whether the 'fill' method should be called once this request has completed successfully. By default, this is set to true.
+			</li>
+		</ul>
+	</dd>
+</dl>
+<code class="multiline">
+	var Dog = Falcon.Model.extend({"url": "dog.json"});
+	var Dogs = Falcon.Collection.extend({model: Dog});
+
+	var dogs = new Dogs();
+
+	// Creates a GET ajax request that is sent to /dog.json
+	// Complete is always called, success is called if called if we found
+	// the dog on the server, otherwise error is called if something
+	// went wrong.
+	dogs.sync("GET", {
+		complete: function(dogs, data, xhr, status) {
+			console.log("Completed trying to find the Dogs.");
+		},
+
+		success: function(dogs, data, status, xhr) {
+			console.log("Successfully found the Dogs!");
+		},
+
+		error: function(dogs, response, xhr ) {
+			console.log("Couldn't find the dogs :(");
+		}
+	});
+</code>
 		
 	
 		
@@ -2128,38 +3408,35 @@
 			<h3 id="collection-unshift">unshift
 				<small>collection.unshift( items )</small>
 			</h3>
-			<!--
-	TODO: Link to prepend
--->
-<dl>
-	<dt>items</dt>
-	<dd>A list of models to add to the collection</dd>
-</dl>
-<dl>
-	<dt>item</dt>
-	<dd>A model to add to the collection</dd>
-</dl>
-<p>
-	Push an element onto the begining of the array, Alias of prepend.
-</p>
-		
-	
-		
-			
-			<h3 id="collection-unwrap">unwrap
-				<small>collection.unwrap()</small>
-			</h3>
 			<p>
-	Method used to 'unwrap' this object into an anonymous object Needed to cascade inwards on other Falcon Data objects (like models) to unwrap newly added member variables/objects
+	Prepend a model or a list of models to the front of this collection. This is an alias of prepend.
 </p>
-		
-	
-		
-			
-			<h3 id="collection-url">url
-				<small>collection.url</small>
-			</h3>
-			<p>This is the top level url for the collection.</p>
+<dl>
+	<dt type="Falcon.Model">item</dt>
+	<dd>A model to prepend to the beginning of this colleciton.</dd>
+</dl>
+<dl>
+	<dt type="Array">items</dt>
+	<dd>An array of models to prepend to the beginning of this colleciton.</dd>
+</dl>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({model: Dog});
+
+	var dogs = new Dogs();
+
+	dogs.unshift({"name": "Fido"});
+	console.log( dogs.pluck("name") ); // => [Fido]
+
+	dogs.unshift( new Dog({name: "Spot"}) ); 
+	console.log( dogs.pluck("name") ); // => [Spot, Fido]
+
+	dogs.unshift([
+		{name: "Skip"},
+		{name: "Bump"}
+	]);
+	console.log( dogs.pluck("name") ); // => [Skip, Bump, Spot, Fido]
+</code>
 		
 	
 		
@@ -2167,11 +3444,40 @@
 			<h3 id="collection-without">without
 				<small>collection.without( iterator )</small>
 			</h3>
-			<dl>
-	<dt>iterator</dt>
-	<dd>The iterator to check each model against</dd>
+			<p>Used to generate an array of models from this collection without the matching models included.</p>
+<dl>
+	<dt>model</dt>
+	<dd>The model to remove from the list.</dd>
 </dl>
-<p>Returns an array of elements that don't match the iterator</p>
+<dl>
+	<dt>id</dt>
+	<dd>The id of the model to remove from the list.</dd>
+</dl>
+<dl>
+	<dt>iterator</dt>
+	<dd>A truth test iterator to check each model against.</dd>
+</dl>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var fido = new Dog({"id": 1, "name": "Fido"});
+	var skip = new Dog({"id": 2, "name": "Skip"});
+	var bump = new Dog({"id": 3, "name": "Bump"});
+	var bucko = new Dog({"id": 4, "name": "Bucko"});
+
+	var dogs = new Dogs([ fido, skip, bump, bucko ]);
+
+	var without_skip = dogs.without( skip );
+	var without_bump = dogs.without( 3 );
+	var without_b_dogs = dogs.without(function(dog) {
+		return dog.get("name").charAt(0) === "B";
+	});
+
+	console.log( without_skip ); // => [Fido, Bump, Bucko]
+	console.log( without_bump ); // => [Fido, Skip, Bucko]
+	console.log( without_b_dogs ); // => [Fido, Skip]
+</code>
 		
 	
 </section>
@@ -2194,28 +3500,22 @@
 	
 		
 			
-			<h3 id="view-cachetemplate">cacheTemplate
-				<small>Falcon.View.cacheTemplate( identifier, template )</small>
-			</h3>
-			<dl>
-	<dt data-type="String">identifier</dt>
-	<dd>The unique identifier for the template (usually a url or an element id)</dd>
-	<dt data-type="String">template</dt>
-	<dd>The cached template</dd>
-</dl>
-<p>
-	Method used to cache a template against some unique identifier.
-</p>
-		
-	
-		
-			
 			<h3 id="view-initialize">initialize
 				<small>new Falcon.View()</small>
 			</h3>
 			<p>
 	Initializes this class, this is called within the default contructor and is expected to be overridden by inheritting classes.  Internally this also called the Falcon.Object constructor to in itialize any 'defaults' or 'observables'.
 </p>
+<code class="multiline runnable">
+	var DogView = Falcon.View.extend({
+		initialize: function()
+		{
+			console.log("Initialized the Dog View");
+		}
+	});
+
+	new DogView(); // => Initialized the Dog View
+</code>
 		
 	
 		
@@ -2224,8 +3524,55 @@
 				<small>view.display()</small>
 			</h3>
 			<p>
-	Executed when this view is displayed (added to the DOM). This method is called from the render method which itself is called from the 'view' binding.  This should be overridden by inheritting classes and should primarily be used for 'on-display' funcitonality such as certain event handlers
+	Executed when this view is displayed (added to the DOM). This method is called from the view binding when rendering this view's template is complete and added to the DOM.  This should be overridden by inheritting classes and should primarily be used for 'on-display' funcitonality such as certain event handlers
 </p>
+<code class="multiline">
+	// ----------------------------------------
+	// Javascript
+	// ----------------------------------------
+	var DogView = Falcon.View.extend({
+		url: '#dog_view',
+
+		display: function()
+		{
+			console.log("Dog View Displayed")
+		}
+	});
+
+	var view_model = {
+		showing_dog_view: ko.observable(false),
+		my_dog_view: new DogView()
+	};
+
+	console.log("Initializing");
+	setTimeout(function() {
+		view_model.show_dog_view(true)
+	}, 5000);
+
+	Falcon.apply(view_model, '#application');
+
+
+	// ----------------------------------------
+	// HTML
+	// ----------------------------------------
+	<div id="application">
+		<!-- ko if: showing_dog_view -->
+			<!-- ko view: my_dog_view --><!-- /ko -->
+		<!-- /ko -->
+	</div>
+	<template id="dog_view">
+		This is the Dog View
+	</template>
+
+
+	// ----------------------------------------
+	// Console
+	// ----------------------------------------
+	... my_dog_view is currently not rendered because showing_dog_view is set to false
+	=> Initializing
+	... Waits five seconds and then sets show_dog_view to true, my_dog_view is then rendered on the screen
+	=> Dog View Displayed
+</code>
 		
 	
 		
@@ -2236,22 +3583,87 @@
 			<p>
 	Executed when this view is disposed (removed from the DOM). This method is called from the unrender method which itself is called from the 'view' binding.  This should be overridden by inheritting classes and should primarily be used for removing any 'on-display' funcitonality that was added in the display method
 </p>
+<code class="multiline">
+	// ----------------------------------------
+	// Javascript
+	// ----------------------------------------
+	var DogView = Falcon.View.extend({
+		url: '#dog_view',
+
+		dispose: function()
+		{
+			console.log("Dog View Displayed No Longer")
+		}
+	});
+
+	var view_model = {
+		showing_dog_view: ko.observable(true),
+		my_dog_view: new DogView()
+	};
+
+	console.log("Initializing");
+	setTimeout(function() {
+		view_model.show_dog_view(false)
+	}, 5000);
+
+	Falcon.apply(view_model, '#application');
+
+
+	// ----------------------------------------
+	// HTML
+	// ----------------------------------------
+	<div id="application">
+		<!-- ko if: showing_dog_view -->
+			<!-- ko view: my_dog_view --><!-- /ko -->
+		<!-- /ko -->
+	</div>
+	<template id="dog_view">
+		This is the Dog View
+	</template>
+
+
+	// ----------------------------------------
+	// Console
+	// ----------------------------------------
+	... my_dog_view is currently rendered because showing_dog_view is set to true
+	=>  Initializing
+	... Waits five seconds and then sets show_dog_view to false, my_dog_view is 
+	... then no longer rendered on the screen
+	=>  Dog View Displayed No Longer
+</code>
 		
 	
 		
 			
 			<h3 id="view-extend">extend
-				<small>Falcon.View.extend( properties )</small>
+				<small>Falcon.View.extend( protoProps, [staticProps] )</small>
 			</h3>
-			<dl>
+			<p>
+	Method used to create a new view that inherits from the base Falcon View.
+</p>
+<dl>
 	<dt data-type="Object">protoProps</dt>
 	<dd>Properties for the prototype of a class</dd>
 	<dt data-type="Object">staticProps</dt>
 	<dd>Static properties for a given object</dd>
 </dl>
-<p>
-	Method used to create a new view that inherits from the base Falcon View.
-</p>
+<code class="multiline runnable">
+	var DogView = Falcon.View.extend({
+		bark: function()
+		{
+			console.log("The dog view barks");
+		}
+	},{
+		says: function() {
+			console.log("Woof!");
+		}
+	});
+
+	var my_dog_view = new DogView();
+	
+	DogView.says(); // => Woof!
+	my_dog_view.bark(); // => The dog view barks
+</code>
 		
 	
 		
@@ -2272,16 +3684,21 @@
 			<p>
 	Method used to 'intelligently' make a url to point to the remote version of this template. If the URL begins with a '#' it will leave the url as is because we're identifying an on-page template element to lookup rather than a remote resource.
 </p>
-		
-	
-		
-			
-			<h3 id="view-resetcache">resetCache
-				<small>Falcon.View.resetCache()</small>
-			</h3>
-			<p>
-	Clears all of the cached templates.
-</p>
+<code class="multiline runnable">
+	var DogUrlView = Falcon.View.extend({ url: "dog.tmpl" });
+	var DogIdView = Falcon.View.extend({ url: "#dog" });
+
+	var dog_url_view = new DogUrlView();
+	var dog_id_view = new DogIdView();
+
+	console.log( dog_url_view.makeUrl() ); // => /dog.tmpl
+	console.log( dog_id_view.makeUrl() ); // => #dog
+
+	Falcon.baseTemplateUrl = "http://www.falconjs.com/";
+
+	console.log( dog_url_view.makeUrl() ); // => http://www.falconjs.com/dog.tmpl
+	console.log( dog_id_view.makeUrl() ); // => #dog
+</code>
 		
 	
 		
@@ -2292,6 +3709,31 @@
 			<p>
 	The url or element id where this template is defined. Can either be a string or a function and can either point to a uri or a DOM object identifier.  This attribute should be overridden by any inheritting classes
 </p>
+<code class="multiline runnable mock-ajax">
+	var DogUrlView = Falcon.View.extend({
+		url: "dog.tmpl"
+	});
+	
+	var DogIdView = Falcon.View.extend({
+		url: "#dog"
+	});
+	
+	var DogFunctionView = Falcon.View.extend({
+		url: function() {
+			return "dog.html"
+		}
+	});
+
+	var dog_url_view = new DogUrlView();
+	var dog_id_view = new DogIdView();
+	var dog_function_view = new DogFunctionView();
+
+	Falcon.baseTemplateUrl = "http://www.falconjs.com/";
+
+	console.log( dog_url_view.makeUrl() ); // => http://www.falconjs.com/dog.tmpl
+	console.log( dog_id_view.makeUrl() ); // => #dog
+	console.log( dog_function_view.makeUrl() ); // => http://www.falconjs.com/dog.html
+</code>
 		
 	
 </section>

@@ -6,10 +6,17 @@ returnDescription: the XmlHttpRequest object
 complete: false
 category: model
 ---
+<p>
+	Method used to delete this model from the server. This method just called 'sync' with the 'DELETE' request type pre-filled.
+</p>
 <dl>
 	<dt data-type="Object">options</dt>
 	<dd>The options to pass into the 'sync' method</dd>
 </dl>
-<p>
-	Method used to delete this model from the server. This method just called 'sync' with the 'DELETE' request type pre-filled.
-</p>
+<code class="multiline">
+	var Dog = Falcon.Model.extend({ url: "dog.json" });
+
+	var dog = new Dog({id: '1', name: "Fido"});
+
+	dog.destroy(); // => DELETE to '/dog/1.json' with {"id": 1, "name": "fido"}
+</code>

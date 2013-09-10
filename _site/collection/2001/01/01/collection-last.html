@@ -1,7 +1,26 @@
+<p>
+	Method used to obtain the last model in the collection. If an iterator is given, then each model starting from the end and moving towards the beginning of the collection, is tested. The first model to pass the truth test is returned. If no model could be found, then 'null' is returned.
+</p>
 <dl>
 	<dt data-type="Function">iterator</dt>
 	<dd>A function to check each model in this collection against. If the iterator returns true then that model is selected.</dd>
 </dl>
-<p>
-	Method used to obtain the last model in the collection. If an iterator is given, then each model starting from the end and moving towards the beginning of the collection, is tested. The first model to pass the truth test is returned. If no model could be found, then 'null' is returned.
-</p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var dogs = new Dogs([
+		{"name": "Fido"},
+		{"name": "Bump"},
+		{"name": "Bucko"},
+		{"name": "Skip"}
+	]);
+
+	var last_dog = dogs.last();
+	var last_b_dog = dogs.last(function(dog) {
+		return dog.get("name").charAt(0) === "B";
+	});
+
+	console.log(last_dog.get("name")); // => Skip
+	console.log(last_b_dog.get("name")); // => Bucko
+</code>

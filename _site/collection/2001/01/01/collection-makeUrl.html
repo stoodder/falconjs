@@ -1,12 +1,24 @@
-<dl>
-	<dt data-type="String">type</dt>
-	<dd>The type of request that is trying to be executed. Type can be either "GET", "POST", "PUT", "DELETE".</dd>
-	<dt data-type="Falcon.Model">parent</dt>
-	<dd>An override to the parent model of this collection. If 'null' is explicity stated, then no parent will be used meaning this collection's model prototype will be used to find the the base relative url for this request.</dd>
-</dl>
 <p>
 	Attempts to generate url for a specific type of request being made. Url's are generated based on this collection's relative url (extracted from the collection's model prototype), the parent model for this collection, and the Falcon.baseApiUrl setting. 
 </p>
 <p>
 	An optional override to the 'parent' attribute can be passed into the second argument of this method. If the parent argument is set, then that will be used instead of the instance parent attribute. Alternatively, if 'null' is explicitly set for the parent attribute, then this collection's url will be used as the base url for the full url generation.
 </p>
+<dl>
+	<dt data-type="String">type</dt>
+	<dd>The type of request that is trying to be executed. Type can be either "GET", "POST", "PUT", "DELETE".</dd>
+	<dt data-type="Falcon.Model">parent</dt>
+	<dd>An override to the parent model of this collection. If 'null' is explicity stated, then no parent will be used meaning this collection's model prototype will be used to find the the base relative url for this request.</dd>
+</dl>
+<code class="multiline runnable">
+	Falcon.baseApiUrl = "http://www.falconjs.com/"
+	var Owner = Falcon.Model.extend({"url": "owner.json"});
+	var Dog = Falcon.Model.extend({"url": "dog.json"});
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var owner = new Owner({'id': 1});
+	var dogs = new Dogs( owner ); // Owner is the parent
+
+	console.log( dogs.makeUrl("GET") ); // => http://www.falconjs.com/owner/1/dog.json
+	console.log( dogs.makeUrl("GET", null) ); // => http://www.falconjs.com/dog.json
+</code>

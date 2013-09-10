@@ -10,19 +10,19 @@
 <code class="multiline runnable">
 	var obj = new Falcon.Object();
 
-	var alert_function = function() {
-		alert("Hello World")
+	var log_function = function() {
+		log("Hello World")
 	};
 
 	var foo_function = function() {
-		alert("Foo Bar")
+		log("Foo Bar")
 	};
 
-	obj.on("alert", alert_function);
+	obj.on("log", log_function);
 
-	console.log( obj.has("alert") ); // => true
+	console.log( obj.has("log") ); // => true
 	console.log( obj.has("click") ); // => false
 
-	console.log( obj.has("alert", alert_function) ); // => true
-	console.log( obj.has("alert", foo_function) ); // => false
+	console.log( obj.has("log", log_function) ); // => true
+	console.log( obj.has("log", foo_function) ); // => false
 </code>

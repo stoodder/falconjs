@@ -18,33 +18,33 @@ category: Object
 <code class="multiline runnable">
 	var obj = new Falcon.Object();
 
-	obj.on("alert", function() {
-		alert("Hello World");
+	obj.on("log", function() {
+		console.log("Hello World");
 	});
 
-	obj.trigger("alert");
+	obj.trigger("log");
 
-	obj.off("alert");
+	obj.off("log");
 
-	obj.trigger("alert");
+	obj.trigger("log");
 </code>
 <code class="multiline runnable">
 	var obj = new Falcon.Object();
 
-	var alert_callback_one = function() {
-		alert("Alert One");
+	var log_callback_one = function() {
+		console.log("Log One");
 	};
 
-	var alert_callback_two = function() {
-		alert("Alert Two");
+	var log_callback_two = function() {
+		console.log("Log Two");
 	};
 
-	obj.on("alert", alert_callback_one);
-	obj.on("alert", alert_callback_two);
+	obj.on("log", log_callback_one);
+	obj.on("log", log_callback_two);
 
-	obj.trigger("alert");
+	obj.trigger("log");
 
-	obj.off("alert", alert_callback_one);
+	obj.off("log", log_callback_one);
 
-	obj.trigger("alert");
+	obj.trigger("log");
 </code>

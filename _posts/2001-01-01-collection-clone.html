@@ -1,15 +1,38 @@
 ---
 title: clone
-method: collection.clone( parent )
+method: collection.clone( [attributes], [parent] )
 returnType: Falcon.Collection
 returnDescription: A clone of this collectin
 complete: false
 category: collection
 ---
-<dl>
-	<dt data-type="Falcon.Model">parent</dt>
-	<dd>An optional parent to set in the resultant collection. If 'null' is set, then the resultant collection will be parent-free</dd>
-</dl>
 <p>
-	This method does a shallow clone of this collection with the resultant collection containing the same model instances as the original collection. Optionally, if the parent argument is set, the resultant collection will reference that as its parent. If the parent argument is explicitly set to 'null' then the resultant collection will be parent-free.
+	Method used to create a deep clone of this collection and it's models. This method can only select certain attributes from each of the models in the collection.  If a parent is given, then the resultant collection will have that parent rather than the original collection's parent. If 'null' is given for parent, then the resultant collection will have no parent set.
 </p>
+<dl>
+	<dt data-type="Object">attributes</dt>
+	<dd>An object or an array of attributes to copy from each model in this collection. If this is not provided all attributes will be copied.</dd>
+	<dt data-type="Falcon.Model">parent</dt>
+	<dd> An override of the parent to set in the resultant collection. If 'null' is explicitly given, then the resultant collection will be parent-free</dd>
+</dl>
+<code class="multiline runnable">
+	var Owner = Falcon.Model.extend();
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({model: Dog});
+
+	var owner = new Owner();
+	var dogs = new Dogs([
+		{"name": "Fido"},
+		{"name": "Skip"},
+		{"name": "Bump"},
+		{"name": "Bucko"}
+	], owner);
+
+	var dogs_clone = dogs.clone(null);
+
+	console.log( dogs === dogs_clone ); // => false
+	console.log( dogs.length() === dogs_clone.length() ); // => true
+	console.log( dogs.at(2) === dogs_clone.at(2) ); // => false
+	console.log( dogs.parent === owner); // => true
+	console.log( dogs_clone.parent === null); // => true
+</code>

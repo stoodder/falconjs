@@ -18,16 +18,16 @@ category: Object
 <code class="multiline runnable">
 	var obj = new Falcon.Object();
 
-	obj.on("alert", function()
+	obj.on("log", function()
 	{
-		alert("Hello World");
+		console.log("Hello World");
 	});
 
-	obj.on("custom_alert", function(message)
+	obj.on("custom_log", function(message)
 	{
-		alert( message );
+		console.log( message );
 	});
 
-	obj.trigger("alert");
-	obj.trigger("custom_alert", "Foo Bar");
+	obj.trigger("log");
+	obj.trigger("custom_log", "Foo Bar");
 </code>

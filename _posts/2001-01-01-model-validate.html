@@ -6,10 +6,35 @@ returnDescription: Is this model valid?
 complete: false
 category: model
 ---
+<p>
+	Method used to validate this model before it is sent to the server on create or save.  If this method returns true, saving will continue but if it returns false then saving is halted and no request to the server will be made.
+</p>
 <dl>
 	<dt data-type="Object">options</dt>
 	<dd>The options passed into the sync method</dd>
 </dl>
-<p>
-	Method used to validate this model before it is sent to the server on create or save.  If this method returns true, saving will continue but if it returns false then saving is halted and no request to the server will be made.
-</p>
+<code class="multiline">
+	var Dog = Falcon.Model.extend({
+		url: "dog.json",
+
+		defaults: {
+			"name": ""
+		},
+
+		validate: function() {
+			if( name.length === 0 ) {
+				return false;
+			}
+
+			return true;
+		}
+	});
+
+	var dog = new Dog();
+
+	dog.create(); // Attempts to send a POST request but nothing happens, dog's name is empty
+
+	dog.set("name", "Fido");
+
+	dog.create(); // Allows the model to be saved to the server
+</code>

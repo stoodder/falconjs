@@ -7,3 +7,17 @@ category: collection
 <p>
 	The internal observable array that contains all of the models added to this collection.
 </p>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var dogs = new Dogs([
+		{"name": "Fido"},
+		{"name": "Skip"},
+		{"name": "Bump"},
+		{"name": "Bucko"}
+	]);
+
+	console.log( ko.isObservable( dogs.models ) ); // => true 
+	console.log( dogs.models() );  // => [Dog, Dog, Dog, Dog]
+</code>

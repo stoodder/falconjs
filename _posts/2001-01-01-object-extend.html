@@ -1,0 +1,34 @@
+---
+title: extend
+method: Falcon.Object.extend( protoProps, [staticProps] )
+returnType: undefined
+returnDescription: undefined
+complete: false
+category: Object
+---
+<p>
+	Method used to create a new subclass that inherits from this class.  Props to Backbone.js for the code behind this implementation.
+</p>
+<dl>
+	<dt data-type="Object">protoProps</dt>
+	<dd>Properties for the prototype of a class</dd>
+	<dt data-type="Object">staticProps</dt>
+	<dd>Static properties for a given object</dd>
+</dl>
+<code class="multiline runnable">
+	var Dog = Falcon.Object.extend({
+		bark: function()
+		{
+			console.log("The dog barks");
+		}
+	},{
+		says: function() {
+			console.log("Woof!");
+		}
+	});
+
+	var my_dog = new Dog();
+	
+	Dog.says(); // => Woof!
+	my_dog.bark(); // => The dog barks
+</code>
