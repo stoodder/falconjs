@@ -216,6 +216,16 @@ code.runnable .runner {
   cursor: pointer;
   border: 1px solid #d47f7f;
 }
+code.runnable .logger.visible {
+  display: block;
+}
+code.runnable .logger {
+  display: none;
+  background-color: white;
+  margin: 10px 5px 0px 5px;
+  padding: 10px;
+  border: 1px solid #d47f7f;
+}
 
 #hero {
   height: 500px;
