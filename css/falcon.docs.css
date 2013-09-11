@@ -361,7 +361,7 @@ code.runnable .logger {
   -webkit-transform: translate3d(0, 0, 0);
   transform-style: preserve-3d;
   transform: translate3d(0, 0, 0);
-  width: 270px;
+  width: 250px;
   overflow: auto;
   background-color: transparent;
   margin: 0px;
