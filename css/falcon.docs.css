@@ -367,11 +367,6 @@ code.runnable .logger {
   margin: 0px;
   padding: 0px;
 }
-@media screen and (max-width: 768px) and (orientation: portrait), screen and (max-width: 1024px) and (orientation: landscape), screen and (max-device-width: 768px) and (orientation: portrait), screen and (max-device-width: 1024px) and (orientation: landscape) {
-  #sidebar {
-    display: none;
-  }
-}
 #sidebar a {
   text-decoration: none;
 }
