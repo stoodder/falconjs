@@ -202,6 +202,10 @@ $tablet-portrait-height: 1024px
 $tablet-landscape-width: 1024px
 $tablet-landscape-height: 768px
 
+@mixin max-width($width)
+	@media screen and (max-width: $width)
+		@content
+		
 @mixin phone
 	@media screen and (max-width: 320px) and (orientation: portrait), screen and (max-width: 568px) and (orientation: landscape), screen and (max-device-width: 320px) and (orientation: portrait), screen and (max-device-width: 568px) and (orientation: landscape)
 		@content

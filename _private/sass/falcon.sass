@@ -308,11 +308,15 @@ code.runnable
 
 #sidebar
 	+transition-duration( .25s )
-	width: 250px
 	overflow: auto
 	background-color: transparent
 	margin: 0px
 	padding: 0px
+	max-width: 100%
+	width: 270px
+
+	+max-width(1200px)
+		width: 240px
 
 	a
 		text-decoration: none
