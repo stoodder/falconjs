@@ -20,7 +20,7 @@
 
 	</head>
 	<body data-spy="scroll" data-target="#sidebar">
-		<a href="https://github.com/stoodder/falconjs"><img style="position: fixed; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+		<a href="https://github.com/stoodder/falconjs"><img style="position: fixed; top: 0; right: 0; border: 0; z-index: 1000" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
 		<div id="content" class="container">
 			<div id="hero">
 				<div class="hero-headline">
@@ -64,7 +64,7 @@
 			
 			
 				<li>
-					<a href="#getting_started-overview" alt="Overview">Overview</a>
+					<a href="#getting_started-introduction" alt="Introduction">Introduction</a>
 				</li>
 			
 		
@@ -767,7 +767,11 @@
 							<li class="nav-divider"></li>
 
 							<li>
-								<a href="http://stoodder.github.io/falconjs/tests/index.html" alt="Tests" target="_blank">Tests</a>
+								<a href="http://stoodder.github.io/finchjs" alt="Finch JS Javascript Routing Library" target="_blank">Routing</a>
+							</li>
+
+							<li>
+								<a href="tests/index.html" alt="Tests" target="_blank">Tests</a>
 							</li>
 
 							<li>
@@ -780,29 +784,55 @@
 					
 
 
+
 <section id="getting_started">
 	<div class="page-header">
 		<h1>
 			Getting Started
 			
 		</h1>
-		
 	</div>
 	
+		<div class="page-description">Falcon.js is an MV* framework that helps organize small to large-scale single-page applications that wish to utilize Knockout.js for templating and data binding. Falcon provides <strong>Models</strong> to represent individual data objects that need to sync with server data, <strong>Collections</strong> to represent a list of models and provide numerous list filtering methods, and <strong>Views</strong> to relate functionality between data objects and specific Knockout templates.</div>
+	
+	
 		
 			
-			<h3 id="getting_started-overview">Overview
-				<small></small>
-			</h3>
-			
+			<div class="post-header" id="getting_started-introduction">
+				<h3>
+					<div class="pull-left">
+						Introduction
+						<small></small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<h4>Motivation</h4>
+<p>
+	Falcon was created to help organize Knockout.js applications. Anyone who's worked with Knockout knows how powerful and simple it is to create dynamic documents with its powerful data binding architecture. However, when creating larger scale applications, Knockout can still fall into the same trap that is seen throughout most Javascript development. It's tough to organize applications in a sensible and scalable way.  Falcon's goal is to aid this problem by providing a way of organizing your data objects and views.
+</p>
+<p>
+	<strong>Models</strong> can be used to define specific data objects and how they relate to their counterparts on a backend server.
+</p>
+			</div>
 		
 	
 		
 			
-			<h3 id="getting_started-knockout_crash_course">Knockout Crash Course
-				<small></small>
-			</h3>
-			<p>
+			<div class="post-header" id="getting_started-knockout_crash_course">
+				<h3>
+					<div class="pull-left">
+						Knockout Crash Course
+						<small></small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Before getting started with Falcon, we'll need to run briefly through how <a href="http://knockoutjs.com/">Knockout.js</a> works. If you already have a decent understanding of general Knockout concepts, feel free to skip this portion of the tutorial and get started with our <a href="#getting_started-basic_todo_list">Basic Todo List example</a>.  Additionally, if you're looking for more information on Knockout, be sure to check out their <a href="http://learn.knockoutjs.com/">interactive tutorial</a> and <a href="http://knockoutjs.com/documentation/introduction.html">documentation</a>.  Nevertheless, let's get started.
 </p>
 <h4>What is Knockout?</h4>
@@ -863,18 +893,27 @@
 <p>
 	Also in this example we have two methods, 'addName' and 'removeName', that will be bound to buttons with the 'click' binding. The click binding is an example of an <strong>event binding</strong>. With the 'click' binding, the current template context will be passed in as the first argument.  In other words, when using the 'foreach' binding on the 'names' observables array, a list of names is displayed to the user with a 'remove' button next to each. Each remove button is bound to the 'removeName' function on the viewModel through the 'click' binding. When a user clicks the remove button, that specific name object is passed into the 'removeName' function as the first argument.
 </p>
-	Finally, if you look at how the 'removeName' function is bound to the 'click' binding in the html tab of the jsFiddle you'll see that we use <code>click: $root.removeName</code>. In Knockout, $root is called a <strong>Binding Context</strong>.  Essentially, binding contexts are just variables that can be used in templates to help us navigate to different parts of the context hierarchy.  In other words, the $root context always references the root viewModel that is bound with ko.applyBindings(). In our example we needed to use the $root binding from within the foreach binding because the current context would be that of each individual name object rather than the root view model. Other binding contexts include: $root, $parent, $parents, $data and more. To learn about them in-depth, checkout the <a href="http://knockoutjs.com/documentation/binding-context.html">Knockout Docs on Binding Contexts</a>.
 <p>
-	</p>
+	Finally, if you look at how the 'removeName' function is bound to the 'click' binding in the html tab of the jsFiddle you'll see that we use <code>click: $root.removeName</code>. In Knockout, $root is called a <strong>Binding Context</strong>.  Essentially, binding contexts are just variables that can be used in templates to help us navigate to different parts of the context hierarchy.  In other words, the $root context always references the root viewModel that is bound with ko.applyBindings(). In our example we needed to use the $root binding from within the foreach binding because the current context would be that of each individual name object rather than the root view model. Other binding contexts include: $root, $parent, $parents, $data and more. To learn about them in-depth, checkout the <a href="http://knockoutjs.com/documentation/binding-context.html">Knockout Docs on Binding Contexts</a>.
+</p>
 <iframe width="100%" height="500" src="http://jsfiddle.net/stoodder/T3Q38/embedded/js,html,result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+			</div>
 		
 	
 		
 			
-			<h3 id="getting_started-basic_todo_list">Basic Todo List
-				<small></small>
-			</h3>
-			<p>
+			<div class="post-header" id="getting_started-basic_todo_list">
+				<h3>
+					<div class="pull-left">
+						Basic Todo List
+						<small></small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Alright, on to the actual Falcon tutorial. As you can see, the code written with Knockout, although very dynamic, doesn't have much structure or organization around it. This can lead to a large mess of code as a project grows from being a very simple application. This is where Falcon steps in.  It adds structure to Knockout so that you can have both well organized and easily maintainable code with the dynamics of Knockout.
 </p>
 <p>
@@ -901,14 +940,23 @@
 	</li>
 </ul>
 <iframe width="100%" height="650" src="http://jsfiddle.net/stoodder/2ZX52/embedded/js,html,result/light/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+			</div>
 		
 	
 		
 			
-			<h3 id="getting_started-multiple_todo_lists">Multiple Todo Lists
-				<small></small>
-			</h3>
-			<p>
+			<div class="post-header" id="getting_started-multiple_todo_lists">
+				<h3>
+					<div class="pull-left">
+						Multiple Todo Lists
+						<small></small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	In this next example, we go a bit more complex with our application.Instead of letting users manage a single todo list, we've set it up so that users can have a list of multiple todo lists each with a title, description, and multiple todos.  The user is able to create new todo lists at will, edit that todo list, and remove the todo list. Different views will be presented to the user (create todo list form, view todo list, etc) within a general layout that will contain a list of all of the user's current todo lists.
 </p>
 <p>
@@ -928,23 +976,34 @@
 		<strong>view binding</strong> - The view binding is a new binding added by Falcon that allows us to inject a view within another view. This binding takes in a Falcon View or a Knockout observable and injects the rendered view within the current view's rendered template. If an observable is given (like in our example), the child view will dynamically change whenever the observables is updated with a new view. An example of how this is used can be seen in the example's html tab within the '#layout_template' element.  This binding is useful for dynamic apps that have common widgets spread throughout them or with apps that have multiple hierarchies of views (such as with a todo list manager that has a layout with multiple pages and edit forms).
 </ul>
 <iframe width="100%" height="650" src="http://jsfiddle.net/stoodder/7rEax/embedded/js,html,result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+			</div>
 		
 	
 		
 			
-			<h3 id="getting_started-multiple_todo_lists_utilizing_remote_resources">Multiple Todo Lists Utilizing Remote Resources
-				<small></small>
-			</h3>
-			<p>
-	In this final example, we take the previous multiple todo list example, and add a remote server to the mix.  Here we'll be loading and saving the view templates and model/collection data from a remote server.  Infact, we're actually using a mock javascript server with local storage. If you're curious to see how that works, the javascript can be found <a href="/scripts/mock_todo_server.js">here</a>.
+			<div class="post-header" id="getting_started-multiple_todo_lists_utilizing_remote_resources">
+				<h3>
+					<div class="pull-left">
+						Multiple Todo Lists Utilizing Remote Resources
+						<small></small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
+	In this final example, we take the previous multiple todo list example, and add a remote server to the mix.  Here we'll be loading and saving the view templates and model/collection data from a remote server.  Infact, we're actually using a mock javascript server with local storage. If you're curious to see how that works, the javascript can be found <a href="scripts/mock_todo_server.js">here</a>.
 </p>
 <p>
 	In this example we'll show how Falcon loads and caches view templates. We'll also demonstrate how Falcon's makeUrl method on views, models, and collections generate URLs and what it means for a model or a collection have a 'parent' model.
 </p>
 <iframe width="100%" height="650" src="http://jsfiddle.net/stoodder/G5XFT/embedded/js,html,result/light/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+			</div>
 		
 	
 </section>
+
 
 
 
@@ -956,15 +1015,23 @@
 			Object
 			
 		</h1>
-		
 	</div>
+	
 	
 		
 			
-			<h3 id="object-defaults">defaults
-				<small>object.defaults</small>
-			</h3>
-			<p>
+			<div class="post-header" id="object-defaults">
+				<h3>
+					<div class="pull-left">
+						defaults
+						<small>object.defaults</small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	This is a hash map of non-observable defaults to create whenever an instance of this class is initialized. If the value is a function, the function is called and the return value is assigned. Functions are called in context of this instance and with all the same arguments from the constructor method. Defaults are created before observables which means that any duplicate attributes between the observables (as in the 'observables' attribute on Falcon.Object) and default attributes will be overriden by those in the observables
 </p>
 <code class="multiline runnable">
@@ -990,14 +1057,23 @@
 	console.log( dog_child_of_lassie.is_tame ); // => true
 	console.log( dog_child_of_lassie.child_of_lassie ); // => true
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="object-extend">extend
-				<small>Falcon.Object.extend( protoProps, [staticProps] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="object-extend">
+				<h3>
+					<div class="pull-left">
+						extend
+						<small>Falcon.Object.extend( protoProps, [staticProps] )</small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to create a new subclass that inherits from this class.  Props to Backbone.js for the code behind this implementation.
 </p>
 <dl>
@@ -1023,14 +1099,30 @@
 	Dog.says(); // => Woof!
 	my_dog.bark(); // => The dog barks
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="object-has">has
-				<small>object.has( event, callback )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="object-has">
+				<h3>
+					<div class="pull-left">
+						has
+						<small>object.has( event, callback )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Boolean
+								<small> - Does this object have the event defined?</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Checks to see if a specific event is defined for an object. Optionally, if a callback is given, this method will check to see if that callback is defined for the specified event.
 </p>
 <dl>
@@ -1058,14 +1150,23 @@
 	console.log( obj.has("log", log_function) ); // => true
 	console.log( obj.has("log", foo_function) ); // => false
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="object-observables">observables
-				<small>object.observables</small>
-			</h3>
-			<p>
+			<div class="post-header" id="object-observables">
+				<h3>
+					<div class="pull-left">
+						observables
+						<small>object.observables</small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	This is a hash map of the default observables and values that will become members of this class when a new instance is created. If the value of a specific key is a function a computed observable is created. If the value is an object with the keys 'read' and/or 'write' a computed is created with those object keys as the definition for the computed observable. All computed observables are created with this objects's instance as their context.
 </p>
 <code class="multiline runnable">
@@ -1094,14 +1195,30 @@
 	console.log( dog.name() ); // => Spot
 	console.log( dog.child_of_lassie() ); // => true
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="object-off">off
-				<small>object.off( event, [callback] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="object-off">
+				<h3>
+					<div class="pull-left">
+						off
+						<small>object.off( event, [callback] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Falcon.Object
+								<small> - This instance</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Removes event listening for a specific event. Optionally, if a callback is given, only that callback will be removed from the list of calbacks for the specified event.
 </p>
 <dl>
@@ -1143,14 +1260,30 @@
 
 	obj.trigger("log");
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="object-on">on
-				<small>object.on( event, callback, [context] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="object-on">
+				<h3>
+					<div class="pull-left">
+						on
+						<small>object.on( event, callback, [context] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Falcon.Object
+								<small> - This instance</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Adds an event listener with a given function to this Falcon object. Whenever the event is triggered any callback that is bound to this event will also be triggered. This become useful for message passing between objects.
 </p>
 <dl>
@@ -1165,14 +1298,30 @@
 	var obj = new Falcon.Object();
 	obj.on("alert", function() { ... });
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="object-trigger">trigger
-				<small>object.trigger( event, [args...] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="object-trigger">
+				<h3>
+					<div class="pull-left">
+						trigger
+						<small>object.trigger( event, [args...] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Falcon.Object
+								<small> - This instance.</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Triggers an event for this object. This will call all event listeners for a specific event.  If any additional arguments are given to this method (other than the event name), those arguments will also be passed on down to the event listeners.
 </p>
 <dl>
@@ -1197,9 +1346,11 @@
 	obj.trigger("log");
 	obj.trigger("custom_log", "Foo Bar");
 </code>
+			</div>
 		
 	
 </section>
+
 
 
 
@@ -1214,15 +1365,30 @@
 				<small>extends Falcon.Object</small>
 			
 		</h1>
-		
 	</div>
+	
 	
 		
 			
-			<h3 id="model-clone">clone
-				<small>model.clone( [attributes], [parent] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="model-clone">
+				<h3>
+					<div class="pull-left">
+						clone
+						<small>model.clone( [attributes], [parent] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Falcon.Model
+								<small> - A clone of this model</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to create a clone of this model. This method is can be used to only copy certain attributes from this model by stating so in the 'attributes' argument.  If a 'parent' argument is given, then the resultant model will have that parent rather than the original model's parent. If 'null' is given for parent, then the resultant model will not have a parent.
 </p>
 <dl>
@@ -1240,14 +1406,30 @@
 	console.log( dog.get("name"), fido_clone.get("name") ); // fido, fido
 	console.log( dog === fido_clone ); // false
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="model-initialize">initialize
-				<small>new Model( [data], [parent] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="model-initialize">
+				<h3>
+					<div class="pull-left">
+						initialize
+						<small>new Model( [data], [parent] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Falcon.Model
+								<small> - The new instance of a Falcon Model</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	The initialize method is called within the actual constructor method of the model. The constructor method has specific set up code that should alway be run when creating a model and hence, having the initialize method available, allows developers to override this funciton to ensure that everything that the actual constructor needs to do is executed prior to the initialize method and everything custom that the developer needs won't interfere with the required operations.
 </p>
 <dl>
@@ -1267,14 +1449,30 @@
 
 	console.log( dog.get("name") ); // => Fido
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="model-create">create
-				<small>model.create( options )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="model-create">
+				<h3>
+					<div class="pull-left">
+						create
+						<small>model.create( options )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								XmlHttpRequest
+								<small> - The XmlHttpRequest object</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to create a new model, with this model's data, on the server. This method is really just a wrapper around the 'sync' method with a request type of 'POST' auto-filled.
 </p>
 <dl>
@@ -1288,14 +1486,30 @@
 
 	dog.create(); // => POST to '/dog.json' with {"name": "fido"}
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="model-destroy">destroy
-				<small>model.destroy( options )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="model-destroy">
+				<h3>
+					<div class="pull-left">
+						destroy
+						<small>model.destroy( options )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								XmlHttpRequest
+								<small> - the XmlHttpRequest object</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to delete this model from the server. This method just called 'sync' with the 'DELETE' request type pre-filled.
 </p>
 <dl>
@@ -1309,14 +1523,30 @@
 
 	dog.destroy(); // => DELETE to '/dog/1.json' with {"id": 1, "name": "fido"}
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="model-equals">equals
-				<small>model.equals( model )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="model-equals">
+				<h3>
+					<div class="pull-left">
+						equals
+						<small>model.equals( model )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Boolean
+								<small> - Are these models equal?</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to determine if this model matches the given model or id. If any model as 'null' id then this method will always consider the result to be unequal.
 </p>
 <dl>
@@ -1337,14 +1567,23 @@
 	console.log( dog.equals(another_dog) ); // => false
 	console.log( dog.equals(dog.clone()) ); // => true, checks based on id
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="model-extend">extend
-				<small>Falcon.Model.extend( protoProps, [staticProps] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="model-extend">
+				<h3>
+					<div class="pull-left">
+						extend
+						<small>Falcon.Model.extend( protoProps, [staticProps] )</small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to create a new model that inherits from the base Falcon Model.
 </p>
 <dl>
@@ -1364,14 +1603,30 @@
 	console.log( dog instanceof Falcon.Model ); // => true
 	console.log( dog instanceof Dog ); // => true
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="model-fetch">fetch
-				<small>model.fetch( [options] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="model-fetch">
+				<h3>
+					<div class="pull-left">
+						fetch
+						<small>model.fetch( [options] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								XmlHttpRequest
+								<small> - The XmlHttpRequest object</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to 'fetch' data from the server about this specific model. This method just called 'sync' with the 'GET' request type pre-filled.
 </p>
 <dl>
@@ -1385,14 +1640,30 @@
 
 	dog.fetch(); // => GET to '/dog/1.json'
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="model-fill">fill
-				<small>model.fill( data )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="model-fill">
+				<h3>
+					<div class="pull-left">
+						fill
+						<small>model.fill( data )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Falcon.Model
+								<small> - This instance.</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to fill this model with data. This is more advanced than the 'set' method as it won't overwrite certain data if it exists.  Specificaly this will recurse data into any Falcon Model of Collection 'fill' method as necessary. Additionally, this will put data into observables if a specific attribute identifies as a writeable observable. Lastly, this will do a basic assignment of a given attribute if it isn't a Falcon Data Object or an observable.
 
 	Note: This method will, intentionally, ignore any attribute/method defined in the Falcon.Model.prototype except for 'id' and 'url'
@@ -1410,14 +1681,30 @@
 
 	console.log( dog.get("name") ); // => Fido
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="model-get">get
-				<small>model.get( attribute )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="model-get">
+				<h3>
+					<div class="pull-left">
+						get
+						<small>model.get( attribute )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								mixed
+								<small> - The value at the specified attribute</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to lookup the value of an attribute on this model. If the attribute is an observable, then the observable is unwrapped and its internal value is returned.
 </p>
 <dl>
@@ -1442,14 +1729,23 @@
 	console.log( dog.get("name") ); // => Fido
 	console.log( dog.get("hello") ); // => world
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="model-id">id
-				<small>model.id</small>
-			</h3>
-			<p>
+			<div class="post-header" id="model-id">
+				<h3>
+					<div class="pull-left">
+						id
+						<small>model.id</small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	The id of this model. By default this is null unless it is set by the server. The id expected to be a Number or a String.
 </p>
 <code class="multiline runnable">
@@ -1464,14 +1760,30 @@
 	console.log( dog.id ); // => 1
 	console.log( dog.get("id") ); // => 1
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="model-isnew">isNew
-				<small>model.isNew()</small>
-			</h3>
-			<p>
+			<div class="post-header" id="model-isnew">
+				<h3>
+					<div class="pull-left">
+						isNew
+						<small>model.isNew()</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Boolean
+								<small> - Is this a new model?</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to determine if this model is 'new' or not. A model is deemed new if no id has been set (it's still null).
 </p>
 <code class="multiline runnable">
@@ -1489,14 +1801,30 @@
 
 	console.log( dog.isNew() ); // => false
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="model-makeurl">makeUrl
-				<small>model.makeUrl( type, [parent] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="model-makeurl">
+				<h3>
+					<div class="pull-left">
+						makeUrl
+						<small>model.makeUrl( type, [parent] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								String
+								<small> - The generated URL</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Generates a URL based on this model's url, the parent model of this model, the type of request we're making and Falcon's defined baseApiUrl
 </p>
 <dl>
@@ -1519,14 +1847,30 @@
 	console.log( dog.makeUrl("DELETE") ); // => http://www.falconjs.com/owner/1/dog/2.json
 	console.log( dog.makeUrl("GET", null) ); // => http://www.falconjs.com/dog/2.json
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="model-mixin">mixin
-				<small>model.mixin( mapping )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="model-mixin">
+				<h3>
+					<div class="pull-left">
+						mixin
+						<small>model.mixin( mapping )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Falcon.Model
+								<small> - This instance</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Maps extra atributes and methods onto this model for use later, mostly in Falcon views. Will ensure that any method that is not a knockout observable will be called in the context of this model as well as pass this model in as the first argument, pushing the other arguments down the list.
 </p>
 <dl>
@@ -1557,14 +1901,23 @@
 
 	dog.bark() // => Fido says woof!
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="model-parent">parent
-				<small>model.parent</small>
-			</h3>
-			<p>
+			<div class="post-header" id="model-parent">
+				<h3>
+					<div class="pull-left">
+						parent
+						<small>model.parent</small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	This represents the 'parent' object that holds this model.  Generally this is used for determining the URL structure of rest objects in the makeURL() routine. This should also be a Model.
 </p>
 <code class="multiline runnable">
@@ -1576,14 +1929,30 @@
 
 	console.log( dog.parent === owner ); // => true
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="model-parse">parse
-				<small>model.parse( data, [options], [xhr] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="model-parse">
+				<h3>
+					<div class="pull-left">
+						parse
+						<small>model.parse( data, [options], [xhr] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Object
+								<small> - Parsing on a model expects an object to be returned</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Parses the response data from an XmlHttpRequest request.  A json object must be returned from this method in order for the data to be filled back into the model properly.  This is useful if you're in need of converting a server response into a different format before attempting to fill all of the model's data.
 </p>
 <dl>
@@ -1634,14 +2003,30 @@
 		console.log( dog.get("name") ); // => Fido
 	});
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="model-save">save
-				<small>model.save( [options] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="model-save">
+				<h3>
+					<div class="pull-left">
+						save
+						<small>model.save( [options] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								XmlHttpRequest
+								<small> - The XmlHttpRequest created</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Calls the sync method with 'PUT' as the default request type. Saves this model to the server.  If the model is new then 'create' will be called instead.
 </p>
 <dl>
@@ -1655,14 +2040,30 @@
 
 	dog.save(); // => PUT to '/dog/1.json' with {"id": 1, "name": "fido"}
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="model-serialize">serialize
-				<small>model.serialize( [attributes] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="model-serialize">
+				<h3>
+					<div class="pull-left">
+						serialize
+						<small>model.serialize( [attributes] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Object
+								<small> - The resultant 'raw' object to send to the server</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Serializes the data into a raw json object and only corresponds to the attributes that are primitive and that we wish to be able to send back to the server.
 </p>
 <dl>
@@ -1689,14 +2090,30 @@
 
 	console.log( dog.serialize(["name"]) ); // => {"name": "Spot"}
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="model-set">set
-				<small>model.set( attribute, [value] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="model-set">
+				<h3>
+					<div class="pull-left">
+						set
+						<small>model.set( attribute, [value] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Falcon.Model
+								<small> - This instance</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Sets a value for the specific attribute, creating one if it does nto exist.  If an object is passed into the first argument of this method, each of the object's key value pairs will be set on this model.
 </p>
 <dl>
@@ -1735,14 +2152,30 @@
 	console.log( dog.get("name") ); // => Spot
 	console.log( dog.get("color") ); // => Tan
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="model-sync">sync
-				<small>model.sync( type, [options] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="model-sync">
+				<h3>
+					<div class="pull-left">
+						sync
+						<small>model.sync( type, [options] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								XmlHttpRequest
+								<small> - The XmlHttpRequest created</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to interact with the backend API and this model. This method utilizes and extend on to the jQuery $.ajax method.  This method may be called with for different request types:
 	<ul>
 		<li><strong>GET</strong> - Retrieve this model's data</li>
@@ -1837,14 +2270,30 @@
 	Warning for no PATH support
 	Warning for no jsonp
 -->
+			</div>
 		
 	
 		
 			
-			<h3 id="model-toggle">toggle
-				<small>model.toggle( attribute )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="model-toggle">
+				<h3>
+					<div class="pull-left">
+						toggle
+						<small>model.toggle( attribute )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Falcon.Model
+								<small> - This instance.</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Toggles the value between true/false on the specific attribute of this model.
 </p>
 <dl>
@@ -1866,14 +2315,23 @@
 
 	console.log( dog.get("is_tame") ); // => false
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="model-url">url
-				<small>model.url</small>
-			</h3>
-			<p>
+			<div class="post-header" id="model-url">
+				<h3>
+					<div class="pull-left">
+						url
+						<small>model.url</small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	This is the top level url piece that relates to this specific model.  This is used in the makeUrl() method to dynamically generate urls for how to interact with the server API. Falcon assumes a typical RESTful url structure when generating urls and hence assumes that each individual model correlates to a common url name. For example if we had a Dog model who's url was 'dog.json', then sending a GET request for a dog with id '1' would generate a URL of: '/dog/1.json'. If this model has a parent model (such as Owner with url 'owner.json' and id of 2), then calling the same GET request with the Owner as the parent, we would get '/owner/2/dog/1.json'.  Optionally, url can be a function that returns a string rather than being defined as a string if you need the URL to be dynamic based on environment or other variables.
 </p>
 <code class="multiline">
@@ -1910,14 +2368,30 @@
 	console.log( dog.makeUrl("PUT") ); // => /owner/2/dog/1.json
 	console.log( dog.makeUrl("DELETE") ); // => /owner/2/dog/1.json
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="model-validate">validate
-				<small>model.validate( [options] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="model-validate">
+				<h3>
+					<div class="pull-left">
+						validate
+						<small>model.validate( [options] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Boolean
+								<small> - Is this model valid?</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to validate this model before it is sent to the server on create or save.  If this method returns true, saving will continue but if it returns false then saving is halted and no request to the server will be made.
 </p>
 <dl>
@@ -1949,9 +2423,11 @@
 
 	dog.create(); // Allows the model to be saved to the server
 </code>
+			</div>
 		
 	
 </section>
+
 
 
 
@@ -1966,15 +2442,30 @@
 				<small>extends Falcon.Object</small>
 			
 		</h1>
-		
 	</div>
+	
 	
 		
 			
-			<h3 id="collection-any">any
-				<small>collection.any( iterator )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-any">
+				<h3>
+					<div class="pull-left">
+						any
+						<small>collection.any( iterator )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Boolean
+								<small> - Does this collection match any of the itertor tests or models?</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to check if any of the models in the collection match the given iterator, id, or model. Returns true if at least of the models match the truth test.
 </p>
 <dl>
@@ -2011,14 +2502,30 @@
 	console.log(has_fido); // => true
 	console.log(has_spot); // => false
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-append">append
-				<small>collection.append( items )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-append">
+				<h3>
+					<div class="pull-left">
+						append
+						<small>collection.append( items )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Falcon.Collection
+								<small> - This instance</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Append a single model or an array of models to the end of a collection. Append is simply a wrapper for the fill method with the option {'method': 'append'} pre-set.
 </p>
 <dl>
@@ -2047,14 +2554,30 @@
 	]);
 	console.log( dogs.pluck("name") ); // => [Fido, Spot, Skip, Bump]
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-at">at
-				<small>collection.at( index )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-at">
+				<h3>
+					<div class="pull-left">
+						at
+						<small>collection.at( index )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Falcon.Model
+								<small> - The model at the specified index</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to retrieve a model from this collection at a specific, zero-based, index. If no model exists at the specified inex, or the index is invalid, 'null' is returned.
 </p>
 <dl>
@@ -2075,14 +2598,30 @@
 	console.log( dogs.at(1).get("name") ); // => Skip
 	console.log( dogs.at(5) ); // => null
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-chain">chain
-				<small>collection.chain()</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-chain">
+				<h3>
+					<div class="pull-left">
+						chain
+						<small>collection.chain()</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								ChainedCollection
+								<small> - A Chained collection object with the sort, filter, without, and slice methods overridden</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to create a chained version of this collection. A Chained Collection allows us to chain together mutliple filter methods.  Typically, when calling 'sort', 'without', 'filter', or 'slice', a javascript array is returned and no other collection filter methods can be called on the resultant array. 'chain' fixes this and allows us to string together multiple filter methods.
 </p>
 <code class="multiline runnable">
@@ -2121,14 +2660,30 @@
 	console.log( tame_b_dogs.pluck("name") ); // => [Bump, Biscuit]
 	console.log( sorted_b_dogs.pluck("name") ); // => [Biscuit, Bucko, Bump]
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-clone">clone
-				<small>collection.clone( [attributes], [parent] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-clone">
+				<h3>
+					<div class="pull-left">
+						clone
+						<small>collection.clone( [attributes], [parent] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Falcon.Collection
+								<small> - A clone of this collectin</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to create a deep clone of this collection and it's models. This method can only select certain attributes from each of the models in the collection.  If a parent is given, then the resultant collection will have that parent rather than the original collection's parent. If 'null' is given for parent, then the resultant collection will have no parent set.
 </p>
 <dl>
@@ -2158,14 +2713,23 @@
 	console.log( dogs.parent === owner); // => true
 	console.log( dogs_clone.parent === null); // => true
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-comparator">comparator
-				<small>collection.comparator</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-comparator">
+				<h3>
+					<div class="pull-left">
+						comparator
+						<small>collection.comparator</small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to sort this collection when a new model(s) is added.  By default, this is null and no sorting will occur.  Note: If this is set then any model that is inserted into this collection will be sorted (regardless of append, prepend, etc.).
 </p>
 <code class="multiline runnable">
@@ -2196,14 +2760,30 @@
 	console.log( dogs.at(2).get("name") ); // => Fido
 	console.log( dogs.at(3).get("name") ); // => Skip
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-initialize">initialize
-				<small>new Falcon.Collection( [models], [parent] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-initialize">
+				<h3>
+					<div class="pull-left">
+						initialize
+						<small>new Falcon.Collection( [models], [parent] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Falcon.Collection
+								<small> - This instance.</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	The constructor method for a Falcon Collection.  Creates a new instance of a Falcon Collection and should be overriden instead of overriding the internal constructor method.
 </p>
 <dl>
@@ -2224,14 +2804,30 @@
 
 	new Dogs(); // => Collecting Dogs
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-create">create
-				<small>collection.create( data, [options] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-create">
+				<h3>
+					<div class="pull-left">
+						create
+						<small>collection.create( data, [options] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								XmlHttpRequest
+								<small> - The XmlHttpRequest created.</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to both create and add a model on the server and to this collection.  An optional options argument can be set to define options for the sync and fill methods.
 </p>
 <dl>
@@ -2257,14 +2853,30 @@
 	dogs.create({"name": "Fido"}); 
 	dogs.create(new Dog({"name": "Spot"})); 
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-destroy">destroy
-				<small>collection.destroy( model, [options] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-destroy">
+				<h3>
+					<div class="pull-left">
+						destroy
+						<small>collection.destroy( model, [options] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								XmlHttpRequest
+								<small> - The XmlHttpRequest created.</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to both remove a model from this collection and delete it on the server. This method takes either an iterator, a model id, or a model to look up an existing model within this collection. If a model is given, it does not need to be the same instance of any model in this collection but rather an identical model based on its 'id'. If no models are found, then null is returned.  If the delete method from the server fails, this method does not remove anything from the collection.
 </p>
 <dl>
@@ -2309,14 +2921,23 @@
 		return dog.get("name") === "Skip";
 	});
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-each">each
-				<small>collection.each( iterator, [context] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-each">
+				<h3>
+					<div class="pull-left">
+						each
+						<small>collection.each( iterator, [context] )</small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Iterates over each model in this collection based on a given iterator. For each model that exists in this collection, the iterator method is called with the model passed into the first argument and that model's index in the collection passed into the second argument.
 </p>
 <dl>
@@ -2344,14 +2965,23 @@
 		console.log("Dog's name is " + dog.get("name") );
 	});
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-extend">extend
-				<small>Falcon.Collection.extend( protoProps, [staticProps] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-extend">
+				<h3>
+					<div class="pull-left">
+						extend
+						<small>Falcon.Collection.extend( protoProps, [staticProps] )</small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to create a new collection that inherits from the base Falcon Collection.
 </p>
 <dl>
@@ -2379,14 +3009,30 @@
 	Dogs.say(); // => Woof!
 	dogs.bark(); // => "All the dogs bark";
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-fetch">fetch
-				<small>collection.fetch( [options] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-fetch">
+				<h3>
+					<div class="pull-left">
+						fetch
+						<small>collection.fetch( [options] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								XmlHttpRequest
+								<small> - The XmlHttpRequest created</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Shorthand method for a GET sync request to get all of the models from the server.
 </p>
 <dl>
@@ -2401,14 +3047,30 @@
 
 	dogs.fetch() // 'GET' request to '/dog.json'
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-fill">fill
-				<small>collection.fill( items, [options] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-fill">
+				<h3>
+					<div class="pull-left">
+						fill
+						<small>collection.fill( items, [options] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Falcon.Collection
+								<small> - This instance.</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to add new models to the collection. By default, this method just replaces all of the existing models in the collection. Optionally, one may define how models are added to the colleciton by defining the 'method' attribute of the options argument. 'method' can be either 'replace', 'append', 'prepend', 'merge', or 'insert'. By default, 'replace' is chosen.
 </p>
 <dl>
@@ -2540,14 +3202,30 @@
 
 	console.log( dogs.pluck("name") ); // [Skip, Fido, Bump, Spot]
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-filter">filter
-				<small>collection.filter( [iterator] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-filter">
+				<h3>
+					<div class="pull-left">
+						filter
+						<small>collection.filter( [iterator] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Array
+								<small> - An array of the matched models</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Filter method used to get an array of all the models that match the given truth-test iterator.
 </p>
 <dl>
@@ -2579,14 +3257,30 @@
 
 	console.log( dogs_with_b_names ); // [Bump, Bucko]
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-first">first
-				<small>collection.first( [iterator] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-first">
+				<h3>
+					<div class="pull-left">
+						first
+						<small>collection.first( [iterator] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Falcon.Model
+								<small> - The first model in this colleciton or the first model that passes the iterator's truth test. If no model was found, then 'null' is returned.</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to obtain the first model in the collection. If an iterator is given, then each model starting from the beginning and moving towards the end of the collection, is tested. The first model to pass the truth test is returned. If no model could be found, then 'null' is returned.
 </p>
 <dl>
@@ -2612,14 +3306,30 @@
 	console.log( first_dog.get("name") ); // => Fido
 	console.log( first_b_dog.get("name") ); // => Bump
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-indexof">indexOf
-				<small>collection.indexOf( model )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-indexof">
+				<h3>
+					<div class="pull-left">
+						indexOf
+						<small>collection.indexOf( model )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Number
+								<small> - The index of the matched model, -1 if none found</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Find the index for the specified model or where the iterator first returns true. -1 is returned if nothing matches.
 </p>
 <dl>
@@ -2655,14 +3365,30 @@
 	console.log( index_id );  // => 1
 	console.log( index_iterator );  // => 3
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-insert">insert
-				<small>collection.insert( insert_model, model )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-insert">
+				<h3>
+					<div class="pull-left">
+						insert
+						<small>collection.insert( insert_model, model )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Falcon.Collection
+								<small> - This instance</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to insert a model before another within the collection. If no model is found in the collection, the model is added to the end of the collection.  Alternatively, an iterator can be given and the model will be inserted before the first model to pass the truth test
 </p>
 <dl>
@@ -2706,14 +3432,30 @@
 	});
 	console.log( dogs.pluck("name") ); // [Fido, Spot, Bump, Bucko, Skip]
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-last">last
-				<small>collection.last( [iterator] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-last">
+				<h3>
+					<div class="pull-left">
+						last
+						<small>collection.last( [iterator] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Falcon.Model
+								<small> - The last model in this collection or the last model that passed the iterator's truth test. If no model was found, then 'null' is returned.</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to obtain the last model in the collection. If an iterator is given, then each model starting from the end and moving towards the beginning of the collection, is tested. The first model to pass the truth test is returned. If no model could be found, then 'null' is returned.
 </p>
 <dl>
@@ -2739,14 +3481,30 @@
 	console.log(last_dog.get("name")); // => Skip
 	console.log(last_b_dog.get("name")); // => Bucko
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-lastindexof">lastIndexOf
-				<small>collection.lastIndexOf( model )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-lastindexof">
+				<h3>
+					<div class="pull-left">
+						lastIndexOf
+						<small>collection.lastIndexOf( model )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Number
+								<small> - The index of the last matched model, -1 if none found</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Find the last index for the specified model or where the iterator first returns true. -1 is returned if nothing matches.
 </p>
 <dl>
@@ -2782,14 +3540,23 @@
 	console.log( index_id );  // => 5
 	console.log( index_iterator );  // => 3
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-length">length
-				<small>collection.length()</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-length">
+				<h3>
+					<div class="pull-left">
+						length
+						<small>collection.length()</small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	The total number of models in this collection. This is an observable so anything that is bound against this will also be updated when any models are added or removed from the collection.
 </p>
 <code class="multiline runnable">
@@ -2810,14 +3577,30 @@
 
 	console.log( dogs.length() ); // => 4
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-makeurl">makeUrl
-				<small>collection.makeUrl( type, [parent] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-makeurl">
+				<h3>
+					<div class="pull-left">
+						makeUrl
+						<small>collection.makeUrl( type, [parent] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								String
+								<small> - The generated url</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Attempts to generate url for a specific type of request being made. Url's are generated based on this collection's relative url (extracted from the collection's model prototype), the parent model for this collection, and the Falcon.baseApiUrl setting. 
 </p>
 <p>
@@ -2841,14 +3624,30 @@
 	console.log( dogs.makeUrl("GET") ); // => http://www.falconjs.com/owner/1/dog.json
 	console.log( dogs.makeUrl("GET", null) ); // => http://www.falconjs.com/dog.json
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-mixin">mixin
-				<small>collection.mixin( mapping )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-mixin">
+				<h3>
+					<div class="pull-left">
+						mixin
+						<small>collection.mixin( mapping )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Falcon.Collection
+								<small> - This instance.</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Adds attributes and functions to all of the current and future models in the collection.  This is especially useful for adding one-off functions or observables where needed on each item in the collection that isn't really necessary for everytime this specific collection is created. A good example of this would be adding a 'deleteing' flag to each current and future model in the collection to signify if the model is currently being deleted (hence allowing us to show a loader and ignore any additional delete requests).
 </p>
 <dl>
@@ -2888,28 +3687,46 @@
 	console.log( spot.get("is_tame") ); // => true
 	spot.bark(); // => Spot says woof!
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-model">model
-				<small>collection.model</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-model">
+				<h3>
+					<div class="pull-left">
+						model
+						<small>collection.model</small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	The prototype of the model of each item in this collection. This is used to ensure that all models within this collection are the correct type. It is also used to determine the relative url for models in this collection when making sync requests to the server.
 </p>
 <code class="multiline">
 	var Dog = Falcon.Model.extend();
 	var Dogs = Falcon.Collection.extend({model: Dog});
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-models">models
-				<small>collection.models</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-models">
+				<h3>
+					<div class="pull-left">
+						models
+						<small>collection.models</small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	The internal observable array that contains all of the models added to this collection.
 </p>
 <code class="multiline runnable">
@@ -2926,14 +3743,23 @@
 	console.log( ko.isObservable( dogs.models ) ); // => true 
 	console.log( dogs.models() );  // => [Dog, Dog, Dog, Dog]
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-parent">parent
-				<small>collection.parent</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-parent">
+				<h3>
+					<div class="pull-left">
+						parent
+						<small>collection.parent</small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	This represents the 'parent' object that holds these models.  Generally this is used for determining the URL structure of rest objects in the makeURL() routine. This should also be a Model.
 </p>
 <code class="multiline runnable">
@@ -2946,14 +3772,30 @@
 
 	console.log( dogs.parent === owner ); // => true
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-parse">parse
-				<small>collection.parse( data, options, xhr )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-parse">
+				<h3>
+					<div class="pull-left">
+						parse
+						<small>collection.parse( data, options, xhr )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Array
+								<small> - The formatted response to fill the collection with.</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	The parse method is called after any successful request is completed but before any of the data is actually filled into the collection. It's purpose is to allow you to intercept and parse through the raw server data in order to format it correctly to how this collection expects to see it. This method must return an array of objects in order for the collection to be filled correctly.
 </p>
 <dl>
@@ -3003,14 +3845,30 @@
 		console.log( dogs.at(0).get("name") ); // => Fido
 	});
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-pluck">pluck
-				<small>collection.pluck( attribute, [unwrap] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-pluck">
+				<h3>
+					<div class="pull-left">
+						pluck
+						<small>collection.pluck( attribute, [unwrap] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Array
+								<small> - An array of the values from each model coresponding to the given attribute.</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	This method extracts a specific attribute from each model in the collection and returns it in an array. If the unwrap flag is set to true (which it is by default), each attribute is removed from its observable container if it exists wihin one.  If the attribute given isn't found in a model, 'undefined' is returned in the resultant array.
 </p>
 <dl>
@@ -3032,14 +3890,30 @@
 
 	console.log(dogs.pluck("name")); // => [Fido, Skip, Bump, Bucko]
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-pop">pop
-				<small>collection.pop()</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-pop">
+				<h3>
+					<div class="pull-left">
+						pop
+						<small>collection.pop()</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Falcon.Model
+								<small> - The last model in this collection. 'null' is returned if the collection is empty.</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Removes and returns the last model from this collection.  If this collection is empty, 'null' is returned instead.
 </p>
 <code class="multiline runnable">
@@ -3058,14 +3932,30 @@
 	console.log( dogs.length() ); // => 3
 	console.log( last_dog.get("name") ); // => Bucko
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-prepend">prepend
-				<small>collection.prepend( items )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-prepend">
+				<h3>
+					<div class="pull-left">
+						prepend
+						<small>collection.prepend( items )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Falcon.Collection
+								<small> - This instance.</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Adds a model or an array of models to the beginning of this collection.
 </p>
 <dl>
@@ -3094,14 +3984,30 @@
 	]);
 	console.log( dogs.pluck("name") ); // => [Skip, Bump, Spot, Fido]
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-push">push
-				<small>collection.push( items )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-push">
+				<h3>
+					<div class="pull-left">
+						push
+						<small>collection.push( items )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Falcon.Collection
+								<small> - This instance.</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Push an element on to the end of this collection. This method is an alias of append.
 </p>
 <dl>
@@ -3126,14 +4032,30 @@
 	]);
 	console.log( dogs.pluck("name") ); // => [Fido, Spot, Skip, Bump]
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-remove">remove
-				<small>collection.remove( models )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-remove">
+				<h3>
+					<div class="pull-left">
+						remove
+						<small>collection.remove( models )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Falcon.Collection
+								<small> - This instance</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Used to remove elements from this collection. This method does not make any API delete requests and will simply remove an instance of a model from this collection.
 </p>
 <dl>
@@ -3179,14 +4101,30 @@
 
 	console.log( dogs.any(zeus) ); // => true
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-reset">reset
-				<small>collection.reset()</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-reset">
+				<h3>
+					<div class="pull-left">
+						reset
+						<small>collection.reset()</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Falcon.Collection
+								<small> - This instance</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	'resets' the internal observable array of this collection. This will make sure the model list is an observable array, has no elements, and the length of the collection is restored to zero.
 </p>
 <code class="multiline runnable">
@@ -3206,14 +4144,23 @@
 
 	console.log( dogs.length() ); // => 0
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-serialize">serialize
-				<small>collection.serialize( [attributes] )</small>
-			</h3>
-			<dl>
+			<div class="post-header" id="collection-serialize">
+				<h3>
+					<div class="pull-left">
+						serialize
+						<small>collection.serialize( [attributes] )</small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<dl>
 	<dt data-type="Array">attributes</dt>
 	<dd>The attributes that should be included in the serialization of each model in this collection. If none given, all attributes unique to each model is included.</dd>
 </dl>
@@ -3231,14 +4178,30 @@
 
 	console.log( dogs.serialize(["name"]) ); // => [{name: "Fido"}, {name: "Skip"}, {name: "Bump"}]
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-shift">shift
-				<small>collection.shift()</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-shift">
+				<h3>
+					<div class="pull-left">
+						shift
+						<small>collection.shift()</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Falcon.Model
+								<small> - The first mmodel in this collection</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Removes the first element from the collection and returns it.
 </p>
 <code class="multiline runnable">
@@ -3257,14 +4220,23 @@
 	console.log( dogs.length() ); // => 3
 	console.log( first_dog.get("name") ); // => Fido
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-slice">slice
-				<small>collection.slice( start, [end] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-slice">
+				<h3>
+					<div class="pull-left">
+						slice
+						<small>collection.slice( start, [end] )</small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Slices the collection the same way slice works on an array.  Returns an array of the models within the range.
 </p>
 <dl>
@@ -3287,14 +4259,30 @@
 	console.log( dogs.slice( 1 ) ); // => [Skip, Bump, Bucko]
 	console.log( dogs.slice( 1, 3 ) );  // => [Skip, Bump]
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-sort">sort
-				<small>collection.sort( comparator )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-sort">
+				<h3>
+					<div class="pull-left">
+						sort
+						<small>collection.sort( comparator )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Array
+								<small> - The sorted array</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Sorts the collection by a given comparator function.
 </p>
 <dl>
@@ -3324,14 +4312,30 @@
 
 	console.log( dogs.pluck("name") ); // => [Bucko, Bump, Fido, Skip]
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-sync">sync
-				<small>collection.sync( type, [options] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-sync">
+				<h3>
+					<div class="pull-left">
+						sync
+						<small>collection.sync( type, [options] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								XmlHttpRequest
+								<small> - The XmlHttpRequest created</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to interact with the backend API and this collection. This method utilizes and extends on to the jQuery $.ajax method.  This method currently only supports the GET request type when being used for a collection.  A GET request should return an array of models that belong to this collection.
 </p>
 <p>
@@ -3411,14 +4415,30 @@
 		}
 	});
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-unshift">unshift
-				<small>collection.unshift( items )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="collection-unshift">
+				<h3>
+					<div class="pull-left">
+						unshift
+						<small>collection.unshift( items )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Falcon.Collection
+								<small> - This instance</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Prepend a model or a list of models to the front of this collection. This is an alias of prepend.
 </p>
 <dl>
@@ -3447,14 +4467,30 @@
 	]);
 	console.log( dogs.pluck("name") ); // => [Skip, Bump, Spot, Fido]
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="collection-without">without
-				<small>collection.without( iterator )</small>
-			</h3>
-			<p>Used to generate an array of models from this collection without the matching models included.</p>
+			<div class="post-header" id="collection-without">
+				<h3>
+					<div class="pull-left">
+						without
+						<small>collection.without( iterator )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Array
+								<small> - The list of models after being filtered by the iterator</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>Used to generate an array of models from this collection without the matching models included.</p>
 <dl>
 	<dt>model</dt>
 	<dd>The model to remove from the list.</dd>
@@ -3488,9 +4524,11 @@
 	console.log( without_bump ); // => [Fido, Skip, Bucko]
 	console.log( without_b_dogs ); // => [Fido, Skip]
 </code>
+			</div>
 		
 	
 </section>
+
 
 
 
@@ -3505,15 +4543,23 @@
 				<small>extends Falcon.Object</small>
 			
 		</h1>
-		
 	</div>
+	
 	
 		
 			
-			<h3 id="view-initialize">initialize
-				<small>new Falcon.View()</small>
-			</h3>
-			<p>
+			<div class="post-header" id="view-initialize">
+				<h3>
+					<div class="pull-left">
+						initialize
+						<small>new Falcon.View()</small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Initializes this class, this is called within the default contructor and is expected to be overridden by inheritting classes.  Internally this also called the Falcon.Object constructor to in itialize any 'defaults' or 'observables'.
 </p>
 <code class="multiline runnable">
@@ -3526,14 +4572,23 @@
 
 	new DogView(); // => Initialized the Dog View
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="view-display">display
-				<small>view.display()</small>
-			</h3>
-			<p>
+			<div class="post-header" id="view-display">
+				<h3>
+					<div class="pull-left">
+						display
+						<small>view.display()</small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Executed when this view is displayed (added to the DOM). This method is called from the view binding when rendering this view's template is complete and added to the DOM.  This should be overridden by inheritting classes and should primarily be used for 'on-display' funcitonality such as certain event handlers
 </p>
 <code class="multiline">
@@ -3583,14 +4638,23 @@
 	... Waits five seconds and then sets show_dog_view to true, my_dog_view is then rendered on the screen
 	=> Dog View Displayed
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="view-dispose">dispose
-				<small>view.dispose()</small>
-			</h3>
-			<p>
+			<div class="post-header" id="view-dispose">
+				<h3>
+					<div class="pull-left">
+						dispose
+						<small>view.dispose()</small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Executed when this view is disposed (removed from the DOM). This method is called from the unrender method which itself is called from the 'view' binding.  This should be overridden by inheritting classes and should primarily be used for removing any 'on-display' funcitonality that was added in the display method
 </p>
 <code class="multiline">
@@ -3641,14 +4705,30 @@
 	... then no longer rendered on the screen
 	=>  Dog View Displayed No Longer
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="view-extend">extend
-				<small>Falcon.View.extend( protoProps, [staticProps] )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="view-extend">
+				<h3>
+					<div class="pull-left">
+						extend
+						<small>Falcon.View.extend( protoProps, [staticProps] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Object
+								<small> - The extended class</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to create a new view that inherits from the base Falcon View.
 </p>
 <dl>
@@ -3674,24 +4754,56 @@
 	DogView.says(); // => Woof!
 	my_dog_view.bark(); // => The dog view barks
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="view-is_loaded">is_loaded
-				<small>view.is_loaded()</small>
-			</h3>
-			<p>
+			<div class="post-header" id="view-is_loaded">
+				<h3>
+					<div class="pull-left">
+						is_loaded
+						<small>view.is_loaded()</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Boolean
+								<small> - Is the view loaded?</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	An observable that specifies if the view has loaded  not. A view is loaded when its template is found and stored into the template cache. Making this an observable allows us to bind against it and for the 'view' binding to update properly.
 </p>
+			</div>
 		
 	
 		
 			
-			<h3 id="view-makeurl">makeUrl
-				<small>view.makeUrl()</small>
-			</h3>
-			<p>
+			<div class="post-header" id="view-makeurl">
+				<h3>
+					<div class="pull-left">
+						makeUrl
+						<small>view.makeUrl()</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								String
+								<small> - The full url to the template</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to 'intelligently' make a url to point to the remote version of this template. If the URL begins with a '#' it will leave the url as is because we're identifying an on-page template element to lookup rather than a remote resource.
 </p>
 <code class="multiline runnable">
@@ -3709,14 +4821,23 @@
 	console.log( dog_url_view.makeUrl() ); // => http://www.falconjs.com/dog.tmpl
 	console.log( dog_id_view.makeUrl() ); // => #dog
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="view-url">url
-				<small>view.url</small>
-			</h3>
-			<p>
+			<div class="post-header" id="view-url">
+				<h3>
+					<div class="pull-left">
+						url
+						<small>view.url</small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	The url or element id where this template is defined. Can either be a string or a function and can either point to a uri or a DOM object identifier.  This attribute should be overridden by any inheritting classes
 </p>
 <code class="multiline runnable mock-ajax">
@@ -3744,9 +4865,11 @@
 	console.log( dog_id_view.makeUrl() ); // => #dog
 	console.log( dog_function_view.makeUrl() ); // => http://www.falconjs.com/dog.html
 </code>
+			</div>
 		
 	
 </section>
+
 
 
 
@@ -3758,39 +4881,56 @@
 			Bindings
 			
 		</h1>
-		
 	</div>
+	
 	
 		
 			
-			<h3 id="bindings-foreach">foreach
-				<small></small>
-			</h3>
-			<p>This is the same as the <a href="http://knockoutjs.com/documentation/foreach-binding.html" alt="Knockout's Foreach binding">Knockout's Foreach binding</a> except that it has been modified to handle Falcon Collection's as well</p>
+			<div class="post-header" id="bindings-foreach">
+				<h3>
+					<div class="pull-left">
+						foreach
+						<small></small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>This is the same as the <a href="http://knockoutjs.com/documentation/foreach-binding.html" alt="Knockout's Foreach binding">Knockout's Foreach binding</a> except that it has been modified to handle Falcon Collection's as well</p>
 <code class="multiline">
 	// ----------------------------------------
 	// Javascript
 	// ----------------------------------------
-	var Cats = Falcon.Collection.extend({ ... });
-
-	var cats = new Cats();
-	var dogs = ko.observableArray([]);
+	var Dogs = Falcon.Collection.extend({ ... });
+	
+	var dogs = new Dogs();
+	var cats = ko.observableArray([]);
 	
 
 	// ----------------------------------------
 	// HTML
 	// ----------------------------------------
-	<div data-bind="foreach: cats"> ... A Bunch of Cats ...</div>
 	<div data-bind="foreach: dogs"> ... A Bunch of Dogs ...</div>
+	<div data-bind="foreach: cats"> ... A Bunch of Cats ...</div>
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="bindings-log">log
-				<small></small>
-			</h3>
-			<p>This is a helper binding that can be used to dump whatever is passed into it, into the browser console. Useful for debugging and understanding context</p>
+			<div class="post-header" id="bindings-log">
+				<h3>
+					<div class="pull-left">
+						log
+						<small></small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>This is a helper binding that can be used to dump whatever is passed into it, into the browser console. Useful for debugging and understanding context</p>
 <code class="multiline">
 	//----------------------------------------
 	// Javascript
@@ -3809,22 +4949,40 @@
 	//----------------------------------------
 	"Hello World"
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="bindings-options">options
-				<small></small>
-			</h3>
-			<p>This is the same as the <a href="http://knockoutjs.com/documentation/options-binding.html" alt="Knockout's Options binding">Knockout's Options binding</a> except that it has been modified to handle Falcon Collection's as well.</p>
+			<div class="post-header" id="bindings-options">
+				<h3>
+					<div class="pull-left">
+						options
+						<small></small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>This is the same as the <a href="http://knockoutjs.com/documentation/options-binding.html" alt="Knockout's Options binding">Knockout's Options binding</a> except that it has been modified to handle Falcon Collection's as well.</p>
+			</div>
 		
 	
 		
 			
-			<h3 id="bindings-view">view
-				<small></small>
-			</h3>
-			<p>Method used to handle Falcon.View obects. This will handle fetching a view's viewmodel and html template.  This method expects to use the native Knockout templating engine.</p>
+			<div class="post-header" id="bindings-view">
+				<h3>
+					<div class="pull-left">
+						view
+						<small></small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>Method used to handle Falcon.View obects. This will handle fetching a view's viewmodel and html template.  This method expects to use the native Knockout templating engine.</p>
 <code class="multiline">
 	//----------------------------------------
 	// Javascript
@@ -3852,9 +5010,11 @@
 	Who's View is this?!
 	This is my View!
 </code>
+			</div>
 		
 	
 </section>
+
 
 
 
@@ -3866,15 +5026,30 @@
 			Utility
 			
 		</h1>
-		
 	</div>
+	
 	
 		
 			
-			<h3 id="utility-addbinding">addBinding
-				<small>Falcon.addBinding( name, definition, [allowVirtual] )</small>
-			</h3>
-			<dl>
+			<div class="post-header" id="utility-addbinding">
+				<h3>
+					<div class="pull-left">
+						addBinding
+						<small>Falcon.addBinding( name, definition, [allowVirtual] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Object
+								<small> - The binding definition</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<dl>
 	<dt data-type="String">name</dt>
 	<dd>The binding name.</dd>
 	<dt data-type="Object">definition</dt>
@@ -3885,14 +5060,23 @@
 <p>
 	Method used to add a new binding for Knockout
 </p>
+			</div>
 		
 	
 		
 			
-			<h3 id="utility-apply">apply
-				<small>Falcon.apply( root, [element], [callback] )</small>
-			</h3>
-			<dl>
+			<div class="post-header" id="utility-apply">
+				<h3>
+					<div class="pull-left">
+						apply
+						<small>Falcon.apply( root, [element], [callback] )</small>
+					</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<dl>
 	<dt data-type="Falcon.View | ko.observable">root</dt>
 	<dd>A view or an observable containing a view to be applied to the application element</dd>
 	<dt data-type="String | DOMElement">element</dt>
@@ -3903,14 +5087,30 @@
 <p>
 	The method to initialize a Falcon application and apply its bindings against an initial view.
 </p>
+			</div>
 		
 	
 		
 			
-			<h3 id="utility-iscollection">isCollection
-				<small>Falcon.isCollection( object )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="utility-iscollection">
+				<h3>
+					<div class="pull-left">
+						isCollection
+						<small>Falcon.isCollection( object )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Boolean
+								<small> - Is the object a collection</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to test if an object is a Falcon Collection.
 </p>
 <dl>
@@ -3930,14 +5130,30 @@
 	console.log( Falcon.isCollection(collection) ); // => true
 	console.log( Falcon.isCollection(view) );// => false
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="utility-isdataobject">isDataObject
-				<small>Falcon.isDataObject( object )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="utility-isdataobject">
+				<h3>
+					<div class="pull-left">
+						isDataObject
+						<small>Falcon.isDataObject( object )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Boolean
+								<small> - Is the object a DataObject (Model or Collection)?</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to test if an object is a Falcon Model or Collection
 </p>
 <dl>
@@ -3957,14 +5173,30 @@
 	console.log( Falcon.isDataObject(collection) ); // => true
 	console.log( Falcon.isDataObject(view) );// => false
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="utility-isfalconobject">isFalconObject
-				<small>Falcon.isFalconObject( object )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="utility-isfalconobject">
+				<h3>
+					<div class="pull-left">
+						isFalconObject
+						<small>Falcon.isFalconObject( object )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Boolean
+								<small> - Is the object a Falcon object?</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to test if an object is a Falcon Model, View, or Collection.
 </p>
 <dl>
@@ -3984,14 +5216,30 @@
 	console.log( Falcon.isFalconObject(collection) ); // => true
 	console.log( Falcon.isFalconObject(view) );// => true
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="utility-ismodel">isModel
-				<small>Falcon.isModel( object )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="utility-ismodel">
+				<h3>
+					<div class="pull-left">
+						isModel
+						<small>Falcon.isModel( object )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Boolean
+								<small> - Is the object a model?</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to test if an object is a Falcon Model.
 </p>
 <dl>
@@ -4011,14 +5259,30 @@
 	console.log( Falcon.isModel(collection) ); // => false
 	console.log( Falcon.isModel(view) );// => false
 </code>
+			</div>
 		
 	
 		
 			
-			<h3 id="utility-isview">isView
-				<small>Falcon.isView( object )</small>
-			</h3>
-			<p>
+			<div class="post-header" id="utility-isview">
+				<h3>
+					<div class="pull-left">
+						isView
+						<small>Falcon.isView( object )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Boolean
+								<small> - Is this a Falcon view?</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
 	Method used to test if an object is a Falcon View.
 </p>
 <dl>
@@ -4038,9 +5302,11 @@
 	console.log( Falcon.isView(collection) ); // => false
 	console.log( Falcon.isView(view) );// => true
 </code>
+			</div>
 		
 	
 </section>
+
 
 
 				</div>

@@ -18,18 +18,117 @@ i.glyphicon {
   left: 0px;
 }
 
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0px;
+  color: #222222;
+}
+
+h1, h2, h3 {
+  font-weight: 300;
+}
+h1 small, h2 small, h3 small {
+  font-weight: 200;
+}
+
+p {
+  color: #444444;
+}
+
+p + h3 {
+  margin-top: 40px;
+}
+
+p + h4 {
+  margin-top: 30px;
+}
+
+section {
+  padding: 45px 0px 25px 0px;
+}
+
+iframe {
+  margin-bottom: 30px;
+}
+
+.btn {
+  border-radius: 0px;
+  -moz-border-radius: 0px;
+}
+
+.btn.btn-danger {
+  background-color: #aa0000;
+  border: 1px solid #aa0000;
+}
+
+.btn.btn-danger:hover {
+  background-color: #c30000;
+  border: 1px solid #c30000;
+}
+
+.page-header {
+  padding-top: 0px;
+  margin-top: 0px;
+  margin-bottom: 10px;
+}
+.page-header h1 {
+  margin-bottom: 0px;
+}
+
+.page-description {
+  color: #444444;
+  font-size: 18px;
+  line-height: 26px;
+  padding: 0px 10px;
+}
+
+.post-header {
+  border-bottom: 1px solid #e8e8e8;
+  margin: 0px 0px 10px 0px;
+  padding: 45px 10px 5px 10px;
+}
+.post-header h3 {
+  padding: 0px;
+  margin: 0px;
+}
+.post-header .pull-right {
+  line-height: 25px;
+  height: 25px;
+}
+.post-header .pull-right h6 {
+  display: inline;
+  margin: 0px;
+  vertical-align: bottom;
+}
+.post-header .pull-right h6 small {
+  display: inline;
+  vertical-align: bottom;
+  font-size: 12px;
+}
+
+.page-header + .post-header {
+  margin-top: -10px;
+}
+
+.post-content {
+  padding: 0px 0px 0px 10px;
+}
+.post-content p {
+  font-size: 14px;
+}
+
 dl + dl {
   margin-top: -10px;
-  border-top: 2px solid #e8e8e8;
+  border-top: 1px solid #e8e8e8;
 }
 
 dl {
   padding: 10px 0px;
-  background-color: #f4f4f4;
+  background-color: #fbfbfb;
   overflow: hidden;
   color: #333333;
   margin-bottom: 10px;
   font-size: 13px;
+  border-left: 5px solid #dddddd;
 }
 dl dt:after {
   content: "-";
@@ -116,54 +215,6 @@ code.runnable .runner {
   text-align: center;
   cursor: pointer;
   border: 1px solid #d47f7f;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  margin-top: 0px;
-}
-
-section {
-  padding: 45px 0px 0px 0px;
-}
-
-h3 {
-  padding-top: 25px;
-}
-
-p + h3 {
-  margin-top: 40px;
-}
-
-p + h4 {
-  margin-top: 30px;
-}
-
-.page-header + h3 {
-  padding-top: 0px;
-}
-
-iframe {
-  margin-bottom: 30px;
-}
-
-.btn {
-  border-radius: 0px;
-  -moz-border-radius: 0px;
-}
-
-.btn.btn-danger {
-  background-color: #aa0000;
-  border: 1px solid #aa0000;
-}
-
-.btn.btn-danger:hover {
-  background-color: #c30000;
-  border: 1px solid #c30000;
-}
-
-.page-header {
-  padding-top: 0px;
-  margin-top: 0px;
 }
 
 #hero {

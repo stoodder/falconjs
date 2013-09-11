@@ -3,15 +3,15 @@
 	// ----------------------------------------
 	// Javascript
 	// ----------------------------------------
-	var Cats = Falcon.Collection.extend({ ... });
-
-	var cats = new Cats();
-	var dogs = ko.observableArray([]);
+	var Dogs = Falcon.Collection.extend({ ... });
+	
+	var dogs = new Dogs();
+	var cats = ko.observableArray([]);
 	
 
 	// ----------------------------------------
 	// HTML
 	// ----------------------------------------
-	<div data-bind="foreach: cats"> ... A Bunch of Cats ...</div>
 	<div data-bind="foreach: dogs"> ... A Bunch of Dogs ...</div>
+	<div data-bind="foreach: cats"> ... A Bunch of Cats ...</div>
 </code>
