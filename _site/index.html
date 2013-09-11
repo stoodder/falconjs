@@ -170,14 +170,14 @@
 			
 			
 				<li>
-					<a href="#model-clone" alt="clone">clone</a>
+					<a href="#model-initialize" alt="initialize">initialize</a>
 				</li>
 			
 		
 			
 			
 				<li>
-					<a href="#model-initialize" alt="initialize">initialize</a>
+					<a href="#model-clone" alt="clone">clone</a>
 				</li>
 			
 		
@@ -334,6 +334,13 @@
 			
 			
 				<li>
+					<a href="#collection-initialize" alt="initialize">initialize</a>
+				</li>
+			
+		
+			
+			
+				<li>
 					<a href="#collection-any" alt="any">any</a>
 				</li>
 			
@@ -370,13 +377,6 @@
 			
 				<li>
 					<a href="#collection-comparator" alt="comparator">comparator</a>
-				</li>
-			
-		
-			
-			
-				<li>
-					<a href="#collection-initialize" alt="initialize">initialize</a>
 				</li>
 			
 		
@@ -793,7 +793,7 @@
 		</h1>
 	</div>
 	
-		<div class="page-description">Falcon.js is an MV* framework that helps organize small to large-scale single-page applications that wish to utilize Knockout.js for templating and data binding. Falcon provides <strong>Models</strong> to represent individual data objects that need to sync with server data, <strong>Collections</strong> to represent a list of models and provide numerous list filtering methods, and <strong>Views</strong> to relate functionality between data objects and specific Knockout templates.</div>
+		<div class="page-description">Falcon.js is an MV* framework that helps organize small and large single-page applications that wish to utilize Knockout.js for templating and data binding. Falcon provides: <br/><br/><ul><li><strong>Models</strong> represent individual data objects that need to sync with server data</li><li><strong>Collections</strong> represent a list of models and provide numerous list filtering methods</li><li><strong>Views</strong> relate functionality between data objects and Knockout templates</li></div>
 	
 	
 		
@@ -843,7 +843,7 @@
 <br />
 <h4>Motivation</h4>
 <p>
-	Falcon was created to help organize Knockout.js applications. Anyone who's worked with Knockout knows how powerful and simple it is to create dynamic documents with its powerful data binding architecture. However, when creating larger scale applications, Knockout can still fall into the same trap that is seen throughout most Javascript development. It's tough to organize applications in a sensible and scalable way.  Falcon's goal is to aid this problem by providing a way of organizing your data objects and views.  Falcon has three core objects: <strong>Models</strong>, <strong>Collections</strong>, and <strong>Views</strong>.
+	Falcon was created to help organize Knockout.js applications. Anyone who's worked with Knockout knows how powerful and simple it is to create dynamic documents with its powerful data binding architecture. However, when creating larger scale applications, Knockout can still fall into the same trap that is seen throughout most Javascript development: <strong>it's tough to organize applications in a sensible and scalable way</strong>.  Falcon's goal is to aid this problem by providing a way of organizing your data objects and views.  Falcon has three core concepts: Models, Collections, and Views.
 </p>
 <p>
 	<strong>Models</strong> are used to represent individual data objects (eg. Dog, Cat, User, etc).  They can be used to interact with data to/from a backend API, provide data specific validation, and create general data definitions.
@@ -855,7 +855,7 @@
 	<strong>Views</strong> are used to represent an indivdual view which is bound to a Knockout template. Views can be used to organize individual application components and their specific data representations and functionality.  They can also be used to trigger certain functionality when being displayed or hidden from the DOM.
 </p>
 <p>
-	Lastly, Falcon also provides numerous configuration options and utility methods.  These are useful when defining where remote templates/api resources are located, initializing your application, adding new bindings, and for when you need general helper methods for checking data with.
+	Lastly, Falcon also provides numerous configuration options and utility methods that are useful when defining where remote templates/api resources are located, initializing your application, adding new bindings, and for when you need general helper methods for checking data with.
 </p>
 			</div>
 		
@@ -874,7 +874,7 @@
 			</div>
 			<div class="post-content">
 				<p>
-	Before getting started with Falcon, we'll need to run briefly through how <a href="http://knockoutjs.com/">Knockout.js</a> works. If you already have a decent understanding of general Knockout concepts, feel free to skip this portion of the tutorial and get started with our <a href="#getting_started-basic_todo_list">Basic Todo List example</a>.  Additionally, if you're looking for more information on Knockout, be sure to check out their <a href="http://learn.knockoutjs.com/">interactive tutorial</a> and <a href="http://knockoutjs.com/documentation/introduction.html">documentation</a>.  Nevertheless, let's get started.
+	Before getting started with Falcon, let's need to run briefly through how <a href="http://knockoutjs.com/">Knockout.js</a> works. If you already have a decent understanding of general Knockout concepts, feel free to skip this portion of the tutorial and get started with our <a href="#getting_started-basic_todo_list">Basic Todo List example</a>.  Additionally, if you're looking for more information on Knockout, be sure to check out their <a href="http://learn.knockoutjs.com/">interactive tutorial</a> and <a href="http://knockoutjs.com/documentation/introduction.html">documentation</a>.  Nevertheless, let's get started.
 </p>
 <h4>What is Knockout?</h4>
 <p>
@@ -895,7 +895,7 @@
 		<li>Toggling a css class on an element when an observable that is truthy or falsey.</li>
 		<li>Calling certain Javascript functions when an event is trigged on an element.</li>
 	</ul>
-	Additionally, it's possible to create your own, custom bindings, but we won't discuss that in these early tutorials. If you're interested in learning now, take a look at the <a href="http://knockoutjs.com/documentation/custom-bindings.html">Knockout documentation for custom bindings</a>.
+	Additionally, it's possible to create your own, custom bindings, but we won't discuss that in these early tutorials. If you're interested in learning how, take a look at the <a href="http://knockoutjs.com/documentation/custom-bindings.html">Knockout documentation for custom bindings</a>.
 </p>
 <p>
 	Take a look at the jsFiddle example below.  Here we're creating an observable 'name' on a viewModel object. We're setting the name to 'Mr. Falcon' and then applying the bindings to our html. <code>ko.applyBindings( viewModel )</code> is how we initialize Knockout and tell it to parse through our html to link bindings with the specified viewModel.
@@ -903,16 +903,16 @@
 <p>
 	In the HTML tab of the jsFiddle you'll see our Knockout template. Here we have an input text field that will update the value of our 'name' observable using the 'value' binding when the text field's value is changed. Once the 'name' observable is updated, Knockout will also update the text in the 'span' element via the 'text' bindings. Take a look at the result tab to see how this works.
 </p>
-<iframe width="100%" height="200" src="http://jsfiddle.net/stoodder/yusbY/embedded/js,html,result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+<iframe width="100%" height="200" data-src="http://jsfiddle.net/stoodder/yusbY/embedded/js,html,result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
 
 <h4>Computed Observables</h4>
 <p>
-	In this next example we'll talk about <strong>Computed Observables</strong>. Computed observables are essentially calculated values based on other observables or computed observables. Computed observables can be created like so: <code>var myComputeObservable = ko.computed(function(){...})</code>.  The function that is defined in the computed should return the calculated value of the observable. If we've read any observable values from within the function then whenever that observable is updated, the computed observable will also be recalculated.
+	In this next example we'll talk about <strong>Computed Observables</strong>. Computed observables are essentially calculated values based on other observables or computed observables. Computed observables can be created like so: <br /><br /><code>var myComputeObservable = ko.computed(function(){...})</code><br /><br />  The function that is defined in the computed should return the calculated value of the observable. If we've read any observable values from within the function then whenever that observable is updated, the computed observable will also be recalculated.
 </p>
 <p>
-	For instance, in the example below we have two observables that represent a first and last name of a user. We also have a computed observable called 'full_name' that will output the full name representation of whatever the user has entered for their first and last names. In the example, we've bound two input fields via the 'value' binding to the first and last name bindings. We then bind the 'full_name' computed observable to the text binding of the span field which will output the full name. Notice also that we've introduced the 'if' binding around our text output of the full name. The 'if' binding is used to either display or hide children elements based on the truthy or falsey value of an observable. Take a look at the result tab of the jsFiddle to see how this works.
+	For instance, in the example below we have two observables that represent a first and last name of a user. We also have a computed observable called 'full_name' that will output the full name representation of whatever the user has entered for their first and last names. In the example, we've bound two input fields via the 'value' binding to the first and last name bindings. We then bind the 'full_name' computed observable to the text binding of the span field which will output the full name. Notice also that we've introduced the 'if' binding around our text output of the full name. The 'if' binding is used to either display or hide children elements based on the truthy or falsey value of an observable.
 </p>
-<iframe width="100%" height="300" src="http://jsfiddle.net/stoodder/VGjV8/embedded/js,html,result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+<iframe width="100%" height="300" data-src="http://jsfiddle.net/stoodder/VGjV8/embedded/js,html,result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
 
 <h4>Writeable Computed Observables and Virtual Bindings</h4>
 <p>
@@ -921,7 +921,7 @@
 <p>
 	In this example we update the 'full_name' computed binding to also become writeable. In our template, we've added another field that allows users to type in their full name (instead of just their first and last names). When the value of that field changes the writeable observable splits the name properly and re-updates the first and last name values. Additionally, we've changed our template to now use Virtual Bindings rather than depending on HTML elements for certain things. The virtual bindings can be found in the form of HTML comments that take this pattern: <code>&lt;!-- ko binding: observable -->Content...&lt;!-- /ko --></code>. Take a look at the example below to see how this works:
 </p>
-<iframe width="100%" height="500" src="http://jsfiddle.net/stoodder/MH3vq/embedded/js,html,result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+<iframe width="100%" height="500" data-src="http://jsfiddle.net/stoodder/MH3vq/embedded/js,html,result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
 
 
 <h4>Observable Arrays, Event Bindings, and Binding Contexts</h4>
@@ -937,7 +937,7 @@
 <p>
 	Finally, if you look at how the 'removeName' function is bound to the 'click' binding in the html tab of the jsFiddle you'll see that we use <code>click: $root.removeName</code>. In Knockout, $root is called a <strong>Binding Context</strong>.  Essentially, binding contexts are just variables that can be used in templates to help us navigate to different parts of the context hierarchy.  In other words, the $root context always references the root viewModel that is bound with ko.applyBindings(). In our example we needed to use the $root binding from within the foreach binding because the current context would be that of each individual name object rather than the root view model. Other binding contexts include: $root, $parent, $parents, $data and more. To learn about them in-depth, checkout the <a href="http://knockoutjs.com/documentation/binding-context.html">Knockout Docs on Binding Contexts</a>.
 </p>
-<iframe width="100%" height="500" src="http://jsfiddle.net/stoodder/T3Q38/embedded/js,html,result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+<iframe width="100%" height="500" data-src="http://jsfiddle.net/stoodder/T3Q38/embedded/js,html,result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
 			</div>
 		
 	
@@ -980,7 +980,18 @@
 		<strong>$view</strong> - This is a new binding context (like knockout's $root, $parent, and $data) added by Falcon to give your templates direct access to a view's methods and variables regardless of what scope you're currently in.  By default, the root level scope of a view's template is the view itself. However, if you're within a 'foreach' binding, then instead of having to call $parent to access the view, you can simply us $view itself.  To get a better understanding of how this is implemented, look at the html tab in the jsFiddle below.
 	</li>
 </ul>
-<iframe width="100%" height="650" src="http://jsfiddle.net/stoodder/2ZX52/embedded/js,html,result/light/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+<ul class="nav nav-tabs">
+	<li class="active"><a href="#basic-todo-list-commented" data-toggle="tab" class="tab">Commented Source</a></li>
+	<li><a href="#basic-todo-list-uncommented" data-toggle="tab" class="tab">Uncommented Source</a></li>
+</ul>
+<div class="tab-content">
+	<div class="tab-pane active" id="basic-todo-list-commented">
+		<iframe width="100%" height="500" data-src="http://jsfiddle.net/stoodder/2ZX52/embedded/js,html,result/light/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+	</div>
+	<div class="tab-pane" id="basic-todo-list-uncommented">
+		<iframe width="100%" height="500" data-src="http://jsfiddle.net/stoodder/cuTcr/embedded/js,html/light/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+	</div>
+</div>
 			</div>
 		
 	
@@ -1016,7 +1027,18 @@
 	<li>
 		<strong>view binding</strong> - The view binding is a new binding added by Falcon that allows us to inject a view within another view. This binding takes in a Falcon View or a Knockout observable and injects the rendered view within the current view's rendered template. If an observable is given (like in our example), the child view will dynamically change whenever the observables is updated with a new view. An example of how this is used can be seen in the example's html tab within the '#layout_template' element.  This binding is useful for dynamic apps that have common widgets spread throughout them or with apps that have multiple hierarchies of views (such as with a todo list manager that has a layout with multiple pages and edit forms).
 </ul>
-<iframe width="100%" height="650" src="http://jsfiddle.net/stoodder/7rEax/embedded/js,html,result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+<ul class="nav nav-tabs">
+	<li class="active"><a href="#multiple-todo-list-commented" data-toggle="tab" class="tab">Commented Source</a></li>
+	<li><a href="#multiple-todo-list-uncommented" data-toggle="tab" class="tab">Uncommented Source</a></li>
+</ul>
+<div class="tab-content">
+	<div class="tab-pane active" id="multiple-todo-list-commented">
+		<iframe width="100%" height="500" data-src="http://jsfiddle.net/stoodder/7rEax/embedded/js,html,result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+	</div>
+	<div class="tab-pane" id="multiple-todo-list-uncommented">
+		<iframe width="100%" height="500" data-src="http://jsfiddle.net/stoodder/V7Ybz/embedded/js,html/light/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+	</div>
+</div>
 			</div>
 		
 	
@@ -1039,7 +1061,20 @@
 <p>
 	In this example we'll show how Falcon loads and caches view templates. We'll also demonstrate how Falcon's makeUrl method on views, models, and collections generate URLs and what it means for a model or a collection have a 'parent' model.
 </p>
-<iframe width="100%" height="650" src="http://jsfiddle.net/stoodder/G5XFT/embedded/js,html,result/light/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+<ul class="nav nav-tabs">
+	<li class="active"><a href="#remote-todo-list-commented" data-toggle="tab" class="tab">Commented Source</a></li>
+	<li><a href="#remote-todo-list-uncommented" data-toggle="tab" class="tab">Uncommented Source</a></li>
+</ul>
+
+<div class="tab-content">
+	<div class="tab-pane active" id="remote-todo-list-commented">
+		<iframe width="100%" height="500" data-src="http://jsfiddle.net/stoodder/G5XFT/embedded/js,html,result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+	</div>
+	<div class="tab-pane" id="remote-todo-list-uncommented">
+		<iframe width="100%" height="500" data-src="http://jsfiddle.net/stoodder/VS9r6/2/embedded/js,html/light/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+	</div>
+</div>
 			</div>
 		
 	
@@ -1412,47 +1447,6 @@
 	
 		
 			
-			<div class="post-header" id="model-clone">
-				<h3>
-					<div class="pull-left">
-						clone
-						<small>model.clone( [attributes], [parent] )</small>
-					</div>
-					
-						<div class="pull-right">
-							<h6>
-								Falcon.Model
-								<small> - A clone of this model</small>
-							</h6>
-						</div>
-					
-					<div class="clearfix"></div>
-				</h3>
-			</div>
-			<div class="post-content">
-				<p>
-	Method used to create a clone of this model. This method is can be used to only copy certain attributes from this model by stating so in the 'attributes' argument.  If a 'parent' argument is given, then the resultant model will have that parent rather than the original model's parent. If 'null' is given for parent, then the resultant model will not have a parent.
-</p>
-<dl>
-	<dt data-type="Object">attributes</dt>
-	<dd>An object or an array attributes to copy from this model to the new model. If this is not provided all attributes will be copied.</dd>
-	<dt data-type="Falcon.Model">parent</dt>
-	<dd>An override of the parent to set in the resultant model. If 'null' is explicitly given, then the resultant model will be parent-free</dd>
-</dl>
-<code class="multiline runnable">
-	var Dog = Falcon.Model.extend({name: ""});
-
-	var dog = new Dog({"name": "fido"});
-	var fido_clone = dog.clone();
-
-	console.log( dog.get("name"), fido_clone.get("name") ); // fido, fido
-	console.log( dog === fido_clone ); // false
-</code>
-			</div>
-		
-	
-		
-			
 			<div class="post-header" id="model-initialize">
 				<h3>
 					<div class="pull-left">
@@ -1490,6 +1484,47 @@
 	var dog = new Dog();
 
 	console.log( dog.get("name") ); // => Fido
+</code>
+			</div>
+		
+	
+		
+			
+			<div class="post-header" id="model-clone">
+				<h3>
+					<div class="pull-left">
+						clone
+						<small>model.clone( [attributes], [parent] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Falcon.Model
+								<small> - A clone of this model</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
+	Method used to create a clone of this model. This method is can be used to only copy certain attributes from this model by stating so in the 'attributes' argument.  If a 'parent' argument is given, then the resultant model will have that parent rather than the original model's parent. If 'null' is given for parent, then the resultant model will not have a parent.
+</p>
+<dl>
+	<dt data-type="Object">attributes</dt>
+	<dd>An object or an array attributes to copy from this model to the new model. If this is not provided all attributes will be copied.</dd>
+	<dt data-type="Falcon.Model">parent</dt>
+	<dd>An override of the parent to set in the resultant model. If 'null' is explicitly given, then the resultant model will be parent-free</dd>
+</dl>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend({name: ""});
+
+	var dog = new Dog({"name": "fido"});
+	var fido_clone = dog.clone();
+
+	console.log( dog.get("name"), fido_clone.get("name") ); // fido, fido
+	console.log( dog === fido_clone ); // false
 </code>
 			</div>
 		
@@ -2492,6 +2527,50 @@
 	
 		
 			
+			<div class="post-header" id="collection-initialize">
+				<h3>
+					<div class="pull-left">
+						initialize
+						<small>new Falcon.Collection( [models], [parent] )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Falcon.Collection
+								<small> - This instance.</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
+	The constructor method for a Falcon Collection.  Creates a new instance of a Falcon Collection and should be overriden instead of overriding the internal constructor method.
+</p>
+<dl>
+	<dt data-type="Array">models</dt>
+	<dd>An initial set of models to populate the collection with</dd>
+	<dt data-type="Falcon.Model">parent</dt>
+	<dd>The owner of this collection, used for generating urls when making requests to the server.</dd>
+</dl>
+<code class="multiline runnable">
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({
+		model: Dog,
+
+		initialize: function() {
+			console.log("Collecting Dogs");
+		}
+	});
+
+	new Dogs(); // => Collecting Dogs
+</code>
+			</div>
+		
+	
+		
+			
 			<div class="post-header" id="collection-any">
 				<h3>
 					<div class="pull-left">
@@ -2804,50 +2883,6 @@
 	console.log( dogs.at(1).get("name") ); // => Bump
 	console.log( dogs.at(2).get("name") ); // => Fido
 	console.log( dogs.at(3).get("name") ); // => Skip
-</code>
-			</div>
-		
-	
-		
-			
-			<div class="post-header" id="collection-initialize">
-				<h3>
-					<div class="pull-left">
-						initialize
-						<small>new Falcon.Collection( [models], [parent] )</small>
-					</div>
-					
-						<div class="pull-right">
-							<h6>
-								Falcon.Collection
-								<small> - This instance.</small>
-							</h6>
-						</div>
-					
-					<div class="clearfix"></div>
-				</h3>
-			</div>
-			<div class="post-content">
-				<p>
-	The constructor method for a Falcon Collection.  Creates a new instance of a Falcon Collection and should be overriden instead of overriding the internal constructor method.
-</p>
-<dl>
-	<dt data-type="Array">models</dt>
-	<dd>An initial set of models to populate the collection with</dd>
-	<dt data-type="Falcon.Model">parent</dt>
-	<dd>The owner of this collection, used for generating urls when making requests to the server.</dd>
-</dl>
-<code class="multiline runnable">
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({
-		model: Dog,
-
-		initialize: function() {
-			console.log("Collecting Dogs");
-		}
-	});
-
-	new Dogs(); // => Collecting Dogs
 </code>
 			</div>
 		

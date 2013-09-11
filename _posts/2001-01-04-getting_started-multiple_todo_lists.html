@@ -22,4 +22,15 @@ category: getting started
 	<li>
 		<strong>view binding</strong> - The view binding is a new binding added by Falcon that allows us to inject a view within another view. This binding takes in a Falcon View or a Knockout observable and injects the rendered view within the current view's rendered template. If an observable is given (like in our example), the child view will dynamically change whenever the observables is updated with a new view. An example of how this is used can be seen in the example's html tab within the '#layout_template' element.  This binding is useful for dynamic apps that have common widgets spread throughout them or with apps that have multiple hierarchies of views (such as with a todo list manager that has a layout with multiple pages and edit forms).
 </ul>
-<iframe width="100%" height="650" src="http://jsfiddle.net/stoodder/7rEax/embedded/js,html,result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+<ul class="nav nav-tabs">
+	<li class="active"><a href="#multiple-todo-list-commented" data-toggle="tab" class="tab">Commented Source</a></li>
+	<li><a href="#multiple-todo-list-uncommented" data-toggle="tab" class="tab">Uncommented Source</a></li>
+</ul>
+<div class="tab-content">
+	<div class="tab-pane active" id="multiple-todo-list-commented">
+		<iframe width="100%" height="500" data-src="http://jsfiddle.net/stoodder/7rEax/embedded/js,html,result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+	</div>
+	<div class="tab-pane" id="multiple-todo-list-uncommented">
+		<iframe width="100%" height="500" data-src="http://jsfiddle.net/stoodder/V7Ybz/embedded/js,html/light/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+	</div>
+</div>

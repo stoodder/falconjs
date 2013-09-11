@@ -24,6 +24,14 @@
     var logger_index;
 
     logger_index = 0;
+    $("li.active a.tab").tab('show');
+    $("a.tab").on("click", function(event) {
+      event.preventDefault();
+      return $(this).tab('show');
+    });
+    $("iframe").each(function(index, element) {
+      return $(element).attr("src", $(element).data("src"));
+    });
     return $("code").each(function(index, element) {
       var $element, $logger, $runner, code, html, logger_id;
 

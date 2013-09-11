@@ -24,4 +24,15 @@
 		<strong>$view</strong> - This is a new binding context (like knockout's $root, $parent, and $data) added by Falcon to give your templates direct access to a view's methods and variables regardless of what scope you're currently in.  By default, the root level scope of a view's template is the view itself. However, if you're within a 'foreach' binding, then instead of having to call $parent to access the view, you can simply us $view itself.  To get a better understanding of how this is implemented, look at the html tab in the jsFiddle below.
 	</li>
 </ul>
-<iframe width="100%" height="650" src="http://jsfiddle.net/stoodder/2ZX52/embedded/js,html,result/light/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+<ul class="nav nav-tabs">
+	<li class="active"><a href="#basic-todo-list-commented" data-toggle="tab" class="tab">Commented Source</a></li>
+	<li><a href="#basic-todo-list-uncommented" data-toggle="tab" class="tab">Uncommented Source</a></li>
+</ul>
+<div class="tab-content">
+	<div class="tab-pane active" id="basic-todo-list-commented">
+		<iframe width="100%" height="500" data-src="http://jsfiddle.net/stoodder/2ZX52/embedded/js,html,result/light/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+	</div>
+	<div class="tab-pane" id="basic-todo-list-uncommented">
+		<iframe width="100%" height="500" data-src="http://jsfiddle.net/stoodder/cuTcr/embedded/js,html/light/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+	</div>
+</div>

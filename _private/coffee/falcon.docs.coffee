@@ -10,6 +10,15 @@ window.logger = (logger_id, value) ->
 $ ->
 	logger_index = 0
 
+	$("li.active a.tab").tab('show')
+
+	$("a.tab").on "click", (event) ->
+		event.preventDefault()
+		$(this).tab('show')
+	#END click
+
+	$("iframe").each (index, element) -> $(element).attr("src", $(element).data("src") )
+
 	$("code").each (index, element) ->
 		$element = $(element)
 		html = $element.html().replace(/\&lt;/gi, "<").replace(/\&gt;/gi, ">")
