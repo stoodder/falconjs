@@ -4,23 +4,18 @@
 <code class="multiline runnable">
 	var Dog = Falcon.Object.extend({
 		defaults: {
-			"name": "Fido",
 			"is_tame": true,
-			"child_of_lassie": function(parent_dog_name)
-			{
-				return parent_dog_name === "Lassie";
+			"name": function(name) {
+				return ( name || "Fido" );
 			}
 		}
 	});
 
-	var dog = new Dog("Skip"); // Dog not related to Lassie
-	var dog_child_of_lassie = new Dog("Lassie"); // Dog related to Lassie
-
+	var dog = new Dog();
 	console.log( dog.name ); // => Fido
 	console.log( dog.is_tame ); // => true
-	console.log( dog.child_of_lassie ); // => false
 
-	console.log( dog_child_of_lassie.name ); // => Fido
-	console.log( dog_child_of_lassie.is_tame ); // => true
-	console.log( dog_child_of_lassie.child_of_lassie ); // => true
+	var skip = new Dog("Skip");
+	console.log( skip.name ); // => Skip
+	console.log( skip.is_tame ); // => true
 </code>
