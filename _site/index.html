@@ -173,7 +173,7 @@
 			
 			
 				<li>
-					<a href="#model-ininitialize" alt="ininitialize">ininitialize</a>
+					<a href="#model-initialize" alt="initialize">initialize</a>
 				</li>
 			
 		
@@ -337,7 +337,7 @@
 			
 			
 				<li>
-					<a href="#collection-ininitialize" alt="ininitialize">ininitialize</a>
+					<a href="#collection-initialize" alt="initialize">initialize</a>
 				</li>
 			
 		
@@ -620,7 +620,7 @@
 			
 			
 				<li>
-					<a href="#view-ininitialize" alt="ininitialize">ininitialize</a>
+					<a href="#view-initialize" alt="initialize">initialize</a>
 				</li>
 			
 		
@@ -901,7 +901,7 @@
 	Additionally, it's possible to create your own, custom bindings, but we won't discuss that in these early tutorials. If you're interested in learning how, take a look at the <a href="http://knockoutjs.com/documentation/custom-bindings.html">Knockout documentation for custom bindings</a>.
 </p>
 <p>
-	Take a look at the jsFiddle example below.  Here we're creating an observable 'name' on a viewModel object. We're setting the name to 'Mr. Falcon' and then applying the bindings to our html. <code>ko.applyBindings( viewModel )</code> is how we ininitialize Knockout and tell it to parse through our html to link bindings with the specified viewModel.
+	Take a look at the jsFiddle example below.  Here we're creating an observable 'name' on a viewModel object. We're setting the name to 'Mr. Falcon' and then applying the bindings to our html. <code>ko.applyBindings( viewModel )</code> is how we initialize Knockout and tell it to parse through our html to link bindings with the specified viewModel.
 </p>
 <p>
 	In the HTML tab of the jsFiddle you'll see our Knockout template. Here we have an input text field that will update the value of our 'name' observable using the 'value' binding when the text field's value is changed. Once the 'name' observable is updated, Knockout will also update the text in the 'span' element via the 'text' bindings. Take a look at the result tab to see how this works.
@@ -977,7 +977,7 @@
 		<strong>View</strong> - Handles the interaction between models, collections and other application logic and binds everything to a specified knockout template.
 	</li>
 	<li>
-		<strong>Falcon.apply()</strong> - This is the single method that must be called to ininitialize Falcon and your app. The first argument must be a Falcon View that will be bound against, by default, the <code>&lt;body&gt;</code>  of the document. Optionally, you may pass in a second parameter to specify what element on the page we would like to ininitialize our application in. In this example we use the <code>#application</code> element.  This will trigger the specified view to load its html template and inject it into our app's container element.
+		<strong>Falcon.apply()</strong> - This is the single method that must be called to initialize Falcon and your app. The first argument must be a Falcon View that will be bound against, by default, the <code>&lt;body&gt;</code>  of the document. Optionally, you may pass in a second parameter to specify what element on the page we would like to initialize our application in. In this example we use the <code>#application</code> element.  This will trigger the specified view to load its html template and inject it into our app's container element.
 	</li>
 	<li>
 		<strong>$view</strong> - This is a new binding context (like knockout's $root, $parent, and $data) added by Falcon to give your templates direct access to a view's methods and variables regardless of what scope you're currently in.  By default, the root level scope of a view's template is the view itself. However, if you're within a 'foreach' binding, then instead of having to call $parent to access the view, you can simply us $view itself.  To get a better understanding of how this is implemented, look at the html tab in the jsFiddle below.
@@ -1114,7 +1114,7 @@
 			</div>
 			<div class="post-content">
 				<p>
-	This is a hash map of non-observable defaults to create whenever an instance of this class is ininitialized. If the value is a function, the function is called and the return value is assigned. Functions are called in context of this instance and with all the same arguments from the constructor method. Defaults are created before observables which means that any duplicate attributes between the observables (as in the 'observables' attribute on Falcon.Object) and default attributes will be overridden by those in the observables
+	This is a hash map of non-observable defaults to create whenever an instance of this class is initialized. If the value is a function, the function is called and the return value is assigned. Functions are called in context of this instance and with all the same arguments from the constructor method. Defaults are created before observables which means that any duplicate attributes between the observables (as in the 'observables' attribute on Falcon.Object) and default attributes will be overridden by those in the observables
 </p>
 <code class="multiline runnable">
 	var Dog = Falcon.Object.extend({
@@ -1450,10 +1450,10 @@
 	
 		
 			
-			<div class="post-header" id="model-ininitialize">
+			<div class="post-header" id="model-initialize">
 				<h3>
 					<div class="pull-left">
-						ininitialize
+						initialize
 						<small>new Model( [data], [parent] )</small>
 					</div>
 					
@@ -1469,7 +1469,7 @@
 			</div>
 			<div class="post-content">
 				<p>
-	The ininitialize method is called within the actual constructor method of the model. The constructor method has specific set up code that should always be run when creating a model and hence, having the ininitialize method available, allows developers to override this function to ensure that everything that the actual constructor needs to do is executed prior to the ininitialize method and everything custom that the developer needs won't interfere with the required operations.
+	The initialize method is called within the actual constructor method of the model. The constructor method has specific set up code that should always be run when creating a model and hence, having the initialize method available, allows developers to override this function to ensure that everything that the actual constructor needs to do is executed prior to the initialize method and everything custom that the developer needs won't interfere with the required operations.
 </p>
 <dl>
 	<dt data-type="Object">data</dt>
@@ -1479,7 +1479,7 @@
 </dl>
 <code class="multiline runnable">
 	var Dog = Falcon.Model.extend({
-		ininitialize: function() {
+		initialize: function() {
 			this.name = "Fido";
 		}
 	});
@@ -2530,10 +2530,10 @@
 	
 		
 			
-			<div class="post-header" id="collection-ininitialize">
+			<div class="post-header" id="collection-initialize">
 				<h3>
 					<div class="pull-left">
-						ininitialize
+						initialize
 						<small>new Falcon.Collection( [models], [parent] )</small>
 					</div>
 					
@@ -2562,7 +2562,7 @@
 	var Dogs = Falcon.Collection.extend({
 		model: Dog,
 
-		ininitialize: function() {
+		initialize: function() {
 			console.log("Collecting Dogs");
 		}
 	});
@@ -4634,10 +4634,10 @@
 	
 		
 			
-			<div class="post-header" id="view-ininitialize">
+			<div class="post-header" id="view-initialize">
 				<h3>
 					<div class="pull-left">
-						ininitialize
+						initialize
 						<small>new Falcon.View()</small>
 					</div>
 					
@@ -4650,7 +4650,7 @@
 </p>
 <code class="multiline runnable">
 	var DogView = Falcon.View.extend({
-		ininitialize: function()
+		initialize: function()
 		{
 			console.log("Ininitialized the Dog View");
 		}
@@ -5198,7 +5198,7 @@
 	<dt data-type="String | DOMElement">element</dt>
 	<dd>The element to initialize the application in. If none is provided, the body element is used.</dd>
 	<dt data-type="Function">callback</dt>
-	<dd>Method called after the bindings have been ininitialized and applied.</dd>
+	<dd>Method called after the bindings have been initialized and applied.</dd>
 </dl>
 <code class="multiline">
 	var LayoutView = Falcon.View.extend({ "url": "#layout_view_tmpl" });

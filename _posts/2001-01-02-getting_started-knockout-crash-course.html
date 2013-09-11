@@ -28,7 +28,7 @@ category: getting started
 	Additionally, it's possible to create your own, custom bindings, but we won't discuss that in these early tutorials. If you're interested in learning how, take a look at the <a href="http://knockoutjs.com/documentation/custom-bindings.html">Knockout documentation for custom bindings</a>.
 </p>
 <p>
-	Take a look at the jsFiddle example below.  Here we're creating an observable 'name' on a viewModel object. We're setting the name to 'Mr. Falcon' and then applying the bindings to our html. <code>ko.applyBindings( viewModel )</code> is how we ininitialize Knockout and tell it to parse through our html to link bindings with the specified viewModel.
+	Take a look at the jsFiddle example below.  Here we're creating an observable 'name' on a viewModel object. We're setting the name to 'Mr. Falcon' and then applying the bindings to our html. <code>ko.applyBindings( viewModel )</code> is how we initialize Knockout and tell it to parse through our html to link bindings with the specified viewModel.
 </p>
 <p>
 	In the HTML tab of the jsFiddle you'll see our Knockout template. Here we have an input text field that will update the value of our 'name' observable using the 'value' binding when the text field's value is changed. Once the 'name' observable is updated, Knockout will also update the text in the 'span' element via the 'text' bindings. Take a look at the result tab to see how this works.

@@ -1,5 +1,5 @@
 ---
-title: ininitialize
+title: initialize
 method: new Model( [data], [parent] )
 returnType: Falcon.Model
 returnDescription: The new instance of a Falcon Model
@@ -7,7 +7,7 @@ complete: false
 category: Model
 ---
 <p>
-	The ininitialize method is called within the actual constructor method of the model. The constructor method has specific set up code that should always be run when creating a model and hence, having the ininitialize method available, allows developers to override this function to ensure that everything that the actual constructor needs to do is executed prior to the ininitialize method and everything custom that the developer needs won't interfere with the required operations.
+	The initialize method is called within the actual constructor method of the model. The constructor method has specific set up code that should always be run when creating a model and hence, having the initialize method available, allows developers to override this function to ensure that everything that the actual constructor needs to do is executed prior to the initialize method and everything custom that the developer needs won't interfere with the required operations.
 </p>
 <dl>
 	<dt data-type="Object">data</dt>
@@ -17,7 +17,7 @@ category: Model
 </dl>
 <code class="multiline runnable">
 	var Dog = Falcon.Model.extend({
-		ininitialize: function() {
+		initialize: function() {
 			this.name = "Fido";
 		}
 	});
