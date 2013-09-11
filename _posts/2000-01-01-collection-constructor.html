@@ -1,5 +1,5 @@
 ---
-title: initialize
+title: ininitialize
 method: new Falcon.Collection( [models], [parent] )
 returnType: Falcon.Collection
 returnDescription: This instance.
@@ -7,7 +7,7 @@ complete: false
 category: collection
 ---
 <p>
-	The constructor method for a Falcon Collection.  Creates a new instance of a Falcon Collection and should be overriden instead of overriding the internal constructor method.
+	The constructor method for a Falcon Collection.  Creates a new instance of a Falcon Collection and should be overridden instead of overriding the internal constructor method.
 </p>
 <dl>
 	<dt data-type="Array">models</dt>
@@ -20,7 +20,7 @@ category: collection
 	var Dogs = Falcon.Collection.extend({
 		model: Dog,
 
-		initialize: function() {
+		ininitialize: function() {
 			console.log("Collecting Dogs");
 		}
 	});

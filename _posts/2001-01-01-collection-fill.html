@@ -7,7 +7,7 @@ complete: false
 category: collection
 ---
 <p>
-	Method used to add new models to the collection. By default, this method just replaces all of the existing models in the collection. Optionally, one may define how models are added to the colleciton by defining the 'method' attribute of the options argument. 'method' can be either 'replace', 'append', 'prepend', 'merge', or 'insert'. By default, 'replace' is chosen.
+	Method used to add new models to the collection. By default, this method just replaces all of the existing models in the collection. Optionally, one may define how models are added to the collection by defining the 'method' attribute of the options argument. 'method' can be either 'replace', 'append', 'prepend', 'merge', or 'insert'. By default, 'replace' is chosen.
 </p>
 <dl>
 	<dt data-type="Array">items</dt>
@@ -28,7 +28,7 @@ category: collection
 				<strong>{method: 'merge'}</strong> - Update existing models in this collection (based on checking against models with matching 'id' attributes) and push any new items to the end of the collection.
 			</li>
 			<li>
-				<strong>{method: 'insert', 'insert_index': 0}</strong> - Insert the models at a specific index in the collection. The 'insert_index' option is used to determine which index to insert at. If the insert_index is out of range, the models are appended to the end of the collection otherwise their added before the current model at the specied index.
+				<strong>{method: 'insert', 'insert_index': 0}</strong> - Insert the models at a specific index in the collection. The 'insert_index' option is used to determine which index to insert at. If the insert_index is out of range, the models are appended to the end of the collection otherwise their added before the current model at the specified index.
 			</li>
 		</ul>
 		by default, the 'replace' method is chosen.

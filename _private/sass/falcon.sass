@@ -49,6 +49,14 @@ iframe
 	background-color: mix( $red, $red-lighter )
 	border: 1px solid mix( $red, $red-lighter )
 
+.btn.btn-danger.btn-lite
+	background-color: mix( $red, $white, 75% )
+	border: 1px solid mix( $red, $white, 75% )
+
+.btn.btn-danger.btn-lite:hover
+	background-color: mix( mix( $red, $red-lighter ), $white, 75% )
+	border: 1px solid mix( mix( $red, $red-lighter ), $white, 75% )
+
 .page-header
 	padding-top: 0px
 	margin-top: 0px
@@ -191,7 +199,7 @@ code.runnable
 		border: 1px solid mix( $white, $red )
 
 #hero
-	height: 500px
+	height: 520px
 	border-left: 3px solid $red
 	text-align: center
 	padding: 80px
@@ -221,11 +229,19 @@ code.runnable
 		margin: auto
 
 	.hero-actions
-		margin-top: 25px
+		margin: 25px auto 0px auto
+		width: 250px
+
+		.btn.btn-sm
+			font-size: 12px
+			padding: 5px 10px
 
 		.btn
+			width: 250px
 			padding: 10px 30px
 			font-size: 24px
+			text-align: center
+			display: inline-block
 
 			small
 				display: block

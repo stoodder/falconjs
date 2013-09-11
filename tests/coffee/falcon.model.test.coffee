@@ -466,7 +466,7 @@ describe "Testing Model Methods", ->
 			modelA.makeUrl("DELETE", modelB).should.equal "http://www.falconjs.com/model_b/b/model_a/3"
 		#END it
 
-		it "Should test the makeUrl method, no baseUrl, with overriden parent, no extension", ->
+		it "Should test the makeUrl method, no baseUrl, with overridden parent, no extension", ->
 			modelB = new ModelB(id: "b")
 			modelA = new ModelA(id: 3, modelB)
 
@@ -476,7 +476,7 @@ describe "Testing Model Methods", ->
 			modelA.makeUrl("DELETE", null).should.equal "/model_a/3"
 		#END it
 
-		it "Should test the makeUrl method, with baseUrl, with overriden parent, no extension", ->
+		it "Should test the makeUrl method, with baseUrl, with overridden parent, no extension", ->
 			modelB = new ModelB(id: "b")
 			modelA = new ModelA(id: 3, modelB)
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
@@ -1365,7 +1365,7 @@ describe "Testing Model Methods", ->
 			modelA2.foo().should.equal "bar"
 		#END it
 
-		it "Should clone properly with overriden parent", ->
+		it "Should clone properly with overridden parent", ->
 			modelB = new ModelB
 			modelC = new ModelC
 			modelA1 = new ModelA({
@@ -1384,7 +1384,7 @@ describe "Testing Model Methods", ->
 			modelA2.foo().should.equal "bar"
 		#END it
 
-		it "Should clone properly with overriden null parent", ->
+		it "Should clone properly with overridden null parent", ->
 			modelB = new ModelB
 			modelA1 = new ModelA({
 				id:		1

@@ -11,7 +11,7 @@
 	<dt data-type="String">type</dt>
 	<dd>The HTTP Method to call to the server with. Valid options options include "GET", "POST", "PUT", "DELETE".</dd>
 	<dt data-type="Object">options</dt>
-	<dd>Optional object of settings to use on this call.  This is usefull for configuring ajax callbacks, url parameters, fill paramaters, and attribute serialization handling. The avilable options are:
+	<dd>Optional object of settings to use on this call.  This is useful for configuring ajax callbacks, url parameters, fill parameters, and attribute serialization handling. The available options are:
 		<ul>
 			<li>
 				<strong>url</strong> - The url to make our request to. If the url isn't specified, then the 'makeUrl' method will be called with the given request type to generate a url.
@@ -20,7 +20,7 @@
 				<strong>parent</strong> - An override of the parent object to use when generating a url through 'makeUrl'. If the parent option isn't set, then this model's parent is used.  If parent is set to 'null', then no parent will be used.
 			</li>
 			<li>
-				<strong>attributes</strong> - An object or an array of attributes to actually serialize and send to the server. This is the same attributes specifiation that will be passed into the 'serialize' method which is useful for reducing the load of data that is sent to the server.  See the 'serialize' method for more information on the attributes option.
+				<strong>attributes</strong> - An object or an array of attributes to actually serialize and send to the server. This is the same attributes specification that will be passed into the 'serialize' method which is useful for reducing the load of data that is sent to the server.  See the 'serialize' method for more information on the attributes option.
 			</li>
 			<li>
 				<strong>method</strong> - The fill method to use when receiving data from the server. By default this is 'replace'. Other available options include: 'append', 'prepend', 'merge', 'insert'.  If 'insert' is specified, then 'insert_index' may also be provided in the options.
@@ -46,7 +46,7 @@
 			<li>
 				<strong>error( collection, response, xhr )</strong> - A callback method to be executed whenever a 400 or above level response is returned from the server. This method will be called on the context of this collection or the context given in the options if one is set.  This callback will be called with three arguments given: This collection, the response text, and the XmlHttpRequest object. 
 			<li>
-				<strong>complete( collection, xhr, status )</strong> - A callback method to be executed whenever any status resonse is completed. This method is called after success/error. It will be called on the context of this collection unless the context was specified in the options. It will be called with three arguments given: This collection, the XmlHttpRequest object, and the server status.
+				<strong>complete( collection, xhr, status )</strong> - A callback method to be executed whenever any status response is completed. This method is called after success/error. It will be called on the context of this collection unless the context was specified in the options. It will be called with three arguments given: This collection, the XmlHttpRequest object, and the server status.
 			</li>
 			<li>
 				<strong>fill</strong> - A flag to specify whether the 'fill' method should be called once this request has completed successfully. By default, this is set to true.

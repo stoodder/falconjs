@@ -65,6 +65,16 @@ iframe {
   border: 1px solid #c30000;
 }
 
+.btn.btn-danger.btn-lite {
+  background-color: #bf3f3f;
+  border: 1px solid #bf3f3f;
+}
+
+.btn.btn-danger.btn-lite:hover {
+  background-color: #d23f3f;
+  border: 1px solid #d23f3f;
+}
+
 .page-header {
   padding-top: 0px;
   margin-top: 0px;
@@ -228,7 +238,7 @@ code.runnable .logger {
 }
 
 #hero {
-  height: 500px;
+  height: 520px;
   border-left: 3px solid #aa0000;
   text-align: center;
   padding: 80px;
@@ -258,11 +268,19 @@ code.runnable .logger {
   margin: auto;
 }
 #hero .hero-actions {
-  margin-top: 25px;
+  margin: 25px auto 0px auto;
+  width: 250px;
+}
+#hero .hero-actions .btn.btn-sm {
+  font-size: 12px;
+  padding: 5px 10px;
 }
 #hero .hero-actions .btn {
+  width: 250px;
   padding: 10px 30px;
   font-size: 24px;
+  text-align: center;
+  display: inline-block;
 }
 #hero .hero-actions .btn small {
   display: block;

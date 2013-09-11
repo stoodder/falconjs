@@ -67,10 +67,10 @@
             assertCanWorkWith(this);
 
             var alwaysSinonMethod = "always" + sinonName[0].toUpperCase() + sinonName.substring(1);
-            var shouldBeAlways = utils.flag(this, "always") && typeof this._obj[alwaysSinonMethod] === "function";
-            var sinonMethod = shouldBeAlways ? alwaysSinonMethod : sinonName;
+            var shouldBealways = utils.flag(this, "always") && typeof this._obj[alwaysSinonMethod] === "function";
+            var sinonMethod = shouldBealways ? alwaysSinonMethod : sinonName;
 
-            var messages = getMessages(this._obj, action, nonNegatedSuffix, shouldBeAlways, slice.call(arguments));
+            var messages = getMessages(this._obj, action, nonNegatedSuffix, shouldBealways, slice.call(arguments));
             this.assert(this._obj[sinonMethod].apply(this._obj, arguments), messages.affirmative, messages.negative);
         };
     }

@@ -2749,7 +2749,7 @@ ko.bindingHandlers['uniqueName'] = {
 ko.bindingHandlers['uniqueName'].currentIndex = 0;
 ko.bindingHandlers['value'] = {
     'init': function (element, valueAccessor, allBindingsAccessor) {
-        // Always catch "change" event; possibly other events too if asked
+        // always catch "change" event; possibly other events too if asked
         var eventsToCatch = ["change"];
         var requestedEventsToCatch = allBindingsAccessor()["valueUpdate"];
         var propertyChangedFired = false;
