@@ -64,7 +64,7 @@
 			
 			
 				<li>
-					<a href="#getting_started-introduction" alt="Introduction">Introduction</a>
+					<a href="#getting_started-overview" alt="Overview">Overview</a>
 				</li>
 			
 		
@@ -798,10 +798,10 @@
 	
 		
 			
-			<div class="post-header" id="getting_started-introduction">
+			<div class="post-header" id="getting_started-overview">
 				<h3>
 					<div class="pull-left">
-						Introduction
+						Overview
 						<small></small>
 					</div>
 					
@@ -809,12 +809,53 @@
 				</h3>
 			</div>
 			<div class="post-content">
-				<h4>Motivation</h4>
+				<h4>Dependencies</h4>
 <p>
-	Falcon was created to help organize Knockout.js applications. Anyone who's worked with Knockout knows how powerful and simple it is to create dynamic documents with its powerful data binding architecture. However, when creating larger scale applications, Knockout can still fall into the same trap that is seen throughout most Javascript development. It's tough to organize applications in a sensible and scalable way.  Falcon's goal is to aid this problem by providing a way of organizing your data objects and views.
+	Falcon comes <strong>built with Knockout 2.3.0</strong> in it's source code. Hence, when you include Falcon you won't need to also have Knockout included. 
 </p>
 <p>
-	<strong>Models</strong> can be used to define specific data objects and how they relate to their counterparts on a backend server.
+	Falcon's only real dependency is jQuery. Falcon uses jQuery for detecting document load and for its ajax methods.  Falcon has been tested with both jQuery 1.10.x and 2.0.x.
+	<br />
+	<br />
+	<a href="http://jquery.com/download/" alt="Download jQuery">Download jQuery</a>
+</p>
+<h4>Installation</h4>
+<p>
+	Installing Falcon is as simple as included jQuery and Falcon and executing the Falcon.apply() method.
+</p>
+<code class="multiline" data-caption="Here we have a basic LayoutView that will be injected into the body tag of the document when the page loads.">
+	&lt;html>
+		&lt;head>
+			&lt;script src="jquery.min.js">&lt;/script>
+			&lt;script src="falcon.min.js">&lt;/script>
+
+			&lt;script>
+				var LayoutView = Falcon.View.extend({ url: "#layout_tmpl" });
+				Falcon.apply( new LayoutView );
+			&lt;/script>
+		&lt;/head>
+		&lt;body>&lt;/body>
+		&lt;template id="layout_tmpl">
+			Some Template
+		&lt;/template>
+	&lt;/html>
+</code>
+<br />
+<h4>Motivation</h4>
+<p>
+	Falcon was created to help organize Knockout.js applications. Anyone who's worked with Knockout knows how powerful and simple it is to create dynamic documents with its powerful data binding architecture. However, when creating larger scale applications, Knockout can still fall into the same trap that is seen throughout most Javascript development. It's tough to organize applications in a sensible and scalable way.  Falcon's goal is to aid this problem by providing a way of organizing your data objects and views.  Falcon has three core objects: <strong>Models</strong>, <strong>Collections</strong>, and <strong>Views</strong>.
+</p>
+<p>
+	<strong>Models</strong> are used to represent individual data objects (eg. Dog, Cat, User, etc).  They can be used to interact with data to/from a backend API, provide data specific validation, and create general data definitions.
+</p>
+<p>
+	<strong>Collections</strong> are used to represent a list of models. They can retrieve a list of models from a backend API and they provide numerous sorting and filtering methods.
+</p>
+<p>
+	<strong>Views</strong> are used to represent an indivdual view which is bound to a Knockout template. Views can be used to organize individual application components and their specific data representations and functionality.  They can also be used to trigger certain functionality when being displayed or hidden from the DOM.
+</p>
+<p>
+	Lastly, Falcon also provides numerous configuration options and utility methods.  These are useful when defining where remote templates/api resources are located, initializing your application, adding new bindings, and for when you need general helper methods for checking data with.
 </p>
 			</div>
 		
@@ -837,7 +878,7 @@
 </p>
 <h4>What is Knockout?</h4>
 <p>
-	<a href="http://knockoutjs.com/">Knockout.js</a> is a Javascript library that provides a Model View ViewModel (MVVM) architecture for web applications. Essentially, it allows DOM elements to be dynamically updated and re-rendered when certain variables are updated without creating a hard dependency between your Javascript and HTML. In other words, Knockout allows us to update a value in Javascript and then have all of the related HTML elements (think form fields, paragraphs, css classes, etc.) update and re-rendered when neeeded.
+	<a href="http://knockoutjs.com/">Knockout.js</a> is a Javascript library that provides a Model View ViewModel (MVVM) architecture for web applications. Essentially, it allows DOM elements to be dynamically updated and re-rendered when certain variables are updated without creating a hard dependency between your Javascript and HTML. In other words, Knockout allows us to update a value in Javascript and then have all of the related HTML elements (think form fields, paragraphs, css classes, etc.) update and re-rendered when needed.
 </p>
 <h4>Observables and Bindings</h4>
 <p>
@@ -1009,6 +1050,7 @@
 
 
 
+
 <section id="object">
 	<div class="page-header">
 		<h1>
@@ -1016,6 +1058,8 @@
 			
 		</h1>
 	</div>
+	
+		<div class="page-description">Falcon.Object is the base-most class that all other Falcon classes (Model, Collection, View) inherit from.  It provides functionality for event handling, defaults/observables creation, and the definition for extend that exists on all subclasses.</div>
 	
 	
 		
@@ -1357,6 +1401,7 @@
 
 
 
+
 <section id="model">
 	<div class="page-header">
 		<h1>
@@ -1366,6 +1411,8 @@
 			
 		</h1>
 	</div>
+	
+		<div class="page-description">Falcon.Model is Falcon's class that is used to represent individual data objects (eg. Dog, Cat, User, etc).  Models can be used to interact with data to/from a backend API, provide data specific validation, and create general data definitions.</div>
 	
 	
 		
@@ -2434,6 +2481,7 @@
 
 
 
+
 <section id="collection">
 	<div class="page-header">
 		<h1>
@@ -2443,6 +2491,8 @@
 			
 		</h1>
 	</div>
+	
+		<div class="page-description">Falcon.Collection is Falcon's class that is used to represent a list of models. Collections can be used to retrieve a list of models from a backend API and they provide numerous sorting and filtering methods.</div>
 	
 	
 		
@@ -4535,6 +4585,7 @@
 
 
 
+
 <section id="view">
 	<div class="page-header">
 		<h1>
@@ -4544,6 +4595,8 @@
 			
 		</h1>
 	</div>
+	
+		<div class="page-description">Falcon.View is Falcon's class that is used to represent an indivdual view which is bound to a Knockout template. Views can be used to organize individual application components and their specific data representations and functionality.  Views can also be used to trigger certain functionality when being displayed or hidden from the DOM.</div>
 	
 	
 		
@@ -4875,6 +4928,7 @@
 
 
 
+
 <section id="bindings">
 	<div class="page-header">
 		<h1>
@@ -4882,6 +4936,8 @@
 			
 		</h1>
 	</div>
+	
+		<div class="page-description">Falcon provides new implementations for certain bindings in order to make Knockout templates compatable with Falcon views and data objects.</div>
 	
 	
 		
@@ -5020,6 +5076,7 @@
 
 
 
+
 <section id="utility">
 	<div class="page-header">
 		<h1>
@@ -5028,6 +5085,8 @@
 		</h1>
 	</div>
 	
+		<div class="page-description">Utility methods are used to initialize your application, add custom bindings, and check data for specific Falcon related types.</div>
+	
 	
 		
 			
@@ -5035,7 +5094,7 @@
 				<h3>
 					<div class="pull-left">
 						addBinding
-						<small>Falcon.addBinding( name, definition, [allowVirtual] )</small>
+						<small>Falcon.addBinding( name, [allowVirtual], definition)</small>
 					</div>
 					
 						<div class="pull-right">
@@ -5049,17 +5108,38 @@
 				</h3>
 			</div>
 			<div class="post-content">
-				<dl>
+				<p>
+	Used to create a new binding. If the allowVirtual flag is set, then the binding may also be used as a virtual binding.
+</p>
+<dl>
 	<dt data-type="String">name</dt>
 	<dd>The binding name.</dd>
+	<dt data-type="Boolean">allowVirtual</dt>
+	<dd>Should this binding be accessible using Knockout's virtual binding pattern?</dd>
 	<dt data-type="Object">definition</dt>
 	<dd>The binding definition.</dd>
-	<dt data-type="Boolean">allowVirtual</dt>
-	<dd>Should this binding be accessible using ko comments.</dd>
 </dl>
-<p>
-	Method used to add a new binding for Knockout
-</p>
+<code class="multiline">
+	Falcon.addBinding("slideVisible", {
+		update: function(element, valueAccessor, allBindingsAccessor) {
+			// First get the latest data that we're bound to
+			var value = valueAccessor(), allBindings = allBindingsAccessor();
+
+			// Next, whether or not the supplied model property is observable, get its current value
+			var valueUnwrapped = ko.unwrap(value);
+
+			// Grab some more data from another binding property
+			var duration = allBindings.slideDuration || 400; // 400ms is default duration unless otherwise specified
+
+			// Now manipulate the DOM element
+			if (valueUnwrapped == true) {
+				$(element).slideDown(duration); // Make the element visible
+			} else {
+				$(element).slideUp(duration);   // Make the element invisible
+			}
+		}
+	});
+</code>
 			</div>
 		
 	
@@ -5076,7 +5156,10 @@
 				</h3>
 			</div>
 			<div class="post-content">
-				<dl>
+				<p>
+	Initializes a Falcon application and applies its bindings against an initial view.
+</p>
+<dl>
 	<dt data-type="Falcon.View | ko.observable">root</dt>
 	<dd>A view or an observable containing a view to be applied to the application element</dd>
 	<dt data-type="String | DOMElement">element</dt>
@@ -5084,9 +5167,18 @@
 	<dt data-type="Function">callback</dt>
 	<dd>Method called after the bindings have been initialized and applied.</dd>
 </dl>
-<p>
-	The method to initialize a Falcon application and apply its bindings against an initial view.
-</p>
+<code class="multiline">
+	var LayoutView = Falcon.View.extend({ "url": "#layout_view_tmpl" });
+
+	Falcon.apply( new LayoutView ); // Injects the layout view into the 'body' tag
+	Falcon.apply( new LayoutView, "#application" ); // Injects the layout view into the element with id="application"
+
+	// apply can also handle observables
+	var viewObs = ko.observable();
+	Falcon.apply( viewObs ); // Applies the observable to the 'body' tag, nothing is currently rendered
+
+	viewObs( new LayoutView ); // Renders a layout view in 'body'
+</code>
 			</div>
 		
 	

@@ -6,22 +6,28 @@ layout: layout
 {% include contentsection.html %}
 
 {% assign category = 'Object' %}
+{% assign description = "Falcon.Object is the base-most class that all other Falcon classes (Model, Collection, View) inherit from.  It provides functionality for event handling, defaults/observables creation, and the definition for extend that exists on all subclasses." %}
 {% include contentsection.html %}
 
 {% assign category = 'Model' %}
 {% assign extends = 'Falcon.Object' %}
+{% assign description = "Falcon.Model is Falcon's class that is used to represent individual data objects (eg. Dog, Cat, User, etc).  Models can be used to interact with data to/from a backend API, provide data specific validation, and create general data definitions." %}
 {% include contentsection.html %}
 
 {% assign category = 'Collection' %}
 {% assign extends = 'Falcon.Object' %}
+{% assign description = "Falcon.Collection is Falcon's class that is used to represent a list of models. Collections can be used to retrieve a list of models from a backend API and they provide numerous sorting and filtering methods." %}
 {% include contentsection.html %}
 
 {% assign category = 'View' %}
 {% assign extends = 'Falcon.Object' %}
+{% assign description = "Falcon.View is Falcon's class that is used to represent an indivdual view which is bound to a Knockout template. Views can be used to organize individual application components and their specific data representations and functionality.  Views can also be used to trigger certain functionality when being displayed or hidden from the DOM." %}
 {% include contentsection.html %}
 
 {% assign category = 'Bindings' %}
+{% assign description = "Falcon provides new implementations for certain bindings in order to make Knockout templates compatable with Falcon views and data objects." %}
 {% include contentsection.html %}
 
 {% assign category = 'Utility' %}
+{% assign description = "Utility methods are used to initialize your application, add custom bindings, and check data for specific Falcon related types." %}
 {% include contentsection.html %}

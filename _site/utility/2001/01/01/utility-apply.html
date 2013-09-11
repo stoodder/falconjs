@@ -1,3 +1,6 @@
+<p>
+	Initializes a Falcon application and applies its bindings against an initial view.
+</p>
 <dl>
 	<dt data-type="Falcon.View | ko.observable">root</dt>
 	<dd>A view or an observable containing a view to be applied to the application element</dd>
@@ -6,6 +9,15 @@
 	<dt data-type="Function">callback</dt>
 	<dd>Method called after the bindings have been initialized and applied.</dd>
 </dl>
-<p>
-	The method to initialize a Falcon application and apply its bindings against an initial view.
-</p>
+<code class="multiline">
+	var LayoutView = Falcon.View.extend({ "url": "#layout_view_tmpl" });
+
+	Falcon.apply( new LayoutView ); // Injects the layout view into the 'body' tag
+	Falcon.apply( new LayoutView, "#application" ); // Injects the layout view into the element with id="application"
+
+	// apply can also handle observables
+	var viewObs = ko.observable();
+	Falcon.apply( viewObs ); // Applies the observable to the 'body' tag, nothing is currently rendered
+
+	viewObs( new LayoutView ); // Renders a layout view in 'body'
+</code>

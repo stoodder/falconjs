@@ -5,6 +5,9 @@
 
       $element = $(element);
       html = $element.html().replace(/\&lt;/gi, "<").replace(/\&gt;/gi, ">");
+      $element.click(function() {
+        return console.log(html);
+      });
       $element.text(html);
       if ($element.hasClass("runnable")) {
         code = $element.text();

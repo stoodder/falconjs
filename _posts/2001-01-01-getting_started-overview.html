@@ -1,12 +1,53 @@
 ---
-title: Introduction
+title: Overview
 complete: false
 category: getting started
 ---
-<h4>Motivation</h4>
+<h4>Dependencies</h4>
 <p>
-	Falcon was created to help organize Knockout.js applications. Anyone who's worked with Knockout knows how powerful and simple it is to create dynamic documents with its powerful data binding architecture. However, when creating larger scale applications, Knockout can still fall into the same trap that is seen throughout most Javascript development. It's tough to organize applications in a sensible and scalable way.  Falcon's goal is to aid this problem by providing a way of organizing your data objects and views.
+	Falcon comes <strong>built with Knockout 2.3.0</strong> in it's source code. Hence, when you include Falcon you won't need to also have Knockout included. 
 </p>
 <p>
-	<strong>Models</strong> can be used to define specific data objects and how they relate to their counterparts on a backend server.
+	Falcon's only real dependency is jQuery. Falcon uses jQuery for detecting document load and for its ajax methods.  Falcon has been tested with both jQuery 1.10.x and 2.0.x.
+	<br />
+	<br />
+	<a href="http://jquery.com/download/" alt="Download jQuery">Download jQuery</a>
+</p>
+<h4>Installation</h4>
+<p>
+	Installing Falcon is as simple as included jQuery and Falcon and executing the Falcon.apply() method.
+</p>
+<code class="multiline" data-caption="Here we have a basic LayoutView that will be injected into the body tag of the document when the page loads.">
+	&lt;html>
+		&lt;head>
+			&lt;script src="jquery.min.js">&lt;/script>
+			&lt;script src="falcon.min.js">&lt;/script>
+
+			&lt;script>
+				var LayoutView = Falcon.View.extend({ url: "#layout_tmpl" });
+				Falcon.apply( new LayoutView );
+			&lt;/script>
+		&lt;/head>
+		&lt;body>&lt;/body>
+		&lt;template id="layout_tmpl">
+			Some Template
+		&lt;/template>
+	&lt;/html>
+</code>
+<br />
+<h4>Motivation</h4>
+<p>
+	Falcon was created to help organize Knockout.js applications. Anyone who's worked with Knockout knows how powerful and simple it is to create dynamic documents with its powerful data binding architecture. However, when creating larger scale applications, Knockout can still fall into the same trap that is seen throughout most Javascript development. It's tough to organize applications in a sensible and scalable way.  Falcon's goal is to aid this problem by providing a way of organizing your data objects and views.  Falcon has three core objects: <strong>Models</strong>, <strong>Collections</strong>, and <strong>Views</strong>.
+</p>
+<p>
+	<strong>Models</strong> are used to represent individual data objects (eg. Dog, Cat, User, etc).  They can be used to interact with data to/from a backend API, provide data specific validation, and create general data definitions.
+</p>
+<p>
+	<strong>Collections</strong> are used to represent a list of models. They can retrieve a list of models from a backend API and they provide numerous sorting and filtering methods.
+</p>
+<p>
+	<strong>Views</strong> are used to represent an indivdual view which is bound to a Knockout template. Views can be used to organize individual application components and their specific data representations and functionality.  They can also be used to trigger certain functionality when being displayed or hidden from the DOM.
+</p>
+<p>
+	Lastly, Falcon also provides numerous configuration options and utility methods.  These are useful when defining where remote templates/api resources are located, initializing your application, adding new bindings, and for when you need general helper methods for checking data with.
 </p>
