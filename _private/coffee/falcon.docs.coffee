@@ -7,7 +7,10 @@ window.logger = (logger_id, value) ->
 	#END if
 	$("##{logger_id}").append("<div>#{value}</div>").toggleClass("visible", true)
 #END logger
+
 $ ->
+	$(window).on "resize", -> $("body").scrollspy('refresh')
+
 	logger_index = 0
 
 	$("li.active a.tab").tab('show')

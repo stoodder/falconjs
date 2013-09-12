@@ -1911,7 +1911,7 @@
         remove_stub.restore();
         return server.restore();
       });
-      return it("Should destroy using the overridden parent", function() {
+      return it("Should destroy using the overriden parent", function() {
         var ajax_args, ajax_spy, collectionA2, model_b, server;
 
         model_b = new ModelB({

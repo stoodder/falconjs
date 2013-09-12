@@ -23,6 +23,9 @@
   $(function() {
     var logger_index;
 
+    $(window).on("resize", function() {
+      return $("body").scrollspy('refresh');
+    });
     logger_index = 0;
     $("li.active a.tab").tab('show');
     $("a.tab").on("click", function(event) {

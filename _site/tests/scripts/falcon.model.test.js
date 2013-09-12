@@ -623,7 +623,7 @@
         expect(modelA.makeUrl("PUT", modelB)).to.equal("http://www.falconjs.com/model_b/b/model_a/3");
         return expect(modelA.makeUrl("DELETE", modelB)).to.equal("http://www.falconjs.com/model_b/b/model_a/3");
       });
-      it("Should test the makeUrl method, no baseUrl, with overridden parent, no extension", function() {
+      it("Should test the makeUrl method, no baseUrl, with overriden parent, no extension", function() {
         var modelA, modelB;
 
         modelB = new ModelB({
@@ -637,7 +637,7 @@
         expect(modelA.makeUrl("PUT", null)).to.equal("/model_a/3");
         return expect(modelA.makeUrl("DELETE", null)).to.equal("/model_a/3");
       });
-      it("Should test the makeUrl method, with baseUrl, with overridden parent, no extension", function() {
+      it("Should test the makeUrl method, with baseUrl, with overriden parent, no extension", function() {
         var modelA, modelB;
 
         modelB = new ModelB({
