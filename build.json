@@ -1,6 +1,6 @@
 {
 	"COFFEE": {
-		"build/falcon-standalone.js": [
+		"build/falcon-code.js": [
 			"coffee/header.coffee",
 			"coffee/utility.coffee",
 			"coffee/falcon.coffee",
@@ -19,31 +19,24 @@
 	},
 
 	"COMBINED": {
-		"build/falcon-combined.js": [
-			"scripts/knockout-2.3.0.js",
-			"build/falcon-standalone.js"
-		],
-		"build/falcon-combined.min.js": [
-			"scripts/knockout-2.3.0.js",
-			"build/falcon-standalone.js"
-		],
 		"build/falcon.js": [
 			"scripts/header.js",
-			"build/falcon-combined.js"
+			"build/falcon-code.js"
 		],
-		"build/falcon-minified.js": [
+		"build/falcon.min.js": [
 			"scripts/header.js",
-			"build/falcon-combined.min.js"
+			"build/falcon-code.min.js"
 		]
 	},
 
 	"COPIED": {
-		"falcon.js": "build/falcon.js",
-		"falcon.min.js": "build/falcon-minified.js",
+		"falcon.js": "build/falcon.min.js",
+		"falcon.min.js": "build/falcon.min.js",
 		"releases/falcon-{{VERSION}}.js": "build/falcon.js",
 		"releases/falcon-{{VERSION}}.min.js": "build/falcon-minified.js",
+		"tests/scripts/knockout-3.0.0beta.js": "scripts/knockout-3.0.0beta.js",
 		"tests/scripts/falcon.js": "build/falcon.js",
-		"tests/scripts/falcon.min.js": "build/falcon-minified.js"
+		"tests/scripts/falcon.min.js": "build/falcon.min.js"
 	},
 
 	"HAML": {},
