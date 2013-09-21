@@ -921,6 +921,21 @@ describe "Test Collection Methods", ->
 			expect( collectionD3.makeUrl("PUT") ).to.equal "http://www.falconjs.com/model_b/3b/collection_d3"
 			expect( collectionD3.makeUrl("DELETE") ).to.equal "http://www.falconjs.com/model_b/3b/collection_d3"
 		#END it
+
+		it "Should be able to make a url with just a / baseApiUrl", ->
+			class MyModel extends Falcon.Model
+				url: 'my_models'
+			#END MYModel
+
+			class MyCollection extends Falcon.Collection
+				model: MyModel
+			#END MyCollection
+
+			Falcon.baseApiUrl = "/"
+
+			my_collection = new MyCollection
+			expect( my_collection.makeUrl("GET") ).to.equal "/my_models"
+		#END it
 	#END describe
 
 
