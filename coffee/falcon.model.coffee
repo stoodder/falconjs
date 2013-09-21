@@ -320,7 +320,7 @@ class Falcon.Model extends Falcon.Object
 		#END if
 
 		#Replace any double slashes outside of the initial protocol
-		url = url.replace(/([^:])\/\/+/gi, "$1/")
+		url = url.replace(/([^:])\/\/+/gi, "$1/").replace(/^\/\//gi, "/")
 
 		#Return the built url
 		return "#{url}#{ext}"

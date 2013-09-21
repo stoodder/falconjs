@@ -4352,7 +4352,7 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
         }
         url += ko.utils.unwrapObservable(this.id);
       }
-      url = url.replace(/([^:])\/\/+/gi, "$1/");
+      url = url.replace(/([^:])\/\/+/gi, "$1/").replace(/^\/\//gi, "/");
       return "" + url + ext;
     };
 
