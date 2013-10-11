@@ -35,7 +35,7 @@
 
 
 (function() {
-  var ChainedCollection, Falcon, arrayRemove, arrayUnique, clone, extend, findKey, isArray, isBoolean, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, startsWith, trim, value, _bindingContext, _foreach, _getItems, _options, _ref, _ref1, _ref2, _shouldUpdate,
+  var ChainedCollection, Falcon, arrayRemove, arrayUnique, clone, extend, findKey, isArray, isBoolean, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, startsWith, trim, value, _foreach, _getItems, _options, _ref, _ref1, _ref2, _shouldUpdate,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -275,6 +275,11 @@
       }
       if (allowVirtual) {
         ko.virtualElements.allowedBindings[name] = true;
+      }
+      if (isFunction(definition)) {
+        definition = {
+          update: definition
+        };
       }
       return ko.bindingHandlers[name] = definition;
     }
@@ -1365,7 +1370,7 @@
       } else if (isString(Falcon.baseApiUrl)) {
         url = "" + Falcon.baseApiUrl + url;
       }
-      url = url.replace(/([^:])\/\/+/gi, "$1/");
+      url = url.replace(/([^:])\/\/+/gi, "$1/").replace(/^\/\//gi, "/");
       return url;
     };
 
@@ -2001,7 +2006,7 @@
     };
     return {
       'init': function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
-        var oldViewModel, subscription, value;
+        var childContext, oldViewModel, subscription, value;
 
         value = valueAccessor();
         if ((value != null) && ko.isSubscribable(value)) {
@@ -2025,11 +2030,13 @@
         }
         value = ko.utils.unwrapObservable(value);
         viewModel = getViewModel(value);
-        ko.bindingHandlers['template']['init'](element, makeTemplateValueAccessor(viewModel), allBindingsAccessor, viewModel, context);
+        childContext = context.createChildContext(viewModel);
+        childContext['$view'] = viewModel;
+        ko.bindingHandlers['template']['init'](element, makeTemplateValueAccessor(viewModel), allBindingsAccessor, viewModel, childContext);
         return returnVal;
       },
       'update': function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
-        var anonymousTemplate, execScripts, parentViewContext, template, value, _ref1;
+        var childContext, template, value;
 
         value = valueAccessor();
         value = ko.utils.unwrapObservable(value);
@@ -2040,35 +2047,39 @@
         if (!isObject(value)) {
           return returnVal;
         }
-        parentViewContext = context['$view'];
-        context['$view'] = viewModel;
-        if ((parentViewContext != null ? parentViewContext['__falcon_view__addChildView__'] : void 0) != null) {
+        childContext = context.createChildContext(viewModel);
+        childContext['$view'] = viewModel;
+        if ((typeof parentViewContext !== "undefined" && parentViewContext !== null ? parentViewContext['__falcon_view__addChildView__'] : void 0) != null) {
           parentViewContext['__falcon_view__addChildView__'](value);
         }
         if (isEmpty(viewModel) || isEmpty(template)) {
           $(element).empty();
         } else if (!(value instanceof Falcon.View) || ko.utils.unwrapObservable(value.is_loaded)) {
-          anonymousTemplate = ko.utils.domData.get(element, '__ko_anon_template__');
-          if (((_ref1 = anonymousTemplate.containerData) != null ? _ref1.innerHTML : void 0) != null) {
-            anonymousTemplate.containerData.innerHTML = template;
-          } else {
-            anonymousTemplate.textData = template;
-          }
-          ko.bindingHandlers['template']['update'](element, makeTemplateValueAccessor(viewModel), allBindingsAccessor, viewModel, context);
-          execScripts = !!ko.utils.unwrapObservable(value.execScripts);
-          if (template !== anonymousTemplate && execScripts === true) {
-            $(element).find("script").each(function(index, script) {
-              script = $(script);
-              if (script.attr('type').toLowerCase() === "text/javascript") {
-                return eval(script.text());
-              }
-            });
-          }
+          element.innerHTML = template;
+          /*
+          				anonymousTemplate = ko.utils.domData.get(element, '__ko_anon_template__')
+          				if anonymousTemplate.containerData?.innerHTML?
+          					anonymousTemplate.containerData.innerHTML = template
+          				else
+          					anonymousTemplate.textData = template
+          				#END if
+          */
+
+          ko.bindingHandlers['template']['update'](element, makeTemplateValueAccessor(viewModel), allBindingsAccessor, viewModel, childContext);
+          /*
+          				execScripts = !!ko.utils.unwrapObservable(value.execScripts)
+          				if template isnt anonymousTemplate and execScripts is true
+          					$(element).find("script").each( (index, script) ->
+          						script = $(script)
+          						eval( script.text() ) if script.attr('type').toLowerCase() is "text/javascript"
+          					)
+          				#END if template updated
+          */
+
           if (Falcon.isView(value)) {
             value._render();
           }
         }
-        context['$view'] = parentViewContext;
         return returnVal;
       }
     };
@@ -2175,16 +2186,19 @@
     }
   };
 
-  _bindingContext = ko.bindingContext;
+  /*
+  _bindingContext = ko.bindingContext
+  ko.bindingContext = (dataItem, parentBindingContext) ->
+  	if not this['$view']? and parentBindingContext?
+  		this['$view'] = parentBindingContext['$view'] or parentBindingContext['$root']
+  	#end if
+  	
+  	_bindingContext.call(this, dataItem, parentBindingContext)
+  #END ko.bindingContext extension
+  
+  ko.bindingContext.prototype = _bindingContext.prototype
+  */
 
-  ko.bindingContext = function(dataItem, parentBindingContext) {
-    if ((this['$view'] == null) && (parentBindingContext != null)) {
-      this['$view'] = parentBindingContext['$view'] || parentBindingContext['$root'];
-    }
-    return _bindingContext.call(this, dataItem, parentBindingContext);
-  };
-
-  ko.bindingContext.prototype = _bindingContext.prototype;
 
   ko.virtualElements.allowedBindings['view'] = true;
 

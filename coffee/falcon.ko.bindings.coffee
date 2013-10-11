@@ -66,13 +66,16 @@ ko.bindingHandlers['view'] = do ->
 
 			value = ko.utils.unwrapObservable(value)
 			viewModel = getViewModel(value)
+
+			childContext = context.createChildContext( viewModel )
+			childContext['$view'] = viewModel
 				
 			ko.bindingHandlers['template']['init'](
 				element,
 				makeTemplateValueAccessor(viewModel),
 				allBindingsAccessor,
 				viewModel,
-				context
+				childContext
 			)
 			
 			return returnVal
@@ -88,11 +91,8 @@ ko.bindingHandlers['view'] = do ->
 
 			return returnVal unless isObject( value )
 
-			#Store the original view context to revert later, otherwise syncing issues occur
-			parentViewContext = context['$view']
-
-			#Setup the new view context
-			context['$view'] = viewModel
+			childContext = context.createChildContext( viewModel )
+			childContext['$view'] = viewModel
 
 			#The method below is added to the viewModel upon creation due to the fact that proto 
 			#method are abstracted away during viewModel generation, it's used to notify a view 
@@ -104,22 +104,29 @@ ko.bindingHandlers['view'] = do ->
 				$(element).empty()
 			else if not (value instanceof Falcon.View) or ko.utils.unwrapObservable( value.is_loaded )
 
+				#console.log( new ko.templateSources.anonymousTemplate(element) )
+
+				element.innerHTML = template
+
+				###
 				anonymousTemplate = ko.utils.domData.get(element, '__ko_anon_template__')
 				if anonymousTemplate.containerData?.innerHTML?
 					anonymousTemplate.containerData.innerHTML = template
 				else
 					anonymousTemplate.textData = template
 				#END if
+				###
 
 				ko.bindingHandlers['template']['update'](
 					element,
 					makeTemplateValueAccessor(viewModel),
 					allBindingsAccessor, 
 					viewModel, 
-					context
+					childContext
 				)
 				#END evaluateTemplate
 
+				###
 				execScripts = !!ko.utils.unwrapObservable(value.execScripts)
 				if template isnt anonymousTemplate and execScripts is true
 					$(element).find("script").each( (index, script) ->
@@ -127,13 +134,11 @@ ko.bindingHandlers['view'] = do ->
 						eval( script.text() ) if script.attr('type').toLowerCase() is "text/javascript"
 					)
 				#END if template updated
+				###
 
 				#Notify the view that it is being displayed
 				value._render() if Falcon.isView( value )
 			#END if not template?
-
-			#Revert this back to the parent view (so we keep the correct context)
-			context['$view'] = parentViewContext
 
 			return returnVal
 		#END update
@@ -229,10 +234,12 @@ ko.bindingHandlers['log'] =
 	#END update
 #END log
 
+
 #--------------------------------------------------------
 # Extends onto the context varibales utilized in knockout templating
 # to include $view (to access this view's members easily)
 #--------------------------------------------------------
+###
 _bindingContext = ko.bindingContext
 ko.bindingContext = (dataItem, parentBindingContext) ->
 	if not this['$view']? and parentBindingContext?
@@ -241,7 +248,9 @@ ko.bindingContext = (dataItem, parentBindingContext) ->
 	
 	_bindingContext.call(this, dataItem, parentBindingContext)
 #END ko.bindingContext extension
+
 ko.bindingContext.prototype = _bindingContext.prototype
+###
 
 #Define which bindings should be allowed to be virtual
 ko.virtualElements.allowedBindings['view'] = true

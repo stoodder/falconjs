@@ -34,7 +34,7 @@
 		"falcon.min.js": "build/falcon.min.js",
 		"releases/falcon-{{VERSION}}.js": "build/falcon.js",
 		"releases/falcon-{{VERSION}}.min.js": "build/falcon-minified.js",
-		"tests/scripts/knockout-3.0.0beta.js": "scripts/knockout-3.0.0beta.js",
+		"tests/scripts/knockout-3.0.0rc.js": "scripts/knockout-3.0.0rc.js",
 		"tests/scripts/falcon.js": "build/falcon.js",
 		"tests/scripts/falcon.min.js": "build/falcon.min.js"
 	},

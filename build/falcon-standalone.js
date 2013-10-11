@@ -2,7 +2,7 @@
 	Falcon.js
 	by Rick Allen (stoodder)
 
-	Version 0.7.0
+	Version 0.7.1
 	Full source at https://github.com/stoodder/falconjs
 	Copyright (c) 2011 RokkinCat, http://www.rokkincat.com
 
@@ -195,7 +195,7 @@
   };
 
   this.Falcon = Falcon = {
-    version: "0.7.0",
+    version: "0.7.1",
     applicationElement: "body",
     baseApiUrl: "",
     baseTemplateUrl: "",
@@ -259,6 +259,11 @@
       }
       if (allowVirtual) {
         ko.virtualElements.allowedBindings[name] = true;
+      }
+      if (isFunction(definition)) {
+        definition = {
+          update: definition
+        };
       }
       return ko.bindingHandlers[name] = definition;
     }
@@ -1349,7 +1354,7 @@
       } else if (isString(Falcon.baseApiUrl)) {
         url = "" + Falcon.baseApiUrl + url;
       }
-      url = url.replace(/([^:])\/\/+/gi, "$1/");
+      url = url.replace(/([^:])\/\/+/gi, "$1/").replace(/^\/\//gi, "/");
       return url;
     };
 
