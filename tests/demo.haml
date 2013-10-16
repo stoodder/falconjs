@@ -1,0 +1,36 @@
+!!!5
+%html
+	%head
+		%script(src="scripts/jquery-1.8.3.min.js" type="text/javascript")
+		%script(src="scripts/knockout-2.3.0.js" type="text/javascript")
+		%script(src="scripts/falcon.min.js" type="text/javascript")
+		%script(src="scripts/demo.min.js" type="text/javascript")
+	
+	%template#layout-tmpl
+		Hello Template
+
+		%button(data-bind="click: $view.showContentView") Show Content View
+		%button(data-bind="click: $view.showOtherView") Show Other View
+		%hr/
+		-ko("view: $view.current_view")
+	
+	%template#content-tmpl
+		Test Template
+		%button(data-bind="click: $view.beHappy") Be Happy!
+		%button(data-bind="click: $view.addItem") Add Item
+		-ko("text: $view.the_text")
+
+		-ko("foreach: $view.a_list") do
+			%div
+				An Item!
+				-ko("text: $data")
+				%button(data-bind="click: $view.removeItem") Remove
+
+		%hr
+		-ko("view: $view.sub_view")
+
+	%template#subview-tmpl
+		La Sub View
+
+	%template#other-tmpl
+		Other View
