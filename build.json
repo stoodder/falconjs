@@ -34,8 +34,6 @@
 	"COPIED": {
 		"falcon.js": "build/falcon.js",
 		"falcon.min.js": "build/falcon.min.js",
-		"releases/falcon-{{VERSION}}.js": "build/falcon.js",
-		"releases/falcon-{{VERSION}}.min.js": "build/falcon.min.js",
 		
 		"tests/scripts/knockout-3.0.0rc.js": "scripts/knockout-3.0.0rc.js",
 		"tests/scripts/knockout-3.0.0rc.debug.js": "scripts/knockout-3.0.0rc.debug.js",
