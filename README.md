@@ -1,8 +1,8 @@
-===Documentation===
-http://stoodder.github.io/falconjs/
+## Documentation
+[http://stoodder.github.io/falconjs/](http://stoodder.github.io/falconjs/)
 
-=== Change Log ===
-_v0.8.0_
+## Change Log
+**v0.8.0**
 * Separated Knockout source code from Falcon
 * Updated Falcon to work with Knockout 3
 * Added Falcon.getBinding() method
