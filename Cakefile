@@ -183,7 +183,7 @@ task 'watch', 'watch coffee/ and tests/ for changes and build', ->
 			#END for
 
 			console.log "STARTING COMPILED HAML FILES"
-			_require = "#{__dirname}/haml/helpers.rb"
+			_require = "#{__dirname}/haml_helpers.rb"
 
 			for d, s of build["HAML"]
 				do ->

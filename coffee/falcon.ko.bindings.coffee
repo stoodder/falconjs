@@ -66,13 +66,15 @@ ko.bindingHandlers['view'] = do ->
 
 			value = ko.utils.unwrapObservable(value)
 			viewModel = getViewModel(value)
+
+			childContext = context.createChildContext(viewModel).extend('$view': viewModel)
 				
 			ko.bindingHandlers['template']['init'](
 				element,
 				makeTemplateValueAccessor(viewModel),
 				allBindingsAccessor,
 				viewModel,
-				context
+				childContext
 			)
 			
 			return returnVal
@@ -83,22 +85,16 @@ ko.bindingHandlers['view'] = do ->
 			value = ko.utils.unwrapObservable(value)
 			viewModel = getViewModel(value)
 			template = getTemplate(value)
-			window.prev_viewModel = window.current_viewModel
-			window.current_viewModel = viewModel
 
 			return returnVal unless isObject( value )
-
-			#Store the original view context to revert later, otherwise syncing issues occur
-			parentViewContext = context['$view']
-
-			#Setup the new view context
-			context['$view'] = viewModel
 
 			#The method below is added to the viewModel upon creation due to the fact that proto 
 			#method are abstracted away during viewModel generation, it's used to notify a view 
 			#which views have been created within its context.  This is then used when destroying 
 			#the view to also ensure that we destroy child views.
-			parentViewContext['__falcon_view__addChildView__']( value ) if parentViewContext?['__falcon_view__addChildView__']?
+			context['__falcon_view__addChildView__']( value ) if context?['__falcon_view__addChildView__']?
+
+			childContext = context.createChildContext(viewModel).extend('$view': viewModel)
 
 			if isEmpty( viewModel ) or isEmpty( template )
 				$(element).empty()
@@ -116,7 +112,7 @@ ko.bindingHandlers['view'] = do ->
 					makeTemplateValueAccessor(viewModel),
 					allBindingsAccessor, 
 					viewModel, 
-					context
+					childContext
 				)
 				#END evaluateTemplate
 
@@ -131,9 +127,6 @@ ko.bindingHandlers['view'] = do ->
 				#Notify the view that it is being displayed
 				value._render() if Falcon.isView( value )
 			#END if not template?
-
-			#Revert this back to the parent view (so we keep the correct context)
-			context['$view'] = parentViewContext
 
 			return returnVal
 		#END update
@@ -233,6 +226,7 @@ ko.bindingHandlers['log'] =
 # Extends onto the context varibales utilized in knockout templating
 # to include $view (to access this view's members easily)
 #--------------------------------------------------------
+###
 _bindingContext = ko.bindingContext
 ko.bindingContext = (dataItem, parentBindingContext) ->
 	if not this['$view']? and parentBindingContext?
@@ -242,6 +236,7 @@ ko.bindingContext = (dataItem, parentBindingContext) ->
 	_bindingContext.call(this, dataItem, parentBindingContext)
 #END ko.bindingContext extension
 ko.bindingContext.prototype = _bindingContext.prototype
+###
 
 #Define which bindings should be allowed to be virtual
 ko.virtualElements.allowedBindings['view'] = true

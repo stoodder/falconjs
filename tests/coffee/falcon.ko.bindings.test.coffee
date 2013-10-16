@@ -217,16 +217,9 @@ describe "Test Knockout Bindings", ->
 				expect( content_display_spy ).to.not.have.been.called
 				expect( footer_display_spy ).to.not.have.been.called
 
-				# These tests are correct but are accounting for redundant calls
-				# and should hence fail when the redundacies are fixed.
-				expect( unrender_spy ).to.have.been.calledOnce
-				expect( content_unrender_spy ).to.have.been.calledOnce 	# This is correct but only because the layout held 
-																		# onto a reference to this view, it should get rid of it 
-																		# when the view is gone.
-				
-				expect( footer_unrender_spy ).to.have.been.calledTwice	# This is correct but only because both the layout and
-																		# DOM node disposal both attempted to call it
-
+				expect( unrender_spy ).to.have.been.called
+				expect( content_unrender_spy ).to.not.have.been.called
+				expect( footer_unrender_spy ).to.have.been.calledOnce
 				
 				expect( dispose_spy ).to.have.been.calledOnce
 				expect( content_dispose_spy ).to.have.not.been.called
