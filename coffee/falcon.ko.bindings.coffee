@@ -64,19 +64,11 @@ ko.bindingHandlers['view'] = do ->
 				#END domDisposal
 			#END if
 
-			value = ko.utils.unwrapObservable(value)
-			viewModel = getViewModel(value)
-
-			childContext = context.createChildContext( viewModel )
-			childContext['$view'] = viewModel
-				
-			ko.bindingHandlers['template']['init'](
-				element,
-				makeTemplateValueAccessor(viewModel),
-				allBindingsAccessor,
-				viewModel,
-				childContext
-			)
+			#templateNodes = ko.virtualElements.childNodes(element)
+			#container = ko.utils.moveCleanedNodesToContainerElement(templateNodes)
+			container = document.createElement('div')
+			ko.utils.domData.set(element, "__falcon_view__container__", container)
+			new ko.templateSources.anonymousTemplate(element)['nodes'](container)
 			
 			return returnVal
 		#END init
@@ -86,55 +78,34 @@ ko.bindingHandlers['view'] = do ->
 			value = ko.utils.unwrapObservable(value)
 			viewModel = getViewModel(value)
 			template = getTemplate(value)
-			window.prev_viewModel = window.current_viewModel
-			window.current_viewModel = viewModel
+
+			ko.virtualElements.emptyNode(element) unless value?
 
 			return returnVal unless isObject( value )
-
-			childContext = context.createChildContext( viewModel )
-			childContext['$view'] = viewModel
 
 			#The method below is added to the viewModel upon creation due to the fact that proto 
 			#method are abstracted away during viewModel generation, it's used to notify a view 
 			#which views have been created within its context.  This is then used when destroying 
 			#the view to also ensure that we destroy child views.
-			parentViewContext['__falcon_view__addChildView__']( value ) if parentViewContext?['__falcon_view__addChildView__']?
+			context['__falcon_view__addChildView__']( value ) if context?['__falcon_view__addChildView__']?
+
+			childContext = context.createChildContext(viewModel).extend('$view': viewModel)
 
 			if isEmpty( viewModel ) or isEmpty( template )
-				$(element).empty()
+				ko.virtualElements.emptyNode(element)
 			else if not (value instanceof Falcon.View) or ko.utils.unwrapObservable( value.is_loaded )
 
-				#console.log( new ko.templateSources.anonymousTemplate(element) )
+				container = ko.utils.domData.get(element, "__falcon_view__container__")
+				container.innerHTML = template
+				ko.renderTemplate(element, childContext, {}, element)
 
-				element.innerHTML = template
-
-				###
-				anonymousTemplate = ko.utils.domData.get(element, '__ko_anon_template__')
-				if anonymousTemplate.containerData?.innerHTML?
-					anonymousTemplate.containerData.innerHTML = template
-				else
-					anonymousTemplate.textData = template
-				#END if
-				###
-
-				ko.bindingHandlers['template']['update'](
-					element,
-					makeTemplateValueAccessor(viewModel),
-					allBindingsAccessor, 
-					viewModel, 
-					childContext
-				)
-				#END evaluateTemplate
-
-				###
 				execScripts = !!ko.utils.unwrapObservable(value.execScripts)
-				if template isnt anonymousTemplate and execScripts is true
+				if execScripts is true
 					$(element).find("script").each( (index, script) ->
 						script = $(script)
 						eval( script.text() ) if script.attr('type').toLowerCase() is "text/javascript"
 					)
 				#END if template updated
-				###
 
 				#Notify the view that it is being displayed
 				value._render() if Falcon.isView( value )
@@ -239,18 +210,6 @@ ko.bindingHandlers['log'] =
 # Extends onto the context varibales utilized in knockout templating
 # to include $view (to access this view's members easily)
 #--------------------------------------------------------
-###
-_bindingContext = ko.bindingContext
-ko.bindingContext = (dataItem, parentBindingContext) ->
-	if not this['$view']? and parentBindingContext?
-		this['$view'] = parentBindingContext['$view'] or parentBindingContext['$root']
-	#end if
-	
-	_bindingContext.call(this, dataItem, parentBindingContext)
-#END ko.bindingContext extension
-
-ko.bindingContext.prototype = _bindingContext.prototype
-###
 
 #Define which bindings should be allowed to be virtual
 ko.virtualElements.allowedBindings['view'] = true

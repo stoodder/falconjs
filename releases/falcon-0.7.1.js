@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
 	Falcon.js
 	by Rick Allen (stoodder)
@@ -2205,3 +2206,5 @@
   ko.virtualElements.allowedBindings['log'] = true;
 
 }).call(this);
+=======
+>>>>>>> master

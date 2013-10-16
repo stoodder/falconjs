@@ -199,9 +199,9 @@
           expect(display_spy).to.not.have.been.called;
           expect(content_display_spy).to.not.have.been.called;
           expect(footer_display_spy).to.not.have.been.called;
-          expect(unrender_spy).to.have.been.calledOnce;
-          expect(content_unrender_spy).to.have.been.calledOnce;
-          expect(footer_unrender_spy).to.have.been.calledTwice;
+          expect(unrender_spy).to.have.been.called;
+          expect(content_unrender_spy).to.not.have.been.called;
+          expect(footer_unrender_spy).to.have.been.calledOnce;
           expect(dispose_spy).to.have.been.calledOnce;
           expect(content_dispose_spy).to.have.not.been.called;
           return expect(footer_dispose_spy).to.have.been.calledOnce;

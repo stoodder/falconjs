@@ -183,7 +183,7 @@ task 'watch', 'watch coffee/ and tests/ for changes and build', ->
 			#END for
 
 			console.log "STARTING COMPILED HAML FILES"
-			_require = "#{__dirname}/haml/helpers.rb"
+			_require = "#{__dirname}/haml_helpers.rb"
 
 			for d, s of build["HAML"]
 				do ->
@@ -227,12 +227,6 @@ task 'watch', 'watch coffee/ and tests/ for changes and build', ->
 							code = ( fs.readFileSync(source) for source in sources when fs.existsSync(source) ).join("\r\n")
 							file_name = destination.replace("{{VERSION}}", version)
 
-							if file_name.indexOf('.min.js') > -1
-								code = UglifyJS.minify(code, {
-									fromString: true
-								}).code
-							#END if
-							
 							write_file( file_name, code )
 						catch e
 							print_error e, file_name, file_contents
