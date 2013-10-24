@@ -257,6 +257,9 @@
         };
       }
       return ko.bindingHandlers[name] = definition;
+    },
+    getBinding: function(name) {
+      return ko.bindingHandlers[name];
     }
   };
 

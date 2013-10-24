@@ -176,5 +176,17 @@
 		definition = {update: definition} if isFunction( definition )
 		ko.bindingHandlers[name] = definition
 	#END addBinding
+
+	#--------------------------------------------------------
+	# Method: Falcon.getBinding()
+	#	Method used to consitently fetch a binding defintion from Knockout
+	#
+	# Arguments:
+	#	**name** _(String)_ -  The binding name
+	#
+	# Returns:
+	#	_(Object)_ - The binding definition
+	#--------------------------------------------------------
+	getBinding: (name) -> ko.bindingHandlers[name]
 #END Falcon
 
