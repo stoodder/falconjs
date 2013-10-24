@@ -946,20 +946,17 @@
         expect(modelE.makeUrl("PUT")).to.equal("/model_b/b/model_e3/e");
         return expect(modelE.makeUrl("DELETE")).to.equal("/model_b/b/model_e3/e");
       });
-      return it("Should test the makeUrl method, with baseUrl as '/', with explicit parent, with extension", function() {
-        var modelC, modelD;
+      return it("Should be able to handle '/' baseApiUrl", function() {
+        var modelA;
 
-        modelD = new ModelD({
-          id: "d"
-        });
-        modelC = new ModelC({
-          id: 3
+        modelA = new ModelA({
+          id: 1
         });
         Falcon.baseApiUrl = "/";
-        expect(modelC.makeUrl("GET", modelD)).to.equal("model_d/d/model_c/3.json");
-        expect(modelC.makeUrl("POST", modelD)).to.equal("model_d/d/model_c.json");
-        expect(modelC.makeUrl("PUT", modelD)).to.equal("model_d/d/model_c/3.json");
-        return expect(modelC.makeUrl("DELETE", modelD)).to.equal("model_d/d/model_c/3.json");
+        expect(modelA.makeUrl("GET")).to.equal("/model_a/1");
+        expect(modelA.makeUrl("POST")).to.equal("/model_a");
+        expect(modelA.makeUrl("PUT")).to.equal("/model_a/1");
+        return expect(modelA.makeUrl("DELETE")).to.equal("/model_a/1");
       });
     });
     describe("Tesing model sync methods", function() {

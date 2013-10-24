@@ -733,6 +733,15 @@ describe "Testing Model Methods", ->
 			expect( modelE.makeUrl("PUT") ).to.equal "/model_b/b/model_e3/e"
 			expect( modelE.makeUrl("DELETE") ).to.equal "/model_b/b/model_e3/e"
 		#END it
+
+		it "Should be able to handle '/' baseApiUrl", ->
+			modelA = new ModelA({id: 1})
+			Falcon.baseApiUrl = "/"
+
+			expect( modelA.makeUrl("GET") ).to.equal "/model_a/1"
+			expect( modelA.makeUrl("POST") ).to.equal "/model_a"
+			expect( modelA.makeUrl("PUT") ).to.equal "/model_a/1"
+			expect( modelA.makeUrl("DELETE") ).to.equal "/model_a/1"
 	#END describe
 
 
