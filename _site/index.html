@@ -36,10 +36,10 @@
 					It's set up to make developing single-page web applications a breeze.
 				</p>
 				<div class="hero-actions">
-					<a class="btn btn-danger" href="scripts/falcon.min.js" target="_blank">
-						Download v0.7.0
+					<a class="btn btn-danger" href="falcon-0.8.0.zip" target="_blank">
+						Download v0.8.0
 						<small>
-							Knockout.js 2.3.0 Included
+							Requires Knockout 3.0.0 and jQuery 1.10.x or 2.0.x
 						</small>
 					</a>
 					<a class="btn btn-danger btn-lite btn-sm" href="scripts/falcon.js" target="_blank">
@@ -54,7 +54,7 @@
 						<div id="sidebar-header">
 							Falcon.js
 							<a class="btn btn-xs btn-danger pull-right" href="scripts/falcon.min.js" target="_blank">
-								Download v0.7.0
+								Download v0.8.0
 							</a>
 						</div>
 						<ul class="nav sidebar-nav">
@@ -732,6 +732,13 @@
 			
 			
 				<li>
+					<a href="#utility-getbinding" alt="getBinding">getBinding</a>
+				</li>
+			
+		
+			
+			
+				<li>
 					<a href="#utility-iscollection" alt="isCollection">isCollection</a>
 				</li>
 			
@@ -781,6 +788,9 @@
 							<li>
 								<a href="http://knockoutjs.com/" alt="Knckout.js Homepage" target="_blank">Knockout.js</a>
 							</li>
+							<li>
+								<iframe class="github-btn" src="http://ghbtns.com/github-btn.html?user=stoodder&amp;repo=falconjs&amp;type=watch&amp;count=true" allowtransparency="true" frameborder="0" scrolling="0" width="100px" height="20px"></iframe>
+							</li>
 						</ul>
 					</div>
 				</div>
@@ -815,22 +825,20 @@
 			<div class="post-content">
 				<h4>Dependencies</h4>
 <p>
-	Falcon comes <strong>built with Knockout 2.3.0</strong> in it's source code. Hence, when you include Falcon you won't need to also have Knockout included. 
-</p>
-<p>
-	Falcon's only real dependency is jQuery. Falcon uses jQuery for detecting document load and for its ajax methods.  Falcon has been tested with both jQuery 1.10.x and 2.0.x.
+	Falcon's only real dependencies are Knockout 3.0.0 and jQuery. Falcon uses jQuery for detecting document load and for its ajax methods.  Falcon has been tested with both jQuery 1.10.x and 2.0.x.
 	<br />
 	<br />
 	<a href="http://jquery.com/download/" alt="Download jQuery">Download jQuery</a>
 </p>
 <h4>Installation</h4>
 <p>
-	Installing Falcon is as simple as included jQuery and Falcon and executing the Falcon.apply() method.
+	Installing Falcon is as simple as included jQuery, Knockout, and Falcon and executing the Falcon.apply() method.
 </p>
 <code class="multiline" data-caption="Here we have a basic LayoutView that will be injected into the body tag of the document when the page loads.">
 	&lt;html>
 		&lt;head>
 			&lt;script src="jquery.min.js">&lt;/script>
+			&lt;script src="knockout-3.0.0.js">&lt;/script>
 			&lt;script src="falcon.min.js">&lt;/script>
 
 			&lt;script>
@@ -5162,6 +5170,14 @@
 	<dt data-type="Object">definition</dt>
 	<dd>The binding definition.</dd>
 </dl>
+<dl>
+	<dt data-type="String">name</dt>
+	<dd>The binding name.</dd>
+	<dt data-type="Boolean">allowVirtual</dt>
+	<dd>Should this binding be accessible using Knockout's virtual binding pattern?</dd>
+	<dt data-type="Function">update_function</dt>
+	<dd>The function to apply to the 'update' key in the binding definition.</dd>
+</dl>
 <code class="multiline">
 	Falcon.addBinding("slideVisible", {
 		update: function(element, valueAccessor, allBindingsAccessor) {
@@ -5221,6 +5237,40 @@
 	Falcon.apply( viewObs ); // Applies the observable to the 'body' tag, nothing is currently rendered
 
 	viewObs( new LayoutView ); // Renders a layout view in 'body'
+</code>
+			</div>
+		
+	
+		
+			
+			<div class="post-header" id="utility-getbinding">
+				<h3>
+					<div class="pull-left">
+						getBinding
+						<small>Falcon.getBinding( name )</small>
+					</div>
+					
+						<div class="pull-right">
+							<h6>
+								Object
+								<small> - The binding definition</small>
+							</h6>
+						</div>
+					
+					<div class="clearfix"></div>
+				</h3>
+			</div>
+			<div class="post-content">
+				<p>
+	Used to look up a specific binding definition object based on the binding's name.
+</p>
+<dl>
+	<dt data-type="String">name</dt>
+	<dd>The binding name.</dd>
+</dl>
+<code class="multiline">
+	binding_definition = Falcon.getBinding("foreach");
+	console.log( binding_definition ); // The binding definition object
 </code>
 			</div>
 		
@@ -5449,8 +5499,9 @@
 		</div>
 		<div id="footer" class="container">
 		</div>
-		<script src="scripts/jquery-1.10.0.min.js"></script>
+		<script src="scripts/jquery-1.10.2.min.js"></script>
 		<script src="scripts/bootstrap.min.js"></script>
+		<script src="scripts/knockout-3.0.0.min.js"></script>
 		<script src="scripts/falcon.min.js"></script>
 		<script src="scripts/falcon.docs.min.js"></script>
 	</body>

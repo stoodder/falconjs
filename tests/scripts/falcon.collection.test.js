@@ -1159,7 +1159,7 @@
         expect(collectionD3.makeUrl("PUT")).to.equal("http://www.falconjs.com/model_b/2b/collection_d3");
         return expect(collectionD3.makeUrl("DELETE")).to.equal("http://www.falconjs.com/model_b/2b/collection_d3");
       });
-      return it("Tests the basic makeUrl method, defined url function, with parent, base API url ending with a '/'", function() {
+      it("Tests the basic makeUrl method, defined url function, with parent, base API url ending with a '/'", function() {
         var collectionD3;
 
         collectionD3 = new CollectionD3(new ModelB({
@@ -1170,6 +1170,39 @@
         expect(collectionD3.makeUrl("POST")).to.equal("http://www.falconjs.com/model_b/3b/collection_d3");
         expect(collectionD3.makeUrl("PUT")).to.equal("http://www.falconjs.com/model_b/3b/collection_d3");
         return expect(collectionD3.makeUrl("DELETE")).to.equal("http://www.falconjs.com/model_b/3b/collection_d3");
+      });
+      return it("Should be able to make a url with just a / baseApiUrl", function() {
+        var MyCollection, MyModel, my_collection, _ref12, _ref13;
+
+        MyModel = (function(_super) {
+          __extends(MyModel, _super);
+
+          function MyModel() {
+            _ref12 = MyModel.__super__.constructor.apply(this, arguments);
+            return _ref12;
+          }
+
+          MyModel.prototype.url = 'my_models';
+
+          return MyModel;
+
+        })(Falcon.Model);
+        MyCollection = (function(_super) {
+          __extends(MyCollection, _super);
+
+          function MyCollection() {
+            _ref13 = MyCollection.__super__.constructor.apply(this, arguments);
+            return _ref13;
+          }
+
+          MyCollection.prototype.model = MyModel;
+
+          return MyCollection;
+
+        })(Falcon.Collection);
+        Falcon.baseApiUrl = "/";
+        my_collection = new MyCollection;
+        return expect(my_collection.makeUrl("GET")).to.equal("/my_models");
       });
     });
     describe("Tesing collection sync methods", function() {

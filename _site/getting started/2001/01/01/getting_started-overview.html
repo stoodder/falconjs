@@ -1,21 +1,19 @@
 <h4>Dependencies</h4>
 <p>
-	Falcon comes <strong>built with Knockout 2.3.0</strong> in it's source code. Hence, when you include Falcon you won't need to also have Knockout included. 
-</p>
-<p>
-	Falcon's only real dependency is jQuery. Falcon uses jQuery for detecting document load and for its ajax methods.  Falcon has been tested with both jQuery 1.10.x and 2.0.x.
+	Falcon's only real dependencies are Knockout 3.0.0 and jQuery. Falcon uses jQuery for detecting document load and for its ajax methods.  Falcon has been tested with both jQuery 1.10.x and 2.0.x.
 	<br />
 	<br />
 	<a href="http://jquery.com/download/" alt="Download jQuery">Download jQuery</a>
 </p>
 <h4>Installation</h4>
 <p>
-	Installing Falcon is as simple as included jQuery and Falcon and executing the Falcon.apply() method.
+	Installing Falcon is as simple as included jQuery, Knockout, and Falcon and executing the Falcon.apply() method.
 </p>
 <code class="multiline" data-caption="Here we have a basic LayoutView that will be injected into the body tag of the document when the page loads.">
 	&lt;html>
 		&lt;head>
 			&lt;script src="jquery.min.js">&lt;/script>
+			&lt;script src="knockout-3.0.0.js">&lt;/script>
 			&lt;script src="falcon.min.js">&lt;/script>
 
 			&lt;script>

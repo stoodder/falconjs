@@ -9,6 +9,14 @@
 	<dt data-type="Object">definition</dt>
 	<dd>The binding definition.</dd>
 </dl>
+<dl>
+	<dt data-type="String">name</dt>
+	<dd>The binding name.</dd>
+	<dt data-type="Boolean">allowVirtual</dt>
+	<dd>Should this binding be accessible using Knockout's virtual binding pattern?</dd>
+	<dt data-type="Function">update_function</dt>
+	<dd>The function to apply to the 'update' key in the binding definition.</dd>
+</dl>
 <code class="multiline">
 	Falcon.addBinding("slideVisible", {
 		update: function(element, valueAccessor, allBindingsAccessor) {

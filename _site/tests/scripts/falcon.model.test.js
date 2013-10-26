@@ -932,7 +932,7 @@
         expect(modelE.makeUrl("PUT")).to.equal("/model_e2/e");
         return expect(modelE.makeUrl("DELETE")).to.equal("/model_e2/e");
       });
-      return it("Should be able to use override the url,with parent", function() {
+      it("Should be able to use override the url,with parent", function() {
         var modelE;
 
         modelE = new ModelE({
@@ -945,6 +945,18 @@
         expect(modelE.makeUrl("POST")).to.equal("/model_b/b/model_e3");
         expect(modelE.makeUrl("PUT")).to.equal("/model_b/b/model_e3/e");
         return expect(modelE.makeUrl("DELETE")).to.equal("/model_b/b/model_e3/e");
+      });
+      return it("Should be able to handle '/' baseApiUrl", function() {
+        var modelA;
+
+        modelA = new ModelA({
+          id: 1
+        });
+        Falcon.baseApiUrl = "/";
+        expect(modelA.makeUrl("GET")).to.equal("/model_a/1");
+        expect(modelA.makeUrl("POST")).to.equal("/model_a");
+        expect(modelA.makeUrl("PUT")).to.equal("/model_a/1");
+        return expect(modelA.makeUrl("DELETE")).to.equal("/model_a/1");
       });
     });
     describe("Tesing model sync methods", function() {
