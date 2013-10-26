@@ -35,10 +35,8 @@
 		"falcon.js": "build/falcon.js",
 		"falcon.min.js": "build/falcon.min.js",
 		
-		"tests/scripts/knockout-3.0.0rc.js": "scripts/knockout-3.0.0rc.js",
-		"tests/scripts/knockout-3.0.0rc.debug.js": "scripts/knockout-3.0.0rc.debug.js",
-		"tests/scripts/knockout-2.3.0.min.js": "scripts/knockout-2.3.0.min.js",
-		"tests/scripts/knockout-2.3.0.js": "scripts/knockout-2.3.0.js",
+		"tests/scripts/knockout-3.0.0.min.js": "scripts/knockout-3.0.0.min.js",
+		"tests/scripts/jquery-1.10.2.min.js": "scripts/jquery-1.10.2.min.js",
 
 		"tests/scripts/falcon.js": "build/falcon.js",
 		"tests/scripts/falcon.min.js": "build/falcon.min.js"
