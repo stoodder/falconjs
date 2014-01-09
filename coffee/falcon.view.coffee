@@ -146,6 +146,8 @@ class Falcon.View extends Falcon.Object
 	#	_(String)_ - The full url
 	#--------------------------------------------------------
 	makeUrl: () ->
+		return null unless @url?
+
 		url = ko.utils.unwrapObservable( @url )
 		url = url() if isFunction( url )
 		url = "" unless isString( url )

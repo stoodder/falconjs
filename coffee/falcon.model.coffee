@@ -267,11 +267,12 @@ class Falcon.Model extends Falcon.Object
 	#	**parent** _(Falcon.Model)_ - Optional override of the model's parent to generate 
 	#								  the url with. If parent is 'null' then this model will 
 	#								  act as the root node.
+	#	**id** _(String) - Optional override for the model's id
 	#
 	# Returns:
 	#	_(String)_ - The generated URL
 	#--------------------------------------------------------
-	makeUrl: (type, parent) ->
+	makeUrl: (type, parent, id) ->
 		url = if isFunction(@url) then @url() else @url
 		url = "" unless isString(url)
 		url = trim(url)
@@ -280,6 +281,7 @@ class Falcon.Model extends Falcon.Object
 		type = type.toUpperCase()
 		type = 'GET' unless type in ['GET', 'PUT', 'POST', 'DELETE']
 
+		[parent, id] = [id, parent] if id is undefined and (isString( parent ) or isNumber( parent ))
 		parent = if parent isnt undefined then parent else @parent
 
 		ext = ""
@@ -316,7 +318,7 @@ class Falcon.Model extends Falcon.Object
 		#Append the id if it exists
 		if type in ["GET", "PUT", "DELETE"]
 			url += "/" unless url.slice(-1) is "/"
-			url += ko.utils.unwrapObservable( @id )
+			url += id ? @get('id')
 		#END if
 
 		#Replace any double slashes outside of the initial protocol

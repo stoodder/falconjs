@@ -12,7 +12,6 @@
 
 ## For The Future
 **v0.9.0**
-* Convert Build process to Grunt.js
 * Add 'merge' method to collections
 * Add method support fo obervables and defaults
 * Add 'set' method to collections (sets all values for a key to each model in the collection)
@@ -20,3 +19,13 @@
 * Remove jQuery for document load
 * Find a replacement library for jQuery to do Ajax handling that includes promises and typicals response callbacks
 * Add support for 'Date' type fields
+* Add support for Falcon.Collection in the without() method (remove all models from the resultant collection that are in the given collection)
+* Fix length() on collection chains
+* Add exec binding
+* add generate binding and Falcon.register for dynamically creating views
+* add listenTo on Falcon.Object
+* Create Falcon.Event object (includes .off method) to return from Falcon.on and Falcon.trigger
+
+Done
+* Convert Build process to Grunt.js
+* Added id override to model makeUrl

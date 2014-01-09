@@ -74,7 +74,6 @@
 
     ContentView.prototype.initialize = function() {
       var i, _i, _results;
-
       _results = [];
       for (i = _i = 0; _i <= 3; i = ++_i) {
         _results.push(this.addItem());

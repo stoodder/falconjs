@@ -1,0 +1,27 @@
+{
+  "name": "Falcon JS",
+  "version": "0.9.1",
+  "homepage": "https://github.com/stoodder/falconjs",
+  "authors": [
+    "Rick Allen <stoodder@gmail.com>"
+  ],
+  "description": "Falcon JS Provides a simple MVC structure around Knockout JS",
+  "main": [
+    "falcon.js",
+    "falcon.min.js"
+  ],
+  "keywords": [
+    "Knockout",
+    "Javascript",
+    "MVC"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "scripts"
+  ]
+}

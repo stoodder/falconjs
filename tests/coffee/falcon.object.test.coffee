@@ -87,6 +87,7 @@ describe "Tesing event functionality", ->
 				'id': -1
 				'foo': 'bar'
 				'free': 'bird'
+				'def_arr': [1,2,3]
 				'clazz': -> new Clazz
 			#END defaults
 
@@ -112,6 +113,8 @@ describe "Tesing event functionality", ->
 		it "Should have added the correct default attributes", ->
 			expect( klass ).to.include.key 'id'
 			expect( klass ).to.include.key 'foo'
+			expect( klass ).to.include.key 'free'
+			expect( klass ).to.include.key 'def_arr'
 			expect( klass ).to.include.key 'clazz'
 		#END it
 
@@ -128,6 +131,11 @@ describe "Tesing event functionality", ->
 			expect( klass.foo ).to.not.equal 'bar' #Should have been overitten by
 			expect( klass.free ).to.equal 'bird' 
 			expect( klass.clazz ).to.be.instanceof Clazz
+		#END it
+
+		it "Should have the correct values for a default array", ->
+			expect( klass.def_arr ).to.deep.equal( [1,2,3] )
+			expect( klass.def_arr ).to.not.equal( Klass::defaults.def_arr )
 		#END it
 
 		it "Should have added the correct observable type", ->

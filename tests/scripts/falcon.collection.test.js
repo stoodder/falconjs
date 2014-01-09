@@ -4,7 +4,6 @@
 
   describe("Test Collection Methods", function() {
     var CollectionA, CollectionB, CollectionC, CollectionD, CollectionD2, CollectionD3, CollectionE, ModelA, ModelB, ModelC, ModelD, ModelE, _ref, _ref1, _ref10, _ref11, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
-
     ModelA = (function(_super) {
       __extends(ModelA, _super);
 
@@ -179,7 +178,6 @@
     });
     it("Should initialize properly", function() {
       var collectionA, init_stub, modelB, models;
-
       init_stub = sinon.stub(CollectionA.prototype, "initialize");
       collectionA = new CollectionA;
       init_stub.should.have.been.calledOnce;
@@ -244,7 +242,6 @@
     });
     it("Should create RawrCollection with defaults that have correct arguments", function() {
       var RawrCollection, hello_spy, input_data, rawr_class, _ref12;
-
       hello_spy = null;
       RawrCollection = (function(_super) {
         __extends(RawrCollection, _super);
@@ -272,7 +269,6 @@
       describe("Test default option", function() {
         it("Should properly add items into an empty collection", function() {
           var collectionA;
-
           collectionA = new CollectionA;
           collectionA.fill([
             {
@@ -293,7 +289,6 @@
         });
         return it("Should properly replace items into a populated collection", function() {
           var collectionA;
-
           collectionA = new CollectionA([
             {
               id: 2,
@@ -321,7 +316,6 @@
       describe("Test 'replace' option", function() {
         it("Should properly add items into an empty collection", function() {
           var collectionA;
-
           collectionA = new CollectionA;
           collectionA.fill([
             {
@@ -344,7 +338,6 @@
         });
         return it("Should properly replace items into a populated collection", function() {
           var collectionA;
-
           collectionA = new CollectionA([
             {
               id: 2,
@@ -374,7 +367,6 @@
       describe("Test 'append' option", function() {
         it("Should properly add items into an empty collection", function() {
           var collectionA;
-
           collectionA = new CollectionA;
           collectionA.fill([
             {
@@ -397,7 +389,6 @@
         });
         return it("Should properly append items into a populated collection", function() {
           var collectionA;
-
           collectionA = new CollectionA([
             {
               id: 3,
@@ -430,7 +421,6 @@
       describe("Test 'prepend' option", function() {
         it("Should properly add items into an empty collection", function() {
           var collectionA;
-
           collectionA = new CollectionA;
           collectionA.fill([
             {
@@ -453,7 +443,6 @@
         });
         return it("Should properly prepend items into a populated collection", function() {
           var collectionA, index;
-
           collectionA = new CollectionA([
             {
               id: 3,
@@ -489,7 +478,6 @@
       describe("Test 'merge' option", function() {
         it("Should properly add items into an empty collection", function() {
           var collectionA;
-
           collectionA = new CollectionA;
           collectionA.fill([
             {
@@ -512,7 +500,6 @@
         });
         it("Should properly merge items into a populated collection", function() {
           var collectionA, index;
-
           collectionA = new CollectionA([
             {
               id: 3,
@@ -557,7 +544,6 @@
         });
         return it("Should properly merge items into a populated collection that has a specified comparator", function() {
           var collectionA, index;
-
           collectionA = new CollectionA([
             {
               id: 3,
@@ -569,7 +555,6 @@
           ]);
           collectionA.comparator = function(model_a, model_b) {
             var a_id, b_id;
-
             a_id = parseInt(model_a.get("id"));
             b_id = parseInt(model_b.get("id"));
             if (a_id > b_id) {
@@ -617,7 +602,6 @@
       describe("Test 'insert' option", function() {
         it("Should properly add items into an empty collection", function() {
           var collectionA;
-
           collectionA = new CollectionA;
           collectionA.fill([
             {
@@ -641,7 +625,6 @@
         });
         it("Should properly insert items into a populated collection", function() {
           var collectionA, index;
-
           collectionA = new CollectionA([
             {
               id: 3,
@@ -684,7 +667,6 @@
         });
         it("Should properly insert items into a populated collection at an invalid index", function() {
           var collectionA, index;
-
           collectionA = new CollectionA([
             {
               id: 3,
@@ -727,7 +709,6 @@
         });
         return it("Should properly insert items into the beginning of a populated collection", function() {
           var collectionA, index;
-
           collectionA = new CollectionA([
             {
               id: 3,
@@ -772,7 +753,6 @@
       describe("Test invalid option", function() {
         it("Should properly add items into an empty collection", function() {
           var collectionA;
-
           collectionA = new CollectionA;
           collectionA.fill([
             {
@@ -795,7 +775,6 @@
         });
         return it("Should properly replace items into a populated collection", function() {
           var collectionA;
-
           collectionA = new CollectionA([
             {
               id: 2,
@@ -825,7 +804,6 @@
       return describe("Test that parent is being set properly on children models", function() {
         return it("Should properly add items into an empty collection", function() {
           var collectionA, modelB;
-
           modelB = new ModelB;
           collectionA = new CollectionA(modelB);
           collectionA.fill([
@@ -844,7 +822,6 @@
     });
     describe("Testing serialize method with proper options", function() {
       var collectionA, collectionC, models;
-
       collectionA = collectionC = null;
       models = [
         {
@@ -867,13 +844,11 @@
       });
       it("Should test basic form of serialize method", function() {
         var serialized;
-
         serialized = collectionA.serialize();
         return serialized.should.deep.equal(models);
       });
       it("Should test specific fields for serialize method", function() {
         var serialized;
-
         serialized = collectionA.serialize(["foo"]);
         return serialized.should.deep.equal([
           {
@@ -887,7 +862,6 @@
       });
       it("Should test specific fields for serialize method, just id", function() {
         var serialized;
-
         serialized = collectionA.serialize("id");
         return serialized.should.deep.equal([
           {
@@ -901,7 +875,6 @@
       });
       return it("Should test specific fields for serialize method, string value", function() {
         var serialized;
-
         serialized = collectionA.serialize("foo");
         return serialized.should.deep.equal([
           {
@@ -917,7 +890,6 @@
     describe("Testing the makeUrl() method", function() {
       it("Tests the basic makeUrl method", function() {
         var collectionA;
-
         collectionA = new CollectionA();
         expect(collectionA.makeUrl("GET")).to.equal("/model_a");
         expect(collectionA.makeUrl("POST")).to.equal("/model_a");
@@ -926,7 +898,6 @@
       });
       it("Tests the basic makeUrl method, base API url", function() {
         var collectionA;
-
         collectionA = new CollectionA();
         Falcon.baseApiUrl = "http://www.falconjs.com";
         expect(collectionA.makeUrl("GET")).to.equal("http://www.falconjs.com/model_a");
@@ -936,7 +907,6 @@
       });
       it("Tests the basic makeUrl method, base API url ending with a '/'", function() {
         var collectionA;
-
         collectionA = new CollectionA();
         Falcon.baseApiUrl = "http://www.falconjs.com/";
         expect(collectionA.makeUrl("GET")).to.equal("http://www.falconjs.com/model_a");
@@ -946,7 +916,6 @@
       });
       it("Tests the basic makeUrl method, with parent", function() {
         var collectionA;
-
         collectionA = new CollectionA(new ModelB({
           id: '1b'
         }));
@@ -957,7 +926,6 @@
       });
       it("Tests the basic makeUrl method, base API url, with parent", function() {
         var collectionA;
-
         collectionA = new CollectionA(new ModelB({
           id: '2b'
         }));
@@ -969,7 +937,6 @@
       });
       it("Tests the basic makeUrl method, base API url ending with a '/', with parent", function() {
         var collectionA;
-
         collectionA = new CollectionA(new ModelB({
           id: '3b'
         }));
@@ -981,7 +948,6 @@
       });
       it("Tests the basic makeUrl method, model url is a function", function() {
         var collectionD;
-
         collectionD = new CollectionD();
         expect(collectionD.makeUrl("GET")).to.equal("/model_d");
         expect(collectionD.makeUrl("POST")).to.equal("/model_d");
@@ -990,7 +956,6 @@
       });
       it("Tests the basic makeUrl method, model url is a function, base API url", function() {
         var collectionD;
-
         collectionD = new CollectionD();
         Falcon.baseApiUrl = "http://www.falconjs.com";
         expect(collectionD.makeUrl("GET")).to.equal("http://www.falconjs.com/model_d");
@@ -1000,7 +965,6 @@
       });
       it("Tests the basic makeUrl method, model url is a function, base API url ending with a '/'", function() {
         var collectionD;
-
         collectionD = new CollectionD();
         Falcon.baseApiUrl = "http://www.falconjs.com/";
         expect(collectionD.makeUrl("GET")).to.equal("http://www.falconjs.com/model_d");
@@ -1010,7 +974,6 @@
       });
       it("Tests the basic makeUrl method, model url is a function, with parent", function() {
         var collectionD;
-
         collectionD = new CollectionD(new ModelB({
           id: '1b'
         }));
@@ -1021,7 +984,6 @@
       });
       it("Tests the basic makeUrl method, model url is a function, with parent, base API url", function() {
         var collectionD;
-
         collectionD = new CollectionD(new ModelB({
           id: '2b'
         }));
@@ -1033,7 +995,6 @@
       });
       it("Tests the basic makeUrl method, model url is a function, with parent, base API url ending with a '/'", function() {
         var collectionD;
-
         collectionD = new CollectionD(new ModelB({
           id: '3b'
         }));
@@ -1045,7 +1006,6 @@
       });
       it("Tests the basic makeUrl method, defined url string", function() {
         var collectionD2;
-
         collectionD2 = new CollectionD2();
         expect(collectionD2.makeUrl("GET")).to.equal("/collection_d2");
         expect(collectionD2.makeUrl("POST")).to.equal("/collection_d2");
@@ -1054,7 +1014,6 @@
       });
       it("Tests the basic makeUrl method, defined url string, base API url", function() {
         var collectionD2;
-
         collectionD2 = new CollectionD2();
         Falcon.baseApiUrl = "http://www.falconjs.com";
         expect(collectionD2.makeUrl("GET")).to.equal("http://www.falconjs.com/collection_d2");
@@ -1064,7 +1023,6 @@
       });
       it("Tests the basic makeUrl method, defined url string, base API url ending with a '/'", function() {
         var collectionD2;
-
         collectionD2 = new CollectionD2();
         Falcon.baseApiUrl = "http://www.falconjs.com/";
         expect(collectionD2.makeUrl("GET")).to.equal("http://www.falconjs.com/collection_d2");
@@ -1074,7 +1032,6 @@
       });
       it("Tests the basic makeUrl method, defined url string, with parent", function() {
         var collectionD2;
-
         collectionD2 = new CollectionD2(new ModelB({
           id: '1b'
         }));
@@ -1085,7 +1042,6 @@
       });
       it("Tests the basic makeUrl method, defined url string, with parent, base API url", function() {
         var collectionD2;
-
         collectionD2 = new CollectionD2(new ModelB({
           id: '2b'
         }));
@@ -1097,7 +1053,6 @@
       });
       it("Tests the basic makeUrl method, defined url string, with parent, base API url ending with a '/'", function() {
         var collectionD2;
-
         collectionD2 = new CollectionD2(new ModelB({
           id: '3b'
         }));
@@ -1109,7 +1064,6 @@
       });
       it("Tests the basic makeUrl method, defined url function", function() {
         var collectionD3;
-
         collectionD3 = new CollectionD3();
         expect(collectionD3.makeUrl("GET")).to.equal("/collection_d3");
         expect(collectionD3.makeUrl("POST")).to.equal("/collection_d3");
@@ -1118,7 +1072,6 @@
       });
       it("Tests the basic makeUrl method, defined url function, base API url", function() {
         var collectionD3;
-
         collectionD3 = new CollectionD3();
         Falcon.baseApiUrl = "http://www.falconjs.com";
         expect(collectionD3.makeUrl("GET")).to.equal("http://www.falconjs.com/collection_d3");
@@ -1128,7 +1081,6 @@
       });
       it("Tests the basic makeUrl method, defined url function, base API url ending with a '/'", function() {
         var collectionD3;
-
         collectionD3 = new CollectionD3();
         Falcon.baseApiUrl = "http://www.falconjs.com/";
         expect(collectionD3.makeUrl("GET")).to.equal("http://www.falconjs.com/collection_d3");
@@ -1138,7 +1090,6 @@
       });
       it("Tests the basic makeUrl method, defined url function, with parent", function() {
         var collectionD3;
-
         collectionD3 = new CollectionD3(new ModelB({
           id: '1b'
         }));
@@ -1149,7 +1100,6 @@
       });
       it("Tests the basic makeUrl method, defined url function, with parent, base API url", function() {
         var collectionD3;
-
         collectionD3 = new CollectionD3(new ModelB({
           id: '2b'
         }));
@@ -1161,7 +1111,6 @@
       });
       it("Tests the basic makeUrl method, defined url function, with parent, base API url ending with a '/'", function() {
         var collectionD3;
-
         collectionD3 = new CollectionD3(new ModelB({
           id: '3b'
         }));
@@ -1173,7 +1122,6 @@
       });
       return it("Should be able to make a url with just a / baseApiUrl", function() {
         var MyCollection, MyModel, my_collection, _ref12, _ref13;
-
         MyModel = (function(_super) {
           __extends(MyModel, _super);
 
@@ -1207,7 +1155,6 @@
     });
     describe("Tesing collection sync methods", function() {
       var collectionA;
-
       collectionA = null;
       beforeEach(function() {
         return collectionA = new CollectionA;
@@ -1215,7 +1162,6 @@
       describe("Testing 'fetch' alias", function() {
         return it("Should pass the correct options into sync on fetch", function() {
           var sync_stub;
-
           sync_stub = sinon.stub(collectionA, 'sync');
           collectionA.fetch({
             'hello': 'world'
@@ -1229,7 +1175,6 @@
       });
       describe("Testing sync method $.ajax calls", function() {
         var ajax_stub;
-
         ajax_stub = null;
         beforeEach(function() {
           ajax_stub = sinon.stub(jQuery, "ajax");
@@ -1268,7 +1213,6 @@
         });
         return it("Should fetch properly with options", function() {
           var _complete, _error, _success;
-
           Falcon.cache = true;
           collectionA.fetch({
             url: "http://www.falconjs.com",
@@ -1321,7 +1265,6 @@
       });
       describe("Testing sync method XHR responses", function() {
         var complete_spy, create_spy, data, destroy_spy, error_data, error_spy, fetch_spy, fill_stub, options, parse_stub, save_spy, server, success_data, success_spy;
-
         server = null;
         collectionA = null;
         parse_stub = null;
@@ -1439,7 +1382,6 @@
       });
       describe("Testing sync method options in depth", function() {
         var ajax_stub;
-
         ajax_stub = null;
         beforeEach(function() {
           ajax_stub = sinon.stub(jQuery, "ajax");
@@ -1478,7 +1420,6 @@
         });
         it("Should allow for a specified parent to override", function() {
           var model_b;
-
           collectionA.parent = new ModelB({
             id: 'b'
           });
@@ -1505,7 +1446,6 @@
       });
       return describe("Additional miscellaneous sync tests", function() {
         var server;
-
         server = null;
         beforeEach(function() {
           server = sinon.fakeServer.create();
@@ -1516,7 +1456,6 @@
         });
         it("Should allow for a third parameter to define the context", function() {
           var collectionB, success_spy;
-
           collectionB = new CollectionB;
           collectionA = new CollectionA;
           collectionA.sync("GET", (success_spy = sinon.spy()), collectionB);
@@ -1527,7 +1466,6 @@
         });
         return it("Should pass context from fetch to sync", function() {
           var collectionB, success_spy, sync_stub;
-
           collectionB = new CollectionB;
           collectionA = new CollectionA;
           sync_stub = sinon.stub(collectionA, "sync");
@@ -1540,7 +1478,6 @@
     });
     describe("Testing the remove method", function() {
       var collectionA, model_a1, model_a2, model_a3, model_a4, models;
-
       collectionA = null;
       models = null;
       model_a1 = null;
@@ -1613,7 +1550,6 @@
     });
     describe("Test the append and prepend methods", function() {
       var collectionA, fill_stub;
-
       collectionA = null;
       fill_stub = null;
       beforeEach(function() {
@@ -1625,7 +1561,6 @@
       });
       it("Should call the proper fill method when appending", function() {
         var input;
-
         collectionA.append(input = {
           'hello': 'world'
         });
@@ -1636,7 +1571,6 @@
       });
       return it("Should call the proper fill method when prepending", function() {
         var input;
-
         collectionA.prepend(input = {
           'hello': 'world'
         });
@@ -1648,7 +1582,6 @@
     });
     describe("Test the insert method", function() {
       var collectionA, fill_stub;
-
       collectionA = null;
       fill_stub = null;
       beforeEach(function() {
@@ -1665,7 +1598,6 @@
       });
       it("Should call the proper fill method when inserting without a specific model", function() {
         var input;
-
         collectionA.insert(input = {
           'hello': 'world'
         });
@@ -1676,7 +1608,6 @@
       });
       it("Should call the proper fill method when inserting with a valid model", function() {
         var input;
-
         collectionA.insert(input = {
           'hello': 'world'
         }, 4);
@@ -1688,7 +1619,6 @@
       });
       it("Should call the proper fill method when appending with an invalid model", function() {
         var input;
-
         collectionA.insert(input = {
           'hello': 'world'
         }, 33);
@@ -1700,7 +1630,6 @@
       });
       return it("Should call the proper fill method when inserting with an iterator", function() {
         var input;
-
         collectionA.insert(input = {
           'hello': 'world'
         }, (function(m) {
@@ -1715,7 +1644,6 @@
     });
     describe("Test the unshift and push methods", function() {
       var append_stub, collectionA, prepend_stub;
-
       collectionA = null;
       prepend_stub = append_stub = null;
       beforeEach(function() {
@@ -1758,7 +1686,6 @@
     });
     describe("Test the shift and pop methods", function() {
       var collectionA, model_a1, model_a2, model_a3;
-
       collectionA = null;
       model_a1 = model_a2 = model_a3 = null;
       beforeEach(function() {
@@ -1775,14 +1702,12 @@
       });
       it("Should shift the first element off the front", function() {
         var elm;
-
         elm = collectionA.shift();
         expect(elm).to.equal(model_a1);
         return expect(collectionA.length()).to.equal(2);
       });
       return it("Should shift the first element off the front", function() {
         var elm;
-
         elm = collectionA.pop();
         expect(elm).to.equal(model_a3);
         return expect(collectionA.length()).to.equal(2);
@@ -1790,7 +1715,6 @@
     });
     describe("Test the sort method", function() {
       var collectionA, model_a1, model_a2, model_a3;
-
       collectionA = null;
       model_a1 = model_a2 = model_a3 = null;
       return it("Should sort properly", function() {
@@ -1807,7 +1731,6 @@
         expect(collectionA.models()).to.deep.equal([model_a2, model_a1, model_a3]);
         collectionA.sort(function(a, b) {
           var a_id, b_id;
-
           a_id = a.get("id");
           b_id = b.get("id");
           if (a_id > b_id) {
@@ -1823,7 +1746,6 @@
     });
     describe("Test the create method", function() {
       var collectionA, data, modelA, modelB, options, server, success_spy;
-
       collectionA = null;
       modelB = null;
       modelA = null;
@@ -1854,7 +1776,6 @@
       });
       it("Should attempt to initialize and create a new model", function() {
         var collectionB, create_stub, initialize_stub;
-
         collectionB = new CollectionB;
         initialize_stub = sinon.stub(ModelA.prototype, "initialize");
         create_stub = sinon.stub(ModelA.prototype, "create");
@@ -1877,7 +1798,6 @@
       });
       return it("Should respond correctly from the server", function() {
         var fill_stub, new_model;
-
         fill_stub = sinon.stub(collectionA, "fill").returns([]);
         collectionA.create(data, options);
         expect(collectionA.length()).to.equal(1);
@@ -1897,7 +1817,6 @@
     });
     describe("Test the detroy method", function() {
       var collectionA, collectionB, model_a1, model_a2, options, success_spy;
-
       collectionA = collectionB = null;
       model_a1 = model_a2 = null;
       options = null;
@@ -1917,7 +1836,6 @@
       });
       it("Should call the destroy method on the model", function() {
         var destroy_stub;
-
         destroy_stub = sinon.stub(model_a1, "destroy");
         destroy_stub.should.not.have.been.called;
         collectionA.destroy(model_a1, options, collectionB);
@@ -1927,7 +1845,6 @@
       });
       it("Should respond correctly from the server", function() {
         var remove_stub, removed_model, server;
-
         server = sinon.fakeServer.create();
         remove_stub = sinon.stub(collectionA, "remove");
         collectionA.destroy(model_a1, options);
@@ -1946,7 +1863,6 @@
       });
       return it("Should destroy using the overriden parent", function() {
         var ajax_args, ajax_spy, collectionA2, model_b, server;
-
         model_b = new ModelB({
           id: 'b'
         });
@@ -1969,7 +1885,6 @@
     });
     describe("Test the at() method", function() {
       var collectionA, model_a1, model_a2, model_a3;
-
       collectionA = null;
       model_a1 = model_a2 = model_a3 = null;
       beforeEach(function() {
@@ -1997,7 +1912,6 @@
     });
     describe("Test the indexOf() method", function() {
       var collectionA, model_a1, model_a2, model_a3, model_a4;
-
       collectionA = null;
       model_a1 = model_a2 = model_a3 = model_a4 = null;
       beforeEach(function() {
@@ -2026,7 +1940,6 @@
       });
       it("Should find the correct match index by truth test method", function() {
         var index;
-
         index = collectionA.indexOf(function(model) {
           return model.get('id') > 4;
         });
@@ -2034,7 +1947,6 @@
       });
       return it("Should find the no match index by truth test method", function() {
         var index;
-
         index = collectionA.indexOf(function(model) {
           return model.get('id') > 8;
         });
@@ -2043,7 +1955,6 @@
     });
     describe("Test the lastIndexOf() method", function() {
       var collectionA, model_a1, model_a2, model_a3, model_a4;
-
       collectionA = null;
       model_a1 = model_a2 = model_a3 = model_a4 = null;
       beforeEach(function() {
@@ -2072,7 +1983,6 @@
       });
       it("Should find the correct match index by truth test method", function() {
         var index;
-
         index = collectionA.lastIndexOf(function(model) {
           return model.get('id') > 4;
         });
@@ -2080,7 +1990,6 @@
       });
       return it("Should find the no match index by truth test method", function() {
         var index;
-
         index = collectionA.lastIndexOf(function(model) {
           return model.get('id') > 8;
         });
@@ -2089,7 +1998,6 @@
     });
     describe("Test the each() method", function() {
       var collectionA, model_a1, model_a2, model_a3;
-
       collectionA = null;
       model_a1 = model_a2 = model_a3 = null;
       beforeEach(function() {
@@ -2106,7 +2014,6 @@
       });
       it("Should call the iterator with one argument", function() {
         var spy;
-
         spy = sinon.spy();
         collectionA.each(function(item) {
           return spy.call(this, item);
@@ -2119,7 +2026,6 @@
       });
       it("Should call the iterator with two arguments", function() {
         var spy;
-
         spy = sinon.spy();
         collectionA.each(function(index, item) {
           return spy.call(this, index, item);
@@ -2132,7 +2038,6 @@
       });
       it("Should call the iterator with a specific context and one argument", function() {
         var context, iterator, spy;
-
         spy = sinon.spy();
         context = {};
         iterator = function(item) {
@@ -2147,7 +2052,6 @@
       });
       return it("Should call the iterator with a specific context and two arguments", function() {
         var context, iterator, spy;
-
         spy = sinon.spy();
         context = {};
         iterator = function(index, item) {
@@ -2163,7 +2067,6 @@
     });
     describe("Test the first() method", function() {
       var collectionA, model_a1, model_a2, model_a3, model_ab;
-
       collectionA = null;
       model_a1 = model_a2 = model_a3 = model_ab = null;
       beforeEach(function() {
@@ -2183,13 +2086,11 @@
       });
       it("Should get the first element", function() {
         var first;
-
         first = collectionA.first();
         return expect(first).to.equal(model_a1);
       });
       it("Should get the first matcing mdel based on function iterator", function() {
         var first;
-
         first = collectionA.first(function(model) {
           return model === model_a2;
         });
@@ -2197,13 +2098,11 @@
       });
       it("Should get the first matching model based on a model", function() {
         var first;
-
         first = collectionA.first(model_ab);
         return expect(first).to.equal(model_ab);
       });
       it("Should get the first matching model based on an id", function() {
         var first;
-
         first = collectionA.first(2);
         expect(first).to.equal(model_a2);
         first = collectionA.first('b');
@@ -2211,7 +2110,6 @@
       });
       return it("Should return the null if nothing passes the iterator", function() {
         var first;
-
         first = collectionA.first(function(model) {
           return false;
         });
@@ -2220,7 +2118,6 @@
     });
     describe("Test the last() method", function() {
       var collectionA, model_a1, model_a2, model_a3, model_ab;
-
       collectionA = null;
       model_a1 = model_a2 = model_a3 = model_ab = null;
       beforeEach(function() {
@@ -2240,13 +2137,11 @@
       });
       it("Should get the last element", function() {
         var last;
-
         last = collectionA.last();
         return expect(last).to.equal(model_a3);
       });
       it("Should get the last matcing mdel based on function iterator", function() {
         var last;
-
         last = collectionA.last(function(model) {
           return model === model_a2;
         });
@@ -2254,13 +2149,11 @@
       });
       it("Should get the last matching model based on a model", function() {
         var last;
-
         last = collectionA.last(model_ab);
         return expect(last).to.equal(model_ab);
       });
       it("Should get the last matching model based on an id", function() {
         var last;
-
         last = collectionA.last(2);
         expect(last).to.equal(model_a2);
         last = collectionA.last('b');
@@ -2268,7 +2161,6 @@
       });
       return it("Should return the null if nothing passes the iterator", function() {
         var last;
-
         last = collectionA.last(function(model) {
           return false;
         });
@@ -2277,7 +2169,6 @@
     });
     describe("Test the filter() method", function() {
       var collectionA, model_a1, model_a2, model_a3, model_ab, model_ab2, models;
-
       model_a1 = new ModelA({
         id: 1
       });
@@ -2297,14 +2188,12 @@
       collectionA = new CollectionA(models);
       it("Should return the all of the models", function() {
         var all;
-
         all = collectionA.filter();
         expect(all.length).to.equal(6);
         return expect(all).to.deep.equal(models);
       });
       it("Should return a limited set of models by function", function() {
         var all;
-
         all = collectionA.filter(function(model) {
           return model === model_a1 || model === model_ab;
         });
@@ -2313,14 +2202,12 @@
       });
       it("Should return a limited set of models by model", function() {
         var all;
-
         all = collectionA.filter(model_a2);
         expect(all.length).to.equal(1);
         return expect(all).to.deep.equal([model_a2]);
       });
       it("Should return a limited set of models by id", function() {
         var all;
-
         all = collectionA.filter(3);
         expect(all.length).to.equal(1);
         expect(all).to.deep.equal([model_a3]);
@@ -2330,7 +2217,6 @@
       });
       return it("Should return an empty set of models", function() {
         var all;
-
         all = collectionA.filter(function(model) {
           return false;
         });
@@ -2340,7 +2226,6 @@
     });
     describe("Test the any() method", function() {
       var collectionA, model_a1, model_a2, model_a3, model_a4, model_ab, model_ab2, models;
-
       model_a1 = new ModelA({
         id: 1
       });
@@ -2363,7 +2248,6 @@
       collectionA = new CollectionA(models);
       it("Should match true based on function", function() {
         var any;
-
         any = collectionA.any(function(model) {
           return model === model_a1 || model === model_ab;
         });
@@ -2375,7 +2259,6 @@
       });
       it("Should match true based on model", function() {
         var any;
-
         any = collectionA.any(model_a2);
         expect(any).to.be["true"];
         any = collectionA.any(model_a4);
@@ -2383,7 +2266,6 @@
       });
       it("Should match correctly based on id", function() {
         var any;
-
         any = collectionA.any(3);
         expect(any).to.be["true"];
         any = collectionA.any('b');
@@ -2395,14 +2277,12 @@
       });
       return it("Should not match true based on empty iterator", function() {
         var any;
-
         any = collectionA.any();
         return expect(any).to.be["false"];
       });
     });
     describe("Test the without() method", function() {
       var collectionA, model_a1, model_a2, model_a3, model_ab, model_ab2, models;
-
       model_a1 = new ModelA({
         id: 1
       });
@@ -2422,14 +2302,12 @@
       collectionA = new CollectionA(models);
       it("Should return the full set of the models when called without an iterator", function() {
         var without;
-
         without = collectionA.without();
         expect(without.length).to.equal(6);
         return expect(without).to.deep.equal(models);
       });
       it("Should return a limited set of models by function", function() {
         var without;
-
         without = collectionA.without(function(model) {
           return model === model_a1 || model === model_ab;
         });
@@ -2438,14 +2316,12 @@
       });
       it("Should return a limited set of models by model", function() {
         var without;
-
         without = collectionA.without(model_a2);
         expect(without.length).to.equal(5);
         return expect(without).to.deep.equal([model_a1, model_ab, model_ab, model_ab2, model_a3]);
       });
       return it("Should return a limited set of models by id", function() {
         var without;
-
         without = collectionA.without(3);
         expect(without.length).to.equal(5);
         expect(without).to.deep.equal([model_a1, model_a2, model_ab, model_ab, model_ab2]);
@@ -2456,7 +2332,6 @@
     });
     describe("Test the without() method", function() {
       var collectionE, model_e1, model_e2, model_e3, models;
-
       model_e1 = new ModelE({
         'title': 'e1'
       });
@@ -2470,21 +2345,18 @@
       collectionE = new CollectionE(models);
       it("Should pluck the title and unwrap the observables", function() {
         var pluck;
-
         pluck = collectionE.pluck("title");
         expect(pluck.length).to.equal(3);
         return expect(pluck).to.deep.equal(['e1', 'e2', 'e3']);
       });
       it("Should pluck the title and shouldn't unwrap the observables", function() {
         var pluck;
-
         pluck = collectionE.pluck("title", false);
         expect(pluck.length).to.equal(3);
         return expect(pluck).to.not.deep.equal(['e1', 'e2', 'e3']);
       });
       return it("Should pluck the an invalid attribute", function() {
         var pluck;
-
         pluck = collectionE.pluck("title2");
         expect(pluck.length).to.equal(3);
         return expect(pluck).to.deep.equal([void 0, void 0, void 0]);
@@ -2492,7 +2364,6 @@
     });
     describe("Test the slice() method", function() {
       var collectionE, model_e1, model_e2, model_e3, models;
-
       model_e1 = new ModelE({
         'title': 'e1'
       });
@@ -2514,7 +2385,6 @@
     describe("Testing the mixin() method", function() {
       it("Should implement mixins properly", function() {
         var collectionA, mixin_spy, modelA, modelB;
-
         modelB = new ModelB;
         modelA = new ModelA;
         modelA.bees = new CollectionB([modelB]);
@@ -2544,7 +2414,6 @@
       });
       return it("Should allow for models with values to be added post mixin", function() {
         var TheCollection, TheModel, theCollection, theModel, _ref12, _ref13;
-
         TheModel = (function(_super) {
           __extends(TheModel, _super);
 
@@ -2585,7 +2454,6 @@
     });
     describe("Test the clone() method", function() {
       var collectionA, model_a1, model_a2, model_a3;
-
       collectionA = null;
       model_a1 = model_a2 = model_a3 = null;
       beforeEach(function() {
@@ -2603,7 +2471,6 @@
       });
       it("Should do a basic clone properly", function() {
         var clone;
-
         clone = collectionA.clone();
         expect(clone).to.not.equal(collectionA);
         expect(clone.parent).to.equal(collectionA.parent);
@@ -2619,7 +2486,6 @@
       });
       it("Should do a basic clone properly with extra fields", function() {
         var clone;
-
         clone = collectionA.clone(["id", "title"]);
         expect(clone).to.not.equal(collectionA);
         expect(clone.parent).to.equal(collectionA.parent);
@@ -2635,7 +2501,6 @@
       });
       it("Should do a basic clone properly without a parent", function() {
         var clone;
-
         clone = collectionA.clone(null);
         expect(clone).to.not.equal(collectionA);
         expect(clone.parent).to.equal(null);
@@ -2651,7 +2516,6 @@
       });
       it("Should do a basic clone properly with extra fields without a parent", function() {
         var clone;
-
         clone = collectionA.clone(["id", "title"], null);
         expect(clone).to.not.equal(collectionA);
         expect(clone.parent).to.equal(null);
@@ -2667,7 +2531,6 @@
       });
       it("Should do a basic clone properly with a new parent", function() {
         var clone, parent;
-
         clone = collectionA.clone(parent = new ModelC);
         expect(clone).to.not.equal(collectionA);
         expect(clone.parent).to.equal(parent);
@@ -2683,7 +2546,6 @@
       });
       return it("Should do a basic clone properly with extra fields without a parent", function() {
         var clone, parent;
-
         clone = collectionA.clone(["id", "title"], parent = new ModelC);
         expect(clone).to.not.equal(collectionA);
         expect(clone.parent).to.equal(parent);
@@ -2700,7 +2562,6 @@
     });
     describe("Test the reset() method", function() {
       var collectionA, model_a1, model_a2, model_a3, models;
-
       collectionA = null;
       model_a1 = model_a2 = model_a3 = null;
       models = null;
@@ -2727,7 +2588,6 @@
     });
     return describe("Test the chain() method", function() {
       var collectionA, model_a1, model_a2, model_a3, model_a4, model_a5;
-
       collectionA = null;
       model_a1 = model_a2 = model_a3 = model_a4 = model_a5 = null;
       beforeEach(function() {
@@ -2755,14 +2615,12 @@
       });
       it("Should be able to chain slice methods", function() {
         var chain_result;
-
         chain_result = collectionA.chain().slice(1).slice(0, 4).models();
         expect(chain_result).to.be["instanceof"](Array);
         return expect(chain_result.length).to.equal(4);
       });
       it("Should be able to chain filter methods", function() {
         var chain_result;
-
         chain_result = collectionA.chain().filter(function(model) {
           return model.get("id") < 4;
         }).filter(function(model) {
@@ -2774,7 +2632,6 @@
       });
       it("Should be able to chain without methods", function() {
         var chain_result;
-
         chain_result = collectionA.chain().without(2).without(model_a5).models();
         expect(chain_result).to.be["instanceof"](Array);
         expect(chain_result.length).to.equal(3);
@@ -2782,7 +2639,6 @@
       });
       return it("Should be able to chain a without method and sort method", function() {
         var chain_result;
-
         chain_result = collectionA.chain().without(2).sort(function(a, b) {
           if (a.id > b.id) {
             return -1;

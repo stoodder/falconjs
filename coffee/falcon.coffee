@@ -1,3 +1,4 @@
+### Hello World ###
 @Falcon = Falcon =
 	#--------------------------------------------------------
 	# Attribute: Falcon.version
@@ -5,7 +6,7 @@
 	#
 	# Type: _(String)_
 	#--------------------------------------------------------
-	version: "{{VERSION}}"
+	version: "0.9.0"
 
 	#--------------------------------------------------------
 	# Attribute: Falcon.applicationElement
@@ -40,6 +41,14 @@
 	# Type: _(String)_
 	#--------------------------------------------------------
 	cache: true
+
+	#--------------------------------------------------------
+	# Attribute: Falcon.deferEvaluation
+	#	Shoudl our computed observables use deferedEvaluation?
+	#
+	# Type: _(String)_
+	#--------------------------------------------------------
+	deferEvaluation: true
 
 	#--------------------------------------------------------
 	# Method: Falcon.apply

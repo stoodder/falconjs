@@ -4,7 +4,6 @@
 
   describe("Tesing event functionality", function() {
     var klass;
-
     klass = null;
     beforeEach(function() {
       return klass = new Falcon.Object;
@@ -20,7 +19,6 @@
     });
     it("Should test event methods", function() {
       var click_one, click_two, context_two, mouseover_one;
-
       klass.on("click", (click_one = sinon.spy()));
       klass.on("click", (click_two = sinon.spy()), (context_two = {}));
       klass.on("mouseover", (mouseover_one = sinon.spy()));
@@ -60,7 +58,6 @@
     });
     describe("Test #observables and #defaults", function() {
       var Clazz, Klass, _ref, _ref1;
-
       Clazz = (function(_super) {
         __extends(Clazz, _super);
 
@@ -91,6 +88,7 @@
           'id': -1,
           'foo': 'bar',
           'free': 'bird',
+          'def_arr': [1, 2, 3],
           'clazz': function() {
             return new Clazz;
           }
@@ -124,6 +122,8 @@
       it("Should have added the correct default attributes", function() {
         expect(klass).to.include.key('id');
         expect(klass).to.include.key('foo');
+        expect(klass).to.include.key('free');
+        expect(klass).to.include.key('def_arr');
         return expect(klass).to.include.key('clazz');
       });
       it("Should have added the correct observable attributes", function() {
@@ -138,6 +138,10 @@
         expect(klass.foo).to.not.equal('bar');
         expect(klass.free).to.equal('bird');
         return expect(klass.clazz).to.be["instanceof"](Clazz);
+      });
+      it("Should have the correct values for a default array", function() {
+        expect(klass.def_arr).to.deep.equal([1, 2, 3]);
+        return expect(klass.def_arr).to.not.equal(Klass.prototype.defaults.def_arr);
       });
       it("Should have added the correct observable type", function() {
         expect(ko.isObservable(klass.hello)).to.be["true"];
@@ -174,7 +178,6 @@
       });
       return it("Should create RawrClass with defaults that have the correct arguments", function() {
         var RawrClass, hello_spy, rawr_class, _ref2;
-
         hello_spy = null;
         RawrClass = (function(_super) {
           __extends(RawrClass, _super);
@@ -203,7 +206,6 @@
     });
     return describe("Test the extend method on objects", function() {
       var ajax_stub;
-
       ajax_stub = null;
       beforeEach(function() {
         return ajax_stub = sinon.stub($, 'ajax');
@@ -213,7 +215,6 @@
       });
       it("Should extend Falcon.Object properly", function() {
         var Klass, custom_spy, my_klass, things_spy;
-
         custom_spy = sinon.spy();
         things_spy = sinon.spy();
         Klass = Falcon.Object.extend({
@@ -245,7 +246,6 @@
       });
       it("Should extend Falcon.Model properly", function() {
         var Klass, custom_spy, init_spy, my_klass, things_spy;
-
         custom_spy = sinon.spy();
         things_spy = sinon.spy();
         init_spy = sinon.spy();
@@ -285,7 +285,6 @@
       });
       it("Should extend Falcon.Collection properly", function() {
         var Klass, custom_spy, init_spy, my_klass, things_spy;
-
         custom_spy = sinon.spy();
         things_spy = sinon.spy();
         init_spy = sinon.spy();
@@ -325,7 +324,6 @@
       });
       it("Should extend Falcon.View properly", function() {
         var Klass, custom_spy, init_spy, my_klass, things_spy;
-
         custom_spy = sinon.spy();
         things_spy = sinon.spy();
         init_spy = sinon.spy();
@@ -365,7 +363,6 @@
       });
       return it("Should allow for deep inheritence", function() {
         var ChildKlass, Klass, child_klass, custom_spy, things_spy;
-
         custom_spy = sinon.spy();
         things_spy = sinon.spy();
         Klass = Falcon.Object.extend({

@@ -100,6 +100,8 @@ class Falcon.Object
 					this[attr] = value.apply(@, arguments)
 				else if isObject( value )
 					this[attr] = clone( value )
+				else if isArray( value )
+					@[attr] =  value.slice(0)
 				else
 					this[attr] = value
 				#ENd if
@@ -113,13 +115,12 @@ class Falcon.Object
 					@[attr] = ko.computed
 						'read': value
 						'owner': @
+						'deferEvaluation': Falcon.deferEvaluation ? true
 					#END computed
 				else if isObject( value ) and ('read' of value or 'write' of value)
-					@[attr] = ko.computed
-						'read': value.read
-						'write': value.write
-						'owner': value.owner ? @
-					#END computed
+					value.owner = value.owner ? @
+					value.deferEvaluation = value.deferEvaluation ? Falcon.deferEvaluation ? true
+					@[attr] = ko.computed(value)
 				else if isArray( value )
 					@[attr] = ko.observableArray( value.slice(0) )
 				else

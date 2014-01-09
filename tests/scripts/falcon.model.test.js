@@ -9,7 +9,6 @@
     });
     it("Should initialize correctly", function() {
       var ModelA, ModelB, data, dataModel, init_stub, model, modelA, modelB, _ref, _ref1;
-
       ModelA = (function(_super) {
         __extends(ModelA, _super);
 
@@ -74,7 +73,6 @@
     });
     it("Should create RawrModel with defaults that have correct arguments", function() {
       var RawrModel, hello_spy, input_data, rawr_class, _ref;
-
       hello_spy = null;
       RawrModel = (function(_super) {
         __extends(RawrModel, _super);
@@ -104,7 +102,6 @@
     });
     it("Should test the get, set, and toggle methods", function() {
       var ModelA, ModelB, modelA, modelB, _ref, _ref1;
-
       modelB = null;
       ModelA = (function(_super) {
         __extends(ModelA, _super);
@@ -179,7 +176,6 @@
     });
     it("Should test the fill and serialize methods", function() {
       var CollectionC, ModelA, ModelB, ModelC, collectionC, data, key, modelA, modelB, modelB2, serialized, value, _ref, _ref1, _ref2, _ref3, _results;
-
       modelB = null;
       modelB2 = null;
       collectionC = null;
@@ -332,7 +328,6 @@
     });
     it("Should test the unwrap method", function() {
       var CollectionC, ModelA, ModelB, ModelC, collectionC, modelA, modelB, unwrapped, _ref, _ref1, _ref2, _ref3;
-
       modelB = null;
       collectionC = null;
       ModelA = (function(_super) {
@@ -424,7 +419,6 @@
     });
     describe("Testing makeUrl combinations", function() {
       var ModelA, ModelB, ModelC, ModelD, ModelE, _ref, _ref1, _ref2, _ref3, _ref4;
-
       ModelA = (function(_super) {
         __extends(ModelA, _super);
 
@@ -497,7 +491,6 @@
       });
       it("Should test the makeUrl method, numeric id, no baseUrl, no parent, no extension", function() {
         var modelA;
-
         modelA = new ModelA({
           id: 1
         });
@@ -508,7 +501,6 @@
       });
       it("Should test the makeUrl method, string id, no baseUrl, no parent, no extension", function() {
         var modelB;
-
         modelB = new ModelB({
           id: "b"
         });
@@ -519,7 +511,6 @@
       });
       it("Should test the makeUrl method, numeric id, with shorter baseUrl, no parent, no extension", function() {
         var modelA;
-
         modelA = new ModelA({
           id: 1
         });
@@ -531,7 +522,6 @@
       });
       it("Should test the makeUrl method, string id, with shorter baseUrl, no parent, no extension", function() {
         var modelB;
-
         modelB = new ModelB({
           id: "b"
         });
@@ -543,7 +533,6 @@
       });
       it("Should test the makeUrl method, numeric id, with baseUrl, no parent, no extension", function() {
         var modelA;
-
         modelA = new ModelA({
           id: 1
         });
@@ -555,7 +544,6 @@
       });
       it("Should test the makeUrl method, string id, with baseUrl, no parent, no extension", function() {
         var modelB;
-
         modelB = new ModelB({
           id: "b"
         });
@@ -567,7 +555,6 @@
       });
       it("Should test the makeUrl method, no baseUrl, with parent, no extension", function() {
         var modelA, modelB;
-
         modelB = new ModelB({
           id: "b"
         });
@@ -581,7 +568,6 @@
       });
       it("Should test the makeUrl method, with baseUrl, with parent, no extension", function() {
         var modelA, modelB;
-
         modelB = new ModelB({
           id: "b"
         });
@@ -596,7 +582,6 @@
       });
       it("Should test the makeUrl method, no baseUrl, with explicit parent, no extension", function() {
         var modelA, modelB;
-
         modelB = new ModelB({
           id: "b"
         });
@@ -610,7 +595,6 @@
       });
       it("Should test the makeUrl method, with baseUrl, with explicit parent, no extension", function() {
         var modelA, modelB;
-
         modelB = new ModelB({
           id: "b"
         });
@@ -625,7 +609,6 @@
       });
       it("Should test the makeUrl method, no baseUrl, with overriden parent, no extension", function() {
         var modelA, modelB;
-
         modelB = new ModelB({
           id: "b"
         });
@@ -639,7 +622,6 @@
       });
       it("Should test the makeUrl method, with baseUrl, with overriden parent, no extension", function() {
         var modelA, modelB;
-
         modelB = new ModelB({
           id: "b"
         });
@@ -654,7 +636,6 @@
       });
       it("Should test the makeUrl method, numeric index, no baseUrl, no parent, with extension", function() {
         var modelC;
-
         modelC = new ModelC({
           id: 1
         });
@@ -665,7 +646,6 @@
       });
       it("Should test the makeUrl method, numeric index, with shorter baseUrl, no parent, with extension", function() {
         var modelC;
-
         modelC = new ModelC({
           id: 1
         });
@@ -677,7 +657,6 @@
       });
       it("Should test the makeUrl method, numeric index, no baseUrl, no parent, with extension", function() {
         var modelC;
-
         modelC = new ModelC({
           id: 1
         });
@@ -689,7 +668,6 @@
       });
       it("Should test the makeUrl method, no baseUrl, with parent, with extension", function() {
         var modelB, modelC;
-
         modelB = new ModelB({
           id: "b"
         });
@@ -703,7 +681,6 @@
       });
       it("Should test the makeUrl method, with baseUrl, with parent, with extension", function() {
         var modelB, modelC;
-
         modelB = new ModelB({
           id: "b"
         });
@@ -718,7 +695,6 @@
       });
       it("Should test the makeUrl method, no baseUrl, with explicit parent, with extension", function() {
         var modelB, modelC;
-
         modelB = new ModelB({
           id: "b"
         });
@@ -732,7 +708,6 @@
       });
       it("Should test the makeUrl method, with baseUrl, with  explicit parent, with extension", function() {
         var modelB, modelC;
-
         modelB = new ModelB({
           id: "b"
         });
@@ -747,7 +722,6 @@
       });
       it("Should test the makeUrl method, string index, no baseUrl, no parent, with extension", function() {
         var modelD;
-
         modelD = new ModelD({
           id: "d"
         });
@@ -758,7 +732,6 @@
       });
       it("Should test the makeUrl method, string index, with shorter baseUrl, no parent, with extension", function() {
         var modelD;
-
         modelD = new ModelD({
           id: "d"
         });
@@ -770,7 +743,6 @@
       });
       it("Should test the makeUrl method, string index, with baseUrl, no parent, with extension", function() {
         var modelD;
-
         modelD = new ModelD({
           id: "d"
         });
@@ -782,7 +754,6 @@
       });
       it("Should test the makeUrl method, no baseUrl, with non-ext. parent, with extension", function() {
         var modelA, modelD;
-
         modelD = new ModelD({
           id: "d"
         });
@@ -796,7 +767,6 @@
       });
       it("Should test the makeUrl method, with baseUrl, with non-ext. parent, with extension", function() {
         var modelA, modelD;
-
         modelD = new ModelD({
           id: "d"
         });
@@ -811,7 +781,6 @@
       });
       it("Should test the makeUrl method, no baseUrl, with explicit non-ext. parent, with extension", function() {
         var modelA, modelD;
-
         modelD = new ModelD({
           id: "d"
         });
@@ -825,7 +794,6 @@
       });
       it("Should test the makeUrl method, no baseUrl, with explicit non-ext. parent, with extension", function() {
         var modelA, modelD;
-
         modelD = new ModelD({
           id: "d"
         });
@@ -840,7 +808,6 @@
       });
       it("Should test the makeUrl method, no baseUrl, with parent, with extension", function() {
         var modelC, modelD;
-
         modelD = new ModelD({
           id: "d"
         });
@@ -854,7 +821,6 @@
       });
       it("Should test the makeUrl method, with baseUrl, with parent, with extension", function() {
         var modelC, modelD;
-
         modelD = new ModelD({
           id: "d"
         });
@@ -869,7 +835,6 @@
       });
       it("Should test the makeUrl method, no baseUrl, with  explicit parent, with extension", function() {
         var modelC, modelD;
-
         modelD = new ModelD({
           id: "d"
         });
@@ -883,7 +848,6 @@
       });
       it("Should test the makeUrl method, with baseUrl, with explicit parent, with extension", function() {
         var modelC, modelD;
-
         modelD = new ModelD({
           id: "d"
         });
@@ -898,7 +862,6 @@
       });
       it("Should be able to use url as a function, no parent", function() {
         var modelE;
-
         modelE = new ModelE({
           id: "e"
         });
@@ -909,7 +872,6 @@
       });
       it("Should be able to use url as a function, with parent", function() {
         var modelE;
-
         modelE = new ModelE({
           id: "e"
         }, new ModelB({
@@ -922,7 +884,6 @@
       });
       it("Should be able to use override the url, no parent", function() {
         var modelE;
-
         modelE = new ModelE({
           id: "e",
           url: "model_e2"
@@ -934,7 +895,6 @@
       });
       it("Should be able to use override the url,with parent", function() {
         var modelE;
-
         modelE = new ModelE({
           id: "e",
           url: "model_e3"
@@ -946,9 +906,8 @@
         expect(modelE.makeUrl("PUT")).to.equal("/model_b/b/model_e3/e");
         return expect(modelE.makeUrl("DELETE")).to.equal("/model_b/b/model_e3/e");
       });
-      return it("Should be able to handle '/' baseApiUrl", function() {
+      it("Should be able to handle '/' baseApiUrl", function() {
         var modelA;
-
         modelA = new ModelA({
           id: 1
         });
@@ -958,11 +917,70 @@
         expect(modelA.makeUrl("PUT")).to.equal("/model_a/1");
         return expect(modelA.makeUrl("DELETE")).to.equal("/model_a/1");
       });
+      it("Should be able to handle have id override", function() {
+        var modelA;
+        modelA = new ModelA({
+          id: 1
+        });
+        expect(modelA.makeUrl("GET", null, "things")).to.equal("/model_a/things");
+        expect(modelA.makeUrl("POST", null, "things")).to.equal("/model_a");
+        expect(modelA.makeUrl("PUT", null, "things")).to.equal("/model_a/things");
+        return expect(modelA.makeUrl("DELETE", null, "things")).to.equal("/model_a/things");
+      });
+      it("Should test the makeUrl method having id override with extension", function() {
+        var modelC;
+        modelC = new ModelC({
+          id: 1
+        });
+        expect(modelC.makeUrl("GET", null, "things")).to.equal("/model_c/things.json");
+        expect(modelC.makeUrl("POST", null, "things")).to.equal("/model_c.json");
+        expect(modelC.makeUrl("PUT", null, "things")).to.equal("/model_c/things.json");
+        return expect(modelC.makeUrl("DELETE", null, "things")).to.equal("/model_c/things.json");
+      });
+      it("Should be able to handle have id override", function() {
+        var modelA;
+        modelA = new ModelA({
+          id: 1
+        });
+        expect(modelA.makeUrl("GET", "things")).to.equal("/model_a/things");
+        expect(modelA.makeUrl("POST", "things")).to.equal("/model_a");
+        expect(modelA.makeUrl("PUT", "things")).to.equal("/model_a/things");
+        return expect(modelA.makeUrl("DELETE", "things")).to.equal("/model_a/things");
+      });
+      it("Should test the makeUrl method having id override with extension", function() {
+        var modelC;
+        modelC = new ModelC({
+          id: 1
+        });
+        expect(modelC.makeUrl("GET", "things")).to.equal("/model_c/things.json");
+        expect(modelC.makeUrl("POST", "things")).to.equal("/model_c.json");
+        expect(modelC.makeUrl("PUT", "things")).to.equal("/model_c/things.json");
+        return expect(modelC.makeUrl("DELETE", "things")).to.equal("/model_c/things.json");
+      });
+      it("Should be able to handle have id override with an undefined parent", function() {
+        var modelA;
+        modelA = new ModelA({
+          id: 1
+        });
+        expect(modelA.makeUrl("GET", void 0, "things")).to.equal("/model_a/things");
+        expect(modelA.makeUrl("POST", void 0, "things")).to.equal("/model_a");
+        expect(modelA.makeUrl("PUT", void 0, "things")).to.equal("/model_a/things");
+        return expect(modelA.makeUrl("DELETE", void 0, "things")).to.equal("/model_a/things");
+      });
+      return it("Should test the makeUrl method having id override with extension and an undefined parent", function() {
+        var modelC;
+        modelC = new ModelC({
+          id: 1
+        });
+        expect(modelC.makeUrl("GET", void 0, "things")).to.equal("/model_c/things.json");
+        expect(modelC.makeUrl("POST", void 0, "things")).to.equal("/model_c.json");
+        expect(modelC.makeUrl("PUT", void 0, "things")).to.equal("/model_c/things.json");
+        return expect(modelC.makeUrl("DELETE", void 0, "things")).to.equal("/model_c/things.json");
+      });
     });
     describe("Tesing model sync methods", function() {
       describe("Testing Sync Method Aliases", function() {
         var ModelA, modelA, sync_stub, _ref;
-
         ModelA = (function(_super) {
           __extends(ModelA, _super);
 
@@ -1030,7 +1048,6 @@
       });
       describe("Testing sync method $.ajax calls", function() {
         var ModelA, ajax_stub, _ref;
-
         ModelA = (function(_super) {
           __extends(ModelA, _super);
 
@@ -1054,7 +1071,6 @@
         });
         it("Should fetch properly without options", function() {
           var modelA;
-
           modelA = new ModelA({
             id: 1
           });
@@ -1087,7 +1103,6 @@
         });
         it("Should fetch properly with options", function() {
           var modelA, _complete, _error, _success;
-
           modelA = new ModelA({
             id: 1
           });
@@ -1142,7 +1157,6 @@
         });
         it("Should save properly without options", function() {
           var modelA;
-
           modelA = new ModelA({
             id: 1
           });
@@ -1177,7 +1191,6 @@
         });
         it("Should save properly with options", function() {
           var modelA, _complete, _error, _success;
-
           modelA = new ModelA({
             id: 1
           });
@@ -1232,7 +1245,6 @@
         });
         it("Should create properly without options", function() {
           var modelA;
-
           modelA = new ModelA({
             id: 1
           });
@@ -1267,7 +1279,6 @@
         });
         it("Should create properly with options", function() {
           var modelA, _complete, _error, _success;
-
           modelA = new ModelA({
             id: 1
           });
@@ -1322,7 +1333,6 @@
         });
         it("Should destroy properly without options", function() {
           var modelA;
-
           modelA = new ModelA({
             id: 1
           });
@@ -1355,7 +1365,6 @@
         });
         return it("Should destroy properly with options", function() {
           var modelA, _complete, _error, _success;
-
           modelA = new ModelA({
             id: 1
           });
@@ -1411,7 +1420,6 @@
       });
       describe("Testing sync method XHR responses", function() {
         var ModelA, complete_spy, create_spy, data, destroy_spy, error_data, error_spy, fetch_spy, fill_stub, modelA, options, parse_stub, save_spy, server, success_data, success_spy, _ref;
-
         ModelA = (function(_super) {
           __extends(ModelA, _super);
 
@@ -1613,7 +1621,6 @@
       });
       describe("Testing sync method options in depth", function() {
         var ModelA, ModelB, ajax_stub, _ref, _ref1;
-
         ModelA = (function(_super) {
           __extends(ModelA, _super);
 
@@ -1650,7 +1657,6 @@
         });
         it("Should sync properly without options", function() {
           var modelA;
-
           modelA = new ModelA({
             id: 1
           });
@@ -1683,7 +1689,6 @@
         });
         it("Should allow for a specified parent to override", function() {
           var modelA, model_b;
-
           modelA = new ModelA({
             id: 1
           }, new ModelB({
@@ -1700,7 +1705,6 @@
         });
         return it("Should allow for a null parent", function() {
           var modelA;
-
           modelA = new ModelA({
             id: 1
           }, new ModelB({
@@ -1716,7 +1720,6 @@
       });
       return describe("Additional miscellaneous sync tests", function() {
         var ModelA, ModelB, server, _ref, _ref1;
-
         ModelA = (function(_super) {
           __extends(ModelA, _super);
 
@@ -1753,7 +1756,6 @@
         });
         it("Should allow for a third parameter to define the context", function() {
           var modelA, modelB, success_spy;
-
           modelB = new ModelB({
             id: 'b'
           });
@@ -1768,7 +1770,6 @@
         });
         it("Should let pass context from fetch to sync", function() {
           var modelA, modelB, success_spy, sync_stub;
-
           modelB = new ModelB({
             id: 'b'
           });
@@ -1783,7 +1784,6 @@
         });
         it("Should let pass context from create to sync", function() {
           var modelA, modelB, success_spy, sync_stub;
-
           modelB = new ModelB({
             id: 'b'
           });
@@ -1798,7 +1798,6 @@
         });
         it("Should let pass context from save to sync", function() {
           var modelA, modelB, success_spy, sync_stub;
-
           modelB = new ModelB({
             id: 'b'
           });
@@ -1813,7 +1812,6 @@
         });
         return it("Should let pass context from destroy to sync", function() {
           var modelA, modelB, success_spy, sync_stub;
-
           modelB = new ModelB({
             id: 'b'
           });
@@ -1830,7 +1828,6 @@
     });
     it("Should match equality properly", function() {
       var ModelA, modelA_1, modelA_2, modelA_a, modelA_null_1, modelA_null_2, _ref;
-
       ModelA = (function(_super) {
         __extends(ModelA, _super);
 
@@ -1871,7 +1868,6 @@
     describe("Testing the mixin method", function() {
       it("Should implement mixins properly", function() {
         var ModelA, ModelB, mixin_spy, modelA, _ref, _ref1;
-
         ModelA = (function(_super) {
           __extends(ModelA, _super);
 
@@ -1923,7 +1919,6 @@
       });
       return it("Should preserve existing values in the model", function() {
         var ModelA, model_a, _ref;
-
         ModelA = (function(_super) {
           __extends(ModelA, _super);
 
@@ -1953,7 +1948,6 @@
     });
     describe("Testing clone() method", function() {
       var ModelA, ModelB, ModelC, _ref, _ref1, _ref2;
-
       ModelA = (function(_super) {
         __extends(ModelA, _super);
 
@@ -1993,7 +1987,6 @@
       })(Falcon.Model);
       it("Should do a basic clone properly", function() {
         var modelA1, modelA2, modelB;
-
         modelB = new ModelB();
         modelA1 = new ModelA({
           id: 1,
@@ -2013,7 +2006,6 @@
       });
       it("Should do clone properly additional fields properly", function() {
         var modelA1, modelA2, modelB;
-
         modelB = new ModelB();
         modelA1 = new ModelA({
           id: 1,
@@ -2033,7 +2025,6 @@
       });
       it("Should do clone properly additional fields properly without parent", function() {
         var modelA1, modelA2, modelB;
-
         modelB = new ModelB();
         modelA1 = new ModelA({
           id: 1,
@@ -2055,7 +2046,6 @@
       });
       it("Should do clone properly with additional fields properly without parent or id fields", function() {
         var modelA1, modelA2, modelB;
-
         modelB = new ModelB();
         modelA1 = new ModelA({
           id: 1,
@@ -2076,7 +2066,6 @@
       });
       it("Should do clone properly additional fields properly with new parent", function() {
         var modelA1, modelA2, modelB, modelC;
-
         modelC = new ModelC();
         modelB = new ModelB();
         modelA1 = new ModelA({
@@ -2100,7 +2089,6 @@
       });
       return it("Should do clone properly additional fields properly with new parent or id fields", function() {
         var modelA1, modelA2, modelB, modelC;
-
         modelC = new ModelC();
         modelB = new ModelB();
         modelA1 = new ModelA({
@@ -2124,7 +2112,6 @@
     });
     return it("Should properly detect if the model is new or not", function() {
       var ModelA, modelA, _ref;
-
       ModelA = (function(_super) {
         __extends(ModelA, _super);
 

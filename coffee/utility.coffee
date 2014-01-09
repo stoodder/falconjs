@@ -15,12 +15,12 @@ isString = (object) -> object? and Object::toString.call( object ) is "[object S
 isNumber = (object) -> object? and Object::toString.call( object ) is "[object Number]"
 isNaN = (object) -> isNumber(object) and object isnt object
 isEmpty = (object) ->
-	if isObject(object)
-		return false for key, value of object
+	if not object?
 		return true
 	else if isString(object) or isArray(object)
 		return object.length is 0
-	else if object is null or typeof object is "undefined"
+	else if isObject(object)
+		return false for key, value of object
 		return true
 	return false
 #END is empty

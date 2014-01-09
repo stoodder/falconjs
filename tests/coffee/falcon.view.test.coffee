@@ -154,6 +154,18 @@ describe "Test View Methods", ->
 			expect( jquery_stub ).to.have.been.calledOnce
 			expect( ajax_stub ).to.not.have.been.called
 		#END it
+
+		it "Should not have a template if one is not defined", ->
+			ajax_stub = sinon.stub( $, "ajax" )
+			jquery_stub = sinon.stub( window, '$' ).returns(window.jQuery("<div>"))
+
+			#Test the initial call
+			view = new ViewG()
+
+			expect( view.is_loaded() ).to.be.true
+			expect( jquery_stub ).to.not.have.been.called
+			expect( ajax_stub ).to.not.have.been.called
+		#END it
 	#END describe
 
 	#--------------------------------------------------------------
@@ -308,6 +320,13 @@ describe "Test View Methods", ->
 		it "Should generate the correct relative url from function beginning with '/' with baseTemplateUrl ending in '/'", ->
 			Falcon.baseTemplateUrl = "http://www.falconjs.com/"
 			expect( new ViewF().makeUrl() ).to.equal "http://www.falconjs.com/view_f"
+		#END it
+
+		it "Should not make a url for a 'null' url defined", ->
+			expect( new ViewG().makeUrl() ).to.equal null
+
+			Falcon.baseTemplateUrl = "http://www.falconjs.com/"
+			expect( new ViewG().makeUrl() ).to.equal null
 		#END it
 	#END describe
 

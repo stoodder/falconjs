@@ -4,7 +4,6 @@
 
   describe("Test View Methods", function() {
     var ViewA, ViewB, ViewC, ViewD, ViewE, ViewF, ViewG, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6;
-
     ViewA = (function(_super) {
       __extends(ViewA, _super);
 
@@ -107,7 +106,6 @@
     });
     describe("Test the constructor method", function() {
       var ajax_stub, init_stub, jquery_stub;
-
       init_stub = ajax_stub = jquery_stub = null;
       afterEach(function() {
         if (init_stub) {
@@ -122,7 +120,6 @@
       });
       it("Should call the initialize and ajax methods with the correct arguments", function() {
         var view;
-
         init_stub = sinon.stub(ViewA.prototype, "initialize");
         ajax_stub = sinon.stub($, "ajax");
         jquery_stub = sinon.stub(window, '$');
@@ -139,7 +136,6 @@
       });
       it("Should call the initialize and jquery methods with the correct arguments", function() {
         var view;
-
         init_stub = sinon.stub(ViewC.prototype, "initialize");
         ajax_stub = sinon.stub($, "ajax");
         jquery_stub = sinon.stub(window, '$').returns(window.jQuery("<div>"));
@@ -155,7 +151,6 @@
       });
       it("Should call the ajax method only once", function() {
         var view;
-
         ajax_stub = sinon.stub($, "ajax");
         jquery_stub = sinon.stub(window, '$');
         view = new ViewA();
@@ -179,9 +174,8 @@
         expect(view.is_loaded()).to.be["true"];
         return expect(jquery_stub).to.not.have.been.called;
       });
-      return it("Should call the jquery method only once", function() {
+      it("Should call the jquery method only once", function() {
         var view;
-
         ajax_stub = sinon.stub($, "ajax");
         jquery_stub = sinon.stub(window, '$').returns(window.jQuery("<div>"));
         view = new ViewC();
@@ -199,11 +193,19 @@
         expect(jquery_stub).to.have.been.calledOnce;
         return expect(ajax_stub).to.not.have.been.called;
       });
+      return it("Should not have a template if one is not defined", function() {
+        var view;
+        ajax_stub = sinon.stub($, "ajax");
+        jquery_stub = sinon.stub(window, '$').returns(window.jQuery("<div>"));
+        view = new ViewG();
+        expect(view.is_loaded()).to.be["true"];
+        expect(jquery_stub).to.not.have.been.called;
+        return expect(ajax_stub).to.not.have.been.called;
+      });
     });
     describe("Testing the 'defaults' implementation", function() {
       it("Should create RawrView with defaults that have correct arguments", function() {
         var RawrView, hello_spy, rawr_class, _ref7;
-
         hello_spy = null;
         RawrView = (function(_super) {
           __extends(RawrView, _super);
@@ -231,7 +233,6 @@
       });
       return it("Should create RawrVIew with defaults that are numbers", function() {
         var RawrView, hello_spy, rawr_class, _ref7;
-
         hello_spy = null;
         RawrView = (function(_super) {
           __extends(RawrView, _super);
@@ -258,7 +259,6 @@
     });
     describe("Test the makeUrl() method", function() {
       var ajax_stub;
-
       ajax_stub = null;
       beforeEach(function() {
         return ajax_stub = sinon.stub($, 'ajax');
@@ -328,14 +328,18 @@
         Falcon.baseTemplateUrl = "http://www.falconjs.com/";
         return expect(new ViewE().makeUrl()).to.equal("http://www.falconjs.com/view_e");
       });
-      return it("Should generate the correct relative url from function beginning with '/' with baseTemplateUrl ending in '/'", function() {
+      it("Should generate the correct relative url from function beginning with '/' with baseTemplateUrl ending in '/'", function() {
         Falcon.baseTemplateUrl = "http://www.falconjs.com/";
         return expect(new ViewF().makeUrl()).to.equal("http://www.falconjs.com/view_f");
+      });
+      return it("Should not make a url for a 'null' url defined", function() {
+        expect(new ViewG().makeUrl()).to.equal(null);
+        Falcon.baseTemplateUrl = "http://www.falconjs.com/";
+        return expect(new ViewG().makeUrl()).to.equal(null);
       });
     });
     return describe("Test the viewModel() method", function() {
       var FullView, ajax_stub, _ref7;
-
       FullView = (function(_super) {
         __extends(FullView, _super);
 
@@ -376,7 +380,6 @@
       });
       it("Should create a valid view model", function() {
         var another_stub, test_stub, view, viewModel;
-
         view = new FullView;
         test_stub = sinon.stub(view, 'test');
         another_stub = sinon.stub(view, 'another');
@@ -413,7 +416,6 @@
       });
       return it("Should create equal viewModels after the first has been generated", function() {
         var model1, model2, view;
-
         view = new FullView;
         model1 = view.viewModel();
         model2 = view.viewModel();

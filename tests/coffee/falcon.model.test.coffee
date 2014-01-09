@@ -742,6 +742,61 @@ describe "Testing Model Methods", ->
 			expect( modelA.makeUrl("POST") ).to.equal "/model_a"
 			expect( modelA.makeUrl("PUT") ).to.equal "/model_a/1"
 			expect( modelA.makeUrl("DELETE") ).to.equal "/model_a/1"
+		#END it
+
+		it "Should be able to handle have id override", ->
+			modelA = new ModelA({id: 1})
+
+			expect( modelA.makeUrl("GET", null, "things") ).to.equal "/model_a/things"
+			expect( modelA.makeUrl("POST", null, "things") ).to.equal "/model_a"
+			expect( modelA.makeUrl("PUT", null, "things") ).to.equal "/model_a/things"
+			expect( modelA.makeUrl("DELETE", null, "things") ).to.equal "/model_a/things"
+		#END it
+
+		it "Should test the makeUrl method having id override with extension", ->
+			modelC = new ModelC(id: 1)
+
+			expect( modelC.makeUrl("GET", null, "things") ).to.equal "/model_c/things.json"
+			expect( modelC.makeUrl("POST", null, "things") ).to.equal "/model_c.json"
+			expect( modelC.makeUrl("PUT", null, "things") ).to.equal "/model_c/things.json"
+			expect( modelC.makeUrl("DELETE", null, "things") ).to.equal "/model_c/things.json"
+		#END it
+
+		it "Should be able to handle have id override", ->
+			modelA = new ModelA({id: 1})
+
+			expect( modelA.makeUrl("GET", "things") ).to.equal "/model_a/things"
+			expect( modelA.makeUrl("POST", "things") ).to.equal "/model_a"
+			expect( modelA.makeUrl("PUT", "things") ).to.equal "/model_a/things"
+			expect( modelA.makeUrl("DELETE", "things") ).to.equal "/model_a/things"
+		#END it
+
+		it "Should test the makeUrl method having id override with extension", ->
+			modelC = new ModelC(id: 1)
+
+			expect( modelC.makeUrl("GET", "things") ).to.equal "/model_c/things.json"
+			expect( modelC.makeUrl("POST", "things") ).to.equal "/model_c.json"
+			expect( modelC.makeUrl("PUT", "things") ).to.equal "/model_c/things.json"
+			expect( modelC.makeUrl("DELETE", "things") ).to.equal "/model_c/things.json"
+		#END it
+
+		it "Should be able to handle have id override with an undefined parent", ->
+			modelA = new ModelA({id: 1})
+
+			expect( modelA.makeUrl("GET", undefined, "things") ).to.equal "/model_a/things"
+			expect( modelA.makeUrl("POST", undefined, "things") ).to.equal "/model_a"
+			expect( modelA.makeUrl("PUT", undefined, "things") ).to.equal "/model_a/things"
+			expect( modelA.makeUrl("DELETE", undefined, "things") ).to.equal "/model_a/things"
+		#END it
+
+		it "Should test the makeUrl method having id override with extension and an undefined parent", ->
+			modelC = new ModelC(id: 1)
+
+			expect( modelC.makeUrl("GET", undefined, "things") ).to.equal "/model_c/things.json"
+			expect( modelC.makeUrl("POST", undefined, "things") ).to.equal "/model_c.json"
+			expect( modelC.makeUrl("PUT", undefined, "things") ).to.equal "/model_c/things.json"
+			expect( modelC.makeUrl("DELETE", undefined, "things") ).to.equal "/model_c/things.json"
+		#END it
 	#END describe
 
 

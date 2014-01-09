@@ -4,7 +4,6 @@
 
   describe("Test Knockout Bindings", function() {
     var $application, $body, application_index, applyApp;
-
     $application = null;
     application_index = 0;
     $body = $("body");
@@ -18,7 +17,6 @@
     };
     describe("Test view binding", function() {
       var $content_template, $footer_template, $layout_template, ContentView, FooterView, LayoutView, view_binding, view_init_spy, view_update_spy, _ref, _ref1, _ref2;
-
       view_binding = ko.bindingHandlers['view'];
       LayoutView = (function(_super) {
         __extends(LayoutView, _super);
@@ -89,7 +87,6 @@
       });
       it("Should call the view binding on initialization without an observable", function() {
         var render_spy, unrender_spy, view;
-
         view = new ContentView;
         render_spy = sinon.spy(view, '_render');
         unrender_spy = sinon.spy(view, '_unrender');
@@ -105,7 +102,6 @@
       });
       return describe("Testing changes in views that are contained in observales", function() {
         var content_display_spy, content_dispose_spy, content_render_spy, content_unrender_spy, content_view, display_spy, dispose_spy, footer_display_spy, footer_dispose_spy, footer_render_spy, footer_unrender_spy, footer_view, obs, render_spy, unrender_spy, view;
-
         view = new LayoutView;
         content_view = view.content_view();
         footer_view = view.footer_view();
@@ -210,7 +206,6 @@
     });
     describe("Test updated foreach binding", function() {
       var CollectionA, ModelA, foreach_binding, foreach_init_spy, foreach_update_spy, _ref, _ref1;
-
       foreach_binding = ko.bindingHandlers['foreach'];
       foreach_init_spy = foreach_update_spy = null;
       ModelA = (function(_super) {
@@ -247,7 +242,6 @@
       })(Falcon.Collection);
       describe("Test flat bindings against arrays and collections", function() {
         var $array_list, $array_list_options, $collection_list, $collection_list_options, $layout_template, LayoutView, after_add_spy, before_remove_spy, view, view_observable, _ref2;
-
         LayoutView = (function(_super) {
           __extends(LayoutView, _super);
 
@@ -296,7 +290,6 @@
         });
         beforeEach(function() {
           var prev_array_list;
-
           view = new LayoutView;
           view_observable(view);
           after_add_spy = sinon.spy(view.viewModel(), 'afterAdd');
@@ -475,7 +468,6 @@
       });
       return describe("Test observable bindings against collections", function() {
         var $collection_list, $layout_template, LayoutView, after_add_spy, before_remove_spy, view, view_observable, _ref2;
-
         LayoutView = (function(_super) {
           __extends(LayoutView, _super);
 

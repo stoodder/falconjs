@@ -2,3 +2,5 @@
 *.sublime-workspace
 TODO.txt
 .DS_Store
+node_modules
+./**/.sass-cache
