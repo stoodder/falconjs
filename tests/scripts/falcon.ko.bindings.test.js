@@ -204,6 +204,97 @@
         });
       });
     });
+    describe("Test view binding with an observable array of views", function() {
+      var $content_template, $layout_template, ContentView, LayoutView, view_binding, _ref, _ref1;
+      view_binding = ko.bindingHandlers['view'];
+      LayoutView = (function(_super) {
+        __extends(LayoutView, _super);
+
+        function LayoutView() {
+          _ref = LayoutView.__super__.constructor.apply(this, arguments);
+          return _ref;
+        }
+
+        LayoutView.prototype.url = '#layout-template';
+
+        LayoutView.prototype.observables = {
+          views: []
+        };
+
+        return LayoutView;
+
+      })(Falcon.View);
+      $layout_template = $("			<template id='layout-template'>				<!-- ko foreach: $view.views -->					<div data-bind='view: $data'></div>				<!-- /ko -->			</template>		");
+      ContentView = (function(_super) {
+        __extends(ContentView, _super);
+
+        function ContentView() {
+          _ref1 = ContentView.__super__.constructor.apply(this, arguments);
+          return _ref1;
+        }
+
+        ContentView.prototype.url = '#content-template2';
+
+        ContentView.prototype.observables = {
+          "_title": "",
+          "title": {
+            read: function() {
+              return this._title();
+            },
+            write: function(title) {
+              return this._title(title);
+            }
+          }
+        };
+
+        return ContentView;
+
+      })(Falcon.View);
+      $content_template = $("			<template id='content-template2'>				<div data-bind='title: $view.title'></div>			</template>		");
+      before(function() {
+        $body.append($layout_template);
+        return $body.append($content_template);
+      });
+      after(function() {
+        $layout_template.remove();
+        return $content_template.remove();
+      });
+      return it("Should call like observables with their own context and update individually", function() {
+        var first_content, first_spy, layout, second_content, second_spy;
+        layout = new LayoutView;
+        first_content = new ContentView;
+        second_content = new ContentView;
+        Falcon.the_layout = layout;
+        first_spy = sinon.spy(first_content, "title");
+        second_spy = sinon.spy(second_content, "title");
+        applyApp(layout);
+        expect(first_spy).to.not.have.been.called;
+        expect(second_spy).to.not.have.been.called;
+        layout.views.push(first_content);
+        expect(first_spy).to.not.have.been.called;
+        expect(second_spy).to.not.have.been.called;
+        first_spy.reset();
+        first_content.title("First Title");
+        expect(first_spy).to.have.been.called;
+        expect(first_spy).to.have.been.calledOn(first_content);
+        expect(first_spy).to.have.been.calledWith("First Title");
+        expect(second_spy).to.not.have.been.called;
+        first_spy.reset();
+        layout.views.push(second_content);
+        expect(first_spy).to.not.have.been.called;
+        expect(second_spy).to.not.have.been.called;
+        first_spy.reset();
+        second_spy.reset();
+        second_content.title("Second Title");
+        expect(first_spy).to.not.have.been.called;
+        expect(second_spy).to.have.been.called;
+        expect(second_spy).to.have.been.calledOn(second_content);
+        expect(second_spy).to.have.been.calledWith("Second Title");
+        second_spy.reset();
+        expect(first_content.title()).to.equal("First Title");
+        return expect(second_content.title()).to.equal("Second Title");
+      });
+    });
     describe("Test updated foreach binding", function() {
       var CollectionA, ModelA, foreach_binding, foreach_init_spy, foreach_update_spy, _ref, _ref1;
       foreach_binding = ko.bindingHandlers['foreach'];

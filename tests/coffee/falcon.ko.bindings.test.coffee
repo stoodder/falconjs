@@ -228,6 +228,95 @@ describe "Test Knockout Bindings", ->
 		#END describe
 	#END describe
 
+	describe "Test view binding with an observable array of views", ->
+		view_binding = ko.bindingHandlers['view']
+
+		class LayoutView extends Falcon.View
+			url: '#layout-template'
+
+			observables:
+				views: []
+			#END observables
+		#END LayoutView
+		$layout_template = $("
+			<template id='layout-template'>
+				<!-- ko foreach: $view.views -->
+					<div data-bind='view: $data'></div>
+				<!-- /ko -->
+			</template>
+		")
+
+		class ContentView extends Falcon.View
+			url: '#content-template2'
+
+			observables:
+				"_title": ""
+				"title":
+					read: -> @_title()
+					write: (title) -> @_title(title)
+				#END title
+			#END observables
+		#END class
+		$content_template = $("
+			<template id='content-template2'>
+				<div data-bind='title: $view.title'></div>
+			</template>
+		")
+
+		before ->
+			$body.append($layout_template)
+			$body.append($content_template)
+		#END beforeEach
+
+		after ->
+			$layout_template.remove()
+			$content_template.remove()
+		#END afterEach
+
+		it "Should call like observables with their own context and update individually", ->
+			layout = new LayoutView
+			first_content = new ContentView
+			second_content = new ContentView
+
+			Falcon.the_layout = layout
+
+			first_spy = sinon.spy( first_content, "title" )
+			second_spy = sinon.spy( second_content, "title" )
+
+			applyApp(layout)
+			expect( first_spy ).to.not.have.been.called
+			expect( second_spy ).to.not.have.been.called
+
+			layout.views.push( first_content )
+			expect( first_spy ).to.not.have.been.called
+			expect( second_spy ).to.not.have.been.called
+			first_spy.reset()
+
+			first_content.title("First Title")
+			expect( first_spy ).to.have.been.called
+			expect( first_spy ).to.have.been.calledOn( first_content )
+			expect( first_spy ).to.have.been.calledWith("First Title")
+			expect( second_spy ).to.not.have.been.called
+			first_spy.reset()
+
+			layout.views.push( second_content )
+			expect( first_spy ).to.not.have.been.called
+			expect( second_spy ).to.not.have.been.called
+			first_spy.reset()
+			second_spy.reset()
+
+			second_content.title("Second Title")
+			expect( first_spy ).to.not.have.been.called
+			expect( second_spy ).to.have.been.called
+			expect( second_spy ).to.have.been.calledOn( second_content )
+			expect( second_spy ).to.have.been.calledWith("Second Title")
+			second_spy.reset()
+
+			expect( first_content.title() ).to.equal( "First Title" )
+			expect( second_content.title() ).to.equal( "Second Title" )
+		#END it
+	#END describe
+
 	describe "Test updated foreach binding", ->
 		foreach_binding = ko.bindingHandlers['foreach']
 		foreach_init_spy = foreach_update_spy = null

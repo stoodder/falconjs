@@ -97,13 +97,13 @@ class Falcon.Object
 		if isObject( @defaults )
 			for attr, value of @defaults
 				if isFunction( value  )
-					this[attr] = value.apply(@, arguments)
+					@[attr] = value.apply(@, arguments)
 				else if isObject( value )
-					this[attr] = clone( value )
+					@[attr] = clone( value )
 				else if isArray( value )
 					@[attr] =  value.slice(0)
 				else
-					this[attr] = value
+					@[attr] = value
 				#ENd if
 			#ENF for
 		#END if
@@ -118,9 +118,14 @@ class Falcon.Object
 						'deferEvaluation': Falcon.deferEvaluation ? true
 					#END computed
 				else if isObject( value ) and ('read' of value or 'write' of value)
-					value.owner = value.owner ? @
-					value.deferEvaluation = value.deferEvaluation ? Falcon.deferEvaluation ? true
-					@[attr] = ko.computed(value)
+					@[attr] = ko.computed
+						'read': value.read
+						'write': value.write
+						'owner': value.owner ? @
+						'deferEvaluation': Falcon.deferEvaluation ? true
+						'disposeWhen': value.disposeWhen
+						'disposeWhenNodeIsRemoved': value.disposeWhenNodeIsRemoved
+					#END computed
 				else if isArray( value )
 					@[attr] = ko.observableArray( value.slice(0) )
 				else

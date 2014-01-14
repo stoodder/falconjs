@@ -300,7 +300,7 @@
     Object.prototype.__falcon_object__cid__ = null;
 
     function Object() {
-      var attr, value, _ref, _ref1, _ref2, _ref3, _ref4, _ref5;
+      var attr, value, _ref, _ref1, _ref2, _ref3, _ref4;
       this.__falcon_object__events__ = {};
       this.__falcon_object__cid__ = __falcon_object__current_cid__++;
       if (isObject(this.defaults)) {
@@ -329,9 +329,14 @@
               'deferEvaluation': (_ref2 = Falcon.deferEvaluation) != null ? _ref2 : true
             });
           } else if (isObject(value) && ('read' in value || 'write' in value)) {
-            value.owner = (_ref3 = value.owner) != null ? _ref3 : this;
-            value.deferEvaluation = (_ref4 = (_ref5 = value.deferEvaluation) != null ? _ref5 : Falcon.deferEvaluation) != null ? _ref4 : true;
-            this[attr] = ko.computed(value);
+            this[attr] = ko.computed({
+              'read': value.read,
+              'write': value.write,
+              'owner': (_ref3 = value.owner) != null ? _ref3 : this,
+              'deferEvaluation': (_ref4 = Falcon.deferEvaluation) != null ? _ref4 : true,
+              'disposeWhen': value.disposeWhen,
+              'disposeWhenNodeIsRemoved': value.disposeWhenNodeIsRemoved
+            });
           } else if (isArray(value)) {
             this[attr] = ko.observableArray(value.slice(0));
           } else {
