@@ -2224,6 +2224,23 @@
         return expect(all).to.deep.equal([]);
       });
     });
+    describe("Test the all() method", function() {
+      var collectionA, model_a1, model_a2, models;
+      model_a1 = new ModelA({
+        id: 1
+      });
+      model_a2 = new ModelA({
+        id: 2
+      });
+      models = [model_a1, model_a2];
+      collectionA = new CollectionA(models);
+      return it("Should return all of the models", function() {
+        var all;
+        all = collectionA.all();
+        expect(all.length).to.equal(2);
+        return expect(all).to.deep.equal(models);
+      });
+    });
     describe("Test the any() method", function() {
       var collectionA, model_a1, model_a2, model_a3, model_a4, model_ab, model_ab2, models;
       model_a1 = new ModelA({

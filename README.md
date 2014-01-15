@@ -15,7 +15,6 @@
 * Add 'merge' method to collections
 * Add method support fo obervables and defaults
 * Add 'set' method to collections (sets all values for a key to each model in the collection)
-* Add 'all' method to collections
 * Remove jQuery for document load
 * Find a replacement library for jQuery to do Ajax handling that includes promises and typicals response callbacks
 * Add support for 'Date' type fields
@@ -29,3 +28,4 @@
 Done
 * Convert Build process to Grunt.js
 * Added id override to model makeUrl
+* Add 'all' method to collections

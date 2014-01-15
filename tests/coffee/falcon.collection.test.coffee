@@ -2022,6 +2022,27 @@ describe "Test Collection Methods", ->
 
 	#--------------------------------------------------------------
 	#
+	# Test the all() method
+	#
+	#--------------------------------------------------------------
+	describe "Test the all() method", ->
+		model_a1 = new ModelA(id: 1)
+		model_a2 = new ModelA(id: 2)
+
+		models = [model_a1, model_a2]
+
+		collectionA = new CollectionA(models)
+
+		it "Should return all of the models", ->
+			all = collectionA.all()
+			expect( all.length ).to.equal 2
+			expect( all ).to.deep.equal models
+		#END it
+	#END describe
+
+
+	#--------------------------------------------------------------
+	#
 	# Test the any() method
 	#
 	#--------------------------------------------------------------

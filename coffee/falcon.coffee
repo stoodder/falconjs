@@ -181,9 +181,9 @@
 	#--------------------------------------------------------
 	addBinding: (name, definition, allowVirtual) ->
 		[definition, allowVirtual] = [allowVirtual, definition] if isBoolean( definition )
-		ko.virtualElements.allowedBindings[name] = true if allowVirtual
 		definition = {update: definition} if isFunction( definition )
 		ko.bindingHandlers[name] = definition
+		ko.virtualElements.allowedBindings[name] = true if allowVirtual
 	#END addBinding
 
 	#--------------------------------------------------------

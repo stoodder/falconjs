@@ -240,15 +240,15 @@
       if (isBoolean(definition)) {
         _ref = [allowVirtual, definition], definition = _ref[0], allowVirtual = _ref[1];
       }
-      if (allowVirtual) {
-        ko.virtualElements.allowedBindings[name] = true;
-      }
       if (isFunction(definition)) {
         definition = {
           update: definition
         };
       }
-      return ko.bindingHandlers[name] = definition;
+      ko.bindingHandlers[name] = definition;
+      if (allowVirtual) {
+        return ko.virtualElements.allowedBindings[name] = true;
+      }
     },
     getBinding: function(name) {
       return ko.bindingHandlers[name];
@@ -1693,6 +1693,10 @@
         }
       }
       return null;
+    };
+
+    Collection.prototype.all = function() {
+      return this.models();
     };
 
     Collection.prototype.filter = function(iterator) {

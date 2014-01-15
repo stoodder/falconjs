@@ -847,6 +847,17 @@ class Falcon.Collection extends Falcon.Object
 	#END last
 
 	#--------------------------------------------------------
+	# Method: Falcon.Collection#all
+	#	Returns all of the models in a raw array
+	#
+	# Returns:
+	#	_(Array)_ - An array of all the models in the collection
+	#--------------------------------------------------------
+	all: ->
+		return @models()
+	#END all
+
+	#--------------------------------------------------------
 	# Method: Falcon.Collection#filter
 	#	Gets a list of all items that match the iterator.
 	#	If no iterator is present, all of the models are returned
