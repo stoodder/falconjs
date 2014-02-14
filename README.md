@@ -29,3 +29,4 @@ Done
 * Convert Build process to Grunt.js
 * Added id override to model makeUrl
 * Add 'all' method to collections
+* Add 'increment' and 'decrement' to models

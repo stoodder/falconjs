@@ -133,6 +133,36 @@ class Falcon.Model extends Falcon.Object
 		return @set(attribute, not @get(attribute) )
 	#END toggle
 
+	#--------------------------------------------------------
+	# Method: Falcon.Model#increment()
+	#	Increments a specific attribute as if it were a number
+	#
+	# Arguments:
+	#	**attribute** _(string)_ - The attribute to increment
+	#
+	# Returns:
+	#	_(Falcon.Model)_ - This Model
+	#--------------------------------------------------------
+	increment: (attribute) ->
+		@set(attribute, @get(attribute)+1 )
+		return @
+	#END increment
+
+	#--------------------------------------------------------
+	# Method: Falcon.Model#decrement()
+	#	Decrements a specific attribute as if it were a number
+	#
+	# Arguments:
+	#	**attribute** _(string)_ - The attribute to decrement
+	#
+	# Returns:
+	#	_(Falcon.Model)_ - This Model
+	#--------------------------------------------------------
+	decrement: (attribute) ->
+		@set(attribute, @get(attribute)-1 )
+		return @
+	#END decrement
+
 	#----------------------------------------------------------------------------------------------
 	# Method: Falcon.Model#parse()
 	#	Parses the response data from an XHR request

@@ -174,6 +174,43 @@
       expect(modelA["model_b"]).to.be.equal(modelB);
       return expect(modelB.get("something")).to.be.equal("cool");
     });
+    it("Should test the increment and decrement methods", function() {
+      var ModelA, model_a, ret, _ref;
+      ModelA = (function(_super) {
+        __extends(ModelA, _super);
+
+        function ModelA() {
+          _ref = ModelA.__super__.constructor.apply(this, arguments);
+          return _ref;
+        }
+
+        ModelA.prototype.defaults = {
+          'first': 1
+        };
+
+        ModelA.prototype.observables = {
+          'second': 2
+        };
+
+        return ModelA;
+
+      })(Falcon.Model);
+      model_a = new ModelA;
+      expect(model_a.get('first')).to.be.equal(1);
+      expect(model_a.get('second')).to.be.equal(2);
+      ret = model_a.increment('first');
+      expect(ret).to.be.equal(model_a);
+      ret = model_a.increment('second');
+      expect(ret).to.be.equal(model_a);
+      expect(model_a.get('first')).to.be.equal(2);
+      expect(model_a.get('second')).to.be.equal(3);
+      ret = model_a.decrement('first');
+      expect(ret).to.be.equal(model_a);
+      ret = model_a.decrement('second');
+      expect(ret).to.be.equal(model_a);
+      expect(model_a.get('first')).to.be.equal(1);
+      return expect(model_a.get('second')).to.be.equal(2);
+    });
     it("Should test the fill and serialize methods", function() {
       var CollectionC, ModelA, ModelB, ModelC, collectionC, data, key, modelA, modelB, modelB2, serialized, value, _ref, _ref1, _ref2, _ref3, _results;
       modelB = null;

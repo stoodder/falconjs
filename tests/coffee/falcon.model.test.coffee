@@ -83,7 +83,7 @@ describe "Testing Model Methods", ->
 
 	#--------------------------------------------------------------
 	#
-	# Test the get(), set(), and toggle() methods
+	# Test the get(), set(), toggle(), increment(), and decrement() methods
 	#
 	#--------------------------------------------------------------
 	it "Should test the get, set, and toggle methods", ->
@@ -149,6 +149,41 @@ describe "Testing Model Methods", ->
 		expect( modelA["model_b"] ).to.be.equal modelB
 
 		expect( modelB.get("something") ).to.be.equal "cool"
+	#END it
+
+	it "Should test the increment and decrement methods", ->
+		class ModelA extends Falcon.Model
+			defaults:
+				'first': 1
+			#END defaults
+
+			observables:
+				'second': 2
+			#END observables
+		#END class
+
+		model_a = new ModelA
+
+		expect( model_a.get('first') ).to.be.equal 1
+		expect( model_a.get('second') ).to.be.equal 2
+
+		ret = model_a.increment('first')
+		expect( ret ).to.be.equal( model_a )
+
+		ret = model_a.increment('second')
+		expect( ret ).to.be.equal( model_a )
+
+		expect( model_a.get('first') ).to.be.equal 2
+		expect( model_a.get('second') ).to.be.equal 3
+
+		ret = model_a.decrement('first')
+		expect( ret ).to.be.equal( model_a )
+
+		ret = model_a.decrement('second')
+		expect( ret ).to.be.equal( model_a )
+
+		expect( model_a.get('first') ).to.be.equal 1
+		expect( model_a.get('second') ).to.be.equal 2
 	#END it
 
 

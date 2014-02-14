@@ -506,6 +506,16 @@
       return this.set(attribute, !this.get(attribute));
     };
 
+    Model.prototype.increment = function(attribute) {
+      this.set(attribute, this.get(attribute) + 1);
+      return this;
+    };
+
+    Model.prototype.decrement = function(attribute) {
+      this.set(attribute, this.get(attribute) - 1);
+      return this;
+    };
+
     Model.prototype.parse = function(data, options, xhr) {
       return data;
     };
