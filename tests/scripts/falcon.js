@@ -2,7 +2,7 @@
 	Falcon.js
 	by Rick Allen (stoodder)
 
-	Version 0.9.2
+	Version {{VERSION}}
 	Full source at https://github.com/stoodder/falconjs
 	Copyright (c) 2013 Rick Allen, http://www.stoodder.com
 
@@ -1936,7 +1936,7 @@
       'init': function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
         var container, oldViewModel, subscription, value;
         value = valueAccessor();
-        if ((value != null) && ko.isSubscribable(value)) {
+        if (ko.isSubscribable(value)) {
           oldViewModel = ko.utils.unwrapObservable(value);
           subscription = value.subscribe(function(newViewModel) {
             if (Falcon.isView(oldViewModel)) {
@@ -1963,7 +1963,9 @@
       'update': function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
         var childContext, container, execScripts, template, value;
         value = valueAccessor();
-        value = ko.utils.unwrapObservable(value);
+        if (ko.isObservable(value)) {
+          value = value();
+        }
         viewModel = getViewModel(value);
         template = getTemplate(value);
         if (value == null) {
@@ -1980,7 +1982,7 @@
         });
         if (isEmpty(viewModel) || isEmpty(template)) {
           ko.virtualElements.emptyNode(element);
-        } else if (!(value instanceof Falcon.View) || ko.utils.unwrapObservable(value.is_loaded)) {
+        } else if (!Falcon.isView(value) || ko.utils.unwrapObservable(value.is_loaded)) {
           container = ko.utils.domData.get(element, "__falcon_view__container__");
           container.innerHTML = template;
           ko.renderTemplate(element, childContext, {}, element);

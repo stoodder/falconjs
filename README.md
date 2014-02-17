@@ -30,3 +30,4 @@ Done
 * Added id override to model makeUrl
 * Add 'all' method to collections
 * Add 'increment' and 'decrement' to models
+* Converted unit tests to Jasmine

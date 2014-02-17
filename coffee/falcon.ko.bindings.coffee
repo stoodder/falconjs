@@ -45,7 +45,7 @@ ko.bindingHandlers['view'] = do ->
 		'init': (element, valueAccessor, allBindingsAccessor, viewModel, context) ->
 			value = valueAccessor()
 
-			if value? and ko.isSubscribable( value )
+			if ko.isSubscribable( value )
 				oldViewModel = ko.utils.unwrapObservable( value )
 				subscription = value.subscribe (newViewModel) ->
 					oldViewModel._unrender() if Falcon.isView(oldViewModel)
@@ -75,7 +75,7 @@ ko.bindingHandlers['view'] = do ->
 
 		'update': (element, valueAccessor, allBindingsAccessor, viewModel, context) ->
 			value = valueAccessor()
-			value = ko.utils.unwrapObservable(value)
+			value = value() if ko.isObservable( value )
 			viewModel = getViewModel(value)
 			template = getTemplate(value)
 
@@ -93,7 +93,7 @@ ko.bindingHandlers['view'] = do ->
 
 			if isEmpty( viewModel ) or isEmpty( template )
 				ko.virtualElements.emptyNode(element)
-			else if not (value instanceof Falcon.View) or ko.utils.unwrapObservable( value.is_loaded )
+			else if not Falcon.isView( value ) or ko.utils.unwrapObservable( value.is_loaded )
 
 				container = ko.utils.domData.get(element, "__falcon_view__container__")
 				container.innerHTML = template

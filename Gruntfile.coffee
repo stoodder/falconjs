@@ -5,26 +5,45 @@
 #
 #=================================================
 
-Install Ruby
 Install Node.js (http://nodejs.org/)
 npm install -g grunt-cli
-gem install haml
-npm install coffee-script
-npm install grunt --save-dev
-npm install grunt-contrib-coffee --save-dev
-npm install grunt-contrib-uglify --save-dev
-npm install grunt-contrib-haml --save-dev
-npm install grunt-contrib-copy --save-dev
-npm install grunt-contrib-watch --save-dev
+npm install
+grunt
 
 ###
 module.exports = (grunt) ->
 	grunt.loadNpmTasks('grunt-contrib-coffee')
 	grunt.loadNpmTasks('grunt-contrib-uglify')
-	grunt.loadNpmTasks('grunt-contrib-haml')
 	grunt.loadNpmTasks('grunt-contrib-copy')
+	grunt.loadNpmTasks('grunt-contrib-jasmine')
 	grunt.loadNpmTasks('grunt-contrib-watch')
-	grunt.registerTask('default', ['coffee', 'uglify', 'haml', 'copy', 'watch'])
+
+	grunt.registerTask('test', ['coffee:test', 'jasmine:dist'])
+	grunt.registerTask('default', [
+		'coffee:banner'
+		'update_banner'
+		'coffee:dist'
+		'uglify:dist'
+		'coffee:test'
+		'copy'
+		'watch'
+	])
+
+	grunt.registerTask 'update_banner', 'updates the banner information', ->
+		try
+			banner = grunt.file.read('scripts/banner.js').toString()
+			pkg = grunt.file.readJSON('package.json')
+		catch e
+			banner = ""
+		#END try
+
+		banner = banner.replace(/\{\{VERSION\}\}/gi, pkg.version)
+
+		uglfiy_cfg = grunt.config('uglify')
+		uglfiy_cfg.dist.options.banner = banner
+
+		grunt.config('uglify', uglfiy_cfg)
+	#END registerTask
 
 	banner = grunt.file.read('scripts/banner.js').toString()
 	
@@ -64,13 +83,14 @@ module.exports = (grunt) ->
 
 			'test':
 				files:
-					"tests/scripts/falcon.object.test.js": "tests/coffee/falcon.object.test.coffee"
-					"tests/scripts/falcon.model.test.js": "tests/coffee/falcon.model.test.coffee"
-					"tests/scripts/falcon.collection.test.js": "tests/coffee/falcon.collection.test.coffee"
-					"tests/scripts/falcon.view.test.js": "tests/coffee/falcon.view.test.coffee"
-					"tests/scripts/falcon.ko.bindings.test.js": "tests/coffee/falcon.ko.bindings.test.coffee"
-
-					"tests/scripts/demo.js": "tests/coffee/demo.coffee"
+					"tests/scripts/jasmine2.0.0-sinon.js": ["tests/coffee/jasmine2.0.0-sinon.coffee"]
+					"tests/scripts/tests.js": [
+						"tests/coffee/falcon.object.test.coffee"
+						"tests/coffee/falcon.model.test.coffee"
+						"tests/coffee/falcon.collection.test.coffee"
+						"tests/coffee/falcon.view.test.coffee"
+						"tests/coffee/falcon.ko.bindings.test.coffee"
+					]
 				#END files
 			#END coffee:test
 		#END coffee
@@ -78,7 +98,7 @@ module.exports = (grunt) ->
 		'uglify':
 			'dist':
 				options:
-					banner: banner
+					'banner': '' #Updated lated in the update_banner task
 				#END options
 				files:
 					'<%= pkg.name %>.min.js': '<%= pkg.name %>.js'
@@ -86,21 +106,20 @@ module.exports = (grunt) ->
 			#END uglifY:dist
 		#END uglify
 
-		'haml':
-			options:
-				'style': 'ugly'
-				'double-quote-attributes': true
-				'no-escape-attrs': true
-				'require': './haml_helpers.rb'
-				'bundleExec': false
-			#END options
-			
-			'test':
-				'files':
-					"tests/demo.html": "tests/demo.haml"
-				#END files
-			#END haml:test
-		#END haml
+		'jasmine':
+			'dist':
+				src: 'falcon.min.js'
+				options:
+					vendor: [
+						'tests/scripts/sinon-1.7.3.js'
+						'tests/scripts/jasmine2.0.0-sinon.js'
+						'tests/scripts/jquery-1.10.2.min.js'
+						'tests/scripts/knockout-3.0.0.min.js'
+					]
+					specs: 'tests/scripts/tests.js'
+				#END options
+			#END jasmine:dist
+		#END jasmine
 
 		'copy':
 			'test':
@@ -113,7 +132,6 @@ module.exports = (grunt) ->
 						src: [
 							"falcon.js"
 							"falcon.min.js"
-							"scripts/*.js"
 						]
 					}
 				]
@@ -123,7 +141,7 @@ module.exports = (grunt) ->
 		'watch':
 			'banner_coffee':
 				'files': ["coffee/banner.coffee"]
-				'tasks': ['coffee:banner']
+				'tasks': ['coffee:banner', 'update_banner', 'coffee:dist', 'uglify:dist']
 			#END watch:banner_coffee
 
 			'dist_coffee':
@@ -135,11 +153,6 @@ module.exports = (grunt) ->
 				'files': ['tests/coffee/*.coffee']
 				'tasks': ['coffee:test']
 			#END watch:test_coffee
-
-			'test_haml':
-				'files': ['tests/*.haml']
-				'tasks': ['haml:test']
-			#END watch:test_haml
 
 			'test_copy':
 				'files': ['falcon.js', 'falcon.min.js', 'scripts/*.js']

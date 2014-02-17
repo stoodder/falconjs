@@ -1,4 +1,4 @@
-describe "Test View Methods", ->
+describe "Falcon.View", ->
 	class ViewA extends Falcon.View
 		url: 'view_a'
 	#END class
@@ -53,18 +53,18 @@ describe "Test View Methods", ->
 
 			view = new ViewA("Hello", 123)
 
-			expect( view.is_loaded() ).to.be.false
-			expect( view._is_rendered ).to.be.false
+			expect( view.is_loaded() ).toBe( false )
+			expect( view._is_rendered ).toBe( false )
 
-			expect( init_stub ).to.have.been.calledOnce
-			expect( init_stub ).to.have.been.calledWith "Hello", 123
-			expect( init_stub ).to.have.been.calledOn view
+			expect( init_stub ).toHaveBeenCalledOnce()
+			expect( init_stub ).toHaveBeenCalledWith( "Hello", 123 )
+			expect( init_stub ).toHaveBeenCalledOn( view )
 
-			expect( ajax_stub ).to.have.been.calledOnce
-			expect( ajax_stub ).to.have.been.calledAfter init_stub
-			expect( ajax_stub.firstCall.args[0] ).not.to.be.undefined
+			expect( ajax_stub ).toHaveBeenCalledOnce()
+			expect( ajax_stub ).toHaveBeenCalledAfter( init_stub )
+			expect( ajax_stub.firstCall.args[0] ).toBeDefined()
 
-			jquery_stub.should.not.have.been.called
+			expect( jquery_stub ).not.toHaveBeenCalled()
 		#END it
 
 		it "Should call the initialize and jquery methods with the correct arguments", ->
@@ -74,17 +74,17 @@ describe "Test View Methods", ->
 
 			view = new ViewC("Hello", 123)
 
-			expect( view.is_loaded() ).to.be.true
-			expect( view._is_rendered ).to.be.false
+			expect( view.is_loaded() ).toBe( true )
+			expect( view._is_rendered ).toBe( false )
 
-			expect( init_stub ).to.have.been.calledOnce
-			expect( init_stub ).to.have.been.calledWith "Hello", 123
-			expect( init_stub ).to.have.been.calledOn view
+			expect( init_stub ).toHaveBeenCalledOnce()
+			expect( init_stub ).toHaveBeenCalledWith( "Hello", 123 )
+			expect( init_stub ).toHaveBeenCalledOn( view )
 
-			expect( jquery_stub ).to.have.been.calledOnce
-			expect( jquery_stub ).to.have.been.calledAfter init_stub
+			expect( jquery_stub ).toHaveBeenCalledOnce()
+			expect( jquery_stub ).toHaveBeenCalledAfter( init_stub )
 
-			ajax_stub.should.not.have.been.called
+			expect( ajax_stub ).not.toHaveBeenCalled()
 		#END it
 
 		it "Should call the ajax method only once", ->
@@ -94,37 +94,37 @@ describe "Test View Methods", ->
 			#Test the initial call
 			view = new ViewA()
 
-			expect( view.is_loaded() ).to.be.false
+			expect( view.is_loaded() ).toBe( false )
 
-			expect( ajax_stub ).to.have.been.calledOnce
-			expect( ajax_stub.firstCall.args[0] ).not.to.be.undefined
+			expect( ajax_stub ).toHaveBeenCalledOnce()
+			expect( ajax_stub.firstCall.args[0] ).toBeDefined()
 
 			ajax_stub.firstCall.args[0].success("Hello World")
 
-			expect( view.is_loaded() ).to.be.true
-			expect( jquery_stub ).to.not.have.been.called
+			expect( view.is_loaded() ).toBe( true )
+			expect( jquery_stub ).not.toHaveBeenCalled()
 			ajax_stub.reset()
 
 			#The next call should be cached
 			view = new ViewA()
 
-			expect( view.is_loaded() ).to.be.true
-			expect( ajax_stub ).to.not.have.been.called
-			expect( jquery_stub ).to.not.have.been.called
+			expect( view.is_loaded() ).toBe( true )
+			expect( ajax_stub ).not.toHaveBeenCalled()
+			expect( jquery_stub ).not.toHaveBeenCalled()
 			ajax_stub.reset()
 
 			#Trying a different url shouldn't be cached
 			view = new ViewB()
 
-			expect( view.is_loaded() ).to.be.false
+			expect( view.is_loaded() ).toBe( false )
 
-			expect( ajax_stub ).to.have.been.calledOnce
-			expect( ajax_stub.firstCall.args[0] ).not.to.be.undefined
+			expect( ajax_stub ).toHaveBeenCalledOnce()
+			expect( ajax_stub.firstCall.args[0] ).toBeDefined()
 
 			ajax_stub.firstCall.args[0].success("Hello World")
 
-			expect( view.is_loaded() ).to.be.true
-			expect( jquery_stub ).to.not.have.been.called
+			expect( view.is_loaded() ).toBe( true )
+			expect( jquery_stub ).not.toHaveBeenCalled()
 		#END it
 
 		it "Should call the jquery method only once", ->
@@ -134,25 +134,25 @@ describe "Test View Methods", ->
 			#Test the initial call
 			view = new ViewC()
 
-			expect( view.is_loaded() ).to.be.true
-			expect( jquery_stub ).to.have.been.calledOnce
-			expect( ajax_stub ).to.not.have.been.called
+			expect( view.is_loaded() ).toBe( true )
+			expect( jquery_stub ).toHaveBeenCalledOnce()
+			expect( ajax_stub ).not.toHaveBeenCalled()
 			jquery_stub.reset()
 
 			#The next call should be cached
 			view = new ViewC()
 
-			expect( view.is_loaded() ).to.be.true
-			expect( jquery_stub ).to.not.have.been.called
-			expect( ajax_stub ).to.not.have.been.called
+			expect( view.is_loaded() ).toBe( true )
+			expect( jquery_stub ).not.toHaveBeenCalled()
+			expect( ajax_stub ).not.toHaveBeenCalled()
 			jquery_stub.reset()
 
 			#Trying a different url shouldn't be cached
 			view = new ViewD()
 
-			expect( view.is_loaded() ).to.be.true
-			expect( jquery_stub ).to.have.been.calledOnce
-			expect( ajax_stub ).to.not.have.been.called
+			expect( view.is_loaded() ).toBe( true )
+			expect( jquery_stub ).toHaveBeenCalledOnce()
+			expect( ajax_stub ).not.toHaveBeenCalled()
 		#END it
 
 		it "Should not have a template if one is not defined", ->
@@ -162,9 +162,9 @@ describe "Test View Methods", ->
 			#Test the initial call
 			view = new ViewG()
 
-			expect( view.is_loaded() ).to.be.true
-			expect( jquery_stub ).to.not.have.been.called
-			expect( ajax_stub ).to.not.have.been.called
+			expect( view.is_loaded() ).toBe( true )
+			expect( jquery_stub ).not.toHaveBeenCalled()
+			expect( ajax_stub ).not.toHaveBeenCalled()
 		#END it
 	#END describe
 
@@ -183,16 +183,16 @@ describe "Test View Methods", ->
 				#END defaults
 			#END RawrView
 			
-			expect( hello_spy ).to.not.have.been.called
+			expect( hello_spy ).not.toHaveBeenCalled()
 
 			rawr_class = new RawrView("one", "two", "three")
 
-			expect( hello_spy ).to.have.been.called
-			expect( hello_spy.callCount ).to.equal 1
-			expect( hello_spy.firstCall.args.length ).to.equal 3
-			expect( hello_spy.firstCall.args[0] ).to.equal "one"
-			expect( hello_spy.firstCall.args[1] ).to.equal "two"
-			expect( hello_spy.firstCall.args[2] ).to.equal "three"
+			expect( hello_spy ).toHaveBeenCalled()
+			expect( hello_spy.callCount ).toEqual( 1 )
+			expect( hello_spy.firstCall.args.length ).toEqual( 3 )
+			expect( hello_spy.firstCall.args[0] ).toEqual( "one" )
+			expect( hello_spy.firstCall.args[1] ).toEqual( "two" )
+			expect( hello_spy.firstCall.args[2] ).toEqual( "three" )
 		#END it
 
 		it "Should create RawrVIew with defaults that are numbers", ->
@@ -204,14 +204,14 @@ describe "Test View Methods", ->
 				#END defaults
 			#END RawrView
 			
-			expect( hello_spy ).to.not.have.been.called
+			expect( hello_spy ).not.toHaveBeenCalled()
 
 			rawr_class = new RawrView(1234)
 
-			expect( hello_spy ).to.have.been.called
-			expect( hello_spy.callCount ).to.equal 1
-			expect( hello_spy.firstCall.args.length ).to.equal 1
-			expect( hello_spy.firstCall.args[0] ).to.equal 1234
+			expect( hello_spy ).toHaveBeenCalled()
+			expect( hello_spy.callCount ).toEqual( 1 )
+			expect( hello_spy.firstCall.args.length ).toEqual( 1 )
+			expect( hello_spy.firstCall.args[0] ).toEqual( 1234 )
 		#END it
 	#END describe
 
@@ -233,27 +233,27 @@ describe "Test View Methods", ->
 		#END afterEach
 
 		it "Should generate the correct relative url from string", ->
-			expect( new ViewA().makeUrl() ).to.equal "/view_a"
+			expect( new ViewA().makeUrl() ).toEqual( "/view_a" )
 		#END it
 
 		it "Should generate the correct relative url from function", ->
-			expect( new ViewB().makeUrl() ).to.equal "/view_b"
+			expect( new ViewB().makeUrl() ).toEqual( "/view_b" )
 		#END it
 
 		it "Should generate the correct element id from string", ->
-			expect( new ViewC().makeUrl() ).to.equal "#view_c"
+			expect( new ViewC().makeUrl() ).toEqual( "#view_c" )
 		#END it
 
 		it "Should generate the correct element id from function", ->
-			expect( new ViewD().makeUrl() ).to.equal "#view_d"
+			expect( new ViewD().makeUrl() ).toEqual( "#view_d" )
 		#END it
 
 		it "Should generate the correct relative url from string beginning with '/'", ->
-			expect( new ViewE().makeUrl() ).to.equal "/view_e"
+			expect( new ViewE().makeUrl() ).toEqual( "/view_e" )
 		#END it
 
 		it "Should generate the correct relative url from function beginning with '/'", ->
-			expect( new ViewF().makeUrl() ).to.equal "/view_f"
+			expect( new ViewF().makeUrl() ).toEqual( "/view_f" )
 		#END it
 
 			
@@ -261,32 +261,32 @@ describe "Test View Methods", ->
 
 		it "Should generate the correct relative url from string with baseTemplateUrl", ->
 			Falcon.baseTemplateUrl = "http://www.falconjs.com"
-			expect( new ViewA().makeUrl() ).to.equal "http://www.falconjs.com/view_a"
+			expect( new ViewA().makeUrl() ).toEqual( "http://www.falconjs.com/view_a" )
 		#END it
 
 		it "Should generate the correct relative url from function with baseTemplateUrl", ->
 			Falcon.baseTemplateUrl = "http://www.falconjs.com"
-			expect( new ViewB().makeUrl() ).to.equal "http://www.falconjs.com/view_b"
+			expect( new ViewB().makeUrl() ).toEqual( "http://www.falconjs.com/view_b" )
 		#END it
 
 		it "Should generate the correct element id from string with baseTemplateUrl", ->
 			Falcon.baseTemplateUrl = "http://www.falconjs.com"
-			expect( new ViewC().makeUrl() ).to.equal "#view_c"
+			expect( new ViewC().makeUrl() ).toEqual( "#view_c" )
 		#END it
 
 		it "Should generate the correct element id from function with baseTemplateUrl", ->
 			Falcon.baseTemplateUrl = "http://www.falconjs.com"
-			expect( new ViewD().makeUrl() ).to.equal "#view_d"
+			expect( new ViewD().makeUrl() ).toEqual( "#view_d" )
 		#END it
 
 		it "Should generate the correct relative url from string beginning with '/' with baseTemplateUrl", ->
 			Falcon.baseTemplateUrl = "http://www.falconjs.com"
-			expect( new ViewE().makeUrl() ).to.equal "http://www.falconjs.com/view_e"
+			expect( new ViewE().makeUrl() ).toEqual( "http://www.falconjs.com/view_e" )
 		#END it
 
 		it "Should generate the correct relative url from function beginning with '/' with baseTemplateUrl", ->
 			Falcon.baseTemplateUrl = "http://www.falconjs.com"
-			expect( new ViewF().makeUrl() ).to.equal "http://www.falconjs.com/view_f"
+			expect( new ViewF().makeUrl() ).toEqual( "http://www.falconjs.com/view_f" )
 		#END it
 
 			
@@ -294,39 +294,39 @@ describe "Test View Methods", ->
 
 		it "Should generate the correct relative url from string with baseTemplateUrl ending in '/'", ->
 			Falcon.baseTemplateUrl = "http://www.falconjs.com/"
-			expect( new ViewA().makeUrl() ).to.equal "http://www.falconjs.com/view_a"
+			expect( new ViewA().makeUrl() ).toEqual( "http://www.falconjs.com/view_a" )
 		#END it
 
 		it "Should generate the correct relative url from function with baseTemplateUrl ending in '/'", ->
 			Falcon.baseTemplateUrl = "http://www.falconjs.com/"
-			expect( new ViewB().makeUrl() ).to.equal "http://www.falconjs.com/view_b"
+			expect( new ViewB().makeUrl() ).toEqual( "http://www.falconjs.com/view_b" )
 		#END it
 
 		it "Should generate the correct element id from string with baseTemplateUrl ending in '/'", ->
 			Falcon.baseTemplateUrl = "http://www.falconjs.com/"
-			expect( new ViewC().makeUrl() ).to.equal "#view_c"
+			expect( new ViewC().makeUrl() ).toEqual( "#view_c" )
 		#END it
 
 		it "Should generate the correct element id from function with baseTemplateUrl ending in '/'", ->
 			Falcon.baseTemplateUrl = "http://www.falconjs.com/"
-			expect( new ViewD().makeUrl() ).to.equal "#view_d"
+			expect( new ViewD().makeUrl() ).toEqual( "#view_d" )
 		#END it
 
 		it "Should generate the correct relative url from string beginning with '/' with baseTemplateUrl ending in '/'", ->
 			Falcon.baseTemplateUrl = "http://www.falconjs.com/"
-			expect( new ViewE().makeUrl() ).to.equal "http://www.falconjs.com/view_e"
+			expect( new ViewE().makeUrl() ).toEqual( "http://www.falconjs.com/view_e" )
 		#END it
 
 		it "Should generate the correct relative url from function beginning with '/' with baseTemplateUrl ending in '/'", ->
 			Falcon.baseTemplateUrl = "http://www.falconjs.com/"
-			expect( new ViewF().makeUrl() ).to.equal "http://www.falconjs.com/view_f"
+			expect( new ViewF().makeUrl() ).toEqual( "http://www.falconjs.com/view_f" )
 		#END it
 
 		it "Should not make a url for a 'null' url defined", ->
-			expect( new ViewG().makeUrl() ).to.equal null
+			expect( new ViewG().makeUrl() ).toEqual( null )
 
 			Falcon.baseTemplateUrl = "http://www.falconjs.com/"
-			expect( new ViewG().makeUrl() ).to.equal null
+			expect( new ViewG().makeUrl() ).toEqual( null )
 		#END it
 	#END describe
 
@@ -365,47 +365,47 @@ describe "Test View Methods", ->
 			test_stub = sinon.stub( view, 'test' )
 			another_stub = sinon.stub( view, 'another' )
 
-			expect( ko.isObservable(view.hello) ).to.be.true
-			expect( view.hello() ).to.be.equal 'world'
+			expect( ko.isObservable(view.hello) ).toBe( true )
+			expect( view.hello() ).toBe( 'world' )
 
-			expect( ko.isComputed(view.foo) ).to.be.true
-			expect( view.foo() ).to.be.equal 'bar'
+			expect( ko.isComputed(view.foo) ).toBe( true )
+			expect( view.foo() ).toBe( 'bar' )
 
-			expect( ko.isComputed(view.small) ).to.be.true
-			expect( view.small() ).to.be.equal 'world bar'
+			expect( ko.isComputed(view.small) ).toBe( true )
+			expect( view.small() ).toBe( 'world bar' )
 
-			expect( view.test ).to.be.a 'function'
-			expect( view.another ).to.be.a 'function'
+			expect( view.test ).toEqual( jasmine.any(Function) )
+			expect( view.another ).toEqual( jasmine.any(Function) )
 
 			viewModel = view.viewModel()
 
-			expect( ko.isObservable(viewModel.hello) ).to.be.true
-			expect( viewModel.hello() ).to.be.equal 'world'
+			expect( ko.isObservable(viewModel.hello) ).toBe( true )
+			expect( viewModel.hello() ).toBe( 'world' )
 
-			expect( ko.isComputed(viewModel.foo) ).to.be.true
-			expect( viewModel.foo() ).to.be.equal 'bar'
+			expect( ko.isComputed(viewModel.foo) ).toBe( true )
+			expect( viewModel.foo() ).toBe( 'bar' )
 
-			expect( ko.isComputed(viewModel.small) ).to.be.true
-			expect( viewModel.small() ).to.be.equal 'world bar'
+			expect( ko.isComputed(viewModel.small) ).toBe( true )
+			expect( viewModel.small() ).toBe( 'world bar' )
 
-			expect( viewModel.test ).to.be.a 'function'
-			expect( viewModel.test ).to.not.equal view.test
+			expect( viewModel.test ).toEqual( jasmine.any(Function) )
+			expect( viewModel.test ).not.toEqual( view.test )
 
-			expect( viewModel.another ).to.be.a 'function'
-			expect( viewModel.another ).to.not.equal view.another
+			expect( viewModel.another ).toEqual( jasmine.any(Function) )
+			expect( viewModel.another ).not.toEqual( view.another )
 
-			expect( test_stub ).to.not.have.been.called
-			expect( another_stub ).to.not.have.been.called
+			expect( test_stub ).not.toHaveBeenCalled()
+			expect( another_stub ).not.toHaveBeenCalled()
 
 			viewModel.test()
 			viewModel.another('hello', 'world')
 
-			expect( test_stub ).to.have.been.calledOnce
-			expect( test_stub ).to.have.been.calledOn view
+			expect( test_stub ).toHaveBeenCalledOnce()
+			expect( test_stub ).toHaveBeenCalledOn( view )
 
-			expect( another_stub ).to.have.been.calledOnce
-			expect( another_stub ).to.have.been.calledWith 'hello', 'world'
-			expect( another_stub ).to.have.been.calledOn view
+			expect( another_stub ).toHaveBeenCalledOnce()
+			expect( another_stub ).toHaveBeenCalledWith( 'hello', 'world' )
+			expect( another_stub ).toHaveBeenCalledOn( view )
 
 			test_stub.restore()
 			another_stub.restore()
@@ -416,7 +416,7 @@ describe "Test View Methods", ->
 			model1 = view.viewModel()
 			model2 = view.viewModel()
 
-			expect( model1 ).to.equal( model2 )
+			expect( model1 ).toEqual(( model2 ) )
 		#END it
 	#END describe
 #END describe

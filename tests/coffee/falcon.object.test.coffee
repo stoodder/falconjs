@@ -1,4 +1,4 @@
-describe "Tesing event functionality", ->
+describe "Falcon.Object", ->
 	klass = null
 
 	beforeEach ->
@@ -6,16 +6,16 @@ describe "Tesing event functionality", ->
 	#END beforeEach
 
 	it "Should have correct method definitions", ->
-		expect(klass.on).to.be.a('function')
-		expect(klass.on).to.have.length(3)
+		expect(klass.on).toEqual(jasmine.any(Function))
+		expect(klass.on.length).toBe(3)
 
-		expect(klass.off).to.be.a('function')
-		expect(klass.off).to.have.length(2)
+		expect(klass.off).toEqual(jasmine.any(Function))
+		expect(klass.off.length).toBe(2)
 
-		expect(klass.has).to.be.a('function')
-		expect(klass.has).to.have.length(2)
+		expect(klass.has).toEqual(jasmine.any(Function))
+		expect(klass.has.length).toBe(2)
 
-		expect(klass.trigger).to.be.a('function')
+		expect(klass.trigger).toEqual(jasmine.any(Function))
 	#END it
 
 	it "Should test event methods", ->
@@ -23,55 +23,55 @@ describe "Tesing event functionality", ->
 		klass.on "click", ( click_two = sinon.spy() ), (context_two = {})
 		klass.on "mouseover", ( mouseover_one = sinon.spy() )
 
-		click_one.should.not.have.been.called
-		click_two.should.not.have.been.called
-		mouseover_one.should.not.have.been.called
+		expect( click_one ).not.toHaveBeenCalled()
+		expect( click_two ).not.toHaveBeenCalled()
+		expect( mouseover_one ).not.toHaveBeenCalled()
 
 		klass.trigger "click", 1, 2, 3
 
-		click_one.should.have.been.calledOnce
-		click_one.should.have.been.calledWith 1, 2, 3
+		expect( click_one ).toHaveBeenCalledOnce()
+		expect( click_one ).toHaveBeenCalledWith( 1, 2, 3 )
 
-		click_two.should.have.been.calledOnce
-		click_two.should.have.been.calledWith 1, 2, 3
-		click_two.should.have.been.calledOn context_two
+		expect( click_two ).toHaveBeenCalledOnce()
+		expect( click_two ).toHaveBeenCalledWith( 1, 2, 3 )
+		expect( click_two ).toHaveBeenCalledOn( context_two )
 
-		mouseover_one.should.not.have.been.called
+		expect( mouseover_one ).not.toHaveBeenCalled()
 
 		klass.trigger "mouseover", "go", true, {}
 
-		click_one.should.have.been.calledOnce
+		expect( click_one ).toHaveBeenCalledOnce()
 
-		click_two.should.have.been.calledOnce
+		expect( click_two ).toHaveBeenCalledOnce()
 
-		mouseover_one.should.have.been.calledOnce
-		mouseover_one.should.have.been.calledWith "go", true, {}
+		expect( mouseover_one ).toHaveBeenCalledOnce()
+		expect( mouseover_one ).toHaveBeenCalledWith( "go", true, {} )
 
-		expect( klass.has "click", click_one ).to.be.true
-		expect( klass.has "click", click_two ).to.be.true
-		expect( klass.has "click", mouseover_one ).to.be.false
+		expect( klass.has "click", click_one ).toBe( true )
+		expect( klass.has "click", click_two ).toBe( true )
+		expect( klass.has "click", mouseover_one ).toBe( false )
 
-		click_one.should.have.been.calledOnce
-		click_two.should.have.been.calledOnce
-		mouseover_one.should.have.been.calledOnce
+		expect( click_one ).toHaveBeenCalledOnce()
+		expect( click_two ).toHaveBeenCalledOnce()
+		expect( mouseover_one ).toHaveBeenCalledOnce()
 
-		expect( klass.has "mouseover", click_one ).to.be.false
-		expect( klass.has "mouseover", click_two ).to.be.false
-		expect( klass.has "mouseover", mouseover_one ).to.be.true
+		expect( klass.has "mouseover", click_one ).toBe( false )
+		expect( klass.has "mouseover", click_two ).toBe( false )
+		expect( klass.has "mouseover", mouseover_one ).toBe( true )
 
-		click_one.should.have.been.calledOnce
-		click_two.should.have.been.calledOnce
-		mouseover_one.should.have.been.calledOnce
+		expect( click_one ).toHaveBeenCalledOnce()
+		expect( click_two ).toHaveBeenCalledOnce()
+		expect( mouseover_one ).toHaveBeenCalledOnce()
 
 		klass.off "click", click_one
 		klass.trigger "click", 4,5,6
 
-		click_one.should.have.been.calledOnce
+		expect( click_one ).toHaveBeenCalledOnce()
 
-		click_two.should.have.been.calledTwice
-		click_two.should.have.been.calledWith 4,5,6
+		expect( click_two ).toHaveBeenCalledTwice()
+		expect( click_two ).toHaveBeenCalledWith( 4,5,6 )
 
-		mouseover_one.should.have.been.calledOnce
+		expect( mouseover_one ).toHaveBeenCalledOnce()
 	#END its
 
 	describe "Test #observables and #defaults", ->
@@ -111,70 +111,70 @@ describe "Tesing event functionality", ->
 		#END beforeEach
 
 		it "Should have added the correct default attributes", ->
-			expect( klass ).to.include.key 'id'
-			expect( klass ).to.include.key 'foo'
-			expect( klass ).to.include.key 'free'
-			expect( klass ).to.include.key 'def_arr'
-			expect( klass ).to.include.key 'clazz'
+			expect( klass['id'] ).toBeDefined()
+			expect( klass['foo'] ).toBeDefined()
+			expect( klass['free'] ).toBeDefined()
+			expect( klass['def_arr'] ).toBeDefined()
+			expect( klass['clazz'] ).toBeDefined()
 		#END it
 
 		it "Should have added the correct observable attributes", ->
-			expect( klass ).to.include.key 'hello'
-			expect( klass ).to.include.key 'foo'
-			expect( klass ).to.include.key 'test'
-			expect( klass ).to.include.key '_another'
-			expect( klass ).to.include.key 'another'
+			expect( klass['hello'] ).toBeDefined()
+			expect( klass['foo'] ).toBeDefined()
+			expect( klass['test'] ).toBeDefined()
+			expect( klass['_another'] ).toBeDefined()
+			expect( klass['another'] ).toBeDefined()
 		#END it
 
 		it "Should have added the correct default values", ->
-			expect( klass.id ).to.equal -1
-			expect( klass.foo ).to.not.equal 'bar' #Should have been overitten by
-			expect( klass.free ).to.equal 'bird' 
-			expect( klass.clazz ).to.be.instanceof Clazz
+			expect( klass.id ).toBe( -1 )
+			expect( klass.foo ).not.toBe 'bar' #Should have been overitten by
+			expect( klass.free ).toBe( 'bird'  )
+			expect( klass.clazz ).toEqual( jasmine.any(Clazz) )
 		#END it
 
 		it "Should have the correct values for a default array", ->
-			expect( klass.def_arr ).to.deep.equal( [1,2,3] )
-			expect( klass.def_arr ).to.not.equal( Klass::defaults.def_arr )
+			expect( klass.def_arr ).toEqual( [1,2,3] )
+			expect( klass.def_arr ).not.toBe( Klass::defaults.def_arr )
 		#END it
 
 		it "Should have added the correct observable type", ->
-			expect( ko.isObservable( klass.hello ) ).to.be.true
-			expect( ko.isObservable( klass.foo ) ).to.be.true
-			expect( ko.isComputed( klass.test ) ).to.be.true
-			expect( ko.isObservable( klass._another ) ).to.be.true
-			expect( ko.isComputed( klass.another ) ).to.be.true
+			expect( ko.isObservable( klass.hello ) ).toBe( true )
+			expect( ko.isObservable( klass.foo ) ).toBe( true )
+			expect( ko.isComputed( klass.test ) ).toBe( true )
+			expect( ko.isObservable( klass._another ) ).toBe( true )
+			expect( ko.isComputed( klass.another ) ).toBe( true )
 		#END it
 
 		it "Should have added the correct writeable observable type", ->
-			expect( ko.isWriteableObservable( klass.hello ) ).to.be.true
-			expect( ko.isWriteableObservable( klass.foo ) ).to.be.true
-			expect( ko.isWriteableObservable( klass.test ) ).to.be.false
-			expect( ko.isWriteableObservable( klass._another ) ).to.be.true
-			expect( ko.isWriteableObservable( klass.another ) ).to.be.true
+			expect( ko.isWriteableObservable( klass.hello ) ).toBe( true )
+			expect( ko.isWriteableObservable( klass.foo ) ).toBe( true )
+			expect( ko.isWriteableObservable( klass.test ) ).toBe( false )
+			expect( ko.isWriteableObservable( klass._another ) ).toBe( true )
+			expect( ko.isWriteableObservable( klass.another ) ).toBe( true )
 		#END it
 
 		it "Should have assigned the correct values to observables", ->
-			expect( ko.utils.unwrapObservable( klass.hello ) ).to.equal "world"
-			expect( ko.utils.unwrapObservable( klass.foo ) ).to.equal "baz"
-			expect( ko.utils.unwrapObservable( klass.test ) ).to.equal "method"
-			expect( ko.utils.unwrapObservable( klass._another ) ).to.equal "good"
-			expect( ko.utils.unwrapObservable( klass.another ) ).to.equal "good method"
+			expect( ko.utils.unwrapObservable( klass.hello ) ).toBe( "world" )
+			expect( ko.utils.unwrapObservable( klass.foo ) ).toBe( "baz" )
+			expect( ko.utils.unwrapObservable( klass.test ) ).toBe( "method" )
+			expect( ko.utils.unwrapObservable( klass._another ) ).toBe( "good" )
+			expect( ko.utils.unwrapObservable( klass.another ) ).toBe( "good method" )
 
 			klass.another("great")
-			expect( ko.utils.unwrapObservable( klass.another ) ).to.equal "great method"
+			expect( ko.utils.unwrapObservable( klass.another ) ).toBe( "great method" )
 		#END it
 
 		it "Should have propogated defaults in the child class", ->
-			expect( klass.clazz.id ).to.equal 'z'
-			expect( klass.clazz.im ).to.equal 'here'
+			expect( klass.clazz.id ).toBe( 'z' )
+			expect( klass.clazz.im ).toBe( 'here' )
 		#END it
 
 		it "Should have an observable array", ->
-			expect( ko.isObservable( klass.arr ) ).to.be.true
-			expect( klass.arr() ).to.be.instanceof Array
-			expect( klass.arr().length ).to.equal 2
-			expect( klass.arr() ).to.not.equal( Klass::observables.arr ) #Make sure this is a clone, not the original array definition
+			expect( ko.isObservable( klass.arr ) ).toBe( true )
+			expect( klass.arr() ).toEqual( jasmine.any(Array) )
+			expect( klass.arr().length ).toBe( 2 )
+			expect( klass.arr() ).not.toBe( Klass::observables.arr ) #Make sure this is a clone, not the original array definition
 		#END it
 
 		it "Should create RawrClass with defaults that have the correct arguments", ->
@@ -186,16 +186,16 @@ describe "Tesing event functionality", ->
 				#END defaults
 			#END RawrClass
 			
-			expect( hello_spy ).to.not.have.been.called
+			expect( hello_spy ).not.toHaveBeenCalled()
 
 			rawr_class = new RawrClass("one", "two", "three")
 
-			expect( hello_spy ).to.have.been.called
-			expect( hello_spy.callCount ).to.equal 1
-			expect( hello_spy.firstCall.args.length ).to.equal 3
-			expect( hello_spy.firstCall.args[0] ).to.equal "one"
-			expect( hello_spy.firstCall.args[1] ).to.equal "two"
-			expect( hello_spy.firstCall.args[2] ).to.equal "three"
+			expect( hello_spy ).toHaveBeenCalled()
+			expect( hello_spy.callCount ).toBe( 1 )
+			expect( hello_spy.firstCall.args.length ).toBe( 3 )
+			expect( hello_spy.firstCall.args[0] ).toBe( "one" )
+			expect( hello_spy.firstCall.args[1] ).toBe( "two" )
+			expect( hello_spy.firstCall.args[2] ).toBe( "three" )
 		#END it
 
 
@@ -224,27 +224,27 @@ describe "Tesing event functionality", ->
 
 			my_klass = new Klass
 
-			expect( my_klass ).to.be.instanceof Falcon.Object
-			expect( my_klass ).not.to.be.instanceof Falcon.Model
-			expect( my_klass ).not.to.be.instanceof Falcon.Collection
-			expect( my_klass ).not.to.be.instanceof Falcon.View
+			expect( my_klass ).toEqual( jasmine.any(Falcon.Object) )
+			expect( my_klass ).not.toEqual( jasmine.any(Falcon.Model) )
+			expect( my_klass ).not.toEqual( jasmine.any(Falcon.Collection) )
+			expect( my_klass ).not.toEqual( jasmine.any(Falcon.View) )
 
-			expect( Klass::custom ).to.be.a 'function'
-			expect( Klass::text ).to.be.a 'string'
-			expect( Klass.things ).to.be.a 'function'
+			expect( Klass::custom ).toEqual(jasmine.any(Function))
+			expect( Klass::text ).toEqual(jasmine.any(String))
+			expect( Klass.things ).toEqual(jasmine.any(Function))
 
-			expect( my_klass.custom ).to.be.a 'function'
-			expect( my_klass.text ).to.be.a 'string'
+			expect( my_klass.custom ).toEqual(jasmine.any(Function))
+			expect( my_klass.text ).toEqual(jasmine.any(String))
 
 			my_klass.custom()
 
-			expect( custom_spy ).to.have.been.called
-			expect( custom_spy.firstCall ).to.have.been.calledOn my_klass
+			expect( custom_spy ).toHaveBeenCalled()
+			expect( custom_spy.firstCall ).toHaveBeenCalledOn( my_klass )
 
 			Klass.things()
 
-			expect( things_spy ).to.have.been.called
-			expect( things_spy.firstCall ).to.have.been.calledOn Klass
+			expect( things_spy ).toHaveBeenCalled()
+			expect( things_spy.firstCall ).toHaveBeenCalledOn( Klass )
 		#END it
 
 		it "Should extend Falcon.Model properly", ->
@@ -262,32 +262,32 @@ describe "Tesing event functionality", ->
 
 			my_klass = new Klass
 
-			expect( my_klass ).to.be.instanceof Falcon.Object
-			expect( my_klass ).to.be.instanceof Falcon.Model
-			expect( my_klass ).not.to.be.instanceof Falcon.Collection
-			expect( my_klass ).not.to.be.instanceof Falcon.View
+			expect( my_klass ).toEqual( jasmine.any(Falcon.Object) )
+			expect( my_klass ).toEqual( jasmine.any(Falcon.Model) )
+			expect( my_klass ).not.toEqual( jasmine.any(Falcon.Collection) )
+			expect( my_klass ).not.toEqual( jasmine.any(Falcon.View) )
 
-			expect( Klass::initialize ).to.be.a 'function'
-			expect( Klass::custom ).to.be.a 'function'
-			expect( Klass::text ).to.be.a 'string'
-			expect( Klass.things ).to.be.a 'function'
+			expect( Klass::initialize ).toEqual(jasmine.any(Function))
+			expect( Klass::custom ).toEqual(jasmine.any(Function))
+			expect( Klass::text ).toEqual(jasmine.any(String))
+			expect( Klass.things ).toEqual(jasmine.any(Function))
 
-			expect( my_klass.initialize ).to.be.a 'function'
-			expect( my_klass.custom ).to.be.a 'function'
-			expect( my_klass.text ).to.be.a 'string'
+			expect( my_klass.initialize ).toEqual(jasmine.any(Function))
+			expect( my_klass.custom ).toEqual(jasmine.any(Function))
+			expect( my_klass.text ).toEqual(jasmine.any(String))
 
-			expect( init_spy ).to.have.been.called
-			expect( init_spy.firstCall ).to.have.been.calledOn my_klass
+			expect( init_spy ).toHaveBeenCalled()
+			expect( init_spy.firstCall ).toHaveBeenCalledOn( my_klass )
 
 			my_klass.custom()
 
-			expect( custom_spy ).to.have.been.called
-			expect( custom_spy.firstCall ).to.have.been.calledOn my_klass
+			expect( custom_spy ).toHaveBeenCalled()
+			expect( custom_spy.firstCall ).toHaveBeenCalledOn( my_klass )
 
 			Klass.things()
 
-			expect( things_spy ).to.have.been.called
-			expect( things_spy.firstCall ).to.have.been.calledOn Klass
+			expect( things_spy ).toHaveBeenCalled()
+			expect( things_spy.firstCall ).toHaveBeenCalledOn( Klass )
 		#END it
 
 		it "Should extend Falcon.Collection properly", ->
@@ -305,32 +305,32 @@ describe "Tesing event functionality", ->
 
 			my_klass = new Klass
 
-			expect( my_klass ).to.be.instanceof Falcon.Object
-			expect( my_klass ).not.to.be.instanceof Falcon.Model
-			expect( my_klass ).to.be.instanceof Falcon.Collection
-			expect( my_klass ).not.to.be.instanceof Falcon.View
+			expect( my_klass ).toEqual( jasmine.any(Falcon.Object) )
+			expect( my_klass ).not.toEqual( jasmine.any(Falcon.Model) )
+			expect( my_klass ).toEqual( jasmine.any(Falcon.Collection) )
+			expect( my_klass ).not.toEqual( jasmine.any(Falcon.View) )
 
-			expect( Klass::initialize ).to.be.a 'function'
-			expect( Klass::custom ).to.be.a 'function'
-			expect( Klass::text ).to.be.a 'string'
-			expect( Klass.things ).to.be.a 'function'
+			expect( Klass::initialize ).toEqual(jasmine.any(Function))
+			expect( Klass::custom ).toEqual(jasmine.any(Function))
+			expect( Klass::text ).toEqual(jasmine.any(String))
+			expect( Klass.things ).toEqual(jasmine.any(Function))
 
-			expect( my_klass.initialize ).to.be.a 'function'
-			expect( my_klass.custom ).to.be.a 'function'
-			expect( my_klass.text ).to.be.a 'string'
+			expect( my_klass.initialize ).toEqual(jasmine.any(Function))
+			expect( my_klass.custom ).toEqual(jasmine.any(Function))
+			expect( my_klass.text ).toEqual(jasmine.any(String))
 
-			expect( init_spy ).to.have.been.called
-			expect( init_spy.firstCall ).to.have.been.calledOn my_klass
+			expect( init_spy ).toHaveBeenCalled()
+			expect( init_spy.firstCall ).toHaveBeenCalledOn( my_klass )
 
 			my_klass.custom()
 
-			expect( custom_spy ).to.have.been.called
-			expect( custom_spy.firstCall ).to.have.been.calledOn my_klass
+			expect( custom_spy ).toHaveBeenCalled()
+			expect( custom_spy.firstCall ).toHaveBeenCalledOn( my_klass )
 
 			Klass.things()
 
-			expect( things_spy ).to.have.been.called
-			expect( things_spy.firstCall ).to.have.been.calledOn Klass
+			expect( things_spy ).toHaveBeenCalled()
+			expect( things_spy.firstCall ).toHaveBeenCalledOn( Klass )
 		#END it
 
 		it "Should extend Falcon.View properly", ->
@@ -348,32 +348,32 @@ describe "Tesing event functionality", ->
 
 			my_klass = new Klass
 
-			expect( my_klass ).to.be.instanceof Falcon.Object
-			expect( my_klass ).not.to.be.instanceof Falcon.Model
-			expect( my_klass ).not.to.be.instanceof Falcon.Collection
-			expect( my_klass ).to.be.instanceof Falcon.View
+			expect( my_klass ).toEqual( jasmine.any(Falcon.Object) )
+			expect( my_klass ).not.toEqual( jasmine.any(Falcon.Model) )
+			expect( my_klass ).not.toEqual( jasmine.any(Falcon.Collection) )
+			expect( my_klass ).toEqual( jasmine.any(Falcon.View) )
 
-			expect( Klass::initialize ).to.be.a 'function'
-			expect( Klass::custom ).to.be.a 'function'
-			expect( Klass::text ).to.be.a 'string'
-			expect( Klass.things ).to.be.a 'function'
+			expect( Klass::initialize ).toEqual(jasmine.any(Function))
+			expect( Klass::custom ).toEqual(jasmine.any(Function))
+			expect( Klass::text ).toEqual(jasmine.any(String))
+			expect( Klass.things ).toEqual(jasmine.any(Function))
 
-			expect( my_klass.initialize ).to.be.a 'function'
-			expect( my_klass.custom ).to.be.a 'function'
-			expect( my_klass.text ).to.be.a 'string'
+			expect( my_klass.initialize ).toEqual(jasmine.any(Function))
+			expect( my_klass.custom ).toEqual(jasmine.any(Function))
+			expect( my_klass.text ).toEqual(jasmine.any(String))
 
-			expect( init_spy ).to.have.been.called
-			expect( init_spy.firstCall ).to.have.been.calledOn my_klass
+			expect( init_spy ).toHaveBeenCalled()
+			expect( init_spy.firstCall ).toHaveBeenCalledOn( my_klass )
 
 			my_klass.custom()
 
-			expect( custom_spy ).to.have.been.called
-			expect( custom_spy.firstCall ).to.have.been.calledOn my_klass
+			expect( custom_spy ).toHaveBeenCalled()
+			expect( custom_spy.firstCall ).toHaveBeenCalledOn( my_klass )
 
 			Klass.things()
 
-			expect( things_spy ).to.have.been.called
-			expect( things_spy.firstCall ).to.have.been.calledOn Klass
+			expect( things_spy ).toHaveBeenCalled()
+			expect( things_spy.firstCall ).toHaveBeenCalledOn( Klass )
 		#END it
 
 		it "Should allow for deep inheritence", ->
@@ -395,31 +395,31 @@ describe "Tesing event functionality", ->
 
 			child_klass = new ChildKlass
 
-			expect( child_klass ).to.be.instanceof Falcon.Object
-			expect( child_klass ).to.be.instanceof Klass
-			expect( child_klass ).not.to.be.instanceof Falcon.Model
-			expect( child_klass ).not.to.be.instanceof Falcon.Collection
-			expect( child_klass ).not.to.be.instanceof Falcon.View
+			expect( child_klass ).toEqual( jasmine.any(Falcon.Object) )
+			expect( child_klass ).toEqual( jasmine.any(Klass) )
+			expect( child_klass ).not.toEqual( jasmine.any(Falcon.Model) )
+			expect( child_klass ).not.toEqual( jasmine.any(Falcon.Collection) )
+			expect( child_klass ).not.toEqual( jasmine.any(Falcon.View) )
 
-			expect( ChildKlass::custom ).to.be.a 'function'
-			expect( ChildKlass::text ).to.be.a 'string'
-			expect( ChildKlass::another ).to.be.a 'function'
-			expect( ChildKlass.things ).to.be.a 'function'
-			expect( ChildKlass.foo ).to.be.a 'string'
+			expect( ChildKlass::custom ).toEqual(jasmine.any(Function))
+			expect( ChildKlass::text ).toEqual(jasmine.any(String))
+			expect( ChildKlass::another ).toEqual(jasmine.any(Function))
+			expect( ChildKlass.things ).toEqual(jasmine.any(Function))
+			expect( ChildKlass.foo ).toEqual(jasmine.any(String))
 
-			expect( child_klass.custom ).to.be.a 'function'
-			expect( child_klass.text ).to.be.a 'string'
-			expect( child_klass.another ).to.be.a 'function'
+			expect( child_klass.custom ).toEqual(jasmine.any(Function))
+			expect( child_klass.text ).toEqual(jasmine.any(String))
+			expect( child_klass.another ).toEqual(jasmine.any(Function))
 
 			child_klass.custom()
 
-			expect( custom_spy ).to.have.been.called
-			expect( custom_spy.firstCall ).to.have.been.calledOn child_klass
+			expect( custom_spy ).toHaveBeenCalled()
+			expect( custom_spy.firstCall ).toHaveBeenCalledOn( child_klass )
 
 			ChildKlass.things()
 
-			expect( things_spy ).to.have.been.called
-			expect( things_spy.firstCall ).to.have.been.calledOn ChildKlass
+			expect( things_spy ).toHaveBeenCalled()
+			expect( things_spy.firstCall ).toHaveBeenCalledOn( ChildKlass )
 		#END it
 	#END describe
 #END describe
