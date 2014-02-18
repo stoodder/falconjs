@@ -295,7 +295,9 @@
       });
     }
     document.createElement("template");
-    return _ready(Falcon.View.cacheTemplates);
+    return _ready(function() {
+      return Falcon.View.cacheTemplates();
+    });
   })();
 
   Falcon.Object = (function() {
@@ -959,7 +961,7 @@
       return Falcon.View;
     };
 
-    View.prototype.cacheTemplates = function() {
+    View.cacheTemplates = function() {
       var identifier, template, templates, _i, _len, _ref;
       templates = Array.prototype.slice.call(document.getElementsByTagName("template"));
       for (_i = 0, _len = templates.length; _i < _len; _i++) {
@@ -993,7 +995,7 @@
     View.prototype.__falcon_view__loaded_url__ = null;
 
     function View() {
-      var url, _loaded,
+      var template, url, _loaded, _ref, _ref1,
         _this = this;
       View.__super__.constructor.apply(this, arguments);
       url = this.makeUrl();
@@ -1008,7 +1010,8 @@
       if (isEmpty(url) || url in __falcon_view__template_cache__) {
         _loaded();
       } else if (startsWith(url, "#")) {
-        Falcon.View.cacheTemplate(url, document.getElementById(url.slice(1)).innerHTML);
+        template = (_ref = (_ref1 = document.getElementById(url.slice(1))) != null ? _ref1.innerHTML : void 0) != null ? _ref : "";
+        Falcon.View.cacheTemplate(url, template);
         _loaded();
       } else {
         $.ajax({

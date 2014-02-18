@@ -1,44 +1,4 @@
 describe "Falcon", ->
-	describe "cacheTemplates", ->
-		template = document.createElement("template")
-		template.setAttribute("id", "test_template_1")
-		template.innerHTML = "Hello World 1"
-
-		template2 = document.createElement("template")
-		template2.setAttribute("id", "test_template_2")
-		template2.innerHTML = "Hello World 2"
-
-		beforeEach ->
-			document.body.appendChild( template )
-			document.body.appendChild( template2 )
-
-			spyOn( Falcon.View, 'cacheTemplate' )
-		#END beforeEach
-
-		it "Should have removed and cached the templates", ->
-			templates = document.querySelectorAll("template")
-			expect( templates.length ).toBe( 2 )
-			
-			ret = Falcon.cacheTemplates()
-			
-			templates = document.querySelectorAll("template")
-			expect( templates.length ).toBe( 0 )
-
-			expect( Falcon.View.cacheTemplate.calls.count() ).toBe( 2 )
-			expect( Falcon.View.cacheTemplate.calls.argsFor(0) ).toEqual [
-				'#test_template_1'
-				'Hello World 1'
-			]
-
-			expect( Falcon.View.cacheTemplate.calls.argsFor(1) ).toEqual [
-				'#test_template_2'
-				'Hello World 2'
-			]
-
-			expect( ret ).toBe( Falcon )
-		#END it
-	#END describe
-	
 	describe "apply", ->
 		view = null
 		

@@ -35,7 +35,7 @@ class Falcon.View extends Falcon.Object
 	# Returns:
 	#	_(Falcon)_ - This Instance
 	#--------------------------------------------------------
-	cacheTemplates: ->
+	@cacheTemplates = ->
 		templates = Array::slice.call( document.getElementsByTagName("template") )
 		
 		for template in templates
@@ -133,7 +133,8 @@ class Falcon.View extends Falcon.Object
 			_loaded()
 
 		else if startsWith(url, "#")
-			Falcon.View.cacheTemplate( url, document.getElementById(url.slice(1)).innerHTML )
+			template = document.getElementById(url.slice(1))?.innerHTML ? ""
+			Falcon.View.cacheTemplate( url, template )
 			_loaded()
 
 		else

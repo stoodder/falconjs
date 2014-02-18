@@ -233,6 +233,6 @@ do ->
 	document.createElement("template")
 	
 	#Cache of the the <template> elements when the DOM has loaded
-	_ready(Falcon.View.cacheTemplates)
+	_ready -> Falcon.View.cacheTemplates()
 #END do
 

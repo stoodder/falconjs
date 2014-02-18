@@ -38,18 +38,21 @@ describe "Falcon.View", ->
 	#
 	#--------------------------------------------------------------
 	describe "Test the constructor method", ->
-		init_stub = ajax_stub = jquery_stub = null
+		init_stub = ajax_stub = getElement_stub = jquery_stub = null
 
 		afterEach ->
 			init_stub.restore() if init_stub
 			ajax_stub.restore() if ajax_stub
+			getElement_stub.restore() if getElement_stub
 			jquery_stub.restore() if jquery_stub
+
+			init_stub = ajax_stub = getElement_stub = jquery_stub = null 
 		#END afterEach
 
 		it "Should call the initialize and ajax methods with the correct arguments", ->
 			init_stub = sinon.stub( ViewA::, "initialize" )
 			ajax_stub = sinon.stub( $, "ajax" )
-			jquery_stub = sinon.stub( window, '$' )
+			getElement_stub = sinon.stub( document, 'getElementById' ).returns(document.createElement('div'))
 
 			view = new ViewA("Hello", 123)
 
@@ -64,13 +67,13 @@ describe "Falcon.View", ->
 			expect( ajax_stub ).toHaveBeenCalledAfter( init_stub )
 			expect( ajax_stub.firstCall.args[0] ).toBeDefined()
 
-			expect( jquery_stub ).not.toHaveBeenCalled()
+			expect( getElement_stub ).not.toHaveBeenCalled()
 		#END it
 
 		it "Should call the initialize and jquery methods with the correct arguments", ->
 			init_stub = sinon.stub( ViewC::, "initialize" )
 			ajax_stub = sinon.stub( $, "ajax" )
-			jquery_stub = sinon.stub( window, '$' ).returns(window.jQuery("<div>"))
+			getElement_stub = sinon.stub( document, 'getElementById' ).returns(document.createElement('div'))
 
 			view = new ViewC("Hello", 123)
 
@@ -81,15 +84,15 @@ describe "Falcon.View", ->
 			expect( init_stub ).toHaveBeenCalledWith( "Hello", 123 )
 			expect( init_stub ).toHaveBeenCalledOn( view )
 
-			expect( jquery_stub ).toHaveBeenCalledOnce()
-			expect( jquery_stub ).toHaveBeenCalledAfter( init_stub )
+			expect( getElement_stub ).toHaveBeenCalledOnce()
+			expect( getElement_stub ).toHaveBeenCalledAfter( init_stub )
 
 			expect( ajax_stub ).not.toHaveBeenCalled()
 		#END it
 
 		it "Should call the ajax method only once", ->
 			ajax_stub = sinon.stub( $, "ajax" )
-			jquery_stub = sinon.stub( window, '$' )
+			getElement_stub = sinon.stub( document, 'getElementById' ).returns(document.createElement('div'))
 
 			#Test the initial call
 			view = new ViewA()
@@ -102,7 +105,7 @@ describe "Falcon.View", ->
 			ajax_stub.firstCall.args[0].success("Hello World")
 
 			expect( view.is_loaded() ).toBe( true )
-			expect( jquery_stub ).not.toHaveBeenCalled()
+			expect( getElement_stub ).not.toHaveBeenCalled()
 			ajax_stub.reset()
 
 			#The next call should be cached
@@ -110,7 +113,7 @@ describe "Falcon.View", ->
 
 			expect( view.is_loaded() ).toBe( true )
 			expect( ajax_stub ).not.toHaveBeenCalled()
-			expect( jquery_stub ).not.toHaveBeenCalled()
+			expect( getElement_stub ).not.toHaveBeenCalled()
 			ajax_stub.reset()
 
 			#Trying a different url shouldn't be cached
@@ -124,47 +127,88 @@ describe "Falcon.View", ->
 			ajax_stub.firstCall.args[0].success("Hello World")
 
 			expect( view.is_loaded() ).toBe( true )
-			expect( jquery_stub ).not.toHaveBeenCalled()
+			expect( getElement_stub ).not.toHaveBeenCalled()
 		#END it
 
 		it "Should call the jquery method only once", ->
 			ajax_stub = sinon.stub( $, "ajax" )
-			jquery_stub = sinon.stub( window, '$' ).returns(window.jQuery("<div>"))
+			getElement_stub = sinon.stub( document, 'getElementById' ).returns(document.createElement('div'))
 
 			#Test the initial call
 			view = new ViewC()
 
 			expect( view.is_loaded() ).toBe( true )
-			expect( jquery_stub ).toHaveBeenCalledOnce()
+			expect( getElement_stub ).toHaveBeenCalledOnce()
 			expect( ajax_stub ).not.toHaveBeenCalled()
-			jquery_stub.reset()
+			getElement_stub.reset()
 
 			#The next call should be cached
 			view = new ViewC()
 
 			expect( view.is_loaded() ).toBe( true )
-			expect( jquery_stub ).not.toHaveBeenCalled()
+			expect( getElement_stub ).not.toHaveBeenCalled()
 			expect( ajax_stub ).not.toHaveBeenCalled()
-			jquery_stub.reset()
+			getElement_stub.reset()
 
 			#Trying a different url shouldn't be cached
 			view = new ViewD()
 
 			expect( view.is_loaded() ).toBe( true )
-			expect( jquery_stub ).toHaveBeenCalledOnce()
+			expect( getElement_stub ).toHaveBeenCalledOnce()
 			expect( ajax_stub ).not.toHaveBeenCalled()
 		#END it
 
 		it "Should not have a template if one is not defined", ->
 			ajax_stub = sinon.stub( $, "ajax" )
-			jquery_stub = sinon.stub( window, '$' ).returns(window.jQuery("<div>"))
+			getElement_stub = sinon.stub( document, 'getElementById' ).returns(document.createElement('div'))
 
 			#Test the initial call
 			view = new ViewG()
 
 			expect( view.is_loaded() ).toBe( true )
-			expect( jquery_stub ).not.toHaveBeenCalled()
+			expect( getElement_stub ).not.toHaveBeenCalled()
 			expect( ajax_stub ).not.toHaveBeenCalled()
+		#END it
+	#END describe
+
+
+	describe "cacheTemplates", ->
+		template = document.createElement("template")
+		template.setAttribute("id", "test_template_1")
+		template.innerHTML = "Hello World 1"
+
+		template2 = document.createElement("template")
+		template2.setAttribute("id", "test_template_2")
+		template2.innerHTML = "Hello World 2"
+
+		beforeEach ->
+			document.body.appendChild( template )
+			document.body.appendChild( template2 )
+
+			spyOn( Falcon.View, 'cacheTemplate' )
+		#END beforeEach
+
+		it "Should have removed and cached the templates", ->
+			templates = document.querySelectorAll("template")
+			expect( templates.length ).toBe( 2 )
+			
+			ret = Falcon.View.cacheTemplates()
+			
+			templates = document.querySelectorAll("template")
+			expect( templates.length ).toBe( 0 )
+
+			expect( Falcon.View.cacheTemplate.calls.count() ).toBe( 2 )
+			expect( Falcon.View.cacheTemplate.calls.argsFor(0) ).toEqual [
+				'#test_template_1'
+				'Hello World 1'
+			]
+
+			expect( Falcon.View.cacheTemplate.calls.argsFor(1) ).toEqual [
+				'#test_template_2'
+				'Hello World 2'
+			]
+
+			expect( ret ).toBe( Falcon.View )
 		#END it
 	#END describe
 

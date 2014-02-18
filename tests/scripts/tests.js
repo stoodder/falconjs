@@ -1,31 +1,5 @@
 (function() {
   describe("Falcon", function() {
-    describe("cacheTemplates", function() {
-      var template, template2;
-      template = document.createElement("template");
-      template.setAttribute("id", "test_template_1");
-      template.innerHTML = "Hello World 1";
-      template2 = document.createElement("template");
-      template2.setAttribute("id", "test_template_2");
-      template2.innerHTML = "Hello World 2";
-      beforeEach(function() {
-        document.body.appendChild(template);
-        document.body.appendChild(template2);
-        return spyOn(Falcon.View, 'cacheTemplate');
-      });
-      return it("Should have removed and cached the templates", function() {
-        var ret, templates;
-        templates = document.querySelectorAll("template");
-        expect(templates.length).toBe(2);
-        ret = Falcon.cacheTemplates();
-        templates = document.querySelectorAll("template");
-        expect(templates.length).toBe(0);
-        expect(Falcon.View.cacheTemplate.calls.count()).toBe(2);
-        expect(Falcon.View.cacheTemplate.calls.argsFor(0)).toEqual(['#test_template_1', 'Hello World 1']);
-        expect(Falcon.View.cacheTemplate.calls.argsFor(1)).toEqual(['#test_template_2', 'Hello World 2']);
-        return expect(ret).toBe(Falcon);
-      });
-    });
     describe("apply", function() {
       var view;
       view = null;
@@ -5575,8 +5549,8 @@
       return Falcon.View.resetCache();
     });
     describe("Test the constructor method", function() {
-      var ajax_stub, init_stub, jquery_stub;
-      init_stub = ajax_stub = jquery_stub = null;
+      var ajax_stub, getElement_stub, init_stub, jquery_stub;
+      init_stub = ajax_stub = getElement_stub = jquery_stub = null;
       afterEach(function() {
         if (init_stub) {
           init_stub.restore();
@@ -5584,15 +5558,19 @@
         if (ajax_stub) {
           ajax_stub.restore();
         }
-        if (jquery_stub) {
-          return jquery_stub.restore();
+        if (getElement_stub) {
+          getElement_stub.restore();
         }
+        if (jquery_stub) {
+          jquery_stub.restore();
+        }
+        return init_stub = ajax_stub = getElement_stub = jquery_stub = null;
       });
       it("Should call the initialize and ajax methods with the correct arguments", function() {
         var view;
         init_stub = sinon.stub(ViewA.prototype, "initialize");
         ajax_stub = sinon.stub($, "ajax");
-        jquery_stub = sinon.stub(window, '$');
+        getElement_stub = sinon.stub(document, 'getElementById').returns(document.createElement('div'));
         view = new ViewA("Hello", 123);
         expect(view.is_loaded()).toBe(false);
         expect(view._is_rendered).toBe(false);
@@ -5602,39 +5580,39 @@
         expect(ajax_stub).toHaveBeenCalledOnce();
         expect(ajax_stub).toHaveBeenCalledAfter(init_stub);
         expect(ajax_stub.firstCall.args[0]).toBeDefined();
-        return expect(jquery_stub).not.toHaveBeenCalled();
+        return expect(getElement_stub).not.toHaveBeenCalled();
       });
       it("Should call the initialize and jquery methods with the correct arguments", function() {
         var view;
         init_stub = sinon.stub(ViewC.prototype, "initialize");
         ajax_stub = sinon.stub($, "ajax");
-        jquery_stub = sinon.stub(window, '$').returns(window.jQuery("<div>"));
+        getElement_stub = sinon.stub(document, 'getElementById').returns(document.createElement('div'));
         view = new ViewC("Hello", 123);
         expect(view.is_loaded()).toBe(true);
         expect(view._is_rendered).toBe(false);
         expect(init_stub).toHaveBeenCalledOnce();
         expect(init_stub).toHaveBeenCalledWith("Hello", 123);
         expect(init_stub).toHaveBeenCalledOn(view);
-        expect(jquery_stub).toHaveBeenCalledOnce();
-        expect(jquery_stub).toHaveBeenCalledAfter(init_stub);
+        expect(getElement_stub).toHaveBeenCalledOnce();
+        expect(getElement_stub).toHaveBeenCalledAfter(init_stub);
         return expect(ajax_stub).not.toHaveBeenCalled();
       });
       it("Should call the ajax method only once", function() {
         var view;
         ajax_stub = sinon.stub($, "ajax");
-        jquery_stub = sinon.stub(window, '$');
+        getElement_stub = sinon.stub(document, 'getElementById').returns(document.createElement('div'));
         view = new ViewA();
         expect(view.is_loaded()).toBe(false);
         expect(ajax_stub).toHaveBeenCalledOnce();
         expect(ajax_stub.firstCall.args[0]).toBeDefined();
         ajax_stub.firstCall.args[0].success("Hello World");
         expect(view.is_loaded()).toBe(true);
-        expect(jquery_stub).not.toHaveBeenCalled();
+        expect(getElement_stub).not.toHaveBeenCalled();
         ajax_stub.reset();
         view = new ViewA();
         expect(view.is_loaded()).toBe(true);
         expect(ajax_stub).not.toHaveBeenCalled();
-        expect(jquery_stub).not.toHaveBeenCalled();
+        expect(getElement_stub).not.toHaveBeenCalled();
         ajax_stub.reset();
         view = new ViewB();
         expect(view.is_loaded()).toBe(false);
@@ -5642,35 +5620,61 @@
         expect(ajax_stub.firstCall.args[0]).toBeDefined();
         ajax_stub.firstCall.args[0].success("Hello World");
         expect(view.is_loaded()).toBe(true);
-        return expect(jquery_stub).not.toHaveBeenCalled();
+        return expect(getElement_stub).not.toHaveBeenCalled();
       });
       it("Should call the jquery method only once", function() {
         var view;
         ajax_stub = sinon.stub($, "ajax");
-        jquery_stub = sinon.stub(window, '$').returns(window.jQuery("<div>"));
+        getElement_stub = sinon.stub(document, 'getElementById').returns(document.createElement('div'));
         view = new ViewC();
         expect(view.is_loaded()).toBe(true);
-        expect(jquery_stub).toHaveBeenCalledOnce();
+        expect(getElement_stub).toHaveBeenCalledOnce();
         expect(ajax_stub).not.toHaveBeenCalled();
-        jquery_stub.reset();
+        getElement_stub.reset();
         view = new ViewC();
         expect(view.is_loaded()).toBe(true);
-        expect(jquery_stub).not.toHaveBeenCalled();
+        expect(getElement_stub).not.toHaveBeenCalled();
         expect(ajax_stub).not.toHaveBeenCalled();
-        jquery_stub.reset();
+        getElement_stub.reset();
         view = new ViewD();
         expect(view.is_loaded()).toBe(true);
-        expect(jquery_stub).toHaveBeenCalledOnce();
+        expect(getElement_stub).toHaveBeenCalledOnce();
         return expect(ajax_stub).not.toHaveBeenCalled();
       });
       return it("Should not have a template if one is not defined", function() {
         var view;
         ajax_stub = sinon.stub($, "ajax");
-        jquery_stub = sinon.stub(window, '$').returns(window.jQuery("<div>"));
+        getElement_stub = sinon.stub(document, 'getElementById').returns(document.createElement('div'));
         view = new ViewG();
         expect(view.is_loaded()).toBe(true);
-        expect(jquery_stub).not.toHaveBeenCalled();
+        expect(getElement_stub).not.toHaveBeenCalled();
         return expect(ajax_stub).not.toHaveBeenCalled();
+      });
+    });
+    describe("cacheTemplates", function() {
+      var template, template2;
+      template = document.createElement("template");
+      template.setAttribute("id", "test_template_1");
+      template.innerHTML = "Hello World 1";
+      template2 = document.createElement("template");
+      template2.setAttribute("id", "test_template_2");
+      template2.innerHTML = "Hello World 2";
+      beforeEach(function() {
+        document.body.appendChild(template);
+        document.body.appendChild(template2);
+        return spyOn(Falcon.View, 'cacheTemplate');
+      });
+      return it("Should have removed and cached the templates", function() {
+        var ret, templates;
+        templates = document.querySelectorAll("template");
+        expect(templates.length).toBe(2);
+        ret = Falcon.View.cacheTemplates();
+        templates = document.querySelectorAll("template");
+        expect(templates.length).toBe(0);
+        expect(Falcon.View.cacheTemplate.calls.count()).toBe(2);
+        expect(Falcon.View.cacheTemplate.calls.argsFor(0)).toEqual(['#test_template_1', 'Hello World 1']);
+        expect(Falcon.View.cacheTemplate.calls.argsFor(1)).toEqual(['#test_template_2', 'Hello World 2']);
+        return expect(ret).toBe(Falcon.View);
       });
     });
     describe("Testing the 'defaults' implementation", function() {
@@ -6333,7 +6337,7 @@
         setup = function() {
           $body.append($application);
           $body.append($layout_template);
-          Falcon.cacheTemplates();
+          Falcon.View.cacheTemplates();
           foreach_init_spy = sinon.spy(foreach_binding, 'init');
           foreach_update_spy = sinon.spy(foreach_binding, 'update');
           return applyApp(view_observable);
@@ -6556,7 +6560,7 @@
         after_add_spy = before_remove_spy = null;
         setup = function() {
           $body.append($layout_template);
-          Falcon.cacheTemplates();
+          Falcon.View.cacheTemplates();
           foreach_init_spy = sinon.spy(foreach_binding, 'init');
           foreach_update_spy = sinon.spy(foreach_binding, 'update');
           return applyApp(view_observable);
