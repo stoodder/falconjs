@@ -99,15 +99,6 @@ ko.bindingHandlers['view'] = do ->
 				container.innerHTML = template
 				ko.renderTemplate(element, childContext, {}, element)
 
-				execScripts = !!ko.utils.unwrapObservable(value.execScripts)
-				if execScripts is true
-					scripts = Array::slice.call( element.getElementsByTagName("script") )
-					for script in scripts
-						type = script.getAttribute("type").toLowerCase()
-						eval( script.innerText ) if isEmpty( type ) or type is "text/javascript"
-					#END for
-				#END if template updated
-
 				#Notify the view that it is being displayed
 				value._render() if Falcon.isView( value )
 			#END if not template?

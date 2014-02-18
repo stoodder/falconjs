@@ -2019,7 +2019,7 @@
         return returnVal;
       },
       'update': function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
-        var childContext, container, execScripts, script, scripts, template, type, value, _i, _len;
+        var childContext, container, template, value;
         value = valueAccessor();
         if (ko.isObservable(value)) {
           value = value();
@@ -2044,17 +2044,30 @@
           container = ko.utils.domData.get(element, "__falcon_view__container__");
           container.innerHTML = template;
           ko.renderTemplate(element, childContext, {}, element);
-          execScripts = !!ko.utils.unwrapObservable(value.execScripts);
-          if (execScripts === true) {
-            scripts = Array.prototype.slice.call(element.getElementsByTagName("script"));
-            for (_i = 0, _len = scripts.length; _i < _len; _i++) {
-              script = scripts[_i];
-              type = script.getAttribute("type").toLowerCase();
-              if (isEmpty(type) || type === "text/javascript") {
-                eval(script.innerText);
-              }
-            }
-          }
+          /*execScripts = !!ko.utils.unwrapObservable(value.execScripts)
+          				if execScripts is true
+          					scripts = Array::slice.call( element.getElementsByTagName("script") )
+          					for script in scripts
+          						console.log( script.innerText )
+          						type = script.getAttribute("type")
+          
+          						if window.call_spy
+          							console.log( "call_spy", window.call_spy.calls.count() )
+          							console.log( "call_another_spy", window.call_another_spy.calls.count() )
+          							console.log( "call_a_third_spy", window.call_a_third_spy.calls.count() )
+          						#END if
+          
+          						eval( script.innerText ) if isEmpty( type ) or type.toLowerCase() is "text/javascript"
+          
+          						if window.call_spy
+          							console.log( "call_spy", window.call_spy.calls.count() )
+          							console.log( "call_another_spy", window.call_another_spy.calls.count() )
+          							console.log( "call_a_third_spy", window.call_a_third_spy.calls.count() )
+          						#END if
+          					#END for
+          				#END if template updated
+          */
+
           if (Falcon.isView(value)) {
             value._render();
           }

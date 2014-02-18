@@ -351,10 +351,15 @@ describe "Knockout Bindings", ->
 		")
 
 		beforeEach ->
-			window.call_spy = jasmine.createSpy("Call Spy")
-			window.call_another_spy = jasmine.createSpy("Call Another Spy")
-			window.call_a_third_spy = jasmine.createSpy("Call A Third Spy")
+			window.call_spy = jasmine.createSpy("'Call Spy'")
+			window.call_another_spy = jasmine.createSpy("'Call Another Spy'")
+			window.call_a_third_spy = jasmine.createSpy("'Call A Third Spy'")
+			
 			$body.append($test_view_template)
+
+			window.call_spy.calls.reset()
+			window.call_another_spy.calls.reset()
+			window.call_a_third_spy.calls.reset()
 		#END beforeEach
 
 		afterEach ->
