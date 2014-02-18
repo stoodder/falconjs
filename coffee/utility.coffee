@@ -25,6 +25,12 @@ isEmpty = (object) ->
 	return false
 #END is empty
 
+if typeof HTMLElement is "object"
+	isElement = (object) -> object instanceof HTMLElement
+else
+	isElement = (object) -> object? and (object.nodeType is 1) and (typeof object.nodeName is "string")
+#END if
+
 # -------------------------------------------------
 # STRING FUNCTIONS
 # -------------------------------------------------

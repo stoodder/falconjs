@@ -1,4 +1,216 @@
 (function() {
+  describe("Falcon", function() {
+    describe("cacheTemplates", function() {
+      var template, template2;
+      template = document.createElement("template");
+      template.setAttribute("id", "test_template_1");
+      template.innerHTML = "Hello World 1";
+      template2 = document.createElement("template");
+      template2.setAttribute("id", "test_template_2");
+      template2.innerHTML = "Hello World 2";
+      beforeEach(function() {
+        document.body.appendChild(template);
+        document.body.appendChild(template2);
+        return spyOn(Falcon.View, 'cacheTemplate');
+      });
+      return it("Should have removed and cached the templates", function() {
+        var ret, templates;
+        templates = document.querySelectorAll("template");
+        expect(templates.length).toBe(2);
+        ret = Falcon.cacheTemplates();
+        templates = document.querySelectorAll("template");
+        expect(templates.length).toBe(0);
+        expect(Falcon.View.cacheTemplate.calls.count()).toBe(2);
+        expect(Falcon.View.cacheTemplate.calls.argsFor(0)).toEqual(['#test_template_1', 'Hello World 1']);
+        expect(Falcon.View.cacheTemplate.calls.argsFor(1)).toEqual(['#test_template_2', 'Hello World 2']);
+        return expect(ret).toBe(Falcon);
+      });
+    });
+    describe("apply", function() {
+      var view;
+      view = null;
+      beforeEach(function() {
+        var observable_view;
+        spyOn(ko, 'applyBindings');
+        view = new Falcon.View;
+        return observable_view = ko.observable(view);
+      });
+      it("Should find the correct element with an HTMLElement", function() {
+        var callback, element, observable, ret;
+        element = document.createElement("div");
+        document.body.appendChild(element);
+        callback = jasmine.createSpy("Callback");
+        ret = Falcon.apply(view, element, callback);
+        expect(ko.applyBindings.calls.count()).toBe(1);
+        expect(ko.applyBindings).toHaveBeenCalledWith(jasmine.any(Function), element);
+        observable = ko.applyBindings.calls.mostRecent().args[0];
+        expect(ko.isObservable(observable)).toBe(true);
+        expect(observable()).toBe(view);
+        expect(callback.calls.count()).toBe(1);
+        expect(ret).toBe(Falcon);
+        return document.body.removeChild(element);
+      });
+      it("Should find the correct element by id", function() {
+        var callback, element, observable, ret;
+        element = document.createElement("div");
+        element.setAttribute("id", "test");
+        document.body.appendChild(element);
+        callback = jasmine.createSpy("Callback");
+        ret = Falcon.apply(view, "#test", callback);
+        expect(ko.applyBindings.calls.count()).toBe(1);
+        expect(ko.applyBindings).toHaveBeenCalledWith(jasmine.any(Function), element);
+        observable = ko.applyBindings.calls.mostRecent().args[0];
+        expect(ko.isObservable(observable)).toBe(true);
+        expect(observable()).toBe(view);
+        expect(callback.calls.count()).toBe(1);
+        expect(ret).toBe(Falcon);
+        return document.body.removeChild(element);
+      });
+      it("Should find the correct element using Falcon.applicationElement", function() {
+        var callback, element, observable, ret;
+        element = document.createElement("div");
+        document.body.appendChild(element);
+        Falcon.applicationElement = element;
+        callback = jasmine.createSpy("Callback");
+        ret = Falcon.apply(view, callback);
+        expect(ko.applyBindings.calls.count()).toBe(1);
+        expect(ko.applyBindings).toHaveBeenCalledWith(jasmine.any(Function), element);
+        observable = ko.applyBindings.calls.mostRecent().args[0];
+        expect(ko.isObservable(observable)).toBe(true);
+        expect(observable()).toBe(view);
+        expect(callback.calls.count()).toBe(1);
+        expect(ret).toBe(Falcon);
+        return document.body.removeChild(element);
+      });
+      return it("Should find the correct element by id us Falcon.applicationElement", function() {
+        var callback, element, observable, ret;
+        element = document.createElement("div");
+        element.setAttribute("id", "test");
+        document.body.appendChild(element);
+        Falcon.applicationElement = "#test";
+        callback = jasmine.createSpy("Callback");
+        ret = Falcon.apply(view, callback);
+        expect(ko.applyBindings.calls.count()).toBe(1);
+        expect(ko.applyBindings).toHaveBeenCalledWith(jasmine.any(Function), element);
+        observable = ko.applyBindings.calls.mostRecent().args[0];
+        expect(ko.isObservable(observable)).toBe(true);
+        expect(observable()).toBe(view);
+        expect(callback.calls.count()).toBe(1);
+        expect(ret).toBe(Falcon);
+        return document.body.removeChild(element);
+      });
+    });
+    describe("isModel", function() {
+      return it("Should correctly identify a model", function() {
+        expect(Falcon.isModel(new Falcon.Model)).toBe(true);
+        expect(Falcon.isModel(new Falcon.Collection)).toBe(false);
+        expect(Falcon.isModel(new Falcon.View)).toBe(false);
+        expect(Falcon.isModel(123)).toBe(false);
+        return expect(Falcon.isModel()).toBe(false);
+      });
+    });
+    describe("isCollection", function() {
+      return it("Should correctly identify a collection", function() {
+        expect(Falcon.isCollection(new Falcon.Model)).toBe(false);
+        expect(Falcon.isCollection(new Falcon.Collection)).toBe(true);
+        expect(Falcon.isCollection(new Falcon.View)).toBe(false);
+        expect(Falcon.isCollection(123)).toBe(false);
+        return expect(Falcon.isCollection()).toBe(false);
+      });
+    });
+    describe("isView", function() {
+      return it("Should correctly identify a view", function() {
+        expect(Falcon.isView(new Falcon.Model)).toBe(false);
+        expect(Falcon.isView(new Falcon.Collection)).toBe(false);
+        expect(Falcon.isView(new Falcon.View)).toBe(true);
+        expect(Falcon.isView(123)).toBe(false);
+        return expect(Falcon.isView()).toBe(false);
+      });
+    });
+    describe("isDataObject", function() {
+      return it("Should correctly identify a data object", function() {
+        expect(Falcon.isDataObject(new Falcon.Model)).toBe(true);
+        expect(Falcon.isDataObject(new Falcon.Collection)).toBe(true);
+        expect(Falcon.isDataObject(new Falcon.View)).toBe(false);
+        expect(Falcon.isDataObject(123)).toBe(false);
+        return expect(Falcon.isDataObject()).toBe(false);
+      });
+    });
+    describe("isFalconObject", function() {
+      return it("Should correctly identify a falcon related object", function() {
+        expect(Falcon.isFalconObject(new Falcon.Model)).toBe(true);
+        expect(Falcon.isFalconObject(new Falcon.Collection)).toBe(true);
+        expect(Falcon.isFalconObject(new Falcon.View)).toBe(true);
+        expect(Falcon.isFalconObject(123)).toBe(false);
+        return expect(Falcon.isFalconObject()).toBe(false);
+      });
+    });
+    describe("addBinding", function() {
+      it("Should add a binding properly", function() {
+        var definition, ret;
+        expect(ko.bindingHandlers['new_binding']).not.toBeDefined();
+        expect(ko.virtualElements.allowedBindings['new_binding']).not.toBeDefined();
+        definition = {
+          init: (function() {}),
+          update: (function() {})
+        };
+        ret = Falcon.addBinding("new_binding", definition);
+        expect(ko.bindingHandlers['new_binding']).toBe(definition);
+        expect(ko.virtualElements.allowedBindings['new_binding']).not.toBeDefined();
+        return expect(ret).toBe(definition);
+      });
+      it("Should allow for a function argument", function() {
+        var method, ret;
+        expect(ko.bindingHandlers['new_binding2']).not.toBeDefined();
+        expect(ko.virtualElements.allowedBindings['new_binding2']).not.toBeDefined();
+        method = (function() {});
+        ret = Falcon.addBinding("new_binding2", method);
+        expect(ko.bindingHandlers['new_binding2']).toEqual({
+          update: method
+        });
+        expect(ko.virtualElements.allowedBindings['new_binding2']).not.toBeDefined();
+        return expect(ret).toEqual({
+          update: method
+        });
+      });
+      it("Should allow for virtual bindings", function() {
+        var definition, ret;
+        expect(ko.bindingHandlers['new_binding3']).not.toBeDefined();
+        expect(ko.virtualElements.allowedBindings['new_binding3']).not.toBeDefined();
+        definition = {
+          init: (function() {}),
+          update: (function() {})
+        };
+        ret = Falcon.addBinding("new_binding3", true, definition);
+        expect(ko.bindingHandlers['new_binding3']).toBe(definition);
+        expect(ko.virtualElements.allowedBindings['new_binding3']).toBe(true);
+        return expect(ret).toBe(definition);
+      });
+      return it("Should allow for virtual bindings with a function argument", function() {
+        var method, ret;
+        expect(ko.bindingHandlers['new_binding4']).not.toBeDefined();
+        expect(ko.virtualElements.allowedBindings['new_binding4']).not.toBeDefined();
+        method = (function() {});
+        ret = Falcon.addBinding("new_binding4", true, method);
+        expect(ko.bindingHandlers['new_binding4']).toEqual({
+          update: method
+        });
+        expect(ko.virtualElements.allowedBindings['new_binding4']).toBe(true);
+        return expect(ret).toEqual({
+          update: method
+        });
+      });
+    });
+    return describe("getBinding", function() {
+      return it("Should fetch a valid binding", function() {
+        return expect(Falcon.getBinding('foreach')).toBe(ko.bindingHandlers['foreach']);
+      });
+    });
+  });
+
+}).call(this);
+
+(function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -6077,6 +6289,7 @@
         setup = function() {
           $body.append($application);
           $body.append($layout_template);
+          Falcon.cacheTemplates();
           foreach_init_spy = sinon.spy(foreach_binding, 'init');
           foreach_update_spy = sinon.spy(foreach_binding, 'update');
           return applyApp(view_observable);
@@ -6299,6 +6512,7 @@
         after_add_spy = before_remove_spy = null;
         setup = function() {
           $body.append($layout_template);
+          Falcon.cacheTemplates();
           foreach_init_spy = sinon.spy(foreach_binding, 'init');
           foreach_update_spy = sinon.spy(foreach_binding, 'update');
           return applyApp(view_observable);

@@ -1,4 +1,5 @@
-### Hello World ###
+_ready = null
+
 @Falcon = Falcon =
 	#--------------------------------------------------------
 	# Attribute: Falcon.version
@@ -6,7 +7,7 @@
 	#
 	# Type: _(String)_
 	#--------------------------------------------------------
-	version: "0.9.0"
+	version: "0.10.0"
 
 	#--------------------------------------------------------
 	# Attribute: Falcon.applicationElement
@@ -59,42 +60,58 @@
 	#											 applied to the application element
 	#	**element** _(String|DOMElement)_ - The element to intialize the application in
 	#	**callback** _(Function)_ - Method called after the bindings have been initialized and applied
+	#
+	# Returns:
+	#	_(Falcon)_ - This Instance
 	#--------------------------------------------------------
 	apply: (root, element, callback) -> 
+		_element = element
 		[element, callback] = [callback, element] if isFunction( element )
 
-		element = "" unless isString( element )
-		element = trim( element )
-		element = (Falcon.applicationElement ? "body") if isEmpty( element )
-		callback = ( -> ) unless isFunction( callback )
+		element ?= Falcon.applicationElement
 
-		#We need to create a template element for IE to recognize the tag
-		document.createElement("template")
-
-		$ ->
-			$('template').each (index, template) ->
-				template = $(template)
-				identifier = template.attr("id")
-				Falcon.View.cacheTemplate( "#" + identifier, template.html() ) if identifier?
-				template.remove()
-			#END each template
+		_ready ->
+			unless isElement( element )
+				element = "" unless isString( element )
+				element = trim( element )
+				element = "body" if isEmpty( element )
+				element = document.querySelectorAll(element)[0]
+			#END unless
 
 			# Apply the bindings, we need to rewrap the root into its own
 			# observable because, by default, the applyBindings will pass
 			# in the unwrapped version of the root which causes a change to
 			# the root to not be noticed by the view binding and hence will
 			# not be able to call the proper dispose methods.
-			$element = $(element);
-			$element.attr('data-bind', 'view: $data')
-			ko.applyBindings( ko.observable( root ), $element[0] )
+			element.setAttribute("data-bind", "view: $data")
+			ko.applyBindings( ko.observable( root ), element )
 
 			#Trigger any callback to notify the application that
 			#the app has been initialized and the bindings are applied.
-			callback()
-		#END onLoad
+			callback() if isFunction( callback )
+		#END _ready
 
-		return
+		return Falcon
 	#END apply
+
+	#--------------------------------------------------------
+	# Method: Falcon.cacheTemplates
+	#	Method used to cache and remove the template elements
+	#
+	# Returns:
+	#	_(Falcon)_ - This Instance
+	#--------------------------------------------------------
+	cacheTemplates: ->
+		templates = Array::slice.call( document.getElementsByTagName("template") )
+		
+		for template in templates
+			identifier = template.getAttribute("id")
+			Falcon.View.cacheTemplate( "##{identifier}", template.innerHTML ) if identifier?
+			template.parentNode?.removeChild(template)
+		#END each template
+
+		return Falcon
+	#END cacheTemplates
 
 	#--------------------------------------------------------
 	# Method: Falcon.isModel()
@@ -107,7 +124,7 @@
 	#	_(Boolean)_ - Is the object a model?
 	#--------------------------------------------------------
 	isModel: (object) -> 
-		object? and object instanceof Falcon.Model
+		return object? and object instanceof Falcon.Model
 	#END isModel
 
 	#--------------------------------------------------------
@@ -121,7 +138,7 @@
 	#	_(Boolean)_ - Is the object a colleciton?
 	#--------------------------------------------------------
 	isCollection: (object) -> 
-		object? and object instanceof Falcon.Collection
+		return object? and object instanceof Falcon.Collection
 	#END isCollection
 
 	#--------------------------------------------------------
@@ -135,7 +152,7 @@
 	#	_(Boolean)_ - Is the object a view?
 	#--------------------------------------------------------
 	isView: (object) -> 
-		object? and object instanceof Falcon.View
+		return object? and object instanceof Falcon.View
 	#END isView
 
 	#--------------------------------------------------------
@@ -149,7 +166,7 @@
 	#	_(Boolean)_ - Is the object a falcon data object?
 	#--------------------------------------------------------
 	isDataObject: (object) -> 
-		object? and ( object instanceof Falcon.Model or object instanceof Falcon.Collection )
+		return object? and ( object instanceof Falcon.Model or object instanceof Falcon.Collection )
 	#END isDataObject
 
 	#--------------------------------------------------------
@@ -164,7 +181,7 @@
 	#	_(Boolean)_ - Is the object a falcon object?
 	#--------------------------------------------------------
 	isFalconObject: (object) ->
-		object? and ( object instanceof Falcon.Object )
+		return object? and ( object instanceof Falcon.Object )
 	#END isFalconObjext
 
 	#--------------------------------------------------------
@@ -184,6 +201,7 @@
 		definition = {update: definition} if isFunction( definition )
 		ko.bindingHandlers[name] = definition
 		ko.virtualElements.allowedBindings[name] = true if allowVirtual
+		return ko.bindingHandlers[name]
 	#END addBinding
 
 	#--------------------------------------------------------
@@ -198,4 +216,42 @@
 	#--------------------------------------------------------
 	getBinding: (name) -> ko.bindingHandlers[name]
 #END Falcon
+
+#Lastly, execute a setup routine for handling DOM loads
+do ->
+	#Define the '_ready' method.
+	_ready_callbacks = []
+	_ready = (callback) ->
+		_ready_callbacks.push( callback ) if isFunction( callback )
+	#END _ready
+
+	_domLoadedEvent = ->
+		_ready = (callback) ->
+			callback() if isFunction( callback )
+		#END _ready re-assignment
+
+		callback() for callback in _ready_callbacks
+		_ready_callbacks = null
+	#END _domLoadedEvent
+
+	if document.addEventListener
+		document.addEventListener "DOMContentLoaded", handler = ->
+			_domLoadedEvent()
+			document.removeEventListener( "DOMContentLoaded", handler, false )
+		, false
+	else if document.attachEvent
+		document.attachEvent "readystatechange", handler = ->
+			if document.readyState is "complete"
+				_domLoadedEvent()
+				document.detachEvent( "readystatechange", handler )
+			#END if
+		#END on readystatechange
+	#END if
+
+	#We need to create a template element for IE to recognize the tag
+	document.createElement("template")
+	
+	#Cache of the the <template> elements when the DOM has loaded
+	_ready(Falcon.cacheTemplates)
+#END do
 

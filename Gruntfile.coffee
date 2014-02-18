@@ -85,6 +85,7 @@ module.exports = (grunt) ->
 				files:
 					"tests/scripts/jasmine2.0.0-sinon.js": ["tests/coffee/jasmine2.0.0-sinon.coffee"]
 					"tests/scripts/tests.js": [
+						"tests/coffee/falcon.test.coffee"
 						"tests/coffee/falcon.object.test.coffee"
 						"tests/coffee/falcon.model.test.coffee"
 						"tests/coffee/falcon.collection.test.coffee"
@@ -148,11 +149,6 @@ module.exports = (grunt) ->
 				'files': ["coffee/*.coffee"]
 				'tasks': ['coffee:dist', 'uglify:dist']
 			#END watch:dist_coffee
-
-			'test_coffee':
-				'files': ['tests/coffee/*.coffee']
-				'tasks': ['coffee:test']
-			#END watch:test_coffee
 
 			'test_copy':
 				'files': ['falcon.js', 'falcon.min.js', 'scripts/*.js']

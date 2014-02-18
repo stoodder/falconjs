@@ -11,7 +11,7 @@
 
 
 (function() {
-  var ChainedCollection, Falcon, arrayRemove, arrayUnique, clone, extend, findKey, isArray, isBoolean, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, startsWith, trim, value, _foreach, _getItems, _options, _ref, _ref1, _ref2, _shouldUpdate,
+  var ChainedCollection, Falcon, arrayRemove, arrayUnique, clone, extend, findKey, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, startsWith, trim, value, _foreach, _getItems, _options, _ready, _ref, _ref1, _ref2, _shouldUpdate,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -59,6 +59,16 @@
     }
     return false;
   };
+
+  if (typeof HTMLElement === "object") {
+    isElement = function(object) {
+      return object instanceof HTMLElement;
+    };
+  } else {
+    isElement = function(object) {
+      return (object != null) && (object.nodeType === 1) && (typeof object.nodeName === "string");
+    };
+  }
 
   trim = function(str) {
     return str.replace(/^\s+/, '').replace(/\s+$/, '');
@@ -177,48 +187,57 @@
     return arr;
   };
 
-  /* Hello World*/
-
+  _ready = null;
 
   this.Falcon = Falcon = {
-    version: "0.9.0",
+    version: "0.10.0",
     applicationElement: "body",
     baseApiUrl: "",
     baseTemplateUrl: "",
     cache: true,
     deferEvaluation: true,
     apply: function(root, element, callback) {
-      var _ref, _ref1;
+      var _element, _ref;
+      _element = element;
       if (isFunction(element)) {
         _ref = [callback, element], element = _ref[0], callback = _ref[1];
       }
-      if (!isString(element)) {
-        element = "";
+      if (element == null) {
+        element = Falcon.applicationElement;
       }
-      element = trim(element);
-      if (isEmpty(element)) {
-        element = (_ref1 = Falcon.applicationElement) != null ? _ref1 : "body";
-      }
-      if (!isFunction(callback)) {
-        callback = (function() {});
-      }
-      document.createElement("template");
-      $(function() {
-        var $element;
-        $('template').each(function(index, template) {
-          var identifier;
-          template = $(template);
-          identifier = template.attr("id");
-          if (identifier != null) {
-            Falcon.View.cacheTemplate("#" + identifier, template.html());
+      _ready(function() {
+        if (!isElement(element)) {
+          if (!isString(element)) {
+            element = "";
           }
-          return template.remove();
-        });
-        $element = $(element);
-        $element.attr('data-bind', 'view: $data');
-        ko.applyBindings(ko.observable(root), $element[0]);
-        return callback();
+          element = trim(element);
+          if (isEmpty(element)) {
+            element = "body";
+          }
+          element = document.querySelectorAll(element)[0];
+        }
+        element.setAttribute("data-bind", "view: $data");
+        ko.applyBindings(ko.observable(root), element);
+        if (isFunction(callback)) {
+          return callback();
+        }
       });
+      return Falcon;
+    },
+    cacheTemplates: function() {
+      var identifier, template, templates, _i, _len, _ref;
+      templates = Array.prototype.slice.call(document.getElementsByTagName("template"));
+      for (_i = 0, _len = templates.length; _i < _len; _i++) {
+        template = templates[_i];
+        identifier = template.getAttribute("id");
+        if (identifier != null) {
+          Falcon.View.cacheTemplate("#" + identifier, template.innerHTML);
+        }
+        if ((_ref = template.parentNode) != null) {
+          _ref.removeChild(template);
+        }
+      }
+      return Falcon;
     },
     isModel: function(object) {
       return (object != null) && object instanceof Falcon.Model;
@@ -247,13 +266,52 @@
       }
       ko.bindingHandlers[name] = definition;
       if (allowVirtual) {
-        return ko.virtualElements.allowedBindings[name] = true;
+        ko.virtualElements.allowedBindings[name] = true;
       }
+      return ko.bindingHandlers[name];
     },
     getBinding: function(name) {
       return ko.bindingHandlers[name];
     }
   };
+
+  (function() {
+    var handler, _domLoadedEvent, _ready_callbacks;
+    _ready_callbacks = [];
+    _ready = function(callback) {
+      if (isFunction(callback)) {
+        return _ready_callbacks.push(callback);
+      }
+    };
+    _domLoadedEvent = function() {
+      var callback, _i, _len;
+      _ready = function(callback) {
+        if (isFunction(callback)) {
+          return callback();
+        }
+      };
+      for (_i = 0, _len = _ready_callbacks.length; _i < _len; _i++) {
+        callback = _ready_callbacks[_i];
+        callback();
+      }
+      return _ready_callbacks = null;
+    };
+    if (document.addEventListener) {
+      document.addEventListener("DOMContentLoaded", handler = function() {
+        _domLoadedEvent();
+        return document.removeEventListener("DOMContentLoaded", handler, false);
+      }, false);
+    } else if (document.attachEvent) {
+      document.attachEvent("readystatechange", handler = function() {
+        if (document.readyState === "complete") {
+          _domLoadedEvent();
+          return document.detachEvent("readystatechange", handler);
+        }
+      });
+    }
+    document.createElement("template");
+    return _ready(Falcon.cacheTemplates);
+  })();
 
   Falcon.Object = (function() {
     var __falcon_object__current_cid__;
