@@ -198,6 +198,8 @@ _ready = null
 	getBinding: (name) -> ko.bindingHandlers[name]
 #END Falcon
 
+
+
 #Lastly, execute a setup routine for handling DOM loads
 do ->
 	#Define the '_ready' method.
