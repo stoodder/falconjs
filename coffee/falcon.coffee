@@ -95,25 +95,6 @@ _ready = null
 	#END apply
 
 	#--------------------------------------------------------
-	# Method: Falcon.cacheTemplates
-	#	Method used to cache and remove the template elements
-	#
-	# Returns:
-	#	_(Falcon)_ - This Instance
-	#--------------------------------------------------------
-	cacheTemplates: ->
-		templates = Array::slice.call( document.getElementsByTagName("template") )
-		
-		for template in templates
-			identifier = template.getAttribute("id")
-			Falcon.View.cacheTemplate( "##{identifier}", template.innerHTML ) if identifier?
-			template.parentNode?.removeChild(template)
-		#END each template
-
-		return Falcon
-	#END cacheTemplates
-
-	#--------------------------------------------------------
 	# Method: Falcon.isModel()
 	#	Method used to test if an object is a Falcon Model
 	#
@@ -252,6 +233,6 @@ do ->
 	document.createElement("template")
 	
 	#Cache of the the <template> elements when the DOM has loaded
-	_ready(Falcon.cacheTemplates)
+	_ready(Falcon.View.cacheTemplates)
 #END do
 

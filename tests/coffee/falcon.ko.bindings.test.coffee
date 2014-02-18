@@ -438,7 +438,7 @@ describe "Knockout Bindings", ->
 				$body.append($application)
 				$body.append($layout_template)
 
-				Falcon.cacheTemplates()
+				Falcon.View.cacheTemplates()
 
 				foreach_init_spy = sinon.spy( foreach_binding, 'init' )
 				foreach_update_spy = sinon.spy( foreach_binding, 'update' )
@@ -717,7 +717,7 @@ describe "Knockout Bindings", ->
 			setup = ->
 				$body.append($layout_template)
 
-				Falcon.cacheTemplates()
+				Falcon.View.cacheTemplates()
 
 				foreach_init_spy = sinon.spy( foreach_binding, 'init' )
 				foreach_update_spy = sinon.spy( foreach_binding, 'update' )

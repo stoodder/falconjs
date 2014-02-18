@@ -25,8 +25,27 @@ class Falcon.View extends Falcon.Object
 
 		__falcon_view__template_cache__[identifier] = template
 
-		return
+		return Falcon.View
 	#END cacheTemplate
+
+	#--------------------------------------------------------
+	# Method: Falcon.View.cacheTemplates
+	#	Method used to cache and remove the template elements
+	#
+	# Returns:
+	#	_(Falcon)_ - This Instance
+	#--------------------------------------------------------
+	cacheTemplates: ->
+		templates = Array::slice.call( document.getElementsByTagName("template") )
+		
+		for template in templates
+			identifier = template.getAttribute("id")
+			Falcon.View.cacheTemplate( "##{identifier}", template.innerHTML ) if identifier?
+			template.parentNode?.removeChild(template)
+		#END each template
+
+		return Falcon.View
+	#END cacheTemplates
 
 	#--------------------------------------------------------
 	# Method: Falcon.View.resetCache()
@@ -35,7 +54,7 @@ class Falcon.View extends Falcon.Object
 	@resetCache = () ->
 		__falcon_view__template_cache__ = {}
 
-		return
+		return Falcon.View
 	#END resetCache
 
 	#--------------------------------------------------------
@@ -114,7 +133,7 @@ class Falcon.View extends Falcon.Object
 			_loaded()
 
 		else if startsWith(url, "#")
-			Falcon.View.cacheTemplate( url, $(url).html() )
+			Falcon.View.cacheTemplate( url, document.getElementById(url.slice(1)).innerHTML )
 			_loaded()
 
 		else

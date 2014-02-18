@@ -224,21 +224,6 @@
       });
       return Falcon;
     },
-    cacheTemplates: function() {
-      var identifier, template, templates, _i, _len, _ref;
-      templates = Array.prototype.slice.call(document.getElementsByTagName("template"));
-      for (_i = 0, _len = templates.length; _i < _len; _i++) {
-        template = templates[_i];
-        identifier = template.getAttribute("id");
-        if (identifier != null) {
-          Falcon.View.cacheTemplate("#" + identifier, template.innerHTML);
-        }
-        if ((_ref = template.parentNode) != null) {
-          _ref.removeChild(template);
-        }
-      }
-      return Falcon;
-    },
     isModel: function(object) {
       return (object != null) && object instanceof Falcon.Model;
     },
@@ -310,7 +295,7 @@
       });
     }
     document.createElement("template");
-    return _ready(Falcon.cacheTemplates);
+    return _ready(Falcon.View.cacheTemplates);
   })();
 
   Falcon.Object = (function() {
@@ -971,10 +956,28 @@
       }
       identifier = trim(identifier);
       __falcon_view__template_cache__[identifier] = template;
+      return Falcon.View;
+    };
+
+    View.prototype.cacheTemplates = function() {
+      var identifier, template, templates, _i, _len, _ref;
+      templates = Array.prototype.slice.call(document.getElementsByTagName("template"));
+      for (_i = 0, _len = templates.length; _i < _len; _i++) {
+        template = templates[_i];
+        identifier = template.getAttribute("id");
+        if (identifier != null) {
+          Falcon.View.cacheTemplate("#" + identifier, template.innerHTML);
+        }
+        if ((_ref = template.parentNode) != null) {
+          _ref.removeChild(template);
+        }
+      }
+      return Falcon.View;
     };
 
     View.resetCache = function() {
       __falcon_view__template_cache__ = {};
+      return Falcon.View;
     };
 
     View.extend = Falcon.Object.extend;
@@ -1005,7 +1008,7 @@
       if (isEmpty(url) || url in __falcon_view__template_cache__) {
         _loaded();
       } else if (startsWith(url, "#")) {
-        Falcon.View.cacheTemplate(url, $(url).html());
+        Falcon.View.cacheTemplate(url, document.getElementById(url.slice(1)).innerHTML);
         _loaded();
       } else {
         $.ajax({
@@ -2044,30 +2047,6 @@
           container = ko.utils.domData.get(element, "__falcon_view__container__");
           container.innerHTML = template;
           ko.renderTemplate(element, childContext, {}, element);
-          /*execScripts = !!ko.utils.unwrapObservable(value.execScripts)
-          				if execScripts is true
-          					scripts = Array::slice.call( element.getElementsByTagName("script") )
-          					for script in scripts
-          						console.log( script.innerText )
-          						type = script.getAttribute("type")
-          
-          						if window.call_spy
-          							console.log( "call_spy", window.call_spy.calls.count() )
-          							console.log( "call_another_spy", window.call_another_spy.calls.count() )
-          							console.log( "call_a_third_spy", window.call_a_third_spy.calls.count() )
-          						#END if
-          
-          						eval( script.innerText ) if isEmpty( type ) or type.toLowerCase() is "text/javascript"
-          
-          						if window.call_spy
-          							console.log( "call_spy", window.call_spy.calls.count() )
-          							console.log( "call_another_spy", window.call_another_spy.calls.count() )
-          							console.log( "call_a_third_spy", window.call_a_third_spy.calls.count() )
-          						#END if
-          					#END for
-          				#END if template updated
-          */
-
           if (Falcon.isView(value)) {
             value._render();
           }
