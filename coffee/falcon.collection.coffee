@@ -133,8 +133,8 @@ class Falcon.Collection extends Falcon.Object
 	constructor: (models, parent) ->
 		super(arguments...)
 		
-		models = ko.utils.unwrapObservable(models)
-		parent = ko.utils.unwrapObservable(parent)
+		models = ko.unwrap(models)
+		parent = ko.unwrap(parent)
 
 		[parent, models] = [models, parent] if not parent? and Falcon.isModel( models )
 		[parent, models] = [models, parent] if Falcon.isModel( models ) and isArray( parent )
@@ -188,11 +188,11 @@ class Falcon.Collection extends Falcon.Object
 	#	_(Falcon.Collection)_ - This instance
 	#--------------------------------------------------------
 	fill: (items, options) ->
-		return this unless @model?
+		return [] unless @model?
 
 		items ?= []
 		items = items.models() if Falcon.isCollection(items)
-		items = ko.utils.unwrapObservable(items) if ko.isObservable(items)
+		items = ko.unwrap(items) if ko.isObservable(items)
 		items = [items] unless isArray(items)
 		models = []
 		
@@ -492,10 +492,10 @@ class Falcon.Collection extends Falcon.Object
 	#	_(XmlHttpRequest)_ - The XmlHttpRequest created
 	#--------------------------------------------------------
 	create: (data, options, context) ->
-		return unless @model?
+		return null unless @model?
 		
-		data = data.unwrap() if Falcon.isModel(data)
-		data = {} unless isObject(data)
+		data = {} unless isObject(data) or Falcon.isModel(data)
+		model = if Falcon.isModel(data) then data else new @model(data)
 		
 		options = {success:options} if isFunction(options)
 		options = {} unless isObject(options)
@@ -504,11 +504,14 @@ class Falcon.Collection extends Falcon.Object
 
 		_success = options.success
 		options.success = (model) =>
-			models = @fill(model, options)
-			_success.apply(models[0] ? model, arguments)
+			@fill(model, options)
+			_success.apply(model, arguments)
 		#END success
 
-		return ( new @model(data, @parent).create(options, context) )
+		options.parent ?= @parent
+		context ?= model
+
+		return model.create(options, context)
 	#END create
 
 	#--------------------------------------------------------
@@ -534,7 +537,7 @@ class Falcon.Collection extends Falcon.Object
 	destroy: (model, options, context) ->
 		return null unless @model?
 
-		model = @first( ko.utils.unwrapObservable( model ) )
+		model = @first( ko.unwrap( model ) )
 
 		return null unless Falcon.isModel( model )
 
@@ -565,7 +568,7 @@ class Falcon.Collection extends Falcon.Object
 	#	_(Falcon.Collection)_ - This instance
 	#--------------------------------------------------------
 	remove: (items) ->
-		items = ko.utils.unwrapObservable( items )
+		items = ko.unwrap( items )
 		items = items.models() if Falcon.isCollection( items )
 		@__falcon_collection__change_count__++
 
@@ -934,7 +937,7 @@ class Falcon.Collection extends Falcon.Object
 
 		for model in models
 			if model?
-				plucked_values.push( if unwrap then ko.utils.unwrapObservable(model[attribute]) else model[attribute] )
+				plucked_values.push( if unwrap then ko.unwrap(model[attribute]) else model[attribute] )
 			else
 				plucked_values.push( undefined )
 			#END if
@@ -1001,7 +1004,7 @@ class Falcon.Collection extends Falcon.Object
 
 		for key, value of mapping
 			if ko.isObservable(value)
-				_mapping[key] = ko.observable( ko.utils.unwrapObservable(value) )
+				_mapping[key] = ko.observable( ko.unwrap(value) )
 			else if isFunction(value)
 				do =>
 					_value = value

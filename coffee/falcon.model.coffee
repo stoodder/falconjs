@@ -46,13 +46,11 @@ class Falcon.Model extends Falcon.Object
 	constructor: (data, parent) ->
 		super(arguments...)
 		
-		data = ko.utils.unwrapObservable( data )
-		parent = ko.utils.unwrapObservable( parent )
+		data = ko.unwrap( data )
+		parent = ko.unwrap( parent )
 
 		[parent, data] = [data, parent] if parent? and not Falcon.isModel( parent ) and Falcon.isModel( data )
 		[parent, data] = [data, parent] if not parent? and Falcon.isModel( data )
-
-		data = data.unwrap() if Falcon.isModel(data)
 
 		@parent = parent
 		@initialize(data)
@@ -84,8 +82,8 @@ class Falcon.Model extends Falcon.Object
 	#	_(mixed)_ - The unwrapped value at the specific attribute
 	#--------------------------------------------------------
 	get: (attribute) ->
-		return @undefined unless isString( attribute )
-		return ko.utils.unwrapObservable( @[attribute] )
+		return thisundefined unless isString( attribute )
+		return ko.unwrap( @[attribute] )
 	#END get
 
 	#--------------------------------------------------------
@@ -145,7 +143,7 @@ class Falcon.Model extends Falcon.Object
 	#--------------------------------------------------------
 	increment: (attribute) ->
 		@set(attribute, @get(attribute)+1 )
-		return @
+		return this
 	#END increment
 
 	#--------------------------------------------------------
@@ -160,7 +158,7 @@ class Falcon.Model extends Falcon.Object
 	#--------------------------------------------------------
 	decrement: (attribute) ->
 		@set(attribute, @get(attribute)-1 )
-		return @
+		return this
 	#END decrement
 
 	#----------------------------------------------------------------------------------------------
@@ -192,8 +190,7 @@ class Falcon.Model extends Falcon.Object
 	fill: (data) ->
 		data = {'id': data} if isNumber(data) or isString(data)
 		return this unless isObject(data)
-		data = data.unwrap() if Falcon.isModel(data)
-		return this if isEmpty( data )
+		return this if isEmpty(data)
 
 		rejectedAttributes = {}
 		for attr, value of Falcon.Model.prototype when attr not in ["id", "url"]
@@ -203,13 +200,21 @@ class Falcon.Model extends Falcon.Object
 		#Fill in the attributes unless they're attempting to override
 		#core functionality
 		for attr, value of data when not rejectedAttributes[attr]
-			value = ko.utils.unwrapObservable( value )
+			value = ko.unwrap( value )
 			
 			if Falcon.isModel(this[attr])
-				this[attr].fill(value) unless isEmpty( value )
+				if Falcon.isModel( value )
+					this[attr] = value
+				else
+					this[attr].fill(value)
+				#END if
 			
 			else if Falcon.isCollection(this[attr])
-				this[attr].fill(value)
+				if Falcon.isCollection( value )
+					this[attr] = value
+				else
+					this[attr].fill(value)
+				#END if
 			
 			else if ko.isWriteableObservable(this[attr])
 				this[attr](value)
@@ -278,7 +283,7 @@ class Falcon.Model extends Falcon.Object
 			if Falcon.isDataObject(value)
 				serialized[attr] = value.serialize(sub_attributes)
 			else if ko.isObservable(value)
-				serialized[attr] = ko.utils.unwrapObservable( value )
+				serialized[attr] = ko.unwrap( value )
 			else if not isFunction(value)
 				serialized[attr] = value
 			#END if
@@ -552,7 +557,7 @@ class Falcon.Model extends Falcon.Object
 	#	_(Boolean)_ - Are these equal?
 	#--------------------------------------------------------
 	equals: (model) ->
-		model = ko.utils.unwrapObservable( model )
+		model = ko.unwrap( model )
 
 		if Falcon.isModel( model )
 			id = @get("id")
@@ -593,7 +598,7 @@ class Falcon.Model extends Falcon.Object
 				this[key].mixin(value)
 			else 
 				if ko.isObservable(value)
-					this[key] = ko.observable( this[key] ? ko.utils.unwrapObservable(value) )
+					this[key] = ko.observable( this[key] ? ko.unwrap(value) )
 				else if isFunction(value)
 					do =>
 						_value = value

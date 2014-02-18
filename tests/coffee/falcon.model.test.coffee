@@ -47,7 +47,7 @@ describe "Falcon.Model", ->
 
 		modelA = new ModelA( dataModel = new Falcon.Model({"hello":"world"}), modelB = new ModelB )
 		expect( init_stub ).toHaveBeenCalledOnce()
-		expect( init_stub ).toHaveBeenCalledWith( dataModel.unwrap() )
+		expect( init_stub ).toHaveBeenCalledWith( dataModel )
 		expect( modelA.parent ).toBe( modelB )
 		init_stub.reset()
 
@@ -205,6 +205,7 @@ describe "Falcon.Model", ->
 				@model_b = modelB = new ModelB
 				@model_b2 = modelB2 = new ModelB
 				@collection_c = collectionC = new CollectionC
+				@model_b3 = new ModelB
 			#END initialize
 		#END class
 
@@ -231,15 +232,17 @@ describe "Falcon.Model", ->
 				"b_foo": "B BAR 2"
 				"url": "model_b2"
 			},
+			"model_b3": new ModelB,
 			"collection_c": [
 				{"that": "That One"}
 				{"that": "That Two"}
 				{"that": "That Three"}
 			]
 		}
+
 		modelA = new ModelA()
+		original_model_b3 = modelA.get("model_b3")
 		modelA.fill( data )
-		#END fill
 
 		#TEST
 		expect( modelA.get("id") ).toBe( 33)
@@ -254,6 +257,11 @@ describe "Falcon.Model", ->
 		expect( modelA.get("model_b2").get("id") ).toBe( "test")
 		expect( modelA.get("model_b2").get("b_foo") ).toBe( "B BAR 2")
 		expect( modelA.get("model_b2").get("url") ).toBe( "model_b2")
+
+		expect( original_model_b3 ).toEqual( jasmine.any(ModelB) )
+		expect( data.model_b3 ).toEqual( jasmine.any(ModelB) )
+		expect( data.model_b3 ).not.toBe( original_model_b3 )
+		expect( modelA.get("model_b3") ).toBe( data.model_b3 )
 		
 		expect( modelA.get("collection_c") ).toBe( collectionC)
 		expect( modelA.get("collection_c").length() ).toBe( 3 )
@@ -273,6 +281,8 @@ describe "Falcon.Model", ->
 		expect( serialized['model_b2'] ).toEqual(jasmine.any(Object))
 		expect( serialized['model_b2']['id'] ).toBe( "test" )
 		expect( serialized['model_b2']['b_foo'] ).toBe( "B BAR 2" )
+
+		expect( serialized['model_b3'] ).toEqual(jasmine.any(Object))
 
 		expect( serialized['collection_c'] ).toEqual(jasmine.any(Array))
 		expect( serialized['collection_c'].length ).toBe( 3 )
@@ -297,6 +307,7 @@ describe "Falcon.Model", ->
 		expect( serialized['id'] ).not.toBeDefined()
 		expect( serialized["model_b"] ).not.toBeDefined()
 		expect( serialized["model_b2"] ).not.toBeDefined()
+		expect( serialized["model_b3"] ).not.toBeDefined()
 		expect( serialized["collection_c"] ).not.toBeDefined()
 
 		#TEST
@@ -314,6 +325,7 @@ describe "Falcon.Model", ->
 		expect( serialized['model_b2']['b_foo'] ).toBe( "B BAR 2" )
 
 		expect( serialized["model_b"] ).not.toBeDefined()
+		expect( serialized["model_b3"] ).not.toBeDefined()
 		expect( serialized["collection_c"] ).not.toBeDefined()
 
 		#TEST serialize shouldn't include prototype elements of Falcon.Object

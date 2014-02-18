@@ -499,16 +499,13 @@
     function Model(data, parent) {
       var _ref, _ref1;
       Model.__super__.constructor.apply(this, arguments);
-      data = ko.utils.unwrapObservable(data);
-      parent = ko.utils.unwrapObservable(parent);
+      data = ko.unwrap(data);
+      parent = ko.unwrap(parent);
       if ((parent != null) && !Falcon.isModel(parent) && Falcon.isModel(data)) {
         _ref = [data, parent], parent = _ref[0], data = _ref[1];
       }
       if ((parent == null) && Falcon.isModel(data)) {
         _ref1 = [data, parent], parent = _ref1[0], data = _ref1[1];
-      }
-      if (Falcon.isModel(data)) {
-        data = data.unwrap();
       }
       this.parent = parent;
       this.initialize(data);
@@ -522,9 +519,9 @@
 
     Model.prototype.get = function(attribute) {
       if (!isString(attribute)) {
-        return this.undefined;
+        return thisundefined;
       }
-      return ko.utils.unwrapObservable(this[attribute]);
+      return ko.unwrap(this[attribute]);
     };
 
     Model.prototype.set = function(attribute, value) {
@@ -575,9 +572,6 @@
       if (!isObject(data)) {
         return this;
       }
-      if (Falcon.isModel(data)) {
-        data = data.unwrap();
-      }
       if (isEmpty(data)) {
         return this;
       }
@@ -594,13 +588,19 @@
         if (!(!rejectedAttributes[attr])) {
           continue;
         }
-        value = ko.utils.unwrapObservable(value);
+        value = ko.unwrap(value);
         if (Falcon.isModel(this[attr])) {
-          if (!isEmpty(value)) {
+          if (Falcon.isModel(value)) {
+            this[attr] = value;
+          } else {
             this[attr].fill(value);
           }
         } else if (Falcon.isCollection(this[attr])) {
-          this[attr].fill(value);
+          if (Falcon.isCollection(value)) {
+            this[attr] = value;
+          } else {
+            this[attr].fill(value);
+          }
         } else if (ko.isWriteableObservable(this[attr])) {
           this[attr](value);
         } else {
@@ -656,7 +656,7 @@
         if (Falcon.isDataObject(value)) {
           serialized[attr] = value.serialize(sub_attributes);
         } else if (ko.isObservable(value)) {
-          serialized[attr] = ko.utils.unwrapObservable(value);
+          serialized[attr] = ko.unwrap(value);
         } else if (!isFunction(value)) {
           serialized[attr] = value;
         }
@@ -876,7 +876,7 @@
 
     Model.prototype.equals = function(model) {
       var id, other_id;
-      model = ko.utils.unwrapObservable(model);
+      model = ko.unwrap(model);
       if (Falcon.isModel(model)) {
         id = this.get("id");
         other_id = model.get("id");
@@ -902,7 +902,7 @@
           this[key].mixin(value);
         } else {
           if (ko.isObservable(value)) {
-            this[key] = ko.observable((_ref = this[key]) != null ? _ref : ko.utils.unwrapObservable(value));
+            this[key] = ko.observable((_ref = this[key]) != null ? _ref : ko.unwrap(value));
           } else if (isFunction(value)) {
             (function() {
               var _value;
@@ -1201,8 +1201,8 @@
     function Collection(models, parent) {
       var _ref, _ref1;
       Collection.__super__.constructor.apply(this, arguments);
-      models = ko.utils.unwrapObservable(models);
-      parent = ko.utils.unwrapObservable(parent);
+      models = ko.unwrap(models);
+      parent = ko.unwrap(parent);
       if ((parent == null) && Falcon.isModel(models)) {
         _ref = [models, parent], parent = _ref[0], models = _ref[1];
       }
@@ -1233,7 +1233,7 @@
     Collection.prototype.fill = function(items, options) {
       var comparator, head, i, insert_index, iterator, m, mapping, method, model, models, tail, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _length, _m, _model, _models, _ref, _ref1, _ref2;
       if (this.model == null) {
-        return this;
+        return [];
       }
       if (items == null) {
         items = [];
@@ -1242,7 +1242,7 @@
         items = items.models();
       }
       if (ko.isObservable(items)) {
-        items = ko.utils.unwrapObservable(items);
+        items = ko.unwrap(items);
       }
       if (!isArray(items)) {
         items = [items];
@@ -1520,17 +1520,15 @@
     };
 
     Collection.prototype.create = function(data, options, context) {
-      var _success,
+      var model, _success,
         _this = this;
       if (this.model == null) {
-        return;
+        return null;
       }
-      if (Falcon.isModel(data)) {
-        data = data.unwrap();
-      }
-      if (!isObject(data)) {
+      if (!(isObject(data) || Falcon.isModel(data))) {
         data = {};
       }
+      model = Falcon.isModel(data) ? data : new this.model(data);
       if (isFunction(options)) {
         options = {
           success: options
@@ -1547,11 +1545,16 @@
       }
       _success = options.success;
       options.success = function(model) {
-        var models, _ref;
-        models = _this.fill(model, options);
-        return _success.apply((_ref = models[0]) != null ? _ref : model, arguments);
+        _this.fill(model, options);
+        return _success.apply(model, arguments);
       };
-      return new this.model(data, this.parent).create(options, context);
+      if (options.parent == null) {
+        options.parent = this.parent;
+      }
+      if (context == null) {
+        context = model;
+      }
+      return model.create(options, context);
     };
 
     Collection.prototype.destroy = function(model, options, context) {
@@ -1560,7 +1563,7 @@
       if (this.model == null) {
         return null;
       }
-      model = this.first(ko.utils.unwrapObservable(model));
+      model = this.first(ko.unwrap(model));
       if (!Falcon.isModel(model)) {
         return null;
       }
@@ -1588,7 +1591,7 @@
 
     Collection.prototype.remove = function(items) {
       var removedItems;
-      items = ko.utils.unwrapObservable(items);
+      items = ko.unwrap(items);
       if (Falcon.isCollection(items)) {
         items = items.models();
       }
@@ -1842,7 +1845,7 @@
       for (_i = 0, _len = models.length; _i < _len; _i++) {
         model = models[_i];
         if (model != null) {
-          plucked_values.push(unwrap ? ko.utils.unwrapObservable(model[attribute]) : model[attribute]);
+          plucked_values.push(unwrap ? ko.unwrap(model[attribute]) : model[attribute]);
         } else {
           plucked_values.push(void 0);
         }
@@ -1872,7 +1875,7 @@
       for (key in mapping) {
         value = mapping[key];
         if (ko.isObservable(value)) {
-          _mapping[key] = ko.observable(ko.utils.unwrapObservable(value));
+          _mapping[key] = ko.observable(ko.unwrap(value));
         } else if (isFunction(value)) {
           (function() {
             var _value;

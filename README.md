@@ -11,11 +11,10 @@
 
 
 ## For The Future
-**v0.9.0**
+**v0.10.0**
 * Add 'merge' method to collections
-* Add method support fo obervables and defaults
+* Add method support for obervables and defaults (rather than dictionary defintion)
 * Add 'set' method to collections (sets all values for a key to each model in the collection)
-* Remove jQuery for document load
 * Find a replacement library for jQuery to do Ajax handling that includes promises and typicals response callbacks
 * Add support for 'Date' type fields
 * Add support for Falcon.Collection in the without() method (remove all models from the resultant collection that are in the given collection)
@@ -31,3 +30,6 @@ Done
 * Add 'all' method to collections
 * Add 'increment' and 'decrement' to models
 * Converted unit tests to Jasmine
+* Removing the usages of unwrap where not necessary. Models should carry over by reference, not duplication
+* Reworked the initialization process
+* Removed jQuery for DOM listening/manipulation
