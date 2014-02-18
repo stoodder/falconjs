@@ -336,6 +336,48 @@ describe "Knockout Bindings", ->
 		#END it
 	#END describe
 
+	describe "Test execScripts: true for view binding", ->
+		class TestView extends Falcon.View
+			url: "#test_view"
+			execScripts: true
+		#END class
+
+		$test_view_template = $("
+			<template id='test_view'>
+				<script type='text/javascript'>window.call_spy();</script>
+				<script>window.call_another_spy();</script>
+				<script type='text/template'>window.call_a_third_spy();</script>
+			</template>
+		")
+
+		beforeEach ->
+			window.call_spy = jasmine.createSpy("Call Spy")
+			window.call_another_spy = jasmine.createSpy("Call Another Spy")
+			window.call_a_third_spy = jasmine.createSpy("Call A Third Spy")
+			$body.append($test_view_template)
+		#END beforeEach
+
+		afterEach ->
+			$test_view_template.remove()
+			window.call_spy = window.call_another_spy = window.call_a_third_spy = null
+			delete window.call_spy
+			delete window.call_another_spy
+			delete window.call_a_third_spy
+		#END afterEach
+
+		it "Should call the spies", ->
+			expect( window.call_spy ).not.toHaveBeenCalled()
+			expect( window.call_another_spy ).not.toHaveBeenCalled()
+			expect( window.call_a_third_spy ).not.toHaveBeenCalled()
+
+			applyApp( new TestView )
+
+			expect( window.call_spy.calls.count() ).toBe( 1 )
+			expect( window.call_another_spy.calls.count() ).toBe( 1 )
+			expect( window.call_a_third_spy ).not.toHaveBeenCalled()
+		#END it
+	#END describe
+
 	describe "Test updated foreach binding", ->
 		foreach_binding = ko.bindingHandlers['foreach']
 		foreach_init_spy = foreach_update_spy = null

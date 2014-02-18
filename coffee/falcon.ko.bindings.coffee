@@ -101,10 +101,11 @@ ko.bindingHandlers['view'] = do ->
 
 				execScripts = !!ko.utils.unwrapObservable(value.execScripts)
 				if execScripts is true
-					$(element).find("script").each( (index, script) ->
-						script = $(script)
-						eval( script.text() ) if script.attr('type').toLowerCase() is "text/javascript"
-					)
+					scripts = Array::slice.call( element.getElementsByTagName("script") )
+					for script in scripts
+						type = script.getAttribute("type").toLowerCase()
+						eval( script.innerText ) if isEmpty( type ) or type is "text/javascript"
+					#END for
 				#END if template updated
 
 				#Notify the view that it is being displayed

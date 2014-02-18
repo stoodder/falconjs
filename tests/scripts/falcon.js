@@ -2019,7 +2019,7 @@
         return returnVal;
       },
       'update': function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
-        var childContext, container, execScripts, template, value;
+        var childContext, container, execScripts, script, scripts, template, type, value, _i, _len;
         value = valueAccessor();
         if (ko.isObservable(value)) {
           value = value();
@@ -2046,12 +2046,14 @@
           ko.renderTemplate(element, childContext, {}, element);
           execScripts = !!ko.utils.unwrapObservable(value.execScripts);
           if (execScripts === true) {
-            $(element).find("script").each(function(index, script) {
-              script = $(script);
-              if (script.attr('type').toLowerCase() === "text/javascript") {
-                return eval(script.text());
+            scripts = Array.prototype.slice.call(element.getElementsByTagName("script"));
+            for (_i = 0, _len = scripts.length; _i < _len; _i++) {
+              script = scripts[_i];
+              type = script.getAttribute("type").toLowerCase();
+              if (isEmpty(type) || type === "text/javascript") {
+                eval(script.innerText);
               }
-            });
+            }
           }
           if (Falcon.isView(value)) {
             value._render();
