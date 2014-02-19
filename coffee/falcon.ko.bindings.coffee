@@ -99,6 +99,8 @@ ko.bindingHandlers['view'] = do ->
 				container.innerHTML = template
 				ko.renderTemplate(element, childContext, {}, element)
 
+				#TODO: Consider reverting back t using execScripts here
+
 				#Notify the view that it is being displayed
 				value._render() if Falcon.isView( value )
 			#END if not template?

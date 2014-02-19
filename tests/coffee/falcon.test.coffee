@@ -95,6 +95,87 @@ describe "Falcon", ->
 
 			document.body.removeChild( element )
 		#END it
+
+		it "Should allow for an HTMLElement as the applicationElement", ->
+			element = document.createElement("div")
+			document.body.appendChild( element )
+			Falcon.applicationElement = element
+			callback = jasmine.createSpy("Callback")
+
+			ret = Falcon.apply(view, callback)
+
+			expect( ko.applyBindings.calls.count() ).toBe( 1 )
+			expect( ko.applyBindings ).toHaveBeenCalledWith(jasmine.any(Function), element)
+
+			observable = ko.applyBindings.calls.mostRecent().args[0]
+			expect( ko.isObservable(observable) ).toBe( true )
+			expect( observable() ).toBe( view )
+
+			expect( callback.calls.count() ).toBe( 1 )
+
+			expect( ret ).toBe( Falcon )
+
+			document.body.removeChild( element )
+		#END it
+
+
+		it "Should find the correct element by id in the applicationEement", ->
+			element = document.createElement("div")
+			element.setAttribute("id","test")
+			document.body.appendChild( element )
+			Falcon.applicationElement = "#test"
+			callback = jasmine.createSpy("Callback")
+
+			ret = Falcon.apply(view, callback)
+
+			expect( ko.applyBindings.calls.count() ).toBe( 1 )
+			expect( ko.applyBindings ).toHaveBeenCalledWith(jasmine.any(Function), element)
+
+			observable = ko.applyBindings.calls.mostRecent().args[0]
+			expect( ko.isObservable(observable) ).toBe( true )
+			expect( observable() ).toBe( view )
+
+			expect( callback.calls.count() ).toBe( 1 )
+
+			expect( ret ).toBe( Falcon )
+
+			document.body.removeChild( element )
+		#END it
+
+		it "Should not fail if no element can be found", ->
+			callback = jasmine.createSpy("Callback")
+
+			ret = Falcon.apply(view, "#notreal", callback)
+
+			expect( ko.applyBindings.calls.count() ).toBe( 1 )
+			expect( ko.applyBindings ).toHaveBeenCalledWith(jasmine.any(Function), document.body)
+
+			observable = ko.applyBindings.calls.mostRecent().args[0]
+			expect( ko.isObservable(observable) ).toBe( true )
+			expect( observable() ).toBe( view )
+
+			expect( callback.calls.count() ).toBe( 1 )
+
+			expect( ret ).toBe( Falcon )
+		#END it
+
+		it "Should not fail if no applicationElement can be found", ->
+			Falcon.applicationElement = "#notreal"
+			callback = jasmine.createSpy("Callback")
+
+			ret = Falcon.apply(view, callback)
+
+			expect( ko.applyBindings.calls.count() ).toBe( 1 )
+			expect( ko.applyBindings ).toHaveBeenCalledWith(jasmine.any(Function), document.body)
+
+			observable = ko.applyBindings.calls.mostRecent().args[0]
+			expect( ko.isObservable(observable) ).toBe( true )
+			expect( observable() ).toBe( view )
+
+			expect( callback.calls.count() ).toBe( 1 )
+
+			expect( ret ).toBe( Falcon )
+		#END it
 	#END describe
 
 	describe "isModel", ->

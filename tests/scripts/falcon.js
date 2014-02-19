@@ -197,8 +197,7 @@
     cache: true,
     deferEvaluation: true,
     apply: function(root, element, callback) {
-      var _element, _ref;
-      _element = element;
+      var _ref;
       if (isFunction(element)) {
         _ref = [callback, element], element = _ref[0], callback = _ref[1];
       }
@@ -206,6 +205,7 @@
         element = Falcon.applicationElement;
       }
       _ready(function() {
+        var _ref1;
         if (!isElement(element)) {
           if (!isString(element)) {
             element = "";
@@ -214,7 +214,7 @@
           if (isEmpty(element)) {
             element = "body";
           }
-          element = document.querySelectorAll(element)[0];
+          element = (_ref1 = document.querySelectorAll(element)[0]) != null ? _ref1 : document.body;
         }
         element.setAttribute("data-bind", "view: $data");
         ko.applyBindings(ko.observable(root), element);
