@@ -5732,7 +5732,7 @@
         document.body.appendChild(template2);
         return spyOn(Falcon.View, 'cacheTemplate');
       });
-      return it("Should have removed and cached the templates", function() {
+      it("Should have removed and cached the templates", function() {
         var ret, templates;
         templates = document.querySelectorAll("template");
         expect(templates.length).toBe(2);
@@ -5742,6 +5742,17 @@
         expect(Falcon.View.cacheTemplate.calls.count()).toBe(2);
         expect(Falcon.View.cacheTemplate.calls.argsFor(0)).toEqual(['#test_template_1', 'Hello World 1']);
         expect(Falcon.View.cacheTemplate.calls.argsFor(1)).toEqual(['#test_template_2', 'Hello World 2']);
+        return expect(ret).toBe(Falcon.View);
+      });
+      return it("Should work properly if no templates exist", function() {
+        var ret, templates;
+        document.body.removeChild(template);
+        document.body.removeChild(template2);
+        templates = document.querySelectorAll("template");
+        expect(templates.length).toBe(0);
+        ret = Falcon.View.cacheTemplates();
+        templates = document.querySelectorAll("template");
+        expect(templates.length).toBe(0);
         return expect(ret).toBe(Falcon.View);
       });
     });

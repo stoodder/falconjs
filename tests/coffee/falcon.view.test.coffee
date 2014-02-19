@@ -210,6 +210,21 @@ describe "Falcon.View", ->
 
 			expect( ret ).toBe( Falcon.View )
 		#END it
+
+		it "Should work properly if no templates exist", ->
+			document.body.removeChild( template )
+			document.body.removeChild( template2 )
+			
+			templates = document.querySelectorAll("template")
+			expect( templates.length ).toBe( 0 )
+			
+			ret = Falcon.View.cacheTemplates()
+			
+			templates = document.querySelectorAll("template")
+			expect( templates.length ).toBe( 0 )
+
+			expect( ret ).toBe( Falcon.View )
+		#END it
 	#END describe
 
 	#--------------------------------------------------------------

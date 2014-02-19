@@ -72,11 +72,9 @@ _ready = null
 		_ready ->
 			unless isElement( element )
 				element = "" unless isString( element )
-				element = trim( element )
-				element = "body" if isEmpty( element )
+				element = if isEmpty( element ) then "body" else trim( element )
 				element = document.querySelectorAll(element)[0] ? document.body
 			#END unless
-
 
 			# Apply the bindings, we need to rewrap the root into its own
 			# observable because, by default, the applyBindings will pass

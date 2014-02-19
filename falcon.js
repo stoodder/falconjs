@@ -210,10 +210,7 @@
           if (!isString(element)) {
             element = "";
           }
-          element = trim(element);
-          if (isEmpty(element)) {
-            element = "body";
-          }
+          element = isEmpty(element) ? "body" : trim(element);
           element = (_ref1 = document.querySelectorAll(element)[0]) != null ? _ref1 : document.body;
         }
         element.setAttribute("data-bind", "view: $data");
