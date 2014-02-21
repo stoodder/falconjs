@@ -1,5 +1,16 @@
+isObject = (object) -> object? and Object::toString.call( object ) is "[object Object]"
+isString = (object) -> object? and Object::toString.call( object ) is "[object String]"
+
 class jQueryAdapter extends Falcon.Adapter
 	cache: false
+
+	resolveRequestType: ( data_object, type, options, context ) ->
+		return super( data_object, type, options, context )
+	#END resolveRequestType
+
+	resolveContext: ( data_object, type, options, context ) ->
+		return super( data_object, type, options, context )
+	#END resolveContext
 
 	standardizeOptions: ( data_object, type, options, context ) ->
 		options = super( data_object, type, options, context )
@@ -31,7 +42,7 @@ class jQueryAdapter extends Falcon.Adapter
 	#END serializeData
 
 	parseRawResponseData: ( data_object, type, options, context, response_args ) ->
-		{data, status, xhr} = response_args
+		{data, xhr} = super( data_object, type, options, context, response_args )
 		data = JSON.parse( data ) if isString( data )
 		data = JSON.parse( xhr.responseText ) if not data? and isString( xhr.responseText )
 		data ?= {}
