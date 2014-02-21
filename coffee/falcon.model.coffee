@@ -392,90 +392,10 @@ class Falcon.Model extends Falcon.Object
 	#	**context** _(Object)_ - Optional object to set the context of the request
 	#
 	# Returns:
-	#	_(XmlHttpRequest)_ - The XmlHttpRequest created
+	#	_(mixed)_ - Whatever the response from the adapter's sync method is
 	#--------------------------------------------------------
 	sync: (type, options, context) ->
-		options = {complete: options} if isFunction(options)
-		options = {attributes: trim( options ).split(",")} if isString(options)
-		options = {attributes: options} if isArray( options )
-
-		options = {} unless isObject(options)
-		options.data = null unless isObject(options.data)
-		options.dataType = "json" unless isString(options.dataType)
-		options.contentType = "application/json" unless isString(options.contentType)
-		options.success = (->) unless isFunction(options.success)
-		options.complete = (->) unless isFunction(options.complete)
-		options.error = (->) unless isFunction(options.error)
-		options.parent = @parent unless Falcon.isModel( options.parent ) or options.parent is null
-		options.attributes = null unless options.attributes?
-		options.params = {} unless isObject( options.params ) 
-		options.fill = true unless isBoolean( options.fill )
-		options.headers = {} unless isObject( options.headers )
-
-		type = trim( if isString(type) then type.toUpperCase() else "GET" )
-		type = "GET" unless type in ["GET", "POST", "PUT", "DELETE"]
-		options.type = type
-
-		return if type in ["PUT", "POST"] and not @validate(options)
-
-		if options.data is null and type in ["POST", "PUT"]
-			options.data = @serialize( options.attributes )
-		#END if
-
-		#serialize the data to json
-		json = if options.data is null then "" else JSON.stringify(options.data)
-
-		#Determine the context
-		context = context ? options.context ? this
-
-		url = options.url ? @makeUrl(type, options.parent)
-
-		unless isEmpty( options.params )
-			url += "?" unless url.indexOf("?") > -1
-			url += ( "#{key}=#{value}" for key, value of options.params ).join("&")
-		#END if params
-
-		return $.ajax
-			'type': type
-			'url': url
-			'data': json
-			'dataType': options.dataType
-			'contentType': options.contentType
-			'cache': Falcon.cache
-			'headers': options.headers
-
-			'success': (data, status, xhr) =>
-				data = JSON.parse( data ) if isString( data )
-				data = JSON.parse( xhr.responseText ) if not data? and isString( xhr.responseText )
-				data ?= {}
-
-				parsed_data = @parse( data, options, xhr )
-
-				@fill(parsed_data, options) if options.fill
-
-				switch type
-					when "GET" then @trigger("fetch", parsed_data)
-					when "POST" then @trigger("create", parsed_data)
-					when "PUT" then @trigger("save", parsed_data)
-					when "DELETE" then @trigger("destroy", parsed_data)
-				#END switch
-
-				options.success.call(context, this, data, status, xhr)
-			#END success
-
-			'error': (xhr) => 
-				response = xhr.responseText
-				try
-					response = JSON.parse(response) if isString(response)
-				catch e
-
-				options.error.call(context, this, response, xhr)
-			#END error
-
-			'complete': (xhr, status) =>
-				options.complete.call(context, this, xhr, status)
-			#END complete
-		#END $.ajax
+		return Falcon.adapter.sync( @, type, options, context )
 	#END sync
 
 	#--------------------------------------------------------
@@ -488,7 +408,7 @@ class Falcon.Model extends Falcon.Object
 	#	**context** _(Object)_ - Optional object to set the context of the request
 	#
 	# Returns:
-	#	_(XmlHttpRequest)_ - The XmlHttpRequest created
+	#	_(mixed)_ - Whatever the response from the adapter's sync method is
 	#--------------------------------------------------------
 	fetch: (options, context) -> 
 		return @sync('GET', options, context)
@@ -504,7 +424,7 @@ class Falcon.Model extends Falcon.Object
 	#	**context** _(Object)_ - Optional object to set the context of the request
 	#
 	# Returns:
-	#	_(XmlHttpRequest)_ - The XmlHttpRequest created
+	#	_(mixed)_ - Whatever the response from the adapter's sync method is
 	#--------------------------------------------------------
 	create: (options, context) -> 
 		return @sync('POST', options, context)
@@ -521,7 +441,7 @@ class Falcon.Model extends Falcon.Object
 	#	**context** _(Object)_ - Optional object to set the context of the request
 	#
 	# Returns:
-	#	_(XmlHttpRequest)_ - The XmlHttpRequest created
+	#	_(mixed)_ - Whatever the response from the adapter's sync method is
 	#--------------------------------------------------------
 	save: (options, context) -> 
 		return ( if @isNew() then @create(options, context) else @sync('PUT', options, context) )
@@ -537,7 +457,7 @@ class Falcon.Model extends Falcon.Object
 	#	**context** _(Object)_ - Optional object to set the context of the request
 	#
 	# Returns:
-	#	_(XmlHttpRequest)_ - The XmlHttpRequest created
+	#	_(mixed)_ - Whatever the response from the adapter's sync method is
 	#--------------------------------------------------------
 	destroy: (options, context) -> 
 		return @sync('DELETE', options, context)

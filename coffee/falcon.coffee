@@ -35,21 +35,21 @@ _ready = null
 	baseTemplateUrl: ""
 
 	#--------------------------------------------------------
-	# Attribute: Falcon.cache
-	#	Should the ajax calls cache their results?  Refer to
-	#	the jquery documentation for $.ajax
-	#
-	# Type: _(String)_
-	#--------------------------------------------------------
-	cache: true
-
-	#--------------------------------------------------------
 	# Attribute: Falcon.deferEvaluation
-	#	Shoudl our computed observables use deferedEvaluation?
+	#	Should our computed observables use deferedEvaluation?
 	#
 	# Type: _(String)_
 	#--------------------------------------------------------
 	deferEvaluation: true
+
+	#--------------------------------------------------------
+	# Attribute: Falcon.adapter
+	#	The adapater instance for syncing data between the
+	#	front end and data store
+	#
+	# Type: _(Falcon.Adapter)_
+	#--------------------------------------------------------
+	adapter: null
 
 	#--------------------------------------------------------
 	# Method: Falcon.apply
