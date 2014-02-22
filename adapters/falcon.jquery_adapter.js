@@ -109,7 +109,7 @@
         data = JSON.parse(xhr.responseText);
       }
       if (data == null) {
-        data = {};
+        data = Falcon.isModel(data_object) ? {} : [];
       }
       return data;
     };

@@ -56,7 +56,7 @@ class jQueryAdapter extends Falcon.Adapter
 		{data, xhr} = super( data_object, type, options, context, response_args )
 		data = JSON.parse( data ) if isString( data )
 		data = JSON.parse( xhr.responseText ) if not data? and isString( xhr.responseText )
-		data ?= {}
+		data ?= if Falcon.isModel( data_object ) then {} else []
 		return data
 	#END parseRawResponseData
 
