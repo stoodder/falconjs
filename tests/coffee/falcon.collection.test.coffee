@@ -968,7 +968,7 @@ describe "Falcon.Collection", ->
 
 			beforeEach ->
 				ajax_stub = sinon.stub(jQuery, "ajax")
-				Falcon.cache = false
+				Falcon.adapter.cache = false
 			#END beforeEach
 
 			afterEach ->
@@ -996,7 +996,7 @@ describe "Falcon.Collection", ->
 			#END it
 
 			it "Should fetch properly with options", ->
-				Falcon.cache = true
+				Falcon.adapter.cache = true
 				collectionA.fetch
 					url: "http://www.falconjs.com"
 					data: {"hello": "world"}
@@ -1092,36 +1092,7 @@ describe "Falcon.Collection", ->
 
 				expect( success_spy.callCount ).toBe( 1 )
 				expect( success_spy ).toHaveBeenCalledOn( collectionA )
-				expect( success_spy.firstCall.args.length ).toBe( 4 )
-				expect( success_spy.firstCall.args[0] ).toBe( collectionA )
-
-				expect( error_spy ).not.toHaveBeenCalled()
-
-				expect( complete_spy.callCount ).toBe( 1 )
-				expect( complete_spy ).toHaveBeenCalledOn( collectionA )
-				expect( complete_spy.firstCall.args.length ).toBe( 3 )
-				expect( complete_spy.firstCall.args[0] ).toBe( collectionA )
-				expect( complete_spy ).toHaveBeenCalledAfter( success_spy )
-			#END it
-
-			it "Should not fill when fill option is false on fetch", ->
-				options.fill = false
-				collectionA.fetch( options )
-
-				server.respondWith [ 200, {}, JSON.stringify(data) ]
-				server.respond()
-
-				expect( parse_stub.callCount ).toBe( 1 )
-				expect( parse_stub.firstCall.args[0] ).toEqual data
-
-				expect( fill_stub.callCount ).toBe( 0 )
-
-				expect( fetch_spy ).toHaveBeenCalledOnce()
-				expect( fetch_spy ).toHaveBeenCalledAfter( parse_stub )
-
-				expect( success_spy.callCount ).toBe( 1 )
-				expect( success_spy ).toHaveBeenCalledOn( collectionA )
-				expect( success_spy.firstCall.args.length ).toBe( 4 )
+				expect( success_spy.firstCall.args.length ).toBe( 3 )
 				expect( success_spy.firstCall.args[0] ).toBe( collectionA )
 
 				expect( error_spy ).not.toHaveBeenCalled()
@@ -1164,7 +1135,7 @@ describe "Falcon.Collection", ->
 
 			beforeEach ->
 				ajax_stub = sinon.stub(jQuery, "ajax")
-				Falcon.cache = false
+				Falcon.adapter.cache = false
 			#END beforeEach
 
 			afterEach ->
@@ -1215,7 +1186,7 @@ describe "Falcon.Collection", ->
 
 			beforeEach ->
 				server = sinon.fakeServer.create()
-				Falcon.cache = false
+				Falcon.adapter.cache = false
 			#END beforeEach
 
 			afterEach ->
