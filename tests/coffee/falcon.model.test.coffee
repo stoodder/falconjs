@@ -927,7 +927,7 @@ describe "Falcon.Model", ->
 
 			beforeEach ->
 				ajax_stub = sinon.stub(jQuery, "ajax")
-				Falcon.cache = false
+				Falcon.adapter.cache = false
 			#END beforeEach
 
 			afterEach ->
@@ -939,23 +939,28 @@ describe "Falcon.Model", ->
 				modelA.fetch()
 
 				expect( ajax_stub ).toHaveBeenCalledOnce()
-				expect( ajax_stub ).toHaveBeenCalledWith(jasmine.objectContaining({type: "GET"}))
-				expect( ajax_stub ).toHaveBeenCalledWith(jasmine.objectContaining({url: modelA.makeUrl("GET")}))
-				expect( ajax_stub ).toHaveBeenCalledWith(jasmine.objectContaining({data: ""}))
-				expect( ajax_stub ).toHaveBeenCalledWith(jasmine.objectContaining({contentType: "application/json"}))
-				expect( ajax_stub ).toHaveBeenCalledWith(jasmine.objectContaining({cache: false}))
-				expect( ajax_stub ).toHaveBeenCalledWith(jasmine.objectContaining({headers: {}}))
-				expect( ajax_stub.firstCall.args[0].success ).toEqual(jasmine.any(Function))
-				expect( ajax_stub.firstCall.args[0].success.length ).toBe( 3 )
-				expect( ajax_stub.firstCall.args[0].error ).toEqual(jasmine.any(Function))
-				expect( ajax_stub.firstCall.args[0].error.length ).toBe( 1 )
-				expect( ajax_stub.firstCall.args[0].complete ).toEqual(jasmine.any(Function))
-				expect( ajax_stub.firstCall.args[0].complete.length ).toBe( 2 )
+				expect( ajax_stub ).toHaveBeenCalledWith( jasmine.any(Object) )
+				{type, url, data, contentType, cache, headers, success, error, complete} = ajax_stub.lastCall.args[0]
+
+				expect( type ).toBe( "GET" )
+				expect( url ).toBe( modelA.makeUrl("GET") )
+				expect( data ).toBe( "" )
+				expect( contentType ).toBe( "application/json" )
+				expect( cache ).toBe( false )
+				expect( headers ).toEqual( {} )
+
+				expect( success ).toEqual( jasmine.any(Function) )
+				expect( error ).toEqual( jasmine.any(Function) )
+				expect( complete ).toEqual( jasmine.any(Function) )
+
+				expect( success.length ).toBe( 3 )
+				expect( error.length ).toBe( 1 )
+				expect( complete.length ).toBe( 2 )
 			#END it
 
 			it "Should fetch properly with options", ->
 				modelA = new ModelA(id: 1)
-				Falcon.cache = true
+				Falcon.adapter.cache = true
 				modelA.fetch
 					url: "http://www.falconjs.com"
 					data: {"hello": "world"}
@@ -967,24 +972,27 @@ describe "Falcon.Model", ->
 				#END fetch
 
 				expect( ajax_stub ).toHaveBeenCalledOnce()
-				expect( ajax_stub ).toHaveBeenCalledWith(jasmine.objectContaining({type: "GET"}))
-				expect( ajax_stub ).toHaveBeenCalledWith(jasmine.objectContaining({url: "http://www.falconjs.com"}))
-				expect( ajax_stub ).toHaveBeenCalledWith(jasmine.objectContaining({data: JSON.stringify("hello": "world")}))
-				expect( ajax_stub ).toHaveBeenCalledWith(jasmine.objectContaining({contentType: "text/html"}))
-				expect( ajax_stub ).toHaveBeenCalledWith(jasmine.objectContaining({cache: true}))
-				expect( ajax_stub ).toHaveBeenCalledWith(jasmine.objectContaining({headers: {"User-Agent", "Chrome"}}))
+				expect( ajax_stub ).toHaveBeenCalledWith( jasmine.any(Object) )
+				{type, url, data, contentType, cache, headers, success, error, complete} = ajax_stub.lastCall.args[0]
+
+				expect( type ).toBe( "GET" )
+				expect( url ).toBe( "http://www.falconjs.com" )
+				expect( data ).toBe( JSON.stringify("hello": "world") )
+				expect( contentType ).toBe( "text/html" )
+				expect( cache ).toBe( true )
+				expect( headers ).toEqual( {"User-Agent", "Chrome"} )
 				
-				expect( ajax_stub.firstCall.args[0].success ).toEqual(jasmine.any(Function))
-				expect( ajax_stub.firstCall.args[0].success.length ).toBe( 3 )
-				expect( ajax_stub.firstCall.args[0].success ).not.toBe( _success )
+				expect( success ).toEqual(jasmine.any(Function))
+				expect( success.length ).toBe( 3 )
+				expect( success ).not.toBe( _success )
 
-				expect( ajax_stub.firstCall.args[0].error ).toEqual(jasmine.any(Function))
-				expect( ajax_stub.firstCall.args[0].error.length ).toBe( 1 )
-				expect( ajax_stub.firstCall.args[0].error ).not.toBe( _error )
+				expect( error ).toEqual(jasmine.any(Function))
+				expect( error.length ).toBe( 1 )
+				expect( error ).not.toBe( _error )
 
-				expect( ajax_stub.firstCall.args[0].complete ).toEqual(jasmine.any(Function))
-				expect( ajax_stub.firstCall.args[0].complete.length ).toBe( 2 )
-				expect( ajax_stub.firstCall.args[0].complete ).not.toBe( _complete )
+				expect( complete ).toEqual(jasmine.any(Function))
+				expect( complete.length ).toBe( 2 )
+				expect( complete ).not.toBe( _complete )
 			#END it
 
 			it "Should save properly without options", ->
@@ -992,12 +1000,16 @@ describe "Falcon.Model", ->
 				modelA.save()
 
 				expect( ajax_stub ).toHaveBeenCalledOnce()
-				expect( ajax_stub ).toHaveBeenCalledWith(jasmine.objectContaining({type: "PUT"}))
-				expect( ajax_stub ).toHaveBeenCalledWith(jasmine.objectContaining({url: modelA.makeUrl("PUT")}))
-				expect( ajax_stub ).toHaveBeenCalledWith(jasmine.objectContaining({data: JSON.stringify("id": 1) }))
-				expect( ajax_stub ).toHaveBeenCalledWith(jasmine.objectContaining({contentType: "application/json"}))
-				expect( ajax_stub ).toHaveBeenCalledWith(jasmine.objectContaining({cache: false}))
-				expect( ajax_stub ).toHaveBeenCalledWith(jasmine.objectContaining({headers: {}}))
+				expect( ajax_stub ).toHaveBeenCalledWith( jasmine.any(Object) )
+				{type, url, data, contentType, cache, headers, success, error, complete} = ajax_stub.lastCall.args[0]
+
+				expect( type ).toBe("PUT")
+				expect( url ).toBe(modelA.makeUrl("PUT"))
+				expect( data ).toBe(JSON.stringify("id": 1) )
+				expect( contentType ).toBe("application/json")
+				expect( cache ).toBe(false)
+				expect( headers ).toEqual({})
+
 				expect( ajax_stub.firstCall.args[0].success ).toEqual(jasmine.any(Function))
 				expect( ajax_stub.firstCall.args[0].success.length ).toBe( 3 )
 				expect( ajax_stub.firstCall.args[0].error ).toEqual(jasmine.any(Function))
@@ -1008,7 +1020,7 @@ describe "Falcon.Model", ->
 
 			it "Should save properly with options", ->
 				modelA = new ModelA(id: 1)
-				Falcon.cache = true
+				Falcon.adapter.cache = true
 				modelA.save
 					url: "http://www.falconjs.com"
 					data: {"hello": "world"}
@@ -1061,7 +1073,7 @@ describe "Falcon.Model", ->
 
 			it "Should create properly with options", ->
 				modelA = new ModelA(id: 1)
-				Falcon.cache = true
+				Falcon.adapter.cache = true
 				modelA.create
 					url: "http://www.falconjs.com"
 					data: {"hello": "world"}
@@ -1114,7 +1126,7 @@ describe "Falcon.Model", ->
 
 			it "Should destroy properly with options", ->
 				modelA = new ModelA(id: 1)
-				Falcon.cache = true
+				Falcon.adapter.cache = true
 				modelA.destroy
 					url: "http://www.falconjs.com"
 					data: {"hello": "world"}
@@ -1222,40 +1234,7 @@ describe "Falcon.Model", ->
 
 				expect( success_spy.callCount ).toBe( 1 )
 				expect( success_spy ).toHaveBeenCalledOn( modelA )
-				expect( success_spy.firstCall.args.length ).toBe( 4 )
-				expect( success_spy.firstCall.args[0] ).toBe( modelA )
-
-				expect( error_spy ).not.toHaveBeenCalled()
-
-				expect( complete_spy.callCount ).toBe( 1 )
-				expect( complete_spy ).toHaveBeenCalledOn( modelA )
-				expect( complete_spy.firstCall.args.length ).toBe( 3 )
-				expect( complete_spy.firstCall.args[0] ).toBe( modelA )
-				expect( complete_spy ).toHaveBeenCalledAfter( success_spy )
-			#END it
-
-			it "Should not fill when fill option is false on fetch", ->
-				options.fill = false
-				modelA.fetch( options )
-
-				server.respondWith [ 200, {}, JSON.stringify(data) ]
-				server.respond()
-
-				expect( parse_stub.callCount ).toBe( 1 )
-				expect( parse_stub.firstCall.args[0] ).toEqual(data)
-
-				expect( fill_stub.callCount ).toBe( 0 )
-
-				expect( fetch_spy ).toHaveBeenCalledOnce()
-				expect( create_spy ).not.toHaveBeenCalled()
-				expect( save_spy ).not.toHaveBeenCalled()
-				expect( destroy_spy ).not.toHaveBeenCalled()
-
-				expect( fetch_spy ).toHaveBeenCalledAfter( parse_stub )
-
-				expect( success_spy.callCount ).toBe( 1 )
-				expect( success_spy ).toHaveBeenCalledOn( modelA )
-				expect( success_spy.firstCall.args.length ).toBe( 4 )
+				expect( success_spy.firstCall.args.length ).toBe( 3 )
 				expect( success_spy.firstCall.args[0] ).toBe( modelA )
 
 				expect( error_spy ).not.toHaveBeenCalled()
@@ -1316,7 +1295,7 @@ describe "Falcon.Model", ->
 
 				expect( success_spy.callCount ).toBe( 1 )
 				expect( success_spy ).toHaveBeenCalledOn( modelA )
-				expect( success_spy.firstCall.args.length ).toBe( 4 )
+				expect( success_spy.firstCall.args.length ).toBe( 3 )
 				expect( success_spy.firstCall.args[0] ).toBe( modelA )
 
 				expect( error_spy ).not.toHaveBeenCalled()
@@ -1350,7 +1329,7 @@ describe "Falcon.Model", ->
 
 				expect( success_spy.callCount ).toBe( 1 )
 				expect( success_spy ).toHaveBeenCalledOn( modelA )
-				expect( success_spy.firstCall.args.length ).toBe( 4 )
+				expect( success_spy.firstCall.args.length ).toBe( 3 )
 				expect( success_spy.firstCall.args[0] ).toBe( modelA )
 
 				expect( error_spy ).not.toHaveBeenCalled()
@@ -1383,7 +1362,7 @@ describe "Falcon.Model", ->
 
 				expect( success_spy.callCount ).toBe( 1 )
 				expect( success_spy ).toHaveBeenCalledOn( modelA )
-				expect( success_spy.firstCall.args.length ).toBe( 4 )
+				expect( success_spy.firstCall.args.length ).toBe( 3 )
 				expect( success_spy.firstCall.args[0] ).toBe( modelA )
 
 				expect( error_spy ).not.toHaveBeenCalled()
@@ -1409,7 +1388,7 @@ describe "Falcon.Model", ->
 
 			beforeEach ->
 				ajax_stub = sinon.stub(jQuery, "ajax")
-				Falcon.cache = false
+				Falcon.adapter.cache = false
 			#END beforeEach
 
 			afterEach ->
@@ -1467,7 +1446,7 @@ describe "Falcon.Model", ->
 
 			beforeEach ->
 				server = sinon.fakeServer.create()
-				Falcon.cache = false
+				Falcon.adapter.cache = false
 			#END beforeEach
 
 			afterEach ->

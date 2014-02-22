@@ -1761,49 +1761,39 @@
         ajax_stub = null;
         beforeEach(function() {
           ajax_stub = sinon.stub(jQuery, "ajax");
-          return Falcon.cache = false;
+          return Falcon.adapter.cache = false;
         });
         afterEach(function() {
           return ajax_stub.restore();
         });
         it("Should fetch properly without options", function() {
-          var modelA;
+          var cache, complete, contentType, data, error, headers, modelA, success, type, url, _ref1;
           modelA = new ModelA({
             id: 1
           });
           modelA.fetch();
           expect(ajax_stub).toHaveBeenCalledOnce();
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            type: "GET"
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            url: modelA.makeUrl("GET")
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            data: ""
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            contentType: "application/json"
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            cache: false
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            headers: {}
-          }));
-          expect(ajax_stub.firstCall.args[0].success).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].success.length).toBe(3);
-          expect(ajax_stub.firstCall.args[0].error).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].error.length).toBe(1);
-          expect(ajax_stub.firstCall.args[0].complete).toEqual(jasmine.any(Function));
-          return expect(ajax_stub.firstCall.args[0].complete.length).toBe(2);
+          expect(ajax_stub).toHaveBeenCalledWith(jasmine.any(Object));
+          _ref1 = ajax_stub.lastCall.args[0], type = _ref1.type, url = _ref1.url, data = _ref1.data, contentType = _ref1.contentType, cache = _ref1.cache, headers = _ref1.headers, success = _ref1.success, error = _ref1.error, complete = _ref1.complete;
+          expect(type).toBe("GET");
+          expect(url).toBe(modelA.makeUrl("GET"));
+          expect(data).toBe("");
+          expect(contentType).toBe("application/json");
+          expect(cache).toBe(false);
+          expect(headers).toEqual({});
+          expect(success).toEqual(jasmine.any(Function));
+          expect(error).toEqual(jasmine.any(Function));
+          expect(complete).toEqual(jasmine.any(Function));
+          expect(success.length).toBe(3);
+          expect(error.length).toBe(1);
+          return expect(complete.length).toBe(2);
         });
         it("Should fetch properly with options", function() {
-          var modelA, _complete, _error, _success;
+          var cache, complete, contentType, data, error, headers, modelA, success, type, url, _complete, _error, _ref1, _success;
           modelA = new ModelA({
             id: 1
           });
-          Falcon.cache = true;
+          Falcon.adapter.cache = true;
           modelA.fetch({
             url: "http://www.falconjs.com",
             data: {
@@ -1819,66 +1809,46 @@
             complete: (_complete = function() {})
           });
           expect(ajax_stub).toHaveBeenCalledOnce();
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            type: "GET"
+          expect(ajax_stub).toHaveBeenCalledWith(jasmine.any(Object));
+          _ref1 = ajax_stub.lastCall.args[0], type = _ref1.type, url = _ref1.url, data = _ref1.data, contentType = _ref1.contentType, cache = _ref1.cache, headers = _ref1.headers, success = _ref1.success, error = _ref1.error, complete = _ref1.complete;
+          expect(type).toBe("GET");
+          expect(url).toBe("http://www.falconjs.com");
+          expect(data).toBe(JSON.stringify({
+            "hello": "world"
           }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            url: "http://www.falconjs.com"
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            data: JSON.stringify({
-              "hello": "world"
-            })
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            contentType: "text/html"
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            cache: true
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            headers: {
-              "User-Agent": "User-Agent",
-              "Chrome": "Chrome"
-            }
-          }));
-          expect(ajax_stub.firstCall.args[0].success).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].success.length).toBe(3);
-          expect(ajax_stub.firstCall.args[0].success).not.toBe(_success);
-          expect(ajax_stub.firstCall.args[0].error).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].error.length).toBe(1);
-          expect(ajax_stub.firstCall.args[0].error).not.toBe(_error);
-          expect(ajax_stub.firstCall.args[0].complete).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].complete.length).toBe(2);
-          return expect(ajax_stub.firstCall.args[0].complete).not.toBe(_complete);
+          expect(contentType).toBe("text/html");
+          expect(cache).toBe(true);
+          expect(headers).toEqual({
+            "User-Agent": "User-Agent",
+            "Chrome": "Chrome"
+          });
+          expect(success).toEqual(jasmine.any(Function));
+          expect(success.length).toBe(3);
+          expect(success).not.toBe(_success);
+          expect(error).toEqual(jasmine.any(Function));
+          expect(error.length).toBe(1);
+          expect(error).not.toBe(_error);
+          expect(complete).toEqual(jasmine.any(Function));
+          expect(complete.length).toBe(2);
+          return expect(complete).not.toBe(_complete);
         });
         it("Should save properly without options", function() {
-          var modelA;
+          var cache, complete, contentType, data, error, headers, modelA, success, type, url, _ref1;
           modelA = new ModelA({
             id: 1
           });
           modelA.save();
           expect(ajax_stub).toHaveBeenCalledOnce();
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            type: "PUT"
+          expect(ajax_stub).toHaveBeenCalledWith(jasmine.any(Object));
+          _ref1 = ajax_stub.lastCall.args[0], type = _ref1.type, url = _ref1.url, data = _ref1.data, contentType = _ref1.contentType, cache = _ref1.cache, headers = _ref1.headers, success = _ref1.success, error = _ref1.error, complete = _ref1.complete;
+          expect(type).toBe("PUT");
+          expect(url).toBe(modelA.makeUrl("PUT"));
+          expect(data).toBe(JSON.stringify({
+            "id": 1
           }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            url: modelA.makeUrl("PUT")
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            data: JSON.stringify({
-              "id": 1
-            })
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            contentType: "application/json"
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            cache: false
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            headers: {}
-          }));
+          expect(contentType).toBe("application/json");
+          expect(cache).toBe(false);
+          expect(headers).toEqual({});
           expect(ajax_stub.firstCall.args[0].success).toEqual(jasmine.any(Function));
           expect(ajax_stub.firstCall.args[0].success.length).toBe(3);
           expect(ajax_stub.firstCall.args[0].error).toEqual(jasmine.any(Function));
@@ -1891,7 +1861,7 @@
           modelA = new ModelA({
             id: 1
           });
-          Falcon.cache = true;
+          Falcon.adapter.cache = true;
           modelA.save({
             url: "http://www.falconjs.com",
             data: {
@@ -1979,7 +1949,7 @@
           modelA = new ModelA({
             id: 1
           });
-          Falcon.cache = true;
+          Falcon.adapter.cache = true;
           modelA.create({
             url: "http://www.falconjs.com",
             data: {
@@ -2065,7 +2035,7 @@
           modelA = new ModelA({
             id: 1
           });
-          Falcon.cache = true;
+          Falcon.adapter.cache = true;
           modelA.destroy({
             url: "http://www.falconjs.com",
             data: {
@@ -2188,31 +2158,7 @@
           expect(fetch_spy).toHaveBeenCalledAfter(fill_stub);
           expect(success_spy.callCount).toBe(1);
           expect(success_spy).toHaveBeenCalledOn(modelA);
-          expect(success_spy.firstCall.args.length).toBe(4);
-          expect(success_spy.firstCall.args[0]).toBe(modelA);
-          expect(error_spy).not.toHaveBeenCalled();
-          expect(complete_spy.callCount).toBe(1);
-          expect(complete_spy).toHaveBeenCalledOn(modelA);
-          expect(complete_spy.firstCall.args.length).toBe(3);
-          expect(complete_spy.firstCall.args[0]).toBe(modelA);
-          return expect(complete_spy).toHaveBeenCalledAfter(success_spy);
-        });
-        it("Should not fill when fill option is false on fetch", function() {
-          options.fill = false;
-          modelA.fetch(options);
-          server.respondWith([200, {}, JSON.stringify(data)]);
-          server.respond();
-          expect(parse_stub.callCount).toBe(1);
-          expect(parse_stub.firstCall.args[0]).toEqual(data);
-          expect(fill_stub.callCount).toBe(0);
-          expect(fetch_spy).toHaveBeenCalledOnce();
-          expect(create_spy).not.toHaveBeenCalled();
-          expect(save_spy).not.toHaveBeenCalled();
-          expect(destroy_spy).not.toHaveBeenCalled();
-          expect(fetch_spy).toHaveBeenCalledAfter(parse_stub);
-          expect(success_spy.callCount).toBe(1);
-          expect(success_spy).toHaveBeenCalledOn(modelA);
-          expect(success_spy.firstCall.args.length).toBe(4);
+          expect(success_spy.firstCall.args.length).toBe(3);
           expect(success_spy.firstCall.args[0]).toBe(modelA);
           expect(error_spy).not.toHaveBeenCalled();
           expect(complete_spy.callCount).toBe(1);
@@ -2257,7 +2203,7 @@
           expect(destroy_spy).not.toHaveBeenCalled();
           expect(success_spy.callCount).toBe(1);
           expect(success_spy).toHaveBeenCalledOn(modelA);
-          expect(success_spy.firstCall.args.length).toBe(4);
+          expect(success_spy.firstCall.args.length).toBe(3);
           expect(success_spy.firstCall.args[0]).toBe(modelA);
           expect(error_spy).not.toHaveBeenCalled();
           expect(complete_spy.callCount).toBe(1);
@@ -2282,7 +2228,7 @@
           expect(destroy_spy).not.toHaveBeenCalled();
           expect(success_spy.callCount).toBe(1);
           expect(success_spy).toHaveBeenCalledOn(modelA);
-          expect(success_spy.firstCall.args.length).toBe(4);
+          expect(success_spy.firstCall.args.length).toBe(3);
           expect(success_spy.firstCall.args[0]).toBe(modelA);
           expect(error_spy).not.toHaveBeenCalled();
           expect(complete_spy.callCount).toBe(1);
@@ -2306,7 +2252,7 @@
           expect(destroy_spy.callCount).toBe(1);
           expect(success_spy.callCount).toBe(1);
           expect(success_spy).toHaveBeenCalledOn(modelA);
-          expect(success_spy.firstCall.args.length).toBe(4);
+          expect(success_spy.firstCall.args.length).toBe(3);
           expect(success_spy.firstCall.args[0]).toBe(modelA);
           expect(error_spy).not.toHaveBeenCalled();
           expect(complete_spy.callCount).toBe(1);
@@ -2347,7 +2293,7 @@
         ajax_stub = null;
         beforeEach(function() {
           ajax_stub = sinon.stub(jQuery, "ajax");
-          return Falcon.cache = false;
+          return Falcon.adapter.cache = false;
         });
         afterEach(function() {
           return ajax_stub.restore();
@@ -2446,7 +2392,7 @@
         server = null;
         beforeEach(function() {
           server = sinon.fakeServer.create();
-          return Falcon.cache = false;
+          return Falcon.adapter.cache = false;
         });
         afterEach(function() {
           return server.restore();

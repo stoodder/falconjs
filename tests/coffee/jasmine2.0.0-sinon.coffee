@@ -90,7 +90,7 @@ jasmineMessageGenerator =
 	'toHaveBeenCalledWith': (passed, spy, other_args) ->
 		message = "Expected spy '#{spy}' "
 		message += "not " if passed
-		message += "toHaveBeenCalledWith "
+		message += "to have been called with "
 		if other_args?.length > 0
 			message += jasmine.pp(other_args)
 		#END if
@@ -100,7 +100,7 @@ jasmineMessageGenerator =
 	'toHaveBeenAlwaysCalledWith': (passed, spy, other_args) ->
 		message = "Expected spy '#{spy}' "
 		message += "not " if passed
-		message += "toHaveBeenAlwaysCalledWith "
+		message += "to have always been called with "
 		if other_args?.length > 0
 			message += jasmine.pp(other_args) + " but was AlwaysCalledWith #{jasmine.pp spy.lastCall.args}"
 		#END if

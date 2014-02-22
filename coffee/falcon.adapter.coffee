@@ -34,6 +34,8 @@ class Falcon.Adapter extends Falcon.Object
 		if options.data is null and type in ["POST", "PUT"]
 			options.data = data_object.serialize( options.attributes )
 		#END if
+
+		return options.data
 	#END serializeData
 
 	parseRawResponseData: ( data_object, type, options, context, response_args ) ->

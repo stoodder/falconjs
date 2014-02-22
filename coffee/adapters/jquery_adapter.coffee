@@ -1,5 +1,16 @@
 isObject = (object) -> object? and Object::toString.call( object ) is "[object Object]"
 isString = (object) -> object? and Object::toString.call( object ) is "[object String]"
+isArray = (object) -> object? and Object::toString.call( object ) is "[object Array]"
+isEmpty = (object) ->
+	if not object?
+		return true
+	else if isString(object) or isArray(object)
+		return object.length is 0
+	else if isObject(object)
+		return false for key, value of object
+		return true
+	return false
+#END is empty
 
 class jQueryAdapter extends Falcon.Adapter
 	cache: false
@@ -57,7 +68,7 @@ class jQueryAdapter extends Falcon.Adapter
 		super( data_object, type, options, context, response_args )
 	#END errorResponseHandler
 
-	 completeResponseHandler: ( data_object, type, options, context, response_args ) ->
+	completeResponseHandler: ( data_object, type, options, context, response_args ) ->
 		super( data_object, type, options, context, response_args )
 	#END  completeResponseHandler
 
@@ -73,6 +84,7 @@ class jQueryAdapter extends Falcon.Adapter
 			return null if (type in ["PUT", "POST"]) and (not data_object.validate(options))
 		#END if
 
+		url = @makeUrl( data_object, type, options, context )
 		json = @serializeData( data_object, type, options, context ) 
 
 		return $.ajax
@@ -100,7 +112,6 @@ class jQueryAdapter extends Falcon.Adapter
 
 			'complete': (xhr, status) =>
 				@completeResponseHandler( data_object, type, options, context, {
-					'data': data,
 					'status': status,
 					'xhr': xhr
 				})
@@ -110,5 +121,3 @@ class jQueryAdapter extends Falcon.Adapter
 #END class
 
 Falcon.adapter = new jQueryAdapter
-
-console.log("HERE")

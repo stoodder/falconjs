@@ -113,7 +113,7 @@
       if (passed) {
         message += "not ";
       }
-      message += "toHaveBeenCalledWith ";
+      message += "to have been called with ";
       if ((other_args != null ? other_args.length : void 0) > 0) {
         message += jasmine.pp(other_args);
       }
@@ -125,7 +125,7 @@
       if (passed) {
         message += "not ";
       }
-      message += "toHaveBeenAlwaysCalledWith ";
+      message += "to have always been called with ";
       if ((other_args != null ? other_args.length : void 0) > 0) {
         message += jasmine.pp(other_args) + (" but was AlwaysCalledWith " + (jasmine.pp(spy.lastCall.args)));
       }
