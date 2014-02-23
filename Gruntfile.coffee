@@ -71,7 +71,12 @@ module.exports = (grunt) ->
 				files:
 					'<%= pkg.name %>.js': [
 						"coffee/banner.coffee"
-						"coffee/utility.coffee"
+
+						"coffee/checking.utility.coffee"
+						"coffee/string.utility.coffee"
+						"coffee/object.utility.coffee"
+						"coffee/array.utility.coffee"
+
 						"coffee/falcon.coffee"
 						"coffee/falcon.object.coffee"
 						"coffee/falcon.adapter.coffee"
@@ -91,6 +96,7 @@ module.exports = (grunt) ->
 
 				files:
 					'adapters/falcon.jquery_adapter.js': [
+						"coffee/checking.utility.coffee"
 						"coffee/adapters/jquery_adapter.coffee"
 					]
 				#END files

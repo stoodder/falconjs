@@ -1,18 +1,3 @@
-isObject = (object) -> object? and Object::toString.call( object ) is "[object Object]"
-isString = (object) -> object? and Object::toString.call( object ) is "[object String]"
-isArray = (object) -> object? and Object::toString.call( object ) is "[object Array]"
-isFunction = (object) -> object? and Object::toString.call( object ) is "[object Function]"
-isEmpty = (object) ->
-	if not object?
-		return true
-	else if isString(object) or isArray(object)
-		return object.length is 0
-	else if isObject(object)
-		return false for key, value of object
-		return true
-	return false
-#END is empty
-
 class jQueryAdapter extends Falcon.Adapter
 	cache: false
 

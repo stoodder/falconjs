@@ -70,9 +70,15 @@
     };
   }
 
-  trim = function(str) {
-    return str.replace(/^\s+/, '').replace(/\s+$/, '');
-  };
+  if (String.prototype.trim) {
+    trim = function(str) {
+      return String.prototype.trim.call(str);
+    };
+  } else {
+    trim = function(str) {
+      return str.replace(/^\s+/, '').replace(/\s+$/, '');
+    };
+  }
 
   startsWith = function(haystack, needle) {
     return haystack.indexOf(needle) === 0;

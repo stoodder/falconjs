@@ -1,5 +1,5 @@
 (function() {
-  var isArray, isEmpty, isFunction, isObject, isString, jQueryAdapter, _ref,
+  var isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, jQueryAdapter, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -7,16 +7,28 @@
     return (object != null) && Object.prototype.toString.call(object) === "[object Object]";
   };
 
-  isString = function(object) {
-    return (object != null) && Object.prototype.toString.call(object) === "[object String]";
+  isFunction = function(object) {
+    return (object != null) && Object.prototype.toString.call(object) === "[object Function]";
+  };
+
+  isBoolean = function(object) {
+    return (object != null) && Object.prototype.toString.call(object) === "[object Boolean]";
   };
 
   isArray = function(object) {
     return (object != null) && Object.prototype.toString.call(object) === "[object Array]";
   };
 
-  isFunction = function(object) {
-    return (object != null) && Object.prototype.toString.call(object) === "[object Function]";
+  isString = function(object) {
+    return (object != null) && Object.prototype.toString.call(object) === "[object String]";
+  };
+
+  isNumber = function(object) {
+    return (object != null) && Object.prototype.toString.call(object) === "[object Number]";
+  };
+
+  isNaN = function(object) {
+    return isNumber(object) && object !== object;
   };
 
   isEmpty = function(object) {
@@ -34,6 +46,16 @@
     }
     return false;
   };
+
+  if (typeof HTMLElement === "object") {
+    isElement = function(object) {
+      return object instanceof HTMLElement;
+    };
+  } else {
+    isElement = function(object) {
+      return (object != null) && (object.nodeType === 1) && (typeof object.nodeName === "string");
+    };
+  }
 
   jQueryAdapter = (function(_super) {
     __extends(jQueryAdapter, _super);
