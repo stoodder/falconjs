@@ -239,6 +239,9 @@
     isDataObject: function(object) {
       return (object != null) && (object instanceof Falcon.Model || object instanceof Falcon.Collection);
     },
+    isAdapter: function(object) {
+      return (object != null) && object instanceof Falcon.Adapter;
+    },
     isFalconObject: function(object) {
       return (object != null) && (object instanceof Falcon.Object);
     },
@@ -496,6 +499,8 @@
       return _ref;
     }
 
+    Adapter.extend = Falcon.Object.extend;
+
     Adapter.prototype.resolveRequestType = function(data_object, type, options, context) {
       if (!isString(type)) {
         return "GET";
@@ -566,10 +571,10 @@
     };
 
     Adapter.prototype.successResponseHandler = function(data_object, type, options, context, response_args) {
-      var data, parsed_data, raw_data, status, xhr;
+      var data, parsed_data, raw_response_data, status, xhr;
       data = response_args.data, status = response_args.status, xhr = response_args.xhr;
-      raw_data = this.parseRawResponseData(data_object, type, options, context, response_args);
-      parsed_data = data_object.parse(raw_data, options);
+      raw_response_data = this.parseRawResponseData(data_object, type, options, context, response_args);
+      parsed_data = data_object.parse(raw_response_data, options);
       data_object.fill(parsed_data, options);
       switch (type) {
         case "GET":
@@ -584,31 +589,32 @@
         case "DELETE":
           data_object.trigger("destroy", parsed_data);
       }
-      return options.success.call(context, data_object, raw_data, response_args);
+      return options.success.call(context, data_object, raw_response_data, response_args);
     };
 
     Adapter.prototype.errorResponseHandler = function(data_object, type, options, context, response_args) {
-      var raw_data;
-      raw_data = this.parseRawResponseData(data_object, type, options, context, response_args);
-      return options.error.call(context, data_object, raw_data, response_args);
+      var raw_response_data;
+      raw_response_data = this.parseRawResponseData(data_object, type, options, context, response_args);
+      return options.error.call(context, data_object, raw_response_data, response_args);
     };
 
     Adapter.prototype.completeResponseHandler = function(data_object, type, options, context, response_args) {
-      var raw_data;
-      raw_data = this.parseRawResponseData(data_object, type, options, context, response_args);
-      return options.complete.call(context, data_object, raw_data, response_args);
+      var raw_response_data;
+      raw_response_data = this.parseRawResponseData(data_object, type, options, context, response_args);
+      return options.complete.call(context, data_object, raw_response_data, response_args);
     };
 
     Adapter.prototype.sync = function(data_object, type, options, context) {
       if (!Falcon.isDataObject(data_object)) {
         throw new Error("Expected data_object to be a Model or Collection in Sync");
       }
+      return this;
     };
 
-    Adapter.prototype.getTemplate = function(view, url, loaded_callback) {
+    Adapter.prototype.getTemplate = function(view, uri, loaded_callback) {
       var template, _ref1, _ref2;
-      template = (_ref1 = (_ref2 = document.getElementById(url.slice(1))) != null ? _ref2.innerHTML : void 0) != null ? _ref1 : "";
-      Falcon.View.cacheTemplate(url, template);
+      template = (_ref1 = (_ref2 = document.getElementById(uri.slice(1))) != null ? _ref2.innerHTML : void 0) != null ? _ref1 : "";
+      Falcon.View.cacheTemplate(uri, template);
       if (isFunction(loaded_callback)) {
         loaded_callback();
       }

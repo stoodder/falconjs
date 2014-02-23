@@ -205,14 +205,16 @@
           url: url,
           type: "GET",
           cache: this.cache,
+          complete: function() {
+            if (isFunction(loaded_callback)) {
+              return loaded_callback();
+            }
+          },
           error: function() {
             return console.log("[FALCON] Error Loading Template: '" + url + "'");
           },
           success: function(html) {
-            Falcon.View.cacheTemplate(url, html);
-            if (isFunction(loaded_callback)) {
-              return loaded_callback();
-            }
+            return Falcon.View.cacheTemplate(url, html);
           }
         });
       }

@@ -114,12 +114,14 @@ class jQueryAdapter extends Falcon.Adapter
 				url: url
 				type: "GET"
 				cache: @cache
+				complete: =>
+					loaded_callback() if isFunction( loaded_callback )
+				#END complete
 				error: () =>
 					console.log("[FALCON] Error Loading Template: '#{url}'")
 				#END error
 				success: (html) =>
 					Falcon.View.cacheTemplate(url, html)
-					loaded_callback() if isFunction( loaded_callback )
 				#END success
 			#END ajax
 		#END if

@@ -149,6 +149,20 @@ _ready = null
 	#END isDataObject
 
 	#--------------------------------------------------------
+	# Method: Falcon.isAdapter()
+	#	Method used to test if an object is a Falcon Adapter
+	#
+	# Arguments:
+	#	**object** _(mixed)_ -  The object to test
+	#
+	# Returns:
+	#	_(Boolean)_ - Is the object a falcon adapter?
+	#--------------------------------------------------------
+	isAdapter: (object) -> 
+		return object? and object instanceof Falcon.Adapter
+	#END isAdapter
+
+	#--------------------------------------------------------
 	# Method: Falcon.isFalconObject()
 	#	Method used to test if an object is a Falcon Specific 
 	#	Object (View, Model, or Collection).
