@@ -1,6 +1,7 @@
 isObject = (object) -> object? and Object::toString.call( object ) is "[object Object]"
 isString = (object) -> object? and Object::toString.call( object ) is "[object String]"
 isArray = (object) -> object? and Object::toString.call( object ) is "[object Array]"
+isFunction = (object) -> object? and Object::toString.call( object ) is "[object Function]"
 isEmpty = (object) ->
 	if not object?
 		return true
@@ -31,6 +32,7 @@ class jQueryAdapter extends Falcon.Adapter
 		options.contentType = "application/json" unless isString(options.contentType)
 		options.params = {} unless isObject( options.params )
 		options.headers = {} unless isObject( options.headers )
+		options.cache = @cache
 
 		return options
 	#END standardizeOptions
@@ -85,15 +87,15 @@ class jQueryAdapter extends Falcon.Adapter
 		#END if
 
 		url = @makeUrl( data_object, type, options, context )
-		json = @serializeData( data_object, type, options, context ) 
+		data = @serializeData( data_object, type, options, context ) 
 
 		return $.ajax
 			'type': type
 			'url': url
-			'data': json
+			'data': data
 			'dataType': options.dataType
 			'contentType': options.contentType
-			'cache': @cache
+			'cache': options.cache
 			'headers': options.headers
 
 			'success': (data, status, xhr) =>
@@ -118,6 +120,27 @@ class jQueryAdapter extends Falcon.Adapter
 			#END complete
 		#END $.ajax
 	#END sync
+
+	getTemplate: (view, url, loaded_callback) ->
+		if url.charAt(0) is "#"
+			return super( view, url, loaded_callback )
+		else
+			$.ajax
+				url: url
+				type: "GET"
+				cache: @cache
+				error: () =>
+					console.log("[FALCON] Error Loading Template: '#{url}'")
+				#END error
+				success: (html) =>
+					Falcon.View.cacheTemplate(url, html)
+					loaded_callback() if isFunction( loaded_callback )
+				#END success
+			#END ajax
+		#END if
+
+		return @
+	#END getTemplate
 #END class
 
 Falcon.adapter = new jQueryAdapter

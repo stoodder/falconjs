@@ -599,6 +599,16 @@
       }
     };
 
+    Adapter.prototype.getTemplate = function(view, url, loaded_callback) {
+      var template, _ref1, _ref2;
+      template = (_ref1 = (_ref2 = document.getElementById(url.slice(1))) != null ? _ref2.innerHTML : void 0) != null ? _ref1 : "";
+      Falcon.View.cacheTemplate(url, template);
+      if (isFunction(loaded_callback)) {
+        loaded_callback();
+      }
+      return this;
+    };
+
     return Adapter;
 
   })(Falcon.Object);
@@ -978,7 +988,7 @@
     View.prototype.__falcon_view__loaded_url__ = null;
 
     function View() {
-      var template, url, _loaded, _ref1, _ref2,
+      var url, _loaded,
         _this = this;
       View.__super__.constructor.apply(this, arguments);
       url = this.makeUrl();
@@ -992,24 +1002,8 @@
       this.initialize.apply(this, arguments);
       if (isEmpty(url) || url in __falcon_view__template_cache__) {
         _loaded();
-      } else if (startsWith(url, "#")) {
-        template = (_ref1 = (_ref2 = document.getElementById(url.slice(1))) != null ? _ref2.innerHTML : void 0) != null ? _ref1 : "";
-        Falcon.View.cacheTemplate(url, template);
-        _loaded();
       } else {
-        $.ajax({
-          url: url,
-          type: "GET",
-          cache: Falcon.cache,
-          error: function() {
-            console.log("[FALCON] Error Loading Template: '" + url + "'");
-            return _this.trigger("error");
-          },
-          success: function(html) {
-            Falcon.View.cacheTemplate(url, html);
-            return _loaded();
-          }
-        });
+        Falcon.adapter.getTemplate(this, url, _loaded);
       }
       return this;
     }

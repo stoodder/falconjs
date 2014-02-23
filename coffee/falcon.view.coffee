@@ -131,26 +131,8 @@ class Falcon.View extends Falcon.Object
 		# Attempt to load the template from the server or cache
 		if isEmpty(url) or url of __falcon_view__template_cache__
 			_loaded()
-
-		else if startsWith(url, "#")
-			template = document.getElementById(url.slice(1))?.innerHTML ? ""
-			Falcon.View.cacheTemplate( url, template )
-			_loaded()
-
 		else
-			$.ajax
-				url: url
-				type: "GET"
-				cache: Falcon.cache
-				error: () =>
-					console.log("[FALCON] Error Loading Template: '#{url}'")
-					@trigger("error")
-				#END error
-				success: (html) =>
-					Falcon.View.cacheTemplate(url, html)
-					_loaded()
-				#END success
-			#END ajax
+			Falcon.adapter.getTemplate( @, url, _loaded )
 		#END if
 
 		return @

@@ -1,5 +1,5 @@
 (function() {
-  var isArray, isEmpty, isObject, isString, jQueryAdapter, _ref,
+  var isArray, isEmpty, isFunction, isObject, isString, jQueryAdapter, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -13,6 +13,10 @@
 
   isArray = function(object) {
     return (object != null) && Object.prototype.toString.call(object) === "[object Array]";
+  };
+
+  isFunction = function(object) {
+    return (object != null) && Object.prototype.toString.call(object) === "[object Function]";
   };
 
   isEmpty = function(object) {
@@ -66,6 +70,7 @@
       if (!isObject(options.headers)) {
         options.headers = {};
       }
+      options.cache = this.cache;
       return options;
     };
 
@@ -127,7 +132,7 @@
     };
 
     jQueryAdapter.prototype.sync = function(data_object, type, options, context) {
-      var json, url,
+      var data, url,
         _this = this;
       jQueryAdapter.__super__.sync.call(this, data_object, type, options, context);
       type = this.resolveRequestType(data_object, type, options, context);
@@ -139,14 +144,14 @@
         }
       }
       url = this.makeUrl(data_object, type, options, context);
-      json = this.serializeData(data_object, type, options, context);
+      data = this.serializeData(data_object, type, options, context);
       return $.ajax({
         'type': type,
         'url': url,
-        'data': json,
+        'data': data,
         'dataType': options.dataType,
         'contentType': options.contentType,
-        'cache': this.cache,
+        'cache': options.cache,
         'headers': options.headers,
         'success': function(data, status, xhr) {
           return _this.successResponseHandler(data_object, type, options, context, {
@@ -167,6 +172,29 @@
           });
         }
       });
+    };
+
+    jQueryAdapter.prototype.getTemplate = function(view, url, loaded_callback) {
+      var _this = this;
+      if (url.charAt(0) === "#") {
+        return jQueryAdapter.__super__.getTemplate.call(this, view, url, loaded_callback);
+      } else {
+        $.ajax({
+          url: url,
+          type: "GET",
+          cache: this.cache,
+          error: function() {
+            return console.log("[FALCON] Error Loading Template: '" + url + "'");
+          },
+          success: function(html) {
+            Falcon.View.cacheTemplate(url, html);
+            if (isFunction(loaded_callback)) {
+              return loaded_callback();
+            }
+          }
+        });
+      }
+      return this;
     };
 
     return jQueryAdapter;

@@ -74,4 +74,13 @@ class Falcon.Adapter extends Falcon.Object
 			throw new Error("Expected data_object to be a Model or Collection in Sync")
 		#END unless
 	#END sync
+
+	getTemplate: (view, url, loaded_callback) ->
+		template = document.getElementById(url.slice(1))?.innerHTML ? ""
+		Falcon.View.cacheTemplate( url, template )
+		
+		loaded_callback() if isFunction( loaded_callback )
+
+		return @
+	#END getTemplate
 #END class
