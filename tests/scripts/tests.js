@@ -861,8 +861,8 @@
       expect(model_a.get('first')).toBe(1);
       return expect(model_a.get('second')).toBe(2);
     });
-    it("Should test the fill and serialize methods", function() {
-      var CollectionC, ModelA, ModelB, ModelC, collectionC, data, key, modelA, modelB, modelB2, original_model_b3, serialized, value, _ref, _ref1, _ref2, _ref3, _results;
+    describe("serialize and fill", function() {
+      var CollectionC, ModelA, ModelB, ModelC, ModelD, ModelE, collectionC, data, modelA, modelB, modelB2, original_model_b3, _ref, _ref1, _ref2, _ref3, _ref4, _ref5;
       modelB = null;
       modelB2 = null;
       collectionC = null;
@@ -924,6 +924,44 @@
         return CollectionC;
 
       })(Falcon.Collection);
+      ModelD = (function(_super) {
+        __extends(ModelD, _super);
+
+        function ModelD() {
+          _ref4 = ModelD.__super__.constructor.apply(this, arguments);
+          return _ref4;
+        }
+
+        ModelD.prototype.defaults = {
+          'model_e': function() {
+            return new ModelE;
+          }
+        };
+
+        ModelD.prototype.observables = {
+          'hello': 'world',
+          'foo': true
+        };
+
+        return ModelD;
+
+      })(Falcon.Model);
+      ModelE = (function(_super) {
+        __extends(ModelE, _super);
+
+        function ModelE() {
+          _ref5 = ModelE.__super__.constructor.apply(this, arguments);
+          return _ref5;
+        }
+
+        ModelE.prototype.observables = {
+          'free': 'bird',
+          'bar': true
+        };
+
+        return ModelE;
+
+      })(Falcon.Model);
       data = {
         "id": 33,
         "foo": "bar",
@@ -950,78 +988,127 @@
       modelA = new ModelA();
       original_model_b3 = modelA.get("model_b3");
       modelA.fill(data);
-      expect(modelA.get("id")).toBe(33);
-      expect(modelA.get("foo")).toBe("bar");
-      expect(modelA.get("url")).toBe("MODEL_A2");
-      expect(modelA.get("model_b")).toBe(modelB);
-      expect(modelA.get("model_b").get("b_foo")).toBe("B BAR");
-      expect(modelA.get("model_b").get("url")).toBe("model_b");
-      expect(modelA.get("model_b2")).toBe(modelB2);
-      expect(modelA.get("model_b2").get("id")).toBe("test");
-      expect(modelA.get("model_b2").get("b_foo")).toBe("B BAR 2");
-      expect(modelA.get("model_b2").get("url")).toBe("model_b2");
-      expect(original_model_b3).toEqual(jasmine.any(ModelB));
-      expect(data.model_b3).toEqual(jasmine.any(ModelB));
-      expect(data.model_b3).not.toBe(original_model_b3);
-      expect(modelA.get("model_b3")).toBe(data.model_b3);
-      expect(modelA.get("collection_c")).toBe(collectionC);
-      expect(modelA.get("collection_c").length()).toBe(3);
-      expect(modelA.get("collection_c").first()).toEqual(jasmine.any(ModelC));
-      expect(modelA.get("collection_c").first().get("that")).toBe("That One");
-      serialized = modelA.serialize();
-      expect(serialized['id']).toBe(33);
-      expect(serialized['foo']).toBe("bar");
-      expect(serialized['model_b']).toEqual(jasmine.any(Object));
-      expect(serialized['model_b']['id']).toBeNull();
-      expect(serialized['model_b']['b_foo']).toBe("B BAR");
-      expect(serialized['model_b2']).toEqual(jasmine.any(Object));
-      expect(serialized['model_b2']['id']).toBe("test");
-      expect(serialized['model_b2']['b_foo']).toBe("B BAR 2");
-      expect(serialized['model_b3']).toEqual(jasmine.any(Object));
-      expect(serialized['collection_c']).toEqual(jasmine.any(Array));
-      expect(serialized['collection_c'].length).toBe(3);
-      expect(serialized['collection_c'][0]).toEqual(jasmine.any(Object));
-      expect(serialized['collection_c'][0]['that']).toBe("That One");
-      serialized = modelA.serialize(["id", "foo"]);
-      expect(serialized['id']).toBe(33);
-      expect(serialized['foo']).toBe("bar");
-      expect(serialized["model_b"]).not.toBeDefined();
-      expect(serialized["model_b2"]).not.toBeDefined();
-      expect(serialized["collection_c"]).not.toBeDefined();
-      serialized = modelA.serialize(["foo"]);
-      expect(serialized['foo']).toBe("bar");
-      expect(serialized['id']).not.toBeDefined();
-      expect(serialized["model_b"]).not.toBeDefined();
-      expect(serialized["model_b2"]).not.toBeDefined();
-      expect(serialized["model_b3"]).not.toBeDefined();
-      expect(serialized["collection_c"]).not.toBeDefined();
-      serialized = modelA.serialize({
-        "id": null,
-        "model_b2": {
-          "b_foo": null,
-          "url": null
-        }
+      it("Should fill properly", function() {
+        expect(modelA.get("id")).toBe(33);
+        expect(modelA.get("foo")).toBe("bar");
+        expect(modelA.get("url")).toBe("MODEL_A2");
+        expect(modelA.get("model_b")).toBe(modelB);
+        expect(modelA.get("model_b").get("b_foo")).toBe("B BAR");
+        expect(modelA.get("model_b").get("url")).toBe("model_b");
+        expect(modelA.get("model_b2")).toBe(modelB2);
+        expect(modelA.get("model_b2").get("id")).toBe("test");
+        expect(modelA.get("model_b2").get("b_foo")).toBe("B BAR 2");
+        expect(modelA.get("model_b2").get("url")).toBe("model_b2");
+        expect(original_model_b3).toEqual(jasmine.any(ModelB));
+        expect(data.model_b3).toEqual(jasmine.any(ModelB));
+        expect(data.model_b3).not.toBe(original_model_b3);
+        expect(modelA.get("model_b3")).toBe(data.model_b3);
+        expect(modelA.get("collection_c")).toBe(collectionC);
+        expect(modelA.get("collection_c").length()).toBe(3);
+        expect(modelA.get("collection_c").first()).toEqual(jasmine.any(ModelC));
+        return expect(modelA.get("collection_c").first().get("that")).toBe("That One");
       });
-      expect(serialized['id']).toBe(33);
-      expect(serialized['model_b2']).toEqual(jasmine.any(Object));
-      expect(serialized['model_b2']['b_foo']).toBe("B BAR 2");
-      expect(serialized["model_b"]).not.toBeDefined();
-      expect(serialized["model_b3"]).not.toBeDefined();
-      expect(serialized["collection_c"]).not.toBeDefined();
-      serialized = modelA.serialize();
-      for (key in serialized) {
-        value = serialized[key];
-        expect(Falcon.Object.prototype[key]).not.toBeDefined();
-      }
-      serialized = modelA.serialize();
-      _results = [];
-      for (key in serialized) {
-        value = serialized[key];
-        if (key !== "id") {
-          _results.push(expect(Falcon.Model.prototype[key]).not.toBeDefined());
+      it("Should retain reference to the original observables", function() {
+        var bar_obs, foo_obs, free_obs, hello_obs, model_d;
+        model_d = new ModelD();
+        expect(model_d.get('hello')).toBe('world');
+        expect(model_d.get('foo')).toBe(true);
+        expect(model_d.model_e.get('free')).toBe('bird');
+        expect(model_d.model_e.get('bar')).toBe(true);
+        hello_obs = model_d.hello;
+        foo_obs = model_d.foo;
+        free_obs = model_d.model_e.free;
+        bar_obs = model_d.model_e.bar;
+        expect(ko.isWriteableObservable(hello_obs)).toBe(true);
+        expect(ko.isWriteableObservable(foo_obs)).toBe(true);
+        expect(ko.isWriteableObservable(free_obs)).toBe(true);
+        expect(ko.isWriteableObservable(bar_obs)).toBe(true);
+        model_d.fill({
+          'hello': 'WORLD!',
+          'foo': false,
+          'model_e': {
+            'free': 'BIRD!',
+            'bar': false
+          }
+        });
+        expect(model_d.get('hello')).toBe('WORLD!');
+        expect(model_d.get('foo')).toBe(false);
+        expect(model_d.model_e.get('free')).toBe('BIRD!');
+        expect(model_d.model_e.get('bar')).toBe(false);
+        expect(model_d.hello).toBe(hello_obs);
+        expect(model_d.foo).toBe(foo_obs);
+        expect(model_d.model_e.free).toBe(free_obs);
+        return expect(model_d.model_e.bar).toBe(bar_obs);
+      });
+      it("Should serialize properly", function() {
+        var serialized;
+        serialized = modelA.serialize();
+        expect(serialized['id']).toBe(33);
+        expect(serialized['foo']).toBe("bar");
+        expect(serialized['model_b']).toEqual(jasmine.any(Object));
+        expect(serialized['model_b']['id']).toBeNull();
+        expect(serialized['model_b']['b_foo']).toBe("B BAR");
+        expect(serialized['model_b2']).toEqual(jasmine.any(Object));
+        expect(serialized['model_b2']['id']).toBe("test");
+        expect(serialized['model_b2']['b_foo']).toBe("B BAR 2");
+        expect(serialized['model_b3']).toEqual(jasmine.any(Object));
+        expect(serialized['collection_c']).toEqual(jasmine.any(Array));
+        expect(serialized['collection_c'].length).toBe(3);
+        expect(serialized['collection_c'][0]).toEqual(jasmine.any(Object));
+        return expect(serialized['collection_c'][0]['that']).toBe("That One");
+      });
+      it("Should serialzie properly with attributes", function() {
+        var serialized;
+        serialized = modelA.serialize(["id", "foo"]);
+        expect(serialized['id']).toBe(33);
+        expect(serialized['foo']).toBe("bar");
+        expect(serialized["model_b"]).not.toBeDefined();
+        expect(serialized["model_b2"]).not.toBeDefined();
+        return expect(serialized["collection_c"]).not.toBeDefined();
+      });
+      it("Should serialzie properly with a single attribute", function() {
+        var serialized;
+        serialized = modelA.serialize(["foo"]);
+        expect(serialized['foo']).toBe("bar");
+        expect(serialized['id']).not.toBeDefined();
+        expect(serialized["model_b"]).not.toBeDefined();
+        expect(serialized["model_b2"]).not.toBeDefined();
+        expect(serialized["model_b3"]).not.toBeDefined();
+        return expect(serialized["collection_c"]).not.toBeDefined();
+      });
+      it("Should serialzie properly with a deep attributes", function() {
+        var serialized;
+        serialized = modelA.serialize({
+          "id": null,
+          "model_b2": {
+            "b_foo": null,
+            "url": null
+          }
+        });
+        expect(serialized['id']).toBe(33);
+        expect(serialized['model_b2']).toEqual(jasmine.any(Object));
+        expect(serialized['model_b2']['b_foo']).toBe("B BAR 2");
+        expect(serialized["model_b"]).not.toBeDefined();
+        expect(serialized["model_b3"]).not.toBeDefined();
+        return expect(serialized["collection_c"]).not.toBeDefined();
+      });
+      return it("Should serialize without prototype elements of Falcon.Object", function() {
+        var key, serialized, value, _results;
+        serialized = modelA.serialize();
+        for (key in serialized) {
+          value = serialized[key];
+          expect(Falcon.Object.prototype[key]).not.toBeDefined();
         }
-      }
-      return _results;
+        serialized = modelA.serialize();
+        _results = [];
+        for (key in serialized) {
+          value = serialized[key];
+          if (key !== "id") {
+            _results.push(expect(Falcon.Model.prototype[key]).not.toBeDefined());
+          }
+        }
+        return _results;
+      });
     });
     it("Should test the unwrap method", function() {
       var CollectionC, ModelA, ModelB, ModelC, collectionC, modelA, modelB, unwrapped, _ref, _ref1, _ref2, _ref3;
@@ -5599,6 +5686,9 @@
         expect(ajax_stub).toHaveBeenCalledOnce();
         expect(ajax_stub.firstCall.args[0]).toBeDefined();
         ajax_stub.firstCall.args[0].success("Hello World");
+        expect(view.is_loaded()).toBe(false);
+        expect(getElement_stub).not.toHaveBeenCalled();
+        ajax_stub.firstCall.args[0].complete("Hello World");
         expect(view.is_loaded()).toBe(true);
         expect(getElement_stub).not.toHaveBeenCalled();
         ajax_stub.reset();
@@ -5612,6 +5702,9 @@
         expect(ajax_stub).toHaveBeenCalledOnce();
         expect(ajax_stub.firstCall.args[0]).toBeDefined();
         ajax_stub.firstCall.args[0].success("Hello World");
+        expect(view.is_loaded()).toBe(false);
+        expect(getElement_stub).not.toHaveBeenCalled();
+        ajax_stub.firstCall.args[0].complete("Hello World");
         expect(view.is_loaded()).toBe(true);
         return expect(getElement_stub).not.toHaveBeenCalled();
       });

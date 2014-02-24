@@ -104,6 +104,11 @@ describe "Falcon.View", ->
 
 			ajax_stub.firstCall.args[0].success("Hello World")
 
+			expect( view.is_loaded() ).toBe( false )
+			expect( getElement_stub ).not.toHaveBeenCalled()
+
+			ajax_stub.firstCall.args[0].complete("Hello World")
+
 			expect( view.is_loaded() ).toBe( true )
 			expect( getElement_stub ).not.toHaveBeenCalled()
 			ajax_stub.reset()
@@ -125,6 +130,11 @@ describe "Falcon.View", ->
 			expect( ajax_stub.firstCall.args[0] ).toBeDefined()
 
 			ajax_stub.firstCall.args[0].success("Hello World")
+
+			expect( view.is_loaded() ).toBe( false )
+			expect( getElement_stub ).not.toHaveBeenCalled()
+
+			ajax_stub.firstCall.args[0].complete("Hello World")
 
 			expect( view.is_loaded() ).toBe( true )
 			expect( getElement_stub ).not.toHaveBeenCalled()

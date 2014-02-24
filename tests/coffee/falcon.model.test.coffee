@@ -192,7 +192,7 @@ describe "Falcon.Model", ->
 	#		  model key).
 	#
 	#--------------------------------------------------------------
-	it "Should test the fill and serialize methods", ->
+	describe "serialize and fill", ->
 		modelB = null
 		modelB2 = null
 		collectionC = null
@@ -220,6 +220,24 @@ describe "Falcon.Model", ->
 			model: ModelC
 		#END collection c
 
+		class ModelD extends Falcon.Model
+			defaults:
+				'model_e': -> new ModelE
+			#END defaults
+
+			observables:
+				'hello': 'world'
+				'foo': true
+			#END observables
+		#END class
+
+		class ModelE extends Falcon.Model
+			observables:
+				'free': 'bird'
+				'bar': true
+			#END observables
+		#END ModelE
+
 		data = {
 			"id": 33
 			"foo": "bar"
@@ -244,103 +262,147 @@ describe "Falcon.Model", ->
 		original_model_b3 = modelA.get("model_b3")
 		modelA.fill( data )
 
-		#TEST
-		expect( modelA.get("id") ).toBe( 33)
-		expect( modelA.get("foo") ).toBe( "bar")
-		expect( modelA.get("url") ).toBe( "MODEL_A2")
-		
-		expect( modelA.get("model_b") ).toBe( modelB)
-		expect( modelA.get("model_b").get("b_foo") ).toBe( "B BAR")
-		expect( modelA.get("model_b").get("url") ).toBe( "model_b")
-		
-		expect( modelA.get("model_b2") ).toBe( modelB2)
-		expect( modelA.get("model_b2").get("id") ).toBe( "test")
-		expect( modelA.get("model_b2").get("b_foo") ).toBe( "B BAR 2")
-		expect( modelA.get("model_b2").get("url") ).toBe( "model_b2")
+		it "Should fill properly", ->
+			expect( modelA.get("id") ).toBe( 33)
+			expect( modelA.get("foo") ).toBe( "bar")
+			expect( modelA.get("url") ).toBe( "MODEL_A2")
+			
+			expect( modelA.get("model_b") ).toBe( modelB)
+			expect( modelA.get("model_b").get("b_foo") ).toBe( "B BAR")
+			expect( modelA.get("model_b").get("url") ).toBe( "model_b")
+			
+			expect( modelA.get("model_b2") ).toBe( modelB2)
+			expect( modelA.get("model_b2").get("id") ).toBe( "test")
+			expect( modelA.get("model_b2").get("b_foo") ).toBe( "B BAR 2")
+			expect( modelA.get("model_b2").get("url") ).toBe( "model_b2")
 
-		expect( original_model_b3 ).toEqual( jasmine.any(ModelB) )
-		expect( data.model_b3 ).toEqual( jasmine.any(ModelB) )
-		expect( data.model_b3 ).not.toBe( original_model_b3 )
-		expect( modelA.get("model_b3") ).toBe( data.model_b3 )
-		
-		expect( modelA.get("collection_c") ).toBe( collectionC)
-		expect( modelA.get("collection_c").length() ).toBe( 3 )
-		expect( modelA.get("collection_c").first() ).toEqual(jasmine.any(ModelC))
-		expect( modelA.get("collection_c").first().get("that") ).toBe( "That One" )
+			expect( original_model_b3 ).toEqual( jasmine.any(ModelB) )
+			expect( data.model_b3 ).toEqual( jasmine.any(ModelB) )
+			expect( data.model_b3 ).not.toBe( original_model_b3 )
+			expect( modelA.get("model_b3") ).toBe( data.model_b3 )
+			
+			expect( modelA.get("collection_c") ).toBe( collectionC)
+			expect( modelA.get("collection_c").length() ).toBe( 3 )
+			expect( modelA.get("collection_c").first() ).toEqual(jasmine.any(ModelC))
+			expect( modelA.get("collection_c").first().get("that") ).toBe( "That One" )
+		#END it
+
+		it "Should retain reference to the original observables", ->
+			model_d = new ModelD()
+
+			expect( model_d.get('hello') ).toBe( 'world' )
+			expect( model_d.get('foo') ).toBe( true )
+
+			expect( model_d.model_e.get('free') ).toBe( 'bird' )
+			expect( model_d.model_e.get('bar') ).toBe( true )
+
+			hello_obs = model_d.hello
+			foo_obs = model_d.foo
+			free_obs = model_d.model_e.free
+			bar_obs = model_d.model_e.bar
+
+			expect( ko.isWriteableObservable(hello_obs) ).toBe( true )
+			expect( ko.isWriteableObservable(foo_obs) ).toBe( true )
+			expect( ko.isWriteableObservable(free_obs) ).toBe( true )
+			expect( ko.isWriteableObservable(bar_obs) ).toBe( true )
+
+			model_d.fill
+				'hello': 'WORLD!'
+				'foo': false
+				'model_e':
+					'free': 'BIRD!'
+					'bar': false
+				#END model_e 
+			#END fill
+
+			expect( model_d.get('hello') ).toBe( 'WORLD!' )
+			expect( model_d.get('foo') ).toBe( false )
+			expect( model_d.model_e.get('free') ).toBe( 'BIRD!' )
+			expect( model_d.model_e.get('bar') ).toBe( false )
+
+			expect( model_d.hello ).toBe( hello_obs )
+			expect( model_d.foo ).toBe( foo_obs )
+			expect( model_d.model_e.free ).toBe( free_obs )
+			expect( model_d.model_e.bar ).toBe( bar_obs )
+		#END it
+
+		it "Should serialize properly", ->
+			serialized = modelA.serialize()
+			expect( serialized['id'] ).toBe( 33 )
+			expect( serialized['foo'] ).toBe( "bar" )
+
+			expect( serialized['model_b'] ).toEqual(jasmine.any(Object))
+			expect( serialized['model_b']['id'] ).toBeNull()
+			expect( serialized['model_b']['b_foo'] ).toBe( "B BAR" )
+
+			expect( serialized['model_b2'] ).toEqual(jasmine.any(Object))
+			expect( serialized['model_b2']['id'] ).toBe( "test" )
+			expect( serialized['model_b2']['b_foo'] ).toBe( "B BAR 2" )
+
+			expect( serialized['model_b3'] ).toEqual(jasmine.any(Object))
+
+			expect( serialized['collection_c'] ).toEqual(jasmine.any(Array))
+			expect( serialized['collection_c'].length ).toBe( 3 )
+			expect( serialized['collection_c'][0] ).toEqual(jasmine.any(Object))
+			expect( serialized['collection_c'][0]['that'] ).toBe( "That One" )
+		#END it
 
 
-		#TEST
-		serialized = modelA.serialize()
-		expect( serialized['id'] ).toBe( 33 )
-		expect( serialized['foo'] ).toBe( "bar" )
+		it "Should serialzie properly with attributes", ->
+			serialized = modelA.serialize(["id", "foo"])
+			expect( serialized['id'] ).toBe( 33 )
+			expect( serialized['foo'] ).toBe( "bar" )
 
-		expect( serialized['model_b'] ).toEqual(jasmine.any(Object))
-		expect( serialized['model_b']['id'] ).toBeNull()
-		expect( serialized['model_b']['b_foo'] ).toBe( "B BAR" )
-
-		expect( serialized['model_b2'] ).toEqual(jasmine.any(Object))
-		expect( serialized['model_b2']['id'] ).toBe( "test" )
-		expect( serialized['model_b2']['b_foo'] ).toBe( "B BAR 2" )
-
-		expect( serialized['model_b3'] ).toEqual(jasmine.any(Object))
-
-		expect( serialized['collection_c'] ).toEqual(jasmine.any(Array))
-		expect( serialized['collection_c'].length ).toBe( 3 )
-		expect( serialized['collection_c'][0] ).toEqual(jasmine.any(Object))
-		expect( serialized['collection_c'][0]['that'] ).toBe( "That One" )
+			expect( serialized["model_b"] ).not.toBeDefined()
+			expect( serialized["model_b2"] ).not.toBeDefined()
+			expect( serialized["collection_c"] ).not.toBeDefined()
+		#END it
 
 
-		#TEST
-		serialized = modelA.serialize(["id", "foo"])
-		expect( serialized['id'] ).toBe( 33 )
-		expect( serialized['foo'] ).toBe( "bar" )
+		it "Should serialzie properly with a single attribute", ->
+			serialized = modelA.serialize(["foo"])
+			expect( serialized['foo'] ).toBe( "bar" )
 
-		expect( serialized["model_b"] ).not.toBeDefined()
-		expect( serialized["model_b2"] ).not.toBeDefined()
-		expect( serialized["collection_c"] ).not.toBeDefined()
+			expect( serialized['id'] ).not.toBeDefined()
+			expect( serialized["model_b"] ).not.toBeDefined()
+			expect( serialized["model_b2"] ).not.toBeDefined()
+			expect( serialized["model_b3"] ).not.toBeDefined()
+			expect( serialized["collection_c"] ).not.toBeDefined()
+		#END it
 
-
-		#TEST
-		serialized = modelA.serialize(["foo"])
-		expect( serialized['foo'] ).toBe( "bar" )
-
-		expect( serialized['id'] ).not.toBeDefined()
-		expect( serialized["model_b"] ).not.toBeDefined()
-		expect( serialized["model_b2"] ).not.toBeDefined()
-		expect( serialized["model_b3"] ).not.toBeDefined()
-		expect( serialized["collection_c"] ).not.toBeDefined()
-
-		#TEST
-		serialized = modelA.serialize {
-			"id": null
-			"model_b2": {
-				"b_foo": null
-				"url": null
+		it "Should serialzie properly with a deep attributes", ->
+			serialized = modelA.serialize {
+				"id": null
+				"model_b2": {
+					"b_foo": null
+					"url": null
+				}
 			}
-		}
 
-		expect( serialized['id'] ).toBe( 33 )
+			expect( serialized['id'] ).toBe( 33 )
 
-		expect( serialized['model_b2'] ).toEqual(jasmine.any(Object))
-		expect( serialized['model_b2']['b_foo'] ).toBe( "B BAR 2" )
+			expect( serialized['model_b2'] ).toEqual(jasmine.any(Object))
+			expect( serialized['model_b2']['b_foo'] ).toBe( "B BAR 2" )
 
-		expect( serialized["model_b"] ).not.toBeDefined()
-		expect( serialized["model_b3"] ).not.toBeDefined()
-		expect( serialized["collection_c"] ).not.toBeDefined()
+			expect( serialized["model_b"] ).not.toBeDefined()
+			expect( serialized["model_b3"] ).not.toBeDefined()
+			expect( serialized["collection_c"] ).not.toBeDefined()
+		#END it
 
-		#TEST serialize shouldn't include prototype elements of Falcon.Object
-		serialized = modelA.serialize()
+		it "Should serialize without prototype elements of Falcon.Object", ->
+			serialized = modelA.serialize()
 
-		for key, value of serialized
-			expect( Falcon.Object.prototype[key] ).not.toBeDefined()
-		#END for
+			for key, value of serialized
+				expect( Falcon.Object.prototype[key] ).not.toBeDefined()
+			#END for
 
-		#TEST serialize shouldn't include prototype elements of Falcon.Model
-		serialized = modelA.serialize()
+			#TEST serialize shouldn't include prototype elements of Falcon.Model
+			serialized = modelA.serialize()
 
-		for key, value of serialized when key isnt "id"
-			expect( Falcon.Model.prototype[key] ).not.toBeDefined()
-		#END for
+			for key, value of serialized when key isnt "id"
+				expect( Falcon.Model.prototype[key] ).not.toBeDefined()
+			#END for
+		#END it
 	#END test fill
 
 
