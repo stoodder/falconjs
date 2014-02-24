@@ -1220,7 +1220,7 @@
     };
 
     Collection.prototype.fill = function(items, options) {
-      var comparator, head, i, insert_index, iterator, m, mapping, method, model, models, tail, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _length, _m, _model, _models, _ref1, _ref2, _ref3;
+      var added_model, added_models, comparator, existing_model, head, i, insert_index, item, iterator, m, mapping, method, new_model, new_models_list, tail, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _len6, _length, _m, _n, _o, _ref1, _ref2, _ref3;
       if (this.model == null) {
         return [];
       }
@@ -1228,7 +1228,7 @@
         items = [];
       }
       if (Falcon.isCollection(items)) {
-        items = items.models();
+        items = items.all();
       }
       if (ko.isObservable(items)) {
         items = ko.unwrap(items);
@@ -1236,7 +1236,9 @@
       if (!isArray(items)) {
         items = [items];
       }
-      models = [];
+      items = items.slice(0);
+      new_models_list = [];
+      added_models = [];
       if (!isObject(options)) {
         options = {};
       }
@@ -1253,75 +1255,92 @@
         return [];
       }
       this.__falcon_collection__change_count__++;
-      for (i = _i = 0, _len = items.length; _i < _len; i = ++_i) {
-        m = items[i];
-        if (Falcon.isModel(m)) {
-          if (m instanceof this.model) {
-            models[i] = items[i];
-            if (this.parent != null) {
-              models[i].parent = this.parent;
+      if (method === 'merge') {
+        new_models_list = this.models();
+        for (_i = 0, _len = items.length; _i < _len; _i++) {
+          item = items[_i];
+          existing_model = null;
+          if (Falcon.isModel(item)) {
+            iterator = _makeIterator(item);
+            for (_j = 0, _len1 = new_models_list.length; _j < _len1; _j++) {
+              m = new_models_list[_j];
+              if (!(iterator(m))) {
+                continue;
+              }
+              existing_model = m;
+              break;
             }
-          } else {
-            models[i] = new this.model(m.serialize(), this.parent);
+            if (Falcon.isModel(existing_model)) {
+              existing_model.fill(item.unwrap());
+            } else {
+              new_models_list.push(item);
+              added_models.push(item);
+            }
+          } else if (isObject(item)) {
+            iterator = _makeIterator(item.id);
+            for (_k = 0, _len2 = new_models_list.length; _k < _len2; _k++) {
+              m = new_models_list[_k];
+              if (!(iterator(m))) {
+                continue;
+              }
+              existing_model = m;
+              break;
+            }
+            if (Falcon.isModel(existing_model)) {
+              existing_model.fill(item);
+            } else {
+              new_model = new this.model(item, this.parent);
+              new_models_list.push(new_model);
+              added_models.push(new_model);
+            }
           }
-        } else {
-          models[i] = new this.model(m, this.parent);
         }
-        _ref2 = this.__falcon_collection__mixins__;
-        for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-          mapping = _ref2[_j];
-          models[i].mixin(mapping);
+      } else {
+        for (i = _l = 0, _len3 = items.length; _l < _len3; i = ++_l) {
+          item = items[i];
+          if (isObject(item) && !Falcon.isModel(item)) {
+            items[i] = new this.model(item, this.parent);
+          }
+        }
+        added_models = items;
+        if (method === 'replace') {
+          new_models_list = items;
+        } else if (method === 'prepend') {
+          _length = items.length - 1;
+          new_models_list = this.models();
+          for (i = _m = 0, _len4 = items.length; _m < _len4; i = ++_m) {
+            item = items[i];
+            new_models_list.unshift(items[_length - i]);
+          }
+        } else if (method === 'append') {
+          new_models_list = this.models();
+          new_models_list = new_models_list.concat(items);
+        } else if (method === 'insert') {
+          insert_index = (_ref2 = options.insert_index) != null ? _ref2 : -1;
+          new_models_list = this.models();
+          if (insert_index < 0 || insert_index >= new_models_list.length) {
+            new_models_list = new_models_list.concat(items);
+          } else {
+            head = new_models_list.slice(0, insert_index);
+            tail = new_models_list.slice(insert_index);
+            new_models_list = head.concat(items, tail);
+          }
         }
       }
-      if (method === 'replace') {
-        _models = models;
-      } else if (method === 'merge') {
-        _models = this.models();
-        for (_k = 0, _len2 = models.length; _k < _len2; _k++) {
-          model = models[_k];
-          iterator = _makeIterator(model);
-          _model = null;
-          for (_l = 0, _len3 = _models.length; _l < _len3; _l++) {
-            m = _models[_l];
-            if (!(iterator(m))) {
-              continue;
-            }
-            _model = m;
-            break;
-          }
-          if (_model) {
-            _model.fill(model);
-          } else {
-            _models.push(model);
-          }
-        }
-      } else if (method === 'prepend') {
-        _length = models.length - 1;
-        _models = this.models();
-        for (i = _m = 0, _len4 = models.length; _m < _len4; i = ++_m) {
-          model = models[i];
-          _models.unshift(models[_length - i]);
-        }
-      } else if (method === 'append') {
-        _models = this.models();
-        _models = _models.concat(models);
-      } else if (method === 'insert') {
-        insert_index = (_ref3 = options.insert_index) != null ? _ref3 : -1;
-        _models = this.models();
-        if (insert_index < 0 || insert_index >= _models.length) {
-          _models = _models.concat(models);
-        } else {
-          head = _models.slice(0, insert_index);
-          tail = _models.slice(insert_index);
-          _models = head.concat(models, tail);
+      for (_n = 0, _len5 = added_models.length; _n < _len5; _n++) {
+        added_model = added_models[_n];
+        _ref3 = this.__falcon_collection__mixins__;
+        for (_o = 0, _len6 = _ref3.length; _o < _len6; _o++) {
+          mapping = _ref3[_o];
+          added_model.mixin(mapping);
         }
       }
       if (isFunction(comparator)) {
-        _models.sort(comparator);
+        new_models_list.sort(comparator);
       }
-      this.models(_models);
-      this.length(this.models().length);
-      return models;
+      this.models(new_models_list);
+      this.length(new_models_list.length);
+      return added_models;
     };
 
     Collection.prototype.unwrap = function() {

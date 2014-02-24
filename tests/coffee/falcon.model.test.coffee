@@ -281,7 +281,7 @@ describe "Falcon.Model", ->
 			expect( data.model_b3 ).not.toBe( original_model_b3 )
 			expect( modelA.get("model_b3") ).toBe( data.model_b3 )
 			
-			expect( modelA.get("collection_c") ).toBe( collectionC)
+			expect( modelA.get("collection_c") ).toBe( collectionC )
 			expect( modelA.get("collection_c").length() ).toBe( 3 )
 			expect( modelA.get("collection_c").first() ).toEqual(jasmine.any(ModelC))
 			expect( modelA.get("collection_c").first().get("that") ).toBe( "That One" )

@@ -3412,6 +3412,85 @@
           expect(collectionA.at(index).get('hello')).toBe("world2");
           return index++;
         });
+        it("Should not overwrite previous references on merge", function() {
+          var MergeCollection, MergeModel, SubMergeModel, foo_obs, hello_obs, merge_collection, merge_model, merge_model2, _ref12, _ref13, _ref14;
+          MergeModel = (function(_super) {
+            __extends(MergeModel, _super);
+
+            function MergeModel() {
+              _ref12 = MergeModel.__super__.constructor.apply(this, arguments);
+              return _ref12;
+            }
+
+            MergeModel.prototype.defaults = {
+              'sub': function() {
+                return new SubMergeModel;
+              }
+            };
+
+            MergeModel.prototype.observables = {
+              'foo': 'bar'
+            };
+
+            return MergeModel;
+
+          })(Falcon.Model);
+          SubMergeModel = (function(_super) {
+            __extends(SubMergeModel, _super);
+
+            function SubMergeModel() {
+              _ref13 = SubMergeModel.__super__.constructor.apply(this, arguments);
+              return _ref13;
+            }
+
+            SubMergeModel.prototype.observables = {
+              'hello': 'world'
+            };
+
+            return SubMergeModel;
+
+          })(Falcon.Model);
+          MergeCollection = (function(_super) {
+            __extends(MergeCollection, _super);
+
+            function MergeCollection() {
+              _ref14 = MergeCollection.__super__.constructor.apply(this, arguments);
+              return _ref14;
+            }
+
+            MergeCollection.prototype.model = MergeModel;
+
+            return MergeCollection;
+
+          })(Falcon.Collection);
+          merge_model = new MergeModel({
+            id: 1
+          });
+          merge_collection = new MergeCollection([merge_model]);
+          expect(merge_model.get('foo')).toBe('bar');
+          expect(merge_model.sub.get('hello')).toBe('world');
+          foo_obs = merge_model.foo;
+          hello_obs = merge_model.sub.hello;
+          expect(ko.isObservable(foo_obs)).toBe(true);
+          expect(ko.isObservable(hello_obs)).toBe(true);
+          expect(merge_collection.all()).toEqual([merge_model]);
+          merge_collection.fill([
+            {
+              'id': 1,
+              'foo': 'BAR',
+              'sub': {
+                'hello': 'WORLD'
+              }
+            }, (merge_model2 = new MergeModel)
+          ], {
+            'method': 'merge'
+          });
+          expect(merge_model.get('foo')).toBe('BAR');
+          expect(merge_model.sub.get('hello')).toBe('WORLD');
+          expect(foo_obs).toBe(merge_model.foo);
+          expect(hello_obs).toBe(merge_model.sub.hello);
+          return expect(merge_collection.all()).toEqual([merge_model, merge_model2]);
+        });
         return it("Should properly merge items into a populated collection that has a specified comparator", function() {
           var collectionA, index;
           collectionA = new CollectionA([
@@ -3714,8 +3793,10 @@
       });
       it("Should test basic form of serialize method", function() {
         var serialized;
+        Falcon.debug = true;
         serialized = collectionA.serialize();
-        return expect(serialized).toEqual(models);
+        expect(serialized).toEqual(models);
+        return Falcon.debug = false;
       });
       it("Should test specific fields for serialize method", function() {
         var serialized;

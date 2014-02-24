@@ -191,13 +191,15 @@ class Falcon.Collection extends Falcon.Object
 		return [] unless @model?
 
 		items ?= []
-		items = items.models() if Falcon.isCollection(items)
+		items = items.all() if Falcon.isCollection(items)
 		items = ko.unwrap(items) if ko.isObservable(items)
 		items = [items] unless isArray(items)
-		models = []
+		items = items.slice(0) #Shallow clone the items array so that we don't disturb the original input
+		
+		new_models_list = []
+		added_models = []
 		
 		options = {} unless isObject(options)
-
 
 		{method} = options
 		method = '' unless isString(method)
@@ -210,81 +212,113 @@ class Falcon.Collection extends Falcon.Object
 		#Increment the change count
 		@__falcon_collection__change_count__++
 
-		# Make sure that each of the elements passed in are a model that this 
-		for m, i in items
-			if Falcon.isModel( m )
-				#If this is the correct type of model, go ahead, otherwise 
-				#serialize the model and re-create as an applicable model
-				if m instanceof @model
-					models[i] = items[i]
-					models[i].parent = @parent if @parent?
-				else
-					models[i] = new @model(m.serialize(), @parent)
-				#END if
-			else
-				models[i] = new @model(m, @parent)
-			#END if
-
-			#Add the mixins
-			models[i].mixin(mapping) for mapping in @__falcon_collection__mixins__
-		#END for
-		
-		#Determine how we should proceed adding models to the models
-		if method is 'replace'
-			_models = models
-
 		#merging the models adds new models and updates existing models
-		else if method is 'merge'
-			_models = @models()
+		if method is 'merge'
+			new_models_list = @models()
 
 			#iterate over the new collection
-			for model in models
-				#Create the iterator and initialze the model
-				iterator = _makeIterator( model )
-				_model = null #The existing model in this collection
+			for item in items
+				existing_model = null
 
-				#Try to find this model in this collection
-				for m in _models when iterator( m )
-					_model = m
-					break
-				#END for
-				
-				if _model then _model.fill( model ) else _models.push( model )
+				#Check if this new model is already a Model
+				if Falcon.isModel( item )
+					#Create the appropriate iterator
+					iterator = _makeIterator( item )
+
+					#Try to find an existing model in this collection
+					for m in new_models_list when iterator( m )
+						existing_model = m
+						break
+					#END for
+
+					#If we found a model, then fill it with the unwrapped data
+					#from the input item (so we avoid overwitting references)
+					if Falcon.isModel( existing_model )
+						existing_model.fill( item.unwrap() )
+
+					#Otherwise simply append the model to the collection
+					else
+						new_models_list.push( item )
+						added_models.push( item )
+					#END if
+
+				#Check if this item is an object of data
+				else if isObject( item )
+					#Create the appropriate iterator
+					iterator = _makeIterator( item.id )
+
+					#Attempt to find a item in this collection
+					for m in new_models_list when iterator( m )
+						existing_model = m
+						break
+					#END for
+
+					#If we found a item, then just fill it with the data
+					if Falcon.isModel( existing_model )
+						existing_model.fill( item )
+
+					#Otherwise, create a new item and append it to the collection
+					else
+						new_model = new @model( item, @parent )
+						new_models_list.push( new_model )
+						added_models.push( new_model )
+					#END if
+				#END if
 			#END for
 
-		#Add the models to the beginning of the list
-		else if method is 'prepend'
-			_length = models.length-1
-			_models = @models()
-			_models.unshift( models[_length-i] ) for model, i in models
+		#Otherwise try the other, more generic, scenarios for replace, prepend, append, and insert
+		else
+			#Create new models where needed
+			for item, i in items when isObject(item) and not Falcon.isModel(item)
+				items[i] = new @model(item, @parent)
+			#END for
 
-		#Add the models to the bottom of the list
-		else if method is 'append'
-			_models = @models()
-			_models = _models.concat( models )
+			added_models = items
+		
+			#Determine how we should proceed adding models to the models
+			if method is 'replace'
+				new_models_list = items
 
-		#Insert the models into the list at the specified index, if the index is
-		#invalid, append the models
-		else if method is 'insert'
-			insert_index = options.insert_index ? -1
-			_models = @models()
+			#Add the models to the beginning of the list
+			else if method is 'prepend'
 
-			if insert_index < 0 or insert_index >= _models.length
-				_models = _models.concat( models )
-			else
-				head = _models[0...insert_index]
-				tail = _models[insert_index..]
-				_models = head.concat( models, tail )
+				_length = items.length-1
+				new_models_list = @models()
+				new_models_list.unshift( items[_length-i] ) for item, i in items
+
+			#Add the models to the bottom of the list
+			else if method is 'append'
+				new_models_list = @models()
+				new_models_list = new_models_list.concat( items )
+
+			#Insert the models into the list at the specified index, if the index is
+			#invalid, append the models
+			else if method is 'insert'
+				insert_index = options.insert_index ? -1
+				new_models_list = @models()
+
+				if insert_index < 0 or insert_index >= new_models_list.length
+					new_models_list = new_models_list.concat( items )
+				else
+					head = new_models_list[0...insert_index]
+					tail = new_models_list[insert_index..]
+					new_models_list = head.concat( items, tail )
+				#END if
 			#END if
 		#END if
 
-		_models.sort( comparator ) if isFunction( comparator )
-		@models( _models )
+		#Add the mixins
+		for added_model in added_models
+			added_model.mixin(mapping) for mapping in @__falcon_collection__mixins__
+		#END for
+
+		new_models_list.sort( comparator ) if isFunction( comparator )
+		@models( new_models_list )
 
 		#Update the length
-		@length( @models().length )
+		@length( new_models_list.length )
 
-		return models
+		return added_models
 	#END fill
 
 	#--------------------------------------------------------

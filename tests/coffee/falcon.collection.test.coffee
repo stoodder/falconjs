@@ -370,6 +370,56 @@ describe "Falcon.Collection", ->
 				index++
 			#END it
 
+			it "Should not overwrite previous references on merge", ->
+				class MergeModel extends Falcon.Model
+					defaults:
+						'sub': -> new SubMergeModel
+					#END defaults
+
+					observables:
+						'foo': 'bar'
+					#END observables
+				#END MergeModel
+
+				class SubMergeModel extends Falcon.Model
+					observables:
+						'hello': 'world'
+					#END observables
+				#END SubMergeModel
+
+				class MergeCollection extends Falcon.Collection
+					model: MergeModel
+				#END class
+
+				merge_model = new MergeModel(id: 1)
+				merge_collection = new MergeCollection([merge_model])
+
+				expect( merge_model.get('foo') ).toBe( 'bar' )
+				expect( merge_model.sub.get('hello') ).toBe( 'world' )
+
+				foo_obs = merge_model.foo
+				hello_obs = merge_model.sub.hello
+
+				expect( ko.isObservable(foo_obs) ).toBe( true )
+				expect( ko.isObservable(hello_obs) ).toBe( true )
+
+				expect( merge_collection.all() ).toEqual([merge_model])
+
+				merge_collection.fill([{
+					'id': 1,
+					'foo': 'BAR',
+					'sub': {'hello': 'WORLD'}
+				}, (merge_model2 = new MergeModel)], {'method': 'merge'})
+
+				expect( merge_model.get('foo') ).toBe( 'BAR' )
+				expect( merge_model.sub.get('hello') ).toBe( 'WORLD' )
+
+				expect( foo_obs ).toBe( merge_model.foo )
+				expect( hello_obs ).toBe( merge_model.sub.hello )
+
+				expect( merge_collection.all() ).toEqual([merge_model, merge_model2])
+			#END it
+
 			it "Should properly merge items into a populated collection that has a specified comparator", ->
 				collectionA = new CollectionA [
 					{id: 3, "hello": "world3"}
@@ -615,9 +665,11 @@ describe "Falcon.Collection", ->
 		#END beforeEach
 
 		it "Should test basic form of serialize method", ->
+			Falcon.debug = true
 			serialized = collectionA.serialize()
 
-			expect( serialized ).toEqual models
+			expect( serialized ).toEqual( models )
+			Falcon.debug = false
 		#END it
 
 		it "Should test specific fields for serialize method", ->
