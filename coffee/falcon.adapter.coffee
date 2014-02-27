@@ -66,15 +66,15 @@ class Falcon.Adapter extends Falcon.Object
 	# Arguments:
 	#	**data_object** _(Model|Collection)_  - The data object in question
 	#	**type** _(String)_ - The request type
-	#	**options** _(Object|Function|String)_ - The options for perform this sync with. 
-	#											 If a function is given, it is assigned to the 
-	#											 'compete' attribute. If a string or an array is given, 
-	#											 it is turned into an array and assigned to the 
-	#											 'attributes' attribute
+	#	**options** _(Object|Function|String|Array)_ - The options for perform this sync with. 
+	#											 		If a function is given, it is assigned to the 
+	#											 		'compete' attribute. If a string or an array is given, 
+	#											 		it is turned into an array and assigned to the 
+	#											 		'attributes' attribute
 	#	**context** _(mixed)_ - The context to call the response handers on
 	#
 	# Returns:
-	#	_(mixed)_ - The context to call the response methods on
+	#	_(Object)_ - A standardized version of the options
 	#
 	# Note:
 	#	This is a Data Object (Models and Collections) related
@@ -82,19 +82,34 @@ class Falcon.Adapter extends Falcon.Object
 	#	arguments regardless if they're used or not.
 	#------------------------------------------------------------------------
 	standardizeOptions: ( data_object, type, options, context ) ->
-		options = {complete: options} if isFunction(options)
-		options = {attributes: trim( options ).split(",")} if isString(options)
-		options = {attributes: options} if isArray( options )
+		#Shallow clone the options so as to not disturb the original object
+		if isObject( options )
+			output_options = {}
+			output_options[key] = value for key, value of options
+		
+		else if isFunction(options)
+			output_options = {complete: options}
+		
+		else if isString(options)
+			output_options = {attributes: trim( options ).split(",")}
+		
+		else if isArray( options )
+			output_options = {attributes: options}
+		
+		else
+			output_options = {}
+		#END if
 
-		options = {} unless isObject(options)
+		output_options.success = (->) unless isFunction(output_options.success)
+		output_options.complete = (->) unless isFunction(output_options.complete)
+		output_options.error = (->) unless isFunction(output_options.error)
+		output_options.parent = data_object.parent unless Falcon.isModel( output_options.parent ) or output_options.parent is null
+		output_options.attributes = null unless isArray( output_options.attributes )
 
-		options.success = (->) unless isFunction(options.success)
-		options.complete = (->) unless isFunction(options.complete)
-		options.error = (->) unless isFunction(options.error)
-		options.parent = data_object.parent unless Falcon.isModel( options.parent ) or options.parent is null
-		options.attributes = null unless isArray( options.attributes )
+		output_options.url = @makeUrl( data_object, type, output_options, context )
+		output_options.data = @serializeData( data_object, type, output_options, context )
 
-		return options
+		return output_options
 	#END standardizeOptions
 
 	#------------------------------------------------------------------------
@@ -141,11 +156,11 @@ class Falcon.Adapter extends Falcon.Object
 	#	arguments regardless if they're used or not.
 	#------------------------------------------------------------------------
 	serializeData: ( data_object, type, options, context ) ->
-		if options.data is null and type in ["POST", "PUT"]
-			options.data = data_object.serialize( options.attributes )
+		if not options.data? and type in ["POST", "PUT"]
+			return data_object.serialize( options.attributes )
+		else
+			return options.data
 		#END if
-
-		return options.data
 	#END serializeData
 
 	#------------------------------------------------------------------------
@@ -164,7 +179,7 @@ class Falcon.Adapter extends Falcon.Object
 	#								   on other adapters inheritting this base adapter defintion
 	#
 	# Returns:
-	#	_(mixed)_ - The context to call the response methods on
+	#	_(Object|Array)_ - The parsed response data
 	#
 	# Note:
 	#	This is a Data Object (Models and Collections) related
@@ -205,8 +220,6 @@ class Falcon.Adapter extends Falcon.Object
 	#	arguments regardless if they're used or not.
 	#------------------------------------------------------------------------
 	successResponseHandler: ( data_object, type, options, context, response_args ) ->
-		{data, status, xhr} = response_args
-
 		raw_response_data = @parseRawResponseData( data_object, type, options, context, response_args )
 		parsed_data = data_object.parse( raw_response_data, options )
 		data_object.fill(parsed_data, options)
@@ -285,7 +298,13 @@ class Falcon.Adapter extends Falcon.Object
 	#	**context** _(mixed)_ - The context to call the response handers on
 	#
 	# Returns:
-	#	_(Falcon.Adapter)_ - This instance
+	#	_(Object)_ - An object of all the processed inputs and an additional key for if the request is valid or not.
+	#				 Attributes:
+	#					data_object - The data object
+	#					type - The resolved request type
+	#					options - The standrdized options
+	#					context - The resolved context
+	#					is_valid - Is the request valid?
 	#
 	# Note:
 	#	This is a Data Object (Models and Collections) related
@@ -294,10 +313,23 @@ class Falcon.Adapter extends Falcon.Object
 	#------------------------------------------------------------------------
 	sync: ( data_object, type, options, context ) ->
 		unless Falcon.isDataObject( data_object )
-			throw new Error("Expected data_object to be a Model or Collection in Sync")
+			throw new Error("Expected data_object to be a Model or Collection")
 		#END unless
 
-		return @
+		is_valid = false
+
+		type = @resolveRequestType( data_object, type, options, context )
+		options = @standardizeOptions( data_object, type, options, context )
+		context = @resolveContext( data_object, type, options, context )
+
+		#Validate any models that are trying to be created or saved
+		if Falcon.isModel( data_object )
+			return {data_object, type, options, context, is_valid} if (type in ["PUT", "POST"]) and (not data_object.validate(options))
+		#END if
+
+		is_valid = true
+
+		return {data_object, type, options, context, is_valid}
 	#END sync
 
 	#------------------------------------------------------------------------

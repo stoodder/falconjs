@@ -67,33 +67,23 @@
 
     jQueryAdapter.prototype.cache = false;
 
-    jQueryAdapter.prototype.resolveRequestType = function(data_object, type, options, context) {
-      return jQueryAdapter.__super__.resolveRequestType.call(this, data_object, type, options, context);
-    };
-
-    jQueryAdapter.prototype.resolveContext = function(data_object, type, options, context) {
-      return jQueryAdapter.__super__.resolveContext.call(this, data_object, type, options, context);
-    };
-
     jQueryAdapter.prototype.standardizeOptions = function(data_object, type, options, context) {
-      options = jQueryAdapter.__super__.standardizeOptions.call(this, data_object, type, options, context);
-      if (!isObject(options.data)) {
-        options.data = null;
+      var output_options;
+      output_options = jQueryAdapter.__super__.standardizeOptions.call(this, data_object, type, options, context);
+      if (!isString(output_options.dataType)) {
+        output_options.dataType = "json";
       }
-      if (!isString(options.dataType)) {
-        options.dataType = "json";
+      if (!isString(output_options.contentType)) {
+        output_options.contentType = "application/json";
       }
-      if (!isString(options.contentType)) {
-        options.contentType = "application/json";
+      if (!isObject(output_options.params)) {
+        output_options.params = {};
       }
-      if (!isObject(options.params)) {
-        options.params = {};
+      if (!isObject(output_options.headers)) {
+        output_options.headers = {};
       }
-      if (!isObject(options.headers)) {
-        options.headers = {};
-      }
-      options.cache = this.cache;
-      return options;
+      output_options.cache = this.cache;
+      return output_options;
     };
 
     jQueryAdapter.prototype.makeUrl = function(data_object, type, options, context) {
@@ -120,10 +110,10 @@
     jQueryAdapter.prototype.serializeData = function(data_object, type, options, context) {
       var serialized_data;
       serialized_data = jQueryAdapter.__super__.serializeData.call(this, data_object, type, options, context);
-      if (serialized_data === null) {
+      if (serialized_data == null) {
         return "";
       }
-      return JSON.stringify(options.data);
+      return JSON.stringify(serialized_data);
     };
 
     jQueryAdapter.prototype.parseRawResponseData = function(data_object, type, options, context, response_args) {
@@ -141,36 +131,18 @@
       return data;
     };
 
-    jQueryAdapter.prototype.successResponseHandler = function(data_object, type, options, context, response_args) {
-      return jQueryAdapter.__super__.successResponseHandler.call(this, data_object, type, options, context, response_args);
-    };
-
-    jQueryAdapter.prototype.errorResponseHandler = function(data_object, type, options, context, response_args) {
-      return jQueryAdapter.__super__.errorResponseHandler.call(this, data_object, type, options, context, response_args);
-    };
-
-    jQueryAdapter.prototype.completeResponseHandler = function(data_object, type, options, context, response_args) {
-      return jQueryAdapter.__super__.completeResponseHandler.call(this, data_object, type, options, context, response_args);
-    };
-
     jQueryAdapter.prototype.sync = function(data_object, type, options, context) {
-      var data, url,
+      var standardized_inputs,
         _this = this;
-      jQueryAdapter.__super__.sync.call(this, data_object, type, options, context);
-      type = this.resolveRequestType(data_object, type, options, context);
-      options = this.standardizeOptions(data_object, type, options, context);
-      context = this.resolveContext(data_object, type, options, context);
-      if (Falcon.isModel(data_object)) {
-        if ((type === "PUT" || type === "POST") && (!data_object.validate(options))) {
-          return null;
-        }
+      standardized_inputs = jQueryAdapter.__super__.sync.call(this, data_object, type, options, context);
+      if (!standardized_inputs.is_valid) {
+        return null;
       }
-      url = this.makeUrl(data_object, type, options, context);
-      data = this.serializeData(data_object, type, options, context);
+      data_object = standardized_inputs.data_object, type = standardized_inputs.type, context = standardized_inputs.context, options = standardized_inputs.options;
       return $.ajax({
         'type': type,
-        'url': url,
-        'data': data,
+        'url': options.url,
+        'data': options.data,
         'dataType': options.dataType,
         'contentType': options.contentType,
         'cache': options.cache,
@@ -211,7 +183,7 @@
             }
           },
           error: function() {
-            return console.log("[FALCON] Error Loading Template: '" + url + "'");
+            return console.log("Error Loading Template: '" + url + "'");
           },
           success: function(html) {
             return Falcon.View.cacheTemplate(url, html);

@@ -108,6 +108,7 @@ module.exports = (grunt) ->
 					"tests/scripts/tests.js": [
 						"tests/coffee/falcon.test.coffee"
 						"tests/coffee/falcon.object.test.coffee"
+						"tests/coffee/falcon.adapter.test.coffee"
 						"tests/coffee/falcon.model.test.coffee"
 						"tests/coffee/falcon.collection.test.coffee"
 						"tests/coffee/falcon.view.test.coffee"

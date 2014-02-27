@@ -651,6 +651,756 @@
 }).call(this);
 
 (function() {
+  describe("Falcon.Adapter", function() {
+    describe("extend", function() {});
+    describe("resolveRequestType", function() {
+      var adapter, context, data_object, options;
+      adapter = new Falcon.Adapter;
+      data_object = new Falcon.Model;
+      options = {};
+      context = null;
+      it("Should return GET if type isn't a string", function() {
+        expect(adapter.resolveRequestType(data_object, null, options, context)).toBe("GET");
+        return expect(adapter.resolveRequestType(data_object, 123, options, context)).toBe("GET");
+      });
+      it("Should return GET is type isn't GET, PUT, POST, DELETE", function() {
+        return expect(adapter.resolveRequestType(data_object, "HELLO WORLD", options, context)).toBe("GET");
+      });
+      it("Should cast get, put, post, delete (lower case) to their proper forms", function() {
+        expect(adapter.resolveRequestType(data_object, "get", options, context)).toBe("GET");
+        expect(adapter.resolveRequestType(data_object, "put", options, context)).toBe("PUT");
+        expect(adapter.resolveRequestType(data_object, "post", options, context)).toBe("POST");
+        return expect(adapter.resolveRequestType(data_object, "delete", options, context)).toBe("DELETE");
+      });
+      return it("Should ignore whitespace", function() {
+        expect(adapter.resolveRequestType(data_object, "  GET  ", options, context)).toBe("GET");
+        expect(adapter.resolveRequestType(data_object, "  PUT  ", options, context)).toBe("PUT");
+        expect(adapter.resolveRequestType(data_object, "  POST  ", options, context)).toBe("POST");
+        return expect(adapter.resolveRequestType(data_object, "  DELETE  ", options, context)).toBe("DELETE");
+      });
+    });
+    describe("resovleContext", function() {
+      var adapter, context, data_object, options, type;
+      adapter = new Falcon.Adapter;
+      data_object = new Falcon.Model({
+        id: 1
+      });
+      type = "GET";
+      options = {
+        context: {
+          id: 2
+        }
+      };
+      context = {
+        id: 3
+      };
+      it("Should resolve the context properly if given", function() {
+        return expect(adapter.resolveContext(data_object, type, options, context)).toBe(context);
+      });
+      it("Should fallback on the options context if no context is given", function() {
+        expect(adapter.resolveContext(data_object, type, options, null)).toBe(options.context);
+        return expect(adapter.resolveContext(data_object, type, options)).toBe(options.context);
+      });
+      return it("Should fall back on the data_object as context if no context or options.context is given", function() {
+        expect(adapter.resolveContext(data_object, type, {}, null)).toBe(data_object);
+        return expect(adapter.resolveContext(data_object, type, {})).toBe(data_object);
+      });
+    });
+    describe("standardizeOptions", function() {
+      var adapter, context, data_object, parent, type;
+      adapter = new Falcon.Adapter;
+      parent = new Falcon.Model;
+      data_object = new Falcon.Model({
+        id: 1
+      }, parent);
+      type = "GET";
+      context = {
+        id: 3
+      };
+      beforeEach(function() {
+        spyOn(adapter, 'makeUrl').and.callThrough();
+        return spyOn(adapter, 'serializeData').and.callThrough();
+      });
+      it("Should present standard options if nothing is passed in", function() {
+        var ret;
+        ret = adapter.standardizeOptions(data_object, type, null, context);
+        expect(ret).toEqual({
+          'success': jasmine.any(Function),
+          'complete': jasmine.any(Function),
+          'error': jasmine.any(Function),
+          'parent': data_object.parent,
+          'url': jasmine.any(String),
+          'data': void 0,
+          'attributes': null
+        });
+        expect(adapter.makeUrl.calls.count()).toBe(1);
+        expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+        expect(adapter.serializeData.calls.count()).toBe(1);
+        return expect(adapter.serializeData).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+      });
+      it("Should maintain options that are passed in", function() {
+        var attributes, complete, data, error, options, ret, success, url;
+        success = (function() {});
+        complete = (function() {});
+        error = (function() {});
+        parent = null;
+        attributes = ['id', 'hello'];
+        url = 'http://www.google.com';
+        data = {
+          'hello': 'world'
+        };
+        attributes = ['id', 'hell0'];
+        options = {
+          success: success,
+          complete: complete,
+          error: error,
+          parent: parent,
+          attributes: attributes,
+          url: url,
+          data: data,
+          attributes: attributes
+        };
+        ret = adapter.standardizeOptions(data_object, type, options, context);
+        expect(ret).toEqual({
+          'success': options.success,
+          'complete': options.complete,
+          'error': options.error,
+          'parent': null,
+          'url': options.url,
+          'data': options.data,
+          'attributes': options.attributes
+        });
+        expect(adapter.makeUrl.calls.count()).toBe(1);
+        expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+        expect(adapter.serializeData.calls.count()).toBe(1);
+        expect(adapter.serializeData).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+        expect(ret).not.toBe(options);
+        return expect(options).toEqual({
+          success: success,
+          complete: complete,
+          error: error,
+          parent: parent,
+          attributes: attributes,
+          url: url,
+          data: data,
+          attributes: attributes
+        });
+      });
+      it("Should assign a function to the complete attribute of the options", function() {
+        var options;
+        options = (function() {});
+        expect(adapter.standardizeOptions(data_object, type, options, context)).toEqual({
+          'success': jasmine.any(Function),
+          'complete': options,
+          'error': jasmine.any(Function),
+          'parent': data_object.parent,
+          'attributes': null,
+          'url': jasmine.any(String),
+          'data': void 0
+        });
+        expect(adapter.makeUrl.calls.count()).toBe(1);
+        expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+        expect(adapter.serializeData.calls.count()).toBe(1);
+        return expect(adapter.serializeData).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+      });
+      it("Should split a string into an array of attributes", function() {
+        var options;
+        options = "id,hello_world,title";
+        expect(adapter.standardizeOptions(data_object, type, options, context)).toEqual({
+          'success': jasmine.any(Function),
+          'complete': jasmine.any(Function),
+          'error': jasmine.any(Function),
+          'parent': data_object.parent,
+          'attributes': ['id', 'hello_world', 'title'],
+          'url': jasmine.any(String),
+          'data': void 0
+        });
+        expect(adapter.makeUrl.calls.count()).toBe(1);
+        expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+        expect(adapter.serializeData.calls.count()).toBe(1);
+        return expect(adapter.serializeData).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+      });
+      return it("Should pass through an array into the attrbutes attribute of the options", function() {
+        var options;
+        options = ['id', 'hello_world', 'title'];
+        expect(adapter.standardizeOptions(data_object, type, options, context)).toEqual({
+          'success': jasmine.any(Function),
+          'complete': jasmine.any(Function),
+          'error': jasmine.any(Function),
+          'parent': data_object.parent,
+          'attributes': options,
+          'url': jasmine.any(String),
+          'data': void 0
+        });
+        expect(adapter.makeUrl.calls.count()).toBe(1);
+        expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+        expect(adapter.serializeData.calls.count()).toBe(1);
+        return expect(adapter.serializeData).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+      });
+    });
+    describe("makeUrl", function() {
+      var adapter, context, data_object, options, parent;
+      adapter = new Falcon.Adapter;
+      parent = new Falcon.Model;
+      data_object = new Falcon.Model({
+        id: 1
+      }, parent);
+      context = {
+        id: 3
+      };
+      options = {
+        parent: new Falcon.Model
+      };
+      beforeEach(function() {
+        return spyOn(data_object, 'makeUrl').and.returnValue("http://www.falconjs.com");
+      });
+      it("Should return the url of the options if one is present", function() {
+        var ret;
+        ret = adapter.makeUrl(data_object, "GET", {
+          url: 'http://www.google.com'
+        }, null);
+        expect(data_object.makeUrl).not.toHaveBeenCalled();
+        return expect(ret).toBe('http://www.google.com');
+      });
+      return it("Should call the makeUrl method on the data object properly", function() {
+        var ret;
+        ret = adapter.makeUrl(data_object, "PUT", options, null);
+        expect(data_object.makeUrl.calls.count()).toBe(1);
+        expect(data_object.makeUrl).toHaveBeenCalledWith("PUT", options.parent);
+        return expect(ret).toBe('http://www.falconjs.com');
+      });
+    });
+    describe("serializeData", function() {
+      var adapter, attributes, context, data_object, options, parent, serialized_data;
+      adapter = new Falcon.Adapter;
+      parent = new Falcon.Model;
+      data_object = new Falcon.Model({
+        id: 1
+      }, parent);
+      context = {
+        id: 3
+      };
+      options = {
+        data: {
+          id: 4
+        }
+      };
+      attributes = ["id", "hello"];
+      serialized_data = {
+        'hello': 'world'
+      };
+      beforeEach(function() {
+        return spyOn(data_object, 'serialize').and.returnValue(serialized_data);
+      });
+      it("Should use the data attribute of options if one is present", function() {
+        expect(adapter.serializeData(data_object, "GET", options, context)).toBe(options.data);
+        expect(adapter.serializeData(data_object, "POST", options, context)).toBe(options.data);
+        expect(adapter.serializeData(data_object, "PUT", options, context)).toBe(options.data);
+        expect(adapter.serializeData(data_object, "DELETE", options, context)).toBe(options.data);
+        return expect(data_object.serialize).not.toHaveBeenCalled();
+      });
+      it("Should call the serialize method on the data object if the request type is POST", function() {
+        var ret;
+        ret = adapter.serializeData(data_object, "POST", {
+          attributes: attributes
+        }, context);
+        expect(data_object.serialize.calls.count()).toBe(1);
+        expect(data_object.serialize).toHaveBeenCalledWith(attributes);
+        return expect(ret).toBe(serialized_data);
+      });
+      it("Should call the serialize method on the data object if the request type is PUT", function() {
+        var ret;
+        ret = adapter.serializeData(data_object, "PUT", {
+          attributes: attributes
+        }, context);
+        expect(data_object.serialize.calls.count()).toBe(1);
+        expect(data_object.serialize).toHaveBeenCalledWith(attributes);
+        return expect(ret).toBe(serialized_data);
+      });
+      return it("Should not call serialzie on GET or DELETE", function() {
+        var ret;
+        ret = adapter.serializeData(data_object, "GET", {
+          attributes: attributes
+        }, context);
+        ret = adapter.serializeData(data_object, "DELETE", {
+          attributes: attributes
+        }, context);
+        expect(data_object.serialize).not.toHaveBeenCalled();
+        return expect(ret).not.toBeDefined();
+      });
+    });
+    describe("parseRawResponseData", function() {
+      var adapter, context, data_object, options, parent, response_args, type;
+      adapter = new Falcon.Adapter;
+      parent = new Falcon.Model;
+      data_object = new Falcon.Model({
+        id: 1
+      }, parent);
+      type = "GET";
+      context = {
+        id: 3
+      };
+      options = {};
+      response_args = {
+        id: 5
+      };
+      return it("Should simply return the response arguments for the base adapter class", function() {
+        return expect(adapter.parseRawResponseData(data_object, type, options, context, response_args)).toBe(response_args);
+      });
+    });
+    describe("successResponseHandler", function() {
+      var adapter, complete, context, data_object, error, options, parent, parsed_data, raw_response_data, response_args, success, type;
+      adapter = new Falcon.Adapter;
+      parent = new Falcon.Model;
+      data_object = new Falcon.Model({
+        id: 1
+      }, parent);
+      context = new Falcon.Model({
+        id: 2
+      }, parent);
+      type = "GET";
+      success = sinon.spy();
+      error = sinon.spy();
+      complete = sinon.spy();
+      options = {
+        success: success,
+        error: error,
+        complete: complete
+      };
+      parsed_data = {
+        id: 5
+      };
+      raw_response_data = {
+        model: parsed_data
+      };
+      response_args = {
+        data: JSON.stringify(raw_response_data)
+      };
+      beforeEach(function() {
+        spyOn(adapter, 'parseRawResponseData').and.returnValue(raw_response_data);
+        spyOn(data_object, 'parse').and.returnValue(parsed_data);
+        spyOn(data_object, 'fill');
+        spyOn(data_object, 'trigger');
+        success.reset();
+        error.reset();
+        return complete.reset();
+      });
+      it("Should call the correct methods on GET", function() {
+        type = "GET";
+        adapter.successResponseHandler(data_object, type, options, context, response_args);
+        expect(adapter.parseRawResponseData.calls.count()).toBe(1);
+        expect(adapter.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, response_args);
+        expect(data_object.parse.calls.count()).toBe(1);
+        expect(data_object.parse).toHaveBeenCalledWith(raw_response_data, options);
+        expect(data_object.fill.calls.count()).toBe(1);
+        expect(data_object.fill).toHaveBeenCalledWith(parsed_data, options);
+        expect(data_object.trigger.calls.count()).toBe(1);
+        expect(data_object.trigger).toHaveBeenCalledWith("fetch", parsed_data);
+        expect(success.callCount).toBe(1);
+        expect(success).toHaveBeenCalledWith(data_object, raw_response_data, response_args);
+        expect(success).toHaveBeenCalledOn(context);
+        expect(error).not.toHaveBeenCalled();
+        return expect(complete).not.toHaveBeenCalled();
+      });
+      it("Should call the correct methods on POST", function() {
+        type = "POST";
+        adapter.successResponseHandler(data_object, type, options, context, response_args);
+        expect(adapter.parseRawResponseData.calls.count()).toBe(1);
+        expect(adapter.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, response_args);
+        expect(data_object.parse.calls.count()).toBe(1);
+        expect(data_object.parse).toHaveBeenCalledWith(raw_response_data, options);
+        expect(data_object.fill.calls.count()).toBe(1);
+        expect(data_object.fill).toHaveBeenCalledWith(parsed_data, options);
+        expect(data_object.trigger.calls.count()).toBe(1);
+        expect(data_object.trigger).toHaveBeenCalledWith("create", parsed_data);
+        expect(success.callCount).toBe(1);
+        expect(success).toHaveBeenCalledWith(data_object, raw_response_data, response_args);
+        expect(success).toHaveBeenCalledOn(context);
+        expect(error).not.toHaveBeenCalled();
+        return expect(complete).not.toHaveBeenCalled();
+      });
+      it("Should call the correct methods on PUT", function() {
+        type = "PUT";
+        adapter.successResponseHandler(data_object, type, options, context, response_args);
+        expect(adapter.parseRawResponseData.calls.count()).toBe(1);
+        expect(adapter.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, response_args);
+        expect(data_object.parse.calls.count()).toBe(1);
+        expect(data_object.parse).toHaveBeenCalledWith(raw_response_data, options);
+        expect(data_object.fill.calls.count()).toBe(1);
+        expect(data_object.fill).toHaveBeenCalledWith(parsed_data, options);
+        expect(data_object.trigger.calls.count()).toBe(1);
+        expect(data_object.trigger).toHaveBeenCalledWith("save", parsed_data);
+        expect(success.callCount).toBe(1);
+        expect(success).toHaveBeenCalledWith(data_object, raw_response_data, response_args);
+        expect(success).toHaveBeenCalledOn(context);
+        expect(error).not.toHaveBeenCalled();
+        return expect(complete).not.toHaveBeenCalled();
+      });
+      return it("Should call the correct methods on DELETE", function() {
+        type = "DELETE";
+        adapter.successResponseHandler(data_object, type, options, context, response_args);
+        expect(adapter.parseRawResponseData.calls.count()).toBe(1);
+        expect(adapter.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, response_args);
+        expect(data_object.parse.calls.count()).toBe(1);
+        expect(data_object.parse).toHaveBeenCalledWith(raw_response_data, options);
+        expect(data_object.fill.calls.count()).toBe(1);
+        expect(data_object.fill).toHaveBeenCalledWith(parsed_data, options);
+        expect(data_object.trigger.calls.count()).toBe(1);
+        expect(data_object.trigger).toHaveBeenCalledWith("destroy", parsed_data);
+        expect(success.callCount).toBe(1);
+        expect(success).toHaveBeenCalledWith(data_object, raw_response_data, response_args);
+        expect(success).toHaveBeenCalledOn(context);
+        expect(error).not.toHaveBeenCalled();
+        return expect(complete).not.toHaveBeenCalled();
+      });
+    });
+    describe("errorResponseHandler", function() {
+      var adapter, complete, context, data_object, error, options, parent, parsed_data, raw_response_data, response_args, success, type;
+      adapter = new Falcon.Adapter;
+      parent = new Falcon.Model;
+      data_object = new Falcon.Model({
+        id: 1
+      }, parent);
+      context = new Falcon.Model({
+        id: 2
+      }, parent);
+      type = "GET";
+      success = sinon.spy();
+      error = sinon.spy();
+      complete = sinon.spy();
+      options = {
+        success: success,
+        error: error,
+        complete: complete
+      };
+      parsed_data = {
+        id: 5
+      };
+      raw_response_data = {
+        model: parsed_data
+      };
+      response_args = {
+        data: JSON.stringify(raw_response_data)
+      };
+      beforeEach(function() {
+        spyOn(adapter, 'parseRawResponseData').and.returnValue(raw_response_data);
+        success.reset();
+        error.reset();
+        return complete.reset();
+      });
+      return it("Should call the error method correctly", function() {
+        adapter.errorResponseHandler(data_object, type, options, context, response_args);
+        expect(adapter.parseRawResponseData.calls.count()).toBe(1);
+        expect(adapter.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, response_args);
+        expect(error.callCount).toBe(1);
+        expect(error).toHaveBeenCalledWith(data_object, raw_response_data, response_args);
+        expect(error).toHaveBeenCalledOn(context);
+        expect(success).not.toHaveBeenCalled();
+        return expect(complete).not.toHaveBeenCalled();
+      });
+    });
+    describe("completeResponseHandler", function() {
+      var adapter, complete, context, data_object, error, options, parent, parsed_data, raw_response_data, response_args, success, type;
+      adapter = new Falcon.Adapter;
+      parent = new Falcon.Model;
+      data_object = new Falcon.Model({
+        id: 1
+      }, parent);
+      context = new Falcon.Model({
+        id: 2
+      }, parent);
+      type = "GET";
+      success = sinon.spy();
+      error = sinon.spy();
+      complete = sinon.spy();
+      options = {
+        success: success,
+        error: error,
+        complete: complete
+      };
+      parsed_data = {
+        id: 5
+      };
+      raw_response_data = {
+        model: parsed_data
+      };
+      response_args = {
+        data: JSON.stringify(raw_response_data)
+      };
+      beforeEach(function() {
+        spyOn(adapter, 'parseRawResponseData').and.returnValue(raw_response_data);
+        success.reset();
+        error.reset();
+        return complete.reset();
+      });
+      return it("Should call the complete method correctly", function() {
+        adapter.completeResponseHandler(data_object, type, options, context, response_args);
+        expect(adapter.parseRawResponseData.calls.count()).toBe(1);
+        expect(adapter.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, response_args);
+        expect(complete.callCount).toBe(1);
+        expect(complete).toHaveBeenCalledWith(data_object, raw_response_data, response_args);
+        expect(complete).toHaveBeenCalledOn(context);
+        expect(success).not.toHaveBeenCalled();
+        return expect(error).not.toHaveBeenCalled();
+      });
+    });
+    describe("sync", function() {
+      var adapter, context, data_object, options, parent, type;
+      adapter = new Falcon.Adapter;
+      parent = new Falcon.Model;
+      data_object = new Falcon.Model({
+        id: 1
+      }, parent);
+      context = new Falcon.Model({
+        id: 2
+      }, parent);
+      type = "GET";
+      options = {};
+      beforeEach(function() {
+        sinonSpyOn(adapter, 'resolveRequestType');
+        sinonSpyOn(adapter, 'standardizeOptions');
+        sinonSpyOn(adapter, 'resolveContext');
+        return sinonSpyOn(data_object, 'validate');
+      });
+      it("Should throw if a data object isn't passed in", function() {
+        expect(function() {
+          return adapter.sync();
+        }).toThrow();
+        expect(function() {
+          return adapter.sync(123);
+        }).toThrow();
+        expect(function() {
+          return adapter.sync(new Falcon.View);
+        }).toThrow();
+        expect(adapter.resolveRequestType).not.toHaveBeenCalled();
+        expect(adapter.standardizeOptions).not.toHaveBeenCalled();
+        expect(adapter.resolveContext).not.toHaveBeenCalled();
+        return expect(data_object.validate).not.toHaveBeenCalled();
+      });
+      it("Should return properly on GET", function() {
+        var ret;
+        type = "GET";
+        ret = adapter.sync(data_object, type, options, context);
+        expect(adapter.resolveRequestType).toHaveBeenCalledOnce();
+        expect(adapter.resolveRequestType).toHaveBeenCalledWith(data_object, type, options, context);
+        expect(adapter.standardizeOptions).toHaveBeenCalledOnce();
+        expect(adapter.standardizeOptions).toHaveBeenCalledWith(data_object, type, options, context);
+        expect(adapter.standardizeOptions).toHaveBeenCalledAfter(adapter.resolveRequestType);
+        expect(adapter.resolveContext).toHaveBeenCalledOnce();
+        expect(adapter.resolveContext).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+        expect(adapter.resolveContext).toHaveBeenCalledAfter(adapter.standardizeOptions);
+        expect(data_object.validate).not.toHaveBeenCalled();
+        return expect(ret).toEqual({
+          data_object: data_object,
+          type: "GET",
+          options: jasmine.any(Object),
+          context: context,
+          is_valid: true
+        });
+      });
+      it("Should return properly on POST", function() {
+        var ret;
+        type = "POST";
+        ret = adapter.sync(data_object, type, options, context);
+        expect(adapter.resolveRequestType).toHaveBeenCalledOnce();
+        expect(adapter.resolveRequestType).toHaveBeenCalledWith(data_object, type, options, context);
+        expect(adapter.standardizeOptions).toHaveBeenCalledOnce();
+        expect(adapter.standardizeOptions).toHaveBeenCalledWith(data_object, type, options, context);
+        expect(adapter.standardizeOptions).toHaveBeenCalledAfter(adapter.resolveRequestType);
+        expect(adapter.resolveContext).toHaveBeenCalledOnce();
+        expect(adapter.resolveContext).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+        expect(adapter.resolveContext).toHaveBeenCalledAfter(adapter.standardizeOptions);
+        expect(data_object.validate).toHaveBeenCalledOnce();
+        expect(data_object.validate).toHaveBeenCalledWith(jasmine.any(Object));
+        expect(data_object.validate).toHaveBeenCalledAfter(adapter.resolveContext);
+        return expect(ret).toEqual({
+          data_object: data_object,
+          type: "POST",
+          options: jasmine.any(Object),
+          context: context,
+          is_valid: true
+        });
+      });
+      it("Should return properly on PUT", function() {
+        var ret;
+        type = "PUT";
+        ret = adapter.sync(data_object, type, options, context);
+        expect(adapter.resolveRequestType).toHaveBeenCalledOnce();
+        expect(adapter.resolveRequestType).toHaveBeenCalledWith(data_object, type, options, context);
+        expect(adapter.standardizeOptions).toHaveBeenCalledOnce();
+        expect(adapter.standardizeOptions).toHaveBeenCalledWith(data_object, type, options, context);
+        expect(adapter.standardizeOptions).toHaveBeenCalledAfter(adapter.resolveRequestType);
+        expect(adapter.resolveContext).toHaveBeenCalledOnce();
+        expect(adapter.resolveContext).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+        expect(adapter.resolveContext).toHaveBeenCalledAfter(adapter.standardizeOptions);
+        expect(data_object.validate).toHaveBeenCalledOnce();
+        expect(data_object.validate).toHaveBeenCalledWith(jasmine.any(Object));
+        expect(data_object.validate).toHaveBeenCalledAfter(adapter.resolveContext);
+        return expect(ret).toEqual({
+          data_object: data_object,
+          type: "PUT",
+          options: jasmine.any(Object),
+          context: context,
+          is_valid: true
+        });
+      });
+      it("Should return properly on DELETE", function() {
+        var ret;
+        type = "DELETE";
+        ret = adapter.sync(data_object, type, options, context);
+        expect(adapter.resolveRequestType).toHaveBeenCalledOnce();
+        expect(adapter.resolveRequestType).toHaveBeenCalledWith(data_object, type, options, context);
+        expect(adapter.standardizeOptions).toHaveBeenCalledOnce();
+        expect(adapter.standardizeOptions).toHaveBeenCalledWith(data_object, type, options, context);
+        expect(adapter.standardizeOptions).toHaveBeenCalledAfter(adapter.resolveRequestType);
+        expect(adapter.resolveContext).toHaveBeenCalledOnce();
+        expect(adapter.resolveContext).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+        expect(adapter.resolveContext).toHaveBeenCalledAfter(adapter.standardizeOptions);
+        expect(data_object.validate).not.toHaveBeenCalled();
+        return expect(ret).toEqual({
+          data_object: data_object,
+          type: "DELETE",
+          options: jasmine.any(Object),
+          context: context,
+          is_valid: true
+        });
+      });
+      it("Should return properly with a failed POST validation", function() {
+        var ret;
+        type = "POST";
+        data_object.validate = sinon.spy(function() {
+          return false;
+        });
+        ret = adapter.sync(data_object, type, options, context);
+        expect(adapter.resolveRequestType).toHaveBeenCalledOnce();
+        expect(adapter.resolveRequestType).toHaveBeenCalledWith(data_object, type, options, context);
+        expect(adapter.standardizeOptions).toHaveBeenCalledOnce();
+        expect(adapter.standardizeOptions).toHaveBeenCalledWith(data_object, type, options, context);
+        expect(adapter.standardizeOptions).toHaveBeenCalledAfter(adapter.resolveRequestType);
+        expect(adapter.resolveContext).toHaveBeenCalledOnce();
+        expect(adapter.resolveContext).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+        expect(adapter.resolveContext).toHaveBeenCalledAfter(adapter.standardizeOptions);
+        expect(data_object.validate).toHaveBeenCalledOnce();
+        expect(data_object.validate).toHaveBeenCalledWith(jasmine.any(Object));
+        expect(data_object.validate).toHaveBeenCalledAfter(adapter.resolveContext);
+        return expect(ret).toEqual({
+          data_object: data_object,
+          type: "POST",
+          options: jasmine.any(Object),
+          context: context,
+          is_valid: false
+        });
+      });
+      it("Should return properly with a failed PUT validation", function() {
+        var ret;
+        type = "PUT";
+        data_object.validate = sinon.spy(function() {
+          return false;
+        });
+        ret = adapter.sync(data_object, type, options, context);
+        expect(adapter.resolveRequestType).toHaveBeenCalledOnce();
+        expect(adapter.resolveRequestType).toHaveBeenCalledWith(data_object, type, options, context);
+        expect(adapter.standardizeOptions).toHaveBeenCalledOnce();
+        expect(adapter.standardizeOptions).toHaveBeenCalledWith(data_object, type, options, context);
+        expect(adapter.standardizeOptions).toHaveBeenCalledAfter(adapter.resolveRequestType);
+        expect(adapter.resolveContext).toHaveBeenCalledOnce();
+        expect(adapter.resolveContext).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+        expect(adapter.resolveContext).toHaveBeenCalledAfter(adapter.standardizeOptions);
+        expect(data_object.validate).toHaveBeenCalledOnce();
+        expect(data_object.validate).toHaveBeenCalledWith(jasmine.any(Object));
+        expect(data_object.validate).toHaveBeenCalledAfter(adapter.resolveContext);
+        return expect(ret).toEqual({
+          data_object: data_object,
+          type: "PUT",
+          options: jasmine.any(Object),
+          context: context,
+          is_valid: false
+        });
+      });
+      return it("Should not call validate on a collection", function() {
+        var ret;
+        type = "POST";
+        data_object = new Falcon.Collection;
+        data_object.validate = sinon.spy(function() {
+          return false;
+        });
+        ret = adapter.sync(data_object, type, options, context);
+        expect(adapter.resolveRequestType).toHaveBeenCalledOnce();
+        expect(adapter.resolveRequestType).toHaveBeenCalledWith(data_object, type, options, context);
+        expect(adapter.standardizeOptions).toHaveBeenCalledOnce();
+        expect(adapter.standardizeOptions).toHaveBeenCalledWith(data_object, type, options, context);
+        expect(adapter.standardizeOptions).toHaveBeenCalledAfter(adapter.resolveRequestType);
+        expect(adapter.resolveContext).toHaveBeenCalledOnce();
+        expect(adapter.resolveContext).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+        expect(adapter.resolveContext).toHaveBeenCalledAfter(adapter.standardizeOptions);
+        expect(data_object.validate).not.toHaveBeenCalled();
+        return expect(ret).toEqual({
+          data_object: data_object,
+          type: "POST",
+          options: jasmine.any(Object),
+          context: context,
+          is_valid: true
+        });
+      });
+    });
+    return describe("getTemplate", function() {
+      var adapter, callback, elm, elm_id, template, uri, view;
+      adapter = new Falcon.Adapter;
+      elm_id = "my-template";
+      uri = "#" + elm_id;
+      view = new Falcon.View({
+        url: uri
+      });
+      callback = null;
+      template = "Hello World";
+      elm = null;
+      beforeEach(function() {
+        callback = jasmine.createSpy();
+        spyOn(Falcon.View, 'cacheTemplate');
+        spyOn(document, 'getElementById').and.callThrough();
+        elm = document.createElement("div");
+        elm.setAttribute("id", elm_id);
+        elm.innerHTML = template;
+        return document.body.appendChild(elm);
+      });
+      afterEach(function() {
+        return document.body.removeChild(elm);
+      });
+      it("Should retrieve the element and assign the inner html", function() {
+        var ret;
+        ret = adapter.getTemplate(view, uri, callback);
+        expect(document.getElementById.calls.count()).toBe(1);
+        expect(document.getElementById).toHaveBeenCalledWith("my-template");
+        expect(Falcon.View.cacheTemplate.calls.count()).toBe(1);
+        expect(Falcon.View.cacheTemplate).toHaveBeenCalledWith(uri, template);
+        expect(callback.calls.count()).toBe(1);
+        return expect(ret).toBe(adapter);
+      });
+      it("Should assign an empty template to an unfound identifier", function() {
+        var ret;
+        ret = adapter.getTemplate(view, "#the_wrong_template_id", callback);
+        expect(document.getElementById.calls.count()).toBe(1);
+        expect(document.getElementById).toHaveBeenCalledWith("the_wrong_template_id");
+        expect(Falcon.View.cacheTemplate.calls.count()).toBe(1);
+        expect(Falcon.View.cacheTemplate).toHaveBeenCalledWith("#the_wrong_template_id", "");
+        expect(callback.calls.count()).toBe(1);
+        return expect(ret).toBe(adapter);
+      });
+      return it("Should work properly without a callback", function() {
+        var ret;
+        ret = adapter.getTemplate(view, uri);
+        expect(document.getElementById.calls.count()).toBe(1);
+        expect(document.getElementById).toHaveBeenCalledWith("my-template");
+        expect(Falcon.View.cacheTemplate.calls.count()).toBe(1);
+        expect(Falcon.View.cacheTemplate).toHaveBeenCalledWith(uri, template);
+        return expect(ret).toBe(adapter);
+      });
+    });
+  });
+
+}).call(this);
+
+(function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 

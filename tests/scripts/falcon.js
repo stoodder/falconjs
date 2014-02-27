@@ -518,40 +518,46 @@
     };
 
     Adapter.prototype.standardizeOptions = function(data_object, type, options, context) {
-      if (isFunction(options)) {
-        options = {
+      var key, output_options, value;
+      if (isObject(options)) {
+        output_options = {};
+        for (key in options) {
+          value = options[key];
+          output_options[key] = value;
+        }
+      } else if (isFunction(options)) {
+        output_options = {
           complete: options
         };
-      }
-      if (isString(options)) {
-        options = {
+      } else if (isString(options)) {
+        output_options = {
           attributes: trim(options).split(",")
         };
-      }
-      if (isArray(options)) {
-        options = {
+      } else if (isArray(options)) {
+        output_options = {
           attributes: options
         };
+      } else {
+        output_options = {};
       }
-      if (!isObject(options)) {
-        options = {};
+      if (!isFunction(output_options.success)) {
+        output_options.success = (function() {});
       }
-      if (!isFunction(options.success)) {
-        options.success = (function() {});
+      if (!isFunction(output_options.complete)) {
+        output_options.complete = (function() {});
       }
-      if (!isFunction(options.complete)) {
-        options.complete = (function() {});
+      if (!isFunction(output_options.error)) {
+        output_options.error = (function() {});
       }
-      if (!isFunction(options.error)) {
-        options.error = (function() {});
+      if (!(Falcon.isModel(output_options.parent) || output_options.parent === null)) {
+        output_options.parent = data_object.parent;
       }
-      if (!(Falcon.isModel(options.parent) || options.parent === null)) {
-        options.parent = data_object.parent;
+      if (!isArray(output_options.attributes)) {
+        output_options.attributes = null;
       }
-      if (!isArray(options.attributes)) {
-        options.attributes = null;
-      }
-      return options;
+      output_options.url = this.makeUrl(data_object, type, output_options, context);
+      output_options.data = this.serializeData(data_object, type, output_options, context);
+      return output_options;
     };
 
     Adapter.prototype.makeUrl = function(data_object, type, options, context) {
@@ -560,10 +566,11 @@
     };
 
     Adapter.prototype.serializeData = function(data_object, type, options, context) {
-      if (options.data === null && (type === "POST" || type === "PUT")) {
-        options.data = data_object.serialize(options.attributes);
+      if ((options.data == null) && (type === "POST" || type === "PUT")) {
+        return data_object.serialize(options.attributes);
+      } else {
+        return options.data;
       }
-      return options.data;
     };
 
     Adapter.prototype.parseRawResponseData = function(data_object, type, options, context, response_args) {
@@ -571,8 +578,7 @@
     };
 
     Adapter.prototype.successResponseHandler = function(data_object, type, options, context, response_args) {
-      var data, parsed_data, raw_response_data, status, xhr;
-      data = response_args.data, status = response_args.status, xhr = response_args.xhr;
+      var parsed_data, raw_response_data;
       raw_response_data = this.parseRawResponseData(data_object, type, options, context, response_args);
       parsed_data = data_object.parse(raw_response_data, options);
       data_object.fill(parsed_data, options);
@@ -605,10 +611,33 @@
     };
 
     Adapter.prototype.sync = function(data_object, type, options, context) {
+      var is_valid;
       if (!Falcon.isDataObject(data_object)) {
-        throw new Error("Expected data_object to be a Model or Collection in Sync");
+        throw new Error("Expected data_object to be a Model or Collection in sync");
       }
-      return this;
+      is_valid = false;
+      type = this.resolveRequestType(data_object, type, options, context);
+      options = this.standardizeOptions(data_object, type, options, context);
+      context = this.resolveContext(data_object, type, options, context);
+      if (Falcon.isModel(data_object)) {
+        if ((type === "PUT" || type === "POST") && (!data_object.validate(options))) {
+          return {
+            data_object: data_object,
+            type: type,
+            options: options,
+            context: context,
+            is_valid: is_valid
+          };
+        }
+      }
+      is_valid = true;
+      return {
+        data_object: data_object,
+        type: type,
+        options: options,
+        context: context,
+        is_valid: is_valid
+      };
     };
 
     Adapter.prototype.getTemplate = function(view, uri, loaded_callback) {

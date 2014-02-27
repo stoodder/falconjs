@@ -1,25 +1,16 @@
 class jQueryAdapter extends Falcon.Adapter
 	cache: false
 
-	resolveRequestType: ( data_object, type, options, context ) ->
-		return super( data_object, type, options, context )
-	#END resolveRequestType
-
-	resolveContext: ( data_object, type, options, context ) ->
-		return super( data_object, type, options, context )
-	#END resolveContext
-
 	standardizeOptions: ( data_object, type, options, context ) ->
-		options = super( data_object, type, options, context )
+		output_options = super( data_object, type, options, context )
 
-		options.data = null unless isObject(options.data)
-		options.dataType = "json" unless isString(options.dataType)
-		options.contentType = "application/json" unless isString(options.contentType)
-		options.params = {} unless isObject( options.params )
-		options.headers = {} unless isObject( options.headers )
-		options.cache = @cache
+		output_options.dataType = "json" unless isString(output_options.dataType)
+		output_options.contentType = "application/json" unless isString(output_options.contentType)
+		output_options.params = {} unless isObject( output_options.params )
+		output_options.headers = {} unless isObject( output_options.headers )
+		output_options.cache = @cache
 
-		return options
+		return output_options
 	#END standardizeOptions
 
 	makeUrl: ( data_object, type, options, context ) ->
@@ -35,8 +26,8 @@ class jQueryAdapter extends Falcon.Adapter
 
 	serializeData: ( data_object, type, options, context ) ->
 		serialized_data = super( data_object, type, options, context )
-		return "" if serialized_data is null
-		return JSON.stringify(options.data)
+		return "" unless serialized_data?
+		return JSON.stringify(serialized_data)
 	#END serializeData
 
 	parseRawResponseData: ( data_object, type, options, context, response_args ) ->
@@ -47,37 +38,18 @@ class jQueryAdapter extends Falcon.Adapter
 		return data
 	#END parseRawResponseData
 
-	successResponseHandler: ( data_object, type, options, context, response_args ) ->
-		super( data_object, type, options, context, response_args )
-	#END successResponseHandler
-
-	errorResponseHandler: ( data_object, type, options, context, response_args ) ->
-		super( data_object, type, options, context, response_args )
-	#END errorResponseHandler
-
-	completeResponseHandler: ( data_object, type, options, context, response_args ) ->
-		super( data_object, type, options, context, response_args )
-	#END  completeResponseHandler
-
 	sync: ( data_object, type, options, context ) ->
-		super( data_object, type, options, context )
+		standardized_inputs = super( data_object, type, options, context )
 
-		type = @resolveRequestType( data_object, type, options, context )
-		options = @standardizeOptions( data_object, type, options, context )
-		context = @resolveContext( data_object, type, options, context )
-
-		#Validate any models that are trying to be created or saved
-		if Falcon.isModel( data_object )
-			return null if (type in ["PUT", "POST"]) and (not data_object.validate(options))
-		#END if
-
-		url = @makeUrl( data_object, type, options, context )
-		data = @serializeData( data_object, type, options, context ) 
+		#Returns null if the validations failed
+		return null unless standardized_inputs.is_valid
+		
+		{ data_object, type, context, options } = standardized_inputs
 
 		return $.ajax
 			'type': type
-			'url': url
-			'data': data
+			'url': options.url
+			'data': options.data
 			'dataType': options.dataType
 			'contentType': options.contentType
 			'cache': options.cache
@@ -118,7 +90,7 @@ class jQueryAdapter extends Falcon.Adapter
 					loaded_callback() if isFunction( loaded_callback )
 				#END complete
 				error: () =>
-					console.log("[FALCON] Error Loading Template: '#{url}'")
+					console.log("Error Loading Template: '#{url}'")
 				#END error
 				success: (html) =>
 					Falcon.View.cacheTemplate(url, html)

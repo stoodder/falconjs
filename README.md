@@ -15,7 +15,6 @@
 * Add 'merge' method to collections
 * Add method support for obervables and defaults (rather than dictionary defintion)
 * Add 'set' method to collections (sets all values for a key to each model in the collection)
-* Find a replacement library for jQuery to do Ajax handling that includes promises and typicals response callbacks
 * Add support for 'Date' type fields
 * Add support for Falcon.Collection in the without() method (remove all models from the resultant collection that are in the given collection)
 * Fix length() on collection chains
@@ -23,6 +22,8 @@
 * add generate binding and Falcon.register for dynamically creating views
 * add listenTo on Falcon.Object
 * Create Falcon.Event object (includes .off method) to return from Falcon.on and Falcon.trigger
+* Divide fill method into separate methods for each type (reverse rolls)
+* Add setParent method to collections to universally set the parent of all the models in the collection
 
 Done
 * Convert Build process to Grunt.js
@@ -33,3 +34,8 @@ Done
 * Removing the usages of unwrap where not necessary. Models should carry over by reference, not duplication
 * Reworked the initialization process
 * Removed jQuery for DOM listening/manipulation
+* Added base adapter class
+* Added jQuery adapter to handle all ajax handling and removed the rest of the jQuery calls from Falcon
+
+Bugs
+* Fixed reference overwirtting on colleciton merge method.
