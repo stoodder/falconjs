@@ -105,7 +105,7 @@ module.exports = (grunt) ->
 			'test':
 				files:
 					"tests/scripts/jasmine2.0.0-sinon.js": ["tests/coffee/jasmine2.0.0-sinon.coffee"]
-					"tests/scripts/tests.js": [
+					"tests/scripts/falcon.tests.js": [
 						"tests/coffee/falcon.test.coffee"
 						"tests/coffee/falcon.object.test.coffee"
 						"tests/coffee/falcon.adapter.test.coffee"
@@ -114,7 +114,7 @@ module.exports = (grunt) ->
 						"tests/coffee/falcon.view.test.coffee"
 						"tests/coffee/falcon.ko.bindings.test.coffee"
 					]
-					"tests/scripts/adapters/jquery_adapter.test.js": ["tests/coffee/adapters/jquery_adapter.test.coffee"]
+					"tests/scripts/adapters/falcon.jquery_adapter.test.js": ["tests/coffee/adapters/falcon.jquery_adapter.test.coffee"]
 				#END files
 			#END coffee:test
 		#END coffee
@@ -147,7 +147,7 @@ module.exports = (grunt) ->
 						'tests/scripts/jasmine2.0.0-sinon.js'
 						'tests/scripts/knockout-3.0.0.min.js'
 					]
-					specs: 'tests/scripts/tests.js'
+					specs: 'tests/scripts/falcon.tests.js'
 				#END options
 			#END jasmine:dist
 
@@ -164,7 +164,7 @@ module.exports = (grunt) ->
 						'tests/scripts/falcon.min.js'
 					]
 					specs: [
-						'tests/scripts/adapters/jquery_adapter.test.js'
+						'tests/scripts/adapters/falcon.jquery_adapter.test.js'
 					]
 				#END options
 		#END jasmine
@@ -180,6 +180,14 @@ module.exports = (grunt) ->
 						src: [
 							"falcon.js"
 							"falcon.min.js"
+						]
+					},{
+						expand: true
+						dest: 'tests/scripts/adapters/'
+						filter: 'isFile'
+						flatten: true
+						src: [
+							"adapters/*.js"
 						]
 					}
 				]
@@ -203,7 +211,7 @@ module.exports = (grunt) ->
 			#END watch:dist_coffee
 
 			'test_copy':
-				'files': ['falcon.js', 'falcon.min.js', 'scripts/*.js']
+				'files': ['falcon.js', 'falcon.min.js', 'scripts/*.js', 'adapters/*.js']
 				'tasks': ['copy:test']
 			#END test_copy
 		#END watch
