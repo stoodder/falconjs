@@ -449,7 +449,7 @@ class Falcon.Collection extends Falcon.Object
 	#	also sends off a corresponding ajax request
 	#
 	# Arguments:
-	#	**data** _(Object)_ - The model data to create
+	#	**data** _(Falcon.Model|Object)_ - The model data to create
 	#	**options** _(Object)_ - optional options for the ajax request
 	#	**context** _(Object)_ - Optional object to set the context of the request
 	#
@@ -461,22 +461,16 @@ class Falcon.Collection extends Falcon.Object
 		
 		data = {} unless isObject(data) or Falcon.isModel(data)
 		model = if Falcon.isModel(data) then data else new @model(data)
-		
-		options = {success:options} if isFunction(options)
-		options = {} unless isObject(options)
-		options.success = (->) unless isFunction(options.success)
-		options.method = 'append' unless isString(options.method)
-
-		_success = options.success
-		options.success = (model) =>
-			@fill(model, options)
-			_success.apply(model, arguments)
-		#END success
-
-		options.parent ?= @parent
 		context ?= model
 
-		return model.create(options, context)
+		output_options = Falcon.adapter.standardizeOptions( model, 'POST', options, context )
+		output_options.method ?= 'append'
+		output_options.success = (model) =>
+			@fill(model, output_options)
+			options.success.apply(context, arguments) if isFunction( options.success )
+		#END success
+		
+		return model.create(output_options, context)
 	#END create
 
 	#--------------------------------------------------------
@@ -506,18 +500,16 @@ class Falcon.Collection extends Falcon.Object
 
 		return null unless Falcon.isModel( model )
 
-		options = {success:options} if isFunction(options)
-		options = {} unless isObject(options)
-		options.success = (->) unless isFunction(options.success)
-		options.parent = @parent if options.parent is undefined
-
-		_success = options.success
-		options.success = (model) =>
+		context ?= model
+		console.log( Falcon.adapter.standardizeOptions.calls.count() ) if Falcon.debug
+		output_options = Falcon.adapter.standardizeOptions( model, 'DELETE', options, context )
+		console.log( Falcon.adapter.standardizeOptions.calls.count() ) if Falcon.debug
+		output_options.success = (model) =>
 			@remove(model)
-			_success.apply(model, arguments)
+			options.success.apply(context, arguments) if isFunction( options.success )
 		#END success
 
-		return model.destroy(options, context)
+		return model.destroy(output_options, context)
 	#END destroy
 
 	#--------------------------------------------------------

@@ -449,14 +449,6 @@
       });
     });
     return describe("Test the extend method on objects", function() {
-      var ajax_stub;
-      ajax_stub = null;
-      beforeEach(function() {
-        return ajax_stub = sinon.stub($, 'ajax');
-      });
-      afterEach(function() {
-        return ajax_stub.restore();
-      });
       it("Should extend Falcon.Object properly", function() {
         var Klass, custom_spy, my_klass, things_spy;
         custom_spy = sinon.spy();
@@ -737,6 +729,25 @@
         expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(adapter.serializeData.calls.count()).toBe(1);
         return expect(adapter.serializeData).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+      });
+      it("Should present standard options if nothing is passed in for a collection", function() {
+        var collection_data_object, ret;
+        collection_data_object = new Falcon.Collection(parent);
+        ret = adapter.standardizeOptions(collection_data_object, type, null, context);
+        expect(ret).toEqual({
+          'success': jasmine.any(Function),
+          'complete': jasmine.any(Function),
+          'error': jasmine.any(Function),
+          'parent': data_object.parent,
+          'url': jasmine.any(String),
+          'data': void 0,
+          'attributes': null,
+          'method': 'append'
+        });
+        expect(adapter.makeUrl.calls.count()).toBe(1);
+        expect(adapter.makeUrl).toHaveBeenCalledWith(collection_data_object, type, jasmine.any(Object), context);
+        expect(adapter.serializeData.calls.count()).toBe(1);
+        return expect(adapter.serializeData).toHaveBeenCalledWith(collection_data_object, type, jasmine.any(Object), context);
       });
       it("Should maintain options that are passed in", function() {
         var attributes, complete, data, error, options, ret, success, url;
@@ -2580,729 +2591,20 @@
           return expect(sync_stub).toHaveBeenCalledWith("DELETE", {});
         });
       });
-      describe("Testing sync method $.ajax calls", function() {
-        var ModelA, ajax_stub, _ref;
-        ModelA = (function(_super) {
-          __extends(ModelA, _super);
-
-          function ModelA() {
-            _ref = ModelA.__super__.constructor.apply(this, arguments);
-            return _ref;
-          }
-
-          ModelA.prototype.url = "model_a";
-
-          return ModelA;
-
-        })(Falcon.Model);
-        ajax_stub = null;
+      return describe("sync", function() {
+        var model;
+        model = new Falcon.Model;
         beforeEach(function() {
-          ajax_stub = sinon.stub(jQuery, "ajax");
-          return Falcon.adapter.cache = false;
+          return spyOn(Falcon.adapter, 'sync');
         });
-        afterEach(function() {
-          return ajax_stub.restore();
-        });
-        it("Should fetch properly without options", function() {
-          var cache, complete, contentType, data, error, headers, modelA, success, type, url, _ref1;
-          modelA = new ModelA({
-            id: 1
-          });
-          modelA.fetch();
-          expect(ajax_stub).toHaveBeenCalledOnce();
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.any(Object));
-          _ref1 = ajax_stub.lastCall.args[0], type = _ref1.type, url = _ref1.url, data = _ref1.data, contentType = _ref1.contentType, cache = _ref1.cache, headers = _ref1.headers, success = _ref1.success, error = _ref1.error, complete = _ref1.complete;
-          expect(type).toBe("GET");
-          expect(url).toBe(modelA.makeUrl("GET"));
-          expect(data).toBe("");
-          expect(contentType).toBe("application/json");
-          expect(cache).toBe(false);
-          expect(headers).toEqual({});
-          expect(success).toEqual(jasmine.any(Function));
-          expect(error).toEqual(jasmine.any(Function));
-          expect(complete).toEqual(jasmine.any(Function));
-          expect(success.length).toBe(3);
-          expect(error.length).toBe(1);
-          return expect(complete.length).toBe(2);
-        });
-        it("Should fetch properly with options", function() {
-          var cache, complete, contentType, data, error, headers, modelA, success, type, url, _complete, _error, _ref1, _success;
-          modelA = new ModelA({
-            id: 1
-          });
-          Falcon.adapter.cache = true;
-          modelA.fetch({
-            url: "http://www.falconjs.com",
-            data: {
-              "hello": "world"
-            },
-            contentType: "text/html",
-            headers: {
-              "User-Agent": "User-Agent",
-              "Chrome": "Chrome"
-            },
-            success: (_success = function() {}),
-            error: (_error = function() {}),
-            complete: (_complete = function() {})
-          });
-          expect(ajax_stub).toHaveBeenCalledOnce();
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.any(Object));
-          _ref1 = ajax_stub.lastCall.args[0], type = _ref1.type, url = _ref1.url, data = _ref1.data, contentType = _ref1.contentType, cache = _ref1.cache, headers = _ref1.headers, success = _ref1.success, error = _ref1.error, complete = _ref1.complete;
-          expect(type).toBe("GET");
-          expect(url).toBe("http://www.falconjs.com");
-          expect(data).toBe(JSON.stringify({
-            "hello": "world"
-          }));
-          expect(contentType).toBe("text/html");
-          expect(cache).toBe(true);
-          expect(headers).toEqual({
-            "User-Agent": "User-Agent",
-            "Chrome": "Chrome"
-          });
-          expect(success).toEqual(jasmine.any(Function));
-          expect(success.length).toBe(3);
-          expect(success).not.toBe(_success);
-          expect(error).toEqual(jasmine.any(Function));
-          expect(error.length).toBe(1);
-          expect(error).not.toBe(_error);
-          expect(complete).toEqual(jasmine.any(Function));
-          expect(complete.length).toBe(2);
-          return expect(complete).not.toBe(_complete);
-        });
-        it("Should save properly without options", function() {
-          var cache, complete, contentType, data, error, headers, modelA, success, type, url, _ref1;
-          modelA = new ModelA({
-            id: 1
-          });
-          modelA.save();
-          expect(ajax_stub).toHaveBeenCalledOnce();
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.any(Object));
-          _ref1 = ajax_stub.lastCall.args[0], type = _ref1.type, url = _ref1.url, data = _ref1.data, contentType = _ref1.contentType, cache = _ref1.cache, headers = _ref1.headers, success = _ref1.success, error = _ref1.error, complete = _ref1.complete;
-          expect(type).toBe("PUT");
-          expect(url).toBe(modelA.makeUrl("PUT"));
-          expect(data).toBe(JSON.stringify({
-            "id": 1
-          }));
-          expect(contentType).toBe("application/json");
-          expect(cache).toBe(false);
-          expect(headers).toEqual({});
-          expect(ajax_stub.firstCall.args[0].success).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].success.length).toBe(3);
-          expect(ajax_stub.firstCall.args[0].error).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].error.length).toBe(1);
-          expect(ajax_stub.firstCall.args[0].complete).toEqual(jasmine.any(Function));
-          return expect(ajax_stub.firstCall.args[0].complete.length).toBe(2);
-        });
-        it("Should save properly with options", function() {
-          var modelA, _complete, _error, _success;
-          modelA = new ModelA({
-            id: 1
-          });
-          Falcon.adapter.cache = true;
-          modelA.save({
-            url: "http://www.falconjs.com",
-            data: {
-              "hello": "world"
-            },
-            contentType: "text/html",
-            headers: {
-              "User-Agent": "User-Agent",
-              "Chrome": "Chrome"
-            },
-            success: (_success = function() {}),
-            error: (_error = function() {}),
-            complete: (_complete = function() {})
-          });
-          expect(ajax_stub).toHaveBeenCalledOnce();
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            type: "PUT"
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            url: "http://www.falconjs.com"
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            data: JSON.stringify({
-              "hello": "world"
-            })
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            contentType: "text/html"
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            cache: true
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            headers: {
-              "User-Agent": "User-Agent",
-              "Chrome": "Chrome"
-            }
-          }));
-          expect(ajax_stub.firstCall.args[0].success).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].success.length).toBe(3);
-          expect(ajax_stub.firstCall.args[0].success).not.toBe(_success);
-          expect(ajax_stub.firstCall.args[0].error).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].error.length).toBe(1);
-          expect(ajax_stub.firstCall.args[0].error).not.toBe(_error);
-          expect(ajax_stub.firstCall.args[0].complete).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].complete.length).toBe(2);
-          return expect(ajax_stub.firstCall.args[0].complete).not.toBe(_complete);
-        });
-        it("Should create properly without options", function() {
-          var modelA;
-          modelA = new ModelA({
-            id: 1
-          });
-          modelA.create();
-          expect(ajax_stub).toHaveBeenCalledOnce();
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            type: "POST"
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            url: modelA.makeUrl("POST")
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            data: JSON.stringify({
-              "id": 1
-            })
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            contentType: "application/json"
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            cache: false
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            headers: {}
-          }));
-          expect(ajax_stub.firstCall.args[0].success).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].success.length).toBe(3);
-          expect(ajax_stub.firstCall.args[0].error).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].error.length).toBe(1);
-          expect(ajax_stub.firstCall.args[0].complete).toEqual(jasmine.any(Function));
-          return expect(ajax_stub.firstCall.args[0].complete.length).toBe(2);
-        });
-        it("Should create properly with options", function() {
-          var modelA, _complete, _error, _success;
-          modelA = new ModelA({
-            id: 1
-          });
-          Falcon.adapter.cache = true;
-          modelA.create({
-            url: "http://www.falconjs.com",
-            data: {
-              "hello": "world"
-            },
-            contentType: "text/html",
-            headers: {
-              "User-Agent": "User-Agent",
-              "Chrome": "Chrome"
-            },
-            success: (_success = function() {}),
-            error: (_error = function() {}),
-            complete: (_complete = function() {})
-          });
-          expect(ajax_stub).toHaveBeenCalledOnce();
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            type: "POST"
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            url: "http://www.falconjs.com"
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            data: JSON.stringify({
-              "hello": "world"
-            })
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            contentType: "text/html"
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            cache: true
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            headers: {
-              "User-Agent": "User-Agent",
-              "Chrome": "Chrome"
-            }
-          }));
-          expect(ajax_stub.firstCall.args[0].success).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].success.length).toBe(3);
-          expect(ajax_stub.firstCall.args[0].success).not.toBe(_success);
-          expect(ajax_stub.firstCall.args[0].error).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].error.length).toBe(1);
-          expect(ajax_stub.firstCall.args[0].error).not.toBe(_error);
-          expect(ajax_stub.firstCall.args[0].complete).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].complete.length).toBe(2);
-          return expect(ajax_stub.firstCall.args[0].complete).not.toBe(_complete);
-        });
-        it("Should destroy properly without options", function() {
-          var modelA;
-          modelA = new ModelA({
-            id: 1
-          });
-          modelA.destroy();
-          expect(ajax_stub).toHaveBeenCalledOnce();
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            type: "DELETE"
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            url: modelA.makeUrl("DELETE")
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            data: ""
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            contentType: "application/json"
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            cache: false
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            headers: {}
-          }));
-          expect(ajax_stub.firstCall.args[0].success).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].success.length).toBe(3);
-          expect(ajax_stub.firstCall.args[0].error).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].error.length).toBe(1);
-          expect(ajax_stub.firstCall.args[0].complete).toEqual(jasmine.any(Function));
-          return expect(ajax_stub.firstCall.args[0].complete.length).toBe(2);
-        });
-        return it("Should destroy properly with options", function() {
-          var modelA, _complete, _error, _success;
-          modelA = new ModelA({
-            id: 1
-          });
-          Falcon.adapter.cache = true;
-          modelA.destroy({
-            url: "http://www.falconjs.com",
-            data: {
-              "hello": "world"
-            },
-            contentType: "text/html",
-            headers: {
-              "User-Agent": "User-Agent",
-              "Chrome": "Chrome"
-            },
-            success: (_success = function() {}),
-            error: (_error = function() {}),
-            complete: (_complete = function() {})
-          });
-          expect(ajax_stub).toHaveBeenCalledOnce();
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            type: "DELETE"
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            url: "http://www.falconjs.com"
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            data: JSON.stringify({
-              "hello": "world"
-            })
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            contentType: "text/html"
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            cache: true
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            headers: {
-              "User-Agent": "User-Agent",
-              "Chrome": "Chrome"
-            }
-          }));
-          expect(ajax_stub.firstCall.args[0].success).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].success.length).toBe(3);
-          expect(ajax_stub.firstCall.args[0].success).not.toBe(_success);
-          expect(ajax_stub.firstCall.args[0].error).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].error.length).toBe(1);
-          expect(ajax_stub.firstCall.args[0].error).not.toBe(_error);
-          expect(ajax_stub.firstCall.args[0].complete).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].complete.length).toBe(2);
-          return expect(ajax_stub.firstCall.args[0].complete).not.toBe(_complete);
-        });
-      });
-      describe("Testing sync method XHR responses", function() {
-        var ModelA, complete_spy, create_spy, data, destroy_spy, error_data, error_spy, fetch_spy, fill_stub, modelA, options, parse_stub, save_spy, server, success_data, success_spy, _ref;
-        ModelA = (function(_super) {
-          __extends(ModelA, _super);
-
-          function ModelA() {
-            _ref = ModelA.__super__.constructor.apply(this, arguments);
-            return _ref;
-          }
-
-          ModelA.prototype.url = "model_a";
-
-          return ModelA;
-
-        })(Falcon.Model);
-        server = null;
-        modelA = null;
-        parse_stub = null;
-        fill_stub = null;
-        fetch_spy = null;
-        create_spy = null;
-        save_spy = null;
-        destroy_spy = null;
-        success_spy = null;
-        error_spy = null;
-        complete_spy = null;
-        data = null;
-        error_data = null;
-        success_data = null;
-        options = null;
-        beforeEach(function() {
-          server = sinon.fakeServer.create();
-          modelA = new ModelA;
-          data = {
-            "hello": "world"
-          };
-          error_data = {
-            "error": "Something Wrong"
-          };
-          success_data = {
-            "foo": "bar"
-          };
-          parse_stub = sinon.stub(modelA, "parse").returns(success_data);
-          fill_stub = sinon.stub(modelA, "fill");
-          modelA.on("fetch", (fetch_spy = sinon.spy()));
-          modelA.on("create", (create_spy = sinon.spy()));
-          modelA.on("save", (save_spy = sinon.spy()));
-          modelA.on("destroy", (destroy_spy = sinon.spy()));
-          return options = {
-            success: (success_spy = sinon.spy()),
-            error: (error_spy = sinon.spy()),
-            complete: (complete_spy = sinon.spy())
-          };
-        });
-        afterEach(function() {
-          return server.restore();
-        });
-        it("Should call the proper success method", function() {
-          modelA.fetch(options);
-          server.respondWith([200, {}, JSON.stringify(data)]);
-          server.respond();
-          expect(parse_stub.callCount).toBe(1);
-          expect(parse_stub.firstCall.args[0]).toEqual(data);
-          expect(fill_stub.callCount).toBe(1);
-          expect(fill_stub.firstCall.args[0]).toEqual(success_data);
-          expect(fill_stub).toHaveBeenCalledAfter(parse_stub);
-          expect(fetch_spy).toHaveBeenCalledOnce();
-          expect(create_spy).not.toHaveBeenCalled();
-          expect(save_spy).not.toHaveBeenCalled();
-          expect(destroy_spy).not.toHaveBeenCalled();
-          expect(fetch_spy).toHaveBeenCalledAfter(fill_stub);
-          expect(success_spy.callCount).toBe(1);
-          expect(success_spy).toHaveBeenCalledOn(modelA);
-          expect(success_spy.firstCall.args.length).toBe(3);
-          expect(success_spy.firstCall.args[0]).toBe(modelA);
-          expect(error_spy).not.toHaveBeenCalled();
-          expect(complete_spy.callCount).toBe(1);
-          expect(complete_spy).toHaveBeenCalledOn(modelA);
-          expect(complete_spy.firstCall.args.length).toBe(3);
-          expect(complete_spy.firstCall.args[0]).toBe(modelA);
-          return expect(complete_spy).toHaveBeenCalledAfter(success_spy);
-        });
-        it("Should call the error response on an errornous result", function() {
-          modelA.fetch(options);
-          server.respondWith([400, {}, JSON.stringify(error_data)]);
-          server.respond();
-          expect(parse_stub.callCount).toBe(0);
-          expect(fill_stub.callCount).toBe(0);
-          expect(fetch_spy).not.toHaveBeenCalled();
-          expect(create_spy).not.toHaveBeenCalled();
-          expect(save_spy).not.toHaveBeenCalled();
-          expect(destroy_spy).not.toHaveBeenCalled();
-          expect(success_spy.callCount).toBe(0);
-          expect(error_spy.callCount).toBe(1);
-          expect(error_spy.firstCall.args.length).toBe(3);
-          expect(error_spy).toHaveBeenCalledOn(modelA);
-          expect(complete_spy.firstCall.args[0]).toBe(modelA);
-          expect(complete_spy.callCount).toBe(1);
-          expect(complete_spy).toHaveBeenCalledOn(modelA);
-          expect(complete_spy.firstCall.args.length).toBe(3);
-          expect(complete_spy.firstCall.args[0]).toBe(modelA);
-          return expect(complete_spy).toHaveBeenCalledAfter(error_spy);
-        });
-        it("Should call the success response on create", function() {
-          modelA.create(options);
-          server.respondWith([200, {}, JSON.stringify(data)]);
-          server.respond();
-          expect(parse_stub.callCount).toBe(1);
-          expect(parse_stub.firstCall.args[0]).toEqual(data);
-          expect(fill_stub.callCount).toBe(1);
-          expect(fill_stub.firstCall.args[0]).toEqual(success_data);
-          expect(fill_stub).toHaveBeenCalledAfter(parse_stub);
-          expect(fetch_spy).not.toHaveBeenCalled();
-          expect(create_spy.callCount).toBe(1);
-          expect(save_spy).not.toHaveBeenCalled();
-          expect(destroy_spy).not.toHaveBeenCalled();
-          expect(success_spy.callCount).toBe(1);
-          expect(success_spy).toHaveBeenCalledOn(modelA);
-          expect(success_spy.firstCall.args.length).toBe(3);
-          expect(success_spy.firstCall.args[0]).toBe(modelA);
-          expect(error_spy).not.toHaveBeenCalled();
-          expect(complete_spy.callCount).toBe(1);
-          expect(complete_spy).toHaveBeenCalledOn(modelA);
-          expect(complete_spy.firstCall.args.length).toBe(3);
-          expect(complete_spy.firstCall.args[0]).toBe(modelA);
-          return expect(complete_spy).toHaveBeenCalledAfter(success_spy);
-        });
-        it("Should call the success response on save", function() {
-          modelA.set('id', 1);
-          modelA.save(options);
-          server.respondWith([200, {}, JSON.stringify(data)]);
-          server.respond();
-          expect(parse_stub.callCount).toBe(1);
-          expect(parse_stub.firstCall.args[0]).toEqual(data);
-          expect(fill_stub.callCount).toBe(1);
-          expect(fill_stub.firstCall.args[0]).toEqual(success_data);
-          expect(fill_stub).toHaveBeenCalledAfter(parse_stub);
-          expect(fetch_spy).not.toHaveBeenCalled();
-          expect(create_spy).not.toHaveBeenCalled();
-          expect(save_spy.callCount).toBe(1);
-          expect(destroy_spy).not.toHaveBeenCalled();
-          expect(success_spy.callCount).toBe(1);
-          expect(success_spy).toHaveBeenCalledOn(modelA);
-          expect(success_spy.firstCall.args.length).toBe(3);
-          expect(success_spy.firstCall.args[0]).toBe(modelA);
-          expect(error_spy).not.toHaveBeenCalled();
-          expect(complete_spy.callCount).toBe(1);
-          expect(complete_spy).toHaveBeenCalledOn(modelA);
-          expect(complete_spy.firstCall.args.length).toBe(3);
-          expect(complete_spy.firstCall.args[0]).toBe(modelA);
-          return expect(complete_spy).toHaveBeenCalledAfter(success_spy);
-        });
-        return it("Should call the success response on destroy", function() {
-          modelA.destroy(options);
-          server.respondWith([200, {}, JSON.stringify(data)]);
-          server.respond();
-          expect(parse_stub.callCount).toBe(1);
-          expect(parse_stub.firstCall.args[0]).toEqual(data);
-          expect(fill_stub.callCount).toBe(1);
-          expect(fill_stub.firstCall.args[0]).toEqual(success_data);
-          expect(fill_stub).toHaveBeenCalledAfter(parse_stub);
-          expect(fetch_spy).not.toHaveBeenCalled();
-          expect(create_spy).not.toHaveBeenCalled();
-          expect(save_spy).not.toHaveBeenCalled();
-          expect(destroy_spy.callCount).toBe(1);
-          expect(success_spy.callCount).toBe(1);
-          expect(success_spy).toHaveBeenCalledOn(modelA);
-          expect(success_spy.firstCall.args.length).toBe(3);
-          expect(success_spy.firstCall.args[0]).toBe(modelA);
-          expect(error_spy).not.toHaveBeenCalled();
-          expect(complete_spy.callCount).toBe(1);
-          expect(complete_spy).toHaveBeenCalledOn(modelA);
-          expect(complete_spy.firstCall.args.length).toBe(3);
-          expect(complete_spy.firstCall.args[0]).toBe(modelA);
-          return expect(complete_spy).toHaveBeenCalledAfter(success_spy);
-        });
-      });
-      describe("Testing sync method options in depth", function() {
-        var ModelA, ModelB, ajax_stub, _ref, _ref1;
-        ModelA = (function(_super) {
-          __extends(ModelA, _super);
-
-          function ModelA() {
-            _ref = ModelA.__super__.constructor.apply(this, arguments);
-            return _ref;
-          }
-
-          ModelA.prototype.url = "model_a";
-
-          return ModelA;
-
-        })(Falcon.Model);
-        ModelB = (function(_super) {
-          __extends(ModelB, _super);
-
-          function ModelB() {
-            _ref1 = ModelB.__super__.constructor.apply(this, arguments);
-            return _ref1;
-          }
-
-          ModelB.prototype.url = "model_b";
-
-          return ModelB;
-
-        })(Falcon.Model);
-        ajax_stub = null;
-        beforeEach(function() {
-          ajax_stub = sinon.stub(jQuery, "ajax");
-          return Falcon.adapter.cache = false;
-        });
-        afterEach(function() {
-          return ajax_stub.restore();
-        });
-        it("Should sync properly without options", function() {
-          var modelA;
-          modelA = new ModelA({
-            id: 1
-          });
-          modelA.sync('GET');
-          expect(ajax_stub).toHaveBeenCalledOnce();
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            type: "GET"
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            url: modelA.makeUrl("GET")
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            data: ""
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            contentType: "application/json"
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            cache: false
-          }));
-          expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            headers: {}
-          }));
-          expect(ajax_stub.firstCall.args[0].success).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].success.length).toBe(3);
-          expect(ajax_stub.firstCall.args[0].error).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].error.length).toBe(1);
-          expect(ajax_stub.firstCall.args[0].complete).toEqual(jasmine.any(Function));
-          return expect(ajax_stub.firstCall.args[0].complete.length).toBe(2);
-        });
-        it("Should allow for a specified parent to override", function() {
-          var modelA, model_b;
-          modelA = new ModelA({
-            id: 1
-          }, new ModelB({
-            id: 'b'
-          }));
-          modelA.sync('GET', {
-            parent: (model_b = new ModelB({
-              id: 'b2'
-            }))
-          });
-          return expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            url: modelA.makeUrl("GET", model_b)
-          }));
-        });
-        return it("Should allow for a null parent", function() {
-          var modelA;
-          modelA = new ModelA({
-            id: 1
-          }, new ModelB({
-            id: 'b'
-          }));
-          modelA.sync('GET', {
-            parent: null
-          });
-          return expect(ajax_stub).toHaveBeenCalledWith(jasmine.objectContaining({
-            url: modelA.makeUrl("GET", null)
-          }));
-        });
-      });
-      return describe("Additional miscellaneous sync tests", function() {
-        var ModelA, ModelB, server, _ref, _ref1;
-        ModelA = (function(_super) {
-          __extends(ModelA, _super);
-
-          function ModelA() {
-            _ref = ModelA.__super__.constructor.apply(this, arguments);
-            return _ref;
-          }
-
-          ModelA.prototype.url = "model_a";
-
-          return ModelA;
-
-        })(Falcon.Model);
-        ModelB = (function(_super) {
-          __extends(ModelB, _super);
-
-          function ModelB() {
-            _ref1 = ModelB.__super__.constructor.apply(this, arguments);
-            return _ref1;
-          }
-
-          ModelB.prototype.url = "model_b";
-
-          return ModelB;
-
-        })(Falcon.Model);
-        server = null;
-        beforeEach(function() {
-          server = sinon.fakeServer.create();
-          return Falcon.adapter.cache = false;
-        });
-        afterEach(function() {
-          return server.restore();
-        });
-        it("Should allow for a third parameter to define the context", function() {
-          var modelA, modelB, success_spy;
-          modelB = new ModelB({
-            id: 'b'
-          });
-          modelA = new ModelA({
-            id: 1
-          });
-          modelA.sync("GET", (success_spy = sinon.spy()), modelB);
-          server.respondWith([200, {}, JSON.stringify(modelA.serialize())]);
-          server.respond();
-          expect(success_spy).toHaveBeenCalled();
-          return expect(success_spy).toHaveBeenCalledOn(modelB);
-        });
-        it("Should let pass context from fetch to sync", function() {
-          var modelA, modelB, success_spy, sync_stub;
-          modelB = new ModelB({
-            id: 'b'
-          });
-          modelA = new ModelA({
-            id: 1
-          });
-          sync_stub = sinon.stub(modelA, "sync");
-          modelA.fetch((success_spy = sinon.spy()), modelB);
-          expect(sync_stub).toHaveBeenCalled();
-          expect(sync_stub.firstCall.args[1]).toBe(success_spy);
-          return expect(sync_stub.firstCall.args[2]).toBe(modelB);
-        });
-        it("Should let pass context from create to sync", function() {
-          var modelA, modelB, success_spy, sync_stub;
-          modelB = new ModelB({
-            id: 'b'
-          });
-          modelA = new ModelA({
-            id: 1
-          });
-          sync_stub = sinon.stub(modelA, "sync");
-          modelA.create((success_spy = sinon.spy()), modelB);
-          expect(sync_stub).toHaveBeenCalled();
-          expect(sync_stub.firstCall.args[1]).toBe(success_spy);
-          return expect(sync_stub.firstCall.args[2]).toBe(modelB);
-        });
-        it("Should let pass context from save to sync", function() {
-          var modelA, modelB, success_spy, sync_stub;
-          modelB = new ModelB({
-            id: 'b'
-          });
-          modelA = new ModelA({
-            id: 1
-          });
-          sync_stub = sinon.stub(modelA, "sync");
-          modelA.save((success_spy = sinon.spy()), modelB);
-          expect(sync_stub).toHaveBeenCalled();
-          expect(sync_stub.firstCall.args[1]).toBe(success_spy);
-          return expect(sync_stub.firstCall.args[2]).toBe(modelB);
-        });
-        return it("Should let pass context from destroy to sync", function() {
-          var modelA, modelB, success_spy, sync_stub;
-          modelB = new ModelB({
-            id: 'b'
-          });
-          modelA = new ModelA({
-            id: 1
-          });
-          sync_stub = sinon.stub(modelA, "sync");
-          modelA.destroy((success_spy = sinon.spy()), modelB);
-          expect(sync_stub).toHaveBeenCalled();
-          expect(sync_stub.firstCall.args[1]).toBe(success_spy);
-          return expect(sync_stub.firstCall.args[2]).toBe(modelB);
+        return it("Should call the falcon adapter", function() {
+          var context, options, type;
+          type = "GET";
+          options = {};
+          context = new Falcon.Model;
+          model.sync(type, options, context);
+          expect(Falcon.adapter.sync.calls.count()).toBe(1);
+          return expect(Falcon.adapter.sync).toHaveBeenCalledWith(model, type, options, context);
         });
       });
     });
@@ -4874,285 +4176,20 @@
           });
         });
       });
-      describe("Testing sync method $.ajax calls", function() {
-        var ajax_stub;
-        ajax_stub = null;
+      return describe("sync", function() {
+        var collection;
+        collection = new Falcon.Collection;
         beforeEach(function() {
-          ajax_stub = sinon.stub(jQuery, "ajax");
-          return Falcon.adapter.cache = false;
+          return spyOn(Falcon.adapter, 'sync');
         });
-        afterEach(function() {
-          return ajax_stub.restore();
-        });
-        it("Should fetch properly without options", function() {
-          collectionA.fetch();
-          expect(ajax_stub).toHaveBeenCalledOnce();
-          expect(ajax_stub).toHaveBeenCalledWithMatch({
-            type: "GET"
-          });
-          expect(ajax_stub).toHaveBeenCalledWithMatch({
-            url: collectionA.makeUrl("GET")
-          });
-          expect(ajax_stub).toHaveBeenCalledWithMatch({
-            data: ""
-          });
-          expect(ajax_stub).toHaveBeenCalledWithMatch({
-            contentType: "application/json"
-          });
-          expect(ajax_stub).toHaveBeenCalledWithMatch({
-            cache: false
-          });
-          expect(ajax_stub).toHaveBeenCalledWithMatch({
-            headers: {}
-          });
-          expect(ajax_stub.firstCall.args[0].success).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].success.length).toBe(3);
-          expect(ajax_stub.firstCall.args[0].error).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].error.length).toBe(1);
-          expect(ajax_stub.firstCall.args[0].complete).toEqual(jasmine.any(Function));
-          return expect(ajax_stub.firstCall.args[0].complete.length).toBe(2);
-        });
-        return it("Should fetch properly with options", function() {
-          var _complete, _error, _success;
-          Falcon.adapter.cache = true;
-          collectionA.fetch({
-            url: "http://www.falconjs.com",
-            data: {
-              "hello": "world"
-            },
-            contentType: "text/html",
-            headers: {
-              "User-Agent": "User-Agent",
-              "Chrome": "Chrome"
-            },
-            success: (_success = function() {}),
-            error: (_error = function() {}),
-            complete: (_complete = function() {})
-          });
-          expect(ajax_stub).toHaveBeenCalledOnce();
-          expect(ajax_stub).toHaveBeenCalledWithMatch({
-            type: "GET"
-          });
-          expect(ajax_stub).toHaveBeenCalledWithMatch({
-            url: "http://www.falconjs.com"
-          });
-          expect(ajax_stub).toHaveBeenCalledWithMatch({
-            data: JSON.stringify({
-              "hello": "world"
-            })
-          });
-          expect(ajax_stub).toHaveBeenCalledWithMatch({
-            contentType: "text/html"
-          });
-          expect(ajax_stub).toHaveBeenCalledWithMatch({
-            cache: true
-          });
-          expect(ajax_stub).toHaveBeenCalledWithMatch({
-            headers: {
-              "User-Agent": "User-Agent",
-              "Chrome": "Chrome"
-            }
-          });
-          expect(ajax_stub.firstCall.args[0].success).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].success.length).toBe(3);
-          expect(ajax_stub.firstCall.args[0].success).not.toBe(_success);
-          expect(ajax_stub.firstCall.args[0].error).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].error.length).toBe(1);
-          expect(ajax_stub.firstCall.args[0].error).not.toBe(_error);
-          expect(ajax_stub.firstCall.args[0].complete).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].complete.length).toBe(2);
-          return expect(ajax_stub.firstCall.args[0].complete).not.toBe(_complete);
-        });
-      });
-      describe("Testing sync method XHR responses", function() {
-        var complete_spy, create_spy, data, destroy_spy, error_data, error_spy, fetch_spy, fill_stub, options, parse_stub, save_spy, server, success_data, success_spy;
-        server = null;
-        collectionA = null;
-        parse_stub = null;
-        fill_stub = null;
-        fetch_spy = null;
-        create_spy = null;
-        save_spy = null;
-        destroy_spy = null;
-        success_spy = null;
-        error_spy = null;
-        complete_spy = null;
-        data = null;
-        error_data = null;
-        success_data = null;
-        options = null;
-        beforeEach(function() {
-          server = sinon.fakeServer.create();
-          collectionA = new CollectionA;
-          data = {
-            'list': [
-              {
-                "foo": "bar",
-                id: 1
-              }, {
-                "foo": "bar2",
-                id: 2
-              }
-            ]
-          };
-          error_data = {
-            "error": "Something Wrong"
-          };
-          success_data = [
-            {
-              "foo": "bar",
-              id: 1
-            }, {
-              "foo": "bar2",
-              id: 2
-            }
-          ];
-          parse_stub = sinon.stub(collectionA, "parse").returns(success_data);
-          fill_stub = sinon.stub(collectionA, "fill");
-          collectionA.on("fetch", (fetch_spy = sinon.spy()));
-          return options = {
-            success: (success_spy = sinon.spy()),
-            error: (error_spy = sinon.spy()),
-            complete: (complete_spy = sinon.spy())
-          };
-        });
-        afterEach(function() {
-          return server.restore();
-        });
-        it("Should call the proper success method", function() {
-          collectionA.fetch(options);
-          server.respondWith([200, {}, JSON.stringify(data)]);
-          server.respond();
-          expect(parse_stub.callCount).toBe(1);
-          expect(parse_stub.firstCall.args[0]).toEqual(data);
-          expect(fill_stub.callCount).toBe(1);
-          expect(fill_stub.firstCall.args[0]).toEqual(success_data);
-          expect(fill_stub).toHaveBeenCalledAfter(parse_stub);
-          expect(fetch_spy).toHaveBeenCalledOnce();
-          expect(fetch_spy).toHaveBeenCalledAfter(fill_stub);
-          expect(success_spy.callCount).toBe(1);
-          expect(success_spy).toHaveBeenCalledOn(collectionA);
-          expect(success_spy.firstCall.args.length).toBe(3);
-          expect(success_spy.firstCall.args[0]).toBe(collectionA);
-          expect(error_spy).not.toHaveBeenCalled();
-          expect(complete_spy.callCount).toBe(1);
-          expect(complete_spy).toHaveBeenCalledOn(collectionA);
-          expect(complete_spy.firstCall.args.length).toBe(3);
-          expect(complete_spy.firstCall.args[0]).toBe(collectionA);
-          return expect(complete_spy).toHaveBeenCalledAfter(success_spy);
-        });
-        return it("Should call the error response on an errornous result", function() {
-          collectionA.fetch(options);
-          server.respondWith([400, {}, JSON.stringify(error_data)]);
-          server.respond();
-          expect(parse_stub.callCount).toBe(0);
-          expect(fill_stub.callCount).toBe(0);
-          expect(fetch_spy).not.toHaveBeenCalled();
-          expect(success_spy.callCount).toBe(0);
-          expect(error_spy.callCount).toBe(1);
-          expect(error_spy.firstCall.args.length).toBe(3);
-          expect(error_spy).toHaveBeenCalledOn(collectionA);
-          expect(complete_spy.firstCall.args[0]).toBe(collectionA);
-          expect(complete_spy.callCount).toBe(1);
-          expect(complete_spy).toHaveBeenCalledOn(collectionA);
-          expect(complete_spy.firstCall.args.length).toBe(3);
-          expect(complete_spy.firstCall.args[0]).toBe(collectionA);
-          return expect(complete_spy).toHaveBeenCalledAfter(error_spy);
-        });
-      });
-      describe("Testing sync method options in depth", function() {
-        var ajax_stub;
-        ajax_stub = null;
-        beforeEach(function() {
-          ajax_stub = sinon.stub(jQuery, "ajax");
-          return Falcon.adapter.cache = false;
-        });
-        afterEach(function() {
-          return ajax_stub.restore();
-        });
-        it("Should fetch properly without options", function() {
-          collectionA.sync('GET');
-          expect(ajax_stub).toHaveBeenCalledOnce();
-          expect(ajax_stub).toHaveBeenCalledWithMatch({
-            type: "GET"
-          });
-          expect(ajax_stub).toHaveBeenCalledWithMatch({
-            url: collectionA.makeUrl("GET")
-          });
-          expect(ajax_stub).toHaveBeenCalledWithMatch({
-            data: ""
-          });
-          expect(ajax_stub).toHaveBeenCalledWithMatch({
-            contentType: "application/json"
-          });
-          expect(ajax_stub).toHaveBeenCalledWithMatch({
-            cache: false
-          });
-          expect(ajax_stub).toHaveBeenCalledWithMatch({
-            headers: {}
-          });
-          expect(ajax_stub.firstCall.args[0].success).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].success.length).toBe(3);
-          expect(ajax_stub.firstCall.args[0].error).toEqual(jasmine.any(Function));
-          expect(ajax_stub.firstCall.args[0].error.length).toBe(1);
-          expect(ajax_stub.firstCall.args[0].complete).toEqual(jasmine.any(Function));
-          return expect(ajax_stub.firstCall.args[0].complete.length).toBe(2);
-        });
-        it("Should allow for a specified parent to override", function() {
-          var model_b;
-          collectionA.parent = new ModelB({
-            id: 'b'
-          });
-          collectionA.sync('GET', {
-            parent: (model_b = new ModelB({
-              id: 'b2'
-            }))
-          });
-          return expect(ajax_stub).toHaveBeenCalledWithMatch({
-            url: collectionA.makeUrl("GET", model_b)
-          });
-        });
-        return it("Should allow for a specified parent to override", function() {
-          collectionA.parent = new ModelB({
-            id: 'b'
-          });
-          collectionA.sync('GET', {
-            parent: null
-          });
-          return expect(ajax_stub).toHaveBeenCalledWithMatch({
-            url: collectionA.makeUrl("GET", null)
-          });
-        });
-      });
-      return describe("Additional miscellaneous sync tests", function() {
-        var server;
-        server = null;
-        beforeEach(function() {
-          server = sinon.fakeServer.create();
-          return Falcon.adapter.cache = false;
-        });
-        afterEach(function() {
-          return server.restore();
-        });
-        it("Should allow for a third parameter to define the context", function() {
-          var collectionB, success_spy;
-          collectionB = new CollectionB;
-          collectionA = new CollectionA;
-          collectionA.sync("GET", (success_spy = sinon.spy()), collectionB);
-          server.respondWith([200, {}, JSON.stringify(collectionA.serialize())]);
-          server.respond();
-          expect(success_spy).toHaveBeenCalled;
-          return expect(success_spy).toHaveBeenCalledOn(collectionB);
-        });
-        return it("Should pass context from fetch to sync", function() {
-          var collectionB, success_spy, sync_stub;
-          collectionB = new CollectionB;
-          collectionA = new CollectionA;
-          sync_stub = sinon.stub(collectionA, "sync");
-          collectionA.fetch((success_spy = sinon.spy()), collectionB);
-          expect(sync_stub).toHaveBeenCalled;
-          expect(sync_stub.firstCall.args[1]).toBe(success_spy);
-          return expect(sync_stub.firstCall.args[2]).toBe(collectionB);
+        return it("Should call the falcon adapter", function() {
+          var context, options, type;
+          type = "GET";
+          options = {};
+          context = new Falcon.Collection;
+          collection.sync(type, options, context);
+          expect(Falcon.adapter.sync.calls.count()).toBe(1);
+          return expect(Falcon.adapter.sync).toHaveBeenCalledWith(collection, type, options, context);
         });
       });
     });
@@ -5424,143 +4461,159 @@
         return expect(collectionA.models()).toEqual([model_a1, model_a2, model_a3]);
       });
     });
-    describe("Test the create method", function() {
-      var collectionA, data, modelA, modelB, options, server, success_spy;
-      collectionA = null;
-      modelB = null;
-      modelA = null;
-      options = null;
-      server = null;
-      data = null;
-      success_spy = null;
+    describe("create", function() {
+      var collection, context, model, options, success;
+      model = new ModelA;
+      options = {
+        success: jasmine.createSpy("Success Spy")
+      };
+      context = new ModelA;
+      collection = new CollectionA;
+      collection.parent = new ModelB;
+      success = null;
       beforeEach(function() {
-        server = sinon.fakeServer.create();
-        data = {
-          id: 2
-        };
-        modelB = new ModelB({
-          id: 'b'
-        });
-        collectionA = new CollectionA([
-          {
-            id: 1
-          }
-        ], modelB);
-        modelA = new ModelA(data, collectionA.parent);
-        return options = {
-          success: (success_spy = sinon.spy())
-        };
+        spyOn(model, 'create');
+        spyOn(collection, 'fill');
+        spyOn(Falcon.adapter, 'standardizeOptions').and.callThrough();
+        return options.success.calls.reset();
       });
-      afterEach(function() {
-        return server.restore();
+      it("Should return null if no model is set in the collection", function() {
+        collection.model = null;
+        expect(collection.create(model, options, context)).toBeNull();
+        expect(model.create).not.toHaveBeenCalled();
+        expect(collection.fill).not.toHaveBeenCalled();
+        expect(options.success).not.toHaveBeenCalled();
+        expect(Falcon.adapter.standardizeOptions).not.toHaveBeenCalled();
+        return collection.model = ModelA;
       });
-      it("Should attempt to initialize and create a new model", function() {
-        var collectionB, create_stub, initialize_stub;
-        collectionB = new CollectionB;
-        initialize_stub = sinon.stub(ModelA.prototype, "initialize");
-        create_stub = sinon.stub(ModelA.prototype, "create");
-        expect(initialize_stub).not.toHaveBeenCalled();
-        expect(create_stub).not.toHaveBeenCalled();
-        collectionA.create(data = {
-          id: 2
-        }, options, collectionB);
-        expect(initialize_stub).toHaveBeenCalledOnce();
-        expect(initialize_stub).toHaveBeenCalledWith(data);
-        expect(create_stub).toHaveBeenCalledOnce();
-        expect(create_stub).toHaveBeenCalledAfter(initialize_stub);
-        expect(create_stub.firstCall.args.length).toBe(2);
-        expect(create_stub.firstCall.args[0]).toBe(options);
-        expect(create_stub.firstCall.args[0].success).toEqual(jasmine.any(Function));
-        expect(create_stub.firstCall.args[0].method).toBe('append');
-        expect(create_stub.firstCall.args[1]).toBe(collectionB);
-        initialize_stub.restore();
-        return create_stub.restore();
+      it("Should call the model create method", function() {
+        var output_options;
+        collection.create(model, options, context);
+        expect(Falcon.adapter.standardizeOptions.calls.count()).toBe(1);
+        expect(Falcon.adapter.standardizeOptions).toHaveBeenCalledWith(model, 'POST', options, context);
+        expect(model.create.calls.count()).toBe(1);
+        expect(model.create).toHaveBeenCalledWith(jasmine.any(Object), context);
+        expect(collection.fill).not.toHaveBeenCalled();
+        expect(options.success).not.toHaveBeenCalled();
+        output_options = model.create.calls.mostRecent().args[0];
+        expect(output_options).not.toBe(options);
+        success = output_options.success;
+        return expect(success).not.toBe(options.success);
       });
-      return it("Should respond correctly from the server", function() {
-        var fill_stub, new_model;
-        fill_stub = sinon.stub(collectionA, "fill").returns([]);
-        collectionA.create(data, options);
-        expect(collectionA.length()).toBe(1);
-        server.respondWith([200, {}, JSON.stringify(data)]);
-        server.respond();
-        expect(fill_stub).toHaveBeenCalledOnce();
-        expect(fill_stub.firstCall.args.length).toBe(2);
-        expect(fill_stub.firstCall.args[0]).toEqual(jasmine.any(Falcon.Model));
-        expect(fill_stub.firstCall.args[1]).toBe(options);
-        new_model = fill_stub.firstCall.args[0];
-        expect(success_spy.callCount).toBe(1);
-        expect(success_spy).toHaveBeenCalledAfter(fill_stub);
-        expect(success_spy).toHaveBeenCalledOn(new_model);
-        expect(success_spy.firstCall.args[0]).toBe(new_model);
-        return fill_stub.restore();
+      it("Should call the proper routines in the success method", function() {
+        success(model);
+        expect(model.create).not.toHaveBeenCalled();
+        expect(Falcon.adapter.standardizeOptions).not.toHaveBeenCalled();
+        expect(collection.fill.calls.count()).toBe(1);
+        expect(collection.fill).toHaveBeenCalledWith(model, jasmine.any(Object));
+        expect(options.success.calls.count()).toBe(1);
+        expect(options.success).toHaveBeenCalledWith(model);
+        return expect(options.success.calls.mostRecent().object).toBe(context);
+      });
+      it("Should generate a model if raw data is passed in", function() {
+        var data;
+        spyOn(ModelA.prototype, 'initialize');
+        spyOn(ModelA.prototype, 'create');
+        data = {};
+        collection.create(data, options, context);
+        expect(ModelA.prototype.initialize.calls.count()).toBe(1);
+        expect(ModelA.prototype.initialize).toHaveBeenCalledWith(data);
+        model = ModelA.prototype.initialize.calls.mostRecent().object;
+        expect(Falcon.adapter.standardizeOptions.calls.count()).toBe(1);
+        expect(Falcon.adapter.standardizeOptions).toHaveBeenCalledWith(model, 'POST', options, context);
+        expect(model.create.calls.count()).toBe(1);
+        expect(model.create).toHaveBeenCalledWith(jasmine.any(Object), context);
+        expect(collection.fill).not.toHaveBeenCalled();
+        return expect(options.success).not.toHaveBeenCalled();
+      });
+      return it("Should set up the correct context if none is given", function() {
+        collection.create(model, options);
+        expect(Falcon.adapter.standardizeOptions.calls.count()).toBe(1);
+        expect(Falcon.adapter.standardizeOptions).toHaveBeenCalledWith(model, 'POST', options, model);
+        expect(model.create.calls.count()).toBe(1);
+        return expect(model.create).toHaveBeenCalledWith(jasmine.any(Object), model);
       });
     });
-    describe("Test the detroy method", function() {
-      var collectionA, collectionB, model_a1, model_a2, options, success_spy;
-      collectionA = collectionB = null;
-      model_a1 = model_a2 = null;
-      options = null;
-      success_spy = null;
+    describe("destroy", function() {
+      var collection, context, model_1, model_2, model_3, model_4, options, success;
+      model_1 = new ModelA({
+        id: 1
+      });
+      model_2 = new ModelA({
+        id: 2
+      });
+      model_3 = new ModelA({
+        id: 3
+      });
+      model_4 = new ModelA({
+        id: 4
+      });
+      collection = new CollectionA([model_1, model_2, model_4]);
+      context = new ModelA;
+      options = {
+        success: jasmine.createSpy("Success Spy")
+      };
+      success = null;
       beforeEach(function() {
-        model_a1 = new ModelA({
-          id: 1
-        });
-        model_a2 = new ModelA({
-          id: 2
-        });
-        collectionA = new CollectionA([model_a1, model_a2]);
-        collectionB = new CollectionB;
-        return options = {
-          success: (success_spy = sinon.spy())
-        };
+        spyOn(model_1, 'destroy');
+        spyOn(model_2, 'destroy');
+        spyOn(model_3, 'destroy');
+        spyOn(model_4, 'destroy');
+        spyOn(collection, 'remove');
+        spyOn(Falcon.adapter, 'standardizeOptions').and.callThrough();
+        return options.success.calls.reset();
       });
-      it("Should call the destroy method on the model", function() {
-        var destroy_stub;
-        destroy_stub = sinon.stub(model_a1, "destroy");
-        expect(destroy_stub).not.toHaveBeenCalled();
-        collectionA.destroy(model_a1, options, collectionB);
-        expect(destroy_stub).toHaveBeenCalledOnce();
-        expect(destroy_stub).toHaveBeenCalledWith(options, collectionB);
-        return destroy_stub.restore();
+      it("Should return null if a model isn't set on the collection", function() {
+        collection.model = null;
+        expect(collection.destroy(model_1, options, context)).toBeNull();
+        expect(Falcon.adapter.standardizeOptions).not.toHaveBeenCalled();
+        expect(model_1.destroy).not.toHaveBeenCalled();
+        return collection.model = ModelA;
       });
-      it("Should respond correctly from the server", function() {
-        var remove_stub, removed_model, server;
-        server = sinon.fakeServer.create();
-        remove_stub = sinon.stub(collectionA, "remove");
-        collectionA.destroy(model_a1, options);
-        server.respondWith([200, {}, JSON.stringify({})]);
-        server.respond();
-        expect(remove_stub).toHaveBeenCalledOnce();
-        expect(remove_stub.firstCall.args.length).toBe(1);
-        expect(remove_stub.firstCall.args[0]).toEqual(jasmine.any(Falcon.Model));
-        removed_model = remove_stub.firstCall.args[0];
-        expect(success_spy.callCount).toBe(1);
-        expect(success_spy).toHaveBeenCalledAfter(remove_stub);
-        expect(success_spy).toHaveBeenCalledOn(removed_model);
-        expect(success_spy.firstCall.args[0]).toBe(removed_model);
-        remove_stub.restore();
-        return server.restore();
+      it("Should return null if a model that doesnt exist in the collection is given", function() {
+        expect(collection.destroy(model_3, options, context)).toBeNull();
+        expect(Falcon.adapter.standardizeOptions).not.toHaveBeenCalled();
+        return expect(model_1.destroy).not.toHaveBeenCalled();
       });
-      return it("Should destroy using the overriden parent", function() {
-        var ajax_args, ajax_spy, collectionA2, model_b, server;
-        model_b = new ModelB({
-          id: 'b'
-        });
-        collectionA2 = new CollectionA([model_a1, model_a2], model_b);
-        server = sinon.fakeServer.create();
-        ajax_spy = sinon.spy($, "ajax");
-        collectionA2.destroy(model_a1, {
-          parent: null
-        });
-        server.respondWith([200, {}, JSON.stringify({})]);
-        server.respond();
-        ajax_spy.restore();
-        server.restore();
-        expect(ajax_spy).toHaveBeenCalled;
-        expect(ajax_spy.callCount).toBe(1);
-        ajax_args = ajax_spy.firstCall.args[0];
-        expect(ajax_args['type']).toBe("DELETE");
-        return expect(ajax_args['url']).toBe(model_a1.makeUrl("DELETE", null));
+      it("Should call the correct method when removing a model that exists in the collection", function() {
+        var output_options;
+        collection.destroy(model_1, options, context);
+        expect(Falcon.adapter.standardizeOptions.calls.count()).toBe(1);
+        expect(Falcon.adapter.standardizeOptions).toHaveBeenCalledWith(model_1, 'DELETE', options, context);
+        expect(model_1.destroy.calls.count()).toBe(1);
+        expect(model_1.destroy).toHaveBeenCalledWith(jasmine.any(Object), context);
+        expect(collection.remove).not.toHaveBeenCalled();
+        expect(options.success).not.toHaveBeenCalled();
+        output_options = model_1.destroy.calls.mostRecent().args[0];
+        expect(output_options).not.toBe(options);
+        success = output_options.success;
+        return expect(success).not.toBe(options.success);
+      });
+      it("Should call the proper routines in the success method", function() {
+        success(model_1);
+        expect(model_1.destroy).not.toHaveBeenCalled();
+        expect(Falcon.adapter.standardizeOptions).not.toHaveBeenCalled();
+        expect(collection.remove.calls.count()).toBe(1);
+        expect(collection.remove).toHaveBeenCalledWith(model_1);
+        expect(options.success.calls.count()).toBe(1);
+        expect(options.success).toHaveBeenCalledWith(model_1);
+        return expect(options.success.calls.mostRecent().object).toBe(context);
+      });
+      it("Should be able to remove a model based on id", function() {
+        collection.destroy(2, options, context);
+        expect(Falcon.adapter.standardizeOptions.calls.count()).toBe(1);
+        expect(Falcon.adapter.standardizeOptions).toHaveBeenCalledWith(model_2, 'DELETE', options, context);
+        expect(model_2.destroy.calls.count()).toBe(1);
+        expect(model_2.destroy).toHaveBeenCalledWith(jasmine.any(Object), context);
+        expect(collection.remove).not.toHaveBeenCalled();
+        return expect(options.success).not.toHaveBeenCalled();
+      });
+      return it("Should set up the correct context if none is given", function() {
+        collection.destroy(model_4, options);
+        expect(Falcon.adapter.standardizeOptions.calls.count()).toBe(1);
+        expect(Falcon.adapter.standardizeOptions).toHaveBeenCalledWith(model_4, 'DELETE', options, model_4);
+        expect(model_4.destroy.calls.count()).toBe(1);
+        return expect(model_4.destroy).toHaveBeenCalledWith(jasmine.any(Object), model_4);
       });
     });
     describe("Test the at() method", function() {
@@ -6459,113 +5512,51 @@
       Falcon.cache = false;
       return Falcon.View.resetCache();
     });
-    describe("Test the constructor method", function() {
-      var ajax_stub, getElement_stub, init_stub, jquery_stub;
-      init_stub = ajax_stub = getElement_stub = jquery_stub = null;
-      afterEach(function() {
-        if (init_stub) {
-          init_stub.restore();
-        }
-        if (ajax_stub) {
-          ajax_stub.restore();
-        }
-        if (getElement_stub) {
-          getElement_stub.restore();
-        }
-        if (jquery_stub) {
-          jquery_stub.restore();
-        }
-        return init_stub = ajax_stub = getElement_stub = jquery_stub = null;
+    describe("constructor", function() {
+      beforeEach(function() {
+        spyOn(Falcon.View.prototype, 'initialize').and.callThrough();
+        spyOn(Falcon.View.prototype, 'makeUrl').and.callThrough();
+        return spyOn(Falcon.adapter, 'getTemplate').and.callThrough();
       });
-      it("Should call the initialize and ajax methods with the correct arguments", function() {
+      it("Should call the correct methods by default", function() {
         var view;
-        init_stub = sinon.stub(ViewA.prototype, "initialize");
-        ajax_stub = sinon.stub($, "ajax");
-        getElement_stub = sinon.stub(document, 'getElementById').returns(document.createElement('div'));
-        view = new ViewA("Hello", 123);
-        expect(view.is_loaded()).toBe(false);
-        expect(view._is_rendered).toBe(false);
-        expect(init_stub).toHaveBeenCalledOnce();
-        expect(init_stub).toHaveBeenCalledWith("Hello", 123);
-        expect(init_stub).toHaveBeenCalledOn(view);
-        expect(ajax_stub).toHaveBeenCalledOnce();
-        expect(ajax_stub).toHaveBeenCalledAfter(init_stub);
-        expect(ajax_stub.firstCall.args[0]).toBeDefined();
-        return expect(getElement_stub).not.toHaveBeenCalled();
+        view = new (Falcon.View.extend({
+          url: "#hello_world"
+        }));
+        expect(view.makeUrl.calls.count()).toBe(1);
+        expect(view.initialize.calls.count()).toBe(1);
+        expect(view.initialize).toHaveBeenCalledWith();
+        expect(Falcon.adapter.getTemplate.calls.count()).toBe(1);
+        expect(Falcon.adapter.getTemplate).toHaveBeenCalledWith(view, "#hello_world", jasmine.any(Function));
+        return expect(view.is_loaded()).toBe(true);
       });
-      it("Should call the initialize and jquery methods with the correct arguments", function() {
+      it("Should recognized cached templates", function() {
         var view;
-        init_stub = sinon.stub(ViewC.prototype, "initialize");
-        ajax_stub = sinon.stub($, "ajax");
-        getElement_stub = sinon.stub(document, 'getElementById').returns(document.createElement('div'));
-        view = new ViewC("Hello", 123);
-        expect(view.is_loaded()).toBe(true);
-        expect(view._is_rendered).toBe(false);
-        expect(init_stub).toHaveBeenCalledOnce();
-        expect(init_stub).toHaveBeenCalledWith("Hello", 123);
-        expect(init_stub).toHaveBeenCalledOn(view);
-        expect(getElement_stub).toHaveBeenCalledOnce();
-        expect(getElement_stub).toHaveBeenCalledAfter(init_stub);
-        return expect(ajax_stub).not.toHaveBeenCalled();
+        view = new (Falcon.View.extend({
+          url: "#hello_world"
+        }));
+        view.makeUrl.calls.reset();
+        view.initialize.calls.reset();
+        Falcon.adapter.getTemplate.calls.reset();
+        view = new (Falcon.View.extend({
+          url: "#hello_world"
+        }));
+        expect(view.makeUrl.calls.count()).toBe(1);
+        expect(view.initialize.calls.count()).toBe(1);
+        expect(view.initialize).toHaveBeenCalledWith();
+        expect(Falcon.adapter.getTemplate).not.toHaveBeenCalled();
+        return expect(view.is_loaded()).toBe(true);
       });
-      it("Should call the ajax method only once", function() {
+      return it("Should not call the adapter on an empty template uri", function() {
         var view;
-        ajax_stub = sinon.stub($, "ajax");
-        getElement_stub = sinon.stub(document, 'getElementById').returns(document.createElement('div'));
-        view = new ViewA();
-        expect(view.is_loaded()).toBe(false);
-        expect(ajax_stub).toHaveBeenCalledOnce();
-        expect(ajax_stub.firstCall.args[0]).toBeDefined();
-        ajax_stub.firstCall.args[0].success("Hello World");
-        expect(view.is_loaded()).toBe(false);
-        expect(getElement_stub).not.toHaveBeenCalled();
-        ajax_stub.firstCall.args[0].complete("Hello World");
-        expect(view.is_loaded()).toBe(true);
-        expect(getElement_stub).not.toHaveBeenCalled();
-        ajax_stub.reset();
-        view = new ViewA();
-        expect(view.is_loaded()).toBe(true);
-        expect(ajax_stub).not.toHaveBeenCalled();
-        expect(getElement_stub).not.toHaveBeenCalled();
-        ajax_stub.reset();
-        view = new ViewB();
-        expect(view.is_loaded()).toBe(false);
-        expect(ajax_stub).toHaveBeenCalledOnce();
-        expect(ajax_stub.firstCall.args[0]).toBeDefined();
-        ajax_stub.firstCall.args[0].success("Hello World");
-        expect(view.is_loaded()).toBe(false);
-        expect(getElement_stub).not.toHaveBeenCalled();
-        ajax_stub.firstCall.args[0].complete("Hello World");
-        expect(view.is_loaded()).toBe(true);
-        return expect(getElement_stub).not.toHaveBeenCalled();
-      });
-      it("Should call the jquery method only once", function() {
-        var view;
-        ajax_stub = sinon.stub($, "ajax");
-        getElement_stub = sinon.stub(document, 'getElementById').returns(document.createElement('div'));
-        view = new ViewC();
-        expect(view.is_loaded()).toBe(true);
-        expect(getElement_stub).toHaveBeenCalledOnce();
-        expect(ajax_stub).not.toHaveBeenCalled();
-        getElement_stub.reset();
-        view = new ViewC();
-        expect(view.is_loaded()).toBe(true);
-        expect(getElement_stub).not.toHaveBeenCalled();
-        expect(ajax_stub).not.toHaveBeenCalled();
-        getElement_stub.reset();
-        view = new ViewD();
-        expect(view.is_loaded()).toBe(true);
-        expect(getElement_stub).toHaveBeenCalledOnce();
-        return expect(ajax_stub).not.toHaveBeenCalled();
-      });
-      return it("Should not have a template if one is not defined", function() {
-        var view;
-        ajax_stub = sinon.stub($, "ajax");
-        getElement_stub = sinon.stub(document, 'getElementById').returns(document.createElement('div'));
-        view = new ViewG();
-        expect(view.is_loaded()).toBe(true);
-        expect(getElement_stub).not.toHaveBeenCalled();
-        return expect(ajax_stub).not.toHaveBeenCalled();
+        view = new (Falcon.View.extend({
+          url: null
+        }));
+        expect(view.makeUrl.calls.count()).toBe(1);
+        expect(view.initialize.calls.count()).toBe(1);
+        expect(view.initialize).toHaveBeenCalledWith();
+        expect(Falcon.adapter.getTemplate).not.toHaveBeenCalled();
+        return expect(view.is_loaded()).toBe(true);
       });
     });
     describe("cacheTemplates", function() {
@@ -6660,14 +5651,6 @@
       });
     });
     describe("Test the makeUrl() method", function() {
-      var ajax_stub;
-      ajax_stub = null;
-      beforeEach(function() {
-        return ajax_stub = sinon.stub($, 'ajax');
-      });
-      afterEach(function() {
-        return ajax_stub.restore();
-      });
       it("Should generate the correct relative url from string", function() {
         return expect(new ViewA().makeUrl()).toEqual("/view_a");
       });
@@ -6741,7 +5724,7 @@
       });
     });
     return describe("Test the viewModel() method", function() {
-      var FullView, ajax_stub, _ref7;
+      var FullView, _ref7;
       FullView = (function(_super) {
         __extends(FullView, _super);
 
@@ -6773,13 +5756,6 @@
         return FullView;
 
       })(Falcon.View);
-      ajax_stub = null;
-      beforeEach(function() {
-        return ajax_stub = sinon.stub($, 'ajax');
-      });
-      afterEach(function() {
-        return ajax_stub.restore();
-      });
       it("Should create a valid view model", function() {
         var another_stub, test_stub, view, viewModel;
         view = new FullView;
@@ -6833,24 +5809,45 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   describe("Knockout Bindings", function() {
-    var $application, $body, application_index, applyApp;
-    $application = null;
+    var application, application_index, applyApp, _childCount, _createApplication, _createTemplate;
+    application = null;
     application_index = 0;
-    $body = null;
-    applyApp = function(view) {
-      if ($body == null) {
-        $body = $("body").first();
-      }
-      if ($application != null) {
-        $application.remove();
-      }
+    _createApplication = function() {
+      var elm;
       application_index++;
-      $body.append($application = $("<div id='application_" + application_index + "'></div>"));
+      elm = document.createElement("div");
+      elm.setAttribute("id", "application_" + application_index);
+      return elm;
+    };
+    _createTemplate = function(id, html) {
+      var elm;
+      elm = document.createElement("template");
+      elm.setAttribute("id", id);
+      elm.innerHTML = html;
+      return elm;
+    };
+    _childCount = function(elm) {
+      var child, count, _i, _len, _ref;
+      count = 0;
+      _ref = elm.childNodes;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        child = _ref[_i];
+        if (child.nodeType === 1) {
+          count++;
+        }
+      }
+      return count;
+    };
+    applyApp = function(view) {
+      if (application != null) {
+        document.body.removeChild(application);
+      }
+      document.body.appendChild(application = _createApplication());
       return Falcon.apply(view, "#application_" + application_index);
     };
     describe("'view' Binding", function() {
-      var $content_template, $footer_template, $layout_template, ContentView, FooterView, LayoutView, setup, teardown, view_binding, view_init_spy, view_update_spy, _ref, _ref1, _ref2;
-      $layout_template = $footer_template = $content_template = null;
+      var ContentView, FooterView, LayoutView, content_template, footer_template, layout_template, view_binding, view_init_spy, view_update_spy, _ref, _ref1, _ref2;
+      layout_template = footer_template = content_template = null;
       view_binding = Falcon.getBinding('view');
       view_init_spy = sinon.spy(view_binding, 'init');
       view_update_spy = sinon.spy(view_binding, 'update');
@@ -6877,6 +5874,7 @@
         return LayoutView;
 
       })(Falcon.View);
+      layout_template = _createTemplate("layout-template", "			<div data-bind='view: $view.content_view'></div>			<div data-bind='view: $view.footer_view'></div>		");
       ContentView = (function(_super) {
         __extends(ContentView, _super);
 
@@ -6890,6 +5888,7 @@
         return ContentView;
 
       })(Falcon.View);
+      content_template = _createTemplate("content-template", "The Content");
       FooterView = (function(_super) {
         __extends(FooterView, _super);
 
@@ -6903,23 +5902,12 @@
         return FooterView;
 
       })(Falcon.View);
-      setup = function() {
-        if ($body == null) {
-          $body = $("body").first();
-        }
-        $layout_template = $("				<template id='layout-template'>					<div data-bind='view: $view.content_view'></div>					<div data-bind='view: $view.footer_view'></div>				</template>			");
-        $content_template = $("				<template id='content-template'>					The Content				</template>			");
-        $footer_template = $("				<template id='footer-template'>					The Footer				</template>			");
-        $body.append($layout_template);
-        $body.append($footer_template);
-        return $body.append($content_template);
-      };
-      teardown = function() {
-        $layout_template.remove();
-        $content_template.remove();
-        return $footer_template.remove();
-      };
-      it("Setup", setup);
+      footer_template = _createTemplate("footer-template", "The Footer");
+      it("Setup", function() {
+        document.body.appendChild(layout_template);
+        document.body.appendChild(content_template);
+        return document.body.appendChild(footer_template);
+      });
       it("Should call the view binding on initialization without an observable", function() {
         var render_spy, unrender_spy, view;
         view = new ContentView;
@@ -6936,12 +5924,13 @@
         return expect(unrender_spy).not.toHaveBeenCalled();
       });
       describe("Testing changes in views that are contained in observables", function() {
-        var content_display_spy, content_dispose_spy, content_render_spy, content_unrender_spy, content_view, display_spy, dispose_spy, footer_display_spy, footer_dispose_spy, footer_render_spy, footer_unrender_spy, footer_view, obs, render_spy, unrender_spy, view;
+        var content_display_spy, content_dispose_spy, content_render_spy, content_unrender_spy, content_view, display_spy, dispose_spy, footer_display_spy, footer_dispose_spy, footer_render_spy, footer_unrender_spy, footer_view, obs, render_spy, setup, unrender_spy, view;
         view = content_view = footer_view = obs = null;
         render_spy = unrender_spy = display_spy = dispose_spy = null;
         content_render_spy = content_unrender_spy = content_display_spy = content_dispose_spy = null;
         footer_render_spy = footer_unrender_spy = footer_display_spy = footer_dispose_spy = null;
         setup = function() {
+          Falcon.View.resetCache();
           view = new LayoutView;
           content_view = view.content_view();
           footer_view = view.footer_view();
@@ -7048,10 +6037,15 @@
           return expect(footer_dispose_spy).toHaveBeenCalledOnce();
         });
       });
-      return it("Teardown", teardown);
+      return it("Teardown", function() {
+        Falcon.View.resetCache();
+        document.body.removeChild(layout_template);
+        document.body.removeChild(content_template);
+        return document.body.removeChild(footer_template);
+      });
     });
     describe("Test view binding with an observable array of views", function() {
-      var $content_template, $layout_template, ContentView, LayoutView, view_binding, _ref, _ref1;
+      var ContentView, LayoutView, content_template, layout_template, view_binding, _ref, _ref1;
       view_binding = ko.bindingHandlers['view'];
       LayoutView = (function(_super) {
         __extends(LayoutView, _super);
@@ -7070,7 +6064,7 @@
         return LayoutView;
 
       })(Falcon.View);
-      $layout_template = $("			<template id='layout-template'>				<!-- ko foreach: $view.views -->					<div data-bind='view: $data'></div>				<!-- /ko -->			</template>		");
+      layout_template = _createTemplate("layout-template", "			<!-- ko foreach: $view.views -->				<div data-bind='view: $data'></div>			<!-- /ko -->		");
       ContentView = (function(_super) {
         __extends(ContentView, _super);
 
@@ -7096,14 +6090,14 @@
         return ContentView;
 
       })(Falcon.View);
-      $content_template = $("			<template id='content-template2'>				<div data-bind='title: $view.title'></div>			</template>		");
+      content_template = _createTemplate("content-template2", "			<div data-bind='title: $view.title'></div>		");
       beforeEach(function() {
-        $body.append($layout_template);
-        return $body.append($content_template);
+        document.body.appendChild(layout_template);
+        return document.body.appendChild(content_template);
       });
       afterEach(function() {
-        $layout_template.remove();
-        return $content_template.remove();
+        document.body.removeChild(layout_template);
+        return document.body.removeChild(content_template);
       });
       return it("Should call like observables with their own context and update individually", function() {
         var first_content, first_spy, layout, second_content, second_spy;
@@ -7142,7 +6136,7 @@
       });
     });
     describe("Test execScripts: true for view binding", function() {
-      var $test_view_template, TestView, _ref;
+      var TestView, test_view_template, _ref;
       TestView = (function(_super) {
         __extends(TestView, _super);
 
@@ -7158,18 +6152,18 @@
         return TestView;
 
       })(Falcon.View);
-      $test_view_template = $("			<template id='test_view'>				<script type='text/javascript'>window.call_spy();</script>				<script>window.call_another_spy();</script>				<script type='text/template'>window.call_a_third_spy();</script>			</template>		");
+      test_view_template = _createTemplate("test_view", "			<script type='text/javascript'>window.call_spy();</script>			<script>window.call_another_spy();</script>			<script type='text/template'>window.call_a_third_spy();</script>		");
       beforeEach(function() {
         window.call_spy = jasmine.createSpy("'Call Spy'");
         window.call_another_spy = jasmine.createSpy("'Call Another Spy'");
         window.call_a_third_spy = jasmine.createSpy("'Call A Third Spy'");
-        $body.append($test_view_template);
+        document.body.appendChild(test_view_template);
         window.call_spy.calls.reset();
         window.call_another_spy.calls.reset();
         return window.call_a_third_spy.calls.reset();
       });
       afterEach(function() {
-        $test_view_template.remove();
+        document.body.removeChild(test_view_template);
         window.call_spy = window.call_another_spy = window.call_a_third_spy = null;
         delete window.call_spy;
         delete window.call_another_spy;
@@ -7222,7 +6216,7 @@
 
       })(Falcon.Collection);
       describe("Test flat bindings against arrays and collections", function() {
-        var $array_list, $array_list_options, $collection_list, $collection_list_options, $layout_template, LayoutView, after_add_spy, before_remove_spy, setup, teardown, view, view_observable, _ref2;
+        var LayoutView, after_add_spy, array_list, array_list_options, before_remove_spy, collection_list, collection_list_options, layout_template, setup, teardown, view, view_observable, _ref2;
         LayoutView = (function(_super) {
           __extends(LayoutView, _super);
 
@@ -7250,21 +6244,22 @@
           LayoutView.prototype.afterAdd = function() {};
 
           LayoutView.prototype.beforeRemove = function(element) {
-            return $(element).remove();
+            return element.parentNode.removeChild(element);
           };
 
           return LayoutView;
 
         })(Falcon.View);
-        $layout_template = $("				<template id='layout-template'>					<ul class='array_list' data-bind='foreach: $view.array_list'><li>An Item</li></ul>					<ul class='collection_list' data-bind='foreach: $view.collection_list'><li>An Item</li></ul>					<ul class='array_list_options' data-bind='foreach: {data: $view.array_list_options, afterAdd: $view.afterAdd, beforeRemove: $view.beforeRemove}'><li>An Item</li></ul>					<ul class='collection_list_options' data-bind='foreach: {data: $view.collection_list_options, afterAdd: $view.afterAdd, beforeRemove: $view.beforeRemove}'><li>An Item</li></ul>				</template>			");
+        layout_template = _createTemplate('layout-template', "				<ul class='array_list' data-bind='foreach: $view.array_list'><li>An Item</li></ul>				<ul class='collection_list' data-bind='foreach: $view.collection_list'><li>An Item</li></ul>				<ul class='array_list_options' data-bind='foreach: {data: $view.array_list_options, afterAdd: $view.afterAdd, beforeRemove: $view.beforeRemove}'><li>An Item</li></ul>				<ul class='collection_list_options' data-bind='foreach: {data: $view.collection_list_options, afterAdd: $view.afterAdd, beforeRemove: $view.beforeRemove}'><li>An Item</li></ul>			");
         view = null;
         view_observable = ko.observable();
-        $array_list = $collection_list = null;
-        $array_list_options = $collection_list_options = null;
+        array_list = collection_list = null;
+        array_list_options = collection_list_options = null;
         after_add_spy = before_remove_spy = null;
         setup = function() {
-          $body.append($application);
-          $body.append($layout_template);
+          Falcon.View.resetCache();
+          document.body.appendChild(application);
+          document.body.appendChild(layout_template);
           Falcon.View.cacheTemplates();
           foreach_init_spy = sinon.spy(foreach_binding, 'init');
           foreach_update_spy = sinon.spy(foreach_binding, 'update');
@@ -7276,22 +6271,20 @@
           view_observable(view);
           after_add_spy = sinon.spy(view.viewModel(), 'afterAdd');
           before_remove_spy = sinon.spy(view.viewModel(), 'beforeRemove');
-          prev_array_list = $array_list;
-          $array_list = $(".array_list");
-          $collection_list = $(".collection_list");
-          $array_list_options = $(".array_list_options");
-          return $collection_list_options = $(".collection_list_options");
+          prev_array_list = array_list;
+          array_list = document.querySelectorAll(".array_list")[0];
+          collection_list = document.querySelectorAll(".collection_list")[0];
+          array_list_options = document.querySelectorAll(".array_list_options")[0];
+          return collection_list_options = document.querySelectorAll(".collection_list_options")[0];
         });
         afterEach(function() {
-          $application.empty();
+          application.innerHTML = "";
           foreach_init_spy.reset();
           foreach_update_spy.reset();
           after_add_spy.restore();
           return before_remove_spy.restore();
         });
         teardown = function() {
-          $application.remove();
-          $layout_template.remove();
           foreach_init_spy.restore();
           return foreach_update_spy.restore();
         };
@@ -7303,10 +6296,10 @@
           expect(before_remove_spy).not.toHaveBeenCalled();
           expect(foreach_init_spy.callCount).toEqual(4);
           expect(foreach_update_spy.callCount).toEqual(4);
-          expect($array_list.children().length).toEqual(0);
-          expect($collection_list.children().length).toEqual(0);
-          expect($array_list_options.children().length).toEqual(0);
-          expect($collection_list_options.children().length).toEqual(0);
+          expect(_childCount(array_list)).toEqual(0);
+          expect(_childCount(collection_list)).toEqual(0);
+          expect(_childCount(array_list_options)).toEqual(0);
+          expect(_childCount(collection_list_options)).toEqual(0);
           foreach_init_spy.reset();
           foreach_update_spy.reset();
           view.array_list.push("Hello");
@@ -7316,10 +6309,10 @@
           expect(after_add_spy).not.toHaveBeenCalled();
           expect(before_remove_spy).not.toHaveBeenCalled();
           expect(foreach_update_spy.callCount).toEqual(2);
-          expect($array_list.children().length).toEqual(3);
-          expect($collection_list.children().length).toEqual(0);
-          expect($array_list_options.children().length).toEqual(0);
-          expect($collection_list_options.children().length).toEqual(0);
+          expect(_childCount(array_list)).toEqual(3);
+          expect(_childCount(collection_list)).toEqual(0);
+          expect(_childCount(array_list_options)).toEqual(0);
+          expect(_childCount(collection_list_options)).toEqual(0);
           foreach_update_spy.reset();
           view.array_list.pop();
           expect(foreach_init_spy).not.toHaveBeenCalled();
@@ -7327,10 +6320,10 @@
           expect(after_add_spy).not.toHaveBeenCalled();
           expect(before_remove_spy).not.toHaveBeenCalled();
           expect(foreach_update_spy.callCount).toEqual(1);
-          expect($array_list.children().length).toEqual(2);
-          expect($collection_list.children().length).toEqual(0);
-          expect($array_list_options.children().length).toEqual(0);
-          return expect($collection_list_options.children().length).toEqual(0);
+          expect(_childCount(array_list)).toEqual(2);
+          expect(_childCount(collection_list)).toEqual(0);
+          expect(_childCount(array_list_options)).toEqual(0);
+          return expect(_childCount(collection_list_options)).toEqual(0);
         });
         it("Should properly list with a collection", function() {
           expect(foreach_init_spy).toHaveBeenCalled();
@@ -7339,10 +6332,10 @@
           expect(before_remove_spy).not.toHaveBeenCalled();
           expect(foreach_init_spy.callCount).toEqual(4);
           expect(foreach_update_spy.callCount).toEqual(4);
-          expect($array_list.children().length).toEqual(0);
-          expect($collection_list.children().length).toEqual(0);
-          expect($array_list_options.children().length).toEqual(0);
-          expect($collection_list_options.children().length).toEqual(0);
+          expect(_childCount(array_list)).toEqual(0);
+          expect(_childCount(collection_list)).toEqual(0);
+          expect(_childCount(array_list_options)).toEqual(0);
+          expect(_childCount(collection_list_options)).toEqual(0);
           foreach_init_spy.reset();
           foreach_update_spy.reset();
           view.collection_list.push(new ModelA);
@@ -7352,10 +6345,10 @@
           expect(after_add_spy).not.toHaveBeenCalled();
           expect(before_remove_spy).not.toHaveBeenCalled();
           expect(foreach_update_spy.callCount).toEqual(2);
-          expect($array_list.children().length).toEqual(0);
-          expect($collection_list.children().length).toEqual(3);
-          expect($array_list_options.children().length).toEqual(0);
-          expect($collection_list_options.children().length).toEqual(0);
+          expect(_childCount(array_list)).toEqual(0);
+          expect(_childCount(collection_list)).toEqual(3);
+          expect(_childCount(array_list_options)).toEqual(0);
+          expect(_childCount(collection_list_options)).toEqual(0);
           foreach_update_spy.reset();
           view.collection_list.pop();
           expect(foreach_init_spy).not.toHaveBeenCalled();
@@ -7363,10 +6356,10 @@
           expect(after_add_spy).not.toHaveBeenCalled();
           expect(before_remove_spy).not.toHaveBeenCalled();
           expect(foreach_update_spy.callCount).toEqual(1);
-          expect($array_list.children().length).toEqual(0);
-          expect($collection_list.children().length).toEqual(2);
-          expect($array_list_options.children().length).toEqual(0);
-          return expect($collection_list_options.children().length).toEqual(0);
+          expect(_childCount(array_list)).toEqual(0);
+          expect(_childCount(collection_list)).toEqual(2);
+          expect(_childCount(array_list_options)).toEqual(0);
+          return expect(_childCount(collection_list_options)).toEqual(0);
         });
         it("Should properly list with an observable array including options", function() {
           expect(foreach_init_spy).toHaveBeenCalled();
@@ -7375,10 +6368,10 @@
           expect(before_remove_spy).not.toHaveBeenCalled();
           expect(foreach_init_spy.callCount).toEqual(4);
           expect(foreach_update_spy.callCount).toEqual(4);
-          expect($array_list.children().length).toEqual(0);
-          expect($collection_list.children().length).toEqual(0);
-          expect($array_list_options.children().length).toEqual(0);
-          expect($collection_list_options.children().length).toEqual(0);
+          expect(_childCount(array_list)).toEqual(0);
+          expect(_childCount(collection_list)).toEqual(0);
+          expect(_childCount(array_list_options)).toEqual(0);
+          expect(_childCount(collection_list_options)).toEqual(0);
           foreach_init_spy.reset();
           foreach_update_spy.reset();
           view.array_list_options.push("Hello2");
@@ -7389,10 +6382,10 @@
           expect(before_remove_spy).not.toHaveBeenCalled();
           expect(foreach_update_spy.callCount).toEqual(2);
           expect(after_add_spy.callCount).toEqual(3);
-          expect($array_list.children().length).toEqual(0);
-          expect($collection_list.children().length).toEqual(0);
-          expect($array_list_options.children().length).toEqual(3);
-          expect($collection_list_options.children().length).toEqual(0);
+          expect(_childCount(array_list)).toEqual(0);
+          expect(_childCount(collection_list)).toEqual(0);
+          expect(_childCount(array_list_options)).toEqual(3);
+          expect(_childCount(collection_list_options)).toEqual(0);
           foreach_update_spy.reset();
           after_add_spy.reset();
           view.array_list_options.pop();
@@ -7403,10 +6396,10 @@
           expect(before_remove_spy).toHaveBeenCalled();
           expect(foreach_update_spy.callCount).toEqual(2);
           expect(before_remove_spy.callCount).toEqual(2);
-          expect($array_list.children().length).toEqual(0);
-          expect($collection_list.children().length).toEqual(0);
-          expect($array_list_options.children().length).toEqual(1);
-          return expect($collection_list_options.children().length).toEqual(0);
+          expect(_childCount(array_list)).toEqual(0);
+          expect(_childCount(collection_list)).toEqual(0);
+          expect(_childCount(array_list_options)).toEqual(1);
+          return expect(_childCount(collection_list_options)).toEqual(0);
         });
         it("Should properly list with a collection including options", function() {
           expect(foreach_init_spy).toHaveBeenCalled();
@@ -7415,10 +6408,10 @@
           expect(before_remove_spy).not.toHaveBeenCalled();
           expect(foreach_init_spy.callCount).toEqual(4);
           expect(foreach_update_spy.callCount).toEqual(4);
-          expect($array_list.children().length).toEqual(0);
-          expect($collection_list.children().length).toEqual(0);
-          expect($array_list_options.children().length).toEqual(0);
-          expect($collection_list_options.children().length).toEqual(0);
+          expect(_childCount(array_list)).toEqual(0);
+          expect(_childCount(collection_list)).toEqual(0);
+          expect(_childCount(array_list_options)).toEqual(0);
+          expect(_childCount(collection_list_options)).toEqual(0);
           foreach_init_spy.reset();
           foreach_update_spy.reset();
           view.collection_list_options.push(new ModelA);
@@ -7429,10 +6422,10 @@
           expect(before_remove_spy).not.toHaveBeenCalled();
           expect(foreach_update_spy.callCount).toEqual(2);
           expect(after_add_spy.callCount).toEqual(3);
-          expect($array_list.children().length).toEqual(0);
-          expect($collection_list.children().length).toEqual(0);
-          expect($array_list_options.children().length).toEqual(0);
-          expect($collection_list_options.children().length).toEqual(3);
+          expect(_childCount(array_list)).toEqual(0);
+          expect(_childCount(collection_list)).toEqual(0);
+          expect(_childCount(array_list_options)).toEqual(0);
+          expect(_childCount(collection_list_options)).toEqual(3);
           foreach_update_spy.reset();
           after_add_spy.reset();
           view.collection_list_options.pop();
@@ -7443,15 +6436,15 @@
           expect(before_remove_spy).toHaveBeenCalled();
           expect(foreach_update_spy.callCount).toEqual(2);
           expect(before_remove_spy.callCount).toEqual(2);
-          expect($array_list.children().length).toEqual(0);
-          expect($collection_list.children().length).toEqual(0);
-          expect($array_list_options.children().length).toEqual(0);
-          return expect($collection_list_options.children().length).toEqual(1);
+          expect(_childCount(array_list)).toEqual(0);
+          expect(_childCount(collection_list)).toEqual(0);
+          expect(_childCount(array_list_options)).toEqual(0);
+          return expect(_childCount(collection_list_options)).toEqual(1);
         });
         return it("Teardown", teardown);
       });
       return describe("Test observable bindings against collections", function() {
-        var $collection_list, $layout_template, LayoutView, after_add_spy, before_remove_spy, setup, teardown, view, view_observable, _ref2;
+        var LayoutView, layout_template, _ref2;
         LayoutView = (function(_super) {
           __extends(LayoutView, _super);
 
@@ -7481,36 +6474,20 @@
           return LayoutView;
 
         })(Falcon.View);
-        $layout_template = $("				<template id='layout-template'>					<ul class='collection_list' data-bind='foreach: $view.selected_collection'><li>An Item</li></ul>				</template>			");
-        view = null;
-        view_observable = ko.observable();
-        $collection_list = null;
-        after_add_spy = before_remove_spy = null;
-        setup = function() {
-          $body.append($layout_template);
-          Falcon.View.cacheTemplates();
+        layout_template = _createTemplate('layout-template', "				<ul class='collection_list' data-bind='foreach: $view.selected_collection'><li>An Item</li></ul>			");
+        it("Setup", function() {
+          document.body.appendChild(layout_template);
+          return Falcon.View.cacheTemplates();
+        });
+        it("Should properly update if collection is switched to another with same update count", function() {
+          var collection_list, view, view_observable;
+          view_observable = ko.observable();
           foreach_init_spy = sinon.spy(foreach_binding, 'init');
           foreach_update_spy = sinon.spy(foreach_binding, 'update');
-          return applyApp(view_observable);
-        };
-        beforeEach(function() {
+          applyApp(view_observable);
           view = new LayoutView;
           view_observable(view);
-          return $collection_list = $(".collection_list");
-        });
-        afterEach(function() {
-          $application.empty();
-          foreach_init_spy.reset();
-          return foreach_update_spy.reset();
-        });
-        teardown = function() {
-          $application.remove();
-          $layout_template.remove();
-          foreach_init_spy.restore();
-          return foreach_update_spy.restore();
-        };
-        it("Setup", setup);
-        it("Should properly update if collection is switched to another with same update count", function() {
+          collection_list = document.querySelectorAll(".collection_list")[0];
           expect(foreach_init_spy).toHaveBeenCalled();
           expect(foreach_update_spy).toHaveBeenCalled();
           expect(foreach_init_spy.callCount).toEqual(1);
@@ -7522,23 +6499,27 @@
           expect(foreach_init_spy).not.toHaveBeenCalled();
           expect(foreach_update_spy).toHaveBeenCalled();
           expect(foreach_update_spy.callCount).toEqual(1);
-          expect($collection_list.children().length).toEqual(2);
+          expect(_childCount(collection_list)).toEqual(2);
           foreach_init_spy.reset();
           foreach_update_spy.reset();
           view.selected_number(2);
           expect(foreach_init_spy).not.toHaveBeenCalled();
           expect(foreach_update_spy).toHaveBeenCalled();
           expect(foreach_update_spy.callCount).toEqual(1);
-          expect($collection_list.children().length).toEqual(5);
+          expect(_childCount(collection_list)).toEqual(5);
           foreach_init_spy.reset();
           foreach_update_spy.reset();
           view.selected_number(1);
           expect(foreach_init_spy).not.toHaveBeenCalled();
           expect(foreach_update_spy).toHaveBeenCalled();
           expect(foreach_update_spy.callCount).toEqual(1);
-          return expect($collection_list.children().length).toEqual(2);
+          expect(_childCount(collection_list)).toEqual(2);
+          foreach_init_spy.restore();
+          return foreach_update_spy.restore();
         });
-        return it("Teardown", teardown);
+        return it("Teardown", function() {
+          return Falcon.View.resetCache();
+        });
       });
     });
     describe("Test updated options binding", function() {});

@@ -140,13 +140,11 @@ module.exports = (grunt) ->
 			'dist':
 				src: [
 					'falcon.min.js'
-					'adapters/falcon.jquery_adapter.min.js'
 				]
 				options:
 					vendor: [
 						'tests/scripts/sinon-1.7.3.js'
 						'tests/scripts/jasmine2.0.0-sinon.js'
-						'tests/scripts/jquery-1.10.2.min.js'
 						'tests/scripts/knockout-3.0.0.min.js'
 					]
 					specs: 'tests/scripts/tests.js'

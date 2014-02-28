@@ -202,15 +202,6 @@ describe "Falcon.Object", ->
 	#END describe
 
 	describe "Test the extend method on objects", ->
-		ajax_stub = null
-		beforeEach ->
-			ajax_stub = sinon.stub( $, 'ajax' )
-		#END beforeEach
-
-		afterEach ->
-			ajax_stub.restore()
-		#END afterEach
-
 		it "Should extend Falcon.Object properly", ->
 			custom_spy = sinon.spy()
 			things_spy = sinon.spy()

@@ -1,20 +1,36 @@
 describe "Knockout Bindings", ->
-	$application = null
+	application = null
 	application_index = 0
-	$body = null
+
+	_createApplication = ->
+		application_index++
+		elm = document.createElement("div")
+		elm.setAttribute("id", "application_#{application_index}")
+		return elm
+	#END _createApplication
+
+	_createTemplate = (id, html) ->
+		elm = document.createElement("template")
+		elm.setAttribute("id",id)
+		elm.innerHTML = html
+		return elm
+	#END _createTemplate
+
+	_childCount = (elm) ->
+		count = 0
+		count++ for child in elm.childNodes when child.nodeType is 1
+		return count
+	#END _childCount
 
 	applyApp = (view) ->
-		$body ?= $("body").first()
-		$application?.remove()
-
-		application_index++
-		$body.append( $application = $("<div id='application_#{application_index}'></div>") )
+		document.body.removeChild( application ) if application?
+		document.body.appendChild( application = _createApplication() )
 
 		Falcon.apply( view, "#application_#{application_index}" )
 	#END applyApp
 
 	describe "'view' Binding", ->
-		$layout_template = $footer_template = $content_template = null
+		layout_template = footer_template = content_template = null
 
 		view_binding = Falcon.getBinding('view')
 
@@ -34,49 +50,26 @@ describe "Knockout Bindings", ->
 				@footer_view( new FooterView )
 			#END initialize
 		#END LayoutView
+		layout_template = _createTemplate("layout-template","
+			<div data-bind='view: $view.content_view'></div>
+			<div data-bind='view: $view.footer_view'></div>
+		")
 
 		class ContentView extends Falcon.View
 			url: '#content-template'
 		#END class
+		content_template = _createTemplate("content-template", "The Content")
 
 		class FooterView extends Falcon.View
 			url: '#footer-template'
 		#END class
+		footer_template = _createTemplate("footer-template", "The Footer")
 
-		setup = ->
-			$body ?= $("body").first()
-
-			$layout_template = $("
-				<template id='layout-template'>
-					<div data-bind='view: $view.content_view'></div>
-					<div data-bind='view: $view.footer_view'></div>
-				</template>
-			")
-			
-			$content_template = $("
-				<template id='content-template'>
-					The Content
-				</template>
-			")
-			
-			$footer_template = $("
-				<template id='footer-template'>
-					The Footer
-				</template>
-			")
-
-			$body.append($layout_template)
-			$body.append($footer_template)
-			$body.append($content_template)
+		it "Setup", ->
+			document.body.appendChild(layout_template)
+			document.body.appendChild(content_template)
+			document.body.appendChild(footer_template)
 		#END setup
-
-		teardown = ->
-			$layout_template.remove()
-			$content_template.remove()
-			$footer_template.remove()
-		#END teardown
-
-		it("Setup", setup)
 
 		it "Should call the view binding on initialization without an observable", ->
 			view = new ContentView
@@ -104,6 +97,8 @@ describe "Knockout Bindings", ->
 			footer_render_spy = footer_unrender_spy = footer_display_spy = footer_dispose_spy = null
 			
 			setup = ->
+				Falcon.View.resetCache()
+
 				view = new LayoutView
 				content_view = view.content_view()
 				footer_view = view.footer_view()
@@ -243,7 +238,13 @@ describe "Knockout Bindings", ->
 			#END it
 		#END describe
 
-		it("Teardown", teardown)
+		it "Teardown", ->
+			Falcon.View.resetCache()
+
+			document.body.removeChild( layout_template )
+			document.body.removeChild( content_template )
+			document.body.removeChild( footer_template )
+		#END teardown
 	#END describe
 
 	describe "Test view binding with an observable array of views", ->
@@ -256,12 +257,10 @@ describe "Knockout Bindings", ->
 				views: []
 			#END observables
 		#END LayoutView
-		$layout_template = $("
-			<template id='layout-template'>
-				<!-- ko foreach: $view.views -->
-					<div data-bind='view: $data'></div>
-				<!-- /ko -->
-			</template>
+		layout_template = _createTemplate("layout-template","
+			<!-- ko foreach: $view.views -->
+				<div data-bind='view: $data'></div>
+			<!-- /ko -->
 		")
 
 		class ContentView extends Falcon.View
@@ -276,20 +275,18 @@ describe "Knockout Bindings", ->
 			#END observables
 		#END class
 
-		$content_template = $("
-			<template id='content-template2'>
-				<div data-bind='title: $view.title'></div>
-			</template>
+		content_template = _createTemplate("content-template2","
+			<div data-bind='title: $view.title'></div>
 		")
 
 		beforeEach ->
-			$body.append($layout_template)
-			$body.append($content_template)
+			document.body.appendChild(layout_template)
+			document.body.appendChild(content_template)
 		#END beforeEach
 
 		afterEach ->
-			$layout_template.remove()
-			$content_template.remove()
+			document.body.removeChild( layout_template )
+			document.body.removeChild( content_template )
 		#END afterEach
 
 		it "Should call like observables with their own context and update individually", ->
@@ -342,12 +339,10 @@ describe "Knockout Bindings", ->
 			execScripts: true
 		#END class
 
-		$test_view_template = $("
-			<template id='test_view'>
-				<script type='text/javascript'>window.call_spy();</script>
-				<script>window.call_another_spy();</script>
-				<script type='text/template'>window.call_a_third_spy();</script>
-			</template>
+		test_view_template = _createTemplate("test_view","
+			<script type='text/javascript'>window.call_spy();</script>
+			<script>window.call_another_spy();</script>
+			<script type='text/template'>window.call_a_third_spy();</script>
 		")
 
 		beforeEach ->
@@ -355,7 +350,7 @@ describe "Knockout Bindings", ->
 			window.call_another_spy = jasmine.createSpy("'Call Another Spy'")
 			window.call_a_third_spy = jasmine.createSpy("'Call A Third Spy'")
 			
-			$body.append($test_view_template)
+			document.body.appendChild(test_view_template)
 
 			window.call_spy.calls.reset()
 			window.call_another_spy.calls.reset()
@@ -363,7 +358,7 @@ describe "Knockout Bindings", ->
 		#END beforeEach
 
 		afterEach ->
-			$test_view_template.remove()
+			document.body.removeChild( test_view_template )
 			window.call_spy = window.call_another_spy = window.call_a_third_spy = null
 			delete window.call_spy
 			delete window.call_another_spy
@@ -416,27 +411,27 @@ describe "Knockout Bindings", ->
 				#END observables
 
 				afterAdd: ->
-				beforeRemove: (element) -> $(element).remove()
+				beforeRemove: (element) -> element.parentNode.removeChild(element)
 			#END class
 			
-			$layout_template = $("
-				<template id='layout-template'>
-					<ul class='array_list' data-bind='foreach: $view.array_list'><li>An Item</li></ul>
-					<ul class='collection_list' data-bind='foreach: $view.collection_list'><li>An Item</li></ul>
-					<ul class='array_list_options' data-bind='foreach: {data: $view.array_list_options, afterAdd: $view.afterAdd, beforeRemove: $view.beforeRemove}'><li>An Item</li></ul>
-					<ul class='collection_list_options' data-bind='foreach: {data: $view.collection_list_options, afterAdd: $view.afterAdd, beforeRemove: $view.beforeRemove}'><li>An Item</li></ul>
-				</template>
+			layout_template = _createTemplate('layout-template',"
+				<ul class='array_list' data-bind='foreach: $view.array_list'><li>An Item</li></ul>
+				<ul class='collection_list' data-bind='foreach: $view.collection_list'><li>An Item</li></ul>
+				<ul class='array_list_options' data-bind='foreach: {data: $view.array_list_options, afterAdd: $view.afterAdd, beforeRemove: $view.beforeRemove}'><li>An Item</li></ul>
+				<ul class='collection_list_options' data-bind='foreach: {data: $view.collection_list_options, afterAdd: $view.afterAdd, beforeRemove: $view.beforeRemove}'><li>An Item</li></ul>
 			")
 
 			view = null
 			view_observable = ko.observable()
-			$array_list = $collection_list = null
-			$array_list_options = $collection_list_options = null
+			array_list = collection_list = null
+			array_list_options = collection_list_options = null
 			after_add_spy = before_remove_spy = null
 
 			setup = ->
-				$body.append($application)
-				$body.append($layout_template)
+				Falcon.View.resetCache()
+
+				document.body.appendChild(application)
+				document.body.appendChild(layout_template)
 
 				Falcon.View.cacheTemplates()
 
@@ -453,15 +448,15 @@ describe "Knockout Bindings", ->
 				after_add_spy = sinon.spy( view.viewModel(), 'afterAdd' )
 				before_remove_spy = sinon.spy( view.viewModel(), 'beforeRemove' )
 
-				prev_array_list = $array_list
-				$array_list = $(".array_list")
-				$collection_list = $(".collection_list")
-				$array_list_options = $(".array_list_options")
-				$collection_list_options = $(".collection_list_options")
+				prev_array_list = array_list
+				array_list = document.querySelectorAll(".array_list")[0]
+				collection_list = document.querySelectorAll(".collection_list")[0]
+				array_list_options = document.querySelectorAll(".array_list_options")[0]
+				collection_list_options = document.querySelectorAll(".collection_list_options")[0]
 			#END beforeEach
 
 			afterEach ->
-				$application.empty()
+				application.innerHTML = ""
 
 				foreach_init_spy.reset()
 				foreach_update_spy.reset()
@@ -471,9 +466,6 @@ describe "Knockout Bindings", ->
 			#END afterEach
 
 			teardown = ->
-				$application.remove()
-				$layout_template.remove()
-
 				foreach_init_spy.restore()
 				foreach_update_spy.restore()
 			#END after
@@ -489,10 +481,10 @@ describe "Knockout Bindings", ->
 				expect( foreach_init_spy.callCount ).toEqual 4
 				expect( foreach_update_spy.callCount ).toEqual 4
 
-				expect( $array_list.children().length ).toEqual 0
-				expect( $collection_list.children().length ).toEqual 0
-				expect( $array_list_options.children().length ).toEqual 0
-				expect( $collection_list_options.children().length ).toEqual 0
+				expect( _childCount(array_list) ).toEqual 0
+				expect( _childCount(collection_list) ).toEqual 0
+				expect( _childCount(array_list_options) ).toEqual 0
+				expect( _childCount(collection_list_options) ).toEqual 0
 
 				foreach_init_spy.reset()
 				foreach_update_spy.reset()
@@ -507,10 +499,10 @@ describe "Knockout Bindings", ->
 				
 				expect( foreach_update_spy.callCount ).toEqual 2
 
-				expect( $array_list.children().length ).toEqual 3
-				expect( $collection_list.children().length ).toEqual 0
-				expect( $array_list_options.children().length ).toEqual 0
-				expect( $collection_list_options.children().length ).toEqual 0
+				expect( _childCount(array_list) ).toEqual 3
+				expect( _childCount(collection_list) ).toEqual 0
+				expect( _childCount(array_list_options) ).toEqual 0
+				expect( _childCount(collection_list_options) ).toEqual 0
 
 				foreach_update_spy.reset()
 
@@ -523,10 +515,10 @@ describe "Knockout Bindings", ->
 				
 				expect( foreach_update_spy.callCount ).toEqual 1
 
-				expect( $array_list.children().length ).toEqual 2
-				expect( $collection_list.children().length ).toEqual 0
-				expect( $array_list_options.children().length ).toEqual 0
-				expect( $collection_list_options.children().length ).toEqual 0
+				expect( _childCount(array_list) ).toEqual 2
+				expect( _childCount(collection_list) ).toEqual 0
+				expect( _childCount(array_list_options) ).toEqual 0
+				expect( _childCount(collection_list_options) ).toEqual 0
 			#END it
 
 			it "Should properly list with a collection", ->
@@ -538,10 +530,10 @@ describe "Knockout Bindings", ->
 				expect( foreach_init_spy.callCount ).toEqual 4
 				expect( foreach_update_spy.callCount ).toEqual 4
 
-				expect( $array_list.children().length ).toEqual 0
-				expect( $collection_list.children().length ).toEqual 0
-				expect( $array_list_options.children().length ).toEqual 0
-				expect( $collection_list_options.children().length ).toEqual 0
+				expect( _childCount(array_list) ).toEqual 0
+				expect( _childCount(collection_list) ).toEqual 0
+				expect( _childCount(array_list_options) ).toEqual 0
+				expect( _childCount(collection_list_options) ).toEqual 0
 
 				foreach_init_spy.reset()
 				foreach_update_spy.reset()
@@ -556,10 +548,10 @@ describe "Knockout Bindings", ->
 				
 				expect( foreach_update_spy.callCount ).toEqual 2
 
-				expect( $array_list.children().length ).toEqual 0
-				expect( $collection_list.children().length ).toEqual 3
-				expect( $array_list_options.children().length ).toEqual 0
-				expect( $collection_list_options.children().length ).toEqual 0
+				expect( _childCount(array_list) ).toEqual 0
+				expect( _childCount(collection_list) ).toEqual 3
+				expect( _childCount(array_list_options) ).toEqual 0
+				expect( _childCount(collection_list_options) ).toEqual 0
 
 				foreach_update_spy.reset()
 
@@ -572,10 +564,10 @@ describe "Knockout Bindings", ->
 				
 				expect( foreach_update_spy.callCount ).toEqual 1
 
-				expect( $array_list.children().length ).toEqual 0
-				expect( $collection_list.children().length ).toEqual 2
-				expect( $array_list_options.children().length ).toEqual 0
-				expect( $collection_list_options.children().length ).toEqual 0
+				expect( _childCount(array_list) ).toEqual 0
+				expect( _childCount(collection_list) ).toEqual 2
+				expect( _childCount(array_list_options) ).toEqual 0
+				expect( _childCount(collection_list_options) ).toEqual 0
 			#END describe
 
 			it "Should properly list with an observable array including options", ->
@@ -587,10 +579,10 @@ describe "Knockout Bindings", ->
 				expect( foreach_init_spy.callCount ).toEqual 4
 				expect( foreach_update_spy.callCount ).toEqual 4
 
-				expect( $array_list.children().length ).toEqual 0
-				expect( $collection_list.children().length ).toEqual 0
-				expect( $array_list_options.children().length ).toEqual 0
-				expect( $collection_list_options.children().length ).toEqual 0
+				expect( _childCount(array_list) ).toEqual 0
+				expect( _childCount(collection_list) ).toEqual 0
+				expect( _childCount(array_list_options) ).toEqual 0
+				expect( _childCount(collection_list_options) ).toEqual 0
 
 				foreach_init_spy.reset()
 				foreach_update_spy.reset()
@@ -606,10 +598,10 @@ describe "Knockout Bindings", ->
 				expect( foreach_update_spy.callCount ).toEqual 2
 				expect( after_add_spy.callCount ).toEqual 3
 
-				expect( $array_list.children().length ).toEqual 0
-				expect( $collection_list.children().length ).toEqual 0
-				expect( $array_list_options.children().length ).toEqual 3
-				expect( $collection_list_options.children().length ).toEqual 0
+				expect( _childCount(array_list) ).toEqual 0
+				expect( _childCount(collection_list) ).toEqual 0
+				expect( _childCount(array_list_options) ).toEqual 3
+				expect( _childCount(collection_list_options) ).toEqual 0
 
 				foreach_update_spy.reset()
 				after_add_spy.reset()
@@ -625,10 +617,10 @@ describe "Knockout Bindings", ->
 				expect( foreach_update_spy.callCount ).toEqual 2
 				expect( before_remove_spy.callCount ).toEqual 2
 
-				expect( $array_list.children().length ).toEqual 0
-				expect( $collection_list.children().length ).toEqual 0
-				expect( $array_list_options.children().length ).toEqual 1
-				expect( $collection_list_options.children().length ).toEqual 0
+				expect( _childCount(array_list) ).toEqual 0
+				expect( _childCount(collection_list) ).toEqual 0
+				expect( _childCount(array_list_options) ).toEqual 1
+				expect( _childCount(collection_list_options) ).toEqual 0
 			#END it
 
 			it "Should properly list with a collection including options", ->
@@ -640,10 +632,10 @@ describe "Knockout Bindings", ->
 				expect( foreach_init_spy.callCount ).toEqual 4
 				expect( foreach_update_spy.callCount ).toEqual 4
 
-				expect( $array_list.children().length ).toEqual 0
-				expect( $collection_list.children().length ).toEqual 0
-				expect( $array_list_options.children().length ).toEqual 0
-				expect( $collection_list_options.children().length ).toEqual 0
+				expect( _childCount(array_list) ).toEqual 0
+				expect( _childCount(collection_list) ).toEqual 0
+				expect( _childCount(array_list_options) ).toEqual 0
+				expect( _childCount(collection_list_options) ).toEqual 0
 
 				foreach_init_spy.reset()
 				foreach_update_spy.reset()
@@ -659,10 +651,10 @@ describe "Knockout Bindings", ->
 				expect( foreach_update_spy.callCount ).toEqual 2
 				expect( after_add_spy.callCount ).toEqual 3
 
-				expect( $array_list.children().length ).toEqual 0
-				expect( $collection_list.children().length ).toEqual 0
-				expect( $array_list_options.children().length ).toEqual 0
-				expect( $collection_list_options.children().length ).toEqual 3
+				expect( _childCount(array_list) ).toEqual 0
+				expect( _childCount(collection_list) ).toEqual 0
+				expect( _childCount(array_list_options) ).toEqual 0
+				expect( _childCount(collection_list_options) ).toEqual 3
 
 				foreach_update_spy.reset()
 				after_add_spy.reset()
@@ -678,10 +670,10 @@ describe "Knockout Bindings", ->
 				expect( foreach_update_spy.callCount ).toEqual 2
 				expect( before_remove_spy.callCount ).toEqual 2
 
-				expect( $array_list.children().length ).toEqual 0
-				expect( $collection_list.children().length ).toEqual 0
-				expect( $array_list_options.children().length ).toEqual 0
-				expect( $collection_list_options.children().length ).toEqual 1
+				expect( _childCount(array_list) ).toEqual 0
+				expect( _childCount(collection_list) ).toEqual 0
+				expect( _childCount(array_list_options) ).toEqual 0
+				expect( _childCount(collection_list_options) ).toEqual 1
 			#END it
 
 			it("Teardown", teardown)
@@ -703,53 +695,29 @@ describe "Knockout Bindings", ->
 					#END selected_collection
 				#END observables
 			#END class
-			$layout_template = $("
-				<template id='layout-template'>
-					<ul class='collection_list' data-bind='foreach: $view.selected_collection'><li>An Item</li></ul>
-				</template>
+			layout_template = _createTemplate('layout-template',"
+				<ul class='collection_list' data-bind='foreach: $view.selected_collection'><li>An Item</li></ul>
 			")
 
-			view = null
-			view_observable = ko.observable()
-			$collection_list = null
-			after_add_spy = before_remove_spy = null
-
-			setup = ->
-				$body.append($layout_template)
+			it "Setup", ->
+				document.body.appendChild( layout_template )
 
 				Falcon.View.cacheTemplates()
+			#END it
+
+			it "Should properly update if collection is switched to another with same update count", ->
+				view_observable = ko.observable()
 
 				foreach_init_spy = sinon.spy( foreach_binding, 'init' )
 				foreach_update_spy = sinon.spy( foreach_binding, 'update' )
 
 				applyApp(view_observable)
-			#END before
-
-			beforeEach ->
+				
 				view = new LayoutView
 				view_observable( view )
 
-				$collection_list = $(".collection_list")
-			#END beforeEach
+				collection_list = document.querySelectorAll(".collection_list")[0]
 
-			afterEach ->
-				$application.empty()
-
-				foreach_init_spy.reset()
-				foreach_update_spy.reset()
-			#END afterEach
-
-			teardown = ->
-				$application.remove()
-				$layout_template.remove()
-
-				foreach_init_spy.restore()
-				foreach_update_spy.restore()
-			#END after
-
-			it("Setup", setup)
-
-			it "Should properly update if collection is switched to another with same update count", ->
 				expect( foreach_init_spy ).toHaveBeenCalled()
 				expect( foreach_update_spy ).toHaveBeenCalled()
 
@@ -767,7 +735,7 @@ describe "Knockout Bindings", ->
 
 				expect( foreach_update_spy.callCount ).toEqual 1
 
-				expect( $collection_list.children().length ).toEqual( 2 )
+				expect( _childCount(collection_list) ).toEqual( 2 )
 
 				foreach_init_spy.reset()
 				foreach_update_spy.reset()
@@ -779,7 +747,7 @@ describe "Knockout Bindings", ->
 
 				expect( foreach_update_spy.callCount ).toEqual 1
 
-				expect( $collection_list.children().length ).toEqual( 5 )
+				expect( _childCount(collection_list) ).toEqual( 5 )
 
 				foreach_init_spy.reset()
 				foreach_update_spy.reset()
@@ -791,10 +759,15 @@ describe "Knockout Bindings", ->
 
 				expect( foreach_update_spy.callCount ).toEqual 1
 
-				expect( $collection_list.children().length ).toEqual( 2 )
+				expect( _childCount(collection_list) ).toEqual( 2 )
+
+				foreach_init_spy.restore()
+				foreach_update_spy.restore()
 			#END it
 
-			it("Teardown", teardown)
+			it "Teardown", ->
+				Falcon.View.resetCache()
+			#END it
 		#END describe
 	#END describe
 

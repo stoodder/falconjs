@@ -105,6 +105,7 @@ class Falcon.Adapter extends Falcon.Object
 		output_options.error = (->) unless isFunction(output_options.error)
 		output_options.parent = data_object.parent unless Falcon.isModel( output_options.parent ) or output_options.parent is null
 		output_options.attributes = null unless isArray( output_options.attributes )
+		output_options.method = 'append' if not isString( output_options.method ) and Falcon.isCollection( data_object )
 
 		output_options.url = @makeUrl( data_object, type, output_options, context )
 		output_options.data = @serializeData( data_object, type, output_options, context )
@@ -359,3 +360,5 @@ class Falcon.Adapter extends Falcon.Object
 		return @
 	#END getTemplate
 #END class
+
+Falcon.adapter = new Falcon.Adapter

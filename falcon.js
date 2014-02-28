@@ -555,6 +555,9 @@
       if (!isArray(output_options.attributes)) {
         output_options.attributes = null;
       }
+      if (!isString(output_options.method) && Falcon.isCollection(data_object)) {
+        output_options.method = 'append';
+      }
       output_options.url = this.makeUrl(data_object, type, output_options, context);
       output_options.data = this.serializeData(data_object, type, output_options, context);
       return output_options;
@@ -653,6 +656,8 @@
     return Adapter;
 
   })(Falcon.Object);
+
+  Falcon.adapter = new Falcon.Adapter;
 
   Falcon.Model = (function(_super) {
     __extends(Model, _super);
@@ -1046,7 +1051,6 @@
       } else {
         Falcon.adapter.getTemplate(this, url, _loaded);
       }
-      return this;
     }
 
     View.prototype.makeUrl = function() {
@@ -1439,7 +1443,7 @@
     };
 
     Collection.prototype.create = function(data, options, context) {
-      var model, _success,
+      var model, output_options,
         _this = this;
       if (this.model == null) {
         return null;
@@ -1448,36 +1452,24 @@
         data = {};
       }
       model = Falcon.isModel(data) ? data : new this.model(data);
-      if (isFunction(options)) {
-        options = {
-          success: options
-        };
-      }
-      if (!isObject(options)) {
-        options = {};
-      }
-      if (!isFunction(options.success)) {
-        options.success = (function() {});
-      }
-      if (!isString(options.method)) {
-        options.method = 'append';
-      }
-      _success = options.success;
-      options.success = function(model) {
-        _this.fill(model, options);
-        return _success.apply(model, arguments);
-      };
-      if (options.parent == null) {
-        options.parent = this.parent;
-      }
       if (context == null) {
         context = model;
       }
-      return model.create(options, context);
+      output_options = Falcon.adapter.standardizeOptions(model, 'POST', options, context);
+      if (output_options.method == null) {
+        output_options.method = 'append';
+      }
+      output_options.success = function(model) {
+        _this.fill(model, output_options);
+        if (isFunction(options.success)) {
+          return options.success.apply(context, arguments);
+        }
+      };
+      return model.create(output_options, context);
     };
 
     Collection.prototype.destroy = function(model, options, context) {
-      var _success,
+      var output_options,
         _this = this;
       if (this.model == null) {
         return null;
@@ -1486,26 +1478,23 @@
       if (!Falcon.isModel(model)) {
         return null;
       }
-      if (isFunction(options)) {
-        options = {
-          success: options
-        };
+      if (context == null) {
+        context = model;
       }
-      if (!isObject(options)) {
-        options = {};
+      if (Falcon.debug) {
+        console.log(Falcon.adapter.standardizeOptions.calls.count());
       }
-      if (!isFunction(options.success)) {
-        options.success = (function() {});
+      output_options = Falcon.adapter.standardizeOptions(model, 'DELETE', options, context);
+      if (Falcon.debug) {
+        console.log(Falcon.adapter.standardizeOptions.calls.count());
       }
-      if (options.parent === void 0) {
-        options.parent = this.parent;
-      }
-      _success = options.success;
-      options.success = function(model) {
+      output_options.success = function(model) {
         _this.remove(model);
-        return _success.apply(model, arguments);
+        if (isFunction(options.success)) {
+          return options.success.apply(context, arguments);
+        }
       };
-      return model.destroy(options, context);
+      return model.destroy(output_options, context);
     };
 
     Collection.prototype.remove = function(items) {

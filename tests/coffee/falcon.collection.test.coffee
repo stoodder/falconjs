@@ -1015,258 +1015,21 @@ describe "Falcon.Collection", ->
 			#END it
 		#END describe
 
-		describe "Testing sync method $.ajax calls", ->
-			ajax_stub = null
+		describe "sync", ->
+			collection = new Falcon.Collection
 
 			beforeEach ->
-				ajax_stub = sinon.stub(jQuery, "ajax")
-				Falcon.adapter.cache = false
+				spyOn( Falcon.adapter, 'sync' )
 			#END beforeEach
 
-			afterEach ->
-				ajax_stub.restore()
-			#END afterEach
+			it "Should call the falcon adapter", ->
+				type = "GET"
+				options = {}
+				context = new Falcon.Collection
+				collection.sync(type, options, context)
 
-			it "Should fetch properly without options", ->
-				collectionA.fetch()
-
-				expect( ajax_stub ).toHaveBeenCalledOnce()
-				expect( ajax_stub ).toHaveBeenCalledWithMatch {type: "GET"}
-				expect( ajax_stub ).toHaveBeenCalledWithMatch {url: collectionA.makeUrl("GET")}
-				expect( ajax_stub ).toHaveBeenCalledWithMatch {data: ""}
-				expect( ajax_stub ).toHaveBeenCalledWithMatch {contentType: "application/json"}
-				expect( ajax_stub ).toHaveBeenCalledWithMatch {cache: false}
-				expect( ajax_stub ).toHaveBeenCalledWithMatch {headers: {}}
-				expect( ajax_stub.firstCall.args[0].success ).toEqual( jasmine.any(Function) )
-				expect( ajax_stub.firstCall.args[0].success.length ).toBe( 3 )
-
-				expect( ajax_stub.firstCall.args[0].error ).toEqual( jasmine.any(Function) )
-				expect( ajax_stub.firstCall.args[0].error.length ).toBe( 1 )
-
-				expect( ajax_stub.firstCall.args[0].complete ).toEqual( jasmine.any(Function) )
-				expect( ajax_stub.firstCall.args[0].complete.length ).toBe( 2 )
-			#END it
-
-			it "Should fetch properly with options", ->
-				Falcon.adapter.cache = true
-				collectionA.fetch
-					url: "http://www.falconjs.com"
-					data: {"hello": "world"}
-					contentType: "text/html"
-					headers: {"User-Agent", "Chrome"}
-					success: ( _success = -> )
-					error: ( _error = -> )
-					complete: ( _complete = -> )
-				#END fetch
-
-				expect( ajax_stub ).toHaveBeenCalledOnce()
-				expect( ajax_stub ).toHaveBeenCalledWithMatch {type: "GET"}
-				expect( ajax_stub ).toHaveBeenCalledWithMatch {url: "http://www.falconjs.com"}
-				expect( ajax_stub ).toHaveBeenCalledWithMatch {data: JSON.stringify("hello": "world")}
-				expect( ajax_stub ).toHaveBeenCalledWithMatch {contentType: "text/html"}
-				expect( ajax_stub ).toHaveBeenCalledWithMatch {cache: true}
-				expect( ajax_stub ).toHaveBeenCalledWithMatch {headers: {"User-Agent", "Chrome"}}
-				
-				expect( ajax_stub.firstCall.args[0].success ).toEqual( jasmine.any(Function) )
-				expect( ajax_stub.firstCall.args[0].success.length ).toBe( 3 )
-				expect( ajax_stub.firstCall.args[0].success ).not.toBe(_success)
-
-				expect( ajax_stub.firstCall.args[0].error ).toEqual( jasmine.any(Function) )
-				expect( ajax_stub.firstCall.args[0].error.length ).toBe( 1 )
-				expect( ajax_stub.firstCall.args[0].error ).not.toBe(_error)
-
-				expect( ajax_stub.firstCall.args[0].complete ).toEqual( jasmine.any(Function) )
-				expect( ajax_stub.firstCall.args[0].complete.length ).toBe( 2 )
-				expect( ajax_stub.firstCall.args[0].complete ).not.toBe(_complete)
-			#END it
-		#END describe
-
-		describe "Testing sync method XHR responses", ->
-			server = null
-			collectionA = null
-
-			parse_stub = null
-			fill_stub = null
-
-			fetch_spy = null
-			create_spy = null
-			save_spy = null
-			destroy_spy = null
-
-			success_spy = null
-			error_spy = null
-			complete_spy = null
-
-			data = null
-			error_data = null
-			success_data = null
-
-			options = null
-
-			beforeEach ->
-				server = sinon.fakeServer.create()
-
-				collectionA = new CollectionA
-				data = {'list': [{"foo": "bar", id: 1}, {"foo": "bar2", id: 2}] }
-				error_data = {"error": "Something Wrong"}
-				success_data = [{"foo": "bar", id: 1}, {"foo": "bar2", id: 2}]
-				parse_stub = sinon.stub(collectionA, "parse").returns( success_data )
-				fill_stub = sinon.stub(collectionA, "fill")
-
-				collectionA.on "fetch", ( fetch_spy = sinon.spy() )
-
-				options = {
-					success: ( success_spy = sinon.spy() )
-					error: ( error_spy = sinon.spy() )
-					complete: ( complete_spy = sinon.spy() )
-				}
-			#END beforeEach
-
-			afterEach ->
-				server.restore()
-			#END afterEach
-
-			it "Should call the proper success method", ->
-				collectionA.fetch( options )
-
-				server.respondWith [ 200, {}, JSON.stringify(data) ]
-				server.respond()
-
-				expect( parse_stub.callCount ).toBe( 1 )
-				expect( parse_stub.firstCall.args[0] ).toEqual data
-
-				expect( fill_stub.callCount ).toBe( 1 )
-				expect( fill_stub.firstCall.args[0] ).toEqual success_data
-				expect( fill_stub ).toHaveBeenCalledAfter( parse_stub )
-
-				expect( fetch_spy ).toHaveBeenCalledOnce()
-				expect( fetch_spy ).toHaveBeenCalledAfter( fill_stub )
-
-				expect( success_spy.callCount ).toBe( 1 )
-				expect( success_spy ).toHaveBeenCalledOn( collectionA )
-				expect( success_spy.firstCall.args.length ).toBe( 3 )
-				expect( success_spy.firstCall.args[0] ).toBe( collectionA )
-
-				expect( error_spy ).not.toHaveBeenCalled()
-
-				expect( complete_spy.callCount ).toBe( 1 )
-				expect( complete_spy ).toHaveBeenCalledOn( collectionA )
-				expect( complete_spy.firstCall.args.length ).toBe( 3 )
-				expect( complete_spy.firstCall.args[0] ).toBe( collectionA )
-				expect( complete_spy ).toHaveBeenCalledAfter( success_spy )
-			#END it
-
-			it "Should call the error response on an errornous result", ->
-				collectionA.fetch( options )
-
-				server.respondWith [ 400, {}, JSON.stringify(error_data) ]
-				server.respond()
-
-				expect( parse_stub.callCount ).toBe( 0 )
-				expect( fill_stub.callCount ).toBe( 0 )
-
-				expect( fetch_spy ).not.toHaveBeenCalled()
-
-				expect( success_spy.callCount ).toBe( 0 )
-
-				expect( error_spy.callCount ).toBe( 1 )
-				expect( error_spy.firstCall.args.length ).toBe( 3 )
-				expect( error_spy ).toHaveBeenCalledOn( collectionA )
-				expect( complete_spy.firstCall.args[0] ).toBe( collectionA )
-
-				expect( complete_spy.callCount ).toBe( 1 )
-				expect( complete_spy ).toHaveBeenCalledOn( collectionA )
-				expect( complete_spy.firstCall.args.length ).toBe( 3 )
-				expect( complete_spy.firstCall.args[0] ).toBe( collectionA )
-				expect( complete_spy ).toHaveBeenCalledAfter( error_spy )
-			#END it
-		#END describe
-
-		describe "Testing sync method options in depth", ->
-			ajax_stub = null
-
-			beforeEach ->
-				ajax_stub = sinon.stub(jQuery, "ajax")
-				Falcon.adapter.cache = false
-			#END beforeEach
-
-			afterEach ->
-				ajax_stub.restore()
-			#END afterEach
-
-			it "Should fetch properly without options", ->
-				collectionA.sync('GET')
-
-				expect( ajax_stub ).toHaveBeenCalledOnce()
-				expect( ajax_stub ).toHaveBeenCalledWithMatch {type: "GET"}
-				expect( ajax_stub ).toHaveBeenCalledWithMatch {url: collectionA.makeUrl("GET")}
-				expect( ajax_stub ).toHaveBeenCalledWithMatch {data: ""}
-				expect( ajax_stub ).toHaveBeenCalledWithMatch {contentType: "application/json"}
-				expect( ajax_stub ).toHaveBeenCalledWithMatch {cache: false}
-				expect( ajax_stub ).toHaveBeenCalledWithMatch {headers: {}}
-				expect( ajax_stub.firstCall.args[0].success ).toEqual( jasmine.any(Function) )
-				expect( ajax_stub.firstCall.args[0].success.length ).toBe( 3 )
-
-				expect( ajax_stub.firstCall.args[0].error ).toEqual( jasmine.any(Function) )
-				expect( ajax_stub.firstCall.args[0].error.length ).toBe( 1 )
-
-				expect( ajax_stub.firstCall.args[0].complete ).toEqual( jasmine.any(Function) )
-				expect( ajax_stub.firstCall.args[0].complete.length ).toBe( 2 )
-			#END it
-
-			it "Should allow for a specified parent to override", ->
-				collectionA.parent = new ModelB(id: 'b')
-				collectionA.sync 'GET',
-					parent: (model_b = new ModelB(id: 'b2'))
-				#END sync
-
-				expect( ajax_stub ).toHaveBeenCalledWithMatch {url: collectionA.makeUrl("GET", model_b)}
-			#END it
-
-			it "Should allow for a specified parent to override", ->
-				collectionA.parent = new ModelB(id: 'b')
-				collectionA.sync 'GET',
-					parent: null
-				#END sync
-
-				expect( ajax_stub ).toHaveBeenCalledWithMatch {url: collectionA.makeUrl("GET", null)}
-			#END it
-		#END describe
-
-		describe "Additional miscellaneous sync tests", ->
-			server = null
-
-			beforeEach ->
-				server = sinon.fakeServer.create()
-				Falcon.adapter.cache = false
-			#END beforeEach
-
-			afterEach ->
-				server.restore()
-			#END afterEach
-
-			it "Should allow for a third parameter to define the context", ->
-				collectionB = new CollectionB
-				collectionA = new CollectionA
-				collectionA.sync("GET", ( success_spy = sinon.spy() ), collectionB)
-
-				server.respondWith [ 200, {}, JSON.stringify(collectionA.serialize()) ]
-				server.respond()
-
-				expect( success_spy ).toHaveBeenCalled
-				expect( success_spy ).toHaveBeenCalledOn( collectionB )
-			#END it
-
-			it "Should pass context from fetch to sync", ->
-				collectionB = new CollectionB
-				collectionA = new CollectionA
-
-				sync_stub = sinon.stub( collectionA, "sync" )
-				collectionA.fetch( ( success_spy = sinon.spy() ), collectionB )
-
-				expect( sync_stub ).toHaveBeenCalled
-				expect( sync_stub.firstCall.args[1] ).toBe( success_spy )
-				expect( sync_stub.firstCall.args[2] ).toBe( collectionB )
+				expect( Falcon.adapter.sync.calls.count() ).toBe( 1 )
+				expect( Falcon.adapter.sync ).toHaveBeenCalledWith(collection, type, options, context)
 			#END it
 		#END describe
 	#END describe
@@ -1551,78 +1314,100 @@ describe "Falcon.Collection", ->
 	# Test the create() method
 	#
 	#--------------------------------------------------------------
-	describe "Test the create method", ->
-		collectionA = null
-		modelB = null
-		modelA = null
-		options = null
-		server = null
-		data = null
-		success_spy = null
+	describe "create", ->
+		model = new ModelA
+		options =
+			success: jasmine.createSpy("Success Spy")
+		#END options
+		context = new ModelA
+		collection = new CollectionA
+		collection.parent = new ModelB
+		success = null
 
 		beforeEach ->
-			server = sinon.fakeServer.create()
-			data = {id: 2}
-			modelB = new ModelB(id: 'b')
-			collectionA = new CollectionA([{id: 1}], modelB)
-			modelA = new ModelA(data, collectionA.parent)
+			spyOn( model, 'create' )
+			spyOn( collection, 'fill' )
+			spyOn( Falcon.adapter, 'standardizeOptions').and.callThrough()
 
-			options =
-				success: ( success_spy = sinon.spy() )
-			#END options
+			options.success.calls.reset()
 		#END beforeEach
 
-		afterEach ->
-			server.restore()
-		#END afterEach
+		it "Should return null if no model is set in the collection", ->
+			collection.model = null
 
-		it "Should attempt to initialize and create a new model", ->
-			collectionB = new CollectionB
-			initialize_stub = sinon.stub( ModelA::, "initialize")
-			create_stub = sinon.stub( ModelA::, "create")
+			expect( collection.create(model, options, context) ).toBeNull()
 
-			expect( initialize_stub ).not.toHaveBeenCalled()
-			expect( create_stub ).not.toHaveBeenCalled()
+			expect( model.create ).not.toHaveBeenCalled()
+			expect( collection.fill ).not.toHaveBeenCalled()
+			expect( options.success ).not.toHaveBeenCalled()
+			expect( Falcon.adapter.standardizeOptions ).not.toHaveBeenCalled()
 
-			collectionA.create(data = {id: 2}, options, collectionB)
-
-			expect( initialize_stub ).toHaveBeenCalledOnce()
-			expect( initialize_stub ).toHaveBeenCalledWith( data )
-
-			expect( create_stub ).toHaveBeenCalledOnce()
-			expect( create_stub ).toHaveBeenCalledAfter( initialize_stub )
-			expect( create_stub.firstCall.args.length ).toBe( 2 )
-			expect( create_stub.firstCall.args[0] ).toBe( options )
-			expect( create_stub.firstCall.args[0].success ).toEqual( jasmine.any(Function) )
-			expect( create_stub.firstCall.args[0].method ).toBe( 'append' )
-			expect( create_stub.firstCall.args[1] ).toBe( collectionB )
-
-			initialize_stub.restore()
-			create_stub.restore()
+			collection.model = ModelA
 		#END it
 
-		it "Should respond correctly from the server", ->
-			fill_stub = sinon.stub(collectionA, "fill").returns([])
-			collectionA.create(data, options)
+		it "Should call the model create method", ->
+			collection.create(model, options, context)
 
-			expect( collectionA.length() ).toBe( 1 )
+			expect( Falcon.adapter.standardizeOptions.calls.count() ).toBe( 1 )
+			expect( Falcon.adapter.standardizeOptions ).toHaveBeenCalledWith(model, 'POST', options, context)
 
-			server.respondWith [ 200, {}, JSON.stringify(data) ]
-			server.respond()
+			expect( model.create.calls.count() ).toBe( 1 )
+			expect( model.create ).toHaveBeenCalledWith(jasmine.any(Object), context)
 
-			expect( fill_stub ).toHaveBeenCalledOnce()
-			expect( fill_stub.firstCall.args.length ).toBe( 2 )
-			expect( fill_stub.firstCall.args[0] ).toEqual( jasmine.any(Falcon.Model) )
-			expect( fill_stub.firstCall.args[1] ).toBe( options )
+			expect( collection.fill ).not.toHaveBeenCalled()
+			expect( options.success ).not.toHaveBeenCalled()
 
-			new_model = fill_stub.firstCall.args[0]
+			output_options = model.create.calls.mostRecent().args[0]
 
-			expect( success_spy.callCount ).toBe( 1 )
-			expect( success_spy ).toHaveBeenCalledAfter( fill_stub )
-			expect( success_spy ).toHaveBeenCalledOn( new_model )
-			expect( success_spy.firstCall.args[0] ).toBe( new_model )
+			expect( output_options ).not.toBe( options )
 
-			fill_stub.restore()
+			{success} = output_options
+			expect( success ).not.toBe( options.success )
+		#END it
+
+		it "Should call the proper routines in the success method", ->
+			success(model)
+
+			expect( model.create ).not.toHaveBeenCalled()
+			expect( Falcon.adapter.standardizeOptions ).not.toHaveBeenCalled()
+
+			expect( collection.fill.calls.count() ).toBe( 1 )
+			expect( collection.fill ).toHaveBeenCalledWith( model, jasmine.any(Object) )
+
+			expect( options.success.calls.count() ).toBe( 1 )
+			expect( options.success ).toHaveBeenCalledWith( model )
+			expect( options.success.calls.mostRecent().object ).toBe( context )
+		#END it
+
+		it "Should generate a model if raw data is passed in", ->
+			spyOn( ModelA::, 'initialize')
+			spyOn( ModelA::, 'create')
+			data = {}
+			collection.create(data, options, context)
+
+			expect( ModelA::initialize.calls.count() ).toBe( 1 )
+			expect( ModelA::initialize ).toHaveBeenCalledWith(data)
+
+			model = ModelA::initialize.calls.mostRecent().object
+
+			expect( Falcon.adapter.standardizeOptions.calls.count() ).toBe( 1 )
+			expect( Falcon.adapter.standardizeOptions ).toHaveBeenCalledWith( model, 'POST', options, context )
+
+			expect( model.create.calls.count() ).toBe( 1 )
+			expect( model.create ).toHaveBeenCalledWith(jasmine.any(Object), context)
+
+			expect( collection.fill ).not.toHaveBeenCalled()
+			expect( options.success ).not.toHaveBeenCalled()
+		#END it
+
+		it "Should set up the correct context if none is given", ->
+			collection.create(model, options)
+
+			expect( Falcon.adapter.standardizeOptions.calls.count() ).toBe( 1 )
+			expect( Falcon.adapter.standardizeOptions ).toHaveBeenCalledWith(model, 'POST', options, model)
+
+			expect( model.create.calls.count() ).toBe( 1 )
+			expect( model.create ).toHaveBeenCalledWith(jasmine.any(Object), model)
 		#END it
 	#END describe
 
@@ -1632,79 +1417,103 @@ describe "Falcon.Collection", ->
 	# Test the destroy() method
 	#
 	#--------------------------------------------------------------
-	describe "Test the detroy method", ->
-		collectionA = collectionB = null
-		model_a1 = model_a2 = null
-		options = null
-		success_spy = null
+	describe "destroy", ->
+		model_1 = new ModelA(id: 1)
+		model_2 = new ModelA(id: 2)
+		model_3 = new ModelA(id: 3)
+		model_4 = new ModelA(id: 4)
+		collection = new CollectionA([model_1, model_2, model_4])
+		context = new ModelA
+
+		options =
+			success: jasmine.createSpy("Success Spy")
+		#END options
+
+		success = null
 
 		beforeEach ->
-			model_a1 = new ModelA(id: 1)
-			model_a2 = new ModelA(id: 2)
-			collectionA = new CollectionA([model_a1, model_a2])
-			collectionB = new CollectionB
+			spyOn( model_1, 'destroy' )
+			spyOn( model_2, 'destroy' )
+			spyOn( model_3, 'destroy' )
+			spyOn( model_4, 'destroy' )
 
-			options =
-				success: ( success_spy = sinon.spy() )
-			#END options
+			spyOn( collection, 'remove' )
+
+			spyOn( Falcon.adapter, 'standardizeOptions').and.callThrough()
+			options.success.calls.reset()
 		#END beforeEach
 
-		it "Should call the destroy method on the model", ->
-			destroy_stub = sinon.stub( model_a1, "destroy" )
+		it "Should return null if a model isn't set on the collection", ->
+			collection.model = null
 
-			expect( destroy_stub ).not.toHaveBeenCalled()
+			expect( collection.destroy(model_1, options, context) ).toBeNull()
+			expect( Falcon.adapter.standardizeOptions ).not.toHaveBeenCalled()
+			expect( model_1.destroy ).not.toHaveBeenCalled()
 
-			collectionA.destroy( model_a1, options, collectionB )
-
-			expect( destroy_stub ).toHaveBeenCalledOnce()
-			expect( destroy_stub ).toHaveBeenCalledWith options, collectionB
-
-			destroy_stub.restore()
+			collection.model = ModelA
 		#END it
 
-		it "Should respond correctly from the server", ->
-			server = sinon.fakeServer.create()
-
-			remove_stub = sinon.stub(collectionA, "remove")
-			collectionA.destroy(model_a1, options)
-
-			server.respondWith [ 200, {}, JSON.stringify({}) ]
-			server.respond()
-
-			expect( remove_stub ).toHaveBeenCalledOnce()
-			expect( remove_stub.firstCall.args.length ).toBe( 1 )
-			expect( remove_stub.firstCall.args[0] ).toEqual( jasmine.any(Falcon.Model) )
-
-			removed_model = remove_stub.firstCall.args[0]
-
-			expect( success_spy.callCount ).toBe( 1 )
-			expect( success_spy ).toHaveBeenCalledAfter( remove_stub )
-			expect( success_spy ).toHaveBeenCalledOn( removed_model )
-			expect( success_spy.firstCall.args[0] ).toBe( removed_model )
-
-			remove_stub.restore()
-			server.restore()
+		it "Should return null if a model that doesnt exist in the collection is given", ->
+			expect( collection.destroy(model_3, options, context) ).toBeNull()
+			expect( Falcon.adapter.standardizeOptions ).not.toHaveBeenCalled()
+			expect( model_1.destroy ).not.toHaveBeenCalled()
 		#END it
 
-		it "Should destroy using the overriden parent", ->
-			model_b = new ModelB(id: 'b')
-			collectionA2 = new CollectionA([model_a1, model_a2], model_b)
-			server = sinon.fakeServer.create()
+		it "Should call the correct method when removing a model that exists in the collection", ->
+			collection.destroy(model_1, options, context)
 
-			ajax_spy = sinon.spy($, "ajax")
-			collectionA2.destroy(model_a1, {parent: null})
+			expect( Falcon.adapter.standardizeOptions.calls.count() ).toBe( 1 )
+			expect( Falcon.adapter.standardizeOptions ).toHaveBeenCalledWith(model_1, 'DELETE', options, context)
 
-			server.respondWith [ 200, {}, JSON.stringify({}) ]
-			server.respond()
+			expect( model_1.destroy.calls.count() ).toBe( 1 )
+			expect( model_1.destroy ).toHaveBeenCalledWith(jasmine.any(Object), context)
 
-			ajax_spy.restore()
-			server.restore()
+			expect( collection.remove ).not.toHaveBeenCalled()
+			expect( options.success ).not.toHaveBeenCalled()
 
-			expect( ajax_spy ).toHaveBeenCalled
-			expect( ajax_spy.callCount ).toBe( 1 )
-			ajax_args = ajax_spy.firstCall.args[0]
-			expect( ajax_args['type'] ).toBe(( "DELETE" ) )
-			expect( ajax_args['url'] ).toBe(( model_a1.makeUrl("DELETE", null) ) )
+			output_options = model_1.destroy.calls.mostRecent().args[0]
+
+			expect( output_options ).not.toBe( options )
+
+			{success} = output_options
+			expect( success ).not.toBe( options.success )
+		#END it
+
+		it "Should call the proper routines in the success method", ->
+			success(model_1)
+
+			expect( model_1.destroy ).not.toHaveBeenCalled()
+			expect( Falcon.adapter.standardizeOptions ).not.toHaveBeenCalled()
+
+			expect( collection.remove.calls.count() ).toBe( 1 )
+			expect( collection.remove ).toHaveBeenCalledWith( model_1 )
+
+			expect( options.success.calls.count() ).toBe( 1 )
+			expect( options.success ).toHaveBeenCalledWith( model_1 )
+			expect( options.success.calls.mostRecent().object ).toBe( context )
+		#END it
+
+		it "Should be able to remove a model based on id", ->
+			collection.destroy(2, options, context)
+
+			expect( Falcon.adapter.standardizeOptions.calls.count() ).toBe( 1 )
+			expect( Falcon.adapter.standardizeOptions ).toHaveBeenCalledWith(model_2, 'DELETE', options, context)
+
+			expect( model_2.destroy.calls.count() ).toBe( 1 )
+			expect( model_2.destroy ).toHaveBeenCalledWith(jasmine.any(Object), context)
+
+			expect( collection.remove ).not.toHaveBeenCalled()
+			expect( options.success ).not.toHaveBeenCalled()
+		#END it
+
+		it "Should set up the correct context if none is given", ->
+			collection.destroy(model_4, options)
+
+			expect( Falcon.adapter.standardizeOptions.calls.count() ).toBe( 1 )
+			expect( Falcon.adapter.standardizeOptions ).toHaveBeenCalledWith(model_4, 'DELETE', options, model_4)
+
+			expect( model_4.destroy.calls.count() ).toBe( 1 )
+			expect( model_4.destroy ).toHaveBeenCalledWith(jasmine.any(Object), model_4)
 		#END it
 	#END describe
 

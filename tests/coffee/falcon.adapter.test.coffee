@@ -85,6 +85,27 @@ describe "Falcon.Adapter", ->
 			expect( adapter.serializeData ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
 		#END it
 
+		it "Should present standard options if nothing is passed in for a collection", ->
+			collection_data_object = new Falcon.Collection(parent)
+			ret = adapter.standardizeOptions(collection_data_object, type, null, context)
+			expect( ret ).toEqual
+				'success': jasmine.any(Function)
+				'complete': jasmine.any(Function)
+				'error': jasmine.any(Function)
+				'parent': data_object.parent
+				'url': jasmine.any(String)
+				'data': undefined
+				'attributes': null
+				'method': 'append'
+			#END toEqual
+
+			expect( adapter.makeUrl.calls.count() ).toBe( 1 )
+			expect( adapter.makeUrl ).toHaveBeenCalledWith( collection_data_object, type, jasmine.any(Object), context )
+
+			expect( adapter.serializeData.calls.count() ).toBe( 1 )
+			expect( adapter.serializeData ).toHaveBeenCalledWith( collection_data_object, type, jasmine.any(Object), context )
+		#END it
+
 		it "Should maintain options that are passed in", ->
 			success = (->)
 			complete = (->)

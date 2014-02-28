@@ -134,8 +134,6 @@ class Falcon.View extends Falcon.Object
 		else
 			Falcon.adapter.getTemplate( @, url, _loaded )
 		#END if
-
-		return @
 	#END constructor
 
 	#--------------------------------------------------------
