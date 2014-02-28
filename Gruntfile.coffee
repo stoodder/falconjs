@@ -18,7 +18,7 @@ module.exports = (grunt) ->
 	grunt.loadNpmTasks('grunt-contrib-jasmine')
 	grunt.loadNpmTasks('grunt-contrib-watch')
 
-	grunt.registerTask('test', ['coffee:test', 'jasmine:dist'])
+	grunt.registerTask('test', ['coffee:test', 'jasmine'])
 	grunt.registerTask('default', [
 		'coffee:banner'
 		'update_banner'
@@ -114,6 +114,7 @@ module.exports = (grunt) ->
 						"tests/coffee/falcon.view.test.coffee"
 						"tests/coffee/falcon.ko.bindings.test.coffee"
 					]
+					"tests/scripts/adapters/jquery_adapter.test.js": ["tests/coffee/adapters/jquery_adapter.test.coffee"]
 				#END files
 			#END coffee:test
 		#END coffee
@@ -151,6 +152,23 @@ module.exports = (grunt) ->
 					specs: 'tests/scripts/tests.js'
 				#END options
 			#END jasmine:dist
+
+			'adapters':
+				src: [
+					'adapters/falcon.jquery_adapter.min.js'
+				]
+				options:
+					vendor: [
+						'tests/scripts/sinon-1.7.3.js'
+						'tests/scripts/jasmine2.0.0-sinon.js'
+						'tests/scripts/jquery-1.10.2.min.js'
+						'tests/scripts/knockout-3.0.0.min.js'
+						'tests/scripts/falcon.min.js'
+					]
+					specs: [
+						'tests/scripts/adapters/jquery_adapter.test.js'
+					]
+				#END options
 		#END jasmine
 
 		'copy':

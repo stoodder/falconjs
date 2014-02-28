@@ -613,7 +613,7 @@
     Adapter.prototype.sync = function(data_object, type, options, context) {
       var is_valid;
       if (!Falcon.isDataObject(data_object)) {
-        throw new Error("Expected data_object to be a Model or Collection in sync");
+        throw new Error("Expected data_object to be a Model or Collection");
       }
       is_valid = false;
       type = this.resolveRequestType(data_object, type, options, context);

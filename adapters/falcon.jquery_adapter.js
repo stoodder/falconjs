@@ -1,5 +1,5 @@
 (function() {
-  var isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, jQueryAdapter, _ref,
+  var isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -57,7 +57,7 @@
     };
   }
 
-  jQueryAdapter = (function(_super) {
+  this.jQueryAdapter = (function(_super) {
     __extends(jQueryAdapter, _super);
 
     function jQueryAdapter() {
@@ -68,7 +68,7 @@
     jQueryAdapter.prototype.cache = false;
 
     jQueryAdapter.prototype.standardizeOptions = function(data_object, type, options, context) {
-      var output_options;
+      var output_options, _ref1;
       output_options = jQueryAdapter.__super__.standardizeOptions.call(this, data_object, type, options, context);
       if (!isString(output_options.dataType)) {
         output_options.dataType = "json";
@@ -82,7 +82,7 @@
       if (!isObject(output_options.headers)) {
         output_options.headers = {};
       }
-      output_options.cache = this.cache;
+      output_options.cache = (_ref1 = output_options.cache) != null ? _ref1 : this.cache;
       return output_options;
     };
 
@@ -90,9 +90,7 @@
       var key, url, value;
       url = jQueryAdapter.__super__.makeUrl.call(this, data_object, type, options, context);
       if (!isEmpty(options.params)) {
-        if (!(url.indexOf("?") > -1)) {
-          url += "?";
-        }
+        url += url.indexOf("?") > -1 ? "&" : "?";
         url += ((function() {
           var _ref1, _results;
           _ref1 = options.params;
@@ -122,8 +120,10 @@
       if (isString(data)) {
         data = JSON.parse(data);
       }
-      if ((data == null) && isString(xhr.responseText)) {
-        data = JSON.parse(xhr.responseText);
+      if (isString(xhr != null ? xhr.responseText : void 0)) {
+        if (data == null) {
+          data = JSON.parse(xhr.responseText);
+        }
       }
       if (data == null) {
         data = Falcon.isModel(data_object) ? {} : [];
