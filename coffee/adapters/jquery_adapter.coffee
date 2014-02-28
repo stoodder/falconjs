@@ -137,8 +137,8 @@ class @jQueryAdapter extends Falcon.Adapter
 
 			'success': (data, status, xhr) =>
 				@successResponseHandler( data_object, type, options, context, {
-					'data': data,
-					'status': status,
+					'data': data
+					'status': status
 					'xhr': xhr
 				})
 			#END success
@@ -151,7 +151,7 @@ class @jQueryAdapter extends Falcon.Adapter
 
 			'complete': (xhr, status) =>
 				@completeResponseHandler( data_object, type, options, context, {
-					'status': status,
+					'status': status
 					'xhr': xhr
 				})
 			#END complete

@@ -552,11 +552,11 @@
       if (!(Falcon.isModel(output_options.parent) || output_options.parent === null)) {
         output_options.parent = data_object.parent;
       }
-      if (!isArray(output_options.attributes)) {
+      if (!(isArray(output_options.attributes) || isObject(output_options.attributes))) {
         output_options.attributes = null;
       }
-      if (!isString(output_options.method) && Falcon.isCollection(data_object)) {
-        output_options.method = 'append';
+      if (!isObject(output_options.fill_options)) {
+        output_options.fill_options = null;
       }
       output_options.url = this.makeUrl(data_object, type, output_options, context);
       output_options.data = this.serializeData(data_object, type, output_options, context);
@@ -584,7 +584,7 @@
       var parsed_data, raw_response_data;
       raw_response_data = this.parseRawResponseData(data_object, type, options, context, response_args);
       parsed_data = data_object.parse(raw_response_data, options);
-      data_object.fill(parsed_data, options);
+      data_object.fill(parsed_data, options.fill_options);
       switch (type) {
         case "GET":
           data_object.trigger("fetch", parsed_data);
@@ -598,19 +598,19 @@
         case "DELETE":
           data_object.trigger("destroy", parsed_data);
       }
-      return options.success.call(context, data_object, raw_response_data, response_args);
+      return options.success.call(context, data_object, raw_response_data, options, response_args);
     };
 
     Adapter.prototype.errorResponseHandler = function(data_object, type, options, context, response_args) {
       var raw_response_data;
       raw_response_data = this.parseRawResponseData(data_object, type, options, context, response_args);
-      return options.error.call(context, data_object, raw_response_data, response_args);
+      return options.error.call(context, data_object, raw_response_data, options, response_args);
     };
 
     Adapter.prototype.completeResponseHandler = function(data_object, type, options, context, response_args) {
       var raw_response_data;
       raw_response_data = this.parseRawResponseData(data_object, type, options, context, response_args);
-      return options.complete.call(context, data_object, raw_response_data, response_args);
+      return options.complete.call(context, data_object, raw_response_data, options, response_args);
     };
 
     Adapter.prototype.sync = function(data_object, type, options, context) {
@@ -1456,8 +1456,10 @@
         context = model;
       }
       output_options = Falcon.adapter.standardizeOptions(model, 'POST', options, context);
-      if (output_options.method == null) {
-        output_options.method = 'append';
+      if (output_options.fill_options == null) {
+        output_options.fill_options = {
+          method: 'append'
+        };
       }
       output_options.success = function(model) {
         _this.fill(model, output_options);

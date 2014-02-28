@@ -76,6 +76,7 @@ describe "Falcon.Adapter", ->
 				'url': jasmine.any(String)
 				'data': undefined
 				'attributes': null
+				'fill_options': null
 			#END toEqual
 
 			expect( adapter.makeUrl.calls.count() ).toBe( 1 )
@@ -83,27 +84,6 @@ describe "Falcon.Adapter", ->
 
 			expect( adapter.serializeData.calls.count() ).toBe( 1 )
 			expect( adapter.serializeData ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
-		#END it
-
-		it "Should present standard options if nothing is passed in for a collection", ->
-			collection_data_object = new Falcon.Collection(parent)
-			ret = adapter.standardizeOptions(collection_data_object, type, null, context)
-			expect( ret ).toEqual
-				'success': jasmine.any(Function)
-				'complete': jasmine.any(Function)
-				'error': jasmine.any(Function)
-				'parent': data_object.parent
-				'url': jasmine.any(String)
-				'data': undefined
-				'attributes': null
-				'method': 'append'
-			#END toEqual
-
-			expect( adapter.makeUrl.calls.count() ).toBe( 1 )
-			expect( adapter.makeUrl ).toHaveBeenCalledWith( collection_data_object, type, jasmine.any(Object), context )
-
-			expect( adapter.serializeData.calls.count() ).toBe( 1 )
-			expect( adapter.serializeData ).toHaveBeenCalledWith( collection_data_object, type, jasmine.any(Object), context )
 		#END it
 
 		it "Should maintain options that are passed in", ->
@@ -114,9 +94,10 @@ describe "Falcon.Adapter", ->
 			attributes = ['id', 'hello']
 			url = 'http://www.google.com'
 			data = {'hello': 'world'}
-			attributes = ['id', 'hell0']
+			attributes = ['id', 'hello']
+			fill_options = {'method': 'append'}
 
-			options = {success, complete, error, parent, attributes, url, data, attributes}
+			options = {success, complete, error, parent, attributes, url, data, attributes, fill_options}
 			#END options
 
 			ret = adapter.standardizeOptions(data_object, type, options, context)
@@ -129,6 +110,7 @@ describe "Falcon.Adapter", ->
 				'url': options.url
 				'data': options.data
 				'attributes': options.attributes
+				'fill_options': fill_options
 			#END toEqual
 
 			expect( adapter.makeUrl.calls.count() ).toBe( 1 )
@@ -141,7 +123,7 @@ describe "Falcon.Adapter", ->
 			expect( ret ).not.toBe( options )
 
 			#Make sure the options haven't changed at all
-			expect( options ).toEqual({success, complete, error, parent, attributes, url, data, attributes})
+			expect( options ).toEqual({success, complete, error, parent, attributes, url, data, attributes, fill_options})
 		#END it
 
 		it "Should assign a function to the complete attribute of the options", ->
@@ -154,6 +136,7 @@ describe "Falcon.Adapter", ->
 				'attributes': null
 				'url': jasmine.any(String)
 				'data': undefined
+				'fill_options': null
 			#END expect
 
 			expect( adapter.makeUrl.calls.count() ).toBe( 1 )
@@ -173,6 +156,7 @@ describe "Falcon.Adapter", ->
 				'attributes': ['id','hello_world','title']
 				'url': jasmine.any(String)
 				'data': undefined
+				'fill_options': null
 			#END expect
 
 			expect( adapter.makeUrl.calls.count() ).toBe( 1 )
@@ -192,6 +176,7 @@ describe "Falcon.Adapter", ->
 				'attributes': options
 				'url': jasmine.any(String)
 				'data': undefined
+				'fill_options': null
 			#END expect
 
 			expect( adapter.makeUrl.calls.count() ).toBe( 1 )
@@ -199,6 +184,36 @@ describe "Falcon.Adapter", ->
 
 			expect( adapter.serializeData.calls.count() ).toBe( 1 )
 			expect( adapter.serializeData ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
+		#END it
+
+		it "Should allow for attributes to be an object", ->
+			attributes = {'id': true, 'model_1': {'id': true}}
+			options = {attributes}
+
+			ret = adapter.standardizeOptions(data_object, type, options, context)
+
+			expect( ret ).toEqual
+				'success': jasmine.any(Function)
+				'complete': jasmine.any(Function)
+				'error': jasmine.any(Function)
+				'parent': data_object.parent
+				'attributes': attributes
+				'url': jasmine.any(String)
+				'data': undefined
+				'fill_options': null
+			#END toEqual
+
+			expect( adapter.makeUrl.calls.count() ).toBe( 1 )
+			expect( adapter.makeUrl ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
+
+			expect( adapter.serializeData.calls.count() ).toBe( 1 )
+			expect( adapter.serializeData ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
+
+			#The return object should not be the same object as the options
+			expect( ret ).not.toBe( options )
+
+			#Make sure the options haven't changed at all
+			expect( options ).toEqual({attributes})
 		#END it
 	#END describe
 
@@ -305,7 +320,8 @@ describe "Falcon.Adapter", ->
 		success = sinon.spy()
 		error = sinon.spy()
 		complete = sinon.spy()
-		options = {success, error, complete}
+		fill_options = {'method': 'merge'}
+		options = {success, error, complete, fill_options}
 
 		parsed_data = {id: 5}
 		raw_response_data = {model: parsed_data}
@@ -334,13 +350,13 @@ describe "Falcon.Adapter", ->
 			expect( data_object.parse ).toHaveBeenCalledWith( raw_response_data, options )
 
 			expect( data_object.fill.calls.count() ).toBe( 1 )
-			expect( data_object.fill ).toHaveBeenCalledWith( parsed_data, options )
+			expect( data_object.fill ).toHaveBeenCalledWith( parsed_data, options.fill_options )
 
 			expect( data_object.trigger.calls.count() ).toBe( 1 )
 			expect( data_object.trigger ).toHaveBeenCalledWith("fetch", parsed_data)
 
 			expect( success.callCount ).toBe( 1 )
-			expect( success ).toHaveBeenCalledWith( data_object, raw_response_data, response_args )
+			expect( success ).toHaveBeenCalledWith( data_object, raw_response_data, options, response_args )
 			expect( success ).toHaveBeenCalledOn( context )
 
 			expect( error ).not.toHaveBeenCalled()
@@ -358,13 +374,13 @@ describe "Falcon.Adapter", ->
 			expect( data_object.parse ).toHaveBeenCalledWith( raw_response_data, options )
 
 			expect( data_object.fill.calls.count() ).toBe( 1 )
-			expect( data_object.fill ).toHaveBeenCalledWith( parsed_data, options )
+			expect( data_object.fill ).toHaveBeenCalledWith( parsed_data, options.fill_options )
 
 			expect( data_object.trigger.calls.count() ).toBe( 1 )
 			expect( data_object.trigger ).toHaveBeenCalledWith("create", parsed_data)
 
 			expect( success.callCount ).toBe( 1 )
-			expect( success ).toHaveBeenCalledWith( data_object, raw_response_data, response_args )
+			expect( success ).toHaveBeenCalledWith( data_object, raw_response_data, options, response_args )
 			expect( success ).toHaveBeenCalledOn( context )
 
 			expect( error ).not.toHaveBeenCalled()
@@ -382,13 +398,13 @@ describe "Falcon.Adapter", ->
 			expect( data_object.parse ).toHaveBeenCalledWith( raw_response_data, options )
 
 			expect( data_object.fill.calls.count() ).toBe( 1 )
-			expect( data_object.fill ).toHaveBeenCalledWith( parsed_data, options )
+			expect( data_object.fill ).toHaveBeenCalledWith( parsed_data, options.fill_options )
 
 			expect( data_object.trigger.calls.count() ).toBe( 1 )
 			expect( data_object.trigger ).toHaveBeenCalledWith("save", parsed_data)
 
 			expect( success.callCount ).toBe( 1 )
-			expect( success ).toHaveBeenCalledWith( data_object, raw_response_data, response_args )
+			expect( success ).toHaveBeenCalledWith( data_object, raw_response_data, options, response_args )
 			expect( success ).toHaveBeenCalledOn( context )
 
 			expect( error ).not.toHaveBeenCalled()
@@ -406,13 +422,13 @@ describe "Falcon.Adapter", ->
 			expect( data_object.parse ).toHaveBeenCalledWith( raw_response_data, options )
 
 			expect( data_object.fill.calls.count() ).toBe( 1 )
-			expect( data_object.fill ).toHaveBeenCalledWith( parsed_data, options )
+			expect( data_object.fill ).toHaveBeenCalledWith( parsed_data, options.fill_options )
 
 			expect( data_object.trigger.calls.count() ).toBe( 1 )
 			expect( data_object.trigger ).toHaveBeenCalledWith("destroy", parsed_data)
 
 			expect( success.callCount ).toBe( 1 )
-			expect( success ).toHaveBeenCalledWith( data_object, raw_response_data, response_args )
+			expect( success ).toHaveBeenCalledWith( data_object, raw_response_data, options, response_args )
 			expect( success ).toHaveBeenCalledOn( context )
 
 			expect( error ).not.toHaveBeenCalled()
@@ -451,7 +467,7 @@ describe "Falcon.Adapter", ->
 			expect( adapter.parseRawResponseData ).toHaveBeenCalledWith( data_object, type, options, context, response_args )
 
 			expect( error.callCount ).toBe( 1 )
-			expect( error ).toHaveBeenCalledWith( data_object, raw_response_data, response_args )
+			expect( error ).toHaveBeenCalledWith( data_object, raw_response_data, options, response_args )
 			expect( error ).toHaveBeenCalledOn( context )
 
 			expect( success ).not.toHaveBeenCalled()
@@ -490,7 +506,7 @@ describe "Falcon.Adapter", ->
 			expect( adapter.parseRawResponseData ).toHaveBeenCalledWith( data_object, type, options, context, response_args )
 			
 			expect( complete.callCount ).toBe( 1 )
-			expect( complete ).toHaveBeenCalledWith( data_object, raw_response_data, response_args )
+			expect( complete ).toHaveBeenCalledWith( data_object, raw_response_data, options, response_args )
 			expect( complete ).toHaveBeenCalledOn( context )
 
 			expect( success ).not.toHaveBeenCalled()

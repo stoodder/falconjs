@@ -40,6 +40,7 @@ describe "jQueryAdapter", ->
 				'url': jasmine.any(String)
 				'attributes': null
 				'parent': data_object.parent
+				'fill_options': null
 
 				#jQuery Adapter specific options
 				'data': ''
@@ -72,6 +73,7 @@ describe "jQueryAdapter", ->
 				'url': jasmine.any(String)
 				'attributes': null
 				'parent': data_object.parent
+				'fill_options': null
 
 				#jQuery Adapter specific options
 				'data': ''
@@ -105,6 +107,7 @@ describe "jQueryAdapter", ->
 				'url': jasmine.any(String)
 				'attributes': null
 				'parent': data_object.parent
+				'fill_options': null
 
 				#jQuery Adapter specific options
 				'data': ''

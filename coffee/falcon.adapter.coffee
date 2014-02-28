@@ -61,6 +61,7 @@ class Falcon.Adapter extends Falcon.Object
 	#	success - Method to call when sync is completed successfully
 	#	error - Method to call when sync is completed erroneously
 	#	attributes - A list of attributes to restrict the data serialization with. Can be null.
+	#	fill_options - The options to pass onto the fill method
 	#	parent - The 'parent' object to make this object's URL with. Can be null.
 	#
 	# Arguments:
@@ -104,8 +105,8 @@ class Falcon.Adapter extends Falcon.Object
 		output_options.complete = (->) unless isFunction(output_options.complete)
 		output_options.error = (->) unless isFunction(output_options.error)
 		output_options.parent = data_object.parent unless Falcon.isModel( output_options.parent ) or output_options.parent is null
-		output_options.attributes = null unless isArray( output_options.attributes )
-		output_options.method = 'append' if not isString( output_options.method ) and Falcon.isCollection( data_object )
+		output_options.attributes = null unless isArray( output_options.attributes ) or isObject( output_options.attributes )
+		output_options.fill_options = null unless isObject( output_options.fill_options )
 
 		output_options.url = @makeUrl( data_object, type, output_options, context )
 		output_options.data = @serializeData( data_object, type, output_options, context )
@@ -223,7 +224,7 @@ class Falcon.Adapter extends Falcon.Object
 	successResponseHandler: ( data_object, type, options, context, response_args ) ->
 		raw_response_data = @parseRawResponseData( data_object, type, options, context, response_args )
 		parsed_data = data_object.parse( raw_response_data, options )
-		data_object.fill(parsed_data, options)
+		data_object.fill(parsed_data, options.fill_options)
 
 		switch type
 			when "GET" then data_object.trigger("fetch", parsed_data)
@@ -232,7 +233,7 @@ class Falcon.Adapter extends Falcon.Object
 			when "DELETE" then data_object.trigger("destroy", parsed_data)
 		#END switch
 
-		options.success.call(context, data_object, raw_response_data, response_args)
+		options.success.call(context, data_object, raw_response_data, options, response_args)
 	#END successResponseHandler
 
 	#------------------------------------------------------------------------
@@ -257,7 +258,7 @@ class Falcon.Adapter extends Falcon.Object
 	#------------------------------------------------------------------------
 	errorResponseHandler: ( data_object, type, options, context, response_args ) ->
 		raw_response_data = @parseRawResponseData( data_object, type, options, context, response_args )
-		options.error.call(context, data_object, raw_response_data, response_args)
+		options.error.call(context, data_object, raw_response_data, options, response_args)
 	#END errorResponseHandler
 
 	#------------------------------------------------------------------------
@@ -282,7 +283,7 @@ class Falcon.Adapter extends Falcon.Object
 	#------------------------------------------------------------------------
 	completeResponseHandler: ( data_object, type, options, context, response_args ) ->
 		raw_response_data = @parseRawResponseData( data_object, type, options, context, response_args )
-		options.complete.call(context, data_object, raw_response_data, response_args)
+		options.complete.call(context, data_object, raw_response_data, options, response_args)
 	#END completeResponseHandler
 
 	#------------------------------------------------------------------------

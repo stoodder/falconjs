@@ -1361,8 +1361,9 @@ describe "Falcon.Collection", ->
 
 			expect( output_options ).not.toBe( options )
 
-			{success} = output_options
+			{success, fill_options} = output_options
 			expect( success ).not.toBe( options.success )
+			expect(fill_options).toEqual({'method': 'append'})
 		#END it
 
 		it "Should call the proper routines in the success method", ->

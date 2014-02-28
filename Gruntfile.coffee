@@ -143,9 +143,9 @@ module.exports = (grunt) ->
 				]
 				options:
 					vendor: [
-						'tests/scripts/sinon-1.7.3.js'
-						'tests/scripts/jasmine2.0.0-sinon.js'
-						'tests/scripts/knockout-3.0.0.min.js'
+						'tests/lib/sinon-1.7.3.js'
+						'tests/lib/jasmine2.0.0-sinon.js'
+						'tests/lib/knockout-3.0.0.min.js'
 					]
 					specs: 'tests/scripts/falcon.tests.js'
 				#END options
@@ -157,10 +157,10 @@ module.exports = (grunt) ->
 				]
 				options:
 					vendor: [
-						'tests/scripts/sinon-1.7.3.js'
-						'tests/scripts/jasmine2.0.0-sinon.js'
-						'tests/scripts/jquery-1.10.2.min.js'
-						'tests/scripts/knockout-3.0.0.min.js'
+						'tests/lib/sinon-1.7.3.js'
+						'tests/lib/jasmine2.0.0-sinon.js'
+						'tests/lib/jquery-1.10.2.min.js'
+						'tests/lib/knockout-3.0.0.min.js'
 						'tests/scripts/falcon.min.js'
 					]
 					specs: [

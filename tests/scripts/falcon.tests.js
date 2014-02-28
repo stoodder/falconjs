@@ -723,34 +723,16 @@
           'parent': data_object.parent,
           'url': jasmine.any(String),
           'data': void 0,
-          'attributes': null
+          'attributes': null,
+          'fill_options': null
         });
         expect(adapter.makeUrl.calls.count()).toBe(1);
         expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(adapter.serializeData.calls.count()).toBe(1);
         return expect(adapter.serializeData).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
       });
-      it("Should present standard options if nothing is passed in for a collection", function() {
-        var collection_data_object, ret;
-        collection_data_object = new Falcon.Collection(parent);
-        ret = adapter.standardizeOptions(collection_data_object, type, null, context);
-        expect(ret).toEqual({
-          'success': jasmine.any(Function),
-          'complete': jasmine.any(Function),
-          'error': jasmine.any(Function),
-          'parent': data_object.parent,
-          'url': jasmine.any(String),
-          'data': void 0,
-          'attributes': null,
-          'method': 'append'
-        });
-        expect(adapter.makeUrl.calls.count()).toBe(1);
-        expect(adapter.makeUrl).toHaveBeenCalledWith(collection_data_object, type, jasmine.any(Object), context);
-        expect(adapter.serializeData.calls.count()).toBe(1);
-        return expect(adapter.serializeData).toHaveBeenCalledWith(collection_data_object, type, jasmine.any(Object), context);
-      });
       it("Should maintain options that are passed in", function() {
-        var attributes, complete, data, error, options, ret, success, url;
+        var attributes, complete, data, error, fill_options, options, ret, success, url;
         success = (function() {});
         complete = (function() {});
         error = (function() {});
@@ -760,7 +742,10 @@
         data = {
           'hello': 'world'
         };
-        attributes = ['id', 'hell0'];
+        attributes = ['id', 'hello'];
+        fill_options = {
+          'method': 'append'
+        };
         options = {
           success: success,
           complete: complete,
@@ -769,7 +754,8 @@
           attributes: attributes,
           url: url,
           data: data,
-          attributes: attributes
+          attributes: attributes,
+          fill_options: fill_options
         };
         ret = adapter.standardizeOptions(data_object, type, options, context);
         expect(ret).toEqual({
@@ -779,7 +765,8 @@
           'parent': null,
           'url': options.url,
           'data': options.data,
-          'attributes': options.attributes
+          'attributes': options.attributes,
+          'fill_options': fill_options
         });
         expect(adapter.makeUrl.calls.count()).toBe(1);
         expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
@@ -794,7 +781,8 @@
           attributes: attributes,
           url: url,
           data: data,
-          attributes: attributes
+          attributes: attributes,
+          fill_options: fill_options
         });
       });
       it("Should assign a function to the complete attribute of the options", function() {
@@ -807,7 +795,8 @@
           'parent': data_object.parent,
           'attributes': null,
           'url': jasmine.any(String),
-          'data': void 0
+          'data': void 0,
+          'fill_options': null
         });
         expect(adapter.makeUrl.calls.count()).toBe(1);
         expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
@@ -824,14 +813,15 @@
           'parent': data_object.parent,
           'attributes': ['id', 'hello_world', 'title'],
           'url': jasmine.any(String),
-          'data': void 0
+          'data': void 0,
+          'fill_options': null
         });
         expect(adapter.makeUrl.calls.count()).toBe(1);
         expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(adapter.serializeData.calls.count()).toBe(1);
         return expect(adapter.serializeData).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
       });
-      return it("Should pass through an array into the attrbutes attribute of the options", function() {
+      it("Should pass through an array into the attrbutes attribute of the options", function() {
         var options;
         options = ['id', 'hello_world', 'title'];
         expect(adapter.standardizeOptions(data_object, type, options, context)).toEqual({
@@ -841,12 +831,44 @@
           'parent': data_object.parent,
           'attributes': options,
           'url': jasmine.any(String),
-          'data': void 0
+          'data': void 0,
+          'fill_options': null
         });
         expect(adapter.makeUrl.calls.count()).toBe(1);
         expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(adapter.serializeData.calls.count()).toBe(1);
         return expect(adapter.serializeData).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+      });
+      return it("Should allow for attributes to be an object", function() {
+        var attributes, options, ret;
+        attributes = {
+          'id': true,
+          'model_1': {
+            'id': true
+          }
+        };
+        options = {
+          attributes: attributes
+        };
+        ret = adapter.standardizeOptions(data_object, type, options, context);
+        expect(ret).toEqual({
+          'success': jasmine.any(Function),
+          'complete': jasmine.any(Function),
+          'error': jasmine.any(Function),
+          'parent': data_object.parent,
+          'attributes': attributes,
+          'url': jasmine.any(String),
+          'data': void 0,
+          'fill_options': null
+        });
+        expect(adapter.makeUrl.calls.count()).toBe(1);
+        expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+        expect(adapter.serializeData.calls.count()).toBe(1);
+        expect(adapter.serializeData).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+        expect(ret).not.toBe(options);
+        return expect(options).toEqual({
+          attributes: attributes
+        });
       });
     });
     describe("makeUrl", function() {
@@ -960,7 +982,7 @@
       });
     });
     describe("successResponseHandler", function() {
-      var adapter, complete, context, data_object, error, options, parent, parsed_data, raw_response_data, response_args, success, type;
+      var adapter, complete, context, data_object, error, fill_options, options, parent, parsed_data, raw_response_data, response_args, success, type;
       adapter = new Falcon.Adapter;
       parent = new Falcon.Model;
       data_object = new Falcon.Model({
@@ -973,10 +995,14 @@
       success = sinon.spy();
       error = sinon.spy();
       complete = sinon.spy();
+      fill_options = {
+        'method': 'merge'
+      };
       options = {
         success: success,
         error: error,
-        complete: complete
+        complete: complete,
+        fill_options: fill_options
       };
       parsed_data = {
         id: 5
@@ -1004,11 +1030,11 @@
         expect(data_object.parse.calls.count()).toBe(1);
         expect(data_object.parse).toHaveBeenCalledWith(raw_response_data, options);
         expect(data_object.fill.calls.count()).toBe(1);
-        expect(data_object.fill).toHaveBeenCalledWith(parsed_data, options);
+        expect(data_object.fill).toHaveBeenCalledWith(parsed_data, options.fill_options);
         expect(data_object.trigger.calls.count()).toBe(1);
         expect(data_object.trigger).toHaveBeenCalledWith("fetch", parsed_data);
         expect(success.callCount).toBe(1);
-        expect(success).toHaveBeenCalledWith(data_object, raw_response_data, response_args);
+        expect(success).toHaveBeenCalledWith(data_object, raw_response_data, options, response_args);
         expect(success).toHaveBeenCalledOn(context);
         expect(error).not.toHaveBeenCalled();
         return expect(complete).not.toHaveBeenCalled();
@@ -1021,11 +1047,11 @@
         expect(data_object.parse.calls.count()).toBe(1);
         expect(data_object.parse).toHaveBeenCalledWith(raw_response_data, options);
         expect(data_object.fill.calls.count()).toBe(1);
-        expect(data_object.fill).toHaveBeenCalledWith(parsed_data, options);
+        expect(data_object.fill).toHaveBeenCalledWith(parsed_data, options.fill_options);
         expect(data_object.trigger.calls.count()).toBe(1);
         expect(data_object.trigger).toHaveBeenCalledWith("create", parsed_data);
         expect(success.callCount).toBe(1);
-        expect(success).toHaveBeenCalledWith(data_object, raw_response_data, response_args);
+        expect(success).toHaveBeenCalledWith(data_object, raw_response_data, options, response_args);
         expect(success).toHaveBeenCalledOn(context);
         expect(error).not.toHaveBeenCalled();
         return expect(complete).not.toHaveBeenCalled();
@@ -1038,11 +1064,11 @@
         expect(data_object.parse.calls.count()).toBe(1);
         expect(data_object.parse).toHaveBeenCalledWith(raw_response_data, options);
         expect(data_object.fill.calls.count()).toBe(1);
-        expect(data_object.fill).toHaveBeenCalledWith(parsed_data, options);
+        expect(data_object.fill).toHaveBeenCalledWith(parsed_data, options.fill_options);
         expect(data_object.trigger.calls.count()).toBe(1);
         expect(data_object.trigger).toHaveBeenCalledWith("save", parsed_data);
         expect(success.callCount).toBe(1);
-        expect(success).toHaveBeenCalledWith(data_object, raw_response_data, response_args);
+        expect(success).toHaveBeenCalledWith(data_object, raw_response_data, options, response_args);
         expect(success).toHaveBeenCalledOn(context);
         expect(error).not.toHaveBeenCalled();
         return expect(complete).not.toHaveBeenCalled();
@@ -1055,11 +1081,11 @@
         expect(data_object.parse.calls.count()).toBe(1);
         expect(data_object.parse).toHaveBeenCalledWith(raw_response_data, options);
         expect(data_object.fill.calls.count()).toBe(1);
-        expect(data_object.fill).toHaveBeenCalledWith(parsed_data, options);
+        expect(data_object.fill).toHaveBeenCalledWith(parsed_data, options.fill_options);
         expect(data_object.trigger.calls.count()).toBe(1);
         expect(data_object.trigger).toHaveBeenCalledWith("destroy", parsed_data);
         expect(success.callCount).toBe(1);
-        expect(success).toHaveBeenCalledWith(data_object, raw_response_data, response_args);
+        expect(success).toHaveBeenCalledWith(data_object, raw_response_data, options, response_args);
         expect(success).toHaveBeenCalledOn(context);
         expect(error).not.toHaveBeenCalled();
         return expect(complete).not.toHaveBeenCalled();
@@ -1104,7 +1130,7 @@
         expect(adapter.parseRawResponseData.calls.count()).toBe(1);
         expect(adapter.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, response_args);
         expect(error.callCount).toBe(1);
-        expect(error).toHaveBeenCalledWith(data_object, raw_response_data, response_args);
+        expect(error).toHaveBeenCalledWith(data_object, raw_response_data, options, response_args);
         expect(error).toHaveBeenCalledOn(context);
         expect(success).not.toHaveBeenCalled();
         return expect(complete).not.toHaveBeenCalled();
@@ -1149,7 +1175,7 @@
         expect(adapter.parseRawResponseData.calls.count()).toBe(1);
         expect(adapter.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, response_args);
         expect(complete.callCount).toBe(1);
-        expect(complete).toHaveBeenCalledWith(data_object, raw_response_data, response_args);
+        expect(complete).toHaveBeenCalledWith(data_object, raw_response_data, options, response_args);
         expect(complete).toHaveBeenCalledOn(context);
         expect(success).not.toHaveBeenCalled();
         return expect(error).not.toHaveBeenCalled();
@@ -4487,7 +4513,7 @@
         return collection.model = ModelA;
       });
       it("Should call the model create method", function() {
-        var output_options;
+        var fill_options, output_options;
         collection.create(model, options, context);
         expect(Falcon.adapter.standardizeOptions.calls.count()).toBe(1);
         expect(Falcon.adapter.standardizeOptions).toHaveBeenCalledWith(model, 'POST', options, context);
@@ -4497,8 +4523,11 @@
         expect(options.success).not.toHaveBeenCalled();
         output_options = model.create.calls.mostRecent().args[0];
         expect(output_options).not.toBe(options);
-        success = output_options.success;
-        return expect(success).not.toBe(options.success);
+        success = output_options.success, fill_options = output_options.fill_options;
+        expect(success).not.toBe(options.success);
+        return expect(fill_options).toEqual({
+          'method': 'append'
+        });
       });
       it("Should call the proper routines in the success method", function() {
         success(model);
