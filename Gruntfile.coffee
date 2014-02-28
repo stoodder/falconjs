@@ -104,7 +104,7 @@ module.exports = (grunt) ->
 
 			'test':
 				files:
-					"tests/scripts/jasmine2.0.0-sinon.js": ["tests/coffee/jasmine2.0.0-sinon.coffee"]
+					"tests/lib/jasmine2.0.0-sinon.js": ["tests/coffee/jasmine2.0.0-sinon.coffee"]
 					"tests/scripts/falcon.tests.js": [
 						"tests/coffee/falcon.test.coffee"
 						"tests/coffee/falcon.object.test.coffee"
