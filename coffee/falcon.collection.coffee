@@ -501,9 +501,7 @@ class Falcon.Collection extends Falcon.Object
 		return null unless Falcon.isModel( model )
 
 		context ?= model
-		console.log( Falcon.adapter.standardizeOptions.calls.count() ) if Falcon.debug
 		output_options = Falcon.adapter.standardizeOptions( model, 'DELETE', options, context )
-		console.log( Falcon.adapter.standardizeOptions.calls.count() ) if Falcon.debug
 		output_options.success = (model) =>
 			@remove(model)
 			options.success.apply(context, arguments) if isFunction( options.success )

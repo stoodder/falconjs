@@ -24,6 +24,7 @@
 * Create Falcon.Event object (includes .off method) to return from Falcon.on and Falcon.trigger
 * Divide fill method into separate methods for each type (reverse rolls)
 * Add setParent method to collections to universally set the parent of all the models in the collection
+* Cleanup/Redo binding tests
 
 Done
 * Convert Build process to Grunt.js

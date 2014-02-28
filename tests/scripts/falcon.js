@@ -1481,13 +1481,7 @@
       if (context == null) {
         context = model;
       }
-      if (Falcon.debug) {
-        console.log(Falcon.adapter.standardizeOptions.calls.count());
-      }
       output_options = Falcon.adapter.standardizeOptions(model, 'DELETE', options, context);
-      if (Falcon.debug) {
-        console.log(Falcon.adapter.standardizeOptions.calls.count());
-      }
       output_options.success = function(model) {
         _this.remove(model);
         if (isFunction(options.success)) {
