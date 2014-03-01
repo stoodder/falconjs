@@ -5415,7 +5415,7 @@
         expect(chain_result.length).toBe(3);
         return expect(chain_result).toEqual([model_a1, model_a3, model_a4]);
       });
-      return it("Should be able to chain a without method and sort method", function() {
+      it("Should be able to chain a without method and sort method", function() {
         var chain_result;
         chain_result = collectionA.chain().without(2).sort(function(a, b) {
           if (a.id > b.id) {
@@ -5429,6 +5429,21 @@
         expect(chain_result).toEqual(jasmine.any(Array));
         expect(chain_result.length).toBe(4);
         return expect(chain_result).toEqual([model_a5, model_a4, model_a3, model_a1]);
+      });
+      return it("Should keep the length up to date", function() {
+        var chain;
+        chain = collectionA.chain();
+        expect(chain.length()).toBe(5);
+        expect(collectionA.length()).toBe(5);
+        chain.slice(0, 3);
+        expect(chain.length()).toBe(3);
+        expect(collectionA.length()).toBe(5);
+        chain.push(new ModelA);
+        expect(chain.length()).toBe(4);
+        expect(collectionA.length()).toBe(5);
+        chain.unshift(new ModelA);
+        expect(chain.length()).toBe(5);
+        return expect(collectionA.length()).toBe(5);
       });
     });
   });

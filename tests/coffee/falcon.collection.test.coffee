@@ -2294,5 +2294,23 @@ describe "Falcon.Collection", ->
 			expect( chain_result.length ).toBe( 4 )
 			expect( chain_result ).toEqual([model_a5, model_a4, model_a3, model_a1])
 		#END it
+
+		it "Should keep the length up to date", ->
+			chain = collectionA.chain()
+			expect( chain.length() ).toBe( 5 )
+			expect( collectionA.length() ).toBe( 5 )
+
+			chain.slice(0,3)
+			expect( chain.length() ).toBe( 3 )
+			expect( collectionA.length() ).toBe( 5 )
+
+			chain.push(new ModelA)
+			expect( chain.length() ).toBe( 4 )
+			expect( collectionA.length() ).toBe( 5 )
+			
+			chain.unshift(new ModelA)
+			expect( chain.length() ).toBe( 5 )
+			expect( collectionA.length() ).toBe( 5 )
+		#END it
 	#END describe
 #END describe

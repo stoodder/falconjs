@@ -140,7 +140,10 @@ class Falcon.Collection extends Falcon.Object
 		[parent, models] = [models, parent] if Falcon.isModel( models ) and isArray( parent )
 
 		@url ?= @model::url if @model?
-		@length = ko.observable(0)
+		@length = ko.computed
+			deferEvaluation: true
+			read: => @models().length
+		#END computed
 		@parent = parent
 
 		@__falcon_collection__mixins__ = []
@@ -314,9 +317,6 @@ class Falcon.Collection extends Falcon.Object
 
 		new_models_list.sort( comparator ) if isFunction( comparator )
 		@models( new_models_list )
-
-		#Update the length
-		@length( new_models_list.length )
 
 		return added_models
 	#END fill
@@ -529,10 +529,6 @@ class Falcon.Collection extends Falcon.Object
 
 		removedItems = if isArray(items) then @models.removeAll(items) else @models.remove(_makeIterator(items))
 
-		unless isEmpty(removedItems)
-			@length( @models().length )
-		#END unless
-
 		return this
 	#END remove
 
@@ -612,7 +608,6 @@ class Falcon.Collection extends Falcon.Object
 	#--------------------------------------------------------
 	shift: ->
 		item = @models.shift()
-		@length( @models().length )
 		return item
 	#END shift
 
@@ -643,7 +638,6 @@ class Falcon.Collection extends Falcon.Object
 	pop: ->
 		@__falcon_collection__change_count__++
 		item = @models.pop()
-		@length( @models().length )
 		return item
 	#END pop
 
@@ -1013,7 +1007,6 @@ class Falcon.Collection extends Falcon.Object
 		else
 			@models = ko.observableArray([])
 		#END unless
-		@length(0)
 		return this
 	#END reset
 #END Falcon.Collection

@@ -17,7 +17,6 @@
 * Add 'set' method to collections (sets all values for a key to each model in the collection)
 * Add support for 'Date' type fields
 * Add support for Falcon.Collection in the without() method (remove all models from the resultant collection that are in the given collection)
-* Fix length() on collection chains
 * Add exec binding
 * add generate binding and Falcon.register for dynamically creating views
 * add listenTo on Falcon.Object
@@ -38,5 +37,6 @@ Done
 * Added base adapter class
 * Added jQuery adapter to handle all ajax handling and removed the rest of the jQuery calls from Falcon
 
-Bugs
+Bugs Fixed
 * Fixed reference overwirtting on colleciton merge method.
+* Fix length() on collection chains

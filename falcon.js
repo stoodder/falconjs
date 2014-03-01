@@ -1221,7 +1221,8 @@
     Collection.prototype.comparator = null;
 
     function Collection(models, parent) {
-      var _ref1, _ref2;
+      var _ref1, _ref2,
+        _this = this;
       Collection.__super__.constructor.apply(this, arguments);
       models = ko.unwrap(models);
       parent = ko.unwrap(parent);
@@ -1236,7 +1237,12 @@
           this.url = this.model.prototype.url;
         }
       }
-      this.length = ko.observable(0);
+      this.length = ko.computed({
+        deferEvaluation: true,
+        read: function() {
+          return _this.models().length;
+        }
+      });
       this.parent = parent;
       this.__falcon_collection__mixins__ = [];
       this.reset();
@@ -1372,7 +1378,6 @@
         new_models_list.sort(comparator);
       }
       this.models(new_models_list);
-      this.length(new_models_list.length);
       return added_models;
     };
 
@@ -1501,9 +1506,6 @@
       }
       this.__falcon_collection__change_count__++;
       removedItems = isArray(items) ? this.models.removeAll(items) : this.models.remove(_makeIterator(items));
-      if (!isEmpty(removedItems)) {
-        this.length(this.models().length);
-      }
       return this;
     };
 
@@ -1541,7 +1543,6 @@
     Collection.prototype.shift = function() {
       var item;
       item = this.models.shift();
-      this.length(this.models().length);
       return item;
     };
 
@@ -1553,7 +1554,6 @@
       var item;
       this.__falcon_collection__change_count__++;
       item = this.models.pop();
-      this.length(this.models().length);
       return item;
     };
 
@@ -1824,7 +1824,6 @@
       } else {
         this.models = ko.observableArray([]);
       }
-      this.length(0);
       return this;
     };
 
