@@ -13,14 +13,11 @@
 ## For The Future
 **v0.10.0**
 * Add 'merge' method to collections
-* Add method support for obervables and defaults (rather than dictionary defintion)
-* Add 'set' method to collections (sets all values for a key to each model in the collection)
-* Add support for 'Date' type fields
+* Add method support for 'obervables' and 'defaults' (rather than dictionary defintion)
 * Add support for Falcon.Collection in the without() method (remove all models from the resultant collection that are in the given collection)
 * Add exec binding
 * add generate binding and Falcon.register for dynamically creating views
 * add listenTo on Falcon.Object
-* Create Falcon.Event object (includes .off method) to return from Falcon.on and Falcon.trigger
 * Divide fill method into separate methods for each type (reverse rolls)
 * Add setParent method to collections to universally set the parent of all the models in the collection
 * Cleanup/Redo binding tests
@@ -36,6 +33,8 @@ Done
 * Removed jQuery for DOM listening/manipulation
 * Added base adapter class
 * Added jQuery adapter to handle all ajax handling and removed the rest of the jQuery calls from Falcon
+* Add 'set' method to collections (sets all values for a key to each model in the collection)
+* Model and Collection constructors will now throw an error if the parent object isn't null/undefined or a model
 
 Bugs Fixed
 * Fixed reference overwirtting on colleciton merge method.

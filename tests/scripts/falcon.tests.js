@@ -1446,8 +1446,8 @@
       Falcon.baseApiUrl = "";
       return Falcon.baseTemplateUrl = "";
     });
-    it("Should initialize correctly", function() {
-      var ModelA, ModelB, data, dataModel, init_stub, model, modelA, modelB, _ref, _ref1;
+    describe("initialize", function() {
+      var ModelA, ModelB, _ref, _ref1;
       ModelA = (function(_super) {
         __extends(ModelA, _super);
 
@@ -1470,43 +1470,76 @@
         return ModelB;
 
       })(Falcon.Model);
-      init_stub = sinon.stub(ModelA.prototype, "initialize");
-      model = new ModelA;
-      expect(init_stub).toHaveBeenCalledOnce();
-      init_stub.reset();
-      modelA = new ModelA(modelB = new ModelB);
-      expect(init_stub).toHaveBeenCalledOnce();
-      expect(modelA.parent).toBe(modelB);
-      init_stub.reset();
-      modelA = new ModelA(data = {
-        "hello": "world"
+      beforeEach(function() {
+        sinonSpyOn(ModelA.prototype, 'initialize');
+        return sinonSpyOn(ModelA.prototype, 'fill');
       });
-      expect(init_stub).toHaveBeenCalledOnce();
-      expect(init_stub).toHaveBeenCalledWith(data);
-      expect(modelA.parent).not.toBeDefined();
-      init_stub.reset();
-      modelA = new ModelA(data = {
-        "hello": "world"
-      }, modelB = new ModelB);
-      expect(init_stub).toHaveBeenCalledOnce();
-      expect(init_stub).toHaveBeenCalledWith(data);
-      expect(modelA.parent).toBe(modelB);
-      init_stub.reset();
-      modelA = new ModelA(modelB = new ModelB, data = {
-        "hello": "world"
+      it("Should call initialize on construction", function() {
+        var model;
+        model = new ModelA;
+        return expect(ModelA.prototype.initialize).toHaveBeenCalledOnce();
       });
-      expect(init_stub).toHaveBeenCalledOnce();
-      expect(init_stub).toHaveBeenCalledWith(data);
-      expect(modelA.parent).toBe(modelB);
-      init_stub.reset();
-      modelA = new ModelA(dataModel = new Falcon.Model({
-        "hello": "world"
-      }), modelB = new ModelB);
-      expect(init_stub).toHaveBeenCalledOnce();
-      expect(init_stub).toHaveBeenCalledWith(dataModel);
-      expect(modelA.parent).toBe(modelB);
-      init_stub.reset();
-      return init_stub.restore();
+      it("Shoudl allow for a parent model", function() {
+        var modelA, modelB;
+        modelA = new ModelA(modelB = new ModelB);
+        expect(ModelA.prototype.initialize).toHaveBeenCalledOnce();
+        expect(ModelA.prototype.fill).not.toHaveBeenCalled();
+        return expect(modelA.parent).toBe(modelB);
+      });
+      it("Should allow for input data", function() {
+        var data, modelA;
+        modelA = new ModelA(data = {
+          "hello": "world"
+        });
+        expect(ModelA.prototype.initialize).toHaveBeenCalledOnce();
+        expect(ModelA.prototype.initialize).toHaveBeenCalledWith(data);
+        expect(ModelA.prototype.fill).toHaveBeenCalledOnce();
+        expect(ModelA.prototype.fill).toHaveBeenCalledWith(data);
+        return expect(modelA.parent).not.toBeDefined();
+      });
+      it("Should allow for input data and a parent model", function() {
+        var data, modelA, modelB;
+        modelA = new ModelA(data = {
+          "hello": "world"
+        }, modelB = new ModelB);
+        expect(ModelA.prototype.initialize).toHaveBeenCalledOnce();
+        expect(ModelA.prototype.initialize).toHaveBeenCalledWith(data);
+        expect(ModelA.prototype.fill).toHaveBeenCalledOnce();
+        expect(ModelA.prototype.fill).toHaveBeenCalledWith(data);
+        return expect(modelA.parent).toBe(modelB);
+      });
+      it("Should allow for the data and parent to be switched", function() {
+        var data, modelA, modelB;
+        modelA = new ModelA(modelB = new ModelB, data = {
+          "hello": "world"
+        });
+        expect(ModelA.prototype.initialize).toHaveBeenCalledOnce();
+        expect(ModelA.prototype.initialize).toHaveBeenCalledWith(data);
+        expect(ModelA.prototype.fill).toHaveBeenCalledOnce();
+        expect(ModelA.prototype.fill).toHaveBeenCalledWith(data);
+        return expect(modelA.parent).toBe(modelB);
+      });
+      it("Should allow for a falcon mode to be the datat object", function() {
+        var dataModel, modelA, modelB;
+        modelA = new ModelA(dataModel = new Falcon.Model({
+          "hello": "world"
+        }), modelB = new ModelB);
+        expect(ModelA.prototype.initialize).toHaveBeenCalledOnce();
+        expect(ModelA.prototype.initialize).toHaveBeenCalledWith(dataModel);
+        expect(ModelA.prototype.fill).toHaveBeenCalledOnce();
+        expect(ModelA.prototype.fill).toHaveBeenCalledWith(dataModel);
+        return expect(modelA.parent).toBe(modelB);
+      });
+      return it("Should throw if a model isn't passed in as the parent", function() {
+        expect(function() {
+          return new modelA(data, {});
+        }).toThrow();
+        expect(function() {
+          return new modelA(data, new Falcon.Collection);
+        }).toThrow();
+        expect(ModelA.prototype.initialize).not.toHaveBeenCalled();
+        return expect(ModelA.prototype.fill).not.toHaveBeenCalled();
+      });
     });
     it("Should create RawrModel with defaults that have correct arguments", function() {
       var RawrModel, hello_spy, input_data, rawr_class, _ref;
@@ -3124,14 +3157,8 @@
       Falcon.baseApiUrl = "";
       return Falcon.baseTemplateUrl = "";
     });
-    it("Should initialize properly", function() {
-      var collectionA, init_stub, modelB, models;
-      init_stub = sinon.stub(CollectionA.prototype, "initialize");
-      collectionA = new CollectionA;
-      expect(init_stub).toHaveBeenCalledOnce();
-      expect(init_stub).toHaveBeenCalledWith();
-      expect(init_stub).toHaveBeenCalledOn(collectionA);
-      init_stub.reset();
+    describe("initialize", function() {
+      var model, models;
       models = [
         {
           "hello": "world"
@@ -3139,54 +3166,77 @@
           "hello": "world2"
         }
       ];
-      collectionA = new CollectionA(models);
-      expect(init_stub).toHaveBeenCalledOnce();
-      expect(init_stub).toHaveBeenCalledWith(models);
-      expect(collectionA.parent).not.toBeDefined();
-      expect(collectionA.length()).toBe(2);
-      init_stub.reset();
-      modelB = new ModelB;
-      collectionA = new CollectionA(models, modelB);
-      expect(init_stub).toHaveBeenCalledOnce();
-      expect(init_stub).toHaveBeenCalledWith(models);
-      expect(collectionA.parent).toBe(modelB);
-      expect(collectionA.length()).toBe(2);
-      init_stub.reset();
-      modelB = new ModelB;
-      collectionA = new CollectionA(modelB, models);
-      expect(init_stub).toHaveBeenCalledOnce();
-      expect(init_stub).toHaveBeenCalledWith(models);
-      expect(collectionA.parent).toBe(modelB);
-      expect(collectionA.length()).toBe(2);
-      init_stub.reset();
-      models = [
-        new ModelA({
-          "hello": "world"
-        }), new ModelA({
-          "hello": "world2"
-        })
-      ];
-      collectionA = new CollectionA(models);
-      expect(init_stub).toHaveBeenCalledOnce();
-      expect(init_stub).toHaveBeenCalledWith(models);
-      expect(collectionA.parent).not.toBeDefined();
-      expect(collectionA.length()).toBe(2);
-      init_stub.reset();
-      modelB = new ModelB;
-      collectionA = new CollectionA(models, modelB);
-      expect(init_stub).toHaveBeenCalledOnce();
-      expect(init_stub).toHaveBeenCalledWith(models);
-      expect(collectionA.parent).toBe(modelB);
-      expect(collectionA.length()).toBe(2);
-      init_stub.reset();
-      modelB = new ModelB;
-      collectionA = new CollectionA(modelB, models);
-      expect(init_stub).toHaveBeenCalledOnce();
-      expect(init_stub).toHaveBeenCalledWith(models);
-      expect(collectionA.parent).toBe(modelB);
-      expect(collectionA.length()).toBe(2);
-      init_stub.reset();
-      return init_stub.restore();
+      model = new ModelB;
+      beforeEach(function() {
+        return sinonSpyOn(CollectionA.prototype, 'initialize');
+      });
+      it("Should initialize properly with an empty collection", function() {
+        var collection;
+        collection = new CollectionA;
+        expect(CollectionA.prototype.initialize).toHaveBeenCalledOnce();
+        expect(CollectionA.prototype.initialize).toHaveBeenCalledWith();
+        return expect(CollectionA.prototype.initialize).toHaveBeenCalledOn(collection);
+      });
+      it("Should initialize properly with an array of objects", function() {
+        var collection;
+        collection = new CollectionA(models);
+        expect(CollectionA.prototype.initialize).toHaveBeenCalledOnce();
+        expect(CollectionA.prototype.initialize).toHaveBeenCalledWith(models);
+        expect(collection.parent).not.toBeDefined();
+        return expect(collection.length()).toBe(2);
+      });
+      it("Should set up the parent correctly", function() {
+        var collection;
+        collection = new CollectionA(models, model);
+        expect(CollectionA.prototype.initialize).toHaveBeenCalledOnce();
+        expect(CollectionA.prototype.initialize).toHaveBeenCalledWith(models);
+        expect(collection.parent).toBe(model);
+        return expect(collection.length()).toBe(2);
+      });
+      it("Should be able to switch the order of the models and parent", function() {
+        var collection;
+        collection = new CollectionA(model, models);
+        expect(CollectionA.prototype.initialize).toHaveBeenCalledOnce();
+        expect(CollectionA.prototype.initialize).toHaveBeenCalledWith(models);
+        expect(collection.parent).toBe(model);
+        return expect(collection.length()).toBe(2);
+      });
+      it("Should be able to accept an array of models", function() {
+        var collection;
+        models = [
+          new ModelA({
+            "hello": "world"
+          }), new ModelA({
+            "hello": "world2"
+          })
+        ];
+        collection = new CollectionA(models);
+        expect(CollectionA.prototype.initialize).toHaveBeenCalledOnce();
+        expect(CollectionA.prototype.initialize).toHaveBeenCalledWith(models);
+        expect(collection.parent).not.toBeDefined();
+        return expect(collection.length()).toBe(2);
+      });
+      it("Should be able to accept an array of models with a parent model", function() {
+        var collection;
+        collection = new CollectionA(models, model);
+        expect(CollectionA.prototype.initialize).toHaveBeenCalledOnce();
+        expect(CollectionA.prototype.initialize).toHaveBeenCalledWith(models);
+        expect(collection.parent).toBe(model);
+        return expect(collection.length()).toBe(2);
+      });
+      it("Should be able to switch the order of an array of models and parent", function() {
+        var collection;
+        collection = new CollectionA(model, models);
+        expect(CollectionA.prototype.initialize).toHaveBeenCalledOnce();
+        expect(CollectionA.prototype.initialize).toHaveBeenCalledWith(models);
+        expect(collection.parent).toBe(model);
+        return expect(collection.length()).toBe(2);
+      });
+      return it("Should throw if the parent isn't a model", function() {
+        return expect(function() {
+          return new CollectionA(models, {});
+        }).toThrow();
+      });
     });
     it("Should create RawrCollection with defaults that have correct arguments", function() {
       var RawrCollection, hello_spy, input_data, rawr_class, _ref12;
@@ -3212,6 +3262,61 @@
       expect(hello_spy.callCount).toBe(1);
       expect(hello_spy.firstCall.args.length).toBe(1);
       return expect(hello_spy.firstCall.args[0]).toBe(input_data);
+    });
+    describe("set", function() {
+      var collection, model_1, model_2, model_3;
+      model_1 = new ModelA({
+        'hello': 'water',
+        'foo': 'baz'
+      });
+      model_2 = new ModelA({
+        'hello': 'earth',
+        'foo': 'zip'
+      });
+      model_3 = new ModelA({
+        'hello': 'mars',
+        'foo': 'zab'
+      });
+      collection = new CollectionA([model_1, model_2, model_3]);
+      beforeEach(function() {
+        spyOn(model_1, 'set');
+        spyOn(model_2, 'set');
+        return spyOn(model_3, 'set');
+      });
+      it("Should update all of the values", function() {
+        var ret;
+        ret = collection.set('hello', 'world');
+        expect(model_1.set.calls.count()).toBe(1);
+        expect(model_1.set).toHaveBeenCalledWith('hello', 'world');
+        expect(model_2.set.calls.count()).toBe(1);
+        expect(model_2.set).toHaveBeenCalledWith('hello', 'world');
+        expect(model_3.set.calls.count()).toBe(1);
+        expect(model_3.set).toHaveBeenCalledWith('hello', 'world');
+        return expect(ret).toBe(collection);
+      });
+      return it("Should be able to set using an object", function() {
+        var ret;
+        ret = collection.set({
+          'hello': 'world :D',
+          'foo': 'bar'
+        });
+        expect(model_1.set.calls.count()).toBe(1);
+        expect(model_1.set).toHaveBeenCalledWith({
+          'hello': 'world :D',
+          'foo': 'bar'
+        }, void 0);
+        expect(model_2.set.calls.count()).toBe(1);
+        expect(model_2.set).toHaveBeenCalledWith({
+          'hello': 'world :D',
+          'foo': 'bar'
+        }, void 0);
+        expect(model_3.set.calls.count()).toBe(1);
+        expect(model_3.set).toHaveBeenCalledWith({
+          'hello': 'world :D',
+          'foo': 'bar'
+        }, void 0);
+        return expect(ret).toBe(collection);
+      });
     });
     describe("Testing the different fill method combinations", function() {
       describe("Test default option", function() {

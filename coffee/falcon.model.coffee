@@ -52,8 +52,12 @@ class Falcon.Model extends Falcon.Object
 		[parent, data] = [data, parent] if parent? and not Falcon.isModel( parent ) and Falcon.isModel( data )
 		[parent, data] = [data, parent] if not parent? and Falcon.isModel( data )
 
+		unless (not parent?) or Falcon.isModel( parent )
+			throw new Error("parent must be null or a Falcon.Model")
+		#END unless
+
 		@parent = parent
-		@initialize(data)
+		@initialize.apply(this, arguments)
 		@fill(data) unless isEmpty( data )
 
 		return this

@@ -138,6 +138,10 @@ class Falcon.Collection extends Falcon.Object
 
 		[parent, models] = [models, parent] if not parent? and Falcon.isModel( models )
 		[parent, models] = [models, parent] if Falcon.isModel( models ) and isArray( parent )
+		
+		unless (not parent?) or Falcon.isModel( parent )
+			throw new Error("parent must be null or a Falcon.Model")
+		#END unless
 
 		@url ?= @model::url if @model?
 		@length = ko.computed
@@ -148,8 +152,10 @@ class Falcon.Collection extends Falcon.Object
 
 		@__falcon_collection__mixins__ = []
 		@reset()
+		@initialize.apply(this, arguments)
 		@fill(models) unless isEmpty( models )
-		@initialize(models)
+
+		return this
 	#END constructor
 
 	#--------------------------------------------------------
@@ -160,8 +166,29 @@ class Falcon.Collection extends Falcon.Object
 	#
 	# Arguments:
 	#	**data** _(Array)_ - The initial models that were loaded
+	#	**parent** _(Falcon.Model)_ - The parent object of this collection
 	#--------------------------------------------------------
-	initialize: ( (models) -> )
+	initialize: ( (models, parent) -> )
+
+	#--------------------------------------------------------
+	# Method: Falcon.Collection#set()
+	#	Sets a value for the specific attribute in each model
+	#	of this collection
+	#
+	# Arguments:
+	#	**attribute** _(string)_ - The attribute to look up
+	#	**value** -(mixed)_ - The value to assign
+	#
+	# Arguments:
+	#	**attribute** _(Object)_ - An object of values to set
+	#
+	# Returns:
+	#	_(Falcon.Collection)_ - This Collection
+	#--------------------------------------------------------
+	set: (attribute, value) ->
+		@each (model) -> model.set(attribute, value)
+		return @
+	#END set
 
 	#--------------------------------------------------------
 	# Method: Falcon.Collection#parse()

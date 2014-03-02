@@ -9,49 +9,73 @@ describe "Falcon.Model", ->
 	# Test the initialize() method
 	#
 	#--------------------------------------------------------------
-	it "Should initialize correctly", ->
+	describe "initialize", ->
 		class ModelA extends Falcon.Model
 		#END class
 
 		class ModelB extends Falcon.Model
 		#END class
 
-		init_stub = sinon.stub( ModelA::, "initialize" )
+		beforeEach ->
+			sinonSpyOn( ModelA::, 'initialize' )
+			sinonSpyOn( ModelA::, 'fill' )
+		#END beforeEach
 
-		model = new ModelA
-		expect( init_stub ).toHaveBeenCalledOnce()
-		init_stub.reset()
+		it "Should call initialize on construction", ->
+			model = new ModelA
+			expect( ModelA::initialize ).toHaveBeenCalledOnce()
+		#END it
 
-		modelA = new ModelA( modelB = new ModelB )
-		expect( init_stub ).toHaveBeenCalledOnce()
-		expect( modelA.parent ).toBe( modelB )
-		init_stub.reset()
+		it "Shoudl allow for a parent model", ->
+			modelA = new ModelA( modelB = new ModelB )
+			expect( ModelA::initialize ).toHaveBeenCalledOnce()
+			expect( ModelA::fill ).not.toHaveBeenCalled()
+			expect( modelA.parent ).toBe( modelB )
+		#END it
 
-		modelA = new ModelA( data = {"hello": "world"} )
-		expect( init_stub ).toHaveBeenCalledOnce()
-		expect( init_stub ).toHaveBeenCalledWith( data )
-		expect( modelA.parent ).not.toBeDefined()
-		init_stub.reset()
+		it "Should allow for input data", ->
+			modelA = new ModelA( data = {"hello": "world"} )
+			expect( ModelA::initialize ).toHaveBeenCalledOnce()
+			expect( ModelA::initialize ).toHaveBeenCalledWith( data )
+			expect( ModelA::fill ).toHaveBeenCalledOnce()
+			expect( ModelA::fill ).toHaveBeenCalledWith( data )
+			expect( modelA.parent ).not.toBeDefined()
+		#END it
 
-		modelA = new ModelA( data = {"hello": "world"}, modelB = new ModelB )
-		expect( init_stub ).toHaveBeenCalledOnce()
-		expect( init_stub ).toHaveBeenCalledWith( data )
-		expect( modelA.parent ).toBe( modelB )
-		init_stub.reset()
+		it "Should allow for input data and a parent model", ->
+			modelA = new ModelA( data = {"hello": "world"}, modelB = new ModelB )
+			expect( ModelA::initialize ).toHaveBeenCalledOnce()
+			expect( ModelA::initialize ).toHaveBeenCalledWith( data )
+			expect( ModelA::fill ).toHaveBeenCalledOnce()
+			expect( ModelA::fill ).toHaveBeenCalledWith( data )
+			expect( modelA.parent ).toBe( modelB )
+		#END it
 
-		modelA = new ModelA( modelB = new ModelB, data = {"hello": "world"} )
-		expect( init_stub ).toHaveBeenCalledOnce()
-		expect( init_stub ).toHaveBeenCalledWith( data )
-		expect( modelA.parent ).toBe( modelB )
-		init_stub.reset()
+		it "Should allow for the data and parent to be switched", ->
+			modelA = new ModelA( modelB = new ModelB, data = {"hello": "world"} )
+			expect( ModelA::initialize ).toHaveBeenCalledOnce()
+			expect( ModelA::initialize ).toHaveBeenCalledWith( data )
+			expect( ModelA::fill ).toHaveBeenCalledOnce()
+			expect( ModelA::fill ).toHaveBeenCalledWith( data )
+			expect( modelA.parent ).toBe( modelB )
+		#END it
 
-		modelA = new ModelA( dataModel = new Falcon.Model({"hello":"world"}), modelB = new ModelB )
-		expect( init_stub ).toHaveBeenCalledOnce()
-		expect( init_stub ).toHaveBeenCalledWith( dataModel )
-		expect( modelA.parent ).toBe( modelB )
-		init_stub.reset()
+		it "Should allow for a falcon mode to be the datat object", ->
+			modelA = new ModelA( dataModel = new Falcon.Model({"hello":"world"}), modelB = new ModelB )
+			expect( ModelA::initialize ).toHaveBeenCalledOnce()
+			expect( ModelA::initialize ).toHaveBeenCalledWith( dataModel )
+			expect( ModelA::fill ).toHaveBeenCalledOnce()
+			expect( ModelA::fill ).toHaveBeenCalledWith( dataModel )
+			expect( modelA.parent ).toBe( modelB )
+		#END it
 
-		init_stub.restore()
+		it "Should throw if a model isn't passed in as the parent", ->
+			expect( -> new modelA(data, {}) ).toThrow()
+			expect( -> new modelA(data, new Falcon.Collection) ).toThrow()
+
+			expect( ModelA::initialize ).not.toHaveBeenCalled()
+			expect( ModelA::fill ).not.toHaveBeenCalled()
+		#END it
 	#END it
 
 	#--------------------------------------------------------------

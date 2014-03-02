@@ -681,8 +681,11 @@
       if ((parent == null) && Falcon.isModel(data)) {
         _ref2 = [data, parent], parent = _ref2[0], data = _ref2[1];
       }
+      if (!((parent == null) || Falcon.isModel(parent))) {
+        throw new Error("parent must be null or a Falcon.Model");
+      }
       this.parent = parent;
-      this.initialize(data);
+      this.initialize.apply(this, arguments);
       if (!isEmpty(data)) {
         this.fill(data);
       }
@@ -1232,6 +1235,9 @@
       if (Falcon.isModel(models) && isArray(parent)) {
         _ref2 = [models, parent], parent = _ref2[0], models = _ref2[1];
       }
+      if (!((parent == null) || Falcon.isModel(parent))) {
+        throw new Error("parent must be null or a Falcon.Model");
+      }
       if (this.model != null) {
         if (this.url == null) {
           this.url = this.model.prototype.url;
@@ -1246,13 +1252,21 @@
       this.parent = parent;
       this.__falcon_collection__mixins__ = [];
       this.reset();
+      this.initialize.apply(this, arguments);
       if (!isEmpty(models)) {
         this.fill(models);
       }
-      this.initialize(models);
+      return this;
     }
 
-    Collection.prototype.initialize = (function(models) {});
+    Collection.prototype.initialize = (function(models, parent) {});
+
+    Collection.prototype.set = function(attribute, value) {
+      this.each(function(model) {
+        return model.set(attribute, value);
+      });
+      return this;
+    };
 
     Collection.prototype.parse = function(data, options, xhr) {
       return data;

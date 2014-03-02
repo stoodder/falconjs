@@ -66,65 +66,74 @@ describe "Falcon.Collection", ->
 	#	TODO: Break this down into multiple 'it' statements
 	#
 	#--------------------------------------------------------------
-	it "Should initialize properly", ->
-		init_stub = sinon.stub(CollectionA::, "initialize")
-
-		collectionA = new CollectionA
-		expect( init_stub ).toHaveBeenCalledOnce()
-		expect( init_stub ).toHaveBeenCalledWith()
-		expect( init_stub ).toHaveBeenCalledOn( collectionA )
-		init_stub.reset()
-
+	describe "initialize", ->
 		models = [{"hello": "world"},{"hello": "world2"}]
-		collectionA = new CollectionA( models )
-		expect( init_stub ).toHaveBeenCalledOnce()
-		expect( init_stub ).toHaveBeenCalledWith( models )
-		expect( collectionA.parent ).not.toBeDefined()
-		expect( collectionA.length() ).toBe( 2 )
-		init_stub.reset()
+		model = new ModelB
 
-		modelB = new ModelB
-		collectionA = new CollectionA( models, modelB )
-		expect( init_stub ).toHaveBeenCalledOnce()
-		expect( init_stub ).toHaveBeenCalledWith( models )
-		expect( collectionA.parent ).toBe( modelB )
-		expect( collectionA.length() ).toBe( 2 )
-		init_stub.reset()
+		beforeEach ->
+			sinonSpyOn( CollectionA::, 'initialize')
+		#END beforeEach
 
-		modelB = new ModelB
-		collectionA = new CollectionA( modelB, models )
-		expect( init_stub ).toHaveBeenCalledOnce()
-		expect( init_stub ).toHaveBeenCalledWith( models )
-		expect( collectionA.parent ).toBe( modelB )
-		expect( collectionA.length() ).toBe( 2 )
-		init_stub.reset()
+		it "Should initialize properly with an empty collection", ->
+			collection = new CollectionA
+			expect( CollectionA::initialize ).toHaveBeenCalledOnce()
+			expect( CollectionA::initialize ).toHaveBeenCalledWith()
+			expect( CollectionA::initialize ).toHaveBeenCalledOn( collection )
+		#END it
 
-		models = [new ModelA({"hello": "world"}), new ModelA({"hello": "world2"}) ]
-		collectionA = new CollectionA( models )
-		expect( init_stub ).toHaveBeenCalledOnce()
-		expect( init_stub ).toHaveBeenCalledWith( models )
-		expect( collectionA.parent ).not.toBeDefined()
-		expect( collectionA.length() ).toBe( 2 )
-		init_stub.reset()
+		it "Should initialize properly with an array of objects", ->
+			collection = new CollectionA( models )
+			expect( CollectionA::initialize ).toHaveBeenCalledOnce()
+			expect( CollectionA::initialize ).toHaveBeenCalledWith( models )
+			expect( collection.parent ).not.toBeDefined()
+			expect( collection.length() ).toBe( 2 )
+		#END it
 
-		modelB = new ModelB
-		collectionA = new CollectionA( models, modelB )
-		expect( init_stub ).toHaveBeenCalledOnce()
-		expect( init_stub ).toHaveBeenCalledWith( models )
-		expect( collectionA.parent ).toBe( modelB )
-		expect( collectionA.length() ).toBe( 2 )
-		init_stub.reset()
+		it "Should set up the parent correctly", ->
+			collection = new CollectionA( models, model )
+			expect( CollectionA::initialize ).toHaveBeenCalledOnce()
+			expect( CollectionA::initialize ).toHaveBeenCalledWith( models )
+			expect( collection.parent ).toBe( model )
+			expect( collection.length() ).toBe( 2 )
+		#END it
 
-		modelB = new ModelB
-		collectionA = new CollectionA( modelB, models )
-		expect( init_stub ).toHaveBeenCalledOnce()
-		expect( init_stub ).toHaveBeenCalledWith( models )
-		expect( collectionA.parent ).toBe( modelB )
-		expect( collectionA.length() ).toBe( 2 )
-		init_stub.reset()
+		it "Should be able to switch the order of the models and parent", ->
+			collection = new CollectionA( model, models )
+			expect( CollectionA::initialize ).toHaveBeenCalledOnce()
+			expect( CollectionA::initialize ).toHaveBeenCalledWith( models )
+			expect( collection.parent ).toBe( model )
+			expect( collection.length() ).toBe( 2 )
+		#END it
 
-		init_stub.restore()
-	#END it
+		it "Should be able to accept an array of models", ->
+			models = [new ModelA({"hello": "world"}), new ModelA({"hello": "world2"}) ]
+			collection = new CollectionA( models )
+			expect( CollectionA::initialize ).toHaveBeenCalledOnce()
+			expect( CollectionA::initialize ).toHaveBeenCalledWith( models )
+			expect( collection.parent ).not.toBeDefined()
+			expect( collection.length() ).toBe( 2 )
+		#END it
+
+		it "Should be able to accept an array of models with a parent model", ->
+			collection = new CollectionA( models, model )
+			expect( CollectionA::initialize ).toHaveBeenCalledOnce()
+			expect( CollectionA::initialize ).toHaveBeenCalledWith( models )
+			expect( collection.parent ).toBe( model )
+			expect( collection.length() ).toBe( 2 )
+		#END it
+
+		it "Should be able to switch the order of an array of models and parent", ->
+			collection = new CollectionA( model, models )
+			expect( CollectionA::initialize ).toHaveBeenCalledOnce()
+			expect( CollectionA::initialize ).toHaveBeenCalledWith( models )
+			expect( collection.parent ).toBe( model )
+			expect( collection.length() ).toBe( 2 )
+		#END it
+
+		it "Should throw if the parent isn't a model", ->
+			expect( -> new CollectionA( models, {} ) ).toThrow()
+		#END 
+	#END describe
 
 	#--------------------------------------------------------------
 	#
@@ -150,7 +159,48 @@ describe "Falcon.Collection", ->
 		expect( hello_spy.firstCall.args[0] ).toBe( input_data )
 	#END it
 
+	describe "set", ->
+		model_1 = new ModelA({'hello': 'water', 'foo': 'baz'})
+		model_2 = new ModelA({'hello': 'earth', 'foo': 'zip'})
+		model_3 = new ModelA({'hello': 'mars', 'foo': 'zab'})
+		collection = new CollectionA([model_1, model_2, model_3])
 
+		beforeEach ->
+			spyOn( model_1, 'set' )
+			spyOn( model_2, 'set' )
+			spyOn( model_3, 'set' )
+		#END beforeEach
+
+		it "Should update all of the values", ->
+			ret = collection.set('hello', 'world')
+
+			expect( model_1.set.calls.count() ).toBe( 1 )
+			expect( model_1.set ).toHaveBeenCalledWith('hello', 'world')
+			
+			expect( model_2.set.calls.count() ).toBe( 1 )
+			expect( model_2.set ).toHaveBeenCalledWith('hello', 'world')
+			
+			expect( model_3.set.calls.count() ).toBe( 1 )
+			expect( model_3.set ).toHaveBeenCalledWith('hello', 'world')
+
+			expect( ret ).toBe( collection )
+		#END it
+
+		it "Should be able to set using an object", ->
+			ret = collection.set({'hello': 'world :D', 'foo': 'bar'})
+
+			expect( model_1.set.calls.count() ).toBe( 1 )
+			expect( model_1.set ).toHaveBeenCalledWith({'hello': 'world :D', 'foo': 'bar'}, undefined)
+			
+			expect( model_2.set.calls.count() ).toBe( 1 )
+			expect( model_2.set ).toHaveBeenCalledWith({'hello': 'world :D', 'foo': 'bar'}, undefined)
+			
+			expect( model_3.set.calls.count() ).toBe( 1 )
+			expect( model_3.set ).toHaveBeenCalledWith({'hello': 'world :D', 'foo': 'bar'}, undefined)
+
+			expect( ret ).toBe( collection )
+		#END it
+	#END describe
 	#--------------------------------------------------------------
 	#
 	# Test the fill() method
