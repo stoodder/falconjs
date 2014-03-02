@@ -96,7 +96,7 @@ class Falcon.Object
 		#Setup the other defaults
 		if isObject( @defaults )
 			for attr, value of @defaults
-				if isFunction( value  )
+				if isFunction( value )
 					@[attr] = value.apply(@, arguments)
 				else if isObject( value )
 					@[attr] = clone( value )

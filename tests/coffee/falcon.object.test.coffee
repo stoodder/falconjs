@@ -198,8 +198,6 @@ describe "Falcon.Object", ->
 			expect( hello_spy.firstCall.args[1] ).toBe( "two" )
 			expect( hello_spy.firstCall.args[2] ).toBe( "three" )
 		#END it
-
-
 	#END describe
 
 	describe "Test the extend method on objects", ->
