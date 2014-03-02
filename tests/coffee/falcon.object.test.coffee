@@ -5,74 +5,75 @@ describe "Falcon.Object", ->
 		klass = new Falcon.Object
 	#END beforeEach
 
-	it "Should have correct method definitions", ->
-		expect(klass.on).toEqual(jasmine.any(Function))
-		expect(klass.on.length).toBe(3)
+	describe "on, off, trigger, has", ->
+		click_one = click_two = context_two = mouseover_one = null
+		beforeEach ->
+			klass.on "click", ( click_one = sinon.spy() )
+			klass.on "click", ( click_two = sinon.spy() ), (context_two = {})
+			klass.on "mouseover", ( mouseover_one = sinon.spy() )
+		#END beforeEach
 
-		expect(klass.off).toEqual(jasmine.any(Function))
-		expect(klass.off.length).toBe(2)
+		it "Should not call any of the methods before trigger", ->
+			expect( click_one ).not.toHaveBeenCalled()
+			expect( click_two ).not.toHaveBeenCalled()
+			expect( mouseover_one ).not.toHaveBeenCalled()
+		#END it
 
-		expect(klass.has).toEqual(jasmine.any(Function))
-		expect(klass.has.length).toBe(2)
+		it "Should trigger both click routines", ->
+			klass.trigger "click", 1, 2, 3
 
-		expect(klass.trigger).toEqual(jasmine.any(Function))
-	#END it
+			expect( click_one ).toHaveBeenCalledOnce()
+			expect( click_one ).toHaveBeenCalledWith( 1, 2, 3 )
 
-	it "Should test event methods", ->
-		klass.on "click", ( click_one = sinon.spy() )
-		klass.on "click", ( click_two = sinon.spy() ), (context_two = {})
-		klass.on "mouseover", ( mouseover_one = sinon.spy() )
+			expect( click_two ).toHaveBeenCalledOnce()
+			expect( click_two ).toHaveBeenCalledWith( 1, 2, 3 )
+			expect( click_two ).toHaveBeenCalledOn( context_two )
 
-		expect( click_one ).not.toHaveBeenCalled()
-		expect( click_two ).not.toHaveBeenCalled()
-		expect( mouseover_one ).not.toHaveBeenCalled()
+			expect( mouseover_one ).not.toHaveBeenCalled()
+		#END it
 
-		klass.trigger "click", 1, 2, 3
+		it "Should call the mouseover routine", ->
+			klass.trigger "mouseover", "go", true, {}
 
-		expect( click_one ).toHaveBeenCalledOnce()
-		expect( click_one ).toHaveBeenCalledWith( 1, 2, 3 )
+			expect( click_one ).not.toHaveBeenCalled()
+			expect( click_two ).not.toHaveBeenCalled()
 
-		expect( click_two ).toHaveBeenCalledOnce()
-		expect( click_two ).toHaveBeenCalledWith( 1, 2, 3 )
-		expect( click_two ).toHaveBeenCalledOn( context_two )
+			expect( mouseover_one ).toHaveBeenCalledOnce()
+			expect( mouseover_one ).toHaveBeenCalledWith( "go", true, {} )
+		#END it
 
-		expect( mouseover_one ).not.toHaveBeenCalled()
+		it "Should be able to find the click event methods and shouldn't have attempted to call the methods", ->
+			expect( klass.has "click", click_one ).toBe( true )
+			expect( klass.has "click", click_two ).toBe( true )
+			expect( klass.has "click", mouseover_one ).toBe( false )
 
-		klass.trigger "mouseover", "go", true, {}
+			expect( click_one ).not.toHaveBeenCalled()
+			expect( click_two ).not.toHaveBeenCalled()
+			expect( mouseover_one ).not.toHaveBeenCalled()
+		#END it
 
-		expect( click_one ).toHaveBeenCalledOnce()
+		it "Should be able to find the mouseover event methods", ->
+			expect( klass.has "mouseover", click_one ).toBe( false )
+			expect( klass.has "mouseover", click_two ).toBe( false )
+			expect( klass.has "mouseover", mouseover_one ).toBe( true )
 
-		expect( click_two ).toHaveBeenCalledOnce()
+			expect( click_one ).not.toHaveBeenCalled()
+			expect( click_two ).not.toHaveBeenCalled()
+			expect( mouseover_one ).not.toHaveBeenCalled()
+		#END it
 
-		expect( mouseover_one ).toHaveBeenCalledOnce()
-		expect( mouseover_one ).toHaveBeenCalledWith( "go", true, {} )
+		it "Should be able to remove an event properly", ->
+			klass.off "click", click_one
+			klass.trigger "click", 4,5,6
 
-		expect( klass.has "click", click_one ).toBe( true )
-		expect( klass.has "click", click_two ).toBe( true )
-		expect( klass.has "click", mouseover_one ).toBe( false )
+			expect( click_one ).not.toHaveBeenCalled()
 
-		expect( click_one ).toHaveBeenCalledOnce()
-		expect( click_two ).toHaveBeenCalledOnce()
-		expect( mouseover_one ).toHaveBeenCalledOnce()
+			expect( click_two ).toHaveBeenCalledOnce()
+			expect( click_two ).toHaveBeenCalledWith( 4,5,6 )
 
-		expect( klass.has "mouseover", click_one ).toBe( false )
-		expect( klass.has "mouseover", click_two ).toBe( false )
-		expect( klass.has "mouseover", mouseover_one ).toBe( true )
-
-		expect( click_one ).toHaveBeenCalledOnce()
-		expect( click_two ).toHaveBeenCalledOnce()
-		expect( mouseover_one ).toHaveBeenCalledOnce()
-
-		klass.off "click", click_one
-		klass.trigger "click", 4,5,6
-
-		expect( click_one ).toHaveBeenCalledOnce()
-
-		expect( click_two ).toHaveBeenCalledTwice()
-		expect( click_two ).toHaveBeenCalledWith( 4,5,6 )
-
-		expect( mouseover_one ).toHaveBeenCalledOnce()
-	#END its
+			expect( mouseover_one ).not.toHaveBeenCalled()
+		#END it
+	#END describe
 
 	describe "Test #observables and #defaults", ->
 		class Clazz extends Falcon.Object

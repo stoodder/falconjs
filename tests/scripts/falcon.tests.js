@@ -252,53 +252,59 @@
     beforeEach(function() {
       return klass = new Falcon.Object;
     });
-    it("Should have correct method definitions", function() {
-      expect(klass.on).toEqual(jasmine.any(Function));
-      expect(klass.on.length).toBe(3);
-      expect(klass.off).toEqual(jasmine.any(Function));
-      expect(klass.off.length).toBe(2);
-      expect(klass.has).toEqual(jasmine.any(Function));
-      expect(klass.has.length).toBe(2);
-      return expect(klass.trigger).toEqual(jasmine.any(Function));
-    });
-    it("Should test event methods", function() {
+    describe("on, off, trigger, has", function() {
       var click_one, click_two, context_two, mouseover_one;
-      klass.on("click", (click_one = sinon.spy()));
-      klass.on("click", (click_two = sinon.spy()), (context_two = {}));
-      klass.on("mouseover", (mouseover_one = sinon.spy()));
-      expect(click_one).not.toHaveBeenCalled();
-      expect(click_two).not.toHaveBeenCalled();
-      expect(mouseover_one).not.toHaveBeenCalled();
-      klass.trigger("click", 1, 2, 3);
-      expect(click_one).toHaveBeenCalledOnce();
-      expect(click_one).toHaveBeenCalledWith(1, 2, 3);
-      expect(click_two).toHaveBeenCalledOnce();
-      expect(click_two).toHaveBeenCalledWith(1, 2, 3);
-      expect(click_two).toHaveBeenCalledOn(context_two);
-      expect(mouseover_one).not.toHaveBeenCalled();
-      klass.trigger("mouseover", "go", true, {});
-      expect(click_one).toHaveBeenCalledOnce();
-      expect(click_two).toHaveBeenCalledOnce();
-      expect(mouseover_one).toHaveBeenCalledOnce();
-      expect(mouseover_one).toHaveBeenCalledWith("go", true, {});
-      expect(klass.has("click", click_one)).toBe(true);
-      expect(klass.has("click", click_two)).toBe(true);
-      expect(klass.has("click", mouseover_one)).toBe(false);
-      expect(click_one).toHaveBeenCalledOnce();
-      expect(click_two).toHaveBeenCalledOnce();
-      expect(mouseover_one).toHaveBeenCalledOnce();
-      expect(klass.has("mouseover", click_one)).toBe(false);
-      expect(klass.has("mouseover", click_two)).toBe(false);
-      expect(klass.has("mouseover", mouseover_one)).toBe(true);
-      expect(click_one).toHaveBeenCalledOnce();
-      expect(click_two).toHaveBeenCalledOnce();
-      expect(mouseover_one).toHaveBeenCalledOnce();
-      klass.off("click", click_one);
-      klass.trigger("click", 4, 5, 6);
-      expect(click_one).toHaveBeenCalledOnce();
-      expect(click_two).toHaveBeenCalledTwice();
-      expect(click_two).toHaveBeenCalledWith(4, 5, 6);
-      return expect(mouseover_one).toHaveBeenCalledOnce();
+      click_one = click_two = context_two = mouseover_one = null;
+      beforeEach(function() {
+        klass.on("click", (click_one = sinon.spy()));
+        klass.on("click", (click_two = sinon.spy()), (context_two = {}));
+        return klass.on("mouseover", (mouseover_one = sinon.spy()));
+      });
+      it("Should not call any of the methods before trigger", function() {
+        expect(click_one).not.toHaveBeenCalled();
+        expect(click_two).not.toHaveBeenCalled();
+        return expect(mouseover_one).not.toHaveBeenCalled();
+      });
+      it("Should trigger both click routines", function() {
+        klass.trigger("click", 1, 2, 3);
+        expect(click_one).toHaveBeenCalledOnce();
+        expect(click_one).toHaveBeenCalledWith(1, 2, 3);
+        expect(click_two).toHaveBeenCalledOnce();
+        expect(click_two).toHaveBeenCalledWith(1, 2, 3);
+        expect(click_two).toHaveBeenCalledOn(context_two);
+        return expect(mouseover_one).not.toHaveBeenCalled();
+      });
+      it("Should call the mouseover routine", function() {
+        klass.trigger("mouseover", "go", true, {});
+        expect(click_one).not.toHaveBeenCalled();
+        expect(click_two).not.toHaveBeenCalled();
+        expect(mouseover_one).toHaveBeenCalledOnce();
+        return expect(mouseover_one).toHaveBeenCalledWith("go", true, {});
+      });
+      it("Should be able to find the click event methods and shouldn't have attempted to call the methods", function() {
+        expect(klass.has("click", click_one)).toBe(true);
+        expect(klass.has("click", click_two)).toBe(true);
+        expect(klass.has("click", mouseover_one)).toBe(false);
+        expect(click_one).not.toHaveBeenCalled();
+        expect(click_two).not.toHaveBeenCalled();
+        return expect(mouseover_one).not.toHaveBeenCalled();
+      });
+      it("Should be able to find the mouseover event methods", function() {
+        expect(klass.has("mouseover", click_one)).toBe(false);
+        expect(klass.has("mouseover", click_two)).toBe(false);
+        expect(klass.has("mouseover", mouseover_one)).toBe(true);
+        expect(click_one).not.toHaveBeenCalled();
+        expect(click_two).not.toHaveBeenCalled();
+        return expect(mouseover_one).not.toHaveBeenCalled();
+      });
+      return it("Should be able to remove an event properly", function() {
+        klass.off("click", click_one);
+        klass.trigger("click", 4, 5, 6);
+        expect(click_one).not.toHaveBeenCalled();
+        expect(click_two).toHaveBeenCalledOnce();
+        expect(click_two).toHaveBeenCalledWith(4, 5, 6);
+        return expect(mouseover_one).not.toHaveBeenCalled();
+      });
     });
     describe("Test #observables and #defaults", function() {
       var Clazz, Klass, _ref, _ref1;
