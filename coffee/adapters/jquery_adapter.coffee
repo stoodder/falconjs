@@ -76,6 +76,7 @@ class @jQueryAdapter extends Falcon.Adapter
 	serializeData: ( data_object, type, options, context ) ->
 		serialized_data = super( data_object, type, options, context )
 		return "" unless serialized_data?
+		return serialized_data if isString( serialized_data )
 		return JSON.stringify(serialized_data)
 	#END serializeData
 
@@ -98,8 +99,12 @@ class @jQueryAdapter extends Falcon.Adapter
 	#------------------------------------------------------------------------
 	parseRawResponseData: ( data_object, type, options, context, response_args ) ->
 		{data, xhr} = super( data_object, type, options, context, response_args )
-		data = JSON.parse( data ) if isString( data )
-		data ?= JSON.parse( xhr.responseText ) if isString( xhr?.responseText )
+		try
+			data = JSON.parse( data ) if isString( data )
+			data ?= JSON.parse( xhr.responseText ) if isString( xhr?.responseText )
+		catch ex
+			data = null
+		#END catch
 		data ?= if Falcon.isModel( data_object ) then {} else []
 		return data
 	#END parseRawResponseData
