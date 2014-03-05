@@ -182,12 +182,20 @@
         expect(Falcon.Adapter.prototype.serializeData).toHaveBeenCalledWith(data_object, "GET", jasmine.any(Object), context);
         return expect(ret).toBe("");
       });
-      return it("Should stringify the data properly", function() {
+      it("Should stringify the data properly", function() {
         var ret;
         ret = adapter.serializeData(data_object, "GET", options, context);
         expect(Falcon.Adapter.prototype.serializeData.calls.count()).toBe(1);
         expect(Falcon.Adapter.prototype.serializeData).toHaveBeenCalledWith(data_object, "GET", options, context);
         return expect(ret).toBe(JSON.stringify(options.data));
+      });
+      return it("Should return early if the data is already a string", function() {
+        var ret;
+        options.data = JSON.stringify(options.data);
+        ret = adapter.serializeData(data_object, "GET", options, context);
+        expect(Falcon.Adapter.prototype.serializeData.calls.count()).toBe(1);
+        expect(Falcon.Adapter.prototype.serializeData).toHaveBeenCalledWith(data_object, "GET", options, context);
+        return expect(ret).toBe(options.data);
       });
     });
     describe("parseRawResponseData", function() {
@@ -247,13 +255,25 @@
         expect(Falcon.Adapter.prototype.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, {});
         return expect(ret).toEqual({});
       });
-      return it("Should return and empty array if no parsing happend and a collection is passed in", function() {
+      it("Should return and empty array if no parsing happend and a collection is passed in", function() {
         var ret;
         data_object = new Falcon.Collection;
         ret = adapter.parseRawResponseData(data_object, type, options, context, {});
         expect(Falcon.Adapter.prototype.parseRawResponseData.calls.count()).toBe(1);
         expect(Falcon.Adapter.prototype.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, {});
         return expect(ret).toEqual([]);
+      });
+      return it("Should parse the xhr respons text if no data is present", function() {
+        var ret;
+        data_object = new Falcon.Model;
+        ret = adapter.parseRawResponseData(data_object, type, options, context, {
+          data: "<h1>Invalid</h1>"
+        });
+        expect(Falcon.Adapter.prototype.parseRawResponseData.calls.count()).toBe(1);
+        expect(Falcon.Adapter.prototype.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, {
+          data: "<h1>Invalid</h1>"
+        });
+        return expect(ret).toEqual({});
       });
     });
     describe("sync", function() {

@@ -111,19 +111,27 @@
       if (serialized_data == null) {
         return "";
       }
+      if (isString(serialized_data)) {
+        return serialized_data;
+      }
       return JSON.stringify(serialized_data);
     };
 
     jQueryAdapter.prototype.parseRawResponseData = function(data_object, type, options, context, response_args) {
-      var data, xhr, _ref1;
+      var data, ex, xhr, _ref1;
       _ref1 = jQueryAdapter.__super__.parseRawResponseData.call(this, data_object, type, options, context, response_args), data = _ref1.data, xhr = _ref1.xhr;
-      if (isString(data)) {
-        data = JSON.parse(data);
-      }
-      if (isString(xhr != null ? xhr.responseText : void 0)) {
-        if (data == null) {
-          data = JSON.parse(xhr.responseText);
+      try {
+        if (isString(data)) {
+          data = JSON.parse(data);
         }
+        if (isString(xhr != null ? xhr.responseText : void 0)) {
+          if (data == null) {
+            data = JSON.parse(xhr.responseText);
+          }
+        }
+      } catch (_error) {
+        ex = _error;
+        data = null;
       }
       if (data == null) {
         data = Falcon.isModel(data_object) ? {} : [];

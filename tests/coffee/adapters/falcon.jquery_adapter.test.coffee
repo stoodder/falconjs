@@ -192,6 +192,16 @@ describe "jQueryAdapter", ->
 
 			expect( ret ).toBe( JSON.stringify(options.data) )
 		#END it
+
+		it "Should return early if the data is already a string", ->
+			options.data = JSON.stringify(options.data)
+			ret = adapter.serializeData( data_object, "GET", options, context )
+
+			expect( Falcon.Adapter::serializeData.calls.count() ).toBe( 1 )
+			expect( Falcon.Adapter::serializeData ).toHaveBeenCalledWith( data_object, "GET", options, context )
+
+			expect( ret ).toBe( options.data )
+		#END it
 	#END describe
 	
 	describe "parseRawResponseData", ->
@@ -242,6 +252,16 @@ describe "jQueryAdapter", ->
 			expect( Falcon.Adapter::parseRawResponseData ).toHaveBeenCalledWith( data_object, type, options, context, {})
 
 			expect( ret ).toEqual([])
+		#END it
+
+		it "Should parse the xhr respons text if no data is present", ->
+			data_object = new Falcon.Model
+			ret = adapter.parseRawResponseData( data_object, type, options, context, {data: "<h1>Invalid</h1>"})
+
+			expect( Falcon.Adapter::parseRawResponseData.calls.count() ).toBe( 1 )
+			expect( Falcon.Adapter::parseRawResponseData ).toHaveBeenCalledWith( data_object, type, options, context, {data: "<h1>Invalid</h1>"})
+
+			expect( ret ).toEqual({})
 		#END it
 	#END describe
 	
