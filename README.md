@@ -19,7 +19,6 @@
 * add generate binding and Falcon.register for dynamically creating views
 * add listenTo on Falcon.Object
 * Divide fill method into separate methods for each type (reverse rolls)
-* Add setParent method to collections to universally set the parent of all the models in the collection
 * Cleanup/Redo binding tests
 
 Done

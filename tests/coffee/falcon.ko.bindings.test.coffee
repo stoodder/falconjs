@@ -1,4 +1,4 @@
-describe "Knockout Bindings", ->
+describe "Bindings", ->
 	application = null
 	application_index = 0
 
@@ -29,13 +29,8 @@ describe "Knockout Bindings", ->
 		Falcon.apply( view, "#application_#{application_index}" )
 	#END applyApp
 
-	describe "'view' Binding", ->
-		layout_template = footer_template = content_template = null
-
-		view_binding = Falcon.getBinding('view')
-
-		view_init_spy = sinon.spy( view_binding, 'init' )
-		view_update_spy = sinon.spy( view_binding, 'update' )
+	describe "view", ->
+		is_setup = false
 
 		class LayoutView extends Falcon.View
 			url: '#layout-template'
@@ -50,26 +45,44 @@ describe "Knockout Bindings", ->
 				@footer_view( new FooterView )
 			#END initialize
 		#END LayoutView
-		layout_template = _createTemplate("layout-template","
-			<div data-bind='view: $view.content_view'></div>
-			<div data-bind='view: $view.footer_view'></div>
-		")
 
 		class ContentView extends Falcon.View
 			url: '#content-template'
 		#END class
-		content_template = _createTemplate("content-template", "The Content")
 
 		class FooterView extends Falcon.View
 			url: '#footer-template'
 		#END class
-		footer_template = _createTemplate("footer-template", "The Footer")
+
+		layout_template = content_template = footer_template = null
+		view_binding = null
+
+		beforeEach ->
+			return unless is_setup
+
+			view_binding = Falcon.getBinding('view')
+
+			sinonSpyOn( view_binding, 'init' )
+			sinonSpyOn( view_binding, 'update' )
+		#END beforeEach
 
 		it "Setup", ->
+			layout_template = _createTemplate("layout-template","
+				<div data-bind='view: $view.content_view'></div>
+				<div data-bind='view: $view.footer_view'></div>
+			")
+
+			content_template = _createTemplate("content-template", "The Content")
+			footer_template = _createTemplate("footer-template", "The Footer")
+
 			document.body.appendChild(layout_template)
 			document.body.appendChild(content_template)
 			document.body.appendChild(footer_template)
-		#END setup
+
+			Falcon.View.cacheTemplates()
+
+			is_setup = true
+		#END it
 
 		it "Should call the view binding on initialization without an observable", ->
 			view = new ContentView
@@ -89,6 +102,25 @@ describe "Knockout Bindings", ->
 			expect( render_spy ).toHaveBeenCalledOnce()
 			expect( unrender_spy ).not.toHaveBeenCalled()
 		#END it
+
+		it "Teardown", ->
+			Falcon.View.resetCache()
+
+			document.body.removeChild( layout_template )
+			document.body.removeChild( content_template )
+			document.body.removeChild( footer_template )
+
+			is_setup = false
+		#END teardown
+	#END describe
+#END describe
+
+describe "Knockout Bindings", ->
+
+	describe "'view' Binding", ->
+		layout_template = footer_template = content_template = null
+
+		
 
 		describe "Testing changes in views that are contained in observables", ->
 			view = content_view = footer_view = obs = null
@@ -238,13 +270,7 @@ describe "Knockout Bindings", ->
 			#END it
 		#END describe
 
-		it "Teardown", ->
-			Falcon.View.resetCache()
-
-			document.body.removeChild( layout_template )
-			document.body.removeChild( content_template )
-			document.body.removeChild( footer_template )
-		#END teardown
+		
 	#END describe
 
 	describe "Test view binding with an observable array of views", ->

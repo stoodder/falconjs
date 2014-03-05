@@ -208,6 +208,10 @@ _ready = null
 	#	_(Object)_ - The binding definition
 	#--------------------------------------------------------
 	getBinding: (name) -> ko.bindingHandlers[name]
+
+	
+	register: (name, view_definition) ->
+	#END register
 #END Falcon
 
 

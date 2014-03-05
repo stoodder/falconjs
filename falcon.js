@@ -263,7 +263,8 @@
     },
     getBinding: function(name) {
       return ko.bindingHandlers[name];
-    }
+    },
+    register: function(name, view_definition) {}
   };
 
   (function() {
