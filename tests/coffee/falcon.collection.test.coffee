@@ -1423,7 +1423,7 @@ describe "Falcon.Collection", ->
 			expect( Falcon.adapter.standardizeOptions ).not.toHaveBeenCalled()
 
 			expect( collection.fill.calls.count() ).toBe( 1 )
-			expect( collection.fill ).toHaveBeenCalledWith( model, jasmine.any(Object) )
+			expect( collection.fill ).toHaveBeenCalledWith( model, {'method': 'append'} )
 
 			expect( options.success.calls.count() ).toBe( 1 )
 			expect( options.success ).toHaveBeenCalledWith( model )
@@ -1459,6 +1459,12 @@ describe "Falcon.Collection", ->
 
 			expect( model.create.calls.count() ).toBe( 1 )
 			expect( model.create ).toHaveBeenCalledWith(jasmine.any(Object), model)
+		#END it
+
+		it "Should not overwrite the fill options", ->
+			collection.create(model, {fill_options: {'method': 'merge'}}, context)
+			{fill_options} = model.create.calls.mostRecent().args[0]
+			expect(fill_options).toEqual({'method': 'merge'})
 		#END it
 	#END describe
 

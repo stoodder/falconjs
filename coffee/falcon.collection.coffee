@@ -493,7 +493,7 @@ class Falcon.Collection extends Falcon.Object
 		output_options = Falcon.adapter.standardizeOptions( model, 'POST', options, context )
 		output_options.fill_options ?= {method: 'append'}
 		output_options.success = (model) =>
-			@fill(model, output_options)
+			@fill(model, output_options.fill_options)
 			options.success.apply(context, arguments) if isFunction( options.success )
 		#END success
 		

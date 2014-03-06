@@ -1481,7 +1481,7 @@
         };
       }
       output_options.success = function(model) {
-        _this.fill(model, output_options);
+        _this.fill(model, output_options.fill_options);
         if (isFunction(options.success)) {
           return options.success.apply(context, arguments);
         }

@@ -4645,7 +4645,9 @@
         expect(model.create).not.toHaveBeenCalled();
         expect(Falcon.adapter.standardizeOptions).not.toHaveBeenCalled();
         expect(collection.fill.calls.count()).toBe(1);
-        expect(collection.fill).toHaveBeenCalledWith(model, jasmine.any(Object));
+        expect(collection.fill).toHaveBeenCalledWith(model, {
+          'method': 'append'
+        });
         expect(options.success.calls.count()).toBe(1);
         expect(options.success).toHaveBeenCalledWith(model);
         return expect(options.success.calls.mostRecent().object).toBe(context);
@@ -4666,12 +4668,24 @@
         expect(collection.fill).not.toHaveBeenCalled();
         return expect(options.success).not.toHaveBeenCalled();
       });
-      return it("Should set up the correct context if none is given", function() {
+      it("Should set up the correct context if none is given", function() {
         collection.create(model, options);
         expect(Falcon.adapter.standardizeOptions.calls.count()).toBe(1);
         expect(Falcon.adapter.standardizeOptions).toHaveBeenCalledWith(model, 'POST', options, model);
         expect(model.create.calls.count()).toBe(1);
         return expect(model.create).toHaveBeenCalledWith(jasmine.any(Object), model);
+      });
+      return it("Should not overwrite the fill options", function() {
+        var fill_options;
+        collection.create(model, {
+          fill_options: {
+            'method': 'merge'
+          }
+        }, context);
+        fill_options = model.create.calls.mostRecent().args[0].fill_options;
+        return expect(fill_options).toEqual({
+          'method': 'merge'
+        });
       });
     });
     describe("destroy", function() {
