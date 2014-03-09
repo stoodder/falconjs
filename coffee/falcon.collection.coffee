@@ -207,148 +207,6 @@ class Falcon.Collection extends Falcon.Object
 	#END parse
 
 	#--------------------------------------------------------
-	# Method: Falcon.Collection#fill()
-	#	'fills' this collection with new data
-	#
-	# Arguments:
-	#	**items** _(Array)_ - An array of items to fill this collection with
-	#	**options** _(Object)_ - An object of options for the fill method
-	#
-	# Returns:
-	#	_(Falcon.Collection)_ - This instance
-	#--------------------------------------------------------
-	fill: (items, options) ->
-		return [] unless @model?
-
-		items ?= []
-		items = items.all() if Falcon.isCollection(items)
-		items = ko.unwrap(items) if ko.isObservable(items)
-		items = [items] unless isArray(items)
-		items = items.slice(0) #Shallow clone the items array so that we don't disturb the original input
-		
-		new_models_list = []
-		added_models = []
-		
-		options = {} unless isObject(options)
-
-		{method} = options
-		method = '' unless isString(method)
-		method = method.toLowerCase()
-		method = 'replace' unless method in ['replace', 'append', 'prepend', 'insert', 'merge']
-		comparator = options.comparator ? @comparator
-
-		return [] if method isnt 'replace' and isEmpty( items ) 
-
-		#Increment the change count
-		@__falcon_collection__change_count__++
-
-		#merging the models adds new models and updates existing models
-		if method is 'merge'
-			new_models_list = @models()
-
-			#iterate over the new collection
-			for item in items
-				existing_model = null
-
-				#Check if this new model is already a Model
-				if Falcon.isModel( item )
-					#Create the appropriate iterator
-					iterator = _makeIterator( item )
-
-					#Try to find an existing model in this collection
-					for m in new_models_list when iterator( m )
-						existing_model = m
-						break
-					#END for
-
-					#If we found a model, then fill it with the unwrapped data
-					#from the input item (so we avoid overwitting references)
-					if Falcon.isModel( existing_model )
-						existing_model.fill( item.unwrap() )
-
-					#Otherwise simply append the model to the collection
-					else
-						new_models_list.push( item )
-						added_models.push( item )
-					#END if
-
-				#Check if this item is an object of data
-				else if isObject( item )
-					#Create the appropriate iterator
-					iterator = _makeIterator( item.id )
-
-					#Attempt to find a item in this collection
-					for m in new_models_list when iterator( m )
-						existing_model = m
-						break
-					#END for
-
-					#If we found a item, then just fill it with the data
-					if Falcon.isModel( existing_model )
-						existing_model.fill( item )
-
-					#Otherwise, create a new item and append it to the collection
-					else
-						new_model = new @model( item, @parent )
-						new_models_list.push( new_model )
-						added_models.push( new_model )
-					#END if
-				#END if
-			#END for
-
-		#Otherwise try the other, more generic, scenarios for replace, prepend, append, and insert
-		else
-			#Create new models where needed
-			for item, i in items when isObject(item) and not Falcon.isModel(item)
-				items[i] = new @model(item, @parent)
-			#END for
-
-			added_models = items
-		
-			#Determine how we should proceed adding models to the models
-			if method is 'replace'
-				new_models_list = items
-
-			#Add the models to the beginning of the list
-			else if method is 'prepend'
-
-				_length = items.length-1
-				new_models_list = @models()
-				new_models_list.unshift( items[_length-i] ) for item, i in items
-
-			#Add the models to the bottom of the list
-			else if method is 'append'
-				new_models_list = @models()
-				new_models_list = new_models_list.concat( items )
-
-			#Insert the models into the list at the specified index, if the index is
-			#invalid, append the models
-			else if method is 'insert'
-				insert_index = options.insert_index ? -1
-				new_models_list = @models()
-
-				if insert_index < 0 or insert_index >= new_models_list.length
-					new_models_list = new_models_list.concat( items )
-				else
-					head = new_models_list[0...insert_index]
-					tail = new_models_list[insert_index..]
-					new_models_list = head.concat( items, tail )
-				#END if
-			#END if
-		#END if
-
-		#Add the mixins
-		for added_model in added_models
-			added_model.mixin(mapping) for mapping in @__falcon_collection__mixins__
-		#END for
-
-		new_models_list.sort( comparator ) if isFunction( comparator )
-		@models( new_models_list )
-
-		return added_models
-	#END fill
-
-	#--------------------------------------------------------
 	# Method: Falcon.Collection#unwrap()
 	#	Method used to 'unwrap' this object into an anonymous object
 	#	Needed to cascade inwards on other Falcon Data objects (like models)
@@ -559,17 +417,128 @@ class Falcon.Collection extends Falcon.Object
 		return this
 	#END remove
 
+
+	#========================================================================================
+	#
+	# FILL RELATED METHODS
+	#
+	#========================================================================================
+	_fill_standardizeItems = (collection, items) ->
+		items ?= []
+		items = items.all() if Falcon.isCollection(items)
+		items = ko.unwrap(items) if ko.isObservable(items)
+		items = [items] unless isArray(items)
+		items = items.slice(0) #Shallow clone the items array so that we don't disturb the original input
+
+		return items
+	#END _standardizeItems
+
+	_fill_createModels = (collection, items) ->
+		#Create new models where needed
+		for item, i in items when isObject(item) and not Falcon.isModel(item)
+			items[i] = new collection.model(item, collection.parent)
+		#END for
+
+		return items
+	#END _fill_createModels
+
+	_fill_addMixins = (collection, added_models) ->
+		#Add the mixins
+		for added_model in added_models
+			added_model.mixin(mapping) for mapping in collection.__falcon_collection__mixins__
+		#END for
+	#END _fill_addMixins
+
+	_fill_standardizeOptions = (collection, options) ->
+		options = {} unless isObject(options)
+		output_options = {}
+
+		#clone the options so we don't distrub the original object
+		output_options[key] = value for key, value of options
+
+		output_options.comparator ?= collection.comparator
+
+		output_options.method = 'replace' unless isString( output_options.method )
+		output_options.method = trim( output_options.method.toLowerCase() )
+		output_options.method = 'replace' unless output_options.method in ['replace', 'append', 'prepend', 'insert', 'merge']
+		
+		return output_options
+	#END _fill_standardizeOptions
+
+	_fill_updateModels = (collection, new_models_list, options) ->
+		new_models_list.sort( options.comparator ) if isFunction( options.comparator )
+
+		collection.__falcon_collection__change_count__++
+		collection.models( new_models_list )
+	#END _fill_updateModels
+
+	#--------------------------------------------------------
+	# Method: Falcon.Collection#fill()
+	#	'fills' this collection with new data
+	#
+	# Arguments:
+	#	**items** _(Array)_ - An array of items to fill this collection with
+	#	**options** _(Object)_ - The options specific to this fill related method.
+	#
+	# Returns:
+	#	_(Array)_ - An array of the models that were added
+	#--------------------------------------------------------
+	fill: (items, options) ->
+		options = _fill_standardizeOptions( @, options )
+		return @[options.method]( items, options )
+	#END fill
+
+	#--------------------------------------------------------
+	# Method: Falcon.Collection#replace
+	#	Replaces all of the items in the collections
+	#
+	# Arguments:
+	#	**items** _(Falcon.Model|Array)_ - The model(s) to add
+	#	**options** _(Object)_ - The options specific to this fill related method.
+	#		comparator: Method used to sort the resultant list of models (optional)
+	#
+	# Returns:
+	#	_(Array)_ - An array of the models that were added
+	#--------------------------------------------------------
+	replace: (items, options) ->
+		return [] unless @model?
+
+		options = _fill_standardizeOptions( @, options )
+		items = _fill_standardizeItems(@, items )
+		items = _fill_createModels(@, items )
+		_fill_addMixins( @, items )
+		_fill_updateModels( @, items, options )
+
+		return items
+	#END replace
+
 	#--------------------------------------------------------
 	# Method: Falcon.Collection#append
 	#	Appends an items or a list of items to the end of the collection
 	#
 	# Arguments:
-	#	**item** _(Falcon.Model)_ - The model(s) to add
+	#	**items** _(Falcon.Model|Array)_ - The model(s) to add
+	#	**options** _(Object)_ - The options specific to this fill related method.
+	#		comparator: Method used to sort the resultant list of models (optional)
 	#
 	# Returns:
-	#	_(Falcon.Collection)_ - This instance
+	#	_(Array)_ - An array of the models that were added
 	#--------------------------------------------------------
-	append: (items) -> @fill(items, {'method': 'append'})
+	append: (items, options) ->
+		return [] unless @model?
+
+		options = _fill_standardizeOptions( @, options )
+		items = _fill_standardizeItems( @, items )
+		items = _fill_createModels( @, items ) 
+
+		new_models_list = @models()
+		new_models_list = new_models_list.concat( items )
+
+		_fill_addMixins( @, items, options )
+		_fill_updateModels( @, new_models_list, options )
+
+		return items
+	#END append
 
 	#--------------------------------------------------------
 	# Method: Falcon.Collection#prepend
@@ -577,11 +546,33 @@ class Falcon.Collection extends Falcon.Object
 	#
 	# Arguments:
 	#	**items** _(Falcon.Model)_ - The model(s) to add
+	#	**options** _(Object)_ - The options specific to this fill related method.
+	#		comparator: Method used to sort the resultant list of models (optional)
 	#
 	# Returns:
-	#	_(Falcon.Collection)_ - This instance
+	#	_(Array)_ - An array of the models that were added
 	#--------------------------------------------------------
-	prepend: (items) -> @fill(items, {'method': 'prepend'})
+	prepend: (items, options) ->
+		return [] unless @model?
+
+		options = _fill_standardizeOptions( @, options )
+		items = _fill_standardizeItems( @, items )
+		items = _fill_createModels( @, items )
+
+		#Create new models where needed
+		for item, i in items when isObject(item) and not Falcon.isModel(item)
+			items[i] = new @model(item, @parent)
+		#END for
+
+		_length = items.length-1
+		new_models_list = @models()
+		new_models_list.unshift( items[_length-i] ) for item, i in items
+
+		_fill_addMixins( @, items, options )
+		_fill_updateModels( @, new_models_list, options )
+
+		return items
+	#END prepend
 
 	#--------------------------------------------------------
 	# Method: Falcon.Collection#insert
@@ -591,23 +582,116 @@ class Falcon.Collection extends Falcon.Object
 	#	will be inserted before the first model to pass the truth test
 	#
 	# Arguments:
-	#	**insert_model** _(Falcon.Model)_ - The model to insert
-	#	**model** _(Falcon.Model) - The model to insert before
-	#
-	# Arguments:
-	#	**insert_model** _(Falcon.Model)_ - The model to insert
-	#	**iterator** _(Function) - The iterator to truth test each model against
+	#	**items** _(Falcon.Model)_ - The model(s) to insert
+	#	**options** _(Object)_ - The options specific to this fill related method.
+	#		index: The index to insert at. This will override the iterator attribute
+	#		iterator: The iterator (id, model, method) to use to find which model we should insert the new model(s) after
+	#				  If no iterator could be made, then we'll append the models instead
+	#		model: This is the same as iterator
+	#		comparator: Method used to sort the resultant list of models (optional)
 	#
 	# Returns:
-	#	_(Falcon.Model)_ - The inserted models
+	#	_(Array)_ - An array of the models that were added
 	#--------------------------------------------------------
-	insert: (insert_model, model) ->
-		iterator = _makeIterator( model )
-		return @fill( insert_model, {'method': 'append'} ) unless isFunction( iterator )
+	insert: (items, options) ->
+		options = _fill_standardizeOptions( @, options )
+
+		items = _fill_standardizeItems( @, items )
+		items = _fill_createModels( @, items )
 		
-		insert_index = @indexOf( model )
-		return @fill( insert_model, {'method': 'insert', 'insert_index': insert_index })
+		insert_index = options.index ? @indexOf( _makeIterator( options.iterator ? options.model ) )
+		new_models_list = @models()
+
+		if insert_index < 0 or insert_index >= new_models_list.length
+			new_models_list = new_models_list.concat( items )
+		else
+			head = new_models_list[0...insert_index]
+			tail = new_models_list[insert_index..]
+			new_models_list = head.concat( items, tail )
+		#END if
+
+		_fill_addMixins( @, items, options )
+		_fill_updateModels( @, new_models_list, options )
+
+		return items
 	#END insert
+
+	#--------------------------------------------------------
+	# Method: Falcon.Collection#merge
+	#	Merges a list of objects/models into the current list
+	#
+	# Arguments:
+	#	**items** _(Falcon.Model)_ - The model(s) to insert
+	#	**options** _(Object)_ - The options specific to this fill related method.
+	#		comparator: Method used to sort the resultant list of models (optional)
+	#
+	# Returns:
+	#	_(Array)_ - An array of the models that were added
+	#--------------------------------------------------------
+	merge: (items, options) ->
+		return [] unless @model?
+
+		options = _fill_standardizeOptions( @, options )
+		items = _fill_standardizeItems( @, items)
+
+		added_models = []
+		new_models_list = @models()
+
+		#iterate over the new collection
+		for item in items
+			existing_model = null
+
+			#Check if this new model is already a Model
+			if Falcon.isModel( item )
+				#Create the appropriate iterator
+				iterator = _makeIterator( item )
+
+				#Try to find an existing model in this collection
+				for m in new_models_list when iterator( m )
+					existing_model = m
+					break
+				#END for
+
+				#If we found a model, then fill it with the unwrapped data
+				#from the input item (so we avoid overwitting references)
+				if Falcon.isModel( existing_model )
+					existing_model.fill( item.unwrap() )
+
+				#Otherwise simply append the model to the collection
+				else
+					new_models_list.push( item )
+					added_models.push( item )
+				#END if
+
+			#Check if this item is an object of data
+			else if isObject( item )
+				#Create the appropriate iterator
+				iterator = _makeIterator( item.id )
+
+				#Attempt to find a item in this collection
+				for m in new_models_list when iterator( m )
+					existing_model = m
+					break
+				#END for
+
+				#If we found a item, then just fill it with the data
+				if Falcon.isModel( existing_model )
+					existing_model.fill( item )
+
+				#Otherwise, create a new item and append it to the collection
+				else
+					new_model = new @model( item, @parent )
+					new_models_list.push( new_model )
+					added_models.push( new_model )
+				#END if
+			#END if
+		#END for
+
+		_fill_addMixins( @, added_models )
+		_fill_updateModels( @, new_models_list, options )
+
+		return added_models
+	#END merge
 
 	#--------------------------------------------------------
 	# Method: Falcon.Collection#unshift

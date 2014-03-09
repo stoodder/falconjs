@@ -3324,638 +3324,638 @@
         return expect(ret).toBe(collection);
       });
     });
-    describe("Testing the different fill method combinations", function() {
-      describe("Test default option", function() {
-        it("Should properly add items into an empty collection", function() {
-          var collectionA;
-          collectionA = new CollectionA;
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ]);
-          expect(collectionA.length()).toBe(2);
-          expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(0).get('id')).toBe(1);
-          expect(collectionA.at(0).get('hello')).toBe("world");
-          expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(1).get('id')).toBe(2);
-          return expect(collectionA.at(1).get('hello')).toBe("world2");
-        });
-        return it("Should properly replace items into a populated collection", function() {
-          var collectionA;
-          collectionA = new CollectionA([
-            {
-              id: 2,
-              "hello": "world3"
-            }
-          ]);
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ]);
-          expect(collectionA.length()).toBe(2);
-          expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(0).get('id')).toBe(1);
-          expect(collectionA.at(0).get('hello')).toBe("world");
-          expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(1).get('id')).toBe(2);
-          return expect(collectionA.at(1).get('hello')).toBe("world2");
-        });
+    describe("fill", function() {
+      var collection, items, options;
+      collection = null;
+      items = options = null;
+      beforeEach(function() {
+        collection = new CollectionA;
+        items = [{}, {}];
+        spyOn(collection, 'replace');
+        spyOn(collection, 'prepend');
+        spyOn(collection, 'append');
+        spyOn(collection, 'insert');
+        return spyOn(collection, 'merge');
       });
-      describe("Test 'replace' option", function() {
-        it("Should properly add items into an empty collection", function() {
-          var collectionA;
-          collectionA = new CollectionA;
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ], {
-            'method': 'replace'
-          });
-          expect(collectionA.length()).toBe(2);
-          expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(0).get('id')).toBe(1);
-          expect(collectionA.at(0).get('hello')).toBe("world");
-          expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(1).get('id')).toBe(2);
-          return expect(collectionA.at(1).get('hello')).toBe("world2");
+      it("Should call the replace method by default", function() {
+        options = {};
+        collection.fill(items, options);
+        expect(collection.replace.calls.count()).toBe(1);
+        expect(collection.replace).toHaveBeenCalledWith(items, {
+          'method': 'replace',
+          'comparator': null
         });
-        return it("Should properly replace items into a populated collection", function() {
-          var collectionA;
-          collectionA = new CollectionA([
-            {
-              id: 2,
-              "hello": "world3"
-            }
-          ]);
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ], {
-            'method': 'replace'
-          });
-          expect(collectionA.length()).toBe(2);
-          expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(0).get('id')).toBe(1);
-          expect(collectionA.at(0).get('hello')).toBe("world");
-          expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(1).get('id')).toBe(2);
-          return expect(collectionA.at(1).get('hello')).toBe("world2");
-        });
+        expect(collection.append).not.toHaveBeenCalled();
+        expect(collection.prepend).not.toHaveBeenCalled();
+        expect(collection.merge).not.toHaveBeenCalled();
+        expect(collection.insert).not.toHaveBeenCalled();
+        return expect(collection.replace.calls.mostRecent().args[1]).not.toBe(options);
       });
-      describe("Test 'append' option", function() {
-        it("Should properly add items into an empty collection", function() {
-          var collectionA;
-          collectionA = new CollectionA;
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ], {
-            'method': 'append'
-          });
-          expect(collectionA.length()).toBe(2);
-          expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(0).get('id')).toBe(1);
-          expect(collectionA.at(0).get('hello')).toBe("world");
-          expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(1).get('id')).toBe(2);
-          return expect(collectionA.at(1).get('hello')).toBe("world2");
+      it("Should call the replace when an invalid method is given", function() {
+        options = {
+          'method': 'replacezzzzzz'
+        };
+        collection.fill(items, options);
+        expect(collection.replace.calls.count()).toBe(1);
+        expect(collection.replace).toHaveBeenCalledWith(items, {
+          'method': 'replace',
+          'comparator': null
         });
-        return it("Should properly append items into a populated collection", function() {
-          var collectionA;
-          collectionA = new CollectionA([
-            {
-              id: 3,
-              "hello": "world3"
-            }
-          ]);
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ], {
-            'method': 'append'
-          });
-          expect(collectionA.length()).toBe(3);
-          expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(0).get('id')).toBe(3);
-          expect(collectionA.at(0).get('hello')).toBe("world3");
-          expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(1).get('id')).toBe(1);
-          expect(collectionA.at(1).get('hello')).toBe("world");
-          expect(collectionA.at(2)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(2).get('id')).toBe(2);
-          return expect(collectionA.at(2).get('hello')).toBe("world2");
-        });
+        expect(collection.append).not.toHaveBeenCalled();
+        expect(collection.prepend).not.toHaveBeenCalled();
+        expect(collection.merge).not.toHaveBeenCalled();
+        expect(collection.insert).not.toHaveBeenCalled();
+        return expect(collection.replace.calls.mostRecent().args[1]).not.toBe(options);
       });
-      describe("Test 'prepend' option", function() {
-        it("Should properly add items into an empty collection", function() {
-          var collectionA;
-          collectionA = new CollectionA;
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ], {
-            'method': 'prepend'
-          });
-          expect(collectionA.length()).toBe(2);
-          expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(0).get('id')).toBe(1);
-          expect(collectionA.at(0).get('hello')).toBe("world");
-          expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(1).get('id')).toBe(2);
-          return expect(collectionA.at(1).get('hello')).toBe("world2");
+      it("Should call the replace when requested", function() {
+        options = {
+          'method': 'replace'
+        };
+        collection.fill(items, options);
+        expect(collection.replace.calls.count()).toBe(1);
+        expect(collection.replace).toHaveBeenCalledWith(items, {
+          'method': 'replace',
+          'comparator': null
         });
-        return it("Should properly prepend items into a populated collection", function() {
-          var collectionA, index;
-          collectionA = new CollectionA([
-            {
-              id: 3,
-              "hello": "world3"
-            }
-          ]);
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ], {
-            'method': 'prepend'
-          });
-          index = 0;
-          expect(collectionA.length()).toBe(3);
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(1);
-          expect(collectionA.at(index).get('hello')).toBe("world");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(2);
-          expect(collectionA.at(index).get('hello')).toBe("world2");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(3);
-          return expect(collectionA.at(index).get('hello')).toBe("world3");
-        });
+        expect(collection.append).not.toHaveBeenCalled();
+        expect(collection.prepend).not.toHaveBeenCalled();
+        expect(collection.merge).not.toHaveBeenCalled();
+        expect(collection.insert).not.toHaveBeenCalled();
+        return expect(collection.replace.calls.mostRecent().args[1]).not.toBe(options);
       });
-      describe("Test 'merge' option", function() {
-        it("Should properly add items into an empty collection", function() {
-          var collectionA;
-          collectionA = new CollectionA;
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ], {
-            'method': 'merge'
-          });
-          expect(collectionA.length()).toBe(2);
-          expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(0).get('id')).toBe(1);
-          expect(collectionA.at(0).get('hello')).toBe("world");
-          expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(1).get('id')).toBe(2);
-          return expect(collectionA.at(1).get('hello')).toBe("world2");
+      it("Should call the append when requested", function() {
+        options = {
+          'method': 'append'
+        };
+        collection.fill(items, options);
+        expect(collection.append.calls.count()).toBe(1);
+        expect(collection.append).toHaveBeenCalledWith(items, {
+          'method': 'append',
+          'comparator': null
         });
-        it("Should properly merge items into a populated collection", function() {
-          var collectionA, index;
-          collectionA = new CollectionA([
-            {
-              id: 3,
-              "hello": "world3"
-            }, {
-              id: 4,
-              "hello": "world4"
-            }
-          ]);
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }, {
-              id: 4,
-              "hello": "world5"
-            }
-          ], {
-            'method': 'merge'
-          });
-          index = 0;
-          expect(collectionA.length()).toBe(4);
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(3);
-          expect(collectionA.at(index).get('hello')).toBe("world3");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(4);
-          expect(collectionA.at(index).get('hello')).toBe("world5");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(1);
-          expect(collectionA.at(index).get('hello')).toBe("world");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(2);
-          expect(collectionA.at(index).get('hello')).toBe("world2");
-          return index++;
+        expect(collection.replace).not.toHaveBeenCalled();
+        expect(collection.prepend).not.toHaveBeenCalled();
+        expect(collection.merge).not.toHaveBeenCalled();
+        expect(collection.insert).not.toHaveBeenCalled();
+        return expect(collection.append.calls.mostRecent().args[1]).not.toBe(options);
+      });
+      it("Should call the prepend when requested", function() {
+        options = {
+          'method': 'prepend'
+        };
+        collection.fill(items, options);
+        expect(collection.prepend.calls.count()).toBe(1);
+        expect(collection.prepend).toHaveBeenCalledWith(items, {
+          'method': 'prepend',
+          'comparator': null
         });
-        it("Should not overwrite previous references on merge", function() {
-          var MergeCollection, MergeModel, SubMergeModel, foo_obs, hello_obs, merge_collection, merge_model, merge_model2, _ref12, _ref13, _ref14;
-          MergeModel = (function(_super) {
-            __extends(MergeModel, _super);
-
-            function MergeModel() {
-              _ref12 = MergeModel.__super__.constructor.apply(this, arguments);
-              return _ref12;
-            }
-
-            MergeModel.prototype.defaults = {
-              'sub': function() {
-                return new SubMergeModel;
-              }
-            };
-
-            MergeModel.prototype.observables = {
-              'foo': 'bar'
-            };
-
-            return MergeModel;
-
-          })(Falcon.Model);
-          SubMergeModel = (function(_super) {
-            __extends(SubMergeModel, _super);
-
-            function SubMergeModel() {
-              _ref13 = SubMergeModel.__super__.constructor.apply(this, arguments);
-              return _ref13;
-            }
-
-            SubMergeModel.prototype.observables = {
-              'hello': 'world'
-            };
-
-            return SubMergeModel;
-
-          })(Falcon.Model);
-          MergeCollection = (function(_super) {
-            __extends(MergeCollection, _super);
-
-            function MergeCollection() {
-              _ref14 = MergeCollection.__super__.constructor.apply(this, arguments);
-              return _ref14;
-            }
-
-            MergeCollection.prototype.model = MergeModel;
-
-            return MergeCollection;
-
-          })(Falcon.Collection);
-          merge_model = new MergeModel({
-            id: 1
-          });
-          merge_collection = new MergeCollection([merge_model]);
-          expect(merge_model.get('foo')).toBe('bar');
-          expect(merge_model.sub.get('hello')).toBe('world');
-          foo_obs = merge_model.foo;
-          hello_obs = merge_model.sub.hello;
-          expect(ko.isObservable(foo_obs)).toBe(true);
-          expect(ko.isObservable(hello_obs)).toBe(true);
-          expect(merge_collection.all()).toEqual([merge_model]);
-          merge_collection.fill([
-            {
-              'id': 1,
-              'foo': 'BAR',
-              'sub': {
-                'hello': 'WORLD'
-              }
-            }, (merge_model2 = new MergeModel)
-          ], {
-            'method': 'merge'
-          });
-          expect(merge_model.get('foo')).toBe('BAR');
-          expect(merge_model.sub.get('hello')).toBe('WORLD');
-          expect(foo_obs).toBe(merge_model.foo);
-          expect(hello_obs).toBe(merge_model.sub.hello);
-          return expect(merge_collection.all()).toEqual([merge_model, merge_model2]);
+        expect(collection.replace).not.toHaveBeenCalled();
+        expect(collection.append).not.toHaveBeenCalled();
+        expect(collection.merge).not.toHaveBeenCalled();
+        expect(collection.insert).not.toHaveBeenCalled();
+        return expect(collection.prepend.calls.mostRecent().args[1]).not.toBe(options);
+      });
+      it("Should call the merge when requested", function() {
+        options = {
+          'method': 'merge'
+        };
+        collection.fill(items, options);
+        expect(collection.merge.calls.count()).toBe(1);
+        expect(collection.merge).toHaveBeenCalledWith(items, {
+          'method': 'merge',
+          'comparator': null
         });
-        return it("Should properly merge items into a populated collection that has a specified comparator", function() {
-          var collectionA, index;
-          collectionA = new CollectionA([
-            {
-              id: 3,
-              "hello": "world3"
-            }, {
-              id: 4,
-              "hello": "world4"
+        expect(collection.replace).not.toHaveBeenCalled();
+        expect(collection.append).not.toHaveBeenCalled();
+        expect(collection.prepend).not.toHaveBeenCalled();
+        expect(collection.insert).not.toHaveBeenCalled();
+        return expect(collection.merge.calls.mostRecent().args[1]).not.toBe(options);
+      });
+      return it("Should call the insert when requested", function() {
+        options = {
+          'method': 'insert',
+          'index': 3
+        };
+        collection.fill(items, options);
+        expect(collection.insert.calls.count()).toBe(1);
+        expect(collection.insert).toHaveBeenCalledWith(items, {
+          'method': 'insert',
+          'index': 3,
+          'comparator': null
+        });
+        expect(collection.replace).not.toHaveBeenCalled();
+        expect(collection.append).not.toHaveBeenCalled();
+        expect(collection.prepend).not.toHaveBeenCalled();
+        expect(collection.merge).not.toHaveBeenCalled();
+        return expect(collection.insert.calls.mostRecent().args[1]).not.toBe(options);
+      });
+    });
+    describe("replace", function() {
+      it("Should properly add items into an empty collection", function() {
+        var collectionA;
+        collectionA = new CollectionA;
+        collectionA.replace([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }
+        ]);
+        expect(collectionA.length()).toBe(2);
+        expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(0).get('id')).toBe(1);
+        expect(collectionA.at(0).get('hello')).toBe("world");
+        expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(1).get('id')).toBe(2);
+        return expect(collectionA.at(1).get('hello')).toBe("world2");
+      });
+      return it("Should properly replace items into a populated collection", function() {
+        var collectionA;
+        collectionA = new CollectionA([
+          {
+            id: 2,
+            "hello": "world3"
+          }
+        ]);
+        collectionA.replace([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }
+        ]);
+        expect(collectionA.length()).toBe(2);
+        expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(0).get('id')).toBe(1);
+        expect(collectionA.at(0).get('hello')).toBe("world");
+        expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(1).get('id')).toBe(2);
+        return expect(collectionA.at(1).get('hello')).toBe("world2");
+      });
+    });
+    describe("append", function() {
+      it("Should properly add items into an empty collection", function() {
+        var collectionA;
+        collectionA = new CollectionA;
+        collectionA.append([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }
+        ]);
+        expect(collectionA.length()).toBe(2);
+        expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(0).get('id')).toBe(1);
+        expect(collectionA.at(0).get('hello')).toBe("world");
+        expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(1).get('id')).toBe(2);
+        return expect(collectionA.at(1).get('hello')).toBe("world2");
+      });
+      it("Should properly append items into a populated collection", function() {
+        var collectionA;
+        collectionA = new CollectionA([
+          {
+            id: 3,
+            "hello": "world3"
+          }
+        ]);
+        collectionA.append([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }
+        ]);
+        expect(collectionA.length()).toBe(3);
+        expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(0).get('id')).toBe(3);
+        expect(collectionA.at(0).get('hello')).toBe("world3");
+        expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(1).get('id')).toBe(1);
+        expect(collectionA.at(1).get('hello')).toBe("world");
+        expect(collectionA.at(2)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(2).get('id')).toBe(2);
+        return expect(collectionA.at(2).get('hello')).toBe("world2");
+      });
+      return it("Should properly add items into an empty collection and set the parent properly", function() {
+        var collectionA, modelB;
+        modelB = new ModelB;
+        collectionA = new CollectionA(modelB);
+        collectionA.append([
+          {
+            id: 1,
+            "hello": "world"
+          }
+        ]);
+        expect(collectionA.length()).toBe(1);
+        expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(0).get('id')).toBe(1);
+        expect(collectionA.at(0).get('hello')).toBe("world");
+        return expect(collectionA.at(0).parent).toBe(modelB);
+      });
+    });
+    describe("prepend", function() {
+      it("Should properly add items into an empty collection", function() {
+        var collectionA;
+        collectionA = new CollectionA;
+        collectionA.prepend([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }
+        ]);
+        expect(collectionA.length()).toBe(2);
+        expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(0).get('id')).toBe(1);
+        expect(collectionA.at(0).get('hello')).toBe("world");
+        expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(1).get('id')).toBe(2);
+        return expect(collectionA.at(1).get('hello')).toBe("world2");
+      });
+      return it("Should properly prepend items into a populated collection", function() {
+        var collectionA, index;
+        collectionA = new CollectionA([
+          {
+            id: 3,
+            "hello": "world3"
+          }
+        ]);
+        collectionA.prepend([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }
+        ]);
+        index = 0;
+        expect(collectionA.length()).toBe(3);
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(1);
+        expect(collectionA.at(index).get('hello')).toBe("world");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(2);
+        expect(collectionA.at(index).get('hello')).toBe("world2");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(3);
+        return expect(collectionA.at(index).get('hello')).toBe("world3");
+      });
+    });
+    describe("merge", function() {
+      it("Should properly add items into an empty collection", function() {
+        var collectionA;
+        collectionA = new CollectionA;
+        collectionA.merge([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }
+        ]);
+        expect(collectionA.length()).toBe(2);
+        expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(0).get('id')).toBe(1);
+        expect(collectionA.at(0).get('hello')).toBe("world");
+        expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(1).get('id')).toBe(2);
+        return expect(collectionA.at(1).get('hello')).toBe("world2");
+      });
+      it("Should properly merge items into a populated collection", function() {
+        var collectionA, index;
+        collectionA = new CollectionA([
+          {
+            id: 3,
+            "hello": "world3"
+          }, {
+            id: 4,
+            "hello": "world4"
+          }
+        ]);
+        collectionA.merge([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }, {
+            id: 4,
+            "hello": "world5"
+          }
+        ]);
+        index = 0;
+        expect(collectionA.length()).toBe(4);
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(3);
+        expect(collectionA.at(index).get('hello')).toBe("world3");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(4);
+        expect(collectionA.at(index).get('hello')).toBe("world5");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(1);
+        expect(collectionA.at(index).get('hello')).toBe("world");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(2);
+        expect(collectionA.at(index).get('hello')).toBe("world2");
+        return index++;
+      });
+      it("Should not overwrite previous references on merge", function() {
+        var MergeCollection, MergeModel, SubMergeModel, foo_obs, hello_obs, merge_collection, merge_model, merge_model2, _ref12, _ref13, _ref14;
+        MergeModel = (function(_super) {
+          __extends(MergeModel, _super);
+
+          function MergeModel() {
+            _ref12 = MergeModel.__super__.constructor.apply(this, arguments);
+            return _ref12;
+          }
+
+          MergeModel.prototype.defaults = {
+            'sub': function() {
+              return new SubMergeModel;
             }
-          ]);
-          collectionA.comparator = function(model_a, model_b) {
-            var a_id, b_id;
-            a_id = parseInt(model_a.get("id"));
-            b_id = parseInt(model_b.get("id"));
-            if (a_id > b_id) {
-              return -1;
-            }
-            if (a_id < b_id) {
-              return 1;
-            }
-            return 0;
           };
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }, {
-              id: 4,
-              "hello": "world5"
-            }
-          ], {
-            'method': 'merge'
-          });
-          index = 0;
-          expect(collectionA.length()).toBe(4);
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(4);
-          expect(collectionA.at(index).get('hello')).toBe("world5");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(3);
-          expect(collectionA.at(index).get('hello')).toBe("world3");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(2);
-          expect(collectionA.at(index).get('hello')).toBe("world2");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(1);
-          expect(collectionA.at(index).get('hello')).toBe("world");
-          return index++;
+
+          MergeModel.prototype.observables = {
+            'foo': 'bar'
+          };
+
+          return MergeModel;
+
+        })(Falcon.Model);
+        SubMergeModel = (function(_super) {
+          __extends(SubMergeModel, _super);
+
+          function SubMergeModel() {
+            _ref13 = SubMergeModel.__super__.constructor.apply(this, arguments);
+            return _ref13;
+          }
+
+          SubMergeModel.prototype.observables = {
+            'hello': 'world'
+          };
+
+          return SubMergeModel;
+
+        })(Falcon.Model);
+        MergeCollection = (function(_super) {
+          __extends(MergeCollection, _super);
+
+          function MergeCollection() {
+            _ref14 = MergeCollection.__super__.constructor.apply(this, arguments);
+            return _ref14;
+          }
+
+          MergeCollection.prototype.model = MergeModel;
+
+          return MergeCollection;
+
+        })(Falcon.Collection);
+        merge_model = new MergeModel({
+          id: 1
         });
+        merge_collection = new MergeCollection([merge_model]);
+        expect(merge_model.get('foo')).toBe('bar');
+        expect(merge_model.sub.get('hello')).toBe('world');
+        foo_obs = merge_model.foo;
+        hello_obs = merge_model.sub.hello;
+        expect(ko.isObservable(foo_obs)).toBe(true);
+        expect(ko.isObservable(hello_obs)).toBe(true);
+        expect(merge_collection.all()).toEqual([merge_model]);
+        merge_collection.merge([
+          {
+            'id': 1,
+            'foo': 'BAR',
+            'sub': {
+              'hello': 'WORLD'
+            }
+          }, (merge_model2 = new MergeModel)
+        ]);
+        expect(merge_model.get('foo')).toBe('BAR');
+        expect(merge_model.sub.get('hello')).toBe('WORLD');
+        expect(foo_obs).toBe(merge_model.foo);
+        expect(hello_obs).toBe(merge_model.sub.hello);
+        return expect(merge_collection.all()).toEqual([merge_model, merge_model2]);
       });
-      describe("Test 'insert' option", function() {
-        it("Should properly add items into an empty collection", function() {
-          var collectionA;
-          collectionA = new CollectionA;
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ], {
-            'method': 'insert',
-            'insert_index': 2
-          });
-          expect(collectionA.length()).toBe(2);
-          expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(0).get('id')).toBe(1);
-          expect(collectionA.at(0).get('hello')).toBe("world");
-          expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(1).get('id')).toBe(2);
-          return expect(collectionA.at(1).get('hello')).toBe("world2");
-        });
-        it("Should properly insert items into a populated collection", function() {
-          var collectionA, index;
-          collectionA = new CollectionA([
-            {
-              id: 3,
-              "hello": "world3"
-            }, {
-              id: 4,
-              "hello": "world4"
-            }
-          ]);
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ], {
-            'method': 'insert',
-            'insert_index': 1
-          });
-          index = 0;
-          expect(collectionA.length()).toBe(4);
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(3);
-          expect(collectionA.at(index).get('hello')).toBe("world3");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(1);
-          expect(collectionA.at(index).get('hello')).toBe("world");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(2);
-          expect(collectionA.at(index).get('hello')).toBe("world2");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(4);
-          expect(collectionA.at(index).get('hello')).toBe("world4");
-          return index++;
-        });
-        it("Should properly insert items into a populated collection at an invalid index", function() {
-          var collectionA, index;
-          collectionA = new CollectionA([
-            {
-              id: 3,
-              "hello": "world3"
-            }, {
-              id: 4,
-              "hello": "world4"
-            }
-          ]);
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ], {
-            'method': 'insert',
-            'insert_index': 5
-          });
-          index = 0;
-          expect(collectionA.length()).toBe(4);
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(3);
-          expect(collectionA.at(index).get('hello')).toBe("world3");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(4);
-          expect(collectionA.at(index).get('hello')).toBe("world4");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(1);
-          expect(collectionA.at(index).get('hello')).toBe("world");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(2);
-          expect(collectionA.at(index).get('hello')).toBe("world2");
-          return index++;
-        });
-        return it("Should properly insert items into the beginning of a populated collection", function() {
-          var collectionA, index;
-          collectionA = new CollectionA([
-            {
-              id: 3,
-              "hello": "world3"
-            }, {
-              id: 4,
-              "hello": "world4"
-            }
-          ]);
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ], {
-            'method': 'insert',
-            'insert_index': 0
-          });
-          index = 0;
-          expect(collectionA.length()).toBe(4);
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(1);
-          expect(collectionA.at(index).get('hello')).toBe("world");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(2);
-          expect(collectionA.at(index).get('hello')).toBe("world2");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(3);
-          expect(collectionA.at(index).get('hello')).toBe("world3");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(4);
-          expect(collectionA.at(index).get('hello')).toBe("world4");
-          return index++;
-        });
+      return it("Should properly merge items into a populated collection that has a specified comparator", function() {
+        var collectionA, index;
+        collectionA = new CollectionA([
+          {
+            id: 3,
+            "hello": "world3"
+          }, {
+            id: 4,
+            "hello": "world4"
+          }
+        ]);
+        collectionA.comparator = function(model_a, model_b) {
+          var a_id, b_id;
+          a_id = parseInt(model_a.get("id"));
+          b_id = parseInt(model_b.get("id"));
+          if (a_id > b_id) {
+            return -1;
+          }
+          if (a_id < b_id) {
+            return 1;
+          }
+          return 0;
+        };
+        collectionA.merge([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }, {
+            id: 4,
+            "hello": "world5"
+          }
+        ]);
+        index = 0;
+        expect(collectionA.length()).toBe(4);
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(4);
+        expect(collectionA.at(index).get('hello')).toBe("world5");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(3);
+        expect(collectionA.at(index).get('hello')).toBe("world3");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(2);
+        expect(collectionA.at(index).get('hello')).toBe("world2");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(1);
+        expect(collectionA.at(index).get('hello')).toBe("world");
+        return index++;
       });
-      describe("Test invalid option", function() {
-        it("Should properly add items into an empty collection", function() {
-          var collectionA;
-          collectionA = new CollectionA;
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ], {
-            'method': 'invalid'
-          });
-          expect(collectionA.length()).toBe(2);
-          expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(0).get('id')).toBe(1);
-          expect(collectionA.at(0).get('hello')).toBe("world");
-          expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(1).get('id')).toBe(2);
-          return expect(collectionA.at(1).get('hello')).toBe("world2");
+    });
+    describe("insert", function() {
+      it("Should properly add items into an empty collection", function() {
+        var collectionA;
+        collectionA = new CollectionA;
+        collectionA.insert([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }
+        ], {
+          'index': 2
         });
-        return it("Should properly replace items into a populated collection", function() {
-          var collectionA;
-          collectionA = new CollectionA([
-            {
-              id: 2,
-              "hello": "world3"
-            }
-          ]);
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ], {
-            'method': 'invalid'
-          });
-          expect(collectionA.length()).toBe(2);
-          expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(0).get('id')).toBe(1);
-          expect(collectionA.at(0).get('hello')).toBe("world");
-          expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(1).get('id')).toBe(2);
-          return expect(collectionA.at(1).get('hello')).toBe("world2");
-        });
+        expect(collectionA.length()).toBe(2);
+        expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(0).get('id')).toBe(1);
+        expect(collectionA.at(0).get('hello')).toBe("world");
+        expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(1).get('id')).toBe(2);
+        return expect(collectionA.at(1).get('hello')).toBe("world2");
       });
-      return describe("Test that parent is being set properly on children models", function() {
-        return it("Should properly add items into an empty collection", function() {
-          var collectionA, modelB;
-          modelB = new ModelB;
-          collectionA = new CollectionA(modelB);
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }
-          ]);
-          expect(collectionA.length()).toBe(1);
-          expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(0).get('id')).toBe(1);
-          expect(collectionA.at(0).get('hello')).toBe("world");
-          return expect(collectionA.at(0).parent).toBe(modelB);
+      it("Should properly insert items into a populated collection", function() {
+        var collectionA, index;
+        collectionA = new CollectionA([
+          {
+            id: 3,
+            "hello": "world3"
+          }, {
+            id: 4,
+            "hello": "world4"
+          }
+        ]);
+        collectionA.insert([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }
+        ], {
+          'index': 1
         });
+        index = 0;
+        expect(collectionA.length()).toBe(4);
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(3);
+        expect(collectionA.at(index).get('hello')).toBe("world3");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(1);
+        expect(collectionA.at(index).get('hello')).toBe("world");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(2);
+        expect(collectionA.at(index).get('hello')).toBe("world2");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(4);
+        expect(collectionA.at(index).get('hello')).toBe("world4");
+        return index++;
+      });
+      it("Should properly insert items into a populated collection at an invalid index", function() {
+        var collectionA, index;
+        collectionA = new CollectionA([
+          {
+            id: 3,
+            "hello": "world3"
+          }, {
+            id: 4,
+            "hello": "world4"
+          }
+        ]);
+        collectionA.insert([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }
+        ], {
+          'index': 5
+        });
+        index = 0;
+        expect(collectionA.length()).toBe(4);
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(3);
+        expect(collectionA.at(index).get('hello')).toBe("world3");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(4);
+        expect(collectionA.at(index).get('hello')).toBe("world4");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(1);
+        expect(collectionA.at(index).get('hello')).toBe("world");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(2);
+        expect(collectionA.at(index).get('hello')).toBe("world2");
+        return index++;
+      });
+      return it("Should properly insert items into the beginning of a populated collection", function() {
+        var collectionA, index;
+        collectionA = new CollectionA([
+          {
+            id: 3,
+            "hello": "world3"
+          }, {
+            id: 4,
+            "hello": "world4"
+          }
+        ]);
+        collectionA.insert([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }
+        ], {
+          'index': 0
+        });
+        index = 0;
+        expect(collectionA.length()).toBe(4);
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(1);
+        expect(collectionA.at(index).get('hello')).toBe("world");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(2);
+        expect(collectionA.at(index).get('hello')).toBe("world2");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(3);
+        expect(collectionA.at(index).get('hello')).toBe("world3");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(4);
+        expect(collectionA.at(index).get('hello')).toBe("world4");
+        return index++;
       });
     });
     describe("Testing serialize method with proper options", function() {
@@ -4400,100 +4400,6 @@
         model_a1 = collectionA.first();
         collectionA.remove(model_a1);
         return expect(collectionA.length()).toBe(2);
-      });
-    });
-    describe("Test the append and prepend methods", function() {
-      var collectionA, fill_stub;
-      collectionA = null;
-      fill_stub = null;
-      beforeEach(function() {
-        collectionA = new CollectionA;
-        return fill_stub = sinon.stub(collectionA, "fill");
-      });
-      afterEach(function() {
-        return fill_stub.restore();
-      });
-      it("Should call the proper fill method when appending", function() {
-        var input;
-        collectionA.append(input = {
-          'hello': 'world'
-        });
-        expect(fill_stub).toHaveBeenCalledOnce();
-        return expect(fill_stub).toHaveBeenCalledWith(input, jasmine.objectContaining({
-          'method': 'append'
-        }));
-      });
-      return it("Should call the proper fill method when prepending", function() {
-        var input;
-        collectionA.prepend(input = {
-          'hello': 'world'
-        });
-        expect(fill_stub).toHaveBeenCalledOnce();
-        return expect(fill_stub).toHaveBeenCalledWith(input, jasmine.objectContaining({
-          'method': 'prepend'
-        }));
-      });
-    });
-    describe("Test the insert method", function() {
-      var collectionA, fill_stub;
-      collectionA = null;
-      fill_stub = null;
-      beforeEach(function() {
-        collectionA = new CollectionA([
-          {
-            id: 1,
-            'hello': 'foo'
-          }, {
-            id: 4,
-            'hello': 'bar'
-          }
-        ]);
-        return fill_stub = sinon.stub(collectionA, "fill");
-      });
-      it("Should call the proper fill method when inserting without a specific model", function() {
-        var input;
-        collectionA.insert(input = {
-          'hello': 'world'
-        });
-        expect(fill_stub).toHaveBeenCalledOnce();
-        return expect(fill_stub).toHaveBeenCalledWith(input, jasmine.objectContaining({
-          'method': 'append'
-        }));
-      });
-      it("Should call the proper fill method when inserting with a valid model", function() {
-        var input;
-        collectionA.insert(input = {
-          'hello': 'world'
-        }, 4);
-        expect(fill_stub).toHaveBeenCalledOnce();
-        return expect(fill_stub).toHaveBeenCalledWith(input, jasmine.objectContaining({
-          'method': 'insert',
-          'insert_index': 1
-        }));
-      });
-      it("Should call the proper fill method when appending with an invalid model", function() {
-        var input;
-        collectionA.insert(input = {
-          'hello': 'world'
-        }, 33);
-        expect(fill_stub).toHaveBeenCalledOnce();
-        return expect(fill_stub).toHaveBeenCalledWith(input, jasmine.objectContaining({
-          'method': 'insert',
-          'insert_index': -1
-        }));
-      });
-      return it("Should call the proper fill method when inserting with an iterator", function() {
-        var input;
-        collectionA.insert(input = {
-          'hello': 'world'
-        }, (function(m) {
-          return m.get('id') === 1;
-        }));
-        expect(fill_stub).toHaveBeenCalledOnce();
-        return expect(fill_stub).toHaveBeenCalledWith(input, jasmine.objectContaining({
-          'method': 'insert',
-          'insert_index': 0
-        }));
       });
     });
     describe("Test the unshift and push methods", function() {
