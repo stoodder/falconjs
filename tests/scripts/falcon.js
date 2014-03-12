@@ -1605,6 +1605,16 @@
 
     Collection.prototype.insert = function(items, options) {
       var head, insert_index, new_models_list, tail, _ref1, _ref2;
+      if (isFunction(options)) {
+        options = {
+          iterator: options
+        };
+      }
+      if (isNumber(options) || isString(options) || Falcon.isModel(options)) {
+        options = {
+          model: options
+        };
+      }
       options = _fill_standardizeOptions(this, options);
       items = _fill_standardizeItems(this, items);
       items = _fill_createModels(this, items);
