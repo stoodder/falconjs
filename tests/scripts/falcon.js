@@ -1401,14 +1401,14 @@
     };
 
     _fill_standardizeItems = function(collection, items) {
+      if (ko.isObservable(items)) {
+        items = ko.unwrap(items);
+      }
       if (items == null) {
         items = [];
       }
       if (Falcon.isCollection(items)) {
         items = items.all();
-      }
-      if (ko.isObservable(items)) {
-        items = ko.unwrap(items);
       }
       if (!isArray(items)) {
         items = [items];

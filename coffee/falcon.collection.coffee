@@ -424,9 +424,9 @@ class Falcon.Collection extends Falcon.Object
 	#
 	#========================================================================================
 	_fill_standardizeItems = (collection, items) ->
+		items = ko.unwrap(items) if ko.isObservable(items)
 		items ?= []
 		items = items.all() if Falcon.isCollection(items)
-		items = ko.unwrap(items) if ko.isObservable(items)
 		items = [items] unless isArray(items)
 		items = items.slice(0) #Shallow clone the items array so that we don't disturb the original input
 
