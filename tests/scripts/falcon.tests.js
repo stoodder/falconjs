@@ -3875,6 +3875,164 @@
         expect(collectionA.at(index).get('hello')).toBe("world4");
         return index++;
       });
+      it("Should properly insert items into a populated collection with an iterator function", function() {
+        var collectionA, index;
+        collectionA = new CollectionA([
+          {
+            id: 3,
+            "hello": "world3"
+          }, {
+            id: 4,
+            "hello": "world4"
+          }
+        ]);
+        collectionA.insert([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }
+        ], function(model) {
+          return model.get('id') === 4;
+        });
+        index = 0;
+        expect(collectionA.length()).toBe(4);
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(3);
+        expect(collectionA.at(index).get('hello')).toBe("world3");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(1);
+        expect(collectionA.at(index).get('hello')).toBe("world");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(2);
+        expect(collectionA.at(index).get('hello')).toBe("world2");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(4);
+        expect(collectionA.at(index).get('hello')).toBe("world4");
+        return index++;
+      });
+      it("Should properly insert items into a populated collection with an integer id", function() {
+        var collectionA, index;
+        collectionA = new CollectionA([
+          {
+            id: 3,
+            "hello": "world3"
+          }, {
+            id: 4,
+            "hello": "world4"
+          }
+        ]);
+        collectionA.insert([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }
+        ], 4);
+        index = 0;
+        expect(collectionA.length()).toBe(4);
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(3);
+        expect(collectionA.at(index).get('hello')).toBe("world3");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(1);
+        expect(collectionA.at(index).get('hello')).toBe("world");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(2);
+        expect(collectionA.at(index).get('hello')).toBe("world2");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(4);
+        expect(collectionA.at(index).get('hello')).toBe("world4");
+        return index++;
+      });
+      it("Should properly insert items into a populated collection with a string id", function() {
+        var collectionA, index;
+        collectionA = new CollectionA([
+          {
+            id: '3',
+            "hello": "world3"
+          }, {
+            id: '4',
+            "hello": "world4"
+          }
+        ]);
+        collectionA.insert([
+          {
+            id: '1',
+            "hello": "world"
+          }, {
+            id: '2',
+            "hello": "world2"
+          }
+        ], '4');
+        index = 0;
+        expect(collectionA.length()).toBe(4);
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe('3');
+        expect(collectionA.at(index).get('hello')).toBe("world3");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe('1');
+        expect(collectionA.at(index).get('hello')).toBe("world");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe('2');
+        expect(collectionA.at(index).get('hello')).toBe("world2");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe('4');
+        expect(collectionA.at(index).get('hello')).toBe("world4");
+        return index++;
+      });
+      it("Should properly insert items into a populated collection with a model", function() {
+        var collectionA, index, model;
+        collectionA = new CollectionA([
+          new ModelA({
+            id: 3,
+            "hello": "world3"
+          }), model = new ModelA({
+            id: 4,
+            "hello": "world4"
+          })
+        ]);
+        collectionA.insert([
+          new ModelA({
+            id: 1,
+            "hello": "world"
+          }), new ModelA({
+            id: 2,
+            "hello": "world2"
+          })
+        ], model);
+        index = 0;
+        expect(collectionA.length()).toBe(4);
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(3);
+        expect(collectionA.at(index).get('hello')).toBe("world3");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(1);
+        expect(collectionA.at(index).get('hello')).toBe("world");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(2);
+        expect(collectionA.at(index).get('hello')).toBe("world2");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(4);
+        expect(collectionA.at(index).get('hello')).toBe("world4");
+        return index++;
+      });
       it("Should properly insert items into a populated collection at an invalid index", function() {
         var collectionA, index;
         collectionA = new CollectionA([

@@ -594,6 +594,8 @@ class Falcon.Collection extends Falcon.Object
 	#	_(Array)_ - An array of the models that were added
 	#--------------------------------------------------------
 	insert: (items, options) ->
+		options = {iterator: options} if isFunction( options )
+		options = {model: options} if isNumber( options ) or isString( options ) or Falcon.isModel( options )
 		options = _fill_standardizeOptions( @, options )
 
 		items = _fill_standardizeItems( @, items )
