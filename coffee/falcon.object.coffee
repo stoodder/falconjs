@@ -308,20 +308,13 @@ class Falcon.Object
 			
 			if _event? and event isnt _event
 				new_listeners.push( listener )
-				continue
-			#END if
-			
-			if _object? and object isnt _object
+			else if _object? and object isnt _object
 				new_listeners.push( listener )
-				continue
-			#END if
-
-			if _callback? and callback isnt _callback
+			else if _callback? and callback isnt _callback
 				new_listeners.push( listener )
-				continue
+			else
+				object.off(event, callback)
 			#END if
-
-			object.off(event, callback)
 		#END for
 
 		@__falcon_object__listeners__ = new_listeners

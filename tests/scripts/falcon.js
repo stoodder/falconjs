@@ -543,17 +543,13 @@
         object = listener.object, event = listener.event, callback = listener.callback;
         if ((_event != null) && event !== _event) {
           new_listeners.push(listener);
-          continue;
-        }
-        if ((_object != null) && object !== _object) {
+        } else if ((_object != null) && object !== _object) {
           new_listeners.push(listener);
-          continue;
-        }
-        if ((_callback != null) && callback !== _callback) {
+        } else if ((_callback != null) && callback !== _callback) {
           new_listeners.push(listener);
-          continue;
+        } else {
+          object.off(event, callback);
         }
-        object.off(event, callback);
       }
       this.__falcon_object__listeners__ = new_listeners;
       return this;
