@@ -11,22 +11,22 @@
 
 
 ## For The Future
-**v0.10.0**
+###v0.10.0
 _Highlights_
 * Added Falcon.Adapter for splitting out dependencies on how we transmit, respond to, and receive data form a backend data source.
 * Falcon.Collection#insert has breaking changes (check breaking changes section for more info)
 
-_TODO_
+**TODO**
 * Add method support for 'obervables' and 'defaults' (rather than dictionary defintion)
 * Add support for Falcon.Collection in the without() method (remove all models from the resultant collection that are in the given collection)
 * Add exec binding
 * add generate binding and Falcon.register for dynamically creating views
 * Cleanup/Redo binding tests
 
-_Breaking Changes_
+**Breaking Changes**
 * Falcon.Collection#insert() has breaking changes. You must now pass in an 'options' object as the second parameteter instead of the insert index or model to insert after. In the options parameter, you'll be able to pass in an 'index' attribute for the index to insert the models after. A model attribute to specific which model to insert the models after. Or an iterator to truth test the collection (to find an insert index, based on first success) to insert the models after
 
-_Enhancements_
+**Enhancements**
 * Convert Build process to Grunt.js
 * Added id override to model makeUrl
 * Add 'all' method to collections
@@ -45,6 +45,6 @@ _Enhancements_
 * Divide fill method into separate methods for each type (reverse rolls)
 * Support for Knockout 3.1
 
-_Bugs Fixed_
+**Bugs Fixed**
 * Fixed reference overwirtting on colleciton merge method.
 * Fix length() on collection chains

@@ -306,6 +306,37 @@ describe "Falcon.Object", ->
 			expect( ret ).toBe( object )
 		#END it
 
+		it "Should stop listening to events based on event and callback", ->
+			ret = object.stopListening("login", callback_two)
+
+			model.trigger("login", "model login")
+			expect( callback_one ).toHaveBeenCalledTwice()
+			expect( callback_one ).toHaveBeenCalledWith("model login")
+			expect( callback_one ).toHaveBeenCalledOn( object )
+			expect( callback_two ).not.toHaveBeenCalled()
+			callback_one.reset()
+
+			model.trigger("notify", "model notify")
+			expect( callback_one ).not.toHaveBeenCalled()
+			expect( callback_two ).toHaveBeenCalledOnce()
+			expect( callback_two ).toHaveBeenCalledWith("model notify")
+			expect( callback_two ).toHaveBeenCalledOn( object )
+			callback_two.reset()
+
+			view.trigger("login", "view login")
+			expect( callback_one ).not.toHaveBeenCalled()
+			expect( callback_two ).not.toHaveBeenCalled()
+
+			view.trigger("notify", "view notify")
+			expect( callback_one ).toHaveBeenCalledOnce()
+			expect( callback_one ).toHaveBeenCalledWith("view notify")
+			expect( callback_one ).toHaveBeenCalledOn( object )
+			expect( callback_two ).not.toHaveBeenCalled()
+			callback_one.reset()
+
+			expect( ret ).toBe( object )
+		#END it
+
 		it "Should stop listening to events based on object, event, and callback", ->
 			ret = object.stopListening(model, "login", callback_one)
 
