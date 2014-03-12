@@ -11,6 +11,8 @@ npm install
 grunt
 
 ###
+CoffeeScript = require('coffee-script')
+
 module.exports = (grunt) ->
 	grunt.loadNpmTasks('grunt-contrib-coffee')
 	grunt.loadNpmTasks('grunt-contrib-uglify')
@@ -20,7 +22,6 @@ module.exports = (grunt) ->
 
 	grunt.registerTask('test', ['coffee:test', 'jasmine'])
 	grunt.registerTask('default', [
-		'coffee:banner'
 		'update_banner'
 		'coffee:dist'
 		'coffee:adapters'
@@ -32,40 +33,25 @@ module.exports = (grunt) ->
 
 	grunt.registerTask 'update_banner', 'updates the banner information', ->
 		try
-			banner = grunt.file.read('scripts/banner.js').toString()
-			pkg = grunt.file.readJSON('package.json')
+			banner = grunt.file.read('coffee/banner.coffee').toString()
+			banner = CoffeeScript.compile(banner, {bare: true})
 		catch e
 			banner = ""
 		#END try
-
-		banner = banner.replace(/\{\{VERSION\}\}/gi, pkg.version)
 
 		uglfiy_cfg = grunt.config('uglify')
 		uglfiy_cfg.dist.options.banner = banner
 
 		grunt.config('uglify', uglfiy_cfg)
 	#END registerTask
-
-	banner = grunt.file.read('scripts/banner.js').toString()
 	
 	grunt.initConfig
 		'pkg': grunt.file.readJSON('package.json')
 
 		'coffee':
-			'banner':
-				options:
-					bare: true
-				#END options
-
-				files:
-					'scripts/banner.js': ["coffee/banner.coffee"]
-				#END files
-			#END banner
-
 			'dist':
 				options:
 					join: true
-					banner: banner
 				#END options
 
 				files:
@@ -91,7 +77,6 @@ module.exports = (grunt) ->
 			'adapters':
 				options:
 					join: true
-					banner: banner
 				#END options
 
 				files:
@@ -197,11 +182,11 @@ module.exports = (grunt) ->
 		'watch':
 			'banner_coffee':
 				'files': ["coffee/banner.coffee"]
-				'tasks': ['coffee:banner', 'update_banner', 'coffee:dist', 'uglify:dist']
+				'tasks': ['update_banner', 'coffee:dist', 'uglify:dist']
 			#END watch:banner_coffee
 
 			'dist_coffee':
-				'files': ["coffee/*.coffee"]
+				'files': ["coffee/falcon.coffee", "coffee/falcon.*.coffee", "coffee/*.utility.coffee"]
 				'tasks': ['coffee:dist', 'uglify:dist']
 			#END watch:dist_coffee
 
@@ -211,7 +196,7 @@ module.exports = (grunt) ->
 			#END watch:dist_coffee
 
 			'test_copy':
-				'files': ['falcon.js', 'falcon.min.js', 'scripts/*.js', 'adapters/*.js']
+				'files': ['falcon.js', 'falcon.min.js', 'adapters/*.js']
 				'tasks': ['copy:test']
 			#END test_copy
 		#END watch
