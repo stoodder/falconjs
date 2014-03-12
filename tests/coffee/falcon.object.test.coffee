@@ -75,6 +75,310 @@ describe "Falcon.Object", ->
 		#END it
 	#END describe
 
+	describe "listenTo", ->
+		object = model = model_2 = collection = view = null
+		login_callback = notify_callback = null
+
+		beforeEach ->
+			object = new Falcon.Object
+			model = new Falcon.Model
+			model_2 = new Falcon.Model
+			collection = new Falcon.Collection
+			view = new Falcon.View
+
+			login_callback = sinon.spy()
+			notify_callback = sinon.spy()
+		#END beofreEach
+
+		it "Should have no listeners by default", ->
+			expect( object.__falcon_object__listeners__ ).toBeNull()
+		#END it
+
+		it "Should add listeners properly", ->
+			expect( object.listenTo(model, "login", login_callback) ).toBe( object )
+			expect( object.listenTo(model_2, "login", notify_callback) ).toBe( object )
+			expect( object.listenTo(model_2, "login", login_callback) ).toBe( object )
+
+			expect( login_callback ).not.toHaveBeenCalled()
+
+			expect( object.__falcon_object__listeners__.length ).toBe( 3 )
+
+			model.trigger("login")
+			expect( login_callback ).toHaveBeenCalledOnce()
+			expect( login_callback ).toHaveBeenCalledOn( object )
+			expect( notify_callback ).not.toHaveBeenCalled()
+			login_callback.reset()
+
+			model_2.trigger("login")
+			expect( login_callback ).toHaveBeenCalledOnce()
+			expect( login_callback ).toHaveBeenCalledOn( object )
+			expect( notify_callback ).toHaveBeenCalledOnce()
+			expect( notify_callback ).toHaveBeenCalledOn( object )
+		#END it
+	#END describe
+
+	describe "stopListening", ->
+		object = model = view = null
+		callback_one = callback_two = null
+
+		beforeEach ->
+			object = new Falcon.Object
+			model = new Falcon.Model
+			view = new Falcon.View
+
+			callback_one = sinon.spy()
+			callback_two = sinon.spy()
+
+			object.listenTo(model, "login", callback_one)
+			object.listenTo(model, "login", callback_one) #Bound twice on purpose
+			object.listenTo(model, "notify", callback_two)
+
+			object.listenTo(view, "login", callback_two)
+			object.listenTo(view, "notify", callback_one)
+		#END beofreEach
+
+		it "Should stop listening to everything", ->
+			ret = object.stopListening()
+
+			model.trigger("login", "model login")
+			expect( callback_one ).not.toHaveBeenCalled()
+			expect( callback_two ).not.toHaveBeenCalled()
+
+			model.trigger("notify", "model notify")
+			expect( callback_one ).not.toHaveBeenCalled()
+			expect( callback_two ).not.toHaveBeenCalled()
+
+			view.trigger("login", "view login")
+			expect( callback_one ).not.toHaveBeenCalled()
+			expect( callback_two ).not.toHaveBeenCalled()
+
+			view.trigger("notify", "view notify")
+			expect( callback_one ).not.toHaveBeenCalled()
+			expect( callback_two ).not.toHaveBeenCalled()
+
+			expect( ret ).toBe( object )
+		#END it
+
+		it "Should stop listening to events based on object", ->
+			ret = object.stopListening(model)
+
+			model.trigger("login", "model login")
+			expect( callback_one ).not.toHaveBeenCalled()
+			expect( callback_two ).not.toHaveBeenCalled()
+
+			model.trigger("notify", "model notify")
+			expect( callback_one ).not.toHaveBeenCalled()
+			expect( callback_two ).not.toHaveBeenCalled()
+
+			view.trigger("login", "view login")
+			expect( callback_one ).not.toHaveBeenCalled()
+			expect( callback_two ).toHaveBeenCalledOnce()
+			expect( callback_two ).toHaveBeenCalledWith("view login")
+			expect( callback_two ).toHaveBeenCalledOn( object )
+			callback_two.reset()
+
+			view.trigger("notify", "view notify")
+			expect( callback_one ).toHaveBeenCalledOnce()
+			expect( callback_one ).toHaveBeenCalledWith("view notify")
+			expect( callback_one ).toHaveBeenCalledOn( object )
+			expect( callback_two ).not.toHaveBeenCalled()
+			callback_one.reset()
+
+			expect( ret ).toBe( object )
+		#END it
+
+		it "Should stop listening to events based on event", ->
+			ret = object.stopListening("login")
+
+			model.trigger("login", "model login")
+			expect( callback_one ).not.toHaveBeenCalled()
+			expect( callback_two ).not.toHaveBeenCalled()
+
+			model.trigger("notify", "model notify")
+			expect( callback_one ).not.toHaveBeenCalled()
+			expect( callback_two ).toHaveBeenCalledOnce()
+			expect( callback_two ).toHaveBeenCalledWith("model notify")
+			expect( callback_two ).toHaveBeenCalledOn( object )
+			callback_two.reset()
+
+			view.trigger("login", "view login")
+			expect( callback_one ).not.toHaveBeenCalled()
+			expect( callback_two ).not.toHaveBeenCalled()
+
+			view.trigger("notify", "view notify")
+			expect( callback_one ).toHaveBeenCalledOnce()
+			expect( callback_one ).toHaveBeenCalledWith("view notify")
+			expect( callback_one ).toHaveBeenCalledOn( object )
+			expect( callback_two ).not.toHaveBeenCalled()
+			callback_one.reset()
+
+			expect( ret ).toBe( object )
+		#END it
+
+		it "Should stop listeing to events based on callback", ->
+			ret = object.stopListening(callback_one)
+
+			model.trigger("login", "model login")
+			expect( callback_one ).not.toHaveBeenCalled()
+			expect( callback_two ).not.toHaveBeenCalled()
+
+			model.trigger("notify", "model notify")
+			expect( callback_one ).not.toHaveBeenCalled()
+			expect( callback_two ).toHaveBeenCalledOnce()
+			expect( callback_two ).toHaveBeenCalledWith("model notify")
+			expect( callback_two ).toHaveBeenCalledOn( object )
+			callback_two.reset()
+
+			view.trigger("login", "view login")
+			expect( callback_one ).not.toHaveBeenCalled()
+			expect( callback_two ).toHaveBeenCalledOnce()
+			expect( callback_two ).toHaveBeenCalledWith("view login")
+			expect( callback_two ).toHaveBeenCalledOn( object )
+			callback_two.reset()
+
+			view.trigger("notify", "view notify")
+			expect( callback_one ).not.toHaveBeenCalledOnce()
+			expect( callback_two ).not.toHaveBeenCalled()
+
+			expect( ret ).toBe( object )
+		#END it
+
+		it "Should stop listening to events based on object and event", ->
+			ret = object.stopListening(model, "login")
+
+			model.trigger("login", "model login")
+			expect( callback_one ).not.toHaveBeenCalled()
+			expect( callback_two ).not.toHaveBeenCalled()
+
+			model.trigger("notify", "model notify")
+			expect( callback_one ).not.toHaveBeenCalled()
+			expect( callback_two ).toHaveBeenCalledOnce()
+			expect( callback_two ).toHaveBeenCalledWith("model notify")
+			expect( callback_two ).toHaveBeenCalledOn( object )
+			callback_two.reset()
+
+			view.trigger("login", "view login")
+			expect( callback_one ).not.toHaveBeenCalled()
+			expect( callback_two ).toHaveBeenCalledOnce()
+			expect( callback_two ).toHaveBeenCalledWith("view login")
+			expect( callback_two ).toHaveBeenCalledOn( object )
+			callback_two.reset()
+
+			view.trigger("notify", "view notify")
+			expect( callback_one ).toHaveBeenCalledOnce()
+			expect( callback_one ).toHaveBeenCalledWith("view notify")
+			expect( callback_one ).toHaveBeenCalledOn( object )
+			expect( callback_two ).not.toHaveBeenCalled()
+			callback_one.reset()
+
+			expect( ret ).toBe( object )
+		#END it
+
+		it "Should stop listening to events based on object and callback", ->
+			ret = object.stopListening(model, callback_two)
+
+			model.trigger("login", "model login")
+			expect( callback_one ).toHaveBeenCalledTwice()
+			expect( callback_one ).toHaveBeenCalledWith("model login")
+			expect( callback_one ).toHaveBeenCalledOn( object )
+			expect( callback_two ).not.toHaveBeenCalled()
+			callback_one.reset()
+
+			model.trigger("notify", "model notify")
+			expect( callback_one ).not.toHaveBeenCalled()
+			expect( callback_two ).not.toHaveBeenCalled()
+			callback_two.reset()
+
+			view.trigger("login", "view login")
+			expect( callback_one ).not.toHaveBeenCalled()
+			expect( callback_two ).toHaveBeenCalledOnce()
+			expect( callback_two ).toHaveBeenCalledWith("view login")
+			expect( callback_two ).toHaveBeenCalledOn( object )
+			callback_two.reset()
+
+			view.trigger("notify", "view notify")
+			expect( callback_one ).toHaveBeenCalledOnce()
+			expect( callback_one ).toHaveBeenCalledWith("view notify")
+			expect( callback_one ).toHaveBeenCalledOn( object )
+			expect( callback_two ).not.toHaveBeenCalled()
+			callback_one.reset()
+
+			expect( ret ).toBe( object )
+		#END it
+
+		it "Should stop listening to events based on object, event, and callback", ->
+			ret = object.stopListening(model, "login", callback_one)
+
+			model.trigger("login", "model login")
+			expect( callback_one ).not.toHaveBeenCalled()
+			expect( callback_two ).not.toHaveBeenCalled()
+
+			model.trigger("notify", "model notify")
+			expect( callback_one ).not.toHaveBeenCalled()
+			expect( callback_two ).toHaveBeenCalledOnce()
+			expect( callback_two ).toHaveBeenCalledWith("model notify")
+			expect( callback_two ).toHaveBeenCalledOn( object )
+			callback_two.reset()
+
+			view.trigger("login", "view login")
+			expect( callback_one ).not.toHaveBeenCalled()
+			expect( callback_two ).toHaveBeenCalledOnce()
+			expect( callback_two ).toHaveBeenCalledWith("view login")
+			expect( callback_two ).toHaveBeenCalledOn( object )
+			callback_two.reset()
+
+			view.trigger("notify", "view notify")
+			expect( callback_one ).toHaveBeenCalledOnce()
+			expect( callback_one ).toHaveBeenCalledWith("view notify")
+			expect( callback_one ).toHaveBeenCalledOn( object )
+			expect( callback_two ).not.toHaveBeenCalled()
+			callback_one.reset()
+
+			expect( ret ).toBe( object )
+		#END it
+
+		it "Should not remove any events if nothing matches", ->
+			invalid_callback = sinon.spy()
+
+			expect( object.stopListening( new Falcon.Collection) ).toBe( object )
+			expect( object.stopListening( "invalid_event") ).toBe( object )
+			expect( object.stopListening( invalid_callback ) ).toBe( object )
+			expect( object.stopListening( model, "invalid_event") ).toBe( object )
+			expect( object.stopListening( model, invalid_callback ) ).toBe( object )
+			expect( object.stopListening( model, "login", invalid_callback ) ).toBe( object )
+
+			expect( invalid_callback ).not.toHaveBeenCalled()
+
+			model.trigger("login", "model login")
+			expect( callback_one ).toHaveBeenCalledTwice()
+			expect( callback_one ).toHaveBeenCalledWith("model login")
+			expect( callback_one ).toHaveBeenCalledOn( object )
+			expect( callback_two ).not.toHaveBeenCalled()
+			callback_one.reset()
+
+			model.trigger("notify", "model notify")
+			expect( callback_one ).not.toHaveBeenCalled()
+			expect( callback_two ).toHaveBeenCalledOnce()
+			expect( callback_two ).toHaveBeenCalledWith("model notify")
+			expect( callback_two ).toHaveBeenCalledOn( object )
+			callback_two.reset()
+
+			view.trigger("login", "view login")
+			expect( callback_one ).not.toHaveBeenCalled()
+			expect( callback_two ).toHaveBeenCalledOnce()
+			expect( callback_two ).toHaveBeenCalledWith("view login")
+			expect( callback_two ).toHaveBeenCalledOn( object )
+			callback_two.reset()
+
+			view.trigger("notify", "view notify")
+			expect( callback_one ).toHaveBeenCalledOnce()
+			expect( callback_one ).toHaveBeenCalledWith("view notify")
+			expect( callback_one ).toHaveBeenCalledOn( object )
+			expect( callback_two ).not.toHaveBeenCalled()
+			callback_one.reset()
+		#END it
+	#END describe
+
 	describe "Test #observables and #defaults", ->
 		class Clazz extends Falcon.Object
 			defaults:

@@ -21,7 +21,6 @@ _TODO_
 * Add support for Falcon.Collection in the without() method (remove all models from the resultant collection that are in the given collection)
 * Add exec binding
 * add generate binding and Falcon.register for dynamically creating views
-* add listenTo on Falcon.Object
 * Cleanup/Redo binding tests
 
 _Breaking Changes_
@@ -34,6 +33,7 @@ _Enhancements_
 * Added 'merge' method to collections
 * Added 'replace' method to collections
 * Add 'increment' and 'decrement' to models
+* Add 'listenTo' and 'stopListening' to Falcon.Object
 * Converted unit tests to Jasmine
 * Removing the usages of unwrap where not necessary. Models should carry over by reference, not duplication
 * Reworked the initialization process

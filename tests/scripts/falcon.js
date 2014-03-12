@@ -348,11 +348,12 @@
 
     Object.prototype.__falcon_object__events__ = null;
 
+    Object.prototype.__falcon_object__listeners__ = null;
+
     Object.prototype.__falcon_object__cid__ = null;
 
     function Object() {
       var attr, value, _ref, _ref1, _ref2, _ref3, _ref4;
-      this.__falcon_object__events__ = {};
       this.__falcon_object__cid__ = __falcon_object__current_cid__++;
       if (isObject(this.defaults)) {
         _ref = this.defaults;
@@ -409,6 +410,9 @@
       if (isEmpty(event)) {
         return this;
       }
+      if (this.__falcon_object__events__ == null) {
+        this.__falcon_object__events__ = {};
+      }
       ((_base = this.__falcon_object__events__)[event] != null ? (_base = this.__falcon_object__events__)[event] : _base[event] = []).push({
         callback: callback,
         context: context
@@ -424,6 +428,9 @@
       event = trim(event).toLowerCase();
       if (isEmpty(event) || (this.__falcon_object__events__[event] == null)) {
         return this;
+      }
+      if (this.__falcon_object__events__ == null) {
+        this.__falcon_object__events__ = {};
       }
       if (isFunction(callback)) {
         this.__falcon_object__events__[event] = (function() {
@@ -453,6 +460,9 @@
         return false;
       }
       event = trim(event).toLowerCase();
+      if (this.__falcon_object__events__ == null) {
+        this.__falcon_object__events__ = {};
+      }
       if (isEmpty(event) || (this.__falcon_object__events__[event] == null)) {
         return false;
       }
@@ -476,6 +486,9 @@
         return this;
       }
       event = trim(event).toLowerCase();
+      if (this.__falcon_object__events__ == null) {
+        this.__falcon_object__events__ = {};
+      }
       if (isEmpty(event) || (this.__falcon_object__events__[event] == null)) {
         return this;
       }
@@ -484,6 +497,65 @@
         evt = _ref[_i];
         evt.callback.apply(evt.context, args);
       }
+      return this;
+    };
+
+    Object.prototype.listenTo = function(object, event, callback) {
+      if (!Falcon.isFalconObject(object)) {
+        return this;
+      }
+      if (!(isString(event) && isFunction(callback))) {
+        return this;
+      }
+      object.on(event, callback, this);
+      if (this.__falcon_object__listeners__ == null) {
+        this.__falcon_object__listeners__ = [];
+      }
+      this.__falcon_object__listeners__.push({
+        object: object,
+        event: event,
+        callback: callback
+      });
+      return this;
+    };
+
+    Object.prototype.stopListening = function(object, event, callback) {
+      var listener, new_listeners, _callback, _event, _i, _len, _object, _ref, _ref1, _ref2, _ref3;
+      if (isString(object)) {
+        _ref = [object, event, null], event = _ref[0], callback = _ref[1], object = _ref[2];
+      }
+      if (isFunction(object)) {
+        _ref1 = [object, null], callback = _ref1[0], object = _ref1[1];
+      }
+      if (isFunction(event)) {
+        _ref2 = [event, null], callback = _ref2[0], event = _ref2[1];
+      }
+      _event = isString(event) ? event : null;
+      _object = Falcon.isFalconObject(object) ? object : null;
+      _callback = isFunction(callback) ? callback : null;
+      if (this.__falcon_object__listeners__ == null) {
+        this.__falcon_object__listeners__ = [];
+      }
+      new_listeners = [];
+      _ref3 = this.__falcon_object__listeners__;
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        listener = _ref3[_i];
+        object = listener.object, event = listener.event, callback = listener.callback;
+        if ((_event != null) && event !== _event) {
+          new_listeners.push(listener);
+          continue;
+        }
+        if ((_object != null) && object !== _object) {
+          new_listeners.push(listener);
+          continue;
+        }
+        if ((_callback != null) && callback !== _callback) {
+          new_listeners.push(listener);
+          continue;
+        }
+        object.off(event, callback);
+      }
+      this.__falcon_object__listeners__ = new_listeners;
       return this;
     };
 
