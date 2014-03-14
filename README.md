@@ -5,6 +5,7 @@
 ###v0.10.0
 **Highlights**
 * Added Falcon.Adapter for splitting out dependencies on how we transmit, respond to, and receive data form a backend data source.
+* Added Falcon.addConductor to create a 'conductor' which can define custom HTML tags that should bind and utilize the template of a specific view (or anonymous view). `Falcon.addConductor('my_custom_tag', MyViewDefinition)`
 * Fully Compatible with Knockout 3.1
 * New Falcon.Object methods: listenTo and stopListening
 * New Falcon.Model methods: increment, decrement
@@ -13,10 +14,10 @@
 **Breaking Changes**
 * You must now include the falcon.jquery_adapater.js to support ajax requests with jQuery as Falcon's dependency on jQuery has been completely removed in version 0.10.0.
 * Model and Collection constructors will now throw an error if the parent object isn't null/undefined or a model
+* Elements with the 'view' binding may now specifiy internal HTML which will override the lookup of a template from the 'url' attribute.  This may break existing apps that provide HTML inside of their view declarations before the binding is applied.
 
 **TODO**
 * Add support for Falcon.Collection in the without() method (remove all models from the resultant collection that are in the given collection)
-* add generate binding and Falcon.register for dynamically creating views
 
 **Enhancements**
 * Convert Build process to Grunt.js
@@ -35,6 +36,8 @@
 * Add 'set' method to collections (sets all values for a key to each model in the collection)
 * Divided fill method into separate methods for each type (reverse rolls)
 * Support for Knockout 3.1
+* Elements with the 'view' binding may now specifiy internal HTML which will override the lookup of a template from the 'url' attribute
+* Added Falcon.addConductor
 
 **Bugs Fixed**
 * Fixed reference overwritting on colleciton merge method.
