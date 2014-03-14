@@ -207,7 +207,7 @@
       if (isFunction(element)) {
         _ref = [element, null], callback = _ref[0], element = _ref[1];
       }
-      if (isFunction(root) && !isFunction(callback)) {
+      if (isFunction(root) && !ko.isObservable(root) && !isFunction(callback)) {
         _ref1 = [root, null], callback = _ref1[0], root = _ref1[1];
       }
       if (element == null) {
@@ -223,8 +223,10 @@
           element = (_ref2 = document.querySelectorAll(element)[0]) != null ? _ref2 : document.body;
         }
         if (root != null) {
-          ko.applyBindingsToNode(element, {
-            view: root
+          ko.applyBindingAccessorsToNode(element, {
+            view: function() {
+              return root;
+            }
           });
         } else {
           ko.applyBindings({}, element);

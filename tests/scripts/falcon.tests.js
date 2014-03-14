@@ -6,7 +6,7 @@
       beforeEach(function() {
         var observable_view;
         spyOn(ko, 'applyBindings');
-        spyOn(ko, 'applyBindingsToNode');
+        spyOn(ko, 'applyBindingAccessorsToNode');
         view = new Falcon.View;
         return observable_view = ko.observable(view);
       });
@@ -17,9 +17,9 @@
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, element, callback);
         expect(ko.applyBindings).not.toHaveBeenCalled();
-        expect(ko.applyBindingsToNode.calls.count()).toBe(1);
-        expect(ko.applyBindingsToNode).toHaveBeenCalledWith(element, {
-          view: view
+        expect(ko.applyBindingAccessorsToNode.calls.count()).toBe(1);
+        expect(ko.applyBindingAccessorsToNode).toHaveBeenCalledWith(element, {
+          view: jasmine.any(Function)
         });
         expect(ret).toBe(Falcon);
         return document.body.removeChild(element);
@@ -32,9 +32,9 @@
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, "#test", callback);
         expect(ko.applyBindings).not.toHaveBeenCalled();
-        expect(ko.applyBindingsToNode.calls.count()).toBe(1);
-        expect(ko.applyBindingsToNode).toHaveBeenCalledWith(element, {
-          view: view
+        expect(ko.applyBindingAccessorsToNode.calls.count()).toBe(1);
+        expect(ko.applyBindingAccessorsToNode).toHaveBeenCalledWith(element, {
+          view: jasmine.any(Function)
         });
         expect(callback.calls.count()).toBe(1);
         expect(ret).toBe(Falcon);
@@ -48,9 +48,9 @@
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, callback);
         expect(ko.applyBindings).not.toHaveBeenCalled();
-        expect(ko.applyBindingsToNode.calls.count()).toBe(1);
-        expect(ko.applyBindingsToNode).toHaveBeenCalledWith(element, {
-          view: view
+        expect(ko.applyBindingAccessorsToNode.calls.count()).toBe(1);
+        expect(ko.applyBindingAccessorsToNode).toHaveBeenCalledWith(element, {
+          view: jasmine.any(Function)
         });
         expect(callback.calls.count()).toBe(1);
         expect(ret).toBe(Falcon);
@@ -65,9 +65,9 @@
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, callback);
         expect(ko.applyBindings).not.toHaveBeenCalled();
-        expect(ko.applyBindingsToNode.calls.count()).toBe(1);
-        expect(ko.applyBindingsToNode).toHaveBeenCalledWith(element, {
-          view: view
+        expect(ko.applyBindingAccessorsToNode.calls.count()).toBe(1);
+        expect(ko.applyBindingAccessorsToNode).toHaveBeenCalledWith(element, {
+          view: jasmine.any(Function)
         });
         expect(callback.calls.count()).toBe(1);
         expect(ret).toBe(Falcon);
@@ -81,9 +81,9 @@
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, callback);
         expect(ko.applyBindings).not.toHaveBeenCalled();
-        expect(ko.applyBindingsToNode.calls.count()).toBe(1);
-        expect(ko.applyBindingsToNode).toHaveBeenCalledWith(element, {
-          view: view
+        expect(ko.applyBindingAccessorsToNode.calls.count()).toBe(1);
+        expect(ko.applyBindingAccessorsToNode).toHaveBeenCalledWith(element, {
+          view: jasmine.any(Function)
         });
         expect(callback.calls.count()).toBe(1);
         expect(ret).toBe(Falcon);
@@ -98,9 +98,9 @@
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, callback);
         expect(ko.applyBindings).not.toHaveBeenCalled();
-        expect(ko.applyBindingsToNode.calls.count()).toBe(1);
-        expect(ko.applyBindingsToNode).toHaveBeenCalledWith(element, {
-          view: view
+        expect(ko.applyBindingAccessorsToNode.calls.count()).toBe(1);
+        expect(ko.applyBindingAccessorsToNode).toHaveBeenCalledWith(element, {
+          view: jasmine.any(Function)
         });
         expect(callback.calls.count()).toBe(1);
         expect(ret).toBe(Falcon);
@@ -111,9 +111,9 @@
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, "#notreal", callback);
         expect(ko.applyBindings).not.toHaveBeenCalled();
-        expect(ko.applyBindingsToNode.calls.count()).toBe(1);
-        expect(ko.applyBindingsToNode).toHaveBeenCalledWith(document.body, {
-          view: view
+        expect(ko.applyBindingAccessorsToNode.calls.count()).toBe(1);
+        expect(ko.applyBindingAccessorsToNode).toHaveBeenCalledWith(document.body, {
+          view: jasmine.any(Function)
         });
         expect(callback.calls.count()).toBe(1);
         return expect(ret).toBe(Falcon);
@@ -124,9 +124,9 @@
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, callback);
         expect(ko.applyBindings).not.toHaveBeenCalled();
-        expect(ko.applyBindingsToNode.calls.count()).toBe(1);
-        expect(ko.applyBindingsToNode).toHaveBeenCalledWith(document.body, {
-          view: view
+        expect(ko.applyBindingAccessorsToNode.calls.count()).toBe(1);
+        expect(ko.applyBindingAccessorsToNode).toHaveBeenCalledWith(document.body, {
+          view: jasmine.any(Function)
         });
         expect(callback.calls.count()).toBe(1);
         return expect(ret).toBe(Falcon);
@@ -136,7 +136,7 @@
         Falcon.applicationElement = "#notreal";
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(callback);
-        expect(ko.applyBindingsToNode).not.toHaveBeenCalled();
+        expect(ko.applyBindingAccessorsToNode).not.toHaveBeenCalled();
         expect(ko.applyBindings.calls.count()).toBe(1);
         expect(ko.applyBindings).toHaveBeenCalledWith({}, document.body);
         expect(callback.calls.count()).toBe(1);
@@ -6329,7 +6329,7 @@
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  describe("Bindings", function() {
+  describe("Knockout Bindings", function() {
     var application, application_index, applyApp, _childCount, _createApplication, _createTemplate;
     application = null;
     application_index = 0;
@@ -6366,9 +6366,12 @@
       document.body.appendChild(application = _createApplication());
       return Falcon.apply(view, "#application_" + application_index);
     };
-    return describe("view", function() {
-      var ContentView, FooterView, LayoutView, content_template, footer_template, is_setup, layout_template, view_binding, _ref, _ref1, _ref2;
-      is_setup = false;
+    describe("'view' Binding", function() {
+      var ContentView, FooterView, LayoutView, content_template, footer_template, layout_template, view_binding, view_init_spy, view_update_spy, _ref, _ref1, _ref2;
+      layout_template = footer_template = content_template = null;
+      view_binding = Falcon.getBinding('view');
+      view_init_spy = sinon.spy(view_binding, 'init');
+      view_update_spy = sinon.spy(view_binding, 'update');
       LayoutView = (function(_super) {
         __extends(LayoutView, _super);
 
@@ -6392,6 +6395,7 @@
         return LayoutView;
 
       })(Falcon.View);
+      layout_template = _createTemplate("layout-template", "			<div data-bind='view: $view.content_view'></div>			<div data-bind='view: $view.footer_view'></div>		");
       ContentView = (function(_super) {
         __extends(ContentView, _super);
 
@@ -6405,6 +6409,7 @@
         return ContentView;
 
       })(Falcon.View);
+      content_template = _createTemplate("content-template", "The Content");
       FooterView = (function(_super) {
         __extends(FooterView, _super);
 
@@ -6418,53 +6423,28 @@
         return FooterView;
 
       })(Falcon.View);
-      layout_template = content_template = footer_template = null;
-      view_binding = null;
-      beforeEach(function() {
-        if (!is_setup) {
-          return;
-        }
-        view_binding = Falcon.getBinding('view');
-        sinonSpyOn(view_binding, 'init');
-        return sinonSpyOn(view_binding, 'update');
-      });
+      footer_template = _createTemplate("footer-template", "The Footer");
       it("Setup", function() {
-        layout_template = _createTemplate("layout-template", "				<div data-bind='view: $view.content_view'></div>				<div data-bind='view: $view.footer_view'></div>			");
-        content_template = _createTemplate("content-template", "The Content");
-        footer_template = _createTemplate("footer-template", "The Footer");
         document.body.appendChild(layout_template);
         document.body.appendChild(content_template);
-        document.body.appendChild(footer_template);
-        Falcon.View.cacheTemplates();
-        return is_setup = true;
+        return document.body.appendChild(footer_template);
       });
       it("Should call the view binding on initialization without an observable", function() {
         var render_spy, unrender_spy, view;
         view = new ContentView;
         render_spy = sinon.spy(view, '_render');
         unrender_spy = sinon.spy(view, '_unrender');
-        expect(view_binding.init).not.toHaveBeenCalled();
-        expect(view_binding.update).not.toHaveBeenCalled();
+        expect(view_init_spy).not.toHaveBeenCalled();
+        expect(view_update_spy).not.toHaveBeenCalled();
         expect(render_spy).not.toHaveBeenCalled();
         expect(unrender_spy).not.toHaveBeenCalled();
         applyApp(view);
-        expect(view_binding.init).toHaveBeenCalledOnce();
-        expect(view_binding.update).toHaveBeenCalledOnce();
+        expect(view_init_spy).toHaveBeenCalledOnce();
+        expect(view_update_spy).toHaveBeenCalledOnce();
         expect(render_spy).toHaveBeenCalledOnce();
         return expect(unrender_spy).not.toHaveBeenCalled();
       });
-      return it("Teardown", function() {
-        Falcon.View.resetCache();
-        return is_setup = false;
-      });
-    });
-  });
-
-  describe("Knockout Bindings", function() {
-    describe("'view' Binding", function() {
-      var content_template, footer_template, layout_template;
-      layout_template = footer_template = content_template = null;
-      return describe("Testing changes in views that are contained in observables", function() {
+      describe("Testing changes in views that are contained in observables", function() {
         var content_display_spy, content_dispose_spy, content_render_spy, content_unrender_spy, content_view, display_spy, dispose_spy, footer_display_spy, footer_dispose_spy, footer_render_spy, footer_unrender_spy, footer_view, obs, render_spy, setup, unrender_spy, view;
         view = content_view = footer_view = obs = null;
         render_spy = unrender_spy = display_spy = dispose_spy = null;
@@ -6562,8 +6542,8 @@
         });
         return it("Should react to the entire, root, view being updated", function() {
           obs(new ContentView);
-          expect(view_init_spy).not.toHaveBeenCalled();
-          expect(view_update_spy).toHaveBeenCalledOnce();
+          expect(view_init_spy).toHaveBeenCalledTwice();
+          expect(view_update_spy).toHaveBeenCalledThrice();
           expect(render_spy).not.toHaveBeenCalled();
           expect(content_render_spy).not.toHaveBeenCalled();
           expect(footer_render_spy).not.toHaveBeenCalled();
@@ -6577,6 +6557,12 @@
           expect(content_dispose_spy).not.toHaveBeenCalled();
           return expect(footer_dispose_spy).toHaveBeenCalledOnce();
         });
+      });
+      return it("Teardown", function() {
+        Falcon.View.resetCache();
+        document.body.removeChild(layout_template);
+        document.body.removeChild(content_template);
+        return document.body.removeChild(footer_template);
       });
     });
     describe("Test view binding with an observable array of views", function() {

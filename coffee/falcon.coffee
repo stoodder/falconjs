@@ -66,7 +66,7 @@ _ready = null
 	#--------------------------------------------------------
 	apply: (root, element, callback) ->
 		[callback, element] = [element, null] if isFunction( element )
-		[callback, root] = [root, null] if isFunction( root ) and not isFunction( callback )
+		[callback, root] = [root, null] if isFunction( root ) and not ko.isObservable(root) and not isFunction( callback )
 
 		element ?= Falcon.applicationElement
 
@@ -79,7 +79,7 @@ _ready = null
 
 			#Apply the app
 			if root?
-				ko.applyBindingsToNode(element, {view: root})
+				ko.applyBindingAccessorsToNode(element, {view: -> root})
 			else
 				ko.applyBindings({}, element)
 			#END if
