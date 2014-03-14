@@ -4,6 +4,7 @@ describe "Falcon", ->
 		
 		beforeEach ->
 			spyOn( ko, 'applyBindings' )
+			spyOn( ko, 'applyBindingsToNode' )
 			view = new Falcon.View
 			observable_view = ko.observable(view)
 		#END beforeEach
@@ -15,14 +16,9 @@ describe "Falcon", ->
 
 			ret = Falcon.apply(view, element, callback)
 
-			expect( ko.applyBindings.calls.count() ).toBe( 1 )
-			expect( ko.applyBindings ).toHaveBeenCalledWith(jasmine.any(Function), element)
-
-			observable = ko.applyBindings.calls.mostRecent().args[0]
-			expect( ko.isObservable(observable) ).toBe( true )
-			expect( observable() ).toBe( view )
-
-			expect( callback.calls.count() ).toBe( 1 )
+			expect( ko.applyBindings ).not.toHaveBeenCalled()
+			expect( ko.applyBindingsToNode.calls.count() ).toBe( 1 )
+			expect( ko.applyBindingsToNode ).toHaveBeenCalledWith(element, {view})
 
 			expect( ret ).toBe( Falcon )
 
@@ -37,12 +33,9 @@ describe "Falcon", ->
 
 			ret = Falcon.apply(view, "#test", callback)
 
-			expect( ko.applyBindings.calls.count() ).toBe( 1 )
-			expect( ko.applyBindings ).toHaveBeenCalledWith(jasmine.any(Function), element)
-
-			observable = ko.applyBindings.calls.mostRecent().args[0]
-			expect( ko.isObservable(observable) ).toBe( true )
-			expect( observable() ).toBe( view )
+			expect( ko.applyBindings ).not.toHaveBeenCalled()
+			expect( ko.applyBindingsToNode.calls.count() ).toBe( 1 )
+			expect( ko.applyBindingsToNode ).toHaveBeenCalledWith(element, {view})
 
 			expect( callback.calls.count() ).toBe( 1 )
 
@@ -59,12 +52,9 @@ describe "Falcon", ->
 
 			ret = Falcon.apply(view, callback)
 
-			expect( ko.applyBindings.calls.count() ).toBe( 1 )
-			expect( ko.applyBindings ).toHaveBeenCalledWith(jasmine.any(Function), element)
-
-			observable = ko.applyBindings.calls.mostRecent().args[0]
-			expect( ko.isObservable(observable) ).toBe( true )
-			expect( observable() ).toBe( view )
+			expect( ko.applyBindings ).not.toHaveBeenCalled()
+			expect( ko.applyBindingsToNode.calls.count() ).toBe( 1 )
+			expect( ko.applyBindingsToNode ).toHaveBeenCalledWith(element, {view})
 
 			expect( callback.calls.count() ).toBe( 1 )
 
@@ -82,12 +72,9 @@ describe "Falcon", ->
 
 			ret = Falcon.apply(view, callback)
 
-			expect( ko.applyBindings.calls.count() ).toBe( 1 )
-			expect( ko.applyBindings ).toHaveBeenCalledWith(jasmine.any(Function), element)
-
-			observable = ko.applyBindings.calls.mostRecent().args[0]
-			expect( ko.isObservable(observable) ).toBe( true )
-			expect( observable() ).toBe( view )
+			expect( ko.applyBindings ).not.toHaveBeenCalled()
+			expect( ko.applyBindingsToNode.calls.count() ).toBe( 1 )
+			expect( ko.applyBindingsToNode ).toHaveBeenCalledWith(element, {view})
 
 			expect( callback.calls.count() ).toBe( 1 )
 
@@ -104,12 +91,9 @@ describe "Falcon", ->
 
 			ret = Falcon.apply(view, callback)
 
-			expect( ko.applyBindings.calls.count() ).toBe( 1 )
-			expect( ko.applyBindings ).toHaveBeenCalledWith(jasmine.any(Function), element)
-
-			observable = ko.applyBindings.calls.mostRecent().args[0]
-			expect( ko.isObservable(observable) ).toBe( true )
-			expect( observable() ).toBe( view )
+			expect( ko.applyBindings ).not.toHaveBeenCalled()
+			expect( ko.applyBindingsToNode.calls.count() ).toBe( 1 )
+			expect( ko.applyBindingsToNode ).toHaveBeenCalledWith(element, {view})
 
 			expect( callback.calls.count() ).toBe( 1 )
 
@@ -128,12 +112,9 @@ describe "Falcon", ->
 
 			ret = Falcon.apply(view, callback)
 
-			expect( ko.applyBindings.calls.count() ).toBe( 1 )
-			expect( ko.applyBindings ).toHaveBeenCalledWith(jasmine.any(Function), element)
-
-			observable = ko.applyBindings.calls.mostRecent().args[0]
-			expect( ko.isObservable(observable) ).toBe( true )
-			expect( observable() ).toBe( view )
+			expect( ko.applyBindings ).not.toHaveBeenCalled()
+			expect( ko.applyBindingsToNode.calls.count() ).toBe( 1 )
+			expect( ko.applyBindingsToNode ).toHaveBeenCalledWith(element, {view})
 
 			expect( callback.calls.count() ).toBe( 1 )
 
@@ -147,12 +128,9 @@ describe "Falcon", ->
 
 			ret = Falcon.apply(view, "#notreal", callback)
 
-			expect( ko.applyBindings.calls.count() ).toBe( 1 )
-			expect( ko.applyBindings ).toHaveBeenCalledWith(jasmine.any(Function), document.body)
-
-			observable = ko.applyBindings.calls.mostRecent().args[0]
-			expect( ko.isObservable(observable) ).toBe( true )
-			expect( observable() ).toBe( view )
+			expect( ko.applyBindings ).not.toHaveBeenCalled()
+			expect( ko.applyBindingsToNode.calls.count() ).toBe( 1 )
+			expect( ko.applyBindingsToNode ).toHaveBeenCalledWith(document.body, {view})
 
 			expect( callback.calls.count() ).toBe( 1 )
 
@@ -165,12 +143,24 @@ describe "Falcon", ->
 
 			ret = Falcon.apply(view, callback)
 
-			expect( ko.applyBindings.calls.count() ).toBe( 1 )
-			expect( ko.applyBindings ).toHaveBeenCalledWith(jasmine.any(Function), document.body)
+			expect( ko.applyBindings ).not.toHaveBeenCalled()
+			expect( ko.applyBindingsToNode.calls.count() ).toBe( 1 )
+			expect( ko.applyBindingsToNode ).toHaveBeenCalledWith(document.body, {view})
 
-			observable = ko.applyBindings.calls.mostRecent().args[0]
-			expect( ko.isObservable(observable) ).toBe( true )
-			expect( observable() ).toBe( view )
+			expect( callback.calls.count() ).toBe( 1 )
+
+			expect( ret ).toBe( Falcon )
+		#END it
+
+		it "Should call applyBindings if no root view or viewModel is given", ->
+			Falcon.applicationElement = "#notreal"
+			callback = jasmine.createSpy("Callback")
+
+			ret = Falcon.apply(callback)
+
+			expect( ko.applyBindingsToNode ).not.toHaveBeenCalled()
+			expect( ko.applyBindings.calls.count() ).toBe( 1 )
+			expect( ko.applyBindings ).toHaveBeenCalledWith({}, document.body)
 
 			expect( callback.calls.count() ).toBe( 1 )
 

@@ -26,11 +26,13 @@ ko.bindingHandlers['view'] = do ->
 		return viewModel
 	#END getViewModel
 
-	getTemplate = (value) -> 
+	getTemplate = (element, value) -> 
 		template = ""
 		value ?= {}
 
-		if value instanceof Falcon.View
+		if element.nodeType is 1 and not isEmpty(trim(element.innerHTML))
+			return element.innerHTML
+		else if value instanceof Falcon.View
 			template = value.template()
 		else
 			template = ko.utils.unwrapObservable( value.template ? "" )
@@ -69,7 +71,7 @@ ko.bindingHandlers['view'] = do ->
 			container = document.createElement('div')
 			ko.utils.domData.set(element, "__falcon_view__container__", container)
 			new ko.templateSources.anonymousTemplate(element)['nodes'](container)
-			
+
 			return returnVal
 		#END init
 
@@ -77,7 +79,7 @@ ko.bindingHandlers['view'] = do ->
 			value = valueAccessor()
 			value = value() if ko.isObservable( value )
 			viewModel = getViewModel(value)
-			template = getTemplate(value)
+			template = getTemplate(element, value)
 
 			ko.virtualElements.emptyNode(element) unless value?
 

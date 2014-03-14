@@ -6,128 +6,139 @@
       beforeEach(function() {
         var observable_view;
         spyOn(ko, 'applyBindings');
+        spyOn(ko, 'applyBindingsToNode');
         view = new Falcon.View;
         return observable_view = ko.observable(view);
       });
       it("Should find the correct element with an HTMLElement", function() {
-        var callback, element, observable, ret;
+        var callback, element, ret;
         element = document.createElement("div");
         document.body.appendChild(element);
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, element, callback);
-        expect(ko.applyBindings.calls.count()).toBe(1);
-        expect(ko.applyBindings).toHaveBeenCalledWith(jasmine.any(Function), element);
-        observable = ko.applyBindings.calls.mostRecent().args[0];
-        expect(ko.isObservable(observable)).toBe(true);
-        expect(observable()).toBe(view);
-        expect(callback.calls.count()).toBe(1);
+        expect(ko.applyBindings).not.toHaveBeenCalled();
+        expect(ko.applyBindingsToNode.calls.count()).toBe(1);
+        expect(ko.applyBindingsToNode).toHaveBeenCalledWith(element, {
+          view: view
+        });
         expect(ret).toBe(Falcon);
         return document.body.removeChild(element);
       });
       it("Should find the correct element by id", function() {
-        var callback, element, observable, ret;
+        var callback, element, ret;
         element = document.createElement("div");
         element.setAttribute("id", "test");
         document.body.appendChild(element);
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, "#test", callback);
-        expect(ko.applyBindings.calls.count()).toBe(1);
-        expect(ko.applyBindings).toHaveBeenCalledWith(jasmine.any(Function), element);
-        observable = ko.applyBindings.calls.mostRecent().args[0];
-        expect(ko.isObservable(observable)).toBe(true);
-        expect(observable()).toBe(view);
+        expect(ko.applyBindings).not.toHaveBeenCalled();
+        expect(ko.applyBindingsToNode.calls.count()).toBe(1);
+        expect(ko.applyBindingsToNode).toHaveBeenCalledWith(element, {
+          view: view
+        });
         expect(callback.calls.count()).toBe(1);
         expect(ret).toBe(Falcon);
         return document.body.removeChild(element);
       });
       it("Should find the correct element using Falcon.applicationElement", function() {
-        var callback, element, observable, ret;
+        var callback, element, ret;
         element = document.createElement("div");
         document.body.appendChild(element);
         Falcon.applicationElement = element;
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, callback);
-        expect(ko.applyBindings.calls.count()).toBe(1);
-        expect(ko.applyBindings).toHaveBeenCalledWith(jasmine.any(Function), element);
-        observable = ko.applyBindings.calls.mostRecent().args[0];
-        expect(ko.isObservable(observable)).toBe(true);
-        expect(observable()).toBe(view);
+        expect(ko.applyBindings).not.toHaveBeenCalled();
+        expect(ko.applyBindingsToNode.calls.count()).toBe(1);
+        expect(ko.applyBindingsToNode).toHaveBeenCalledWith(element, {
+          view: view
+        });
         expect(callback.calls.count()).toBe(1);
         expect(ret).toBe(Falcon);
         return document.body.removeChild(element);
       });
       it("Should find the correct element by id us Falcon.applicationElement", function() {
-        var callback, element, observable, ret;
+        var callback, element, ret;
         element = document.createElement("div");
         element.setAttribute("id", "test");
         document.body.appendChild(element);
         Falcon.applicationElement = "#test";
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, callback);
-        expect(ko.applyBindings.calls.count()).toBe(1);
-        expect(ko.applyBindings).toHaveBeenCalledWith(jasmine.any(Function), element);
-        observable = ko.applyBindings.calls.mostRecent().args[0];
-        expect(ko.isObservable(observable)).toBe(true);
-        expect(observable()).toBe(view);
+        expect(ko.applyBindings).not.toHaveBeenCalled();
+        expect(ko.applyBindingsToNode.calls.count()).toBe(1);
+        expect(ko.applyBindingsToNode).toHaveBeenCalledWith(element, {
+          view: view
+        });
         expect(callback.calls.count()).toBe(1);
         expect(ret).toBe(Falcon);
         return document.body.removeChild(element);
       });
       it("Should allow for an HTMLElement as the applicationElement", function() {
-        var callback, element, observable, ret;
+        var callback, element, ret;
         element = document.createElement("div");
         document.body.appendChild(element);
         Falcon.applicationElement = element;
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, callback);
-        expect(ko.applyBindings.calls.count()).toBe(1);
-        expect(ko.applyBindings).toHaveBeenCalledWith(jasmine.any(Function), element);
-        observable = ko.applyBindings.calls.mostRecent().args[0];
-        expect(ko.isObservable(observable)).toBe(true);
-        expect(observable()).toBe(view);
+        expect(ko.applyBindings).not.toHaveBeenCalled();
+        expect(ko.applyBindingsToNode.calls.count()).toBe(1);
+        expect(ko.applyBindingsToNode).toHaveBeenCalledWith(element, {
+          view: view
+        });
         expect(callback.calls.count()).toBe(1);
         expect(ret).toBe(Falcon);
         return document.body.removeChild(element);
       });
       it("Should find the correct element by id in the applicationEement", function() {
-        var callback, element, observable, ret;
+        var callback, element, ret;
         element = document.createElement("div");
         element.setAttribute("id", "test");
         document.body.appendChild(element);
         Falcon.applicationElement = "#test";
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, callback);
-        expect(ko.applyBindings.calls.count()).toBe(1);
-        expect(ko.applyBindings).toHaveBeenCalledWith(jasmine.any(Function), element);
-        observable = ko.applyBindings.calls.mostRecent().args[0];
-        expect(ko.isObservable(observable)).toBe(true);
-        expect(observable()).toBe(view);
+        expect(ko.applyBindings).not.toHaveBeenCalled();
+        expect(ko.applyBindingsToNode.calls.count()).toBe(1);
+        expect(ko.applyBindingsToNode).toHaveBeenCalledWith(element, {
+          view: view
+        });
         expect(callback.calls.count()).toBe(1);
         expect(ret).toBe(Falcon);
         return document.body.removeChild(element);
       });
       it("Should not fail if no element can be found", function() {
-        var callback, observable, ret;
+        var callback, ret;
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, "#notreal", callback);
-        expect(ko.applyBindings.calls.count()).toBe(1);
-        expect(ko.applyBindings).toHaveBeenCalledWith(jasmine.any(Function), document.body);
-        observable = ko.applyBindings.calls.mostRecent().args[0];
-        expect(ko.isObservable(observable)).toBe(true);
-        expect(observable()).toBe(view);
+        expect(ko.applyBindings).not.toHaveBeenCalled();
+        expect(ko.applyBindingsToNode.calls.count()).toBe(1);
+        expect(ko.applyBindingsToNode).toHaveBeenCalledWith(document.body, {
+          view: view
+        });
         expect(callback.calls.count()).toBe(1);
         return expect(ret).toBe(Falcon);
       });
-      return it("Should not fail if no applicationElement can be found", function() {
-        var callback, observable, ret;
+      it("Should not fail if no applicationElement can be found", function() {
+        var callback, ret;
         Falcon.applicationElement = "#notreal";
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, callback);
+        expect(ko.applyBindings).not.toHaveBeenCalled();
+        expect(ko.applyBindingsToNode.calls.count()).toBe(1);
+        expect(ko.applyBindingsToNode).toHaveBeenCalledWith(document.body, {
+          view: view
+        });
+        expect(callback.calls.count()).toBe(1);
+        return expect(ret).toBe(Falcon);
+      });
+      return it("Should call applyBindings if no root view or viewModel is given", function() {
+        var callback, ret;
+        Falcon.applicationElement = "#notreal";
+        callback = jasmine.createSpy("Callback");
+        ret = Falcon.apply(callback);
+        expect(ko.applyBindingsToNode).not.toHaveBeenCalled();
         expect(ko.applyBindings.calls.count()).toBe(1);
-        expect(ko.applyBindings).toHaveBeenCalledWith(jasmine.any(Function), document.body);
-        observable = ko.applyBindings.calls.mostRecent().args[0];
-        expect(ko.isObservable(observable)).toBe(true);
-        expect(observable()).toBe(view);
+        expect(ko.applyBindings).toHaveBeenCalledWith({}, document.body);
         expect(callback.calls.count()).toBe(1);
         return expect(ret).toBe(Falcon);
       });
@@ -304,6 +315,283 @@
         expect(click_two).toHaveBeenCalledOnce();
         expect(click_two).toHaveBeenCalledWith(4, 5, 6);
         return expect(mouseover_one).not.toHaveBeenCalled();
+      });
+    });
+    describe("listenTo", function() {
+      var collection, login_callback, model, model_2, notify_callback, object, view;
+      object = model = model_2 = collection = view = null;
+      login_callback = notify_callback = null;
+      beforeEach(function() {
+        object = new Falcon.Object;
+        model = new Falcon.Model;
+        model_2 = new Falcon.Model;
+        collection = new Falcon.Collection;
+        view = new Falcon.View;
+        login_callback = sinon.spy();
+        return notify_callback = sinon.spy();
+      });
+      it("Should have no listeners by default", function() {
+        return expect(object.__falcon_object__listeners__).toBeNull();
+      });
+      return it("Should add listeners properly", function() {
+        expect(object.listenTo(model, "login", login_callback)).toBe(object);
+        expect(object.listenTo(model_2, "login", notify_callback)).toBe(object);
+        expect(object.listenTo(model_2, "login", login_callback)).toBe(object);
+        expect(login_callback).not.toHaveBeenCalled();
+        expect(object.__falcon_object__listeners__.length).toBe(3);
+        model.trigger("login");
+        expect(login_callback).toHaveBeenCalledOnce();
+        expect(login_callback).toHaveBeenCalledOn(object);
+        expect(notify_callback).not.toHaveBeenCalled();
+        login_callback.reset();
+        model_2.trigger("login");
+        expect(login_callback).toHaveBeenCalledOnce();
+        expect(login_callback).toHaveBeenCalledOn(object);
+        expect(notify_callback).toHaveBeenCalledOnce();
+        return expect(notify_callback).toHaveBeenCalledOn(object);
+      });
+    });
+    describe("stopListening", function() {
+      var callback_one, callback_two, model, object, view;
+      object = model = view = null;
+      callback_one = callback_two = null;
+      beforeEach(function() {
+        object = new Falcon.Object;
+        model = new Falcon.Model;
+        view = new Falcon.View;
+        callback_one = sinon.spy();
+        callback_two = sinon.spy();
+        object.listenTo(model, "login", callback_one);
+        object.listenTo(model, "login", callback_one);
+        object.listenTo(model, "notify", callback_two);
+        object.listenTo(view, "login", callback_two);
+        return object.listenTo(view, "notify", callback_one);
+      });
+      it("Should stop listening to everything", function() {
+        var ret;
+        ret = object.stopListening();
+        model.trigger("login", "model login");
+        expect(callback_one).not.toHaveBeenCalled();
+        expect(callback_two).not.toHaveBeenCalled();
+        model.trigger("notify", "model notify");
+        expect(callback_one).not.toHaveBeenCalled();
+        expect(callback_two).not.toHaveBeenCalled();
+        view.trigger("login", "view login");
+        expect(callback_one).not.toHaveBeenCalled();
+        expect(callback_two).not.toHaveBeenCalled();
+        view.trigger("notify", "view notify");
+        expect(callback_one).not.toHaveBeenCalled();
+        expect(callback_two).not.toHaveBeenCalled();
+        return expect(ret).toBe(object);
+      });
+      it("Should stop listening to events based on object", function() {
+        var ret;
+        ret = object.stopListening(model);
+        model.trigger("login", "model login");
+        expect(callback_one).not.toHaveBeenCalled();
+        expect(callback_two).not.toHaveBeenCalled();
+        model.trigger("notify", "model notify");
+        expect(callback_one).not.toHaveBeenCalled();
+        expect(callback_two).not.toHaveBeenCalled();
+        view.trigger("login", "view login");
+        expect(callback_one).not.toHaveBeenCalled();
+        expect(callback_two).toHaveBeenCalledOnce();
+        expect(callback_two).toHaveBeenCalledWith("view login");
+        expect(callback_two).toHaveBeenCalledOn(object);
+        callback_two.reset();
+        view.trigger("notify", "view notify");
+        expect(callback_one).toHaveBeenCalledOnce();
+        expect(callback_one).toHaveBeenCalledWith("view notify");
+        expect(callback_one).toHaveBeenCalledOn(object);
+        expect(callback_two).not.toHaveBeenCalled();
+        callback_one.reset();
+        return expect(ret).toBe(object);
+      });
+      it("Should stop listening to events based on event", function() {
+        var ret;
+        ret = object.stopListening("login");
+        model.trigger("login", "model login");
+        expect(callback_one).not.toHaveBeenCalled();
+        expect(callback_two).not.toHaveBeenCalled();
+        model.trigger("notify", "model notify");
+        expect(callback_one).not.toHaveBeenCalled();
+        expect(callback_two).toHaveBeenCalledOnce();
+        expect(callback_two).toHaveBeenCalledWith("model notify");
+        expect(callback_two).toHaveBeenCalledOn(object);
+        callback_two.reset();
+        view.trigger("login", "view login");
+        expect(callback_one).not.toHaveBeenCalled();
+        expect(callback_two).not.toHaveBeenCalled();
+        view.trigger("notify", "view notify");
+        expect(callback_one).toHaveBeenCalledOnce();
+        expect(callback_one).toHaveBeenCalledWith("view notify");
+        expect(callback_one).toHaveBeenCalledOn(object);
+        expect(callback_two).not.toHaveBeenCalled();
+        callback_one.reset();
+        return expect(ret).toBe(object);
+      });
+      it("Should stop listeing to events based on callback", function() {
+        var ret;
+        ret = object.stopListening(callback_one);
+        model.trigger("login", "model login");
+        expect(callback_one).not.toHaveBeenCalled();
+        expect(callback_two).not.toHaveBeenCalled();
+        model.trigger("notify", "model notify");
+        expect(callback_one).not.toHaveBeenCalled();
+        expect(callback_two).toHaveBeenCalledOnce();
+        expect(callback_two).toHaveBeenCalledWith("model notify");
+        expect(callback_two).toHaveBeenCalledOn(object);
+        callback_two.reset();
+        view.trigger("login", "view login");
+        expect(callback_one).not.toHaveBeenCalled();
+        expect(callback_two).toHaveBeenCalledOnce();
+        expect(callback_two).toHaveBeenCalledWith("view login");
+        expect(callback_two).toHaveBeenCalledOn(object);
+        callback_two.reset();
+        view.trigger("notify", "view notify");
+        expect(callback_one).not.toHaveBeenCalledOnce();
+        expect(callback_two).not.toHaveBeenCalled();
+        return expect(ret).toBe(object);
+      });
+      it("Should stop listening to events based on object and event", function() {
+        var ret;
+        ret = object.stopListening(model, "login");
+        model.trigger("login", "model login");
+        expect(callback_one).not.toHaveBeenCalled();
+        expect(callback_two).not.toHaveBeenCalled();
+        model.trigger("notify", "model notify");
+        expect(callback_one).not.toHaveBeenCalled();
+        expect(callback_two).toHaveBeenCalledOnce();
+        expect(callback_two).toHaveBeenCalledWith("model notify");
+        expect(callback_two).toHaveBeenCalledOn(object);
+        callback_two.reset();
+        view.trigger("login", "view login");
+        expect(callback_one).not.toHaveBeenCalled();
+        expect(callback_two).toHaveBeenCalledOnce();
+        expect(callback_two).toHaveBeenCalledWith("view login");
+        expect(callback_two).toHaveBeenCalledOn(object);
+        callback_two.reset();
+        view.trigger("notify", "view notify");
+        expect(callback_one).toHaveBeenCalledOnce();
+        expect(callback_one).toHaveBeenCalledWith("view notify");
+        expect(callback_one).toHaveBeenCalledOn(object);
+        expect(callback_two).not.toHaveBeenCalled();
+        callback_one.reset();
+        return expect(ret).toBe(object);
+      });
+      it("Should stop listening to events based on object and callback", function() {
+        var ret;
+        ret = object.stopListening(model, callback_two);
+        model.trigger("login", "model login");
+        expect(callback_one).toHaveBeenCalledTwice();
+        expect(callback_one).toHaveBeenCalledWith("model login");
+        expect(callback_one).toHaveBeenCalledOn(object);
+        expect(callback_two).not.toHaveBeenCalled();
+        callback_one.reset();
+        model.trigger("notify", "model notify");
+        expect(callback_one).not.toHaveBeenCalled();
+        expect(callback_two).not.toHaveBeenCalled();
+        callback_two.reset();
+        view.trigger("login", "view login");
+        expect(callback_one).not.toHaveBeenCalled();
+        expect(callback_two).toHaveBeenCalledOnce();
+        expect(callback_two).toHaveBeenCalledWith("view login");
+        expect(callback_two).toHaveBeenCalledOn(object);
+        callback_two.reset();
+        view.trigger("notify", "view notify");
+        expect(callback_one).toHaveBeenCalledOnce();
+        expect(callback_one).toHaveBeenCalledWith("view notify");
+        expect(callback_one).toHaveBeenCalledOn(object);
+        expect(callback_two).not.toHaveBeenCalled();
+        callback_one.reset();
+        return expect(ret).toBe(object);
+      });
+      it("Should stop listening to events based on event and callback", function() {
+        var ret;
+        ret = object.stopListening("login", callback_two);
+        model.trigger("login", "model login");
+        expect(callback_one).toHaveBeenCalledTwice();
+        expect(callback_one).toHaveBeenCalledWith("model login");
+        expect(callback_one).toHaveBeenCalledOn(object);
+        expect(callback_two).not.toHaveBeenCalled();
+        callback_one.reset();
+        model.trigger("notify", "model notify");
+        expect(callback_one).not.toHaveBeenCalled();
+        expect(callback_two).toHaveBeenCalledOnce();
+        expect(callback_two).toHaveBeenCalledWith("model notify");
+        expect(callback_two).toHaveBeenCalledOn(object);
+        callback_two.reset();
+        view.trigger("login", "view login");
+        expect(callback_one).not.toHaveBeenCalled();
+        expect(callback_two).not.toHaveBeenCalled();
+        view.trigger("notify", "view notify");
+        expect(callback_one).toHaveBeenCalledOnce();
+        expect(callback_one).toHaveBeenCalledWith("view notify");
+        expect(callback_one).toHaveBeenCalledOn(object);
+        expect(callback_two).not.toHaveBeenCalled();
+        callback_one.reset();
+        return expect(ret).toBe(object);
+      });
+      it("Should stop listening to events based on object, event, and callback", function() {
+        var ret;
+        ret = object.stopListening(model, "login", callback_one);
+        model.trigger("login", "model login");
+        expect(callback_one).not.toHaveBeenCalled();
+        expect(callback_two).not.toHaveBeenCalled();
+        model.trigger("notify", "model notify");
+        expect(callback_one).not.toHaveBeenCalled();
+        expect(callback_two).toHaveBeenCalledOnce();
+        expect(callback_two).toHaveBeenCalledWith("model notify");
+        expect(callback_two).toHaveBeenCalledOn(object);
+        callback_two.reset();
+        view.trigger("login", "view login");
+        expect(callback_one).not.toHaveBeenCalled();
+        expect(callback_two).toHaveBeenCalledOnce();
+        expect(callback_two).toHaveBeenCalledWith("view login");
+        expect(callback_two).toHaveBeenCalledOn(object);
+        callback_two.reset();
+        view.trigger("notify", "view notify");
+        expect(callback_one).toHaveBeenCalledOnce();
+        expect(callback_one).toHaveBeenCalledWith("view notify");
+        expect(callback_one).toHaveBeenCalledOn(object);
+        expect(callback_two).not.toHaveBeenCalled();
+        callback_one.reset();
+        return expect(ret).toBe(object);
+      });
+      return it("Should not remove any events if nothing matches", function() {
+        var invalid_callback;
+        invalid_callback = sinon.spy();
+        expect(object.stopListening(new Falcon.Collection)).toBe(object);
+        expect(object.stopListening("invalid_event")).toBe(object);
+        expect(object.stopListening(invalid_callback)).toBe(object);
+        expect(object.stopListening(model, "invalid_event")).toBe(object);
+        expect(object.stopListening(model, invalid_callback)).toBe(object);
+        expect(object.stopListening(model, "login", invalid_callback)).toBe(object);
+        expect(invalid_callback).not.toHaveBeenCalled();
+        model.trigger("login", "model login");
+        expect(callback_one).toHaveBeenCalledTwice();
+        expect(callback_one).toHaveBeenCalledWith("model login");
+        expect(callback_one).toHaveBeenCalledOn(object);
+        expect(callback_two).not.toHaveBeenCalled();
+        callback_one.reset();
+        model.trigger("notify", "model notify");
+        expect(callback_one).not.toHaveBeenCalled();
+        expect(callback_two).toHaveBeenCalledOnce();
+        expect(callback_two).toHaveBeenCalledWith("model notify");
+        expect(callback_two).toHaveBeenCalledOn(object);
+        callback_two.reset();
+        view.trigger("login", "view login");
+        expect(callback_one).not.toHaveBeenCalled();
+        expect(callback_two).toHaveBeenCalledOnce();
+        expect(callback_two).toHaveBeenCalledWith("view login");
+        expect(callback_two).toHaveBeenCalledOn(object);
+        callback_two.reset();
+        view.trigger("notify", "view notify");
+        expect(callback_one).toHaveBeenCalledOnce();
+        expect(callback_one).toHaveBeenCalledWith("view notify");
+        expect(callback_one).toHaveBeenCalledOn(object);
+        expect(callback_two).not.toHaveBeenCalled();
+        return callback_one.reset();
       });
     });
     describe("Test #observables and #defaults", function() {
@@ -3324,638 +3612,796 @@
         return expect(ret).toBe(collection);
       });
     });
-    describe("Testing the different fill method combinations", function() {
-      describe("Test default option", function() {
-        it("Should properly add items into an empty collection", function() {
-          var collectionA;
-          collectionA = new CollectionA;
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ]);
-          expect(collectionA.length()).toBe(2);
-          expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(0).get('id')).toBe(1);
-          expect(collectionA.at(0).get('hello')).toBe("world");
-          expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(1).get('id')).toBe(2);
-          return expect(collectionA.at(1).get('hello')).toBe("world2");
-        });
-        return it("Should properly replace items into a populated collection", function() {
-          var collectionA;
-          collectionA = new CollectionA([
-            {
-              id: 2,
-              "hello": "world3"
-            }
-          ]);
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ]);
-          expect(collectionA.length()).toBe(2);
-          expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(0).get('id')).toBe(1);
-          expect(collectionA.at(0).get('hello')).toBe("world");
-          expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(1).get('id')).toBe(2);
-          return expect(collectionA.at(1).get('hello')).toBe("world2");
-        });
+    describe("fill", function() {
+      var collection, items, options;
+      collection = null;
+      items = options = null;
+      beforeEach(function() {
+        collection = new CollectionA;
+        items = [{}, {}];
+        spyOn(collection, 'replace');
+        spyOn(collection, 'prepend');
+        spyOn(collection, 'append');
+        spyOn(collection, 'insert');
+        return spyOn(collection, 'merge');
       });
-      describe("Test 'replace' option", function() {
-        it("Should properly add items into an empty collection", function() {
-          var collectionA;
-          collectionA = new CollectionA;
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ], {
-            'method': 'replace'
-          });
-          expect(collectionA.length()).toBe(2);
-          expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(0).get('id')).toBe(1);
-          expect(collectionA.at(0).get('hello')).toBe("world");
-          expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(1).get('id')).toBe(2);
-          return expect(collectionA.at(1).get('hello')).toBe("world2");
+      it("Should call the replace method by default", function() {
+        options = {};
+        collection.fill(items, options);
+        expect(collection.replace.calls.count()).toBe(1);
+        expect(collection.replace).toHaveBeenCalledWith(items, {
+          'method': 'replace',
+          'comparator': null
         });
-        return it("Should properly replace items into a populated collection", function() {
-          var collectionA;
-          collectionA = new CollectionA([
-            {
-              id: 2,
-              "hello": "world3"
-            }
-          ]);
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ], {
-            'method': 'replace'
-          });
-          expect(collectionA.length()).toBe(2);
-          expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(0).get('id')).toBe(1);
-          expect(collectionA.at(0).get('hello')).toBe("world");
-          expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(1).get('id')).toBe(2);
-          return expect(collectionA.at(1).get('hello')).toBe("world2");
-        });
+        expect(collection.append).not.toHaveBeenCalled();
+        expect(collection.prepend).not.toHaveBeenCalled();
+        expect(collection.merge).not.toHaveBeenCalled();
+        expect(collection.insert).not.toHaveBeenCalled();
+        return expect(collection.replace.calls.mostRecent().args[1]).not.toBe(options);
       });
-      describe("Test 'append' option", function() {
-        it("Should properly add items into an empty collection", function() {
-          var collectionA;
-          collectionA = new CollectionA;
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ], {
-            'method': 'append'
-          });
-          expect(collectionA.length()).toBe(2);
-          expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(0).get('id')).toBe(1);
-          expect(collectionA.at(0).get('hello')).toBe("world");
-          expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(1).get('id')).toBe(2);
-          return expect(collectionA.at(1).get('hello')).toBe("world2");
+      it("Should call the replace when an invalid method is given", function() {
+        options = {
+          'method': 'replacezzzzzz'
+        };
+        collection.fill(items, options);
+        expect(collection.replace.calls.count()).toBe(1);
+        expect(collection.replace).toHaveBeenCalledWith(items, {
+          'method': 'replace',
+          'comparator': null
         });
-        return it("Should properly append items into a populated collection", function() {
-          var collectionA;
-          collectionA = new CollectionA([
-            {
-              id: 3,
-              "hello": "world3"
-            }
-          ]);
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ], {
-            'method': 'append'
-          });
-          expect(collectionA.length()).toBe(3);
-          expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(0).get('id')).toBe(3);
-          expect(collectionA.at(0).get('hello')).toBe("world3");
-          expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(1).get('id')).toBe(1);
-          expect(collectionA.at(1).get('hello')).toBe("world");
-          expect(collectionA.at(2)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(2).get('id')).toBe(2);
-          return expect(collectionA.at(2).get('hello')).toBe("world2");
-        });
+        expect(collection.append).not.toHaveBeenCalled();
+        expect(collection.prepend).not.toHaveBeenCalled();
+        expect(collection.merge).not.toHaveBeenCalled();
+        expect(collection.insert).not.toHaveBeenCalled();
+        return expect(collection.replace.calls.mostRecent().args[1]).not.toBe(options);
       });
-      describe("Test 'prepend' option", function() {
-        it("Should properly add items into an empty collection", function() {
-          var collectionA;
-          collectionA = new CollectionA;
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ], {
-            'method': 'prepend'
-          });
-          expect(collectionA.length()).toBe(2);
-          expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(0).get('id')).toBe(1);
-          expect(collectionA.at(0).get('hello')).toBe("world");
-          expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(1).get('id')).toBe(2);
-          return expect(collectionA.at(1).get('hello')).toBe("world2");
+      it("Should call the replace when requested", function() {
+        options = {
+          'method': 'replace'
+        };
+        collection.fill(items, options);
+        expect(collection.replace.calls.count()).toBe(1);
+        expect(collection.replace).toHaveBeenCalledWith(items, {
+          'method': 'replace',
+          'comparator': null
         });
-        return it("Should properly prepend items into a populated collection", function() {
-          var collectionA, index;
-          collectionA = new CollectionA([
-            {
-              id: 3,
-              "hello": "world3"
-            }
-          ]);
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ], {
-            'method': 'prepend'
-          });
-          index = 0;
-          expect(collectionA.length()).toBe(3);
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(1);
-          expect(collectionA.at(index).get('hello')).toBe("world");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(2);
-          expect(collectionA.at(index).get('hello')).toBe("world2");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(3);
-          return expect(collectionA.at(index).get('hello')).toBe("world3");
-        });
+        expect(collection.append).not.toHaveBeenCalled();
+        expect(collection.prepend).not.toHaveBeenCalled();
+        expect(collection.merge).not.toHaveBeenCalled();
+        expect(collection.insert).not.toHaveBeenCalled();
+        return expect(collection.replace.calls.mostRecent().args[1]).not.toBe(options);
       });
-      describe("Test 'merge' option", function() {
-        it("Should properly add items into an empty collection", function() {
-          var collectionA;
-          collectionA = new CollectionA;
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ], {
-            'method': 'merge'
-          });
-          expect(collectionA.length()).toBe(2);
-          expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(0).get('id')).toBe(1);
-          expect(collectionA.at(0).get('hello')).toBe("world");
-          expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(1).get('id')).toBe(2);
-          return expect(collectionA.at(1).get('hello')).toBe("world2");
+      it("Should call the append when requested", function() {
+        options = {
+          'method': 'append'
+        };
+        collection.fill(items, options);
+        expect(collection.append.calls.count()).toBe(1);
+        expect(collection.append).toHaveBeenCalledWith(items, {
+          'method': 'append',
+          'comparator': null
         });
-        it("Should properly merge items into a populated collection", function() {
-          var collectionA, index;
-          collectionA = new CollectionA([
-            {
-              id: 3,
-              "hello": "world3"
-            }, {
-              id: 4,
-              "hello": "world4"
-            }
-          ]);
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }, {
-              id: 4,
-              "hello": "world5"
-            }
-          ], {
-            'method': 'merge'
-          });
-          index = 0;
-          expect(collectionA.length()).toBe(4);
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(3);
-          expect(collectionA.at(index).get('hello')).toBe("world3");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(4);
-          expect(collectionA.at(index).get('hello')).toBe("world5");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(1);
-          expect(collectionA.at(index).get('hello')).toBe("world");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(2);
-          expect(collectionA.at(index).get('hello')).toBe("world2");
-          return index++;
+        expect(collection.replace).not.toHaveBeenCalled();
+        expect(collection.prepend).not.toHaveBeenCalled();
+        expect(collection.merge).not.toHaveBeenCalled();
+        expect(collection.insert).not.toHaveBeenCalled();
+        return expect(collection.append.calls.mostRecent().args[1]).not.toBe(options);
+      });
+      it("Should call the prepend when requested", function() {
+        options = {
+          'method': 'prepend'
+        };
+        collection.fill(items, options);
+        expect(collection.prepend.calls.count()).toBe(1);
+        expect(collection.prepend).toHaveBeenCalledWith(items, {
+          'method': 'prepend',
+          'comparator': null
         });
-        it("Should not overwrite previous references on merge", function() {
-          var MergeCollection, MergeModel, SubMergeModel, foo_obs, hello_obs, merge_collection, merge_model, merge_model2, _ref12, _ref13, _ref14;
-          MergeModel = (function(_super) {
-            __extends(MergeModel, _super);
-
-            function MergeModel() {
-              _ref12 = MergeModel.__super__.constructor.apply(this, arguments);
-              return _ref12;
-            }
-
-            MergeModel.prototype.defaults = {
-              'sub': function() {
-                return new SubMergeModel;
-              }
-            };
-
-            MergeModel.prototype.observables = {
-              'foo': 'bar'
-            };
-
-            return MergeModel;
-
-          })(Falcon.Model);
-          SubMergeModel = (function(_super) {
-            __extends(SubMergeModel, _super);
-
-            function SubMergeModel() {
-              _ref13 = SubMergeModel.__super__.constructor.apply(this, arguments);
-              return _ref13;
-            }
-
-            SubMergeModel.prototype.observables = {
-              'hello': 'world'
-            };
-
-            return SubMergeModel;
-
-          })(Falcon.Model);
-          MergeCollection = (function(_super) {
-            __extends(MergeCollection, _super);
-
-            function MergeCollection() {
-              _ref14 = MergeCollection.__super__.constructor.apply(this, arguments);
-              return _ref14;
-            }
-
-            MergeCollection.prototype.model = MergeModel;
-
-            return MergeCollection;
-
-          })(Falcon.Collection);
-          merge_model = new MergeModel({
-            id: 1
-          });
-          merge_collection = new MergeCollection([merge_model]);
-          expect(merge_model.get('foo')).toBe('bar');
-          expect(merge_model.sub.get('hello')).toBe('world');
-          foo_obs = merge_model.foo;
-          hello_obs = merge_model.sub.hello;
-          expect(ko.isObservable(foo_obs)).toBe(true);
-          expect(ko.isObservable(hello_obs)).toBe(true);
-          expect(merge_collection.all()).toEqual([merge_model]);
-          merge_collection.fill([
-            {
-              'id': 1,
-              'foo': 'BAR',
-              'sub': {
-                'hello': 'WORLD'
-              }
-            }, (merge_model2 = new MergeModel)
-          ], {
-            'method': 'merge'
-          });
-          expect(merge_model.get('foo')).toBe('BAR');
-          expect(merge_model.sub.get('hello')).toBe('WORLD');
-          expect(foo_obs).toBe(merge_model.foo);
-          expect(hello_obs).toBe(merge_model.sub.hello);
-          return expect(merge_collection.all()).toEqual([merge_model, merge_model2]);
+        expect(collection.replace).not.toHaveBeenCalled();
+        expect(collection.append).not.toHaveBeenCalled();
+        expect(collection.merge).not.toHaveBeenCalled();
+        expect(collection.insert).not.toHaveBeenCalled();
+        return expect(collection.prepend.calls.mostRecent().args[1]).not.toBe(options);
+      });
+      it("Should call the merge when requested", function() {
+        options = {
+          'method': 'merge'
+        };
+        collection.fill(items, options);
+        expect(collection.merge.calls.count()).toBe(1);
+        expect(collection.merge).toHaveBeenCalledWith(items, {
+          'method': 'merge',
+          'comparator': null
         });
-        return it("Should properly merge items into a populated collection that has a specified comparator", function() {
-          var collectionA, index;
-          collectionA = new CollectionA([
-            {
-              id: 3,
-              "hello": "world3"
-            }, {
-              id: 4,
-              "hello": "world4"
+        expect(collection.replace).not.toHaveBeenCalled();
+        expect(collection.append).not.toHaveBeenCalled();
+        expect(collection.prepend).not.toHaveBeenCalled();
+        expect(collection.insert).not.toHaveBeenCalled();
+        return expect(collection.merge.calls.mostRecent().args[1]).not.toBe(options);
+      });
+      return it("Should call the insert when requested", function() {
+        options = {
+          'method': 'insert',
+          'index': 3
+        };
+        collection.fill(items, options);
+        expect(collection.insert.calls.count()).toBe(1);
+        expect(collection.insert).toHaveBeenCalledWith(items, {
+          'method': 'insert',
+          'index': 3,
+          'comparator': null
+        });
+        expect(collection.replace).not.toHaveBeenCalled();
+        expect(collection.append).not.toHaveBeenCalled();
+        expect(collection.prepend).not.toHaveBeenCalled();
+        expect(collection.merge).not.toHaveBeenCalled();
+        return expect(collection.insert.calls.mostRecent().args[1]).not.toBe(options);
+      });
+    });
+    describe("replace", function() {
+      it("Should properly add items into an empty collection", function() {
+        var collectionA;
+        collectionA = new CollectionA;
+        collectionA.replace([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }
+        ]);
+        expect(collectionA.length()).toBe(2);
+        expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(0).get('id')).toBe(1);
+        expect(collectionA.at(0).get('hello')).toBe("world");
+        expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(1).get('id')).toBe(2);
+        return expect(collectionA.at(1).get('hello')).toBe("world2");
+      });
+      return it("Should properly replace items into a populated collection", function() {
+        var collectionA;
+        collectionA = new CollectionA([
+          {
+            id: 2,
+            "hello": "world3"
+          }
+        ]);
+        collectionA.replace([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }
+        ]);
+        expect(collectionA.length()).toBe(2);
+        expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(0).get('id')).toBe(1);
+        expect(collectionA.at(0).get('hello')).toBe("world");
+        expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(1).get('id')).toBe(2);
+        return expect(collectionA.at(1).get('hello')).toBe("world2");
+      });
+    });
+    describe("append", function() {
+      it("Should properly add items into an empty collection", function() {
+        var collectionA;
+        collectionA = new CollectionA;
+        collectionA.append([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }
+        ]);
+        expect(collectionA.length()).toBe(2);
+        expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(0).get('id')).toBe(1);
+        expect(collectionA.at(0).get('hello')).toBe("world");
+        expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(1).get('id')).toBe(2);
+        return expect(collectionA.at(1).get('hello')).toBe("world2");
+      });
+      it("Should properly append items into a populated collection", function() {
+        var collectionA;
+        collectionA = new CollectionA([
+          {
+            id: 3,
+            "hello": "world3"
+          }
+        ]);
+        collectionA.append([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }
+        ]);
+        expect(collectionA.length()).toBe(3);
+        expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(0).get('id')).toBe(3);
+        expect(collectionA.at(0).get('hello')).toBe("world3");
+        expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(1).get('id')).toBe(1);
+        expect(collectionA.at(1).get('hello')).toBe("world");
+        expect(collectionA.at(2)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(2).get('id')).toBe(2);
+        return expect(collectionA.at(2).get('hello')).toBe("world2");
+      });
+      return it("Should properly add items into an empty collection and set the parent properly", function() {
+        var collectionA, modelB;
+        modelB = new ModelB;
+        collectionA = new CollectionA(modelB);
+        collectionA.append([
+          {
+            id: 1,
+            "hello": "world"
+          }
+        ]);
+        expect(collectionA.length()).toBe(1);
+        expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(0).get('id')).toBe(1);
+        expect(collectionA.at(0).get('hello')).toBe("world");
+        return expect(collectionA.at(0).parent).toBe(modelB);
+      });
+    });
+    describe("prepend", function() {
+      it("Should properly add items into an empty collection", function() {
+        var collectionA;
+        collectionA = new CollectionA;
+        collectionA.prepend([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }
+        ]);
+        expect(collectionA.length()).toBe(2);
+        expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(0).get('id')).toBe(1);
+        expect(collectionA.at(0).get('hello')).toBe("world");
+        expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(1).get('id')).toBe(2);
+        return expect(collectionA.at(1).get('hello')).toBe("world2");
+      });
+      return it("Should properly prepend items into a populated collection", function() {
+        var collectionA, index;
+        collectionA = new CollectionA([
+          {
+            id: 3,
+            "hello": "world3"
+          }
+        ]);
+        collectionA.prepend([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }
+        ]);
+        index = 0;
+        expect(collectionA.length()).toBe(3);
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(1);
+        expect(collectionA.at(index).get('hello')).toBe("world");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(2);
+        expect(collectionA.at(index).get('hello')).toBe("world2");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(3);
+        return expect(collectionA.at(index).get('hello')).toBe("world3");
+      });
+    });
+    describe("merge", function() {
+      it("Should properly add items into an empty collection", function() {
+        var collectionA;
+        collectionA = new CollectionA;
+        collectionA.merge([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }
+        ]);
+        expect(collectionA.length()).toBe(2);
+        expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(0).get('id')).toBe(1);
+        expect(collectionA.at(0).get('hello')).toBe("world");
+        expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(1).get('id')).toBe(2);
+        return expect(collectionA.at(1).get('hello')).toBe("world2");
+      });
+      it("Should properly merge items into a populated collection", function() {
+        var collectionA, index;
+        collectionA = new CollectionA([
+          {
+            id: 3,
+            "hello": "world3"
+          }, {
+            id: 4,
+            "hello": "world4"
+          }
+        ]);
+        collectionA.merge([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }, {
+            id: 4,
+            "hello": "world5"
+          }
+        ]);
+        index = 0;
+        expect(collectionA.length()).toBe(4);
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(3);
+        expect(collectionA.at(index).get('hello')).toBe("world3");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(4);
+        expect(collectionA.at(index).get('hello')).toBe("world5");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(1);
+        expect(collectionA.at(index).get('hello')).toBe("world");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(2);
+        expect(collectionA.at(index).get('hello')).toBe("world2");
+        return index++;
+      });
+      it("Should not overwrite previous references on merge", function() {
+        var MergeCollection, MergeModel, SubMergeModel, foo_obs, hello_obs, merge_collection, merge_model, merge_model2, _ref12, _ref13, _ref14;
+        MergeModel = (function(_super) {
+          __extends(MergeModel, _super);
+
+          function MergeModel() {
+            _ref12 = MergeModel.__super__.constructor.apply(this, arguments);
+            return _ref12;
+          }
+
+          MergeModel.prototype.defaults = {
+            'sub': function() {
+              return new SubMergeModel;
             }
-          ]);
-          collectionA.comparator = function(model_a, model_b) {
-            var a_id, b_id;
-            a_id = parseInt(model_a.get("id"));
-            b_id = parseInt(model_b.get("id"));
-            if (a_id > b_id) {
-              return -1;
-            }
-            if (a_id < b_id) {
-              return 1;
-            }
-            return 0;
           };
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }, {
-              id: 4,
-              "hello": "world5"
-            }
-          ], {
-            'method': 'merge'
-          });
-          index = 0;
-          expect(collectionA.length()).toBe(4);
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(4);
-          expect(collectionA.at(index).get('hello')).toBe("world5");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(3);
-          expect(collectionA.at(index).get('hello')).toBe("world3");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(2);
-          expect(collectionA.at(index).get('hello')).toBe("world2");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(1);
-          expect(collectionA.at(index).get('hello')).toBe("world");
-          return index++;
+
+          MergeModel.prototype.observables = {
+            'foo': 'bar'
+          };
+
+          return MergeModel;
+
+        })(Falcon.Model);
+        SubMergeModel = (function(_super) {
+          __extends(SubMergeModel, _super);
+
+          function SubMergeModel() {
+            _ref13 = SubMergeModel.__super__.constructor.apply(this, arguments);
+            return _ref13;
+          }
+
+          SubMergeModel.prototype.observables = {
+            'hello': 'world'
+          };
+
+          return SubMergeModel;
+
+        })(Falcon.Model);
+        MergeCollection = (function(_super) {
+          __extends(MergeCollection, _super);
+
+          function MergeCollection() {
+            _ref14 = MergeCollection.__super__.constructor.apply(this, arguments);
+            return _ref14;
+          }
+
+          MergeCollection.prototype.model = MergeModel;
+
+          return MergeCollection;
+
+        })(Falcon.Collection);
+        merge_model = new MergeModel({
+          id: 1
         });
+        merge_collection = new MergeCollection([merge_model]);
+        expect(merge_model.get('foo')).toBe('bar');
+        expect(merge_model.sub.get('hello')).toBe('world');
+        foo_obs = merge_model.foo;
+        hello_obs = merge_model.sub.hello;
+        expect(ko.isObservable(foo_obs)).toBe(true);
+        expect(ko.isObservable(hello_obs)).toBe(true);
+        expect(merge_collection.all()).toEqual([merge_model]);
+        merge_collection.merge([
+          {
+            'id': 1,
+            'foo': 'BAR',
+            'sub': {
+              'hello': 'WORLD'
+            }
+          }, (merge_model2 = new MergeModel)
+        ]);
+        expect(merge_model.get('foo')).toBe('BAR');
+        expect(merge_model.sub.get('hello')).toBe('WORLD');
+        expect(foo_obs).toBe(merge_model.foo);
+        expect(hello_obs).toBe(merge_model.sub.hello);
+        return expect(merge_collection.all()).toEqual([merge_model, merge_model2]);
       });
-      describe("Test 'insert' option", function() {
-        it("Should properly add items into an empty collection", function() {
-          var collectionA;
-          collectionA = new CollectionA;
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ], {
-            'method': 'insert',
-            'insert_index': 2
-          });
-          expect(collectionA.length()).toBe(2);
-          expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(0).get('id')).toBe(1);
-          expect(collectionA.at(0).get('hello')).toBe("world");
-          expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(1).get('id')).toBe(2);
-          return expect(collectionA.at(1).get('hello')).toBe("world2");
-        });
-        it("Should properly insert items into a populated collection", function() {
-          var collectionA, index;
-          collectionA = new CollectionA([
-            {
-              id: 3,
-              "hello": "world3"
-            }, {
-              id: 4,
-              "hello": "world4"
-            }
-          ]);
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ], {
-            'method': 'insert',
-            'insert_index': 1
-          });
-          index = 0;
-          expect(collectionA.length()).toBe(4);
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(3);
-          expect(collectionA.at(index).get('hello')).toBe("world3");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(1);
-          expect(collectionA.at(index).get('hello')).toBe("world");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(2);
-          expect(collectionA.at(index).get('hello')).toBe("world2");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(4);
-          expect(collectionA.at(index).get('hello')).toBe("world4");
-          return index++;
-        });
-        it("Should properly insert items into a populated collection at an invalid index", function() {
-          var collectionA, index;
-          collectionA = new CollectionA([
-            {
-              id: 3,
-              "hello": "world3"
-            }, {
-              id: 4,
-              "hello": "world4"
-            }
-          ]);
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ], {
-            'method': 'insert',
-            'insert_index': 5
-          });
-          index = 0;
-          expect(collectionA.length()).toBe(4);
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(3);
-          expect(collectionA.at(index).get('hello')).toBe("world3");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(4);
-          expect(collectionA.at(index).get('hello')).toBe("world4");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(1);
-          expect(collectionA.at(index).get('hello')).toBe("world");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(2);
-          expect(collectionA.at(index).get('hello')).toBe("world2");
-          return index++;
-        });
-        return it("Should properly insert items into the beginning of a populated collection", function() {
-          var collectionA, index;
-          collectionA = new CollectionA([
-            {
-              id: 3,
-              "hello": "world3"
-            }, {
-              id: 4,
-              "hello": "world4"
-            }
-          ]);
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ], {
-            'method': 'insert',
-            'insert_index': 0
-          });
-          index = 0;
-          expect(collectionA.length()).toBe(4);
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(1);
-          expect(collectionA.at(index).get('hello')).toBe("world");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(2);
-          expect(collectionA.at(index).get('hello')).toBe("world2");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(3);
-          expect(collectionA.at(index).get('hello')).toBe("world3");
-          index++;
-          expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(index).get('id')).toBe(4);
-          expect(collectionA.at(index).get('hello')).toBe("world4");
-          return index++;
-        });
+      return it("Should properly merge items into a populated collection that has a specified comparator", function() {
+        var collectionA, index;
+        collectionA = new CollectionA([
+          {
+            id: 3,
+            "hello": "world3"
+          }, {
+            id: 4,
+            "hello": "world4"
+          }
+        ]);
+        collectionA.comparator = function(model_a, model_b) {
+          var a_id, b_id;
+          a_id = parseInt(model_a.get("id"));
+          b_id = parseInt(model_b.get("id"));
+          if (a_id > b_id) {
+            return -1;
+          }
+          if (a_id < b_id) {
+            return 1;
+          }
+          return 0;
+        };
+        collectionA.merge([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }, {
+            id: 4,
+            "hello": "world5"
+          }
+        ]);
+        index = 0;
+        expect(collectionA.length()).toBe(4);
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(4);
+        expect(collectionA.at(index).get('hello')).toBe("world5");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(3);
+        expect(collectionA.at(index).get('hello')).toBe("world3");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(2);
+        expect(collectionA.at(index).get('hello')).toBe("world2");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(1);
+        expect(collectionA.at(index).get('hello')).toBe("world");
+        return index++;
       });
-      describe("Test invalid option", function() {
-        it("Should properly add items into an empty collection", function() {
-          var collectionA;
-          collectionA = new CollectionA;
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ], {
-            'method': 'invalid'
-          });
-          expect(collectionA.length()).toBe(2);
-          expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(0).get('id')).toBe(1);
-          expect(collectionA.at(0).get('hello')).toBe("world");
-          expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(1).get('id')).toBe(2);
-          return expect(collectionA.at(1).get('hello')).toBe("world2");
+    });
+    describe("insert", function() {
+      it("Should properly add items into an empty collection", function() {
+        var collectionA;
+        collectionA = new CollectionA;
+        collectionA.insert([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }
+        ], {
+          'index': 2
         });
-        return it("Should properly replace items into a populated collection", function() {
-          var collectionA;
-          collectionA = new CollectionA([
-            {
-              id: 2,
-              "hello": "world3"
-            }
-          ]);
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }, {
-              id: 2,
-              "hello": "world2"
-            }
-          ], {
-            'method': 'invalid'
-          });
-          expect(collectionA.length()).toBe(2);
-          expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(0).get('id')).toBe(1);
-          expect(collectionA.at(0).get('hello')).toBe("world");
-          expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(1).get('id')).toBe(2);
-          return expect(collectionA.at(1).get('hello')).toBe("world2");
-        });
+        expect(collectionA.length()).toBe(2);
+        expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(0).get('id')).toBe(1);
+        expect(collectionA.at(0).get('hello')).toBe("world");
+        expect(collectionA.at(1)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(1).get('id')).toBe(2);
+        return expect(collectionA.at(1).get('hello')).toBe("world2");
       });
-      return describe("Test that parent is being set properly on children models", function() {
-        return it("Should properly add items into an empty collection", function() {
-          var collectionA, modelB;
-          modelB = new ModelB;
-          collectionA = new CollectionA(modelB);
-          collectionA.fill([
-            {
-              id: 1,
-              "hello": "world"
-            }
-          ]);
-          expect(collectionA.length()).toBe(1);
-          expect(collectionA.at(0)).toEqual(jasmine.any(ModelA));
-          expect(collectionA.at(0).get('id')).toBe(1);
-          expect(collectionA.at(0).get('hello')).toBe("world");
-          return expect(collectionA.at(0).parent).toBe(modelB);
+      it("Should properly insert items into a populated collection", function() {
+        var collectionA, index;
+        collectionA = new CollectionA([
+          {
+            id: 3,
+            "hello": "world3"
+          }, {
+            id: 4,
+            "hello": "world4"
+          }
+        ]);
+        collectionA.insert([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }
+        ], {
+          'index': 1
         });
+        index = 0;
+        expect(collectionA.length()).toBe(4);
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(3);
+        expect(collectionA.at(index).get('hello')).toBe("world3");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(1);
+        expect(collectionA.at(index).get('hello')).toBe("world");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(2);
+        expect(collectionA.at(index).get('hello')).toBe("world2");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(4);
+        expect(collectionA.at(index).get('hello')).toBe("world4");
+        return index++;
+      });
+      it("Should properly insert items into a populated collection with an iterator function", function() {
+        var collectionA, index;
+        collectionA = new CollectionA([
+          {
+            id: 3,
+            "hello": "world3"
+          }, {
+            id: 4,
+            "hello": "world4"
+          }
+        ]);
+        collectionA.insert([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }
+        ], function(model) {
+          return model.get('id') === 4;
+        });
+        index = 0;
+        expect(collectionA.length()).toBe(4);
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(3);
+        expect(collectionA.at(index).get('hello')).toBe("world3");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(1);
+        expect(collectionA.at(index).get('hello')).toBe("world");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(2);
+        expect(collectionA.at(index).get('hello')).toBe("world2");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(4);
+        expect(collectionA.at(index).get('hello')).toBe("world4");
+        return index++;
+      });
+      it("Should properly insert items into a populated collection with an integer id", function() {
+        var collectionA, index;
+        collectionA = new CollectionA([
+          {
+            id: 3,
+            "hello": "world3"
+          }, {
+            id: 4,
+            "hello": "world4"
+          }
+        ]);
+        collectionA.insert([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }
+        ], 4);
+        index = 0;
+        expect(collectionA.length()).toBe(4);
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(3);
+        expect(collectionA.at(index).get('hello')).toBe("world3");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(1);
+        expect(collectionA.at(index).get('hello')).toBe("world");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(2);
+        expect(collectionA.at(index).get('hello')).toBe("world2");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(4);
+        expect(collectionA.at(index).get('hello')).toBe("world4");
+        return index++;
+      });
+      it("Should properly insert items into a populated collection with a string id", function() {
+        var collectionA, index;
+        collectionA = new CollectionA([
+          {
+            id: '3',
+            "hello": "world3"
+          }, {
+            id: '4',
+            "hello": "world4"
+          }
+        ]);
+        collectionA.insert([
+          {
+            id: '1',
+            "hello": "world"
+          }, {
+            id: '2',
+            "hello": "world2"
+          }
+        ], '4');
+        index = 0;
+        expect(collectionA.length()).toBe(4);
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe('3');
+        expect(collectionA.at(index).get('hello')).toBe("world3");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe('1');
+        expect(collectionA.at(index).get('hello')).toBe("world");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe('2');
+        expect(collectionA.at(index).get('hello')).toBe("world2");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe('4');
+        expect(collectionA.at(index).get('hello')).toBe("world4");
+        return index++;
+      });
+      it("Should properly insert items into a populated collection with a model", function() {
+        var collectionA, index, model;
+        collectionA = new CollectionA([
+          new ModelA({
+            id: 3,
+            "hello": "world3"
+          }), model = new ModelA({
+            id: 4,
+            "hello": "world4"
+          })
+        ]);
+        collectionA.insert([
+          new ModelA({
+            id: 1,
+            "hello": "world"
+          }), new ModelA({
+            id: 2,
+            "hello": "world2"
+          })
+        ], model);
+        index = 0;
+        expect(collectionA.length()).toBe(4);
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(3);
+        expect(collectionA.at(index).get('hello')).toBe("world3");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(1);
+        expect(collectionA.at(index).get('hello')).toBe("world");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(2);
+        expect(collectionA.at(index).get('hello')).toBe("world2");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(4);
+        expect(collectionA.at(index).get('hello')).toBe("world4");
+        return index++;
+      });
+      it("Should properly insert items into a populated collection at an invalid index", function() {
+        var collectionA, index;
+        collectionA = new CollectionA([
+          {
+            id: 3,
+            "hello": "world3"
+          }, {
+            id: 4,
+            "hello": "world4"
+          }
+        ]);
+        collectionA.insert([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }
+        ], {
+          'index': 5
+        });
+        index = 0;
+        expect(collectionA.length()).toBe(4);
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(3);
+        expect(collectionA.at(index).get('hello')).toBe("world3");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(4);
+        expect(collectionA.at(index).get('hello')).toBe("world4");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(1);
+        expect(collectionA.at(index).get('hello')).toBe("world");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(2);
+        expect(collectionA.at(index).get('hello')).toBe("world2");
+        return index++;
+      });
+      return it("Should properly insert items into the beginning of a populated collection", function() {
+        var collectionA, index;
+        collectionA = new CollectionA([
+          {
+            id: 3,
+            "hello": "world3"
+          }, {
+            id: 4,
+            "hello": "world4"
+          }
+        ]);
+        collectionA.insert([
+          {
+            id: 1,
+            "hello": "world"
+          }, {
+            id: 2,
+            "hello": "world2"
+          }
+        ], {
+          'index': 0
+        });
+        index = 0;
+        expect(collectionA.length()).toBe(4);
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(1);
+        expect(collectionA.at(index).get('hello')).toBe("world");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(2);
+        expect(collectionA.at(index).get('hello')).toBe("world2");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(3);
+        expect(collectionA.at(index).get('hello')).toBe("world3");
+        index++;
+        expect(collectionA.at(index)).toEqual(jasmine.any(ModelA));
+        expect(collectionA.at(index).get('id')).toBe(4);
+        expect(collectionA.at(index).get('hello')).toBe("world4");
+        return index++;
       });
     });
     describe("Testing serialize method with proper options", function() {
@@ -4402,100 +4848,6 @@
         return expect(collectionA.length()).toBe(2);
       });
     });
-    describe("Test the append and prepend methods", function() {
-      var collectionA, fill_stub;
-      collectionA = null;
-      fill_stub = null;
-      beforeEach(function() {
-        collectionA = new CollectionA;
-        return fill_stub = sinon.stub(collectionA, "fill");
-      });
-      afterEach(function() {
-        return fill_stub.restore();
-      });
-      it("Should call the proper fill method when appending", function() {
-        var input;
-        collectionA.append(input = {
-          'hello': 'world'
-        });
-        expect(fill_stub).toHaveBeenCalledOnce();
-        return expect(fill_stub).toHaveBeenCalledWith(input, jasmine.objectContaining({
-          'method': 'append'
-        }));
-      });
-      return it("Should call the proper fill method when prepending", function() {
-        var input;
-        collectionA.prepend(input = {
-          'hello': 'world'
-        });
-        expect(fill_stub).toHaveBeenCalledOnce();
-        return expect(fill_stub).toHaveBeenCalledWith(input, jasmine.objectContaining({
-          'method': 'prepend'
-        }));
-      });
-    });
-    describe("Test the insert method", function() {
-      var collectionA, fill_stub;
-      collectionA = null;
-      fill_stub = null;
-      beforeEach(function() {
-        collectionA = new CollectionA([
-          {
-            id: 1,
-            'hello': 'foo'
-          }, {
-            id: 4,
-            'hello': 'bar'
-          }
-        ]);
-        return fill_stub = sinon.stub(collectionA, "fill");
-      });
-      it("Should call the proper fill method when inserting without a specific model", function() {
-        var input;
-        collectionA.insert(input = {
-          'hello': 'world'
-        });
-        expect(fill_stub).toHaveBeenCalledOnce();
-        return expect(fill_stub).toHaveBeenCalledWith(input, jasmine.objectContaining({
-          'method': 'append'
-        }));
-      });
-      it("Should call the proper fill method when inserting with a valid model", function() {
-        var input;
-        collectionA.insert(input = {
-          'hello': 'world'
-        }, 4);
-        expect(fill_stub).toHaveBeenCalledOnce();
-        return expect(fill_stub).toHaveBeenCalledWith(input, jasmine.objectContaining({
-          'method': 'insert',
-          'insert_index': 1
-        }));
-      });
-      it("Should call the proper fill method when appending with an invalid model", function() {
-        var input;
-        collectionA.insert(input = {
-          'hello': 'world'
-        }, 33);
-        expect(fill_stub).toHaveBeenCalledOnce();
-        return expect(fill_stub).toHaveBeenCalledWith(input, jasmine.objectContaining({
-          'method': 'insert',
-          'insert_index': -1
-        }));
-      });
-      return it("Should call the proper fill method when inserting with an iterator", function() {
-        var input;
-        collectionA.insert(input = {
-          'hello': 'world'
-        }, (function(m) {
-          return m.get('id') === 1;
-        }));
-        expect(fill_stub).toHaveBeenCalledOnce();
-        return expect(fill_stub).toHaveBeenCalledWith(input, jasmine.objectContaining({
-          'method': 'insert',
-          'insert_index': 0
-        }));
-      });
-    });
     describe("Test the unshift and push methods", function() {
       var append_stub, collectionA, prepend_stub;
       collectionA = null;
@@ -4645,7 +4997,9 @@
         expect(model.create).not.toHaveBeenCalled();
         expect(Falcon.adapter.standardizeOptions).not.toHaveBeenCalled();
         expect(collection.fill.calls.count()).toBe(1);
-        expect(collection.fill).toHaveBeenCalledWith(model, jasmine.any(Object));
+        expect(collection.fill).toHaveBeenCalledWith(model, {
+          'method': 'append'
+        });
         expect(options.success.calls.count()).toBe(1);
         expect(options.success).toHaveBeenCalledWith(model);
         return expect(options.success.calls.mostRecent().object).toBe(context);
@@ -4666,12 +5020,24 @@
         expect(collection.fill).not.toHaveBeenCalled();
         return expect(options.success).not.toHaveBeenCalled();
       });
-      return it("Should set up the correct context if none is given", function() {
+      it("Should set up the correct context if none is given", function() {
         collection.create(model, options);
         expect(Falcon.adapter.standardizeOptions.calls.count()).toBe(1);
         expect(Falcon.adapter.standardizeOptions).toHaveBeenCalledWith(model, 'POST', options, model);
         expect(model.create.calls.count()).toBe(1);
         return expect(model.create).toHaveBeenCalledWith(jasmine.any(Object), model);
+      });
+      return it("Should not overwrite the fill options", function() {
+        var fill_options;
+        collection.create(model, {
+          fill_options: {
+            'method': 'merge'
+          }
+        }, context);
+        fill_options = model.create.calls.mostRecent().args[0].fill_options;
+        return expect(fill_options).toEqual({
+          'method': 'merge'
+        });
       });
     });
     describe("destroy", function() {
@@ -5963,7 +6329,7 @@
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  describe("Knockout Bindings", function() {
+  describe("Bindings", function() {
     var application, application_index, applyApp, _childCount, _createApplication, _createTemplate;
     application = null;
     application_index = 0;
@@ -6000,12 +6366,9 @@
       document.body.appendChild(application = _createApplication());
       return Falcon.apply(view, "#application_" + application_index);
     };
-    describe("'view' Binding", function() {
-      var ContentView, FooterView, LayoutView, content_template, footer_template, layout_template, view_binding, view_init_spy, view_update_spy, _ref, _ref1, _ref2;
-      layout_template = footer_template = content_template = null;
-      view_binding = Falcon.getBinding('view');
-      view_init_spy = sinon.spy(view_binding, 'init');
-      view_update_spy = sinon.spy(view_binding, 'update');
+    return describe("view", function() {
+      var ContentView, FooterView, LayoutView, content_template, footer_template, is_setup, layout_template, view_binding, _ref, _ref1, _ref2;
+      is_setup = false;
       LayoutView = (function(_super) {
         __extends(LayoutView, _super);
 
@@ -6029,7 +6392,6 @@
         return LayoutView;
 
       })(Falcon.View);
-      layout_template = _createTemplate("layout-template", "			<div data-bind='view: $view.content_view'></div>			<div data-bind='view: $view.footer_view'></div>		");
       ContentView = (function(_super) {
         __extends(ContentView, _super);
 
@@ -6043,7 +6405,6 @@
         return ContentView;
 
       })(Falcon.View);
-      content_template = _createTemplate("content-template", "The Content");
       FooterView = (function(_super) {
         __extends(FooterView, _super);
 
@@ -6057,11 +6418,25 @@
         return FooterView;
 
       })(Falcon.View);
-      footer_template = _createTemplate("footer-template", "The Footer");
+      layout_template = content_template = footer_template = null;
+      view_binding = null;
+      beforeEach(function() {
+        if (!is_setup) {
+          return;
+        }
+        view_binding = Falcon.getBinding('view');
+        sinonSpyOn(view_binding, 'init');
+        return sinonSpyOn(view_binding, 'update');
+      });
       it("Setup", function() {
+        layout_template = _createTemplate("layout-template", "				<div data-bind='view: $view.content_view'></div>				<div data-bind='view: $view.footer_view'></div>			");
+        content_template = _createTemplate("content-template", "The Content");
+        footer_template = _createTemplate("footer-template", "The Footer");
         document.body.appendChild(layout_template);
         document.body.appendChild(content_template);
-        return document.body.appendChild(footer_template);
+        document.body.appendChild(footer_template);
+        Falcon.View.cacheTemplates();
+        return is_setup = true;
       });
       it("Should call the view binding on initialization without an observable", function() {
         var render_spy, unrender_spy, view;
@@ -6078,7 +6453,21 @@
         expect(render_spy).toHaveBeenCalledOnce();
         return expect(unrender_spy).not.toHaveBeenCalled();
       });
-      describe("Testing changes in views that are contained in observables", function() {
+      return it("Teardown", function() {
+        Falcon.View.resetCache();
+        document.body.removeChild(layout_template);
+        document.body.removeChild(content_template);
+        document.body.removeChild(footer_template);
+        return is_setup = false;
+      });
+    });
+  });
+
+  describe("Knockout Bindings", function() {
+    describe("'view' Binding", function() {
+      var content_template, footer_template, layout_template;
+      layout_template = footer_template = content_template = null;
+      return describe("Testing changes in views that are contained in observables", function() {
         var content_display_spy, content_dispose_spy, content_render_spy, content_unrender_spy, content_view, display_spy, dispose_spy, footer_display_spy, footer_dispose_spy, footer_render_spy, footer_unrender_spy, footer_view, obs, render_spy, setup, unrender_spy, view;
         view = content_view = footer_view = obs = null;
         render_spy = unrender_spy = display_spy = dispose_spy = null;
@@ -6191,12 +6580,6 @@
           expect(content_dispose_spy).not.toHaveBeenCalled();
           return expect(footer_dispose_spy).toHaveBeenCalledOnce();
         });
-      });
-      return it("Teardown", function() {
-        Falcon.View.resetCache();
-        document.body.removeChild(layout_template);
-        document.body.removeChild(content_template);
-        return document.body.removeChild(footer_template);
       });
     });
     describe("Test view binding with an observable array of views", function() {

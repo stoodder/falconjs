@@ -206,482 +206,191 @@ describe "Falcon.Collection", ->
 	# Test the fill() method
 	#
 	#--------------------------------------------------------------
-	describe "Testing the different fill method combinations", ->
-		describe "Test default option", ->
-			it "Should properly add items into an empty collection", ->
-				collectionA = new CollectionA
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-				]
-
-				expect( collectionA.length() ).toBe( 2 )
-				expect( collectionA.at(0) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(0).get('id') ).toBe( 1 )
-				expect( collectionA.at(0).get('hello') ).toBe( "world" )
-				expect( collectionA.at(1) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(1).get('id') ).toBe( 2 )
-				expect( collectionA.at(1).get('hello') ).toBe( "world2" )
-			#END it
-
-			it "Should properly replace items into a populated collection", ->
-				collectionA = new CollectionA [
-					{id: 2, "hello": "world3"}
-				]
-				
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-				]
-
-				expect( collectionA.length() ).toBe( 2 )
-				expect( collectionA.at(0) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(0).get('id') ).toBe( 1 )
-				expect( collectionA.at(0).get('hello') ).toBe( "world" )
-				expect( collectionA.at(1) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(1).get('id') ).toBe( 2 )
-				expect( collectionA.at(1).get('hello') ).toBe( "world2" )
-			#END it
-		#END describe
-
-		describe "Test 'replace' option", ->
-			it "Should properly add items into an empty collection", ->
-				collectionA = new CollectionA
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-				], { 'method': 'replace' }
-
-				expect( collectionA.length() ).toBe( 2 )
-				expect( collectionA.at(0) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(0).get('id') ).toBe( 1 )
-				expect( collectionA.at(0).get('hello') ).toBe( "world" )
-				expect( collectionA.at(1) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(1).get('id') ).toBe( 2 )
-				expect( collectionA.at(1).get('hello') ).toBe( "world2" )
-			#END it
-
-			it "Should properly replace items into a populated collection", ->
-				collectionA = new CollectionA [
-					{id: 2, "hello": "world3"}
-				]
-				
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-				], { 'method': 'replace' }
-
-				expect( collectionA.length() ).toBe( 2 )
-				expect( collectionA.at(0) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(0).get('id') ).toBe( 1 )
-				expect( collectionA.at(0).get('hello') ).toBe( "world" )
-				expect( collectionA.at(1) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(1).get('id') ).toBe( 2 )
-				expect( collectionA.at(1).get('hello') ).toBe( "world2" )
-			#END it
-		#END describe
-
-		describe "Test 'append' option", ->
-			it "Should properly add items into an empty collection", ->
-				collectionA = new CollectionA
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-				], { 'method': 'append' }
-
-				expect( collectionA.length() ).toBe( 2 )
-				expect( collectionA.at(0) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(0).get('id') ).toBe( 1 )
-				expect( collectionA.at(0).get('hello') ).toBe( "world" )
-				expect( collectionA.at(1) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(1).get('id') ).toBe( 2 )
-				expect( collectionA.at(1).get('hello') ).toBe( "world2" )
-			#END it
-
-			it "Should properly append items into a populated collection", ->
-				collectionA = new CollectionA [
-					{id: 3, "hello": "world3"}
-				]
-				
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-				], { 'method': 'append' }
-
-				expect( collectionA.length() ).toBe( 3 )
-				expect( collectionA.at(0) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(0).get('id') ).toBe( 3 )
-				expect( collectionA.at(0).get('hello') ).toBe( "world3" )
-				expect( collectionA.at(1) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(1).get('id') ).toBe( 1 )
-				expect( collectionA.at(1).get('hello') ).toBe( "world" )
-				expect( collectionA.at(2) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(2).get('id') ).toBe( 2 )
-				expect( collectionA.at(2).get('hello') ).toBe( "world2" )
-			#END it
-		#END describe
-
-		describe "Test 'prepend' option", ->
-			it "Should properly add items into an empty collection", ->
-				collectionA = new CollectionA
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-				], { 'method': 'prepend' }
-
-				expect( collectionA.length() ).toBe( 2 )
-				expect( collectionA.at(0) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(0).get('id') ).toBe( 1 )
-				expect( collectionA.at(0).get('hello') ).toBe( "world" )
-				expect( collectionA.at(1) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(1).get('id') ).toBe( 2 )
-				expect( collectionA.at(1).get('hello') ).toBe( "world2" )
-			#END it
-
-			it "Should properly prepend items into a populated collection", ->
-				collectionA = new CollectionA [
-					{id: 3, "hello": "world3"}
-				]
-				
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-				], { 'method': 'prepend' }
-
-				index = 0
-				expect( collectionA.length() ).toBe( 3 )
-
-				expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(index).get('id') ).toBe( 1 )
-				expect( collectionA.at(index).get('hello') ).toBe( "world" )
-				index++
-
-				expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(index).get('id') ).toBe( 2 )
-				expect( collectionA.at(index).get('hello') ).toBe( "world2" )
-				index++
-
-				expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(index).get('id') ).toBe( 3 )
-				expect( collectionA.at(index).get('hello') ).toBe( "world3" )
-			#END it
-		#END describe
-
-		describe "Test 'merge' option", ->
-			it "Should properly add items into an empty collection", ->
-				collectionA = new CollectionA
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-				], { 'method': 'merge' }
-
-				expect( collectionA.length() ).toBe( 2 )
-				expect( collectionA.at(0) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(0).get('id') ).toBe( 1 )
-				expect( collectionA.at(0).get('hello') ).toBe( "world" )
-				expect( collectionA.at(1) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(1).get('id') ).toBe( 2 )
-				expect( collectionA.at(1).get('hello') ).toBe( "world2" )
-			#END it
-
-			it "Should properly merge items into a populated collection", ->
-				collectionA = new CollectionA [
-					{id: 3, "hello": "world3"}
-					{id: 4, "hello": "world4"}
-				]
-				
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-					{id: 4, "hello": "world5"}
-				], { 'method': 'merge' }
-
-				index = 0
-				expect( collectionA.length() ).toBe( 4 )
-
-				expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(index).get('id') ).toBe( 3 )
-				expect( collectionA.at(index).get('hello') ).toBe( "world3" )
-				index++
-
-				expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(index).get('id') ).toBe( 4 )
-				expect( collectionA.at(index).get('hello') ).toBe( "world5" )
-				index++
-
-				expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(index).get('id') ).toBe( 1 )
-				expect( collectionA.at(index).get('hello') ).toBe( "world" )
-				index++
-
-				expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(index).get('id') ).toBe( 2 )
-				expect( collectionA.at(index).get('hello') ).toBe( "world2" )
-				index++
-			#END it
-
-			it "Should not overwrite previous references on merge", ->
-				class MergeModel extends Falcon.Model
-					defaults:
-						'sub': -> new SubMergeModel
-					#END defaults
-
-					observables:
-						'foo': 'bar'
-					#END observables
-				#END MergeModel
-
-				class SubMergeModel extends Falcon.Model
-					observables:
-						'hello': 'world'
-					#END observables
-				#END SubMergeModel
-
-				class MergeCollection extends Falcon.Collection
-					model: MergeModel
-				#END class
-
-				merge_model = new MergeModel(id: 1)
-				merge_collection = new MergeCollection([merge_model])
-
-				expect( merge_model.get('foo') ).toBe( 'bar' )
-				expect( merge_model.sub.get('hello') ).toBe( 'world' )
-
-				foo_obs = merge_model.foo
-				hello_obs = merge_model.sub.hello
-
-				expect( ko.isObservable(foo_obs) ).toBe( true )
-				expect( ko.isObservable(hello_obs) ).toBe( true )
-
-				expect( merge_collection.all() ).toEqual([merge_model])
-
-				merge_collection.fill([{
-					'id': 1,
-					'foo': 'BAR',
-					'sub': {'hello': 'WORLD'}
-				}, (merge_model2 = new MergeModel)], {'method': 'merge'})
-
-				expect( merge_model.get('foo') ).toBe( 'BAR' )
-				expect( merge_model.sub.get('hello') ).toBe( 'WORLD' )
-
-				expect( foo_obs ).toBe( merge_model.foo )
-				expect( hello_obs ).toBe( merge_model.sub.hello )
-
-				expect( merge_collection.all() ).toEqual([merge_model, merge_model2])
-			#END it
-
-			it "Should properly merge items into a populated collection that has a specified comparator", ->
-				collectionA = new CollectionA [
-					{id: 3, "hello": "world3"}
-					{id: 4, "hello": "world4"}
-				]
-
-				collectionA.comparator = (model_a, model_b) ->
-					a_id = parseInt( model_a.get("id") )
-					b_id = parseInt( model_b.get("id") )
-
-					return -1 if a_id > b_id
-					return 1 if a_id < b_id
-					return 0
-				#END comparator
-				
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-					{id: 4, "hello": "world5"}
-				], { 'method': 'merge' }
-
-				index = 0
-				expect( collectionA.length() ).toBe( 4 )
-
-				expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(index).get('id') ).toBe( 4 )
-				expect( collectionA.at(index).get('hello') ).toBe( "world5" )
-				index++
-
-				expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(index).get('id') ).toBe( 3 )
-				expect( collectionA.at(index).get('hello') ).toBe( "world3" )
-				index++
-
-				expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(index).get('id') ).toBe( 2 )
-				expect( collectionA.at(index).get('hello') ).toBe( "world2" )
-				index++
-
-				expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(index).get('id') ).toBe( 1 )
-				expect( collectionA.at(index).get('hello') ).toBe( "world" )
-				index++
-			#END it
-		#END describe
-
-		describe "Test 'insert' option", ->
-			it "Should properly add items into an empty collection", ->
-				collectionA = new CollectionA
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-				], { 'method': 'insert', 'insert_index': 2 }
-
-				expect( collectionA.length() ).toBe( 2 )
-				expect( collectionA.at(0) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(0).get('id') ).toBe( 1 )
-				expect( collectionA.at(0).get('hello') ).toBe( "world" )
-				expect( collectionA.at(1) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(1).get('id') ).toBe( 2 )
-				expect( collectionA.at(1).get('hello') ).toBe( "world2" )
-			#END it
-
-			it "Should properly insert items into a populated collection", ->
-				collectionA = new CollectionA [
-					{id: 3, "hello": "world3"}
-					{id: 4, "hello": "world4"}
-				]
-				
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-				], { 'method': 'insert', 'insert_index': 1 }
-
-				index = 0
-				expect( collectionA.length() ).toBe( 4 )
-
-
-				expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(index).get('id') ).toBe( 3 )
-				expect( collectionA.at(index).get('hello') ).toBe( "world3" )
-				index++
-
-				expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(index).get('id') ).toBe( 1 )
-				expect( collectionA.at(index).get('hello') ).toBe( "world" )
-				index++
-
-				expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(index).get('id') ).toBe( 2 )
-				expect( collectionA.at(index).get('hello') ).toBe( "world2" )
-				index++
-
-				expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(index).get('id') ).toBe( 4 )
-				expect( collectionA.at(index).get('hello') ).toBe( "world4" )
-				index++
-			#END it
-
-			it "Should properly insert items into a populated collection at an invalid index", ->
-				collectionA = new CollectionA [
-					{id: 3, "hello": "world3"}
-					{id: 4, "hello": "world4"}
-				]
-				
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-				], { 'method': 'insert', 'insert_index': 5 }
-
-				index = 0
-				expect( collectionA.length() ).toBe( 4 )
-
-				expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(index).get('id') ).toBe( 3 )
-				expect( collectionA.at(index).get('hello') ).toBe( "world3" )
-				index++
-
-				expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(index).get('id') ).toBe( 4 )
-				expect( collectionA.at(index).get('hello') ).toBe( "world4" )
-				index++
-
-				expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(index).get('id') ).toBe( 1 )
-				expect( collectionA.at(index).get('hello') ).toBe( "world" )
-				index++
-
-				expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(index).get('id') ).toBe( 2 )
-				expect( collectionA.at(index).get('hello') ).toBe( "world2" )
-				index++
-			#END it
-
-			it "Should properly insert items into the beginning of a populated collection", ->
-				collectionA = new CollectionA [
-					{id: 3, "hello": "world3"}
-					{id: 4, "hello": "world4"}
-				]
-				
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-				], { 'method': 'insert', 'insert_index': 0 }
-
-				index = 0
-				expect( collectionA.length() ).toBe( 4 )
-
-				expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(index).get('id') ).toBe( 1 )
-				expect( collectionA.at(index).get('hello') ).toBe( "world" )
-				index++
-
-				expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(index).get('id') ).toBe( 2 )
-				expect( collectionA.at(index).get('hello') ).toBe( "world2" )
-				index++
-
-				expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(index).get('id') ).toBe( 3 )
-				expect( collectionA.at(index).get('hello') ).toBe( "world3" )
-				index++
-
-				expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(index).get('id') ).toBe( 4 )
-				expect( collectionA.at(index).get('hello') ).toBe( "world4" )
-				index++
-			#END it
-		#END describe
-
-		describe "Test invalid option", ->
-			it "Should properly add items into an empty collection", ->
-				collectionA = new CollectionA
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-				], {'method': 'invalid'}
-
-				expect( collectionA.length() ).toBe( 2 )
-				expect( collectionA.at(0) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(0).get('id') ).toBe( 1 )
-				expect( collectionA.at(0).get('hello') ).toBe( "world" )
-				expect( collectionA.at(1) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(1).get('id') ).toBe( 2 )
-				expect( collectionA.at(1).get('hello') ).toBe( "world2" )
-			#END it
-
-			it "Should properly replace items into a populated collection", ->
-				collectionA = new CollectionA [
-					{id: 2, "hello": "world3"}
-				]
-				
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-				], {'method': 'invalid'}
-
-				expect( collectionA.length() ).toBe( 2 )
-				expect( collectionA.at(0) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(0).get('id') ).toBe( 1 )
-				expect( collectionA.at(0).get('hello') ).toBe( "world" )
-				expect( collectionA.at(1) ).toEqual( jasmine.any(ModelA) )
-				expect( collectionA.at(1).get('id') ).toBe( 2 )
-				expect( collectionA.at(1).get('hello') ).toBe( "world2" )
-			#END it
-		#END describe
-
-		describe "Test that parent is being set properly on children models", ->
-			it "Should properly add items into an empty collection", ->
+	describe "fill", ->
+		collection = null
+		items = options = null
+		beforeEach ->
+			collection = new CollectionA
+			items = [{}, {}]
+			spyOn( collection, 'replace' )
+			spyOn( collection, 'prepend' )
+			spyOn( collection, 'append' )
+			spyOn( collection, 'insert' )
+			spyOn( collection, 'merge' )
+		#END beforeEach
+
+		it "Should call the replace method by default", ->
+			options = {}
+			collection.fill(items, options)
+			expect( collection.replace.calls.count() ).toBe( 1 )
+			expect( collection.replace ).toHaveBeenCalledWith( items, {'method': 'replace', 'comparator': null} )
+			expect( collection.append ).not.toHaveBeenCalled()
+			expect( collection.prepend ).not.toHaveBeenCalled()
+			expect( collection.merge ).not.toHaveBeenCalled()
+			expect( collection.insert ).not.toHaveBeenCalled()
+
+			expect( collection.replace.calls.mostRecent().args[1] ).not.toBe( options )
+		#END it
+
+		it "Should call the replace when an invalid method is given", ->
+			options = {'method': 'replacezzzzzz'}
+			collection.fill(items, options)
+			expect( collection.replace.calls.count() ).toBe( 1 )
+			expect( collection.replace ).toHaveBeenCalledWith( items, {'method': 'replace', 'comparator': null} )
+			expect( collection.append ).not.toHaveBeenCalled()
+			expect( collection.prepend ).not.toHaveBeenCalled()
+			expect( collection.merge ).not.toHaveBeenCalled()
+			expect( collection.insert ).not.toHaveBeenCalled()
+
+			expect( collection.replace.calls.mostRecent().args[1] ).not.toBe( options )
+		#END it
+
+		it "Should call the replace when requested", ->
+			options = {'method': 'replace'}
+			collection.fill(items, options)
+			expect( collection.replace.calls.count() ).toBe( 1 )
+			expect( collection.replace ).toHaveBeenCalledWith( items, {'method': 'replace', 'comparator': null} )
+			expect( collection.append ).not.toHaveBeenCalled()
+			expect( collection.prepend ).not.toHaveBeenCalled()
+			expect( collection.merge ).not.toHaveBeenCalled()
+			expect( collection.insert ).not.toHaveBeenCalled()
+
+			expect( collection.replace.calls.mostRecent().args[1] ).not.toBe( options )
+		#END it
+
+		it "Should call the append when requested", ->
+			options = {'method': 'append'}
+			collection.fill(items, options)
+			expect( collection.append.calls.count() ).toBe( 1 )
+			expect( collection.append ).toHaveBeenCalledWith( items, {'method': 'append', 'comparator': null} )
+			expect( collection.replace ).not.toHaveBeenCalled()
+			expect( collection.prepend ).not.toHaveBeenCalled()
+			expect( collection.merge ).not.toHaveBeenCalled()
+			expect( collection.insert ).not.toHaveBeenCalled()
+
+			expect( collection.append.calls.mostRecent().args[1] ).not.toBe( options )
+		#END it
+
+		it "Should call the prepend when requested", ->
+			options = {'method': 'prepend'}
+			collection.fill(items, options)
+			expect( collection.prepend.calls.count() ).toBe( 1 )
+			expect( collection.prepend ).toHaveBeenCalledWith( items, {'method': 'prepend', 'comparator': null} )
+			expect( collection.replace ).not.toHaveBeenCalled()
+			expect( collection.append ).not.toHaveBeenCalled()
+			expect( collection.merge ).not.toHaveBeenCalled()
+			expect( collection.insert ).not.toHaveBeenCalled()
+
+			expect( collection.prepend.calls.mostRecent().args[1] ).not.toBe( options )
+		#END it
+
+		it "Should call the merge when requested", ->
+			options = {'method': 'merge'}
+			collection.fill(items, options)
+			expect( collection.merge.calls.count() ).toBe( 1 )
+			expect( collection.merge ).toHaveBeenCalledWith( items, {'method': 'merge', 'comparator': null} )
+			expect( collection.replace ).not.toHaveBeenCalled()
+			expect( collection.append ).not.toHaveBeenCalled()
+			expect( collection.prepend ).not.toHaveBeenCalled()
+			expect( collection.insert ).not.toHaveBeenCalled()
+
+			expect( collection.merge.calls.mostRecent().args[1] ).not.toBe( options )
+		#END it
+
+		it "Should call the insert when requested", ->
+			options = {'method': 'insert', 'index': 3}
+			collection.fill(items, options)
+			expect( collection.insert.calls.count() ).toBe( 1 )
+			expect( collection.insert ).toHaveBeenCalledWith( items, {'method': 'insert', 'index': 3, 'comparator': null} )
+			expect( collection.replace ).not.toHaveBeenCalled()
+			expect( collection.append ).not.toHaveBeenCalled()
+			expect( collection.prepend ).not.toHaveBeenCalled()
+			expect( collection.merge ).not.toHaveBeenCalled()
+
+			expect( collection.insert.calls.mostRecent().args[1] ).not.toBe( options )
+		#END it
+	#END describe
+
+	describe "replace", ->
+		it "Should properly add items into an empty collection", ->
+			collectionA = new CollectionA
+			collectionA.replace [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+			]
+
+			expect( collectionA.length() ).toBe( 2 )
+			expect( collectionA.at(0) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(0).get('id') ).toBe( 1 )
+			expect( collectionA.at(0).get('hello') ).toBe( "world" )
+			expect( collectionA.at(1) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(1).get('id') ).toBe( 2 )
+			expect( collectionA.at(1).get('hello') ).toBe( "world2" )
+		#END it
+
+		it "Should properly replace items into a populated collection", ->
+			collectionA = new CollectionA [
+				{id: 2, "hello": "world3"}
+			]
+			
+			collectionA.replace [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+			]
+
+			expect( collectionA.length() ).toBe( 2 )
+			expect( collectionA.at(0) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(0).get('id') ).toBe( 1 )
+			expect( collectionA.at(0).get('hello') ).toBe( "world" )
+			expect( collectionA.at(1) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(1).get('id') ).toBe( 2 )
+			expect( collectionA.at(1).get('hello') ).toBe( "world2" )
+		#END it
+	#END describe
+
+	describe "append", ->
+		it "Should properly add items into an empty collection", ->
+			collectionA = new CollectionA
+			collectionA.append [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+			]
+
+			expect( collectionA.length() ).toBe( 2 )
+			expect( collectionA.at(0) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(0).get('id') ).toBe( 1 )
+			expect( collectionA.at(0).get('hello') ).toBe( "world" )
+			expect( collectionA.at(1) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(1).get('id') ).toBe( 2 )
+			expect( collectionA.at(1).get('hello') ).toBe( "world2" )
+		#END it
+
+		it "Should properly append items into a populated collection", ->
+			collectionA = new CollectionA [
+				{id: 3, "hello": "world3"}
+			]
+			
+			collectionA.append [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+			]
+
+			expect( collectionA.length() ).toBe( 3 )
+			expect( collectionA.at(0) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(0).get('id') ).toBe( 3 )
+			expect( collectionA.at(0).get('hello') ).toBe( "world3" )
+			expect( collectionA.at(1) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(1).get('id') ).toBe( 1 )
+			expect( collectionA.at(1).get('hello') ).toBe( "world" )
+			expect( collectionA.at(2) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(2).get('id') ).toBe( 2 )
+			expect( collectionA.at(2).get('hello') ).toBe( "world2" )
+		#END it
+
+		it "Should properly add items into an empty collection and set the parent properly", ->
 				modelB = new ModelB
 				collectionA = new CollectionA( modelB )
-				collectionA.fill [
+				collectionA.append [
 					{id: 1, "hello": "world"}
 				]
 
@@ -691,7 +400,467 @@ describe "Falcon.Collection", ->
 				expect( collectionA.at(0).get('hello') ).toBe( "world" )
 				expect( collectionA.at(0).parent ).toBe( modelB )
 			#END it
-		#END describe
+	#END describe
+
+	describe "prepend", ->
+		it "Should properly add items into an empty collection", ->
+			collectionA = new CollectionA
+			collectionA.prepend [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+			]
+
+			expect( collectionA.length() ).toBe( 2 )
+			expect( collectionA.at(0) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(0).get('id') ).toBe( 1 )
+			expect( collectionA.at(0).get('hello') ).toBe( "world" )
+			expect( collectionA.at(1) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(1).get('id') ).toBe( 2 )
+			expect( collectionA.at(1).get('hello') ).toBe( "world2" )
+		#END it
+
+		it "Should properly prepend items into a populated collection", ->
+			collectionA = new CollectionA [
+				{id: 3, "hello": "world3"}
+			]
+			
+			collectionA.prepend [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+			]
+
+			index = 0
+			expect( collectionA.length() ).toBe( 3 )
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 1 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 2 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world2" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 3 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world3" )
+		#END it
+	#END describe
+
+	describe "merge", ->
+		it "Should properly add items into an empty collection", ->
+			collectionA = new CollectionA
+			collectionA.merge [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+			]
+
+			expect( collectionA.length() ).toBe( 2 )
+			expect( collectionA.at(0) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(0).get('id') ).toBe( 1 )
+			expect( collectionA.at(0).get('hello') ).toBe( "world" )
+			expect( collectionA.at(1) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(1).get('id') ).toBe( 2 )
+			expect( collectionA.at(1).get('hello') ).toBe( "world2" )
+		#END it
+
+		it "Should properly merge items into a populated collection", ->
+			collectionA = new CollectionA [
+				{id: 3, "hello": "world3"}
+				{id: 4, "hello": "world4"}
+			]
+			
+			collectionA.merge [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+				{id: 4, "hello": "world5"}
+			]
+
+			index = 0
+			expect( collectionA.length() ).toBe( 4 )
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 3 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world3" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 4 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world5" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 1 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 2 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world2" )
+			index++
+		#END it
+
+		it "Should not overwrite previous references on merge", ->
+			class MergeModel extends Falcon.Model
+				defaults:
+					'sub': -> new SubMergeModel
+				#END defaults
+
+				observables:
+					'foo': 'bar'
+				#END observables
+			#END MergeModel
+
+			class SubMergeModel extends Falcon.Model
+				observables:
+					'hello': 'world'
+				#END observables
+			#END SubMergeModel
+
+			class MergeCollection extends Falcon.Collection
+				model: MergeModel
+			#END class
+
+			merge_model = new MergeModel(id: 1)
+			merge_collection = new MergeCollection([merge_model])
+
+			expect( merge_model.get('foo') ).toBe( 'bar' )
+			expect( merge_model.sub.get('hello') ).toBe( 'world' )
+
+			foo_obs = merge_model.foo
+			hello_obs = merge_model.sub.hello
+
+			expect( ko.isObservable(foo_obs) ).toBe( true )
+			expect( ko.isObservable(hello_obs) ).toBe( true )
+
+			expect( merge_collection.all() ).toEqual([merge_model])
+
+			merge_collection.merge [{
+				'id': 1,
+				'foo': 'BAR',
+				'sub': {'hello': 'WORLD'}
+			}, (merge_model2 = new MergeModel)]
+
+			expect( merge_model.get('foo') ).toBe( 'BAR' )
+			expect( merge_model.sub.get('hello') ).toBe( 'WORLD' )
+
+			expect( foo_obs ).toBe( merge_model.foo )
+			expect( hello_obs ).toBe( merge_model.sub.hello )
+
+			expect( merge_collection.all() ).toEqual([merge_model, merge_model2])
+		#END it
+
+		it "Should properly merge items into a populated collection that has a specified comparator", ->
+			collectionA = new CollectionA [
+				{id: 3, "hello": "world3"}
+				{id: 4, "hello": "world4"}
+			]
+
+			collectionA.comparator = (model_a, model_b) ->
+				a_id = parseInt( model_a.get("id") )
+				b_id = parseInt( model_b.get("id") )
+
+				return -1 if a_id > b_id
+				return 1 if a_id < b_id
+				return 0
+			#END comparator
+			
+			collectionA.merge [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+				{id: 4, "hello": "world5"}
+			]
+
+			index = 0
+			expect( collectionA.length() ).toBe( 4 )
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 4 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world5" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 3 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world3" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 2 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world2" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 1 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world" )
+			index++
+		#END it
+	#END describe
+
+	describe "insert", ->
+		it "Should properly add items into an empty collection", ->
+			collectionA = new CollectionA
+			collectionA.insert [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+			], { 'index': 2 }
+
+			expect( collectionA.length() ).toBe( 2 )
+			expect( collectionA.at(0) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(0).get('id') ).toBe( 1 )
+			expect( collectionA.at(0).get('hello') ).toBe( "world" )
+			expect( collectionA.at(1) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(1).get('id') ).toBe( 2 )
+			expect( collectionA.at(1).get('hello') ).toBe( "world2" )
+		#END it
+
+		it "Should properly insert items into a populated collection", ->
+			collectionA = new CollectionA [
+				{id: 3, "hello": "world3"}
+				{id: 4, "hello": "world4"}
+			]
+			
+			collectionA.insert [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+			], { 'index': 1 }
+
+			index = 0
+			expect( collectionA.length() ).toBe( 4 )
+
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 3 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world3" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 1 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 2 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world2" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 4 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world4" )
+			index++
+		#END it
+
+		it "Should properly insert items into a populated collection with an iterator function", ->
+			collectionA = new CollectionA [
+				{id: 3, "hello": "world3"}
+				{id: 4, "hello": "world4"}
+			]
+			
+			collectionA.insert [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+			], (model) ->
+				(model.get('id') is 4)
+			#END insert
+
+			index = 0
+			expect( collectionA.length() ).toBe( 4 )
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 3 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world3" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 1 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 2 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world2" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 4 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world4" )
+			index++
+		#END it
+
+		it "Should properly insert items into a populated collection with an integer id", ->
+			collectionA = new CollectionA [
+				{id: 3, "hello": "world3"}
+				{id: 4, "hello": "world4"}
+			]
+			
+			collectionA.insert [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+			], 4
+
+			index = 0
+			expect( collectionA.length() ).toBe( 4 )
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 3 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world3" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 1 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 2 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world2" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 4 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world4" )
+			index++
+		#END it
+
+		it "Should properly insert items into a populated collection with a string id", ->
+			collectionA = new CollectionA [
+				{id: '3', "hello": "world3"}
+				{id: '4', "hello": "world4"}
+			]
+			
+			collectionA.insert [
+				{id: '1', "hello": "world"}
+				{id: '2', "hello": "world2"}
+			], '4'
+
+			index = 0
+			expect( collectionA.length() ).toBe( 4 )
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( '3' )
+			expect( collectionA.at(index).get('hello') ).toBe( "world3" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( '1' )
+			expect( collectionA.at(index).get('hello') ).toBe( "world" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( '2' )
+			expect( collectionA.at(index).get('hello') ).toBe( "world2" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( '4' )
+			expect( collectionA.at(index).get('hello') ).toBe( "world4" )
+			index++
+		#END it
+
+		it "Should properly insert items into a populated collection with a model", ->
+			collectionA = new CollectionA [
+				new ModelA({id: 3, "hello": "world3"})
+				model = new ModelA({id: 4, "hello": "world4"})
+			]
+			
+			collectionA.insert [
+				new ModelA({id: 1, "hello": "world"})
+				new ModelA({id: 2, "hello": "world2"})
+			], model
+
+			index = 0
+			expect( collectionA.length() ).toBe( 4 )
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 3 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world3" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 1 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 2 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world2" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 4 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world4" )
+			index++
+		#END it
+
+		it "Should properly insert items into a populated collection at an invalid index", ->
+			collectionA = new CollectionA [
+				{id: 3, "hello": "world3"}
+				{id: 4, "hello": "world4"}
+			]
+			
+			collectionA.insert [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+			], { 'index': 5 }
+
+			index = 0
+			expect( collectionA.length() ).toBe( 4 )
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 3 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world3" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 4 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world4" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 1 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 2 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world2" )
+			index++
+		#END it
+
+		it "Should properly insert items into the beginning of a populated collection", ->
+			collectionA = new CollectionA [
+				{id: 3, "hello": "world3"}
+				{id: 4, "hello": "world4"}
+			]
+			
+			collectionA.insert [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+			], { 'index': 0 }
+
+			index = 0
+			expect( collectionA.length() ).toBe( 4 )
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 1 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 2 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world2" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 3 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world3" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 4 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world4" )
+			index++
+		#END it
 	#END describe
 
 
@@ -1169,90 +1338,6 @@ describe "Falcon.Collection", ->
 		#END it
 	#END describe
 
-
-	#--------------------------------------------------------------
-	#
-	# Test the append() and prepend() methods
-	#
-	#--------------------------------------------------------------
-	describe "Test the append and prepend methods", ->
-		collectionA = null
-		fill_stub = null
-
-		beforeEach ->
-			collectionA = new CollectionA
-
-			fill_stub = sinon.stub( collectionA, "fill" )
-		#END beforeEach
-
-		afterEach ->
-			fill_stub.restore()
-		#END afterEach
-
-		it "Should call the proper fill method when appending", ->
-			collectionA.append(input = {'hello': 'world'})
-
-			expect( fill_stub ).toHaveBeenCalledOnce()
-			expect( fill_stub ).toHaveBeenCalledWith( input, jasmine.objectContaining({'method': 'append'}) )
-		#END it
-
-		it "Should call the proper fill method when prepending", ->
-			collectionA.prepend(input = {'hello': 'world'})
-
-			expect( fill_stub ).toHaveBeenCalledOnce()
-			expect( fill_stub ).toHaveBeenCalledWith( input, jasmine.objectContaining({'method': 'prepend'}) )
-		#END it
-	#END describe
-
-
-	#--------------------------------------------------------------
-	#
-	# Test the insert() method
-	#
-	#--------------------------------------------------------------
-	describe "Test the insert method", ->
-		collectionA = null
-		fill_stub = null
-
-		beforeEach ->
-			collectionA = new CollectionA [
-				{id: 1, 'hello': 'foo'}
-				{id: 4, 'hello': 'bar'}
-			]
-
-			fill_stub = sinon.stub( collectionA, "fill" )
-		#END beforeEach
-
-		it "Should call the proper fill method when inserting without a specific model", ->
-			collectionA.insert(input = {'hello': 'world'})
-
-			expect( fill_stub ).toHaveBeenCalledOnce()
-			expect( fill_stub ).toHaveBeenCalledWith( input, jasmine.objectContaining({'method': 'append'}) )
-		#END it
-
-		it "Should call the proper fill method when inserting with a valid model", ->
-			collectionA.insert(input = {'hello': 'world'}, 4) #4 is the model id
-
-			expect( fill_stub ).toHaveBeenCalledOnce()
-			expect( fill_stub ).toHaveBeenCalledWith( input, jasmine.objectContaining({'method': 'insert', 'insert_index': 1}) )
-		#END it
-
-		it "Should call the proper fill method when appending with an invalid model", ->
-			collectionA.insert(input = {'hello': 'world'}, 33)
-
-			expect( fill_stub ).toHaveBeenCalledOnce()
-			expect( fill_stub ).toHaveBeenCalledWith( input, jasmine.objectContaining({'method': 'insert', 'insert_index': -1}) )
-		#END it
-
-		it "Should call the proper fill method when inserting with an iterator", ->
-			collectionA.insert(input = {'hello': 'world'}, ( (m) -> m.get('id') is 1 ) )
-
-			expect( fill_stub ).toHaveBeenCalledOnce()
-			expect( fill_stub ).toHaveBeenCalledWith( input, jasmine.objectContaining({'method': 'insert', 'insert_index': 0}) )
-		#END it
-	#END describe
-
-
 	#--------------------------------------------------------------
 	#
 	# Test the unshift() and push() methods
@@ -1423,7 +1508,7 @@ describe "Falcon.Collection", ->
 			expect( Falcon.adapter.standardizeOptions ).not.toHaveBeenCalled()
 
 			expect( collection.fill.calls.count() ).toBe( 1 )
-			expect( collection.fill ).toHaveBeenCalledWith( model, jasmine.any(Object) )
+			expect( collection.fill ).toHaveBeenCalledWith( model, {'method': 'append'} )
 
 			expect( options.success.calls.count() ).toBe( 1 )
 			expect( options.success ).toHaveBeenCalledWith( model )
@@ -1459,6 +1544,12 @@ describe "Falcon.Collection", ->
 
 			expect( model.create.calls.count() ).toBe( 1 )
 			expect( model.create ).toHaveBeenCalledWith(jasmine.any(Object), model)
+		#END it
+
+		it "Should not overwrite the fill options", ->
+			collection.create(model, {fill_options: {'method': 'merge'}}, context)
+			{fill_options} = model.create.calls.mostRecent().args[0]
+			expect(fill_options).toEqual({'method': 'merge'})
 		#END it
 	#END describe
 

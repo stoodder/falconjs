@@ -81,6 +81,12 @@ class Falcon.Object
 	__falcon_object__events__: null
 
 	#--------------------------------------------------------
+	# Local array of event callbacks assigned by the listenTo
+	# method
+	#--------------------------------------------------------
+	__falcon_object__listeners__: null
+
+	#--------------------------------------------------------
 	# The unique client id of this falcon object
 	#--------------------------------------------------------
 	__falcon_object__cid__: null
@@ -90,7 +96,6 @@ class Falcon.Object
 	#	The constructor method
 	#--------------------------------------------------------
 	constructor: ->
-		@__falcon_object__events__ = {}
 		@__falcon_object__cid__ = __falcon_object__current_cid__++
 
 		#Setup the other defaults
@@ -155,6 +160,7 @@ class Falcon.Object
 
 		return this if isEmpty(event)
 
+		@__falcon_object__events__ ?= {}
 		( @__falcon_object__events__[event] ?= [] ).push({callback, context})
 
 		return this
@@ -177,6 +183,8 @@ class Falcon.Object
 		event = trim(event).toLowerCase()
 
 		return this if isEmpty(event) or not @__falcon_object__events__[event]?
+
+		@__falcon_object__events__ ?= {}
 
 		if isFunction( callback )
 			@__falcon_object__events__[event] = ( evt for evt in @__falcon_object__events__[event] when evt.callback isnt callback )
@@ -204,6 +212,8 @@ class Falcon.Object
 
 		event = trim(event).toLowerCase()
 
+		@__falcon_object__events__ ?= {}
+
 		return false if isEmpty(event) or not @__falcon_object__events__[event]?
 		return true if @__falcon_object__events__[event]? and not isFunction( callback )
 
@@ -228,10 +238,87 @@ class Falcon.Object
 		return this unless isString(event)
 		event = trim(event).toLowerCase()
 
+		@__falcon_object__events__ ?= {}
+
 		return this if isEmpty(event) or not @__falcon_object__events__[event]?
 
 		evt.callback.apply(evt.context, args) for evt in @__falcon_object__events__[event]
 
 		return this
 	#END trigger
+
+	#--------------------------------------------------------
+	# Method: Falcon.Model#listenTo(object, event, callback)
+	# 	This is the same as 'on' except that all of the callbacks
+	#	will be called in the context of 'this' object.  Additionally
+	#	events assigned using the listenTo method can easily be removed
+	#	using the stopListening method without having to hold on to
+	#	an instance of the callback method
+	#
+	# Arguments:
+	#	**object** - _(Falcon.Object)_ - The object to listen for events on
+	#	**event** - _(String)_ - The event to respond to
+	#	**callback** - _(Function)_ - The callback to run when said event is triggered.
+	#								  Will be called in context of 'this'
+	#
+	# Returns:
+	#	_(Falcon.Model)_ - This instance
+	#--------------------------------------------------------
+	listenTo: (object, event, callback) ->
+		return this unless Falcon.isFalconObject( object )
+		return this unless isString(event) and isFunction(callback)
+
+		object.on(event, callback, @)
+
+		@__falcon_object__listeners__ ?= []
+		@__falcon_object__listeners__.push({object, event, callback})
+
+		return this
+	#END listenTo
+
+	#--------------------------------------------------------
+	# Method: Falcon.Model#stopListening([object], [event], [callback])
+	# 	Stops listening to events assigned by the listenTo method. Optional
+	#	object, event, and callback parameters can be given to filter out
+	#	which events specifically we'll stop listening to.
+	#
+	# Arguments:
+	#	**object** - _(Falcon.Object)_ - The object to listen for events on
+	#	**event** - _(String)_ - The event to respond to
+	#	**callback** - _(Function)_ - The callback to run when said event is triggered.
+	#								  Will be called in context of 'this'
+	#
+	# Returns:
+	#	_(Falcon.Model)_ - This instance
+	#--------------------------------------------------------
+	stopListening: (object, event, callback) ->
+		[event, callback, object] = [object, event, null] if isString( object )
+		[callback, object] = [object, null] if isFunction( object )
+		[callback, event] = [event, null] if isFunction( event )
+
+		_event = if isString( event ) then event else null
+		_object = if Falcon.isFalconObject( object ) then object else null
+		_callback = if isFunction( callback ) then callback else null
+
+		@__falcon_object__listeners__ ?= []
+		new_listeners = []
+
+		for listener in @__falcon_object__listeners__
+			{object, event, callback} = listener
+			
+			if _event? and event isnt _event
+				new_listeners.push( listener )
+			else if _object? and object isnt _object
+				new_listeners.push( listener )
+			else if _callback? and callback isnt _callback
+				new_listeners.push( listener )
+			else
+				object.off(event, callback)
+			#END if
+		#END for
+
+		@__falcon_object__listeners__ = new_listeners
+		
+		return this
+	#END stopListening
 #END Falcon.Object

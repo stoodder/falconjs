@@ -64,8 +64,9 @@ _ready = null
 	# Returns:
 	#	_(Falcon)_ - This Instance
 	#--------------------------------------------------------
-	apply: (root, element, callback) -> 
-		[element, callback] = [callback, element] if isFunction( element )
+	apply: (root, element, callback) ->
+		[callback, element] = [element, null] if isFunction( element )
+		[callback, root] = [root, null] if isFunction( root ) and not isFunction( callback )
 
 		element ?= Falcon.applicationElement
 
@@ -76,13 +77,12 @@ _ready = null
 				element = document.querySelectorAll(element)[0] ? document.body
 			#END unless
 
-			# Apply the bindings, we need to rewrap the root into its own
-			# observable because, by default, the applyBindings will pass
-			# in the unwrapped version of the root which causes a change to
-			# the root to not be noticed by the view binding and hence will
-			# not be able to call the proper dispose methods.
-			element.setAttribute("data-bind", "view: $data")
-			ko.applyBindings( ko.observable( root ), element )
+			#Apply the app
+			if root?
+				ko.applyBindingsToNode(element, {view: root})
+			else
+				ko.applyBindings({}, element)
+			#END if
 
 			#Trigger any callback to notify the application that
 			#the app has been initialized and the bindings are applied.
@@ -208,13 +208,7 @@ _ready = null
 	#	_(Object)_ - The binding definition
 	#--------------------------------------------------------
 	getBinding: (name) -> ko.bindingHandlers[name]
-
-	
-	register: (name, view_definition) ->
-	#END register
 #END Falcon
-
-
 
 #Lastly, execute a setup routine for handling DOM loads
 do ->
