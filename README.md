@@ -5,7 +5,7 @@
 ###v0.10.0
 **Highlights**
 * Added Falcon.Adapter for splitting out dependencies on how we transmit, respond to, and receive data form a backend data source.
-* Added Falcon.addConductor to create a 'conductor' which can define custom HTML tags that should bind and utilize the template of a specific view (or anonymous view). `Falcon.addConductor('my_custom_tag', MyViewDefinition)`
+* Added Falcon.addConductor to create a 'conductor' which can define custom HTML tags that should bind and utilize the template of a specific view (or anonymous view). `Falcon.addConductor('my_custom_tag', MyViewDefinition)` For the time being, the conductor functionality will remain a separate plugin for Falcon until all of the edge-cases are ironed out. Indepth documentation on how to install and use it can be found in our main documentation.
 * Fully Compatible with Knockout 3.1
 * New Falcon.Object methods: listenTo and stopListening
 * New Falcon.Model methods: increment, decrement
