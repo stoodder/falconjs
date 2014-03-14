@@ -4,21 +4,45 @@
 		<script type="text/javascript" src="../falcon.min.js"></script>
 		<script type="text/javascript" src="../falcon.conductor.min.js"></script>
 		<script>
+			var Slider = Falcon.Model.extend({
+				defaults: {
+					'minor_label': "",
+					'major_label': ""
+				}
+			});
+
+			var Sliders = Falcon.Collection.extend({
+				model: Slider
+			});
+
 			Falcon.addConductor('rex-layout', {
+				defaults: {
+					'sliders': function() { return new Sliders }
+				},
+
 				observables: {
 					'background_color': '#ffffff',
-					'slider_value': 0
+					'slider_value': 0,
+				},
+
+				addSlider: function() {
+					this.sliders.push(new Slider({
+						"minor_label": "Calm",
+						"major_label": "Raging",
+					}));
+				},
+
+				removeSlider: function(slider) {
+					this.sliders.remove(slider);
 				},
 
 				turnBlack: function()
 				{
-					console.log("Turn Black");
 					this.background_color('#000000')
 				},
 
 				turnWhite: function()
 				{
-					console.log("Turn White");
 					this.background_color('#ffffff')
 				}
 			});
@@ -40,20 +64,20 @@
 				},
 
 				leftClick: function() {
-					console.log("Clicked Left");
-					if(this.options.onleftclick)
-						this.options.onleftclick();
+					if(this.options.onleftclick) this.options.onleftclick();
 				},
 
 				rightClick: function() {
-					console.log("Clicked Right", this.options);
-					if(this.options.onrightclick)
-						this.options.onrightclick();
+					if(this.options.onrightclick) this.options.onrightclick();
 				}
 			});
 
 			Falcon.addConductor('rex-slider', {
 				url: "#rex-slider-tmpl",
+
+				defaults: {
+					'options': null
+				},
 
 				observables: {
 					'value': 0,
@@ -62,9 +86,13 @@
 				},
 
 				initialize: function(options) {
+					options = options || {};
+					this.options = options;
+
 					if(ko.isObservable(options.value)) this.value = options.value;
 					this.left_label( options.leftlabel || this.left_label() );
 					this.right_label( options.rightlabel || this.right_label() );
+					this.onremove = options.onremove;
 				},
 
 				setValue: function(value) {
@@ -73,6 +101,11 @@
 
 				valueIs: function(check) {
 					return check === this.value()
+				},
+
+				remove: function() {
+					if(this.options.onremove) this.options.onremove();
+					return this;
 				}
 			});
 
@@ -119,16 +152,16 @@
 	</head>
 	<body>
 		<rex-layout data-bind="style: {'background-color': $self.background_color}">
-			<rex-header onleftclick="$view.turnBlack" onrightclick="$view.turnWhite" title="My Title">
+			<rex-header onleftclick="$view.turnBlack" onrightclick="$view.addSlider" title="My Title">
 				<button data-bind="click: $view.leftClick">Left</button>
 				<span data-bind="text: title"></span>
-				<button data-bind="click: $view.rightClick">Right</button>
+				<button data-bind="click: $view.rightClick">Add Slider</button>
 			</rex-header>
 			<rex-content>
-				Hello World!
-				<!-- ko text: $view.slider_value --><!-- /ko -->
-				<rex-slider leftlabel="Boring" rightlabel="Raging" value="$view.slider_value"></rex-slider>
-				<rex-slider leftlabel="Blue" rightlabel="Red"></rex-slider>
+				<!-- ko log: $view --><!-- /ko -->
+				<!-- ko foreach: $view.sliders -->
+					<rex-slider leftlabel="$data.minor_label" rightlabel="$data.major_label" onremove="$view.removeSlider.bind($view, $data)"></rex-slider>
+				<!-- /ko -->
 			</rex-content>
 		</rex-layout>
 	</body>
@@ -140,5 +173,6 @@
 		<button data-bind="click: $view.setValue.bind($data, 4), css: {'selected': $view.valueIs(4)}">4</button>
 		<button data-bind="click: $view.setValue.bind($data, 5), css: {'selected': $view.valueIs(5)}">5</button>
 		<label data-bind="text: $view.right_label"></label>
+		<button data-bind="click: $view.remove">X</button>
 	</template>
 </html>
