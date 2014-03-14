@@ -6443,21 +6443,18 @@
         view = new ContentView;
         render_spy = sinon.spy(view, '_render');
         unrender_spy = sinon.spy(view, '_unrender');
-        expect(view_init_spy).not.toHaveBeenCalled();
-        expect(view_update_spy).not.toHaveBeenCalled();
+        expect(view_binding.init).not.toHaveBeenCalled();
+        expect(view_binding.update).not.toHaveBeenCalled();
         expect(render_spy).not.toHaveBeenCalled();
         expect(unrender_spy).not.toHaveBeenCalled();
         applyApp(view);
-        expect(view_init_spy).toHaveBeenCalledOnce();
-        expect(view_update_spy).toHaveBeenCalledOnce();
+        expect(view_binding.init).toHaveBeenCalledOnce();
+        expect(view_binding.update).toHaveBeenCalledOnce();
         expect(render_spy).toHaveBeenCalledOnce();
         return expect(unrender_spy).not.toHaveBeenCalled();
       });
       return it("Teardown", function() {
         Falcon.View.resetCache();
-        document.body.removeChild(layout_template);
-        document.body.removeChild(content_template);
-        document.body.removeChild(footer_template);
         return is_setup = false;
       });
     });

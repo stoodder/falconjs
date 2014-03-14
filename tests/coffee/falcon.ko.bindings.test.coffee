@@ -106,17 +106,12 @@ describe "Bindings", ->
 		it "Teardown", ->
 			Falcon.View.resetCache()
 
-			document.body.removeChild( layout_template )
-			document.body.removeChild( content_template )
-			document.body.removeChild( footer_template )
-
 			is_setup = false
 		#END teardown
 	#END describe
 #END describe
 
 describe "Knockout Bindings", ->
-
 	describe "'view' Binding", ->
 		layout_template = footer_template = content_template = null
 
