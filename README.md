@@ -38,6 +38,7 @@
 * Support for Knockout 3.1
 * Elements with the 'view' binding may now specifiy internal HTML which will override the lookup of a template from the 'url' attribute
 * Added Falcon.addConductor
+* Removed auto-magic setting of the 'data-bind' attribute of our application elements in favor of programatic application of the bindings (using ko.applyBindingAccessorsToNode instead).
 
 **Bugs Fixed**
 * Fixed reference overwritting on colleciton merge method.
@@ -52,8 +53,10 @@
 * Fixed bug in makeUrl when setting baseApiUrl and baseTemplateUrl to "/"
 
 ## For The Future
+### 0.10.1
+* Cleanup/Redo binding tests
+* Pass fill options through recursive calls to the fill methods
+
 ### 0.11.0
 * Add method support for 'obervables' and 'defaults' (rather than dictionary defintion)
 * Add exec binding
-* Cleanup/Redo binding tests
-* Pass fill options through recursive calls to the fill methods
