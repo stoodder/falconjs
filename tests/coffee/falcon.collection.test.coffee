@@ -1851,12 +1851,14 @@ describe "Falcon.Collection", ->
 	describe "Test the first() method", ->
 		collectionA = null
 		model_a1 = model_a2 = model_a3 = model_ab = null
+		model_none = null
 
 		beforeEach ->
 			model_a1 = new ModelA(id: 1)
 			model_a2 = new ModelA(id: 2)
 			model_ab = new ModelA(id: 'b')
 			model_a3 = new ModelA(id: 3)
+			model_none = new ModelA
 
 			collectionA = new CollectionA([model_a1, model_a2, model_ab, model_a3])
 		#END beforeEach
@@ -1890,6 +1892,24 @@ describe "Falcon.Collection", ->
 			first = collectionA.first (model) -> false
 			expect( first ).toBe(( null ) )
 		#END
+
+		it "Should allow for an array to be passed in", ->
+			first = collectionA.first([model_none])
+			expect(first).toBeNull()
+			first = collectionA.first([model_a1])
+			expect(first).toEqual(model_a1)
+			first = collectionA.first([model_none, model_a1])
+			expect(first).toEqual(model_a1)
+		#END it
+
+		it "Should allow for a collection to be passed in", ->
+			first = collectionA.first(new CollectionA([model_none]))
+			expect(first).toBeNull()
+			first = collectionA.first(new CollectionA([model_a1]))
+			expect(first).toEqual(model_a1)
+			first = collectionA.first(new CollectionA([model_none, model_a1]))
+			expect(first).toEqual(model_a1)
+		#END it
 	#END describe
 
 
@@ -1898,15 +1918,17 @@ describe "Falcon.Collection", ->
 	# Test the last() method
 	#
 	#--------------------------------------------------------------
-	describe "Test the last() method", ->
+	describe "last", ->
 		collectionA = null
 		model_a1 = model_a2 = model_a3 = model_ab = null
+		model_none = null
 
 		beforeEach ->
 			model_a1 = new ModelA(id: 1)
 			model_a2 = new ModelA(id: 2)
 			model_ab = new ModelA(id: 'b')
 			model_a3 = new ModelA(id: 3)
+			model_none = new ModelA
 
 			collectionA = new CollectionA([model_a1, model_a2, model_ab, model_a3])
 		#END beforeEach
@@ -1925,7 +1947,7 @@ describe "Falcon.Collection", ->
 
 		it "Should get the last matching model based on a model", ->
 			last = collectionA.last( model_ab )
-			expect( last ).toBe(( model_ab ) )
+			expect( last ).toBe(model_ab)
 		#END it
 
 		it "Should get the last matching model based on an id", ->
@@ -1933,13 +1955,31 @@ describe "Falcon.Collection", ->
 			expect( last ).toBe(( model_a2 ) )
 
 			last = collectionA.last( 'b' )
-			expect( last ).toBe(( model_ab ) )
+			expect( last ).toBe(model_ab)
 		#END it
 
 		it "Should return the null if nothing passes the iterator", ->
 			last = collectionA.last (model) -> false
 			expect( last ).toBe(( null ) )
 		#END
+
+		it "Should allow for an array to be passed in", ->
+			last = collectionA.last([model_none])
+			expect(last).toBeNull()
+			last = collectionA.last([model_a1])
+			expect(last).toEqual(model_a1)
+			last = collectionA.last([model_none, model_a1])
+			expect(last).toEqual(model_a1)
+		#END it
+
+		it "Should allow for a collection to be passed in", ->
+			last = collectionA.last(new CollectionA([model_none]))
+			expect(last).toBeNull()
+			last = collectionA.last(new CollectionA([model_a1]))
+			expect(last).toEqual(model_a1)
+			last = collectionA.last(new CollectionA([model_none, model_a1]))
+			expect(last).toEqual(model_a1)
+		#END it
 	#END describe
 
 
@@ -1948,12 +1988,13 @@ describe "Falcon.Collection", ->
 	# Test the filter() method
 	#
 	#--------------------------------------------------------------
-	describe "Test the filter() method", ->
+	describe "filter", ->
 		model_a1 = new ModelA(id: 1)
 		model_a2 = new ModelA(id: 2)
 		model_ab = new ModelA(id: 'b')
 		model_ab2 = new ModelA(id: 'b')
 		model_a3 = new ModelA(id: 3)
+		model_none = new ModelA
 
 		models = [model_a1, model_a2, model_ab, model_ab, model_ab2, model_a3]
 
@@ -1992,6 +2033,24 @@ describe "Falcon.Collection", ->
 			expect( all.length ).toBe( 0 )
 			expect( all ).toEqual([])
 		#END it
+
+		it "Should allow for an array to be passed in", ->
+			filter = collectionA.filter([model_none])
+			expect(filter).toEqual([])
+			filter = collectionA.filter([model_a1])
+			expect(filter).toEqual([model_a1])
+			filter = collectionA.filter([model_none, model_a1])
+			expect(filter).toEqual([model_a1])
+		#END it
+
+		it "Should allow for a collection to be passed in", ->
+			filter = collectionA.filter(new CollectionA([model_none]))
+			expect(filter).toEqual([])
+			filter = collectionA.filter(new CollectionA([model_a1]))
+			expect(filter).toEqual([model_a1])
+			filter = collectionA.filter(new CollectionA([model_none, model_a1]))
+			expect(filter).toEqual([model_a1])
+		#END it
 	#END describe
 
 
@@ -2000,7 +2059,7 @@ describe "Falcon.Collection", ->
 	# Test the all() method
 	#
 	#--------------------------------------------------------------
-	describe "Test the all() method", ->
+	describe "all", ->
 		model_a1 = new ModelA(id: 1)
 		model_a2 = new ModelA(id: 2)
 
@@ -2021,13 +2080,14 @@ describe "Falcon.Collection", ->
 	# Test the any() method
 	#
 	#--------------------------------------------------------------
-	describe "Test the any() method", ->
+	describe "any", ->
 		model_a1 = new ModelA(id: 1)
 		model_a2 = new ModelA(id: 2)
 		model_ab = new ModelA(id: 'b')
 		model_ab2 = new ModelA(id: 'b')
 		model_a3 = new ModelA(id: 3)
 		model_a4 = new ModelA(id: 4)
+		model_none = new ModelA
 
 		models = [model_a1, model_a2, model_ab, model_ab, model_ab2, model_a3]
 
@@ -2067,6 +2127,24 @@ describe "Falcon.Collection", ->
 			any = collectionA.any()
 			expect( any ).toBe( false )
 		#END it
+
+		it "Should allow for an array to be passed in", ->
+			any = collectionA.any([model_none])
+			expect(any).toBe(false)
+			any = collectionA.any([model_a1])
+			expect(any).toBe(true)
+			any = collectionA.any([model_none, model_a1])
+			expect(any).toBe(true)
+		#END it
+
+		it "Should allow for a collection to be passed in", ->
+			any = collectionA.any(new CollectionA([model_none]))
+			expect(any).toBe(false)
+			any = collectionA.any(new CollectionA([model_a1]))
+			expect(any).toBe(true)
+			any = collectionA.any(new CollectionA([model_none, model_a1]))
+			expect(any).toBe(true)
+		#END it
 	#END describe
 
 
@@ -2075,16 +2153,19 @@ describe "Falcon.Collection", ->
 	# Test the without() method
 	#
 	#--------------------------------------------------------------
-	describe "Test the without() method", ->
+	describe "without", ->
 		model_a1 = new ModelA(id: 1)
 		model_a2 = new ModelA(id: 2)
 		model_ab = new ModelA(id: 'b')
 		model_ab2 = new ModelA(id: 'b')
 		model_a3 = new ModelA(id: 3)
+		collectionA = null
+		models = null
 
-		models = [model_a1, model_a2, model_ab, model_ab, model_ab2, model_a3]
-
-		collectionA = new CollectionA(models)
+		beforeEach ->
+			models = [model_a1, model_a2, model_ab, model_ab, model_ab2, model_a3]
+			collectionA = new CollectionA(models)
+		#END beforeEach
 
 		it "Should return the full set of the models when called without an iterator", ->
 			without = collectionA.without()
@@ -2112,6 +2193,18 @@ describe "Falcon.Collection", ->
 			without = collectionA.without( 'b' )
 			expect( without.length ).toBe( 3 )
 			expect( without ).toEqual([model_a1, model_a2, model_a3])
+		#END it
+
+		it "Should allow for an array to be passed in", ->
+			without = collectionA.without([model_a1, model_ab])
+			expect( without.length ).toBe( 3 )
+			expect( without ).toEqual([model_a2, model_ab2, model_a3])
+		#END it
+
+		it "Should allow for a collection to be passed in", ->
+			without = collectionA.without(new CollectionA([model_a1, model_ab]))
+			expect( without.length ).toBe( 3 )
+			expect( without ).toEqual([model_a2, model_ab2, model_a3])
 		#END it
 	#END describe
 
