@@ -22,7 +22,7 @@
 
 				observables: {
 					'background_color': '#ffffff',
-					'slider_value': 0,
+					'slider_value': 0
 				},
 
 				addSlider: function() {
@@ -158,7 +158,6 @@
 				<button data-bind="click: $view.rightClick">Add Slider</button>
 			</rex-header>
 			<rex-content>
-				<!-- ko log: $view --><!-- /ko -->
 				<!-- ko foreach: $view.sliders -->
 					<rex-slider leftlabel="$data.minor_label" rightlabel="$data.major_label" onremove="$view.removeSlider.bind($view, $data)"></rex-slider>
 				<!-- /ko -->
