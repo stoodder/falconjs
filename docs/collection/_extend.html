@@ -11,21 +11,21 @@
 	<dd>Static properties for a given object</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({
-		model: Dog,
-		bark: function()
-		{
-			console.log("All the dogs bark");
-		}
-	},{
-		say: function() {
-			console.log("Woof!");
-		}
-	});
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({
+	model: Dog,
+	bark: function()
+	{
+		console.log("All the dogs bark");
+	}
+},{
+	say: function() {
+		console.log("Woof!");
+	}
+});
 
-	var dogs = new Dogs();
-	
-	Dogs.say(); // => Woof!
-	dogs.bark(); // => "All the dogs bark";
+var dogs = new Dogs();
+
+Dogs.say(); // => Woof!
+dogs.bark(); // => "All the dogs bark";
 {% endhighlight %}

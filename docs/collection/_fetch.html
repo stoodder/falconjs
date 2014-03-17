@@ -11,10 +11,10 @@
 	<dd>The options to pass to the 'sync' method</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend({url: 'dog.json'});
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Dog = Falcon.Model.extend({url: 'dog.json'});
+var Dogs = Falcon.Collection.extend({model: Dog});
 
-	var dogs = new Dogs()
+var dogs = new Dogs()
 
-	dogs.fetch() // 'GET' request to '/dog.json'
+dogs.fetch() // 'GET' request to '/dog.json'
 {% endhighlight %}

@@ -11,21 +11,21 @@
 	<dd>A function to check each model in this collection against. If the iterator returns true then that model is selected.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var dogs = new Dogs([
-		{"name": "Fido"},
-		{"name": "Bump"},
-		{"name": "Bucko"},
-		{"name": "Skip"}
-	]);
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Bump"},
+	{"name": "Bucko"},
+	{"name": "Skip"}
+]);
 
-	var last_dog = dogs.last();
-	var last_b_dog = dogs.last(function(dog) {
-		return dog.get("name").charAt(0) === "B";
-	});
+var last_dog = dogs.last();
+var last_b_dog = dogs.last(function(dog) {
+	return dog.get("name").charAt(0) === "B";
+});
 
-	console.log(last_dog.get("name")); // => Skip
-	console.log(last_b_dog.get("name")); // => Bucko
+console.log(last_dog.get("name")); // => Skip
+console.log(last_b_dog.get("name")); // => Bucko
 {% endhighlight %}

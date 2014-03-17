@@ -4,7 +4,7 @@
 {% assign returnDescription = "The global Falcon instance" %}
 {% include methodOverview.html %}
 <p>
-	nitializes a Falcon application and applies its bindings against an initial view.
+	Initializes a Falcon application and applies its bindings against an initial view.
 </p>
 <dl>
 	<dt data-type="Falcon.View | ko.observable">root</dt>
@@ -15,19 +15,19 @@
 	<dd>Method called after the bindings have been initialized and applied.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var LayoutView = Falcon.View.extend({ "url": "#layout_view_tmpl" });
+var LayoutView = Falcon.View.extend({ "url": "#layout_view_tmpl" });
 
-	// Applies the view and bindings to the 'body' tag
-	Falcon.apply( new LayoutView ); 
+// Applies the view and bindings to the 'body' tag
+Falcon.apply( new LayoutView ); 
 
-	// Applies the view and bindings the element with id="application"
-	Falcon.apply( new LayoutView, "#application" ); 
+// Applies the view and bindings the element with id="application"
+Falcon.apply( new LayoutView, "#application" ); 
 
-	// Falcon.apply can also handle observables
-	// Applies the observable to the 'body' tag, nothing is currently rendered
-	var viewObs = ko.observable();
-	Falcon.apply( viewObs ); 
+// Falcon.apply can also handle observables
+// Applies the observable to the 'body' tag, nothing is currently rendered
+var viewObs = ko.observable();
+Falcon.apply( viewObs ); 
 
-	// Renders a layout view in 'body'
-	viewObs( new LayoutView ); 
+// Renders a layout view in 'body'
+viewObs( new LayoutView ); 
 {% endhighlight %}

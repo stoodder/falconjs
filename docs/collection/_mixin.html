@@ -11,35 +11,35 @@
 	<dd>The mapping to apply to each of the current models and any future models that are added to the collection.  This should be an object of values, observables, and functions to add to this collection's models.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var dogs = new Dogs([
-		{"name": "Fido"}
-	]);
+var dogs = new Dogs([
+	{"name": "Fido"}
+]);
 
-	dogs.mixin({
-		"color": "Black",
-		"is_tame": ko.observable( true ),
-		"bark": function() {
-			console.log(this.get("name") + " says woof!");
-		}
-	});
+dogs.mixin({
+	"color": "Black",
+	"is_tame": ko.observable( true ),
+	"bark": function() {
+		console.log(this.get("name") + " says woof!");
+	}
+});
 
-	dogs.append({"name": "Spot"});
+dogs.append({"name": "Spot"});
 
-	var fido = dogs.at( 0 );
-	var spot = dogs.at( 1 );
+var fido = dogs.at( 0 );
+var spot = dogs.at( 1 );
 
-	console.log( fido.get("name") ); // => Fido
-	console.log( fido.get("color") ); // => Black
-	console.log( ko.isObservable( fido.is_tame ) ); // => true
-	console.log( fido.get("is_tame") ); // => true
-	fido.bark(); // => Fido says woof!
+console.log( fido.get("name") ); // => Fido
+console.log( fido.get("color") ); // => Black
+console.log( ko.isObservable( fido.is_tame ) ); // => true
+console.log( fido.get("is_tame") ); // => true
+fido.bark(); // => Fido says woof!
 
-	console.log( spot.get("name") ); // => Spot
-	console.log( spot.get("color") ); // => Black
-	console.log( ko.isObservable( spot.is_tame ) ); // => true
-	console.log( spot.get("is_tame") ); // => true
-	spot.bark(); // => Spot says woof!
+console.log( spot.get("name") ); // => Spot
+console.log( spot.get("color") ); // => Black
+console.log( ko.isObservable( spot.is_tame ) ); // => true
+console.log( spot.get("is_tame") ); // => true
+spot.bark(); // => Spot says woof!
 {% endhighlight %}

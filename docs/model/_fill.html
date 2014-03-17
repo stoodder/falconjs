@@ -13,20 +13,20 @@
 	<dd>The data to fill this object with.</dd>
 </dl>
 {% highlight javascript linenos%}
-	var Dog = Falcon.Model.extend({
-		defaults: {
-			"name": ""
-		},
+var Dog = Falcon.Model.extend({
+	defaults: {
+		"name": ""
+	},
 
-		observables: {
-			"is_tame": true
-		}
-	});
+	observables: {
+		"is_tame": true
+	}
+});
 
-	var dog = new Dog();
+var dog = new Dog();
 
-	dog.fill({"name": "Fido", "is_tame": false});
+dog.fill({"name": "Fido", "is_tame": false});
 
-	console.log( dog.get("name") ); // => Fido
-	console.log( dog.get("is_tame") ); // => false
+console.log( dog.get("name") ); // => Fido
+console.log( dog.get("is_tame") ); // => false
 {% endhighlight %}

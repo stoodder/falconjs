@@ -16,15 +16,15 @@ layout: model
 	<dd>The object that 'owns' this model. This is used for generating urls in the 'makeUrl' function when syncing data between client and server.</dd>
 </dl>
 {% highlight javascript linenos%}
-	var Dog = Falcon.Model.extend({
-		initialize: function() {
-			this.name = "Fido";
-		}
-	});
+var Dog = Falcon.Model.extend({
+	initialize: function() {
+		this.name = "Fido";
+	}
+});
 
-	var dog = new Dog();
+var dog = new Dog();
 
-	console.log( dog.get("name") ); // => Fido
+console.log( dog.get("name") ); // => Fido
 {% endhighlight %}
 {% assign methodName = "extend" %}
 {% assign methodExample = "Falcon.Model.extend( protoProps, [staticProps] )" %}
@@ -39,15 +39,15 @@ layout: model
 	<dd>Static properties for a given object</dd>
 </dl>
 {% highlight javascript linenos%}
-	var Dog = Falcon.Model.extend({
-		url: "dog.json"
-	});
+var Dog = Falcon.Model.extend({
+	url: "dog.json"
+});
 
-	var dog = new Dog();
+var dog = new Dog();
 
-	console.log( dog instanceof Falcon.Object ); // => true
-	console.log( dog instanceof Falcon.Model ); // => true
-	console.log( dog instanceof Dog ); // => true
+console.log( dog instanceof Falcon.Object ); // => true
+console.log( dog instanceof Falcon.Model ); // => true
+console.log( dog instanceof Dog ); // => true
 {% endhighlight %}
 {% assign methodName = "url" %}
 {% assign methodExample = "model.url" %}
@@ -56,38 +56,39 @@ layout: model
 	This is the top level url piece that relates to this specific model.  This is used in the makeUrl() method to dynamically generate urls for how to interact with the server API. Falcon assumes a typical RESTful url structure when generating urls and hence assumes that each individual model correlates to a common url name. For example if we had a Dog model who's url was 'dog.json', then sending a GET request for a dog with id '1' would generate a URL of: '/dog/1.json'. If this model has a parent model (such as Owner with url 'owner.json' and id of 2), then calling the same GET request with the Owner as the parent, we would get '/owner/2/dog/1.json'.  Optionally, url can be a function that returns a string rather than being defined as a string if you need the URL to be dynamic based on environment or other variables.
 </p>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend({
-		url: "dog.json"
-	});
+var Dog = Falcon.Model.extend({
+	url: "dog.json"
+});
 {% endhighlight %}
+
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend({
-		url: function() {
-			return "dog.json"
-		}
-	});
+var Dog = Falcon.Model.extend({
+	url: function() {
+		return "dog.json"
+	}
+});
 {% endhighlight %}
 
 {% highlight javascript linenos%}
-	var Dog = Falcon.Model.extend({
-		url: "dog.json"
-	});
-	var Owner = Falcon.Model.extend({
-		url: function() { return "owner.json"; }
-	});
+var Dog = Falcon.Model.extend({
+	url: "dog.json"
+});
+var Owner = Falcon.Model.extend({
+	url: function() { return "owner.json"; }
+});
 
-	var owner = new Owner({id: 2});
-	var dog = new Dog({id: 1}, owner);
+var owner = new Owner({id: 2});
+var dog = new Dog({id: 1}, owner);
 
-	console.log( owner.makeUrl("GET") ); // => /owner/2.json
-	console.log( owner.makeUrl("POST") ); // => /owner.json
-	console.log( owner.makeUrl("PUT") ); // => /owner/2.json
-	console.log( owner.makeUrl("DELETE") ); // => /owner/2.json
+console.log( owner.makeUrl("GET") ); // => /owner/2.json
+console.log( owner.makeUrl("POST") ); // => /owner.json
+console.log( owner.makeUrl("PUT") ); // => /owner/2.json
+console.log( owner.makeUrl("DELETE") ); // => /owner/2.json
 
-	console.log( dog.makeUrl("GET") ); // => /owner/2/dog/1.json
-	console.log( dog.makeUrl("POST") ); // => /owner/2/dog.json
-	console.log( dog.makeUrl("PUT") ); // => /owner/2/dog/1.json
-	console.log( dog.makeUrl("DELETE") ); // => /owner/2/dog/1.json
+console.log( dog.makeUrl("GET") ); // => /owner/2/dog/1.json
+console.log( dog.makeUrl("POST") ); // => /owner/2/dog.json
+console.log( dog.makeUrl("PUT") ); // => /owner/2/dog/1.json
+console.log( dog.makeUrl("DELETE") ); // => /owner/2/dog/1.json
 {% endhighlight %}
 {% assign methodName = "parent" %}
 {% assign methodExample = "model.parent" %}
@@ -96,13 +97,13 @@ layout: model
 	This represents the 'parent' object that holds this model.  Generally this is used for determining the URL structure of rest objects in the makeURL() routine. This should also be a Model.
 </p>
 {% highlight javascript linenos%}
-	var Dog = Falcon.Model.extend({"url": "dog.json"});
-	var Owner = Falcon.Model.extend({"url": "owner.json"});
+var Dog = Falcon.Model.extend({"url": "dog.json"});
+var Owner = Falcon.Model.extend({"url": "owner.json"});
 
-	var owner = new Owner();
-	var dog = new Dog( owner ); // Owner becomes the 'parent' of dog
+var owner = new Owner();
+var dog = new Dog( owner ); // Owner becomes the 'parent' of dog
 
-	console.log( dog.parent === owner ); // => true
+console.log( dog.parent === owner ); // => true
 {% endhighlight %}
 {% assign methodName = "clone" %}
 {% assign methodExample = "model.clone( [attributes], [parent] )" %}
@@ -119,13 +120,13 @@ layout: model
 	<dd>An override of the parent to set in the resultant model. If 'null' is explicitly given, then the resultant model will be parent-free</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend({name: ""});
+var Dog = Falcon.Model.extend({name: ""});
 
-	var dog = new Dog({"name": "fido"});
-	var fido_clone = dog.clone();
+var dog = new Dog({"name": "fido"});
+var fido_clone = dog.clone();
 
-	console.log( dog.get("name"), fido_clone.get("name") ); // fido, fido
-	console.log( dog === fido_clone ); // false
+console.log( dog.get("name"), fido_clone.get("name") ); // fido, fido
+console.log( dog === fido_clone ); // false
 {% endhighlight %}
 {% assign methodName = "create" %}
 {% assign methodExample = "model.create( [options] )" %}
@@ -140,14 +141,14 @@ layout: model
 	<dd>The options to pass into the 'sync' method</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend({ url: "dog.json" });
+var Dog = Falcon.Model.extend({ url: "dog.json" });
 
-	var dog = new Dog({name: "Fido"});
+var dog = new Dog({name: "Fido"});
 
-	// Create a dog
-	// Sends the data {"name": "Fido"} to '/dog.json'
-	// If using the jQuery adapter, this will be an ajax POST to '/dog.json'
-	dog.create();
+// Create a dog
+// Sends the data {"name": "Fido"} to '/dog.json'
+// If using the jQuery adapter, this will be an ajax POST to '/dog.json'
+dog.create();
 {% endhighlight %}
 {% assign methodName = "destroy" %}
 {% assign methodExample = "model.destroy( [options] )" %}
@@ -162,14 +163,14 @@ layout: model
 	<dd>The options to pass into the 'sync' method</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend({ url: "dog.json" });
+var Dog = Falcon.Model.extend({ url: "dog.json" });
 
-	var dog = new Dog({id: '1', name: "Fido"});
+var dog = new Dog({id: '1', name: "Fido"});
 
-	// Delete a dog
-	// Sends the data {"id": 1, "name": "Fido"} to '/dog/1.json'
-	// If using the jQuery adapter, this will be an ajax DELETE to '/dog/1.json'
-	dog.destroy();
+// Delete a dog
+// Sends the data {"id": 1, "name": "Fido"} to '/dog/1.json'
+// If using the jQuery adapter, this will be an ajax DELETE to '/dog/1.json'
+dog.destroy();
 {% endhighlight %}
 {% assign methodName = "equals" %}
 {% assign methodExample = "model.equals( model )" %}
@@ -188,14 +189,14 @@ layout: model
 	<dd>An id to check against this model's id</dd>
 </dl>
 {% highlight javascript linenos%}
-	var Dog = Falcon.Model.extend({ name: "" });
+var Dog = Falcon.Model.extend({ name: "" });
 
-	var dog = new Dog({"id": 1, "name": "Fido"});
-	var another_dog = new Dog({"id": 2, "name": "Another"});
+var dog = new Dog({"id": 1, "name": "Fido"});
+var another_dog = new Dog({"id": 2, "name": "Another"});
 
-	console.log( dog.equals(1) ); // => true
-	console.log( dog.equals(another_dog) ); // => false
-	console.log( dog.equals(dog.clone()) ); // => true, checks based on id
+console.log( dog.equals(1) ); // => true
+console.log( dog.equals(another_dog) ); // => false
+console.log( dog.equals(dog.clone()) ); // => true, checks based on id
 {% endhighlight %}
 {% assign methodName = "fetch" %}
 {% assign methodExample = "model.fetch( [options] )" %}
@@ -210,14 +211,14 @@ layout: model
 	<dd>The options to pass into the 'sync' method</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend({ url: "dog.json" });
+var Dog = Falcon.Model.extend({ url: "dog.json" });
 
-	var dog = new Dog({id: '1'});
+var dog = new Dog({id: '1'});
 
-	// Retrieves information about a dog
-	// Requests data from '/dog/1.json'
-	// If using the jQuery adapter, this will be an ajax GET to '/dog/1.json'
-	dog.fetch();
+// Retrieves information about a dog
+// Requests data from '/dog/1.json'
+// If using the jQuery adapter, this will be an ajax GET to '/dog/1.json'
+dog.fetch();
 {% endhighlight %}
 {% assign methodName = "fill" %}
 {% assign methodExample = "model.fill( data )" %}
@@ -234,22 +235,22 @@ layout: model
 	<dd>The data to fill this object with.</dd>
 </dl>
 {% highlight javascript linenos%}
-	var Dog = Falcon.Model.extend({
-		defaults: {
-			"name": ""
-		},
+var Dog = Falcon.Model.extend({
+	defaults: {
+		"name": ""
+	},
 
-		observables: {
-			"is_tame": true
-		}
-	});
+	observables: {
+		"is_tame": true
+	}
+});
 
-	var dog = new Dog();
+var dog = new Dog();
 
-	dog.fill({"name": "Fido", "is_tame": false});
+dog.fill({"name": "Fido", "is_tame": false});
 
-	console.log( dog.get("name") ); // => Fido
-	console.log( dog.get("is_tame") ); // => false
+console.log( dog.get("name") ); // => Fido
+console.log( dog.get("is_tame") ); // => false
 {% endhighlight %}
 {% assign methodName = "get" %}
 {% assign methodExample = "model.get( attribute )" %}
@@ -264,22 +265,22 @@ layout: model
 	<dd>The attribute to look up</dd>
 </dl>
 {% highlight javascript linenos%}
-	var Dog = Falcon.Model.extend({
-		defaults: {
-			"name": "Fido"
-		},
+var Dog = Falcon.Model.extend({
+	defaults: {
+		"name": "Fido"
+	},
 
-		observables: {
-			"hello": "world"
-		}
-	});
+	observables: {
+		"hello": "world"
+	}
+});
 
-	var dog = new Dog();
+var dog = new Dog();
 
-	console.log( ko.isObservable( dog.name ) ); // => false
-	console.log( ko.isObservable( dog.hello ) ); // => true
-	console.log( dog.get("name") ); // => Fido
-	console.log( dog.get("hello") ); // => world
+console.log( ko.isObservable( dog.name ) ); // => false
+console.log( ko.isObservable( dog.hello ) ); // => true
+console.log( dog.get("name") ); // => Fido
+console.log( dog.get("hello") ); // => world
 {% endhighlight %}
 {% assign methodName = "id" %}
 {% assign methodExample = "model.id" %}
@@ -288,16 +289,16 @@ layout: model
 	The id of this model. By default this is null unless it is set by the server. The id expected to be a Number or a String.
 </p>
 {% highlight javascript linenos%}
-	var Dog = Falcon.Model.extend({
-		defaults: {
-			"name": "Fido"
-		}
-	});
+var Dog = Falcon.Model.extend({
+	defaults: {
+		"name": "Fido"
+	}
+});
 
-	var dog = new Dog({id: 1});
+var dog = new Dog({id: 1});
 
-	console.log( dog.id ); // => 1
-	console.log( dog.get("id") ); // => 1
+console.log( dog.id ); // => 1
+console.log( dog.get("id") ); // => 1
 {% endhighlight %}
 {% assign methodName = "isNew" %}
 {% assign methodExample = "model.isNew()" %}
@@ -308,19 +309,19 @@ layout: model
 	Method used to determine if this model is 'new' or not. A model is deemed new if no id has been set (it's still null).
 </p>
 {% highlight javascript linenos%}
-	var Dog = Falcon.Model.extend({
-		defaults: {
-			"name": "Fido"
-		}
-	});
+var Dog = Falcon.Model.extend({
+	defaults: {
+		"name": "Fido"
+	}
+});
 
-	var dog = new Dog()
+var dog = new Dog()
 
-	console.log( dog.isNew() ); // => true
+console.log( dog.isNew() ); // => true
 
-	dog.set("id", 1)
+dog.set("id", 1)
 
-	console.log( dog.isNew() ); // => false
+console.log( dog.isNew() ); // => false
 {% endhighlight %}
 {% assign methodName = "makeUrl" %}
 {% assign methodExample = "model.makeUrl( type, [parent], [id] )" %}
@@ -339,19 +340,19 @@ layout: model
 	<dd>Optional override of the id to use.</dd>
 </dl>
 {% highlight javascript linenos%}
-	Falcon.baseApiUrl = "http://www.falconjs.com/";
-	var Dog = Falcon.Model.extend({'url': "dog.json"});
-	var Owner = Falcon.Model.extend({'url': "owner.json"});
+Falcon.baseApiUrl = "http://www.falconjs.com/";
+var Dog = Falcon.Model.extend({'url': "dog.json"});
+var Owner = Falcon.Model.extend({'url': "owner.json"});
 
-	var owner = new Owner({"id": 1});
-	var dog = new Dog({"id": 2}, owner); // owner is the 'parent' model
+var owner = new Owner({"id": 1});
+var dog = new Dog({"id": 2}, owner); // owner is the 'parent' model
 
-	// baseApiUrl + parent url piece + model url piece + model id (if applicable) + extension
-	console.log( dog.makeUrl("GET") ); // => http://www.falconjs.com/owner/1/dog/2.json
-	console.log( dog.makeUrl("POST") ); // => http://www.falconjs.com/owner/1/dog.json
-	console.log( dog.makeUrl("PUT") ); // => http://www.falconjs.com/owner/1/dog/2.json
-	console.log( dog.makeUrl("DELETE") ); // => http://www.falconjs.com/owner/1/dog/2.json
-	console.log( dog.makeUrl("GET", null) ); // => http://www.falconjs.com/dog/2.json
+// baseApiUrl + parent url piece + model url piece + model id (if applicable) + extension
+console.log( dog.makeUrl("GET") ); // => http://www.falconjs.com/owner/1/dog/2.json
+console.log( dog.makeUrl("POST") ); // => http://www.falconjs.com/owner/1/dog.json
+console.log( dog.makeUrl("PUT") ); // => http://www.falconjs.com/owner/1/dog/2.json
+console.log( dog.makeUrl("DELETE") ); // => http://www.falconjs.com/owner/1/dog/2.json
+console.log( dog.makeUrl("GET", null) ); // => http://www.falconjs.com/dog/2.json
 {% endhighlight %}
 {% assign methodName = "mixin" %}
 {% assign methodExample = "model.mixin( mapping )" %}
@@ -366,28 +367,28 @@ layout: model
 	<dd>The mapping to augment this model with</dd>
 </dl>
 {% highlight javascript linenos%}
-	var Dog = Falcon.Model.extend({
-		defaults: {
-			"name": "Fido"
-		}
-	});
+var Dog = Falcon.Model.extend({
+	defaults: {
+		"name": "Fido"
+	}
+});
 
-	var dog = new Dog();
+var dog = new Dog();
 
-	console.log( ko.isObservable( dog.name ) ); // => false
-	console.log( dog.bark instanceof Function ); // => false
+console.log( ko.isObservable( dog.name ) ); // => false
+console.log( dog.bark instanceof Function ); // => false
 
-	dog.mixin({
-		"name": ko.observable(),
-		"bark": function() {
-			console.log( this.get("name") + " says woof!");
-		}
-	});
+dog.mixin({
+	"name": ko.observable(),
+	"bark": function() {
+		console.log( this.get("name") + " says woof!");
+	}
+});
 
-	console.log( ko.isObservable( dog.name ) ); // => true
-	console.log( dog.bark instanceof Function ); // => true
+console.log( ko.isObservable( dog.name ) ); // => true
+console.log( dog.bark instanceof Function ); // => true
 
-	dog.bark() // => Fido says woof!
+dog.bark() // => Fido says woof!
 {% endhighlight %}
 {% assign methodName = "parse" %}
 {% assign methodExample = "model.parse( data, [options], [xhr] )" %}
@@ -406,42 +407,42 @@ layout: model
 	<dd>The XmlHttpRequest object</dd>
 </dl>
 {% highlight json linenos %}
-	{
-		"meta": {
-			"page": 1,
-			"page_size": 10,
-			"page_count": 3
-		},
-		"data": {
-			"id": 1,
-			"name": "Fido"
-		}
+{
+	"meta": {
+		"page": 1,
+		"page_size": 10,
+		"page_count": 3
+	},
+	"data": {
+		"id": 1,
+		"name": "Fido"
 	}
+}
 {% endhighlight %}
 <p>Example Server Response JSON for /dog.json</p>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend({
-		'url': "dog.json",
+var Dog = Falcon.Model.extend({
+	'url': "dog.json",
 
-		defaults: {
-			"name": ""
-		}
+	defaults: {
+		"name": ""
+	}
 
-		// Example parse method, the object that is returned from 
-		// this will be passed into the model's fill() method.
-		parse: function( response ) {
-			return response["data"];
-		}
-	});
+	// Example parse method, the object that is returned from 
+	// this will be passed into the model's fill() method.
+	parse: function( response ) {
+		return response["data"];
+	}
+});
 
-	var dog = new Dog();
+var dog = new Dog();
 
-	// Get's the server data and runs the parse method
-	// Callback is called on complete
-	dog.fetch(function() {
-		console.log( dog.get("id") ); // => 1
-		console.log( dog.get("name") ); // => Fido
-	});
+// Get's the server data and runs the parse method
+// Callback is called on complete
+dog.fetch(function() {
+	console.log( dog.get("id") ); // => 1
+	console.log( dog.get("name") ); // => Fido
+});
 {% endhighlight %}
 {% assign methodName = "save" %}
 {% assign methodExample = "model.save( [options] )" %}
@@ -456,14 +457,14 @@ layout: model
 	<dd>Optional object of settings to use on this call.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend({ url: "dog.json" });
+var Dog = Falcon.Model.extend({ url: "dog.json" });
 
-	var dog = new Dog({id: '1', name: "Fido"});
+var dog = new Dog({id: '1', name: "Fido"});
 
-	// Updates information about a dog
-	// Sends the data {"id": 1, "name": "Fido"} to '/dog/1.json'
-	// If using the jQuery adapter, this will be an ajax PUT to '/dog.json'
-	dog.save();
+// Updates information about a dog
+// Sends the data {"id": 1, "name": "Fido"} to '/dog/1.json'
+// If using the jQuery adapter, this will be an ajax PUT to '/dog.json'
+dog.save();
 {% endhighlight %}
 {% assign methodName = "serialize" %}
 {% assign methodExample = "model.serialize( [attributes] )" %}
@@ -480,22 +481,22 @@ layout: model
 	</dd>
 </dl>
 {% highlight javascript linenos%}
-	var Dog = Falcon.Model.extend({
-		url: 'dog.json',
+var Dog = Falcon.Model.extend({
+	url: 'dog.json',
 
-		defaults: {
-			"name": "Fido",
-			"color": "Black"
-		}
-	});
+	defaults: {
+		"name": "Fido",
+		"color": "Black"
+	}
+});
 
-	var dog = new Dog({"id": 1});
+var dog = new Dog({"id": 1});
 
-	console.log( dog.serialize() ); // => {"id": 1, "name": "Fido", "color": "Black"}
+console.log( dog.serialize() ); // => {"id": 1, "name": "Fido", "color": "Black"}
 
-	dog.set("name", "Spot");
+dog.set("name", "Spot");
 
-	console.log( dog.serialize(["name"]) ); // => {"name": "Spot"}
+console.log( dog.serialize(["name"]) ); // => {"name": "Spot"}
 {% endhighlight %}
 {% assign methodName = "set" %}
 {% assign methodExample = "model.set( attribute, [value] )" %}
@@ -516,30 +517,30 @@ layout: model
 	<dd>An object of values to set</dd>
 </dl>
 {% highlight javascript linenos%}
-	var Dog = Falcon.Model.extend({
-		url: "dog.json",
+var Dog = Falcon.Model.extend({
+	url: "dog.json",
 
-		defaults: {
-			"name": "",
-			"color": ""
-		}
-	});
+	defaults: {
+		"name": "",
+		"color": ""
+	}
+});
 
-	var dog = new Dog({'id': 1});
+var dog = new Dog({'id': 1});
 
-	dog.set("name", "Fido");
-	dog.set("color", "Black");
+dog.set("name", "Fido");
+dog.set("color", "Black");
 
-	console.log( dog.get("name") ); // => Fido
-	console.log( dog.get("color") ); // => Black
+console.log( dog.get("name") ); // => Fido
+console.log( dog.get("color") ); // => Black
 
-	dog.set({
-		"name": "Spot",
-		"color": "Tan"
-	});
+dog.set({
+	"name": "Spot",
+	"color": "Tan"
+});
 
-	console.log( dog.get("name") ); // => Spot
-	console.log( dog.get("color") ); // => Tan
+console.log( dog.get("name") ); // => Spot
+console.log( dog.get("color") ); // => Tan
 {% endhighlight %}
 {% assign methodName = "sync" %}
 {% assign methodExample = "model.sync( type, [options] )" %}
@@ -612,29 +613,29 @@ layout: model
 	</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend({
-		"url": "dog.json"
-	});
+var Dog = Falcon.Model.extend({
+	"url": "dog.json"
+});
 
-	var dog = new Dog({id: 1});
+var dog = new Dog({id: 1});
 
-	// Creates a GET ajax request that is sent to /dog/1.json
-	// Complete is always called, success is called if called if we found
-	// the dog on the server, otherwise error is called if something
-	// went wrong.
-	dog.sync("GET", {
-		complete: function(dog, data, xhr, status) {
-			console.log("Completed trying to find the Dog.");
-		},
+// Creates a GET ajax request that is sent to /dog/1.json
+// Complete is always called, success is called if called if we found
+// the dog on the server, otherwise error is called if something
+// went wrong.
+dog.sync("GET", {
+	complete: function(dog, data, xhr, status) {
+		console.log("Completed trying to find the Dog.");
+	},
 
-		success: function(dog, data, status, xhr) {
-			console.log("Successfully found the Dog!");
-		},
+	success: function(dog, data, status, xhr) {
+		console.log("Successfully found the Dog!");
+	},
 
-		error: function(dog, response, xhr ) {
-			console.log("Couldn't find the dog :(");
-		}
-	});
+	error: function(dog, response, xhr ) {
+		console.log("Couldn't find the dog :(");
+	}
+});
 {% endhighlight %}
 <!--
 	TODO:
@@ -654,19 +655,19 @@ layout: model
 	<dd>The attribute in the model to look up.</dd>
 </dl>
 {% highlight javascript linenos%}
-	var Dog = Falcon.Model.extend({
-		defaults: {
-			"is_tame": true
-		}
-	});
+var Dog = Falcon.Model.extend({
+	defaults: {
+		"is_tame": true
+	}
+});
 
-	var dog = new Dog({"is_tame": true});
+var dog = new Dog({"is_tame": true});
 
-	console.log( dog.get("is_tame") ); // => true
+console.log( dog.get("is_tame") ); // => true
 
-	dog.toggle("is_tame");
+dog.toggle("is_tame");
 
-	console.log( dog.get("is_tame") ); // => false
+console.log( dog.get("is_tame") ); // => false
 {% endhighlight %}
 {% assign methodName = "validate" %}
 {% assign methodExample = "model.validate( [options] )" %}
@@ -681,27 +682,27 @@ layout: model
 	<dd>The options passed into the sync method</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend({
-		url: "dog.json",
+var Dog = Falcon.Model.extend({
+	url: "dog.json",
 
-		defaults: {
-			"name": ""
-		},
+	defaults: {
+		"name": ""
+	},
 
-		validate: function() {
-			if( name.length === 0 ) {
-				return false;
-			}
-
-			return true;
+	validate: function() {
+		if( name.length === 0 ) {
+			return false;
 		}
-	});
 
-	var dog = new Dog();
+		return true;
+	}
+});
 
-	dog.create(); // Attempts to send a POST request but nothing happens, dog's name is empty
+var dog = new Dog();
 
-	dog.set("name", "Fido");
+dog.create(); // Attempts to send a POST request but nothing happens, dog's name is empty
 
-	dog.create(); // Allows the model to be saved to the server
+dog.set("name", "Fido");
+
+dog.create(); // Allows the model to be saved to the server
 {% endhighlight %}

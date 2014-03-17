@@ -13,18 +13,18 @@
 	<dd>Additional arguments to pass on to each of the event listener callback functions.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var obj = new Falcon.Object();
+var obj = new Falcon.Object();
 
-	obj.on("log", function()
-	{
-		console.log("Hello World");
-	});
+obj.on("log", function()
+{
+	console.log("Hello World");
+});
 
-	obj.on("custom_log", function(message)
-	{
-		console.log( message );
-	});
+obj.on("custom_log", function(message)
+{
+	console.log( message );
+});
 
-	obj.trigger("log"); // => Logs 'Hello World'
-	obj.trigger("custom_log", "Foo Bar"); // => Logs 'Foo Bar'
+obj.trigger("log"); // => Logs 'Hello World'
+obj.trigger("custom_log", "Foo Bar"); // => Logs 'Foo Bar'
 {% endhighlight %}

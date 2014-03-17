@@ -15,20 +15,20 @@
 	<dd>An array of models to prepend to the beginning of this collection.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
 
-	var dogs = new Dogs();
+var dogs = new Dogs();
 
-	dogs.unshift({"name": "Fido"});
-	console.log( dogs.pluck("name") ); // => [Fido]
+dogs.unshift({"name": "Fido"});
+console.log( dogs.pluck("name") ); // => [Fido]
 
-	dogs.unshift( new Dog({name: "Spot"}) ); 
-	console.log( dogs.pluck("name") ); // => [Spot, Fido]
+dogs.unshift( new Dog({name: "Spot"}) ); 
+console.log( dogs.pluck("name") ); // => [Spot, Fido]
 
-	dogs.unshift([
-		{name: "Skip"},
-		{name: "Bump"}
-	]);
-	console.log( dogs.pluck("name") ); // => [Skip, Bump, Spot, Fido]
+dogs.unshift([
+	{name: "Skip"},
+	{name: "Bump"}
+]);
+console.log( dogs.pluck("name") ); // => [Skip, Bump, Spot, Fido]
 {% endhighlight %}

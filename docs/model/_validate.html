@@ -11,27 +11,27 @@
 	<dd>The options passed into the sync method</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend({
-		url: "dog.json",
+var Dog = Falcon.Model.extend({
+	url: "dog.json",
 
-		defaults: {
-			"name": ""
-		},
+	defaults: {
+		"name": ""
+	},
 
-		validate: function() {
-			if( name.length === 0 ) {
-				return false;
-			}
-
-			return true;
+	validate: function() {
+		if( name.length === 0 ) {
+			return false;
 		}
-	});
 
-	var dog = new Dog();
+		return true;
+	}
+});
 
-	dog.create(); // Attempts to send a POST request but nothing happens, dog's name is empty
+var dog = new Dog();
 
-	dog.set("name", "Fido");
+dog.create(); // Attempts to send a POST request but nothing happens, dog's name is empty
 
-	dog.create(); // Allows the model to be saved to the server
+dog.set("name", "Fido");
+
+dog.create(); // Allows the model to be saved to the server
 {% endhighlight %}

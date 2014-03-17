@@ -16,16 +16,16 @@ layout: collection
 	<dd>The owner of this collection, used for generating urls when making requests to the server.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({
-		model: Dog,
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({
+	model: Dog,
 
-		initialize: function() {
-			console.log("Collecting Dogs");
-		}
-	});
+	initialize: function() {
+		console.log("Collecting Dogs");
+	}
+});
 
-	new Dogs(); // => Collecting Dogs
+new Dogs(); // => Collecting Dogs
 {% endhighlight %}
 {% assign methodName = "extend" %}
 {% assign methodExample = "Falcon.Collection.extend( protoProps, [staticProps] )" %}
@@ -40,23 +40,23 @@ layout: collection
 	<dd>Static properties for a given object</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({
-		model: Dog,
-		bark: function()
-		{
-			console.log("All the dogs bark");
-		}
-	},{
-		say: function() {
-			console.log("Woof!");
-		}
-	});
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({
+	model: Dog,
+	bark: function()
+	{
+		console.log("All the dogs bark");
+	}
+},{
+	say: function() {
+		console.log("Woof!");
+	}
+});
 
-	var dogs = new Dogs();
-	
-	Dogs.say(); // => Woof!
-	dogs.bark(); // => "All the dogs bark";
+var dogs = new Dogs();
+
+Dogs.say(); // => Woof!
+dogs.bark(); // => "All the dogs bark";
 {% endhighlight %}
 {% assign methodName = "model" %}
 {% assign methodExample = "collection.model" %}
@@ -65,8 +65,8 @@ layout: collection
 	The prototype of the model of each item in this collection. This is used to ensure that all models within this collection are the correct type. It is also used to determine the relative url for models in this collection when making sync requests to the server.
 </p>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
 {% endhighlight %}
 {% assign methodName = "parent" %}
 {% assign methodExample = "collection.parent" %}
@@ -75,14 +75,14 @@ layout: collection
 	This represents the 'parent' object that holds these models.  Generally this is used for determining the URL structure of rest objects in the makeURL() routine. This should also be a Model.
 </p>
 {% highlight javascript linenos %}
-	var Owner = Falcon.Model.extend();
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Owner = Falcon.Model.extend();
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
 
-	var owner = new Owner();
-	var dogs = new Dogs( owner ); // Owner becomes the 'parent' of dogs
+var owner = new Owner();
+var dogs = new Dogs( owner ); // Owner becomes the 'parent' of dogs
 
-	console.log( dogs.parent === owner ); // => true
+console.log( dogs.parent === owner ); // => true
 {% endhighlight %}
 {% assign methodName = "any" %}
 {% assign methodExample = "collection.any( iterator )" %}
@@ -105,26 +105,26 @@ layout: collection
 	<dd>A model to compare against each of the collection's models using an id-based comparison.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var dogs = new Dogs([
-		{"name": "Fido"},
-		{"name": "Skip"},
-		{"name": "Bump"},
-		{"name": "Bucko"}
-	]);
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
 
-	var has_fido = dogs.any(function(dog) {
-		return dog.get("name") === "Fido";
-	});
+var has_fido = dogs.any(function(dog) {
+	return dog.get("name") === "Fido";
+});
 
-	var has_spot = dogs.any(function(dog) {
-		return dog.get("name") === "Spot";
-	});
+var has_spot = dogs.any(function(dog) {
+	return dog.get("name") === "Spot";
+});
 
-	console.log(has_fido); // => true
-	console.log(has_spot); // => false
+console.log(has_fido); // => true
+console.log(has_spot); // => false
 {% endhighlight %}
 {% assign methodName = "append" %}
 {% assign methodExample = "collection.append( items )" %}
@@ -143,22 +143,22 @@ layout: collection
 	<dd>An array of models to add to the end of the collection</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
 
-	var dogs = new Dogs();
+var dogs = new Dogs();
 
-	dogs.append({"name": "Fido"});
-	console.log( dogs.pluck("name") ); // => [Fido]
+dogs.append({"name": "Fido"});
+console.log( dogs.pluck("name") ); // => [Fido]
 
-	dogs.append( new Dog({name: "Spot"}) ); 
-	console.log( dogs.pluck("name") ); // => [Fido, Spot]
+dogs.append( new Dog({name: "Spot"}) ); 
+console.log( dogs.pluck("name") ); // => [Fido, Spot]
 
-	dogs.append([
-		{name: "Skip"},
-		{name: "Bump"}
-	]);
-	console.log( dogs.pluck("name") ); // => [Fido, Spot, Skip, Bump]
+dogs.append([
+	{name: "Skip"},
+	{name: "Bump"}
+]);
+console.log( dogs.pluck("name") ); // => [Fido, Spot, Skip, Bump]
 {% endhighlight %}
 {% assign methodName = "at" %}
 {% assign methodExample = "collection.at( index )" %}
@@ -173,18 +173,18 @@ layout: collection
 	<dd>zero-based index of the model to look up in the collection</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
 
-	var dogs = new Dogs([
-		{"name": "Fido"},
-		{"name": "Skip"},
-		{"name": "Bump"},
-		{"name": "Bucko"}
-	]);
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
 
-	console.log( dogs.at(1).get("name") ); // => Skip
-	console.log( dogs.at(5) ); // => null
+console.log( dogs.at(1).get("name") ); // => Skip
+console.log( dogs.at(5) ); // => null
 {% endhighlight %}
 {% assign methodName = "chain" %}
 {% assign methodExample = "collection.chain()" %}
@@ -195,40 +195,40 @@ layout: collection
 	Method used to create a chained version of this collection. A Chained Collection allows us to chain together mutliple filter methods.  Typically, when calling 'sort', 'without', 'filter', or 'slice', a javascript array is returned and no other collection filter methods can be called on the resultant array. 'chain' fixes this and allows us to string together multiple filter methods.
 </p>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var dogs = new Dogs([
-		{"id": 1, "name": "Fido", "is_tame": true},
-		{"id": 2, "name": "Skip", "is_tame": true},
-		{"id": 3, "name": "Bump", "is_tame": true},
-		{"id": 4, "name": "Bucko", "is_tame": false},
-		{"id": 5, "name": "Spot", "is_tame": true},
-		{"id": 6, "name": "Biscuit", "is_tame": true}
-	]);
+var dogs = new Dogs([
+	{"id": 1, "name": "Fido", "is_tame": true},
+	{"id": 2, "name": "Skip", "is_tame": true},
+	{"id": 3, "name": "Bump", "is_tame": true},
+	{"id": 4, "name": "Bucko", "is_tame": false},
+	{"id": 5, "name": "Spot", "is_tame": true},
+	{"id": 6, "name": "Biscuit", "is_tame": true}
+]);
 
-	var odd_dogs = dogs.chain().without(2).without(4).without(6);
-	
-	var tame_b_dogs = dogs.chain().filter(function(dog) {
-		return dog.get("name").charAt(0) === "B";
-	}).filter(function(dog) {
-		return dog.get("is_tame")
-	});
+var odd_dogs = dogs.chain().without(2).without(4).without(6);
 
-	var sorted_b_dogs = dogs.chain().filter(function(dog) {
-		return dog.get("name").charAt(0) === "B";
-	}).sort(function(dog_a, dog_b) {
-		var name_a = dog_a.get("name");
-		var name_b = dog_b.get("name");
+var tame_b_dogs = dogs.chain().filter(function(dog) {
+	return dog.get("name").charAt(0) === "B";
+}).filter(function(dog) {
+	return dog.get("is_tame")
+});
 
-		if( name_a < name_b ) { return -1; }
-		if( name_a > name_b ) { return 1; }
-		return 0;
-	});
+var sorted_b_dogs = dogs.chain().filter(function(dog) {
+	return dog.get("name").charAt(0) === "B";
+}).sort(function(dog_a, dog_b) {
+	var name_a = dog_a.get("name");
+	var name_b = dog_b.get("name");
 
-	console.log( odd_dogs.pluck("name") ); // => [Fido, Bump, Spot]
-	console.log( tame_b_dogs.pluck("name") ); // => [Bump, Biscuit]
-	console.log( sorted_b_dogs.pluck("name") ); // => [Biscuit, Bucko, Bump]
+	if( name_a < name_b ) { return -1; }
+	if( name_a > name_b ) { return 1; }
+	return 0;
+});
+
+console.log( odd_dogs.pluck("name") ); // => [Fido, Bump, Spot]
+console.log( tame_b_dogs.pluck("name") ); // => [Bump, Biscuit]
+console.log( sorted_b_dogs.pluck("name") ); // => [Biscuit, Bucko, Bump]
 {% endhighlight %}
 {% assign methodName = "clone" %}
 {% assign methodExample = "collection.clone( [attributes], [parent] )" %}
@@ -245,25 +245,25 @@ layout: collection
 	<dd> An override of the parent to set in the resultant collection. If 'null' is explicitly given, then the resultant collection will be parent-free</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Owner = Falcon.Model.extend();
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Owner = Falcon.Model.extend();
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
 
-	var owner = new Owner();
-	var dogs = new Dogs([
-		{"name": "Fido"},
-		{"name": "Skip"},
-		{"name": "Bump"},
-		{"name": "Bucko"}
-	], owner);
+var owner = new Owner();
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+], owner);
 
-	var dogs_clone = dogs.clone(null);
+var dogs_clone = dogs.clone(null);
 
-	console.log( dogs === dogs_clone ); // => false
-	console.log( dogs.length() === dogs_clone.length() ); // => true
-	console.log( dogs.at(2) === dogs_clone.at(2) ); // => false
-	console.log( dogs.parent === owner); // => true
-	console.log( dogs_clone.parent === null); // => true
+console.log( dogs === dogs_clone ); // => false
+console.log( dogs.length() === dogs_clone.length() ); // => true
+console.log( dogs.at(2) === dogs_clone.at(2) ); // => false
+console.log( dogs.parent === owner); // => true
+console.log( dogs_clone.parent === null); // => true
 {% endhighlight %}
 {% assign methodName = "comparator" %}
 {% assign methodExample = "collection.comparator" %}
@@ -272,32 +272,32 @@ layout: collection
 	Method used to sort this collection when a new model(s) is added.  By default, this is null and no sorting will occur.  Note: If this is set then any model that is inserted into this collection will be sorted (regardless of append, prepend, etc.).
 </p>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({
-		model: Dog,
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({
+	model: Dog,
 
-		//Sort names ascending
-		comparator: function(dog_a, dog_b) {
-			name_a = dog_a.get("name");
-			name_b = dog_b.get("name");
+	//Sort names ascending
+	comparator: function(dog_a, dog_b) {
+		name_a = dog_a.get("name");
+		name_b = dog_b.get("name");
 
-			if(name_a < name_b) { return -1; }
-			if(name_a > name_b) { return 1; }
-			return 0;
-		}
-	});
+		if(name_a < name_b) { return -1; }
+		if(name_a > name_b) { return 1; }
+		return 0;
+	}
+});
 
-	var dogs = new Dogs([
-		{"name": "Fido"},
-		{"name": "Skip"},
-		{"name": "Bump"},
-		{"name": "Bucko"}
-	]);
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
 
-	console.log( dogs.at(0).get("name") ); // => Bucko
-	console.log( dogs.at(1).get("name") ); // => Bump
-	console.log( dogs.at(2).get("name") ); // => Fido
-	console.log( dogs.at(3).get("name") ); // => Skip
+console.log( dogs.at(0).get("name") ); // => Bucko
+console.log( dogs.at(1).get("name") ); // => Bump
+console.log( dogs.at(2).get("name") ); // => Fido
+console.log( dogs.at(3).get("name") ); // => Skip
 {% endhighlight %}
 {% assign methodName = "create" %}
 {% assign methodExample = "collection.create( data, [options] )" %}
@@ -320,15 +320,15 @@ layout: collection
 	<dd>See Above.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend({url: "dog.json"});
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Dog = Falcon.Model.extend({url: "dog.json"});
+var Dogs = Falcon.Collection.extend({model: Dog});
 
-	var dogs = new Dogs();
+var dogs = new Dogs();
 
-	// Sends a POST request to '/dog.json'. Upon success, appends
-	// the new dog model to the end of the dogs collection.
-	dogs.create({"name": "Fido"}); 
-	dogs.create(new Dog({"name": "Spot"})); 
+// Sends a POST request to '/dog.json'. Upon success, appends
+// the new dog model to the end of the dogs collection.
+dogs.create({"name": "Fido"}); 
+dogs.create(new Dog({"name": "Spot"})); 
 {% endhighlight %}
 {% assign methodName = "destroy" %}
 {% assign methodExample = "collection.destroy( model, [options] )" %}
@@ -357,28 +357,28 @@ layout: collection
 	<dd>An optional set of options to pass into the 'sync' method when deleting the model from the server</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend({url: "dog.json"});
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Dog = Falcon.Model.extend({url: "dog.json"});
+var Dogs = Falcon.Collection.extend({model: Dog});
 
-	var fido = new Dog({"id": 1, "name": "Fido"});
-	var spot = new Dog({"id": 2, "name": "Spot"});
-	var skip = new Dog({"id": 3, "name": "Skip"});
+var fido = new Dog({"id": 1, "name": "Fido"});
+var spot = new Dog({"id": 2, "name": "Spot"});
+var skip = new Dog({"id": 3, "name": "Skip"});
 
-	var dogs = new Dogs([ fido, spot, skip ]);
+var dogs = new Dogs([ fido, spot, skip ]);
 
-	// Sends a DELETE request to '/dog/{dog_id}.json'. Upon success, removes
-	// the specific model from the collection.
+// Sends a DELETE request to '/dog/{dog_id}.json'. Upon success, removes
+// the specific model from the collection.
 
-	// deletes fido
-	dogs.destroy(fido); 
+// deletes fido
+dogs.destroy(fido); 
 
-	 // deletes spot
-	dogs.destroy(2);
+ // deletes spot
+dogs.destroy(2);
 
-	 // deletes skip
-	dogs.destroy(function(dog) {
-		return dog.get("name") === "Skip";
-	});
+ // deletes skip
+dogs.destroy(function(dog) {
+	return dog.get("name") === "Skip";
+});
 {% endhighlight %}
 {% assign methodName = "each" %}
 {% assign methodExample = "collection.each( iterator, [context] )" %}
@@ -395,23 +395,23 @@ layout: collection
 	<dd>Optionally, the context to apply to the iterator function.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var dogs = new Dogs([
-		{"name": "Fido"},
-		{"name": "Skip"},
-		{"name": "Bump"},
-		{"name": "Bucko"}
-	]);
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
 
-	// => Dog's name is Fido
-	// => Dog's name is Skip
-	// => Dog's name is Bump
-	// => Dog's name is Bucko
-	dogs.each(function(dog) {
-		console.log("Dog's name is " + dog.get("name") );
-	});
+// => Dog's name is Fido
+// => Dog's name is Skip
+// => Dog's name is Bump
+// => Dog's name is Bucko
+dogs.each(function(dog) {
+	console.log("Dog's name is " + dog.get("name") );
+});
 {% endhighlight %}
 {% assign methodName = "fetch" %}
 {% assign methodExample = "collection.fetch( [options] )" %}
@@ -426,12 +426,12 @@ layout: collection
 	<dd>The options to pass to the 'sync' method</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend({url: 'dog.json'});
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Dog = Falcon.Model.extend({url: 'dog.json'});
+var Dogs = Falcon.Collection.extend({model: Dog});
 
-	var dogs = new Dogs()
+var dogs = new Dogs()
 
-	dogs.fetch() // 'GET' request to '/dog.json'
+dogs.fetch() // 'GET' request to '/dog.json'
 {% endhighlight %}
 {% assign methodName = "fill" %}
 {% assign methodExample = "collection.fill( items, [options] )" %}
@@ -474,105 +474,105 @@ layout: collection
 </dl>
 
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
 
-	var dogs = new Dogs([
-		{name: "Skip"},
-		{name: "Spot"}
-	]);
+var dogs = new Dogs([
+	{name: "Skip"},
+	{name: "Spot"}
+]);
 
-	console.log( dogs.pluck("name") ); // [Skip, Spot]
+console.log( dogs.pluck("name") ); // [Skip, Spot]
 
-	dogs.fill([
-		{'name': "Fido"},
-		{'name': "Bump"}
-	]);
+dogs.fill([
+	{'name': "Fido"},
+	{'name': "Bump"}
+]);
 
-	console.log( dogs.pluck("name") ); // [Fido, Bump]
+console.log( dogs.pluck("name") ); // [Fido, Bump]
 {% endhighlight %}
 <div class="caption">Example of default fill method</div>
 
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
 
-	var dogs = new Dogs([
-		{name: "Skip"},
-		{name: "Spot"}
-	]);
+var dogs = new Dogs([
+	{name: "Skip"},
+	{name: "Spot"}
+]);
 
-	console.log( dogs.pluck("name") ); // [Skip, Spot]
+console.log( dogs.pluck("name") ); // [Skip, Spot]
 
-	dogs.fill([
-		{'name': "Fido"},
-		{'name': "Bump"}
-	], {method: 'append'});
+dogs.fill([
+	{'name': "Fido"},
+	{'name': "Bump"}
+], {method: 'append'});
 
-	console.log( dogs.pluck("name") ); // [Skip, Spot, Fido, Bump]
+console.log( dogs.pluck("name") ); // [Skip, Spot, Fido, Bump]
 {% endhighlight %}
 <div class="caption">Example of append fill method</div>
 
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
 
-	var dogs = new Dogs([
-		{name: "Skip"},
-		{name: "Spot"}
-	]);
+var dogs = new Dogs([
+	{name: "Skip"},
+	{name: "Spot"}
+]);
 
-	console.log( dogs.pluck("name") ); // [Skip, Spot]
+console.log( dogs.pluck("name") ); // [Skip, Spot]
 
-	dogs.fill([
-		{'name': "Fido"},
-		{'name': "Bump"}
-	], {method: 'prepend'});
+dogs.fill([
+	{'name': "Fido"},
+	{'name': "Bump"}
+], {method: 'prepend'});
 
-	console.log( dogs.pluck("name") ); // [Fido, Bump, Skip, Spot]
+console.log( dogs.pluck("name") ); // [Fido, Bump, Skip, Spot]
 {% endhighlight %}
 <div class="caption">Example of prepend fill method</div>
 
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
 
-	var dogs = new Dogs([
-		{id: 1, name: "Skip"},
-		{id: 2, name: "Spot"}
-	]);
+var dogs = new Dogs([
+	{id: 1, name: "Skip"},
+	{id: 2, name: "Spot"}
+]);
 
-	console.log( dogs.pluck("name") ); // [Skip, Spot]
+console.log( dogs.pluck("name") ); // [Skip, Spot]
 
-	dogs.fill([
-		{id: 2, 'name': "Fido"},
-		{id: 3, 'name': "Bump"}
-	], {method: 'merge'});
+dogs.fill([
+	{id: 2, 'name': "Fido"},
+	{id: 3, 'name': "Bump"}
+], {method: 'merge'});
 
-	console.log( dogs.pluck("name") ); // [Skip, Fido, Bump]
+console.log( dogs.pluck("name") ); // [Skip, Fido, Bump]
 {% endhighlight %}
 <div class="caption">Example of merge fill method</div>
 
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
 
-	var dogs = new Dogs([
-		{name: "Skip"},
-		{name: "Spot"}
-	]);
+var dogs = new Dogs([
+	{name: "Skip"},
+	{name: "Spot"}
+]);
 
-	console.log( dogs.pluck("name") ); // [Skip, Spot]
+console.log( dogs.pluck("name") ); // [Skip, Spot]
 
-	dogs.fill([
-		{'name': "Fido"},
-		{'name': "Bump"}
-	], {
-		method: 'insert',
-		insert_index: 1
-	});
+dogs.fill([
+	{'name': "Fido"},
+	{'name': "Bump"}
+], {
+	method: 'insert',
+	insert_index: 1
+});
 
-	console.log( dogs.pluck("name") ); // [Skip, Fido, Bump, Spot]
+console.log( dogs.pluck("name") ); // [Skip, Fido, Bump, Spot]
 {% endhighlight %}
 <div class="caption">Example of insert fill method</div>
 {% assign methodName = "filter" %}
@@ -596,21 +596,21 @@ layout: collection
 	<dd>A model to look up in the collection</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var my_dogs = new Dogs([
-		{"name": "Fido"},
-		{"name": "Skip"},
-		{"name": "Bump"},
-		{"name": "Bucko"}
-	]);
+var my_dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
 
-	var dogs_with_b_names = my_dogs.filter(function(dog) {
-		return dog.get("name").charAt(0) === "B";
-	});
+var dogs_with_b_names = my_dogs.filter(function(dog) {
+	return dog.get("name").charAt(0) === "B";
+});
 
-	console.log( dogs_with_b_names ); // [Bump, Bucko]
+console.log( dogs_with_b_names ); // [Bump, Bucko]
 {% endhighlight %}
 {% assign methodName = "first" %}
 {% assign methodExample = "collection.first( [iterator] )" %}
@@ -625,23 +625,23 @@ layout: collection
 	<dd>A function to check each model in this collection against. If the iterator returns true then that model is selected.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var dogs = new Dogs([
-		{id: 1, "name": "Fido"},
-		{id: 2, "name": "Skip"},
-		{id: 3, "name": "Bump"},
-		{id: 4, "name": "Bucko"}
-	]);
+var dogs = new Dogs([
+	{id: 1, "name": "Fido"},
+	{id: 2, "name": "Skip"},
+	{id: 3, "name": "Bump"},
+	{id: 4, "name": "Bucko"}
+]);
 
-	var first_dog = dogs.first();
-	var first_b_dog = dogs.first(function(dog) {
-		return dog.get("name").charAt(0) === "B";
-	});
+var first_dog = dogs.first();
+var first_b_dog = dogs.first(function(dog) {
+	return dog.get("name").charAt(0) === "B";
+});
 
-	console.log( first_dog.get("name") ); // => Fido
-	console.log( first_b_dog.get("name") ); // => Bump
+console.log( first_dog.get("name") ); // => Fido
+console.log( first_b_dog.get("name") ); // => Bump
 {% endhighlight %}
 {% assign methodName = "indexOf" %}
 {% assign methodExample = "collection.indexOf( model )" %}
@@ -664,25 +664,25 @@ layout: collection
 	<dd>Truth test iterator function to test each model with.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var fido = new Dog({id: 1, "name": "Fido"});
-	var skip = new Dog({id: 2, "name": "Skip"});
-	var bump = new Dog({id: 3, "name": "Bump"});
-	var bucko = new Dog({id: 4, "name": "Bucko"});
+var fido = new Dog({id: 1, "name": "Fido"});
+var skip = new Dog({id: 2, "name": "Skip"});
+var bump = new Dog({id: 3, "name": "Bump"});
+var bucko = new Dog({id: 4, "name": "Bucko"});
 
-	var dogs = new Dogs([fido, skip, bump, bucko]);
+var dogs = new Dogs([fido, skip, bump, bucko]);
 
-	var index_bump = dogs.indexOf(bump);
-	var index_id = dogs.indexOf(2);
-	var index_iterator = dogs.indexOf(function(dog) {
-		return dog.get("name") === "Bucko";
-	});
+var index_bump = dogs.indexOf(bump);
+var index_id = dogs.indexOf(2);
+var index_iterator = dogs.indexOf(function(dog) {
+	return dog.get("name") === "Bucko";
+});
 
-	console.log( index_bump );  // => 2
-	console.log( index_id );  // => 1
-	console.log( index_iterator );  // => 3
+console.log( index_bump );  // => 2
+console.log( index_id );  // => 1
+console.log( index_iterator );  // => 3
 {% endhighlight %}
 {% assign methodName = "insert" %}
 {% assign methodExample = "collection.insert( insert_model, model )" %}
@@ -711,27 +711,27 @@ layout: collection
 	<dd>The iterator to truth test each model against</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var fido = new Dog({id: 1, "name": "Fido"});
-	var skip = new Dog({id: 2, "name": "Skip"});
-	var bump = new Dog({id: 3, "name": "Bump"});
-	var bucko = new Dog({id: 4, "name": "Bucko"});
-	var spot = new Dog({id: 5, "name": "Spot"});
+var fido = new Dog({id: 1, "name": "Fido"});
+var skip = new Dog({id: 2, "name": "Skip"});
+var bump = new Dog({id: 3, "name": "Bump"});
+var bucko = new Dog({id: 4, "name": "Bucko"});
+var spot = new Dog({id: 5, "name": "Spot"});
 
-	var dogs = new Dogs([ fido, skip ]);
+var dogs = new Dogs([ fido, skip ]);
 
-	dogs.insert( bump, skip ); // insert bump before skip
-	console.log( dogs.pluck("name") ); // [Fido, Bump, Skip]
+dogs.insert( bump, skip ); // insert bump before skip
+console.log( dogs.pluck("name") ); // [Fido, Bump, Skip]
 
-	dogs.insert( bucko, 2 ); // insert bucko before skip
-	console.log( dogs.pluck("name") ); // [Fido, Bump, Bucko, Skip]
+dogs.insert( bucko, 2 ); // insert bucko before skip
+console.log( dogs.pluck("name") ); // [Fido, Bump, Bucko, Skip]
 
-	dogs.insert( spot, function(dog) {
-		return dog.get("name") === "Bump";
-	});
-	console.log( dogs.pluck("name") ); // [Fido, Spot, Bump, Bucko, Skip]
+dogs.insert( spot, function(dog) {
+	return dog.get("name") === "Bump";
+});
+console.log( dogs.pluck("name") ); // [Fido, Spot, Bump, Bucko, Skip]
 {% endhighlight %}
 {% assign methodName = "last" %}
 {% assign methodExample = "collection.last( [iterator] )" %}
@@ -746,23 +746,23 @@ layout: collection
 	<dd>A function to check each model in this collection against. If the iterator returns true then that model is selected.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var dogs = new Dogs([
-		{"name": "Fido"},
-		{"name": "Bump"},
-		{"name": "Bucko"},
-		{"name": "Skip"}
-	]);
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Bump"},
+	{"name": "Bucko"},
+	{"name": "Skip"}
+]);
 
-	var last_dog = dogs.last();
-	var last_b_dog = dogs.last(function(dog) {
-		return dog.get("name").charAt(0) === "B";
-	});
+var last_dog = dogs.last();
+var last_b_dog = dogs.last(function(dog) {
+	return dog.get("name").charAt(0) === "B";
+});
 
-	console.log(last_dog.get("name")); // => Skip
-	console.log(last_b_dog.get("name")); // => Bucko
+console.log(last_dog.get("name")); // => Skip
+console.log(last_b_dog.get("name")); // => Bucko
 {% endhighlight %}
 {% assign methodName = "lastIndexOf" %}
 {% assign methodExample = "collection.lastIndexOf( model )" %}
@@ -785,25 +785,25 @@ layout: collection
 	<dd>Truth test iterator function to test each model with.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var fido = new Dog({id: 1, "name": "Fido"});
-	var skip = new Dog({id: 2, "name": "Skip"});
-	var bump = new Dog({id: 3, "name": "Bump"});
-	var bucko = new Dog({id: 4, "name": "Bucko"});
+var fido = new Dog({id: 1, "name": "Fido"});
+var skip = new Dog({id: 2, "name": "Skip"});
+var bump = new Dog({id: 3, "name": "Bump"});
+var bucko = new Dog({id: 4, "name": "Bucko"});
 
-	var dogs = new Dogs([fido, skip, bump, bucko, bump, skip, fido]);
+var dogs = new Dogs([fido, skip, bump, bucko, bump, skip, fido]);
 
-	var index_bump = dogs.lastIndexOf(bump);
-	var index_id = dogs.lastIndexOf(2);
-	var index_iterator = dogs.lastIndexOf(function(dog) {
-		return dog.get("name") === "Bucko";
-	});
+var index_bump = dogs.lastIndexOf(bump);
+var index_id = dogs.lastIndexOf(2);
+var index_iterator = dogs.lastIndexOf(function(dog) {
+	return dog.get("name") === "Bucko";
+});
 
-	console.log( index_bump );  // => 4
-	console.log( index_id );  // => 5
-	console.log( index_iterator );  // => 3
+console.log( index_bump );  // => 4
+console.log( index_id );  // => 5
+console.log( index_iterator );  // => 3
 {% endhighlight %}
 {% assign methodName = "length" %}
 {% assign methodExample = "collection.length()" %}
@@ -812,22 +812,22 @@ layout: collection
 	The total number of models in this collection. This is an observable so anything that is bound against this will also be updated when any models are added or removed from the collection.
 </p>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var dogs = new Dogs([
-		{"name": "Fido"},
-		{"name": "Bump"}
-	]);
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Bump"}
+]);
 
-	console.log( dogs.length() ); // => 2
+console.log( dogs.length() ); // => 2
 
-	dogs.append([
-		{"name": "Bucko"},
-		{"name": "Skip"}
-	]);
+dogs.append([
+	{"name": "Bucko"},
+	{"name": "Skip"}
+]);
 
-	console.log( dogs.length() ); // => 4
+console.log( dogs.length() ); // => 4
 {% endhighlight %}
 {% assign methodName = "makeUrl" %}
 {% assign methodExample = "collection.makeUrl( type, [parent] )" %}
@@ -848,15 +848,15 @@ layout: collection
 </dl>
 {% highlight javascript linenos %}
 	Falcon.baseApiUrl = "http://www.falconjs.com/"
-	var Owner = Falcon.Model.extend({"url": "owner.json"});
-	var Dog = Falcon.Model.extend({"url": "dog.json"});
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Owner = Falcon.Model.extend({"url": "owner.json"});
+var Dog = Falcon.Model.extend({"url": "dog.json"});
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var owner = new Owner({'id': 1});
-	var dogs = new Dogs( owner ); // Owner is the parent
+var owner = new Owner({'id': 1});
+var dogs = new Dogs( owner ); // Owner is the parent
 
-	console.log( dogs.makeUrl("GET") ); // => http://www.falconjs.com/owner/1/dog.json
-	console.log( dogs.makeUrl("GET", null) ); // => http://www.falconjs.com/dog.json
+console.log( dogs.makeUrl("GET") ); // => http://www.falconjs.com/owner/1/dog.json
+console.log( dogs.makeUrl("GET", null) ); // => http://www.falconjs.com/dog.json
 {% endhighlight %}
 {% assign methodName = "mixin" %}
 {% assign methodExample = "collection.mixin( mapping )" %}
@@ -871,37 +871,37 @@ layout: collection
 	<dd>The mapping to apply to each of the current models and any future models that are added to the collection.  This should be an object of values, observables, and functions to add to this collection's models.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var dogs = new Dogs([
-		{"name": "Fido"}
-	]);
+var dogs = new Dogs([
+	{"name": "Fido"}
+]);
 
-	dogs.mixin({
-		"color": "Black",
-		"is_tame": ko.observable( true ),
-		"bark": function() {
-			console.log(this.get("name") + " says woof!");
-		}
-	});
+dogs.mixin({
+	"color": "Black",
+	"is_tame": ko.observable( true ),
+	"bark": function() {
+		console.log(this.get("name") + " says woof!");
+	}
+});
 
-	dogs.append({"name": "Spot"});
+dogs.append({"name": "Spot"});
 
-	var fido = dogs.at( 0 );
-	var spot = dogs.at( 1 );
+var fido = dogs.at( 0 );
+var spot = dogs.at( 1 );
 
-	console.log( fido.get("name") ); // => Fido
-	console.log( fido.get("color") ); // => Black
-	console.log( ko.isObservable( fido.is_tame ) ); // => true
-	console.log( fido.get("is_tame") ); // => true
-	fido.bark(); // => Fido says woof!
+console.log( fido.get("name") ); // => Fido
+console.log( fido.get("color") ); // => Black
+console.log( ko.isObservable( fido.is_tame ) ); // => true
+console.log( fido.get("is_tame") ); // => true
+fido.bark(); // => Fido says woof!
 
-	console.log( spot.get("name") ); // => Spot
-	console.log( spot.get("color") ); // => Black
-	console.log( ko.isObservable( spot.is_tame ) ); // => true
-	console.log( spot.get("is_tame") ); // => true
-	spot.bark(); // => Spot says woof!
+console.log( spot.get("name") ); // => Spot
+console.log( spot.get("color") ); // => Black
+console.log( ko.isObservable( spot.is_tame ) ); // => true
+console.log( spot.get("is_tame") ); // => true
+spot.bark(); // => Spot says woof!
 {% endhighlight %}
 {% assign methodName = "models" %}
 {% assign methodExample = "collection.models()" %}
@@ -910,18 +910,18 @@ layout: collection
 	The internal observable array that contains all of the models added to this collection.
 </p>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var dogs = new Dogs([
-		{"name": "Fido"},
-		{"name": "Skip"},
-		{"name": "Bump"},
-		{"name": "Bucko"}
-	]);
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
 
-	console.log( ko.isObservable( dogs.models ) ); // => true 
-	console.log( dogs.models() );  // => [Dog, Dog, Dog, Dog]
+console.log( ko.isObservable( dogs.models ) ); // => true 
+console.log( dogs.models() );  // => [Dog, Dog, Dog, Dog]
 {% endhighlight %}
 {% assign methodName = "parse" %}
 {% assign methodExample = "collection.parse( data, options, xhr )" %}
@@ -939,45 +939,41 @@ layout: collection
 	<dt data-type="XmlHttpRequest">xhr</dt>
 	<dd>The XmlHttpRequest that was created when making this request</dd>
 </dl>
-{% highlight javascript linenos %}
-	// -------------------------------------
-	// Example Server Response JSON for GET /dog.json
-	// -------------------------------------
-	{
-		data: [
-			{"id": 1, "name": "Fido"},
-			{"id": 2, "name": "Spot"},
-			{"id": 3, "name": "Skip"}
-		],
-		created_at: "01/01/1970",
-		updated_at: "01/01/1970"
-	}
-
-
-	// -------------------------------------
-	// Javascript
-	// -------------------------------------
-	var Dog = Falcon.Model.extend({'url': "dog.json"});
-	var Dogs = Falcon.Collection.extend({
-		model: Dog,
-
-		// Example parse method, the array that is returned from 
-		// this will be passed into the collection's fill() method.
-		parse: function( response ) {
-			return response["data"];
-		}
-	});
-
-	var dogs = new Dogs();
-
-	// Get's the server data and runs the parse method
-	// Callback is called on complete
-	dogs.fetch(function(dogs) {
-		console.log( dogs.length() ); // => 3
-		console.log( dogs.at(0).get("id") ); // => 1
-		console.log( dogs.at(0).get("name") ); // => Fido
-	});
+{% highlight json linenos %}
+{
+	"data": [
+		{"id": 1, "name": "Fido"},
+		{"id": 2, "name": "Spot"},
+		{"id": 3, "name": "Skip"}
+	],
+	"created_at": "01/01/1970",
+	"updated_at": "01/01/1970"
+}
 {% endhighlight %}
+<div class="caption">Response JSON</div>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend({'url': "dog.json"});
+var Dogs = Falcon.Collection.extend({
+	model: Dog,
+
+	// Example parse method, the array that is returned from 
+	// this will be passed into the collection's fill() method.
+	parse: function( response ) {
+		return response["data"];
+	}
+});
+
+var dogs = new Dogs();
+
+// Get's the server data and runs the parse method
+// Callback is called on complete
+dogs.fetch(function(dogs) {
+	console.log( dogs.length() ); // => 3
+	console.log( dogs.at(0).get("id") ); // => 1
+	console.log( dogs.at(0).get("name") ); // => Fido
+});
+{% endhighlight %}
+<div class="caption">Application Javascript</div>
 {% assign methodName = "pluck" %}
 {% assign methodExample = "collection.pluck( attribute, [unwrap] )" %}
 {% assign returnType = "Array" %}
@@ -993,17 +989,17 @@ layout: collection
 	<dd>Flag that states if we should unwrap the values that are observables. This is true by default.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var dogs = new Dogs([
-		{"name": "Fido"},
-		{"name": "Skip"},
-		{"name": "Bump"},
-		{"name": "Bucko"}
-	]);
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
 
-	console.log(dogs.pluck("name")); // => [Fido, Skip, Bump, Bucko]
+console.log(dogs.pluck("name")); // => [Fido, Skip, Bump, Bucko]
 {% endhighlight %}
 {% assign methodName = "pop" %}
 {% assign methodExample = "collection.pop()" %}
@@ -1014,20 +1010,20 @@ layout: collection
 	Removes and returns the last model from this collection.  If this collection is empty, 'null' is returned instead.
 </p>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var dogs = new Dogs([
-		{"name": "Fido"},
-		{"name": "Skip"},
-		{"name": "Bump"},
-		{"name": "Bucko"}
-	]);
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
 
-	var last_dog = dogs.pop();
+var last_dog = dogs.pop();
 
-	console.log( dogs.length() ); // => 3
-	console.log( last_dog.get("name") ); // => Bucko
+console.log( dogs.length() ); // => 3
+console.log( last_dog.get("name") ); // => Bucko
 {% endhighlight %}
 {% assign methodName = "prepend" %}
 {% assign methodExample = "collection.prepend( items )" %}
@@ -1046,22 +1042,22 @@ layout: collection
 	<dd>An array of models to prepend to the beginning of this collection.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
 
-	var dogs = new Dogs();
+var dogs = new Dogs();
 
-	dogs.prepend({"name": "Fido"});
-	console.log( dogs.pluck("name") ); // => [Fido]
+dogs.prepend({"name": "Fido"});
+console.log( dogs.pluck("name") ); // => [Fido]
 
-	dogs.prepend( new Dog({name: "Spot"}) ); 
-	console.log( dogs.pluck("name") ); // => [Spot, Fido]
+dogs.prepend( new Dog({name: "Spot"}) ); 
+console.log( dogs.pluck("name") ); // => [Spot, Fido]
 
-	dogs.prepend([
-		{name: "Skip"},
-		{name: "Bump"}
-	]);
-	console.log( dogs.pluck("name") ); // => [Skip, Bump, Spot, Fido]
+dogs.prepend([
+	{name: "Skip"},
+	{name: "Bump"}
+]);
+console.log( dogs.pluck("name") ); // => [Skip, Bump, Spot, Fido]
 {% endhighlight %}
 {% assign methodName = "push" %}
 {% assign methodExample = "collection.push( items )" %}
@@ -1076,22 +1072,22 @@ layout: collection
 	<dd>A model to add to the collection</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
 
-	var dogs = new Dogs();
+var dogs = new Dogs();
 
-	dogs.push({"name": "Fido"});
-	console.log( dogs.pluck("name") ); // => [Fido]
+dogs.push({"name": "Fido"});
+console.log( dogs.pluck("name") ); // => [Fido]
 
-	dogs.push( new Dog({name: "Spot"}) ); 
-	console.log( dogs.pluck("name") ); // => [Fido, Spot]
+dogs.push( new Dog({name: "Spot"}) ); 
+console.log( dogs.pluck("name") ); // => [Fido, Spot]
 
-	dogs.push([
-		{name: "Skip"},
-		{name: "Bump"}
-	]);
-	console.log( dogs.pluck("name") ); // => [Fido, Spot, Skip, Bump]
+dogs.push([
+	{name: "Skip"},
+	{name: "Bump"}
+]);
+console.log( dogs.pluck("name") ); // => [Fido, Spot, Skip, Bump]
 {% endhighlight %}
 {% assign methodName = "remove" %}
 {% assign methodExample = "collection.remove( models )" %}
@@ -1114,35 +1110,35 @@ layout: collection
 	<dd>An iterator function to truth test each of this collection's models with. If the iterator is true, then the model is removed.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var fido = new Dog({"name": "Fido"});
-	var skip = new Dog({"name": "Skip"});
-	var bump = new Dog({"name": "Bump"});
-	var bucko = new Dog({"name": "Bucko"});
-	var spot = new Dog({"name": "Spot"});
-	var zeus = new Dog({"name": "Zeus"});
+var fido = new Dog({"name": "Fido"});
+var skip = new Dog({"name": "Skip"});
+var bump = new Dog({"name": "Bump"});
+var bucko = new Dog({"name": "Bucko"});
+var spot = new Dog({"name": "Spot"});
+var zeus = new Dog({"name": "Zeus"});
 
-	var dogs = new Dogs([fido, skip, bump, bucko, spot, zeus]);
+var dogs = new Dogs([fido, skip, bump, bucko, spot, zeus]);
 
-	dogs.remove( skip );
-	console.log( dogs.length() ); // => 5
-	console.log( dogs.any(skip) ); // => false
+dogs.remove( skip );
+console.log( dogs.length() ); // => 5
+console.log( dogs.any(skip) ); // => false
 
-	dogs.remove( [fido, spot] );
-	console.log( dogs.length() ); // => 3
-	console.log( dogs.any(fido) ); // => false
-	console.log( dogs.any(spot) ); // => false
+dogs.remove( [fido, spot] );
+console.log( dogs.length() ); // => 3
+console.log( dogs.any(fido) ); // => false
+console.log( dogs.any(spot) ); // => false
 
-	dogs.remove(function(dog) {
-		return dog.get("name").charAt(0) === "B";
-	});
-	console.log( dogs.length() ); // => 1
-	console.log( dogs.any(bump) ); // => false
-	console.log( dogs.any(bucko) ); // => false
+dogs.remove(function(dog) {
+	return dog.get("name").charAt(0) === "B";
+});
+console.log( dogs.length() ); // => 1
+console.log( dogs.any(bump) ); // => false
+console.log( dogs.any(bucko) ); // => false
 
-	console.log( dogs.any(zeus) ); // => true
+console.log( dogs.any(zeus) ); // => true
 {% endhighlight %}
 {% assign methodName = "reset" %}
 {% assign methodExample = "collection.reset()" %}
@@ -1153,21 +1149,21 @@ layout: collection
 	'resets' the internal observable array of this collection. This will make sure the model list is an observable array, has no elements, and the length of the collection is restored to zero.
 </p>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var dogs = new Dogs([
-		{"name": "Fido"},
-		{"name": "Skip"},
-		{"name": "Bump"},
-		{"name": "Bucko"}
-	]);
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
 
-	console.log( dogs.length() ); // => 4
+console.log( dogs.length() ); // => 4
 
-	dogs.reset();
+dogs.reset();
 
-	console.log( dogs.length() ); // => 0
+console.log( dogs.length() ); // => 0
 {% endhighlight %}
 {% assign methodName = "serialize" %}
 {% assign methodExample = "collection.serialize( [attributes] )" %}
@@ -1179,18 +1175,20 @@ layout: collection
 	<dd>The attributes that should be included in the serialization of each model in this collection. If none given, all attributes unique to each model is included.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var dogs = new Dogs([
-		{id: 1, "name": "Fido"},
-		{id: 2, "name": "Skip"},
-		{id: 3, "name": "Bump"}
-	]);
+var dogs = new Dogs([
+	{id: 1, "name": "Fido"},
+	{id: 2, "name": "Skip"},
+	{id: 3, "name": "Bump"}
+]);
 
-	console.log( dogs.serialize() ); // => [{id: 1, name: "Fido"}, {id: 2, name: "Skip"}, {id: 3, name: "Bump"}]
+// => [{id: 1, name: "Fido"}, {id: 2, name: "Skip"}, {id: 3, name: "Bump"}]
+console.log( dogs.serialize() ); 
 
-	console.log( dogs.serialize(["name"]) ); // => [{name: "Fido"}, {name: "Skip"}, {name: "Bump"}]
+// => [{name: "Fido"}, {name: "Skip"}, {name: "Bump"}]
+console.log( dogs.serialize(["name"]) ); 
 {% endhighlight %}
 {% assign methodName = "shift" %}
 {% assign methodExample = "collection.shift()" %}
@@ -1201,20 +1199,20 @@ layout: collection
 	Removes the first element from the collection and returns it.
 </p>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var dogs = new Dogs([
-		{"name": "Fido"},
-		{"name": "Skip"},
-		{"name": "Bump"},
-		{"name": "Bucko"}
-	]);
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
 
-	var first_dog = dogs.shift();
+var first_dog = dogs.shift();
 
-	console.log( dogs.length() ); // => 3
-	console.log( first_dog.get("name") ); // => Fido
+console.log( dogs.length() ); // => 3
+console.log( first_dog.get("name") ); // => Fido
 {% endhighlight %}
 {% assign methodName = "slice" %}
 {% assign methodExample = "collection.slice( start, [end] )" %}
@@ -1231,18 +1229,18 @@ layout: collection
 	<dd>An integer that specifies where to end the selection.  If omitted, all elements from the start position and to the end of the array will be selected. Use negative numbers to select from the end of an array</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var dogs = new Dogs([
-		{"name": "Fido"},
-		{"name": "Skip"},
-		{"name": "Bump"},
-		{"name": "Bucko"}
-	]);
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
 
-	console.log( dogs.slice( 1 ) ); // => [Skip, Bump, Bucko]
-	console.log( dogs.slice( 1, 3 ) );  // => [Skip, Bump]
+console.log( dogs.slice( 1 ) ); // => [Skip, Bump, Bucko]
+console.log( dogs.slice( 1, 3 ) );  // => [Skip, Bump]
 {% endhighlight %}
 {% assign methodName = "sort" %}
 {% assign methodExample = "collection.sort( comparator )" %}
@@ -1257,27 +1255,27 @@ layout: collection
 	<dd>A comparator function to sort the collection with.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var dogs = new Dogs([
-		{"name": "Fido"},
-		{"name": "Skip"},
-		{"name": "Bump"},
-		{"name": "Bucko"}
-	]);
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
 
-	// Sort names from A->Z
-	dogs.sort(function(dog_a, dog_b) {
-		name_a = dog_a.get("name");
-		name_b = dog_b.get("name");
+// Sort names from A->Z
+dogs.sort(function(dog_a, dog_b) {
+	name_a = dog_a.get("name");
+	name_b = dog_b.get("name");
 
-		if(name_a < name_b) { return -1; }
-		if(name_a > name_b) { return 1; }
-		return 0;
-	});
+	if(name_a < name_b) { return -1; }
+	if(name_a > name_b) { return 1; }
+	return 0;
+});
 
-	console.log( dogs.pluck("name") ); // => [Bucko, Bump, Fido, Skip]
+console.log( dogs.pluck("name") ); // => [Bucko, Bump, Fido, Skip]
 {% endhighlight %}
 {% assign methodName = "sync" %}
 {% assign methodExample = "collection.sync( type, [options] )" %}
@@ -1341,28 +1339,28 @@ layout: collection
 	</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend({"url": "dog.json"});
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Dog = Falcon.Model.extend({"url": "dog.json"});
+var Dogs = Falcon.Collection.extend({model: Dog});
 
-	var dogs = new Dogs();
+var dogs = new Dogs();
 
-	// Creates a GET ajax request that is sent to /dog.json
-	// Complete is always called, success is called if called if we found
-	// the dog on the server, otherwise error is called if something
-	// went wrong.
-	dogs.sync("GET", {
-		complete: function(dogs, data, xhr, status) {
-			console.log("Completed trying to find the Dogs.");
-		},
+// Creates a GET ajax request that is sent to /dog.json
+// Complete is always called, success is called if called if we found
+// the dog on the server, otherwise error is called if something
+// went wrong.
+dogs.sync("GET", {
+	complete: function(dogs, data, xhr, status) {
+		console.log("Completed trying to find the Dogs.");
+	},
 
-		success: function(dogs, data, status, xhr) {
-			console.log("Successfully found the Dogs!");
-		},
+	success: function(dogs, data, status, xhr) {
+		console.log("Successfully found the Dogs!");
+	},
 
-		error: function(dogs, response, xhr ) {
-			console.log("Couldn't find the dogs :(");
-		}
-	});
+	error: function(dogs, response, xhr ) {
+		console.log("Couldn't find the dogs :(");
+	}
+});
 {% endhighlight %}
 {% assign methodName = "unshift" %}
 {% assign methodExample = "collection.unshift( items )" %}
@@ -1381,22 +1379,22 @@ layout: collection
 	<dd>An array of models to prepend to the beginning of this collection.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
 
-	var dogs = new Dogs();
+var dogs = new Dogs();
 
-	dogs.unshift({"name": "Fido"});
-	console.log( dogs.pluck("name") ); // => [Fido]
+dogs.unshift({"name": "Fido"});
+console.log( dogs.pluck("name") ); // => [Fido]
 
-	dogs.unshift( new Dog({name: "Spot"}) ); 
-	console.log( dogs.pluck("name") ); // => [Spot, Fido]
+dogs.unshift( new Dog({name: "Spot"}) ); 
+console.log( dogs.pluck("name") ); // => [Spot, Fido]
 
-	dogs.unshift([
-		{name: "Skip"},
-		{name: "Bump"}
-	]);
-	console.log( dogs.pluck("name") ); // => [Skip, Bump, Spot, Fido]
+dogs.unshift([
+	{name: "Skip"},
+	{name: "Bump"}
+]);
+console.log( dogs.pluck("name") ); // => [Skip, Bump, Spot, Fido]
 {% endhighlight %}
 {% assign methodName = "without" %}
 {% assign methodExample = "collection.without( iterator )" %}
@@ -1417,23 +1415,23 @@ layout: collection
 	<dd>A truth test iterator to check each model against.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var fido = new Dog({"id": 1, "name": "Fido"});
-	var skip = new Dog({"id": 2, "name": "Skip"});
-	var bump = new Dog({"id": 3, "name": "Bump"});
-	var bucko = new Dog({"id": 4, "name": "Bucko"});
+var fido = new Dog({"id": 1, "name": "Fido"});
+var skip = new Dog({"id": 2, "name": "Skip"});
+var bump = new Dog({"id": 3, "name": "Bump"});
+var bucko = new Dog({"id": 4, "name": "Bucko"});
 
-	var dogs = new Dogs([ fido, skip, bump, bucko ]);
+var dogs = new Dogs([ fido, skip, bump, bucko ]);
 
-	var without_skip = dogs.without( skip );
-	var without_bump = dogs.without( 3 );
-	var without_b_dogs = dogs.without(function(dog) {
-		return dog.get("name").charAt(0) === "B";
-	});
+var without_skip = dogs.without( skip );
+var without_bump = dogs.without( 3 );
+var without_b_dogs = dogs.without(function(dog) {
+	return dog.get("name").charAt(0) === "B";
+});
 
-	console.log( without_skip ); // => [Fido, Bump, Bucko]
-	console.log( without_bump ); // => [Fido, Skip, Bucko]
-	console.log( without_b_dogs ); // => [Fido, Skip]
+console.log( without_skip ); // => [Fido, Bump, Bucko]
+console.log( without_bump ); // => [Fido, Skip, Bucko]
+console.log( without_b_dogs ); // => [Fido, Skip]
 {% endhighlight %}

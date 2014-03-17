@@ -17,13 +17,13 @@
 </dl>
 {% highlight javascript linenos %}
 	Falcon.baseApiUrl = "http://www.falconjs.com/"
-	var Owner = Falcon.Model.extend({"url": "owner.json"});
-	var Dog = Falcon.Model.extend({"url": "dog.json"});
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Owner = Falcon.Model.extend({"url": "owner.json"});
+var Dog = Falcon.Model.extend({"url": "dog.json"});
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var owner = new Owner({'id': 1});
-	var dogs = new Dogs( owner ); // Owner is the parent
+var owner = new Owner({'id': 1});
+var dogs = new Dogs( owner ); // Owner is the parent
 
-	console.log( dogs.makeUrl("GET") ); // => http://www.falconjs.com/owner/1/dog.json
-	console.log( dogs.makeUrl("GET", null) ); // => http://www.falconjs.com/dog.json
+console.log( dogs.makeUrl("GET") ); // => http://www.falconjs.com/owner/1/dog.json
+console.log( dogs.makeUrl("GET", null) ); // => http://www.falconjs.com/dog.json
 {% endhighlight %}

@@ -39,104 +39,104 @@
 </dl>
 
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
 
-	var dogs = new Dogs([
-		{name: "Skip"},
-		{name: "Spot"}
-	]);
+var dogs = new Dogs([
+	{name: "Skip"},
+	{name: "Spot"}
+]);
 
-	console.log( dogs.pluck("name") ); // [Skip, Spot]
+console.log( dogs.pluck("name") ); // [Skip, Spot]
 
-	dogs.fill([
-		{'name': "Fido"},
-		{'name': "Bump"}
-	]);
+dogs.fill([
+	{'name': "Fido"},
+	{'name': "Bump"}
+]);
 
-	console.log( dogs.pluck("name") ); // [Fido, Bump]
+console.log( dogs.pluck("name") ); // [Fido, Bump]
 {% endhighlight %}
 <div class="caption">Example of default fill method</div>
 
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
 
-	var dogs = new Dogs([
-		{name: "Skip"},
-		{name: "Spot"}
-	]);
+var dogs = new Dogs([
+	{name: "Skip"},
+	{name: "Spot"}
+]);
 
-	console.log( dogs.pluck("name") ); // [Skip, Spot]
+console.log( dogs.pluck("name") ); // [Skip, Spot]
 
-	dogs.fill([
-		{'name': "Fido"},
-		{'name': "Bump"}
-	], {method: 'append'});
+dogs.fill([
+	{'name': "Fido"},
+	{'name': "Bump"}
+], {method: 'append'});
 
-	console.log( dogs.pluck("name") ); // [Skip, Spot, Fido, Bump]
+console.log( dogs.pluck("name") ); // [Skip, Spot, Fido, Bump]
 {% endhighlight %}
 <div class="caption">Example of append fill method</div>
 
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
 
-	var dogs = new Dogs([
-		{name: "Skip"},
-		{name: "Spot"}
-	]);
+var dogs = new Dogs([
+	{name: "Skip"},
+	{name: "Spot"}
+]);
 
-	console.log( dogs.pluck("name") ); // [Skip, Spot]
+console.log( dogs.pluck("name") ); // [Skip, Spot]
 
-	dogs.fill([
-		{'name': "Fido"},
-		{'name': "Bump"}
-	], {method: 'prepend'});
+dogs.fill([
+	{'name': "Fido"},
+	{'name': "Bump"}
+], {method: 'prepend'});
 
-	console.log( dogs.pluck("name") ); // [Fido, Bump, Skip, Spot]
+console.log( dogs.pluck("name") ); // [Fido, Bump, Skip, Spot]
 {% endhighlight %}
 <div class="caption">Example of prepend fill method</div>
 
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
 
-	var dogs = new Dogs([
-		{id: 1, name: "Skip"},
-		{id: 2, name: "Spot"}
-	]);
+var dogs = new Dogs([
+	{id: 1, name: "Skip"},
+	{id: 2, name: "Spot"}
+]);
 
-	console.log( dogs.pluck("name") ); // [Skip, Spot]
+console.log( dogs.pluck("name") ); // [Skip, Spot]
 
-	dogs.fill([
-		{id: 2, 'name': "Fido"},
-		{id: 3, 'name': "Bump"}
-	], {method: 'merge'});
+dogs.fill([
+	{id: 2, 'name': "Fido"},
+	{id: 3, 'name': "Bump"}
+], {method: 'merge'});
 
-	console.log( dogs.pluck("name") ); // [Skip, Fido, Bump]
+console.log( dogs.pluck("name") ); // [Skip, Fido, Bump]
 {% endhighlight %}
 <div class="caption">Example of merge fill method</div>
 
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
 
-	var dogs = new Dogs([
-		{name: "Skip"},
-		{name: "Spot"}
-	]);
+var dogs = new Dogs([
+	{name: "Skip"},
+	{name: "Spot"}
+]);
 
-	console.log( dogs.pluck("name") ); // [Skip, Spot]
+console.log( dogs.pluck("name") ); // [Skip, Spot]
 
-	dogs.fill([
-		{'name': "Fido"},
-		{'name': "Bump"}
-	], {
-		method: 'insert',
-		insert_index: 1
-	});
+dogs.fill([
+	{'name': "Fido"},
+	{'name': "Bump"}
+], {
+	method: 'insert',
+	insert_index: 1
+});
 
-	console.log( dogs.pluck("name") ); // [Skip, Fido, Bump, Spot]
+console.log( dogs.pluck("name") ); // [Skip, Fido, Bump, Spot]
 {% endhighlight %}
 <div class="caption">Example of insert fill method</div>

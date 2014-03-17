@@ -19,19 +19,19 @@
 	<dd>A model to look up in the collection</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var my_dogs = new Dogs([
-		{"name": "Fido"},
-		{"name": "Skip"},
-		{"name": "Bump"},
-		{"name": "Bucko"}
-	]);
+var my_dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
 
-	var dogs_with_b_names = my_dogs.filter(function(dog) {
-		return dog.get("name").charAt(0) === "B";
-	});
+var dogs_with_b_names = my_dogs.filter(function(dog) {
+	return dog.get("name").charAt(0) === "B";
+});
 
-	console.log( dogs_with_b_names ); // [Bump, Bucko]
+console.log( dogs_with_b_names ); // [Bump, Bucko]
 {% endhighlight %}

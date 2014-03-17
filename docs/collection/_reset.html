@@ -7,19 +7,19 @@
 	'resets' the internal observable array of this collection. This will make sure the model list is an observable array, has no elements, and the length of the collection is restored to zero.
 </p>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var dogs = new Dogs([
-		{"name": "Fido"},
-		{"name": "Skip"},
-		{"name": "Bump"},
-		{"name": "Bucko"}
-	]);
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
 
-	console.log( dogs.length() ); // => 4
+console.log( dogs.length() ); // => 4
 
-	dogs.reset();
+dogs.reset();
 
-	console.log( dogs.length() ); // => 0
+console.log( dogs.length() ); // => 0
 {% endhighlight %}

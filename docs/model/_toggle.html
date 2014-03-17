@@ -11,17 +11,17 @@
 	<dd>The attribute in the model to look up.</dd>
 </dl>
 {% highlight javascript linenos%}
-	var Dog = Falcon.Model.extend({
-		defaults: {
-			"is_tame": true
-		}
-	});
+var Dog = Falcon.Model.extend({
+	defaults: {
+		"is_tame": true
+	}
+});
 
-	var dog = new Dog({"is_tame": true});
+var dog = new Dog({"is_tame": true});
 
-	console.log( dog.get("is_tame") ); // => true
+console.log( dog.get("is_tame") ); // => true
 
-	dog.toggle("is_tame");
+dog.toggle("is_tame");
 
-	console.log( dog.get("is_tame") ); // => false
+console.log( dog.get("is_tame") ); // => false
 {% endhighlight %}

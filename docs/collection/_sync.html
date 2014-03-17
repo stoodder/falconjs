@@ -60,26 +60,26 @@
 	</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend({"url": "dog.json"});
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Dog = Falcon.Model.extend({"url": "dog.json"});
+var Dogs = Falcon.Collection.extend({model: Dog});
 
-	var dogs = new Dogs();
+var dogs = new Dogs();
 
-	// Creates a GET ajax request that is sent to /dog.json
-	// Complete is always called, success is called if called if we found
-	// the dog on the server, otherwise error is called if something
-	// went wrong.
-	dogs.sync("GET", {
-		complete: function(dogs, data, xhr, status) {
-			console.log("Completed trying to find the Dogs.");
-		},
+// Creates a GET ajax request that is sent to /dog.json
+// Complete is always called, success is called if called if we found
+// the dog on the server, otherwise error is called if something
+// went wrong.
+dogs.sync("GET", {
+	complete: function(dogs, data, xhr, status) {
+		console.log("Completed trying to find the Dogs.");
+	},
 
-		success: function(dogs, data, status, xhr) {
-			console.log("Successfully found the Dogs!");
-		},
+	success: function(dogs, data, status, xhr) {
+		console.log("Successfully found the Dogs!");
+	},
 
-		error: function(dogs, response, xhr ) {
-			console.log("Couldn't find the dogs :(");
-		}
-	});
+	error: function(dogs, response, xhr ) {
+		console.log("Couldn't find the dogs :(");
+	}
+});
 {% endhighlight %}

@@ -13,14 +13,14 @@
 	<dd>The owner of this collection, used for generating urls when making requests to the server.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({
-		model: Dog,
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({
+	model: Dog,
 
-		initialize: function() {
-			console.log("Collecting Dogs");
-		}
-	});
+	initialize: function() {
+		console.log("Collecting Dogs");
+	}
+});
 
-	new Dogs(); // => Collecting Dogs
+new Dogs(); // => Collecting Dogs
 {% endhighlight %}

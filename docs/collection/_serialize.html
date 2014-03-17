@@ -8,16 +8,18 @@
 	<dd>The attributes that should be included in the serialization of each model in this collection. If none given, all attributes unique to each model is included.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var dogs = new Dogs([
-		{id: 1, "name": "Fido"},
-		{id: 2, "name": "Skip"},
-		{id: 3, "name": "Bump"}
-	]);
+var dogs = new Dogs([
+	{id: 1, "name": "Fido"},
+	{id: 2, "name": "Skip"},
+	{id: 3, "name": "Bump"}
+]);
 
-	console.log( dogs.serialize() ); // => [{id: 1, name: "Fido"}, {id: 2, name: "Skip"}, {id: 3, name: "Bump"}]
+// => [{id: 1, name: "Fido"}, {id: 2, name: "Skip"}, {id: 3, name: "Bump"}]
+console.log( dogs.serialize() ); 
 
-	console.log( dogs.serialize(["name"]) ); // => [{name: "Fido"}, {name: "Skip"}, {name: "Bump"}]
+// => [{name: "Fido"}, {name: "Skip"}, {name: "Bump"}]
+console.log( dogs.serialize(["name"]) ); 
 {% endhighlight %}

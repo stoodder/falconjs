@@ -5,14 +5,14 @@
 	The id of this model. By default this is null unless it is set by the server. The id expected to be a Number or a String.
 </p>
 {% highlight javascript linenos%}
-	var Dog = Falcon.Model.extend({
-		defaults: {
-			"name": "Fido"
-		}
-	});
+var Dog = Falcon.Model.extend({
+	defaults: {
+		"name": "Fido"
+	}
+});
 
-	var dog = new Dog({id: 1});
+var dog = new Dog({id: 1});
 
-	console.log( dog.id ); // => 1
-	console.log( dog.get("id") ); // => 1
+console.log( dog.id ); // => 1
+console.log( dog.get("id") ); // => 1
 {% endhighlight %}

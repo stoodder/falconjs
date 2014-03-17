@@ -11,16 +11,16 @@
 	<dd>zero-based index of the model to look up in the collection</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
 
-	var dogs = new Dogs([
-		{"name": "Fido"},
-		{"name": "Skip"},
-		{"name": "Bump"},
-		{"name": "Bucko"}
-	]);
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
 
-	console.log( dogs.at(1).get("name") ); // => Skip
-	console.log( dogs.at(5) ); // => null
+console.log( dogs.at(1).get("name") ); // => Skip
+console.log( dogs.at(5) ); // => null
 {% endhighlight %}

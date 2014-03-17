@@ -1,5 +1,5 @@
 
-* Add other menu things (tests, gh stars, etc)
+* Add other menu things (gh stars, etc)
 * Add New Model Methods
 * Add New Collection Methods
 * Add New View Methods
@@ -17,3 +17,5 @@
 * Add defaults and observables documentation for views
 * Document the beliefs and architecture diagram
 * Blog about new features of 0.10.0
+
+* Update getting started docs to cover the WHY and make sure to include all new changes (configuration, conductor, adapter)

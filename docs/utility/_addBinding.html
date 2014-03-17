@@ -23,24 +23,24 @@
 	<dd>The function to apply to the 'update' key in the binding definition.</dd>
 </dl>
 {% highlight javascript linenos %}
-	Falcon.addBinding("slideVisible", {
-		update: function(element, valueAccessor, allBindingsAccessor) {
-			// First get the latest data that we're bound to
-			var value = valueAccessor(), allBindings = allBindingsAccessor();
+Falcon.addBinding("slideVisible", {
+	update: function(element, valueAccessor, allBindingsAccessor) {
+		// First get the latest data that we're bound to
+		var value = valueAccessor(), allBindings = allBindingsAccessor();
 
-			// Next, whether or not the supplied model property is observable, get its current value
-			var valueUnwrapped = ko.unwrap(value);
+		// Next, whether or not the supplied model property is observable, get its current value
+		var valueUnwrapped = ko.unwrap(value);
 
-			// Grab some more data from another binding property
-			// 400ms is default duration unless otherwise specified
-			var duration = allBindings.slideDuration || 400; 
+		// Grab some more data from another binding property
+		// 400ms is default duration unless otherwise specified
+		var duration = allBindings.slideDuration || 400; 
 
-			// Now manipulate the DOM element
-			if (valueUnwrapped == true) {
-				$(element).slideDown(duration); // Make the element visible
-			} else {
-				$(element).slideUp(duration);   // Make the element invisible
-			}
+		// Now manipulate the DOM element
+		if (valueUnwrapped == true) {
+			$(element).slideDown(duration); // Make the element visible
+		} else {
+			$(element).slideUp(duration);   // Make the element invisible
 		}
-	});
+	}
+});
 {% endhighlight %}

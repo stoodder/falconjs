@@ -11,15 +11,15 @@
 	<dd>The Object to test</dd>
 </dl>
 {% highlight javascript linenos %}
-	var array		= [];
-	var object		= new Falcon.Object();
-	var collection	= new Falcon.Collection();
-	var model 		= new Falcon.Model();
-	var view 		= new Falcon.View();
+var array		= [];
+var object		= new Falcon.Object();
+var collection	= new Falcon.Collection();
+var model 		= new Falcon.Model();
+var view 		= new Falcon.View();
 
-	console.log( Falcon.isDataObject(array) );// => false
-	console.log( Falcon.isDataObject(object) );// => false
-	console.log( Falcon.isDataObject(model) );// => true
-	console.log( Falcon.isDataObject(collection) ); // => true
-	console.log( Falcon.isDataObject(view) );// => false
+console.log( Falcon.isDataObject(array) );// => false
+console.log( Falcon.isDataObject(object) );// => false
+console.log( Falcon.isDataObject(model) );// => true
+console.log( Falcon.isDataObject(collection) ); // => true
+console.log( Falcon.isDataObject(view) );// => false
 {% endhighlight %}

@@ -25,25 +25,25 @@
 	<dd>The iterator to truth test each model against</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var fido = new Dog({id: 1, "name": "Fido"});
-	var skip = new Dog({id: 2, "name": "Skip"});
-	var bump = new Dog({id: 3, "name": "Bump"});
-	var bucko = new Dog({id: 4, "name": "Bucko"});
-	var spot = new Dog({id: 5, "name": "Spot"});
+var fido = new Dog({id: 1, "name": "Fido"});
+var skip = new Dog({id: 2, "name": "Skip"});
+var bump = new Dog({id: 3, "name": "Bump"});
+var bucko = new Dog({id: 4, "name": "Bucko"});
+var spot = new Dog({id: 5, "name": "Spot"});
 
-	var dogs = new Dogs([ fido, skip ]);
+var dogs = new Dogs([ fido, skip ]);
 
-	dogs.insert( bump, skip ); // insert bump before skip
-	console.log( dogs.pluck("name") ); // [Fido, Bump, Skip]
+dogs.insert( bump, skip ); // insert bump before skip
+console.log( dogs.pluck("name") ); // [Fido, Bump, Skip]
 
-	dogs.insert( bucko, 2 ); // insert bucko before skip
-	console.log( dogs.pluck("name") ); // [Fido, Bump, Bucko, Skip]
+dogs.insert( bucko, 2 ); // insert bucko before skip
+console.log( dogs.pluck("name") ); // [Fido, Bump, Bucko, Skip]
 
-	dogs.insert( spot, function(dog) {
-		return dog.get("name") === "Bump";
-	});
-	console.log( dogs.pluck("name") ); // [Fido, Spot, Bump, Bucko, Skip]
+dogs.insert( spot, function(dog) {
+	return dog.get("name") === "Bump";
+});
+console.log( dogs.pluck("name") ); // [Fido, Spot, Bump, Bucko, Skip]
 {% endhighlight %}

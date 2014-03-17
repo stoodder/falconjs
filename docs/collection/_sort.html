@@ -11,25 +11,25 @@
 	<dd>A comparator function to sort the collection with.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var dogs = new Dogs([
-		{"name": "Fido"},
-		{"name": "Skip"},
-		{"name": "Bump"},
-		{"name": "Bucko"}
-	]);
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
 
-	// Sort names from A->Z
-	dogs.sort(function(dog_a, dog_b) {
-		name_a = dog_a.get("name");
-		name_b = dog_b.get("name");
+// Sort names from A->Z
+dogs.sort(function(dog_a, dog_b) {
+	name_a = dog_a.get("name");
+	name_b = dog_b.get("name");
 
-		if(name_a < name_b) { return -1; }
-		if(name_a > name_b) { return 1; }
-		return 0;
-	});
+	if(name_a < name_b) { return -1; }
+	if(name_a > name_b) { return 1; }
+	return 0;
+});
 
-	console.log( dogs.pluck("name") ); // => [Bucko, Bump, Fido, Skip]
+console.log( dogs.pluck("name") ); // => [Bucko, Bump, Fido, Skip]
 {% endhighlight %}

@@ -25,26 +25,26 @@
 	<dd>An optional set of options to pass into the 'sync' method when deleting the model from the server</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend({url: "dog.json"});
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Dog = Falcon.Model.extend({url: "dog.json"});
+var Dogs = Falcon.Collection.extend({model: Dog});
 
-	var fido = new Dog({"id": 1, "name": "Fido"});
-	var spot = new Dog({"id": 2, "name": "Spot"});
-	var skip = new Dog({"id": 3, "name": "Skip"});
+var fido = new Dog({"id": 1, "name": "Fido"});
+var spot = new Dog({"id": 2, "name": "Spot"});
+var skip = new Dog({"id": 3, "name": "Skip"});
 
-	var dogs = new Dogs([ fido, spot, skip ]);
+var dogs = new Dogs([ fido, spot, skip ]);
 
-	// Sends a DELETE request to '/dog/{dog_id}.json'. Upon success, removes
-	// the specific model from the collection.
+// Sends a DELETE request to '/dog/{dog_id}.json'. Upon success, removes
+// the specific model from the collection.
 
-	// deletes fido
-	dogs.destroy(fido); 
+// deletes fido
+dogs.destroy(fido); 
 
-	 // deletes spot
-	dogs.destroy(2);
+ // deletes spot
+dogs.destroy(2);
 
-	 // deletes skip
-	dogs.destroy(function(dog) {
-		return dog.get("name") === "Skip";
-	});
+ // deletes skip
+dogs.destroy(function(dog) {
+	return dog.get("name") === "Skip";
+});
 {% endhighlight %}

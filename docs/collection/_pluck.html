@@ -13,15 +13,15 @@
 	<dd>Flag that states if we should unwrap the values that are observables. This is true by default.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var dogs = new Dogs([
-		{"name": "Fido"},
-		{"name": "Skip"},
-		{"name": "Bump"},
-		{"name": "Bucko"}
-	]);
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
 
-	console.log(dogs.pluck("name")); // => [Fido, Skip, Bump, Bucko]
+console.log(dogs.pluck("name")); // => [Fido, Skip, Bump, Bucko]
 {% endhighlight %}

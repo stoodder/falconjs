@@ -13,21 +13,21 @@
 	<dd>Optionally, the context to apply to the iterator function.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var dogs = new Dogs([
-		{"name": "Fido"},
-		{"name": "Skip"},
-		{"name": "Bump"},
-		{"name": "Bucko"}
-	]);
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
 
-	// => Dog's name is Fido
-	// => Dog's name is Skip
-	// => Dog's name is Bump
-	// => Dog's name is Bucko
-	dogs.each(function(dog) {
-		console.log("Dog's name is " + dog.get("name") );
-	});
+// => Dog's name is Fido
+// => Dog's name is Skip
+// => Dog's name is Bump
+// => Dog's name is Bucko
+dogs.each(function(dog) {
+	console.log("Dog's name is " + dog.get("name") );
+});
 {% endhighlight %}

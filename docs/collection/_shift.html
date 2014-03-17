@@ -7,18 +7,18 @@
 	Removes the first element from the collection and returns it.
 </p>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var dogs = new Dogs([
-		{"name": "Fido"},
-		{"name": "Skip"},
-		{"name": "Bump"},
-		{"name": "Bucko"}
-	]);
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
 
-	var first_dog = dogs.shift();
+var first_dog = dogs.shift();
 
-	console.log( dogs.length() ); // => 3
-	console.log( first_dog.get("name") ); // => Fido
+console.log( dogs.length() ); // => 3
+console.log( first_dog.get("name") ); // => Fido
 {% endhighlight %}

@@ -5,61 +5,68 @@ layout: bindings
 {% assign methodExample = 'data-bind="view: my_view_property"' %}
 {% include methodOverview.html %}
 <p>Method used to handle Falcon.View obects. This will handle fetching a view's viewmodel and html template.  This method expects to use the native Knockout templating engine.</p>
+
 {% highlight javascript linenos %}
-	var MyView = Falcon.View.extend({url: '#my_view_template'});
-	Falcon.apply({my_view: new MyView()}, '#application');
+var MyView = Falcon.View.extend({url: '#my_view_template'});
+Falcon.apply({my_view: new MyView()}, '#application');
 {% endhighlight %}
 <div class="caption">Application Javascript</div>
+
 {% highlight html linenos %}
-	<div id="application">
-		Who's View is this?!
-		<br />
-		<!-- ko view: my_view --><!-- /ko -->
-	</div>
-	<template id="my_view_template">
-		This is my View!
-	</template>
+<div id="application">
+	Who's View is this?!
+	<br />
+	<!-- ko view: my_view --><!-- /ko -->
+</div>
+<template id="my_view_template">
+	This is my View!
+</template>
 {% endhighlight %}
 <div class="caption">Application HTML</div>
+
 {% highlight text linenos %}
-	Who's View is this?!
-	This is my View!
+Who's View is this?!
+This is my View!
 {% endhighlight %}
 <div class="caption">On-screen rendered output</div>
 {% assign methodName = "foreach" %}
 {% include methodOverview.html %}
 <p>This is the same as the <a href="http://knockoutjs.com/documentation/foreach-binding.html" alt="Knockout's Foreach binding">Knockout's Foreach binding</a> except that it has been modified to handle Falcon Collection's as well</p>
 {% highlight javascript linenos %}
-	var Dogs = Falcon.Collection.extend({ ... });
-	
-	Falcon.apply({
-		dogs: new Dogs(),
-		cats: ko.observableArray([])
-	}, '#application');
+var Dogs = Falcon.Collection.extend({ ... });
+
+Falcon.apply({
+	dogs: new Dogs(),
+	cats: ko.observableArray([])
+}, '#application');
 {% endhighlight %}
 <div class="caption">Application Javascript</div>
 {% highlight html linenos %}
-	<div id="application">
-		<div data-bind="foreach: dogs"> ... A List of Dogs ...</div>
-		<div data-bind="foreach: cats"> ... A List of Cats ...</div>
-	</div>
+<div id="application">
+	<div data-bind="foreach: dogs"> ... A List of Dogs ...</div>
+	<div data-bind="foreach: cats"> ... A List of Cats ...</div>
+</div>
 {% endhighlight %}
 <div class="caption">Application HTML</div>
 {% assign methodName = "log" %}
 {% include methodOverview.html %}
 <p>This is a helper binding that can be used to dump whatever is passed into it, into the browser console. Useful for debugging and understanding context</p>
+
 {% highlight javascript linenos %}
-	var hello_world = ko.observable("Hello World");
+var hello_world = ko.observable("Hello World");
 {% endhighlight %}
 <div class="caption">Application Javascript</div>
+
 {% highlight html linenos %}
-	<!-- ko log: hello_world --><!-- /ko -->
+<!-- ko log: hello_world --><!-- /ko -->
 {% endhighlight %}
 <div class="caption">Application HTML</div>
+
 {% highlight console linenos %}
-	=> Hello World
+=> Hello World
 {% endhighlight %}
 <div class="caption">Console Output</div>
+
 {% assign methodName = "options" %}
 {% assign methodExample = false %}
 {% include methodOverview.html %}

@@ -11,12 +11,12 @@
 	<dd>The options to pass into the 'sync' method</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend({ url: "dog.json" });
+var Dog = Falcon.Model.extend({ url: "dog.json" });
 
-	var dog = new Dog({name: "Fido"});
+var dog = new Dog({name: "Fido"});
 
-	// Create a dog
-	// Sends the data {"name": "Fido"} to '/dog.json'
-	// If using the jQuery adapter, this will be an ajax POST to '/dog.json'
-	dog.create();
+// Create a dog
+// Sends the data {"name": "Fido"} to '/dog.json'
+// If using the jQuery adapter, this will be an ajax POST to '/dog.json'
+dog.create();
 {% endhighlight %}

@@ -14,12 +14,31 @@
 	font-size: 28px
 	line-height: 28px
 
+	a:hover
+		color: $red
+
+		h1,
+		.section-method,
+		.section-return,
+		.section-return-type
+			color: $red
+
+	a
+		text-decoration: none
+		color: inherit
+
 	h1
 		margin: 0px
 		padding: 0px
 		font-weight: 400	
 		font-size: 32px
-		line-height: 32px	
+		line-height: 32px
+		color: $black
+
+	small
+		font-size: 14px
+		color: $grey-darkest
+		font-weight: 200
 
 	.section-method,
 	.section-return
@@ -34,16 +53,6 @@
 		position: absolute
 		right: 0px
 		bottom: 10px
-
-		a:after
-			content: " →"
-
-		a:hover
-			color: $red
-
-		a
-			color: $grey
-			text-decoration: none
 
 	.section-return-type:after
 		content: " - "

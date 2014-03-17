@@ -5,12 +5,12 @@
 	Initializes this class, this is called within the default constructor and is expected to be overridden by inheriting classes.  Internally this also called the Falcon.Object constructor to in initialize any 'defaults' or 'observables'.  Any arguments that are passed into the native constructor will also be passed in as the arguments for the initialize method.
 </p>
 {% highlight javascript linenos %}
-	var DogView = Falcon.View.extend({
-		initialize: function()
-		{
-			console.log("Initialized the Dog View");
-		}
-	});
+var DogView = Falcon.View.extend({
+	initialize: function()
+	{
+		console.log("Initialized the Dog View");
+	}
+});
 
-	new DogView(); // => Initialized the Dog View
+new DogView(); // => Initialized the Dog View
 {% endhighlight %}

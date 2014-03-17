@@ -13,23 +13,23 @@
 	<dd> An override of the parent to set in the resultant collection. If 'null' is explicitly given, then the resultant collection will be parent-free</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Owner = Falcon.Model.extend();
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({model: Dog});
+var Owner = Falcon.Model.extend();
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
 
-	var owner = new Owner();
-	var dogs = new Dogs([
-		{"name": "Fido"},
-		{"name": "Skip"},
-		{"name": "Bump"},
-		{"name": "Bucko"}
-	], owner);
+var owner = new Owner();
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+], owner);
 
-	var dogs_clone = dogs.clone(null);
+var dogs_clone = dogs.clone(null);
 
-	console.log( dogs === dogs_clone ); // => false
-	console.log( dogs.length() === dogs_clone.length() ); // => true
-	console.log( dogs.at(2) === dogs_clone.at(2) ); // => false
-	console.log( dogs.parent === owner); // => true
-	console.log( dogs_clone.parent === null); // => true
+console.log( dogs === dogs_clone ); // => false
+console.log( dogs.length() === dogs_clone.length() ); // => true
+console.log( dogs.at(2) === dogs_clone.at(2) ); // => false
+console.log( dogs.parent === owner); // => true
+console.log( dogs_clone.parent === null); // => true
 {% endhighlight %}

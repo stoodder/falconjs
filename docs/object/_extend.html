@@ -12,19 +12,19 @@
 	<dd>Static properties for a given object</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Object.extend({
-		bark: function()
-		{
-			console.log("The dog barks");
-		}
-	},{
-		says: function() {
-			console.log("Woof!");
-		}
-	});
+var Dog = Falcon.Object.extend({
+	bark: function()
+	{
+		console.log("The dog barks");
+	}
+},{
+	says: function() {
+		console.log("Woof!");
+	}
+});
 
-	var my_dog = new Dog();
-	
-	Dog.says(); // => Woof!
-	my_dog.bark(); // => The dog barks
+var my_dog = new Dog();
+
+Dog.says(); // => Woof!
+my_dog.bark(); // => The dog barks
 {% endhighlight %}

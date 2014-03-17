@@ -11,20 +11,20 @@
 	<dd>The attribute to look up</dd>
 </dl>
 {% highlight javascript linenos%}
-	var Dog = Falcon.Model.extend({
-		defaults: {
-			"name": "Fido"
-		},
+var Dog = Falcon.Model.extend({
+	defaults: {
+		"name": "Fido"
+	},
 
-		observables: {
-			"hello": "world"
-		}
-	});
+	observables: {
+		"hello": "world"
+	}
+});
 
-	var dog = new Dog();
+var dog = new Dog();
 
-	console.log( ko.isObservable( dog.name ) ); // => false
-	console.log( ko.isObservable( dog.hello ) ); // => true
-	console.log( dog.get("name") ); // => Fido
-	console.log( dog.get("hello") ); // => world
+console.log( ko.isObservable( dog.name ) ); // => false
+console.log( ko.isObservable( dog.hello ) ); // => true
+console.log( dog.get("name") ); // => Fido
+console.log( dog.get("hello") ); // => world
 {% endhighlight %}

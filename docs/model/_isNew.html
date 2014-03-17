@@ -7,17 +7,17 @@
 	Method used to determine if this model is 'new' or not. A model is deemed new if no id has been set (it's still null).
 </p>
 {% highlight javascript linenos%}
-	var Dog = Falcon.Model.extend({
-		defaults: {
-			"name": "Fido"
-		}
-	});
+var Dog = Falcon.Model.extend({
+	defaults: {
+		"name": "Fido"
+	}
+});
 
-	var dog = new Dog()
+var dog = new Dog()
 
-	console.log( dog.isNew() ); // => true
+console.log( dog.isNew() ); // => true
 
-	dog.set("id", 1)
+dog.set("id", 1)
 
-	console.log( dog.isNew() ); // => false
+console.log( dog.isNew() ); // => false
 {% endhighlight %}

@@ -19,24 +19,24 @@
 	<dd>A model to compare against each of the collection's models using an id-based comparison.</dd>
 </dl>
 {% highlight javascript linenos %}
-	var Dog = Falcon.Model.extend();
-	var Dogs = Falcon.Collection.extend({ model: Dog });
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
 
-	var dogs = new Dogs([
-		{"name": "Fido"},
-		{"name": "Skip"},
-		{"name": "Bump"},
-		{"name": "Bucko"}
-	]);
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
 
-	var has_fido = dogs.any(function(dog) {
-		return dog.get("name") === "Fido";
-	});
+var has_fido = dogs.any(function(dog) {
+	return dog.get("name") === "Fido";
+});
 
-	var has_spot = dogs.any(function(dog) {
-		return dog.get("name") === "Spot";
-	});
+var has_spot = dogs.any(function(dog) {
+	return dog.get("name") === "Spot";
+});
 
-	console.log(has_fido); // => true
-	console.log(has_spot); // => false
+console.log(has_fido); // => true
+console.log(has_spot); // => false
 {% endhighlight %}

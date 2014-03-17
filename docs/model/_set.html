@@ -17,28 +17,28 @@
 	<dd>An object of values to set</dd>
 </dl>
 {% highlight javascript linenos%}
-	var Dog = Falcon.Model.extend({
-		url: "dog.json",
+var Dog = Falcon.Model.extend({
+	url: "dog.json",
 
-		defaults: {
-			"name": "",
-			"color": ""
-		}
-	});
+	defaults: {
+		"name": "",
+		"color": ""
+	}
+});
 
-	var dog = new Dog({'id': 1});
+var dog = new Dog({'id': 1});
 
-	dog.set("name", "Fido");
-	dog.set("color", "Black");
+dog.set("name", "Fido");
+dog.set("color", "Black");
 
-	console.log( dog.get("name") ); // => Fido
-	console.log( dog.get("color") ); // => Black
+console.log( dog.get("name") ); // => Fido
+console.log( dog.get("color") ); // => Black
 
-	dog.set({
-		"name": "Spot",
-		"color": "Tan"
-	});
+dog.set({
+	"name": "Spot",
+	"color": "Tan"
+});
 
-	console.log( dog.get("name") ); // => Spot
-	console.log( dog.get("color") ); // => Tan
+console.log( dog.get("name") ); // => Spot
+console.log( dog.get("color") ); // => Tan
 {% endhighlight %}

@@ -11,26 +11,26 @@
 	<dd>The mapping to augment this model with</dd>
 </dl>
 {% highlight javascript linenos%}
-	var Dog = Falcon.Model.extend({
-		defaults: {
-			"name": "Fido"
-		}
-	});
+var Dog = Falcon.Model.extend({
+	defaults: {
+		"name": "Fido"
+	}
+});
 
-	var dog = new Dog();
+var dog = new Dog();
 
-	console.log( ko.isObservable( dog.name ) ); // => false
-	console.log( dog.bark instanceof Function ); // => false
+console.log( ko.isObservable( dog.name ) ); // => false
+console.log( dog.bark instanceof Function ); // => false
 
-	dog.mixin({
-		"name": ko.observable(),
-		"bark": function() {
-			console.log( this.get("name") + " says woof!");
-		}
-	});
+dog.mixin({
+	"name": ko.observable(),
+	"bark": function() {
+		console.log( this.get("name") + " says woof!");
+	}
+});
 
-	console.log( ko.isObservable( dog.name ) ); // => true
-	console.log( dog.bark instanceof Function ); // => true
+console.log( ko.isObservable( dog.name ) ); // => true
+console.log( dog.bark instanceof Function ); // => true
 
-	dog.bark() // => Fido says woof!
+dog.bark() // => Fido says woof!
 {% endhighlight %}
