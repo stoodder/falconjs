@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+	{% include head.html %}
+	<body>
+		{% assign docs_selected = true %}
+		{% include header.html %}
+		<div id="subheader">
+			<div class="subheader-inner">
+				<h1>Documentation</h1>
+				<h4>Welcome to the official Falcon.js documentation!  Please, explore.</h4>
+			</div>
+		</div>
+		<div id="content">
+			{% include menu.html %}
+			<div class="content-inner">
+				{{ content }}
+			</div>
+		</content>
+		{% include scripts.html %}
+	</body>
+</html>

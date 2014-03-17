@@ -1,0 +1,16 @@
+{% assign methodName = "getBinding" %}
+{% assign methodExample = "Falcon.getBinding( name )" %}
+{% assign returnType = "Object" %}
+{% assign returnDescription = "The binding definition" %}
+{% include methodOverview.html %}
+<p>
+	Used to look up a specific binding definition object based on the binding's name.
+</p>
+<dl>
+	<dt data-type="String">name</dt>
+	<dd>The binding name.</dd>
+</dl>
+{% highlight javascript linenos %}
+	binding_definition = Falcon.getBinding("foreach");
+	console.log( binding_definition ); // The binding definition object
+{% endhighlight %}

@@ -1,0 +1,33 @@
+{% assign methodName = "each" %}
+{% assign methodExample = "collection.each( iterator, [context] )" %}
+{% assign returnType = "Falcon.Collection" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Iterates over each model in this collection based on a given iterator. For each model that exists in this collection, the iterator method is called with the model passed into the first argument and that model's index in the collection passed into the second argument.
+</p>
+<dl>
+	<dt data-type="Function">iterator([index], model)</dt>
+	<dd>A function used to iterate over each model in this collection. The method will be called with each model passed in as the first argument and, optionally, the current index being as the second aguments.</dd>
+	<dt data=type="mixed">context</dt>
+	<dd>Optionally, the context to apply to the iterator function.</dd>
+</dl>
+{% highlight javascript linenos %}
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var dogs = new Dogs([
+		{"name": "Fido"},
+		{"name": "Skip"},
+		{"name": "Bump"},
+		{"name": "Bucko"}
+	]);
+
+	// => Dog's name is Fido
+	// => Dog's name is Skip
+	// => Dog's name is Bump
+	// => Dog's name is Bucko
+	dogs.each(function(dog) {
+		console.log("Dog's name is " + dog.get("name") );
+	});
+{% endhighlight %}

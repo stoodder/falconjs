@@ -1,0 +1,34 @@
+{% assign methodName = "comparator" %}
+{% assign methodExample = "collection.comparator" %}
+{% include methodOverview.html %}
+<p>
+	Method used to sort this collection when a new model(s) is added.  By default, this is null and no sorting will occur.  Note: If this is set then any model that is inserted into this collection will be sorted (regardless of append, prepend, etc.).
+</p>
+{% highlight javascript linenos %}
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({
+		model: Dog,
+
+		//Sort names ascending
+		comparator: function(dog_a, dog_b) {
+			name_a = dog_a.get("name");
+			name_b = dog_b.get("name");
+
+			if(name_a < name_b) { return -1; }
+			if(name_a > name_b) { return 1; }
+			return 0;
+		}
+	});
+
+	var dogs = new Dogs([
+		{"name": "Fido"},
+		{"name": "Skip"},
+		{"name": "Bump"},
+		{"name": "Bucko"}
+	]);
+
+	console.log( dogs.at(0).get("name") ); // => Bucko
+	console.log( dogs.at(1).get("name") ); // => Bump
+	console.log( dogs.at(2).get("name") ); // => Fido
+	console.log( dogs.at(3).get("name") ); // => Skip
+{% endhighlight %}

@@ -1,0 +1,24 @@
+{% assign methodName = "pop" %}
+{% assign methodExample = "collection.pop()" %}
+{% assign returnType = "Falcon.Model" %}
+{% assign returnDescription = "The last model in this collection. 'null' is returned if the collection is empty." %}
+{% include methodOverview.html %}
+<p>
+	Removes and returns the last model from this collection.  If this collection is empty, 'null' is returned instead.
+</p>
+{% highlight javascript linenos %}
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var dogs = new Dogs([
+		{"name": "Fido"},
+		{"name": "Skip"},
+		{"name": "Bump"},
+		{"name": "Bucko"}
+	]);
+
+	var last_dog = dogs.pop();
+
+	console.log( dogs.length() ); // => 3
+	console.log( last_dog.get("name") ); // => Bucko
+{% endhighlight %}

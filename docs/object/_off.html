@@ -1,0 +1,47 @@
+{% assign methodName = "off" %}
+{% assign methodExample = "object.off( event, [callback] )" %}
+{% assign returnType = "Falcon.Object" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Removes event listening for a specific event. Optionally, if a callback is given, only that callback will be removed from the list of callbacks for the specified event.
+</p>
+<dl>
+	<dt data-type="String">event</dt>
+	<dd>The event to stop listening for.</dd>
+	<dt data=type="Function">callback</dt>
+	<dd>The specific callback function to remove.</dd>
+</dl>
+{% highlight javascript linenos %}
+	var obj = new Falcon.Object();
+
+	obj.on("log", function() {
+		console.log("Hello World");
+	});
+
+	obj.trigger("log"); // => Logs 'Hello World'
+
+	obj.off("log");
+
+	obj.trigger("log"); // => Nothing Happens
+{% endhighlight %}
+{% highlight javascript linenos %}
+	var obj = new Falcon.Object();
+
+	var log_callback_one = function() {
+		console.log("Log One");
+	};
+
+	var log_callback_two = function() {
+		console.log("Log Two");
+	};
+
+	obj.on("log", log_callback_one);
+	obj.on("log", log_callback_two);
+
+	obj.trigger("log");  // => Logs 'Log One', then 'Log Two'
+
+	obj.off("log", log_callback_one);
+
+	obj.trigger("log");  // => Logs 'Log Two'
+{% endhighlight %}

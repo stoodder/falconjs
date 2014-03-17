@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+	{% include head.html %}
+	<body>
+		{% assign docs_selected = true %}
+		{% include header.html %}
+		<div id="subheader">
+			<div class="subheader-inner">
+				<h1>
+					Falcon.Object
+				</h1>
+				<h4>The Falcon Object is the base-most class that all Falcon classes inherit from. It provides functionality for default properties and observables as well as event management.</h4>
+			</div>
+		</div>
+		<div id="content">
+			{% assign expand_object_menu = true %}
+			{% include menu.html %}
+			<div class="content-inner">
+				{{ content }}
+			</div>
+		</div>
+		{% include scripts.html %}
+	</body>
+</html>

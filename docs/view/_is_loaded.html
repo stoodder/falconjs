@@ -1,0 +1,8 @@
+{% assign methodName = "is_loaded" %}
+{% assign methodExample = "view.is_loaded()" %}
+{% assign returnType = "Boolean" %}
+{% assign returnDescription = "Is the view loaded?" %}
+{% include methodOverview.html %}
+<p>
+	An observable that specifies if the view has loaded  not. A view is loaded when its template is found and stored into the template cache. Making this an observable allows us to bind against it and for the 'view' binding to update properly.
+</p>

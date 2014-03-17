@@ -1,6 +1,46 @@
 ---
-layout: layout
+version: 0.8.0
 ---
+<!DOCTYPE html>
+<html lang="en">
+	{% include head.html %}
+	<body>
+		<a href="https://github.com/stoodder/falconjs"><img style="position: absolute; top: 0; right: 0; border: 0; z-index: 1000" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+		<div id="content">
+			<div id="hero">
+				<div class="hero-links">
+					<a class="hero-link" href="/tutorial">Getting Started</a>
+					<a class="hero-link" href="/docs">Documentation</a>
+				</div>
+				<div class="hero-headline">
+					Falcon.js
+				</div>
+				<div class="hero-tagline">Structure for Knockout.js</div>
+				<p class="hero-description">
+					Falcon.js adds structure to knockout.js by incorporating
+					<strong>models</strong>, 
+					<strong>collections</strong>,
+					and <strong>views</strong>.
+					It's set up to make developing single-page web applications a breeze.
+				</p>
+				<div class="hero-actions">
+					<a class="btn btn-danger" href="falcon-0.8.0.zip" target="_blank">
+						Download v{{ page.version }}
+						<small>
+							Requires Knockout 3.X.X
+						</small>
+					</a>
+					<a class="btn btn-danger btn-lite btn-sm" href="scripts/falcon.js" target="_blank">
+						Download Development Version
+					</a>
+				</div>
+				</p>
+			</div>
+		</div>
+		{% include scripts.html %}
+	</body>
+</html>
+<!--
 {% assign category = 'Getting Started' %}
 {% assign description = "Falcon.js is an MV* framework that helps organize small and large single-page applications that wish to utilize Knockout.js for templating and data binding. Falcon provides: <br/><br/><ul><li><strong>Models</strong> represent individual data objects that need to sync with server data</li><li><strong>Collections</strong> represent a list of models and provide numerous list filtering methods</li><li><strong>Views</strong> relate functionality between data objects and Knockout templates</li>" %}
 {% include contentsection.html %}
@@ -31,3 +71,4 @@ layout: layout
 {% assign category = 'Utility' %}
 {% assign description = "Utility methods are used to initialize your application, add custom bindings, and check data for specific Falcon related types." %}
 {% include contentsection.html %}
+-->

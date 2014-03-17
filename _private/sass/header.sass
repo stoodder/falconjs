@@ -1,0 +1,77 @@
+#header
+	background-color: $red-darker
+	padding: 0px
+	overflow: hidden
+	height: 60px
+	color: $white
+
+	.header-inner
+		width: $page-width
+		margin: 0px auto
+
+		+max-width($page-width)
+			width: 100%
+	
+	.header-content
+		float: left
+		height: 60px
+		line-height: 60px
+
+		a.header-logo
+			display: inline-block
+			padding-right: 10px
+			vertical-align: middle
+			font-size: 24px
+			font-weight: 100
+			letter-spacing: 1px
+			color: $white
+			text-decoration: none
+
+		.header-btn:hover
+			background-color: mix( $red-darker, $red )
+			
+		.header-btn
+			display: inline-block
+			height: 25px
+			background-color: mix( $red-darker, $red-darkest )
+			line-height: 15px
+			vertical-align: middle
+			padding: 5px 10px
+			font-size: 12px
+
+	ul.header-menu
+		list-style: none
+		float: right
+		height: 60px
+		white-space: nowrap
+		padding: 0px
+		margin: 0px
+		font-size: 14px
+		font-weight: 200
+
+		li.header-menu-item.selected
+			a, a:hover
+				background-color: mix( $red, $red-darker )
+				border-bottom-color: $red
+
+		li.header-menu-item
+			float: left
+			display: block
+			height: 60px
+			padding: 0px
+			margin: 0px
+
+			a:hover
+				background-color: mix( $red, $red-darker, 25% )
+
+			a
+				display: block
+				color: $white
+				text-decoration: none
+				line-height: 40px
+				padding: 15px 15px 0px 15px
+				border-bottom: 5px solid transparent
+				letter-spacing: .05em
+
+		+phone
+			display: none

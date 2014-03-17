@@ -1,0 +1,85 @@
+{% assign methodName = "sync" %}
+{% assign methodExample = "collection.sync( type, [options] )" %}
+{% assign returnType = "mixed" %}
+{% assign returnDescription = "Whatever the response from the adapter's sync method is" %}
+{% include methodOverview.html %}
+<p>
+	Method used to interact with the backend API and this collection. This method utilizes and extends on to the jQuery $.ajax method.  This method currently only supports the GET request type when being used for a collection.  A GET request should return an array of models that belong to this collection.
+</p>
+<p>
+	The sync method also takes an optional 'options' argument which can be used for specifying how this method should handle requests and how it should handle serializing and reacting to success/errornous responses.
+</p>
+<p>
+	Lastly, after the ajax method responds successfully, a success response will occur. Prior to calling the 'success' callback on the options, the raw data returned from the server will be send to the 'parse' method. The resultant data from the parse method is then sent to the 'fill' method (if the fill flag is enabled). Following that, a 'fetch' event is triggered.  Lastly, the success callback method specified in the options is called with this collection as the context, and with the following 4 arguments: This collection, the parsed raw data, the response status, and the XmlHttpRequest object.
+</p>
+<dl>
+	<dt data-type="String">type</dt>
+	<dd>The HTTP Method to call to the server with. Valid options options include "GET", "POST", "PUT", "DELETE".</dd>
+	<dt data-type="Object">options</dt>
+	<dd>Optional object of settings to use on this call.  This is useful for configuring ajax callbacks, url parameters, fill parameters, and attribute serialization handling. The available options are:
+		<ul>
+			<li>
+				<strong>url</strong> - The url to make our request to. If the url isn't specified, then the 'makeUrl' method will be called with the given request type to generate a url.
+			</li>
+			<li>
+				<strong>parent</strong> - An override of the parent object to use when generating a url through 'makeUrl'. If the parent option isn't set, then this model's parent is used.  If parent is set to 'null', then no parent will be used.
+			</li>
+			<li>
+				<strong>attributes</strong> - An object or an array of attributes to actually serialize and send to the server. This is the same attributes specification that will be passed into the 'serialize' method which is useful for reducing the load of data that is sent to the server.  See the 'serialize' method for more information on the attributes option.
+			</li>
+			<li>
+				<strong>method</strong> - The fill method to use when receiving data from the server. By default this is 'replace'. Other available options include: 'append', 'prepend', 'merge', 'insert'.  If 'insert' is specified, then 'insert_index' may also be provided in the options.
+			</li>
+			<li>
+				<strong>params</strong> - An object of query parameters to append to the request url.  This is useful for allowing the 'makeUrl' to generate a url for this model but still being able to add specific query parameters without having to modify the makeUrl method.
+			</li>
+			<li>
+				<strong>data</strong> - An object of additional data to send through to the server.  This data is automatically JSON stringified if it is present and valid.  By default, this is set to an empty string.
+			</li>
+			<li>
+				<strong>dataType</strong> - The type of data to send to the server, the default is 'json'.
+			</li>
+			<li>
+				<strong>headers</strong> - An object of HTTP headers to add to this request.
+			</li>
+			<li>
+				<strong>context</strong> - The context to call the ajax callbacks (success, error, complete), on. By default it is set to this collection.
+			</li>
+			<li>
+				<strong>success( collection, data, status, xhr)</strong> - The callback that will be executed when the ajax request has completed with a 200 level response. The callback will be called on the context of this collection unless the context option has been specified. The callback will be given four arguments: This collection, the data after being passed through the parse method, the request status, and the XmlHttpRequest object.
+			</li>
+			<li>
+				<strong>error( collection, response, xhr )</strong> - A callback method to be executed whenever a 400 or above level response is returned from the server. This method will be called on the context of this collection or the context given in the options if one is set.  This callback will be called with three arguments given: This collection, the response text, and the XmlHttpRequest object. 
+			<li>
+				<strong>complete( collection, xhr, status )</strong> - A callback method to be executed whenever any status response is completed. This method is called after success/error. It will be called on the context of this collection unless the context was specified in the options. It will be called with three arguments given: This collection, the XmlHttpRequest object, and the server status.
+			</li>
+			<li>
+				<strong>fill</strong> - A flag to specify whether the 'fill' method should be called once this request has completed successfully. By default, this is set to true.
+			</li>
+		</ul>
+	</dd>
+</dl>
+{% highlight javascript linenos %}
+	var Dog = Falcon.Model.extend({"url": "dog.json"});
+	var Dogs = Falcon.Collection.extend({model: Dog});
+
+	var dogs = new Dogs();
+
+	// Creates a GET ajax request that is sent to /dog.json
+	// Complete is always called, success is called if called if we found
+	// the dog on the server, otherwise error is called if something
+	// went wrong.
+	dogs.sync("GET", {
+		complete: function(dogs, data, xhr, status) {
+			console.log("Completed trying to find the Dogs.");
+		},
+
+		success: function(dogs, data, status, xhr) {
+			console.log("Successfully found the Dogs!");
+		},
+
+		error: function(dogs, response, xhr ) {
+			console.log("Couldn't find the dogs :(");
+		}
+	});
+{% endhighlight %}

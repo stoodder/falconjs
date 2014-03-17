@@ -1,0 +1,20 @@
+{% assign methodName = "on" %}
+{% assign methodExample = "object.on( event, callback, [context] )" %}
+{% assign returnType = "Falcon.Object" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Adds an event listener with a given function to this Falcon object. Whenever the event is triggered any callback that is bound to this event will also be triggered. This become useful for message passing between objects.
+</p>
+<dl>
+	<dt data-type="String">event</dt>
+	<dd>The event to listen for.</dd>
+	<dt data=type="Function">callback</dt>
+	<dd>The callback function to call when this event is triggered.</dd>
+	<dt data=type="mixed">context</dt>
+	<dd>The context to apply to the callback. Defaults to this object.</dd>
+</dl>
+{% highlight javascript linenos %}
+	var obj = new Falcon.Object();
+	obj.on("alert", function() { ... });
+{% endhighlight %}

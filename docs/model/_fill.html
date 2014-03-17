@@ -1,0 +1,32 @@
+{% assign methodName = "fill" %}
+{% assign methodExample = "model.fill( data )" %}
+{% assign returnType = "Falcon.Model" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Method used to fill this model with data. This is more advanced than the 'set' method as it won't overwrite certain data if it exists.  Specificaly this will recurse data into any Falcon Model of Collection 'fill' method as necessary. Additionally, this will put data into observables if a specific attribute identifies as a writeable observable. Lastly, this will do a basic assignment of a given attribute if it isn't a Falcon Data Object or an observable.
+
+	Note: This method will, intentionally, ignore any attribute/method defined in the Falcon.Model.prototype except for 'id' and 'url'
+</p>
+<dl>
+	<dt data-type="Object">data</dt>
+	<dd>The data to fill this object with.</dd>
+</dl>
+{% highlight javascript linenos%}
+	var Dog = Falcon.Model.extend({
+		defaults: {
+			"name": ""
+		},
+
+		observables: {
+			"is_tame": true
+		}
+	});
+
+	var dog = new Dog();
+
+	dog.fill({"name": "Fido", "is_tame": false});
+
+	console.log( dog.get("name") ); // => Fido
+	console.log( dog.get("is_tame") ); // => false
+{% endhighlight %}

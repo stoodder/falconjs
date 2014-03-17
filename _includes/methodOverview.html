@@ -1,0 +1,21 @@
+<div class="section-header">
+	<a id="{{methodName}}" class="hidden"></a>
+	{{methodName}}
+	{% if methodExample %}
+		<span class="section-method">
+			{{methodExample}}
+		</span>
+	{% endif %}
+	{% if returnDescription %}
+		<div class="section-return">
+			{% if returnType %}
+				<span class="section-return-type">{{returnType}}</span>
+			{% endif %}
+			{{returnDescription}}
+		</div>
+	{% endif %}
+</div>
+{% assign methodName = false %}
+{% assign methodExample = false %}
+{% assign returnType = false %}
+{% assign returnDescription = false %}

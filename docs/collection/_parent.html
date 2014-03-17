@@ -1,0 +1,16 @@
+{% assign methodName = "parent" %}
+{% assign methodExample = "collection.parent" %}
+{% include methodOverview.html %}
+<p>
+	This represents the 'parent' object that holds these models.  Generally this is used for determining the URL structure of rest objects in the makeURL() routine. This should also be a Model.
+</p>
+{% highlight javascript linenos %}
+	var Owner = Falcon.Model.extend();
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({model: Dog});
+
+	var owner = new Owner();
+	var dogs = new Dogs( owner ); // Owner becomes the 'parent' of dogs
+
+	console.log( dogs.parent === owner ); // => true
+{% endhighlight %}

@@ -1,0 +1,153 @@
+*
+	box-sizing: border-box
+
+a:hover
+	color: $red-lighter
+
+a
+	text-decoration: underline
+	cursor: pointer
+	color: $red
+
+i.glyphicon
+	top: 0px
+	left: 0px
+
+h1, h2, h3, h4, h5, h6
+	margin-top: 0px
+	color: $black-lighter
+
+h1, h2, h3
+	font-weight: 300
+
+	small
+		font-weight: 200
+
+p
+	color: $grey-darkest
+
+p + h3
+	margin-top: 40px
+
+p + h4
+	margin-top: 30px
+
+section
+	padding: 45px 0px 25px 0px
+
+iframe
+	margin-bottom: 30px
+
+.page-header
+	padding-top: 0px
+	margin-top: 0px
+	margin-bottom: 10px
+
+	h1
+		margin-bottom: 0px
+
+.page-description
+	color: $grey-darkest
+	font-size: 18px
+	line-height: 26px
+	padding: 0px 10px
+
+.post-header
+	border-bottom: 1px solid mix( $grey-lightest, $white-darkest )
+	margin: 0px 0px 10px 0px
+	padding: 45px 10px 5px 10px
+
+	h3
+		padding: 0px
+		margin: 0px
+
+	.pull-right
+		line-height: 25px
+		height: 25px
+
+		h6
+			display: inline
+			margin: 0px
+			vertical-align: bottom
+
+			small
+				display: inline
+				vertical-align: bottom
+				font-size: 12px
+
+.page-header + .post-header
+	margin-top: -10px
+
+.post-content
+	padding: 0px 0px 0px 10px
+
+	p
+		font-size: 14px
+
+code
+	+border-radius(0px)
+	color: $red
+	background-color: mix( $red-lightest, $white, 7.5% )
+
+code.multiline[data-caption]:after
+	content: attr(data-caption)
+	position: absolute
+	bottom: 0px
+	left: 0px
+	height: 2.5em
+	line-height: 2.5em
+	padding: 0px 10px
+	width: 100%
+	color: $red
+	background-color: mix( $red-lightest, $white, 2.5% )
+	font-family: "Helvetica Neue", "Helvetica"
+	font-size: 14px
+	border-top: 1px solid mix( $red-lightest, $white, 15% )
+
+code.multiline[data-caption]
+	padding-bottom: 5em
+
+code.multiline
+	position: relative
+	display: block
+	white-space: pre
+	-moz-tab-size: 3
+	-o-tab-size: 3
+	tab-size: 3
+	font-size: 11px
+	padding-bottom: 1.5em
+	background-color: mix( $red-lightest, $white, 1% )
+	border-left: 5px solid mix( $red-lightest, $white, 25% )
+
+code.multiline + code.multiline
+	margin-top: 10px
+
+code.runnable
+	.runner:hover
+		+opacity(1)
+
+	.runner
+		+opacity(.9)
+		position: absolute
+		top: 5px
+		right: 5px
+		background-color: $white
+		height: 30px
+		width: 35px
+		line-height: 30px
+		text-align: center
+		cursor: pointer
+		border: 1px solid mix( $white, $red )
+
+	.logger.visible
+		display: block
+		
+	.logger
+		display: none
+		background-color: $white
+		margin: 10px 5px 0px 5px
+		padding: 10px
+		border: 1px solid mix( $white, $red )
+
+#footer
+	height: 700px

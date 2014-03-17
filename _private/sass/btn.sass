@@ -1,0 +1,20 @@
+.btn
+	+border-radius( 0px )
+	cursor: pointer
+	display: inline-block
+
+.btn.btn-danger
+	background-color: $red
+	border: 1px solid $red
+
+.btn.btn-danger:hover
+	background-color: mix( $red, $red-lighter )
+	border: 1px solid mix( $red, $red-lighter )
+
+.btn.btn-danger.btn-lite
+	background-color: mix( $red, $white, 75% )
+	border: 1px solid mix( $red, $white, 75% )
+
+.btn.btn-danger.btn-lite:hover
+	background-color: mix( mix( $red, $red-lighter ), $white, 75% )
+	border: 1px solid mix( mix( $red, $red-lighter ), $white, 75% )

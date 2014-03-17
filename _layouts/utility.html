@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+	{% include head.html %}
+	<body>
+		{% assign docs_selected = true %}
+		{% include header.html %}
+		<div id="subheader">
+			<div class="subheader-inner">
+				<h1>
+					Utility
+				</h1>
+				<h4>Utility methods that exist on the global Falcon object. Methods include: application initialization, data checking, and binding management.</h4>
+			</div>
+		</div>
+		<div id="content">
+			{% assign expand_utility_menu = true %}
+			{% include menu.html %}
+			<div class="content-inner">
+				{{ content }}
+			</div>
+		</content>
+		{% include scripts.html %}
+	</body>
+</html>

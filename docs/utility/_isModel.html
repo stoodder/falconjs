@@ -1,0 +1,25 @@
+{% assign methodName = "isModel" %}
+{% assign methodExample = "Falcon.isModel( object )" %}
+{% assign returnType = "Boolean" %}
+{% assign returnDescription = "Is the object a model?" %}
+{% include methodOverview.html %}
+<p>
+	Method used to test if an object is a Falcon Model.
+</p>
+<dl>
+	<dt data-type="object">object</dt>
+	<dd>The Object to test</dd>
+</dl>
+{% highlight javascript linenos %}
+	var array		= [];
+	var object		= new Falcon.Object();
+	var collection	= new Falcon.Collection();
+	var model 		= new Falcon.Model();
+	var view 		= new Falcon.View();
+
+	console.log( Falcon.isModel(array) );// => false
+	console.log( Falcon.isModel(object) );// => false
+	console.log( Falcon.isModel(model) );// => true
+	console.log( Falcon.isModel(collection) ); // => false
+	console.log( Falcon.isModel(view) );// => false
+{% endhighlight %}

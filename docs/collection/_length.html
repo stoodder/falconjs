@@ -1,0 +1,24 @@
+{% assign methodName = "length" %}
+{% assign methodExample = "collection.length()" %}
+{% include methodOverview.html %}
+<p>
+	The total number of models in this collection. This is an observable so anything that is bound against this will also be updated when any models are added or removed from the collection.
+</p>
+{% highlight javascript linenos %}
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var dogs = new Dogs([
+		{"name": "Fido"},
+		{"name": "Bump"}
+	]);
+
+	console.log( dogs.length() ); // => 2
+
+	dogs.append([
+		{"name": "Bucko"},
+		{"name": "Skip"}
+	]);
+
+	console.log( dogs.length() ); // => 4
+{% endhighlight %}

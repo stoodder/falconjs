@@ -1,0 +1,185 @@
+<ul id="menu">
+	{% if expand_object_menu %}
+		<li class="menu-item selected"><a href="/docs/object">Object</a></li>
+		<li class="menu-submenu">
+			<ul class="submenu">
+				<li class="submenu-item"><a href="#extend">extend</a></li>
+				<li class="submenu-item"><a href="#defaults">defaults</a></li>
+				<li class="submenu-item"><a href="#observables">observables</a></li>
+				<li class="submenu-item"><a href="#on">on</a></li>
+				<li class="submenu-item"><a href="#off">off</a></li>
+				<li class="submenu-item"><a href="#trigger">trigger</a></li>
+				<li class="submenu-item"><a href="#has">has</a></li>
+			</ul>
+		<li>
+	{% else %}
+		<li class="menu-item"><a href="/docs/object">Object</a></li>
+	{% endif %}
+
+	{% if expand_model_menu %}
+		<li class="menu-item selected"><a href="/docs/model">Model</a></li>
+		<li class="menu-submenu">
+			<ul class="submenu">
+				<li class="submenu-item"><a href="#initialize">initialize</a></li>
+				<li class="submenu-item"><a href="#extend">extend</a></li>
+				<li class="submenu-item"><a href="#url">url</a></li>
+				<li class="submenu-item"><a href="#parent">parent</a></li>
+				<li class="submenu-item"><a href="#defaults">defaults</a></li>
+				<li class="submenu-item"><a href="#observables">observables</a></li>
+
+				<li class="submenu-divider"></li>
+
+				<li class="submenu-item"><a href="#clone">clone</a></li>
+				<li class="submenu-item"><a href="#create">create</a></li>
+				<li class="submenu-item"><a href="#destroy">destroy</a></li>
+				<li class="submenu-item"><a href="#equals">equals</a></li>
+				<li class="submenu-item"><a href="#fetch">fetch</a></li>
+				<li class="submenu-item"><a href="#fill">fill</a></li>
+				<li class="submenu-item"><a href="#get">get</a></li>
+				<li class="submenu-item"><a href="#id">id</a></li>
+				<li class="submenu-item"><a href="#isNew">isNew</a></li>
+				<li class="submenu-item"><a href="#makeUrl">makeUrl</a></li>
+				<li class="submenu-item"><a href="#mixin">mixin</a></li>
+				<li class="submenu-item"><a href="#parse">parse</a></li>
+				<li class="submenu-item"><a href="#save">save</a></li>
+				<li class="submenu-item"><a href="#serialize">serialize</a></li>
+				<li class="submenu-item"><a href="#set">set</a></li>
+				<li class="submenu-item"><a href="#sync">sync</a></li>
+				<li class="submenu-item"><a href="#toggle">toggle</a></li>
+				<li class="submenu-item"><a href="#validate">validate</a></li>
+			</ul>
+		<li>
+	{% else %}
+		<li class="menu-item"><a href="/docs/model">Model</a></li>
+	{% endif %}
+
+	{% if expand_collection_menu %}
+		<li class="menu-item selected"><a href="/docs/collection">Collection</a></li>
+		<li class="menu-submenu">
+			<ul class="submenu">
+				<li class="submenu-item"><a href="#initialize">initialize</a></li>
+				<li class="submenu-item"><a href="#extend">extend</a></li>
+				<li class="submenu-item"><a href="#model">model</a></li>
+				<li class="submenu-item"><a href="#url">url</a></li>
+				<li class="submenu-item"><a href="#parent">parent</a></li>
+				<li class="submenu-item"><a href="#defaults">defaults</a></li>
+				<li class="submenu-item"><a href="#observables">observables</a></li>
+
+				<li class="submenu-divider"></li>
+				
+				<li class="submenu-item"><a href="#any">any</a></li>
+				<li class="submenu-item"><a href="#append">append</a></li>
+				<li class="submenu-item"><a href="#at">at</a></li>
+				<li class="submenu-item"><a href="#chain">chain</a></li>
+				<li class="submenu-item"><a href="#clone">clone</a></li>
+				<li class="submenu-item"><a href="#comparator">comparator</a></li>
+				<li class="submenu-item"><a href="#create">create</a></li>
+				<li class="submenu-item"><a href="#destroy">destroy</a></li>
+				<li class="submenu-item"><a href="#each">each</a></li>
+				<li class="submenu-item"><a href="#fetch">fetch</a></li>
+				<li class="submenu-item"><a href="#fill">fill</a></li>
+				<li class="submenu-item"><a href="#filter">filter</a></li>
+				<li class="submenu-item"><a href="#first">first</a></li>
+				<li class="submenu-item"><a href="#indexOf">indexOf</a></li>
+				<li class="submenu-item"><a href="#insert">insert</a></li>
+				<li class="submenu-item"><a href="#last">last</a></li>
+				<li class="submenu-item"><a href="#lastIndexOf">lastIndexOf</a></li>
+				<li class="submenu-item"><a href="#length">length</a></li>
+				<li class="submenu-item"><a href="#makeUrl">makeUrl</a></li>
+				<li class="submenu-item"><a href="#mixin">mixin</a></li>
+				<li class="submenu-item"><a href="#models">models</a></li>
+				<li class="submenu-item"><a href="#parse">parse</a></li>
+				<li class="submenu-item"><a href="#pluck">pluck</a></li>
+				<li class="submenu-item"><a href="#pop">pop</a></li>
+				<li class="submenu-item"><a href="#prepend">prepend</a></li>
+				<li class="submenu-item"><a href="#push">push</a></li>
+				<li class="submenu-item"><a href="#remove">remove</a></li>
+				<li class="submenu-item"><a href="#reset">reset</a></li>
+				<li class="submenu-item"><a href="#serialize">serialize</a></li>
+				<li class="submenu-item"><a href="#shift">shift</a></li>
+				<li class="submenu-item"><a href="#slice">slice</a></li>
+				<li class="submenu-item"><a href="#sort">sort</a></li>
+				<li class="submenu-item"><a href="#sync">sync</a></li>
+				<li class="submenu-item"><a href="#unshift">unshift</a></li>
+				<li class="submenu-item"><a href="#without">without</a></li>
+			</ul>
+		<li>
+	{% else %}
+		<li class="menu-item"><a href="/docs/collection">Collection</a></li>
+	{% endif %}
+
+	{% if expand_view_menu %}
+		<li class="menu-item selected"><a href="/docs/view">View</a></li>
+		<li class="menu-submenu">
+			<ul class="submenu">
+				<li class="submenu-item"><a href="#initialize">initialize</a></li>
+				<li class="submenu-item"><a href="#extend">extend</a></li>
+				<li class="submenu-item"><a href="#url">url</a></li>
+				<li class="submenu-item"><a href="#defaults">defaults</a></li>
+				<li class="submenu-item"><a href="#observables">observables</a></li>
+
+				<li class="submenu-divider"></li>
+				
+				<li class="submenu-item"><a href="#display">display</a></li>
+				<li class="submenu-item"><a href="#dispose">dispose</a></li>
+				<li class="submenu-item"><a href="#is_loaded">is_loaded</a></li>
+				<li class="submenu-item"><a href="#makeUrl">makeUrl</a></li>
+			</ul>
+		<li>
+	{% else %}
+		<li class="menu-item"><a href="/docs/view">View</a></li>
+	{% endif %}
+
+	{% if expand_adapter_menu %}
+		<li class="menu-item selected"><a href="/docs/adapter">Adapter</a></li>
+	{% else %}
+		<li class="menu-item"><a href="/docs/adapter">Adapter</a></li>
+	{% endif %}
+
+	{% if expand_bindings_menu %}
+		<li class="menu-item selected"><a href="/docs/bindings">Bindings</a></li>
+		<li class="menu-submenu">
+			<ul class="submenu">
+				<li class="submenu-item"><a href="#view">view</a></li>
+				<li class="submenu-item"><a href="#log">log</a></li>
+				<li class="submenu-item"><a href="#foreach">foreach</a></li>
+				<li class="submenu-item"><a href="#options">options</a></li>
+			</ul>
+		<li>
+	{% else %}
+		<li class="menu-item"><a href="/docs/bindings">Bindings</a></li>
+	{% endif %}
+
+	{% if expand_conductor_menu %}
+		<li class="menu-item selected"><a href="/docs/conductor">Conductor</a></li>
+	{% else %}
+		<li class="menu-item"><a href="/docs/conductor">Conductor</a></li>
+	{% endif %}
+
+	{% if expand_utility_menu %}
+		<li class="menu-item selected"><a href="/docs/utility">Utility</a></li>
+		<li class="menu-submenu">
+			<ul class="submenu">
+				<li class="submenu-item"><a href="#apply">apply</a>
+				<li class="submenu-item"><a href="#addBinding">addBinding</a>
+
+				<li class="submenu-divider"></li>
+				
+				<li class="submenu-item"><a href="#getBinding">getBinding</a>
+				<li class="submenu-item"><a href="#isCollection">isCollection</a>
+				<li class="submenu-item"><a href="#isDataObject">isDataObject</a>
+				<li class="submenu-item"><a href="#isFalconObject">isFalconObject</a>
+				<li class="submenu-item"><a href="#isModel">isModel</a>
+				<li class="submenu-item"><a href="#isView">isView</a>
+			</ul>
+		<li>
+	{% else %}
+		<li class="menu-item"><a href="/docs/utility">Utility</a></li>
+	{% endif %}
+
+	{% if expand_configuration_menu %}
+		<li class="menu-item selected"><a href="/docs/configuration">Configuration</a></li>
+	{% else %}
+		<li class="menu-item"><a href="/docs/configuration">Configuration</a></li>
+	{% endif %}
+</ul>

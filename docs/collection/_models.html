@@ -1,0 +1,20 @@
+{% assign methodName = "models" %}
+{% assign methodExample = "collection.models()" %}
+{% include methodOverview.html %}
+<p>
+	The internal observable array that contains all of the models added to this collection.
+</p>
+{% highlight javascript linenos %}
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var dogs = new Dogs([
+		{"name": "Fido"},
+		{"name": "Skip"},
+		{"name": "Bump"},
+		{"name": "Bucko"}
+	]);
+
+	console.log( ko.isObservable( dogs.models ) ); // => true 
+	console.log( dogs.models() );  // => [Dog, Dog, Dog, Dog]
+{% endhighlight %}

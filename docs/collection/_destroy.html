@@ -1,0 +1,50 @@
+{% assign methodName = "destroy" %}
+{% assign methodExample = "collection.destroy( model, [options] )" %}
+{% assign returnType = "mixed" %}
+{% assign returnDescription = "Whatever the response from the adapter's sync method is" %}
+{% include methodOverview.html %} 
+<p>
+	Method used to both remove a model from this collection and delete it on the server. This method takes either an iterator, a model id, or a model to look up an existing model within this collection. If a model is given, it does not need to be the same instance of any model in this collection but rather an identical model based on its 'id'. If no models are found, then null is returned.  If the delete method from the server fails, this method does not remove anything from the collection.
+</p>
+<dl>
+	<dt data-type="Falcon.Model">model</dt>
+	<dd>The model to delete from the server and, upon successful delete, remove from this collection.</dd>
+	<dt data-type="Object">options</dt>
+	<dd>An optional set of options to pass into the 'sync' method when deleting the model from the server</dd>
+</dl>
+<dl>
+	<dt data-type="String or Integer">id</dt>
+	<dd>The id of the model to remove</dd>
+	<dt data-type="Object">options</dt>
+	<dd>An optional set of options to pass into the 'sync' method when deleting the model from the server</dd>
+</dl>
+<dl>
+	<dt data-type="Function">iterator</dt>
+	<dd>Iterator that can be used to find the first instance of a matching model in this collection.</dd>
+	<dt data-type="Object">options</dt>
+	<dd>An optional set of options to pass into the 'sync' method when deleting the model from the server</dd>
+</dl>
+{% highlight javascript linenos %}
+	var Dog = Falcon.Model.extend({url: "dog.json"});
+	var Dogs = Falcon.Collection.extend({model: Dog});
+
+	var fido = new Dog({"id": 1, "name": "Fido"});
+	var spot = new Dog({"id": 2, "name": "Spot"});
+	var skip = new Dog({"id": 3, "name": "Skip"});
+
+	var dogs = new Dogs([ fido, spot, skip ]);
+
+	// Sends a DELETE request to '/dog/{dog_id}.json'. Upon success, removes
+	// the specific model from the collection.
+
+	// deletes fido
+	dogs.destroy(fido); 
+
+	 // deletes spot
+	dogs.destroy(2);
+
+	 // deletes skip
+	dogs.destroy(function(dog) {
+		return dog.get("name") === "Skip";
+	});
+{% endhighlight %}

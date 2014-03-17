@@ -1,0 +1,15 @@
+{% assign methodName = "log" %}
+{% include methodOverview.html %}
+<p>This is a helper binding that can be used to dump whatever is passed into it, into the browser console. Useful for debugging and understanding context</p>
+{% highlight javascript linenos %}
+	var hello_world = ko.observable("Hello World");
+{% endhighlight %}
+<div class="caption">Application Javascript</div>
+{% highlight html linenos %}
+	<!-- ko log: hello_world --><!-- /ko -->
+{% endhighlight %}
+<div class="caption">Application HTML</div>
+{% highlight console linenos %}
+	=> Hello World
+{% endhighlight %}
+<div class="caption">Console Output</div>

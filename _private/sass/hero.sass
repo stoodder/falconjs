@@ -1,0 +1,88 @@
+#hero
+	position: relative
+	height: 520px
+	border-left: 3px solid $red
+	text-align: center
+	padding: 80px
+	background-color: $white-darker
+
+	+max-width($page-width)
+		border-left: 0px
+		border-bottom: 3px solid $red
+
+	a
+		text-decoration: none
+		color: $white
+
+	.hero-links
+		position: absolute
+		top: 0px
+		left: 0px
+		width: 100%
+		height: 50px
+		line-height: 50px
+		padding: 0px 25px
+		text-align: right
+
+		a.hero-link:hover
+			color: $grey
+
+		a.hero-link:first-child
+			margin-left: 0px
+			padding-left: 0px
+			border-left: 0px
+
+		a.hero-link
+			display: inline-block
+			font-size: 16px
+			font-weight: 200
+			color: $grey-lighter
+			text-decoration: none
+			height: 30px
+			line-height: 30px
+			vertical-align: middle
+			letter-spacing: .025em
+
+			margin-left: 15px
+			padding-left: 15px
+			border-left: 1px solid mix( $grey-lightest, $white-darkest )
+
+	.hero-headline
+		font-size: 72px
+		font-weight: 300
+		height: 100px
+		line-height: 100px
+		color: $red
+
+	.hero-tagline
+		font-size: 26px
+		font-weight: 200
+		height: 50px
+		line-height: 40px
+		margin-bottom: 10px
+		color: $grey-darker
+
+	.hero-description
+		font-size: 18px
+		width: 450px
+		margin: auto
+
+	.hero-actions
+		margin: 25px auto 0px auto
+		width: 325px
+
+		.btn.btn-sm
+			font-size: 12px
+			padding: 5px 10px
+
+		.btn
+			width: 325px
+			padding: 10px 30px
+			font-size: 24px
+			text-align: center
+			display: inline-block
+
+			small
+				display: block
+				margin-top: 5px
+				font-size: 11px

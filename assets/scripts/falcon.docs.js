@@ -1,13 +1,14 @@
-###
+
+/*
 window.logger = (logger_id, value) ->
 	console.log( value )
 	if (value instanceof Array) and (first_value = value[0])
 		if Falcon.isModel( first_value ) and first_value.get("name")?
 			value = ( v.get("name") for v in value )
-		#END if
-	#END if
+		 *END if
+	 *END if
 	$("##{logger_id}").append("<div>#{value}</div>").toggleClass("visible", true)
-#END logger
+ *END logger
 
 $ ->
 	$(window).on "resize", -> $("body").scrollspy('refresh')
@@ -19,7 +20,7 @@ $ ->
 	$("a.tab").on "click", (event) ->
 		event.preventDefault()
 		$(this).tab('show')
-	#END click
+	 *END click
 
 	$("iframe").each (index, element) -> $(element).attr("src", $(element).data("src") )
 
@@ -50,8 +51,13 @@ $ ->
 				Falcon.baseTemplateUrl = tUrl
 				
 				$.ajax = _ajax
-			#END on click
-		#END if
-	#END
-#END onload
-###
+			 *END on click
+		 *END if
+	 *END
+ *END onload
+ */
+
+(function() {
+
+
+}).call(this);

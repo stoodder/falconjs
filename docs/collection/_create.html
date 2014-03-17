@@ -1,0 +1,31 @@
+{% assign methodName = "create" %}
+{% assign methodExample = "collection.create( data, [options] )" %}
+{% assign returnType = "mixed" %}
+{% assign returnDescription = "Whatever the response from the adapter's sync method is" %}
+{% include methodOverview.html %} 
+<p>
+	Method used to both create and add a model on the server and to this collection.  An optional options argument can be set to define options for the sync and fill methods.
+</p>
+<dl>
+	<dt data-type="Object">data</dt>
+	<dd>The raw data that defines the model to be created based on the collection's 'model' attribute.</dd>
+	<dt data-type="Object">options</dt>
+	<dd>The options to pass to the sync and fill methods.</dd>
+</dl>
+<dl>
+	<dt data-type="Falcon.Model">model</dt>
+	<dd>The model to create on the server and to add to this collection. This model's data will be unwrapped and a new model will be created in this collection if this argument is set.</dd>
+	<dt data-type="Object">options</dt>
+	<dd>See Above.</dd>
+</dl>
+{% highlight javascript linenos %}
+	var Dog = Falcon.Model.extend({url: "dog.json"});
+	var Dogs = Falcon.Collection.extend({model: Dog});
+
+	var dogs = new Dogs();
+
+	// Sends a POST request to '/dog.json'. Upon success, appends
+	// the new dog model to the end of the dogs collection.
+	dogs.create({"name": "Fido"}); 
+	dogs.create(new Dog({"name": "Spot"})); 
+{% endhighlight %}

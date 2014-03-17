@@ -1,0 +1,41 @@
+{% assign methodName = "indexOf" %}
+{% assign methodExample = "collection.indexOf( model )" %}
+{% assign returnType = "Number" %}
+{% assign returnDescription = "The index of the matched model, -1 if none found" %}
+{% include methodOverview.html %}
+<p>
+	Find the index for the specified model or where the iterator first returns true. -1 is returned if nothing matches.
+</p>
+<dl>
+	<dt data-type="Falcon.Model">model</dt>
+	<dd>The model to look up.</dd>
+</dl>
+<dl>
+	<dt data-type="Number | String">id</dt>
+	<dd>The id of the model to look up.</dd>
+</dl>
+<dl>
+	<dt data-type="Function">iterator</dt>
+	<dd>Truth test iterator function to test each model with.</dd>
+</dl>
+{% highlight javascript linenos %}
+	var Dog = Falcon.Model.extend();
+	var Dogs = Falcon.Collection.extend({ model: Dog });
+
+	var fido = new Dog({id: 1, "name": "Fido"});
+	var skip = new Dog({id: 2, "name": "Skip"});
+	var bump = new Dog({id: 3, "name": "Bump"});
+	var bucko = new Dog({id: 4, "name": "Bucko"});
+
+	var dogs = new Dogs([fido, skip, bump, bucko]);
+
+	var index_bump = dogs.indexOf(bump);
+	var index_id = dogs.indexOf(2);
+	var index_iterator = dogs.indexOf(function(dog) {
+		return dog.get("name") === "Bucko";
+	});
+
+	console.log( index_bump );  // => 2
+	console.log( index_id );  // => 1
+	console.log( index_iterator );  // => 3
+{% endhighlight %}

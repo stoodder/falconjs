@@ -1,0 +1,53 @@
+.section-header:first-child
+	margin-top: 0px
+	padding-top: 20px
+
+.section-header
+	margin: 0px
+	padding-top: 30px
+	padding-bottom: 10px
+	margin-top: 20px
+	margin-bottom: 10px
+	border-bottom: 1px solid $white-darkest
+	position: relative
+	font-weight: 400
+	font-size: 28px
+	line-height: 28px
+
+	h1
+		margin: 0px
+		padding: 0px
+		font-weight: 400	
+		font-size: 32px
+		line-height: 32px	
+
+	.section-method,
+	.section-return
+		font-size: 12px
+		color: $grey-darker
+		font-weight: 200
+
+	.section-method
+		vertical-align: baseline
+
+	.section-return
+		position: absolute
+		right: 0px
+		bottom: 10px
+
+		a:after
+			content: " →"
+
+		a:hover
+			color: $red
+
+		a
+			color: $grey
+			text-decoration: none
+
+	.section-return-type:after
+		content: " - "
+		color: $grey-lighter
+
+	.section-return-type
+		color: $grey

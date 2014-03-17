@@ -1,0 +1,64 @@
+#menu
+	float: left
+	width: $menu-width - 20px
+	padding: 0px
+	margin: 15px 20px 0px 0px
+	list-style: none
+	font-size: 16px
+	border: 1px solid $white-darkest
+
+	li.menu-item:first-child
+		a
+			padding-top: 10px
+
+	li.menu-item:last-child
+		a
+			padding-bottom: 10px
+
+	li.menu-item.selected
+		a, a:hover
+			color: $grey-darkest
+			background-color: $white-darker
+			cursor: default
+			font-weight: 500
+			border-bottom: 1px solid mix( $grey-lightest, $white-darkest, 25% )
+
+	li.menu-item
+		a
+			display: block
+			padding: 5px 10px
+			text-decoration: none
+			color: $grey-darker
+			font-weight: 200
+
+		a:hover
+			color: $grey-darkest
+			background-color: mix( $white-darker, $white )
+
+	li.menu-submenu
+		background-color: $white-darker
+		padding: 5px 0px
+		margin: 0px
+		margin-bottom: 5px
+
+		ul.submenu
+			list-style: none
+			font-size: 13px
+			padding: 0px
+			margin: 0px
+
+			a
+				text-decoration: none
+				color: $grey
+				display: block
+				padding: 2px 0px
+				padding-left: 15px
+
+			a:hover
+				color: $grey-darker
+				background-color: mix( $grey-lightest, $white-darkest, 25% )
+
+			li.submenu-divider
+				border-top: 1px solid mix( $grey-lightest, $white-darkest, 25% )
+				margin-top: 5px
+				margin-bottom: 4px

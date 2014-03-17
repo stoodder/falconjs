@@ -1,0 +1,222 @@
+---
+layout: object
+---
+{% assign methodName = "extend" %}
+{% assign methodExample = "Falcon.Object.extend( protoProps, [staticProps] )" %}
+{% include methodOverview.html %}
+<p>
+<p>
+	Method used to create a new subclass that inherits from this class.  Props to Backbone.js for the code behind this implementation.
+</p>
+<dl>
+	<dt data-type="Object">protoProps</dt>
+	<dd>Properties for the prototype of a class</dd>
+	<dt data-type="Object">staticProps</dt>
+	<dd>Static properties for a given object</dd>
+</dl>
+{% highlight javascript linenos %}
+	var Dog = Falcon.Object.extend({
+		bark: function()
+		{
+			console.log("The dog barks");
+		}
+	},{
+		says: function() {
+			console.log("Woof!");
+		}
+	});
+
+	var my_dog = new Dog();
+	
+	Dog.says(); // => Woof!
+	my_dog.bark(); // => The dog barks
+{% endhighlight %}
+{% assign methodName = "defaults" %}
+{% assign methodExample = "object.defaults" %}
+{% include methodOverview.html %}
+<p>
+<p>
+	This is a hash map of non-observable defaults to create whenever an instance of this class is initialized. If the value is a function, the function is called and the return value is assigned. Functions are called in context of this instance and with all the same arguments from the constructor method. Defaults are created before observables which means that any duplicate attributes between the observables (as in the 'observables' attribute on Falcon.Object) and default attributes will be overridden by those in the observables
+</p>
+{% highlight javascript linenos %}
+	var Dog = Falcon.Object.extend({
+		defaults: {
+			"is_tame": true,
+			"name": function(name) {
+				return ( name || "Fido" );
+			}
+		}
+	});
+
+	var dog = new Dog();
+	console.log( dog.name ); // => Fido
+	console.log( dog.is_tame ); // => true
+
+	var skip = new Dog("Skip");
+	console.log( skip.name ); // => Skip
+	console.log( skip.is_tame ); // => true
+{% endhighlight %}
+{% assign methodName = "observables" %}
+{% assign methodExample = "object.observables" %}
+{% include methodOverview.html %}
+<p>
+<p>
+	This is a hash map of the default observables and values that will become members of this class when a new instance is created. If the value of a specific key is a function a computed observable is created. If the value is an object with the keys 'read' and/or 'write' a computed is created with those object keys as the definition for the computed observable. All computed observables are created with this objects's instance as their context.
+</p>
+{% highlight javascript linenos %}
+	var Dog = Falcon.Object.extend({
+		observables: {
+			"name": "Fido",
+			"parent_dog_name": "",
+			"child_of_lassie": function(parent_dog_name)
+			{
+				return this.parent_dog_name() === "Lassie";
+			}
+		}
+	});
+
+	var dog = new Dog(); // Dog not related to Lassie
+
+	console.log( ko.isObservable( dog.name ) ); // => true
+	console.log( ko.isComputed( dog.child_of_lassie ) ); // => true
+	
+	console.log( dog.name() ); // => Fido
+	console.log( dog.child_of_lassie() ); // => false
+
+	dog.name("Spot")
+	dog.parent_dog_name("Lassie")
+
+	console.log( dog.name() ); // => Spot
+	console.log( dog.child_of_lassie() ); // => true
+{% endhighlight %}
+{% assign methodName = "on" %}
+{% assign methodExample = "object.on( event, callback, [context] )" %}
+{% assign returnType = "Falcon.Object" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Adds an event listener with a given function to this Falcon object. Whenever the event is triggered any callback that is bound to this event will also be triggered. This become useful for message passing between objects.
+</p>
+<dl>
+	<dt data-type="String">event</dt>
+	<dd>The event to listen for.</dd>
+	<dt data=type="Function">callback</dt>
+	<dd>The callback function to call when this event is triggered.</dd>
+	<dt data=type="mixed">context</dt>
+	<dd>The context to apply to the callback. Defaults to this object.</dd>
+</dl>
+{% highlight javascript linenos %}
+	var obj = new Falcon.Object();
+	obj.on("alert", function() { ... });
+{% endhighlight %}
+{% assign methodName = "off" %}
+{% assign methodExample = "object.off( event, [callback] )" %}
+{% assign returnType = "Falcon.Object" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Removes event listening for a specific event. Optionally, if a callback is given, only that callback will be removed from the list of callbacks for the specified event.
+</p>
+<dl>
+	<dt data-type="String">event</dt>
+	<dd>The event to stop listening for.</dd>
+	<dt data=type="Function">callback</dt>
+	<dd>The specific callback function to remove.</dd>
+</dl>
+{% highlight javascript linenos %}
+	var obj = new Falcon.Object();
+
+	obj.on("log", function() {
+		console.log("Hello World");
+	});
+
+	obj.trigger("log"); // => Logs 'Hello World'
+
+	obj.off("log");
+
+	obj.trigger("log"); // => Nothing Happens
+{% endhighlight %}
+{% highlight javascript linenos %}
+	var obj = new Falcon.Object();
+
+	var log_callback_one = function() {
+		console.log("Log One");
+	};
+
+	var log_callback_two = function() {
+		console.log("Log Two");
+	};
+
+	obj.on("log", log_callback_one);
+	obj.on("log", log_callback_two);
+
+	obj.trigger("log");  // => Logs 'Log One', then 'Log Two'
+
+	obj.off("log", log_callback_one);
+
+	obj.trigger("log");  // => Logs 'Log Two'
+{% endhighlight %}
+{% assign methodName = "trigger" %}
+{% assign methodExample = "object.trigger( event, [args...] )" %}
+{% assign returnType = "Falcon.Object" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Triggers an event for this object. This will call all event listeners for a specific event.  If any additional arguments are given to this method (other than the event name), those arguments will also be passed on down to the event listeners.
+</p>
+<dl>
+	<dt data-type="String">event</dt>
+	<dd>The event to trigger.</dd>
+	<dt data=type="Arguments">args...</dt>
+	<dd>Additional arguments to pass on to each of the event listener callback functions.</dd>
+</dl>
+{% highlight javascript linenos %}
+	var obj = new Falcon.Object();
+
+	obj.on("log", function()
+	{
+		console.log("Hello World");
+	});
+
+	obj.on("custom_log", function(message)
+	{
+		console.log( message );
+	});
+
+	obj.trigger("log"); // => Logs 'Hello World'
+	obj.trigger("custom_log", "Foo Bar"); // => Logs 'Foo Bar'
+{% endhighlight %}
+{% assign methodName = "has" %}
+{% assign methodExample = "object.has( event, callback )" %}
+{% assign returnType = "Boolean" %}
+{% assign returnDescription = "Does this object have the event defined?" %}
+{% include methodOverview.html %}
+<p>
+<p>
+	Checks to see if a specific event is defined for an object. Optionally, if a callback is given, this method will check to see if that callback is defined for the specified event.
+</p>
+<dl>
+	<dt data-type="String">event</dt>
+	<dd>The event to check.</dd>
+	<dt data=type="Function">callback</dt>
+	<dd>A specific callback for an event to check.</dd>
+</dl>
+{% highlight javascript linenos %}
+	var obj = new Falcon.Object();
+
+	var log_function = function() {
+		log("Hello World")
+	};
+
+	var foo_function = function() {
+		log("Foo Bar")
+	};
+
+	obj.on("log", log_function);
+
+	console.log( obj.has("log") ); // => true
+	console.log( obj.has("click") ); // => false
+
+	console.log( obj.has("log", log_function) ); // => true
+	console.log( obj.has("log", foo_function) ); // => false
+{% endhighlight %}

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+	{% include head.html %}
+	<body>
+		{% assign docs_selected = true %}
+		{% include header.html %}
+		<div id="subheader">
+			<div class="subheader-inner">
+				<h1>
+					Bindings
+				</h1>
+				<h4>Bindings define how our HTML displays and reacts to our Javascript. Falcon adds new bindings to Knockout, the most important being the 'view' binding.</h4>
+			</div>
+		</div>
+		<div id="content">
+			{% assign expand_bindings_menu = true %}
+			{% include menu.html %}
+			<div class="content-inner">
+				{{ content }}
+			</div>
+		</content>
+		{% include scripts.html %}
+	</body>
+</html>

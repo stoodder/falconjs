@@ -1,0 +1,30 @@
+{% assign methodName = "get" %}
+{% assign methodExample = "model.get( attribute )" %}
+{% assign returnType = "mixed" %}
+{% assign returnDescription = "The unwrapped value at the specified attribute" %}
+{% include methodOverview.html %}
+<p>
+	Method used to look up the value of an attribute on this model. If the attribute is an observable, then the observable is unwrapped and its internal value is returned.
+</p>
+<dl>
+	<dt data-type="String">attribute</dt>
+	<dd>The attribute to look up</dd>
+</dl>
+{% highlight javascript linenos%}
+	var Dog = Falcon.Model.extend({
+		defaults: {
+			"name": "Fido"
+		},
+
+		observables: {
+			"hello": "world"
+		}
+	});
+
+	var dog = new Dog();
+
+	console.log( ko.isObservable( dog.name ) ); // => false
+	console.log( ko.isObservable( dog.hello ) ); // => true
+	console.log( dog.get("name") ); // => Fido
+	console.log( dog.get("hello") ); // => world
+{% endhighlight %}
