@@ -105,6 +105,64 @@ var dog = new Dog( owner ); // Owner becomes the 'parent' of dog
 
 console.log( dog.parent === owner ); // => true
 {% endhighlight %}
+{% assign methodName = "defaults" %}
+{% assign methodExample = "model.defaults" %}
+{% include methodOverview.html %}
+<p>
+<p>
+	This is a hash map of non-observable defaults to create whenever an instance of this model is initialized. If the value is a function, the function is called and the return value is assigned. Functions are called in context of this instance and with all the same arguments from the constructor method. Defaults are created before observables which means that any duplicate attributes between the observables (as in the 'observables' attribute on Falcon.Object) and default attributes will be overridden by those in the observables
+</p>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend({
+	defaults: {
+		"is_tame": true,
+		"name": function(name) {
+			return ( name || "Fido" );
+		}
+	}
+});
+
+var dog = new Dog();
+console.log( dog.name ); // => Fido
+console.log( dog.is_tame ); // => true
+
+var skip = new Dog("Skip");
+console.log( skip.name ); // => Skip
+console.log( skip.is_tame ); // => true
+{% endhighlight %}
+{% assign methodName = "observables" %}
+{% assign methodExample = "model.observables" %}
+{% include methodOverview.html %}
+<p>
+<p>
+	This is a hash map of the default observables and values that will become properties of this model when a new instance is created. If the value of a specific key is a function a computed observable is created. If the value is an object with the keys 'read' and/or 'write' a computed is created with those object keys as the definition for the computed observable. All computed observables are created with this objects's instance as their context.
+</p>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend({
+	observables: {
+		"name": "Fido",
+		"parent_dog_name": "",
+		"child_of_lassie": function(parent_dog_name)
+		{
+			return this.parent_dog_name() === "Lassie";
+		}
+	}
+});
+
+var dog = new Dog(); // Dog not related to Lassie
+
+console.log( ko.isObservable( dog.name ) ); // => true
+console.log( ko.isComputed( dog.child_of_lassie ) ); // => true
+
+console.log( dog.name() ); // => Fido
+console.log( dog.child_of_lassie() ); // => false
+
+dog.name("Spot");
+dog.parent_dog_name("Lassie");
+
+console.log( dog.name() ); // => Spot
+console.log( dog.child_of_lassie() ); // => true
+{% endhighlight %}
 {% assign methodName = "clone" %}
 {% assign methodExample = "model.clone( [attributes], [parent] )" %}
 {% assign returnType = "Falcon.Model" %}
@@ -120,7 +178,7 @@ console.log( dog.parent === owner ); // => true
 	<dd>An override of the parent to set in the resultant model. If 'null' is explicitly given, then the resultant model will be parent-free</dd>
 </dl>
 {% highlight javascript linenos %}
-var Dog = Falcon.Model.extend({name: ""});
+var Dog = Falcon.Model.extend();
 
 var dog = new Dog({"name": "fido"});
 var fido_clone = dog.clone();
@@ -149,6 +207,27 @@ var dog = new Dog({name: "Fido"});
 // Sends the data {"name": "Fido"} to '/dog.json'
 // If using the jQuery adapter, this will be an ajax POST to '/dog.json'
 dog.create();
+{% endhighlight %}
+{% assign methodName = "decrement" %}
+{% assign methodExample = "model.decrement( key )" %}
+{% assign returnType = "Falcon.Model" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Decrements the value of a property at the key given by one.
+</p>
+<dl>
+	<dt data-type="String">key</dt>
+	<dd>The property that we should decrement.</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+
+var dog = new Dog({
+	"bark_count": ko.observable(1)
+});
+dog.decrement("bark_count");
+console.log( dog.get("bark_count") ); // => 0
 {% endhighlight %}
 {% assign methodName = "destroy" %}
 {% assign methodExample = "model.destroy( [options] )" %}
@@ -300,6 +379,27 @@ var dog = new Dog({id: 1});
 console.log( dog.id ); // => 1
 console.log( dog.get("id") ); // => 1
 {% endhighlight %}
+{% assign methodName = "increment" %}
+{% assign methodExample = "model.increment( key )" %}
+{% assign returnType = "Falcon.Model" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Increments the value of a property at the key given by one.
+</p>
+<dl>
+	<dt data-type="String">key</dt>
+	<dd>The property that we should increment.</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+
+var dog = new Dog({
+	"bark_count": ko.observable(1)
+});
+dog.increment("bark_count");
+console.log( dog.get("bark_count") ); // => 2
+{% endhighlight %}
 {% assign methodName = "isNew" %}
 {% assign methodExample = "model.isNew()" %}
 {% assign returnType = "Boolean" %}
@@ -360,7 +460,7 @@ console.log( dog.makeUrl("GET", null) ); // => http://www.falconjs.com/dog/2.jso
 {% assign returnDescription = "This instance" %}
 {% include methodOverview.html %}
 <p>
-	Maps extra attributes and methods onto this model for use later, mostly in Falcon views. Will ensure that any method that is not a knockout observable will be called in the context of this model as well as pass this model in as the first argument, pushing the other arguments down the list.
+	Maps extra attributes and methods onto this model for use later, mostly in Falcon views. Will ensure that any method that is not a Knockout observable will be called in the context of this model as well as pass this model in as the first argument, pushing the other arguments down the list.
 </p>
 <dl>
 	<dt data-bind="Object">mapping</dt>

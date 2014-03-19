@@ -1,0 +1,29 @@
+{% assign methodName = "stopListening" %}
+{% assign methodExample = "object.stopListening( [object], [event], [callback] )" %}
+{% assign returnType = "Falcon.Object" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Stops listening to all or a sub-set of the current events from this object that were assigned using the 'listenTo' method.  If any of the input parameters are given, we'll only stop listening to certain events if they match the input arguments.
+</p>
+<dl>
+	<dt data=type="Falcon.Object">object</dt>
+	<dd>The object to stop listening to.</dd>
+	<dt data-type="String">event</dt>
+	<dd>The event to stop listening for.</dd>
+	<dt data=type="Function">callback</dt>
+	<dd>Remove events based on a specific event callbakc.</dd>
+</dl>
+{% highlight javascript linenos %}
+var obj = new Falcon.Object();
+var dog = new Falcon.Model();
+
+// Stops listening to all events assigned with listenTo
+obj.stopListening();
+
+// Stops listening to all events on dog
+obj.stopListening(dog);
+
+// Stops listening to all bark events on dog
+obj.stopListening(dog, "bark");
+{% endhighlight %}

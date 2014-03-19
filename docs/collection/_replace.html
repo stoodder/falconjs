@@ -1,0 +1,32 @@
+{% assign methodName = "replace" %}
+{% assign methodExample = "collection.replace( items )" %}
+{% assign returnType = "Falcon.Collection" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Replaces all of the models in the collection with the input array
+</p>
+<dl>
+	<dt data-type="Falcon.Model">item</dt>
+	<dd>A model to replace all of the models in the current collection with.</dd>
+</dl>
+<dl>
+	<dt data-type="Array">items</dt>
+	<dd>An array of models to replace the current list of models in the collection.</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
+
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"}
+]);
+console.log( dogs.pluck("name") ); // => [Fido, Skip]
+
+dogs.replace({"name": "Lassie"});
+console.log( dogs.pluck("name") ); // => [Lassie]
+
+dogs.replace([{"name": "Bucko"}, ["name": "Spot"]]);
+console.log( dogs.pluck("name") ); // => [Bucko, Spot]
+{% endhighlight %}

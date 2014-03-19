@@ -2,14 +2,14 @@
 layout: tutorial
 title: Knockout Crash Course
 description: A quick overview of Knockout.js
-knockout_crash_course_selected: true
+Knockout_crash_course_selected: true
 ---
 <p>
-	Before getting started with Falcon, let's need to run briefly through how <a href="http://knockoutjs.com/">Knockout.js</a> works. If you already have a decent understanding of general Knockout concepts, feel free to skip this portion of the tutorial and get started with our <a href="/tutorial/basic_todo_list.html">Basic Todo List example</a>.  Additionally, if you're looking for more information on Knockout, be sure to check out their <a href="http://learn.knockoutjs.com/">interactive tutorial</a> and <a href="http://knockoutjs.com/documentation/introduction.html">documentation</a>.  Nevertheless, let's get started.
+	Before getting started with Falcon, let's need to run briefly through how <a href="http://Knockoutjs.com/">Knockout.js</a> works. If you already have a decent understanding of general Knockout concepts, feel free to skip this portion of the tutorial and get started with our <a href="/tutorial/basic_todo_list.html">Basic Todo List example</a>.  Additionally, if you're looking for more information on Knockout, be sure to check out their <a href="http://learn.Knockoutjs.com/">interactive tutorial</a> and <a href="http://Knockoutjs.com/documentation/introduction.html">documentation</a>.  Nevertheless, let's get started.
 </p>
 <h4>What is Knockout?</h4>
 <p>
-	<a href="http://knockoutjs.com/">Knockout.js</a> is a Javascript library that provides a Model View ViewModel (MVVM) architecture for web applications. Essentially, it allows DOM elements to be dynamically updated and re-rendered when certain variables are updated without creating a hard dependency between your Javascript and HTML. In other words, Knockout allows us to update a value in Javascript and then have all of the related HTML elements (think form fields, paragraphs, css classes, etc.) update and re-rendered when needed.
+	<a href="http://Knockoutjs.com/">Knockout.js</a> is a Javascript library that provides a Model View ViewModel (MVVM) architecture for web applications. Essentially, it allows DOM elements to be dynamically updated and re-rendered when certain variables are updated without creating a hard dependency between your Javascript and HTML. In other words, Knockout allows us to update a value in Javascript and then have all of the related HTML elements (think form fields, paragraphs, css classes, etc.) update and re-rendered when needed.
 </p>
 <h4>Observables and Bindings</h4>
 <p>
@@ -26,7 +26,7 @@ knockout_crash_course_selected: true
 		<li>Toggling a css class on an element when an observable that is truthy or falsey.</li>
 		<li>Calling certain Javascript functions when an event is triggered on an element.</li>
 	</ul>
-	Additionally, it's possible to create your own, custom bindings, but we won't discuss that in these early tutorials. If you're interested in learning how, take a look at the <a href="http://knockoutjs.com/documentation/custom-bindings.html">Knockout documentation for custom bindings</a>.
+	Additionally, it's possible to create your own, custom bindings, but we won't discuss that in these early tutorials. If you're interested in learning how, take a look at the <a href="http://Knockoutjs.com/documentation/custom-bindings.html">Knockout documentation for custom bindings</a>.
 </p>
 <p>
 	Take a look at the jsFiddle example below.  Here we're creating an observable 'name' on a viewModel object. We're setting the name to 'Mr. Falcon' and then applying the bindings to our html. <code>ko.applyBindings( viewModel )</code> is how we initialize Knockout and tell it to parse through our html to link bindings with the specified viewModel.
@@ -34,7 +34,26 @@ knockout_crash_course_selected: true
 <p>
 	In the HTML tab of the jsFiddle you'll see our Knockout template. Here we have an input text field that will update the value of our 'name' observable using the 'value' binding when the text field's value is changed. Once the 'name' observable is updated, Knockout will also update the text in the 'span' element via the 'text' bindings. Take a look at the result tab to see how this works.
 </p>
-<iframe width="100%" height="200" data-src="http://jsfiddle.net/stoodder/yusbY/embedded/js,html,result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+	
+{% highlight javascript linenos %}
+var viewModel = {};
+viewModel.name = ko.observable();
+
+viewModel.name("Mr. Falcon");
+
+ko.applyBindings( viewModel );
+{% endhighlight %}
+<div class="caption">Application Javascript</div>
+
+{% highlight html linenos %}
+<div>
+    <label>Please enter your name:</label>
+    <input type="text" data-bind="value: name" />
+</div>
+Welcome, <span data-bind="text: name"></span>!
+{% endhighlight %}
+<div class="caption">Application HTML</div>
+<a href="http://jsfiddle.net/stoodder/yusbY/" class="btn btn-primary">jsFiddle</a>
 
 <h4>Computed Observables</h4>
 <p>
@@ -43,7 +62,39 @@ knockout_crash_course_selected: true
 <p>
 	For instance, in the example below we have two observables that represent a first and last name of a user. We also have a computed observable called 'full_name' that will output the full name representation of whatever the user has entered for their first and last names. In the example, we've bound two input fields via the 'value' binding to the first and last name bindings. We then bind the 'full_name' computed observable to the text binding of the span field which will output the full name. Notice also that we've introduced the 'if' binding around our text output of the full name. The 'if' binding is used to either display or hide children elements based on the truthy or falsey value of an observable.
 </p>
-<iframe width="100%" height="300" data-src="http://jsfiddle.net/stoodder/VGjV8/embedded/js,html,result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+{% highlight javascript linenos %}
+var viewModel = {}
+viewModel.first_name = ko.observable()
+viewModel.last_name = ko.observable()
+viewModel.full_name = ko.computed(function(){
+    var first_name = viewModel.first_name() || "";
+    var last_name = viewModel.last_name() || "";
+    var full_name = first_name + " " + last_name;
+    
+    //Trim any white space
+    full_name = full_name.replace(/^\s\s*/, '').replace(/\s\s*$/, '')
+    
+    return full_name;
+});
+
+ko.applyBindings( viewModel );
+{% endhighlight %}
+<div class="caption">Application Javascript</div>
+{% highlight html linenos %}
+<div>
+    <label>Please enter your first name:</label>
+    <input type="text" data-bind="value: first_name" />
+</div>
+<div>
+    <label>Please enter your last name:</label>
+    <input type="text" data-bind="value: last_name" />
+</div>
+<div data-bind="if: full_name">
+    Welcome, <span data-bind="text: full_name"></span>!
+</div>
+{% endhighlight %}
+<div class="caption">Application HTML</div>
+<a href="http://jsfiddle.net/stoodder/VGjV8" target="_blank" class="btn btn-primary">jsFiddle</a>
 
 <h4>Writeable Computed Observables and Virtual Bindings</h4>
 <p>
@@ -52,7 +103,64 @@ knockout_crash_course_selected: true
 <p>
 	In this example we update the 'full_name' computed binding to also become writeable. In our template, we've added another field that allows users to type in their full name (instead of just their first and last names). When the value of that field changes the writeable observable splits the name properly and re-updates the first and last name values. Additionally, we've changed our template to now use Virtual Bindings rather than depending on HTML elements for certain things. The virtual bindings can be found in the form of HTML comments that take this pattern: <code>&lt;!-- ko binding: observable -->Content...&lt;!-- /ko --></code>. Take a look at the example below to see how this works:
 </p>
-<iframe width="100%" height="500" data-src="http://jsfiddle.net/stoodder/MH3vq/embedded/js,html,result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+{% highlight javascript linenos %}
+//Helper method to trim whitespace
+var trim = function(str) {
+    return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '')
+};
+
+var viewModel = {}
+viewModel.first_name = ko.observable("");
+viewModel.last_name = ko.observable("");
+viewModel.full_name = ko.computed({
+    read: function(){
+        var first_name = viewModel.first_name() || "";
+        var last_name = viewModel.last_name() || "";
+        var full_name = first_name + " " + last_name;
+        
+        full_name = trim( full_name );
+        
+        return full_name;
+    },
+    
+    write: function( value ) {
+        value = value || "";
+        
+        //Split up the name
+        var pieces = value.split(" ", 2);
+        var first_name = trim( pieces[0] || "" );
+        var last_name = trim( pieces[1] || "" );
+           
+        //Update the observable values
+        viewModel.first_name( first_name );
+        viewModel.last_name( last_name );
+    }
+});
+
+ko.applyBindings( viewModel );
+{% endhighlight %}
+<div class="caption">Application Javascript</div>
+{% highlight html linenos %}
+<div>
+    <label>Please enter your first name:</label>
+    <input type="text" data-bind="value: first_name" />
+</div>
+<div>
+    <label>Please enter your last name:</label>
+    <input type="text" data-bind="value: last_name" />
+</div>
+- or -
+<div>
+    <label>Enter your Full Name:</label>
+    <input type="text" data-bind="value: full_name" />
+</div>
+<hr />
+<!-- ko if: full_name -->
+    Welcome, <!-- ko text: full_name --><!-- /ko -->!
+<!-- /ko -->
+{% endhighlight %}
+<div class="caption">Application HTML</div>
+<a href="http://jsfiddle.net/stoodder/MH3vq" target="_blank" class="btn btn-primary">jsFiddle</a>
 
 
 <h4>Observable Arrays, Event Bindings, and Binding Contexts</h4>
@@ -66,6 +174,65 @@ knockout_crash_course_selected: true
 	Also in this example we have two methods, 'addName' and 'removeName', that will be bound to buttons with the 'click' binding. The click binding is an example of an <strong>event binding</strong>. With the 'click' binding, the current template context will be passed in as the first argument.  In other words, when using the 'foreach' binding on the 'names' observables array, a list of names is displayed to the user with a 'remove' button next to each. Each remove button is bound to the 'removeName' function on the viewModel through the 'click' binding. When a user clicks the remove button, that specific name object is passed into the 'removeName' function as the first argument.
 </p>
 <p>
-	Finally, if you look at how the 'removeName' function is bound to the 'click' binding in the html tab of the jsFiddle you'll see that we use <code>click: $root.removeName</code>. In Knockout, $root is called a <strong>Binding Context</strong>.  Essentially, binding contexts are just variables that can be used in templates to help us navigate to different parts of the context hierarchy.  In other words, the $root context always references the root viewModel that is bound with ko.applyBindings(). In our example we needed to use the $root binding from within the foreach binding because the current context would be that of each individual name object rather than the root view model. Other binding contexts include: $root, $parent, $parents, $data and more. To learn about them in-depth, checkout the <a href="http://knockoutjs.com/documentation/binding-context.html">Knockout Docs on Binding Contexts</a>.
+	Finally, if you look at how the 'removeName' function is bound to the 'click' binding in the html tab of the jsFiddle you'll see that we use <code>click: $root.removeName</code>. In Knockout, $root is called a <strong>Binding Context</strong>.  Essentially, binding contexts are just variables that can be used in templates to help us navigate to different parts of the context hierarchy.  In other words, the $root context always references the root viewModel that is bound with ko.applyBindings(). In our example we needed to use the $root binding from within the foreach binding because the current context would be that of each individual name object rather than the root view model. Other binding contexts include: $root, $parent, $parents, $data and more. To learn about them in-depth, checkout the <a href="http://Knockoutjs.com/documentation/binding-context.html">Knockout Docs on Binding Contexts</a>.
 </p>
-<iframe width="100%" height="500" data-src="http://jsfiddle.net/stoodder/T3Q38/embedded/js,html,result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+{% highlight javascript linenos %}
+//Helper method to trim whitespace
+var trim = function(str) {
+    return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '')
+};
+
+var viewModel = {}
+viewModel.new_first_name = ko.observable();
+viewModel.new_last_name = ko.observable();
+viewModel.names = ko.observableArray([]);
+
+name_ids = 1;
+viewModel.addName = function() {
+    // Make the new name from the given fields
+    var first_name = viewModel.new_first_name();
+    var last_name = viewModel.new_last_name();
+    var full_name = trim( first_name + " " + last_name );
+    
+    // Reset the new name fields
+    viewModel.new_first_name("");
+    viewModel.new_last_name("");
+    
+    // Add the name to the list of names
+    viewModel.names.push({
+        id: name_ids++, // Just an auto incrementing ID, for example sake
+        full_name: full_name
+    });
+};
+
+viewModel.removeName = function( name_object ) {
+    viewModel.names.remove( name_object );
+};
+
+
+ko.applyBindings( viewModel );
+{% endhighlight %}
+<div class="caption">Application Javascript</div>
+{% highlight html linenos %}
+<div>
+    <label>Please enter a first name:</label>
+    <input type="text" data-bind="value: new_first_name" />
+</div>
+<div>
+    <label>Please enter a last name:</label>
+    <input type="text" data-bind="value: new_last_name" />
+</div>
+<div>
+    <button data-bind="click: addName">Add</button>
+</div>
+<hr />
+<ul data-bind="foreach: names">
+    <li>
+        <!-- ko text: id --><!-- /ko -->)
+        <!-- ko text: full_name --><!-- /ko -->
+        <button data-bind="click: $root.removeName">Remove</button>
+    </li>
+</ul>
+{% endhighlight %}
+<div class="caption">Application HTML</div>
+<a href="http://jsfiddle.net/stoodder/T3Q38" target="_blank" class="btn btn-primary">jsFiddle</a>

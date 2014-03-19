@@ -1,11 +1,12 @@
 ---
 layout: tutorial
 title: Multiple Todo Lists
+fiddle: http://jsfiddle.net/stoodder/7rEax
 description: The next evolution in our Todo List.
 multiple_todo_lists_selected: true
 ---
 <p>
-	In this next example, we go a bit more complex with our application.Instead of letting users manage a single todo list, we've set it up so that users can have a list of multiple todo lists each with a title, description, and multiple todos.  The user is able to create new todo lists at will, edit that todo list, and remove the todo list. Different views will be presented to the user (create todo list form, view todo list, etc) within a general layout that will contain a list of all of the user's current todo lists.
+	In this next example, we go a bit more complex with our application. Instead of letting users manage a single todo list, we've set it up so that users can have a list of multiple todo lists each with a title, description, and multiple todos.  The user is able to create new todo lists at will, edit that todo list, and remove the todo list. Different views will be presented to the user (create todo list form, view todo list, etc) within a general layout that will contain a list of all of the user's current todo lists.
 </p>
 <p>
 	The point of this example is to show how Falcon allows for multiple views to be created and injected inside one-another (for example, like having a global layout with many different 'pages').  Also we show how Falcon implements an event messaging architecture to help pass messages and listen to events between objects.
@@ -21,17 +22,402 @@ multiple_todo_lists_selected: true
 		<strong>trigger()</strong> - Method used to send a custom event to any listeners (who used the 'on' method described above).  This method takes N number of arguments, where the first argument is the event that we would like to trigger and any additional arguments are variables that should be passed into any of the listener's callback methods.
 	</li>
 	<li>
-		<strong>view binding</strong> - The view binding is a new binding added by Falcon that allows us to inject a view within another view. This binding takes in a Falcon View or a Knockout observable and injects the rendered view within the current view's rendered template. If an observable is given (like in our example), the child view will dynamically change whenever the observables is updated with a new view. An example of how this is used can be seen in the example's html tab within the '#layout_template' element.  This binding is useful for dynamic apps that have common widgets spread throughout them or with apps that have multiple hierarchies of views (such as with a todo list manager that has a layout with multiple pages and edit forms).
+		<strong>view binding</strong> - The view binding is a new knockout binding added by Falcon that allows us to inject a view within another view and is core to building diverse applications. This binding takes in a Falcon View or a Knockout observable and injects the rendered view within the current view's rendered template. If an observable is given (like in our example), the child view will dynamically change whenever the observables is updated with a new view. An example of how this is used can be seen in the example's html tab within the '#layout_template' element.  This binding is useful for dynamic apps that have common widgets spread throughout them or with apps that have multiple hierarchies of views (such as with a todo list manager that has a layout with multiple pages and edit forms).
 </ul>
-<ul class="nav nav-tabs">
-	<li class="active"><a href="#multiple-todo-list-commented" data-toggle="tab" class="tab">Commented Source</a></li>
-	<li><a href="#multiple-todo-list-uncommented" data-toggle="tab" class="tab">Uncommented Source</a></li>
-</ul>
-<div class="tab-content">
-	<div class="tab-pane active" id="multiple-todo-list-commented">
-		<iframe width="100%" height="500" data-src="http://jsfiddle.net/stoodder/7rEax/embedded/js,html,result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
-	</div>
-	<div class="tab-pane" id="multiple-todo-list-uncommented">
-		<iframe width="100%" height="500" data-src="http://jsfiddle.net/stoodder/V7Ybz/embedded/js,html/light/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
-	</div>
-</div>
+<a class="btn enable-comments" href="javascript:void(-1)">Show Comments</a>
+<a class="btn disable-comments" href="javascript:void(-1)">Hide Comments</a>
+{% highlight javascript linenos %}
+// The Todo model hasn't changed
+var Todo = Falcon.Model.extend({
+	url: 'todo',
+	
+	observables: {
+		'text': '',
+		'is_complete': ''
+	}
+});
+
+// The Todos collection hasn't changed
+var Todos = Falcon.Collection.extend({
+	model: Todo
+});
+
+// Here we're adding a TodoList model to represent a specific list 
+// of todos that also has a title and description.
+var TodoList = Falcon.Model.extend({
+	url: 'todo_list',
+	
+	defaults: {
+		// Here we're saying that the 'todos' attribute of a TodoList will be a
+		// Todos collection who's parent is this TodoList (hence the 'this' 
+		// that's being passed into the constrcutor). A model or collection's
+		// parent object is used for generating RESTful urls in the makeUrl 
+		// function that will be used in any sync() related method.
+		// This concept will be discussed more in the following tutorial
+		'todos': function() { return new Todos( this ); }
+	},
+	
+	observables: {
+		'title': '',
+		'description': ''
+	}
+});
+
+var TodoLists = Falcon.Collection.extend({
+	model: TodoList 
+});
+
+// Here we're definine a View to display a single todo list, it's title
+// and description, and any of it's todos
+var TodoListView = Falcon.View.extend({
+	url: '#todo_list_tmpl',
+	
+	// If a function is defined for a specific default, that function is 
+	// called with the same arguments passed into the constructor of this 
+	// class. Hence, in the example of todo_list, a TodoList is passed into 
+	// the TodoListView constrcutor, which then initializes all of the 
+	// defaults including the todo_list. Since the todo_list default simply 
+	// returns the todo_list that was passed into it, that value is assigned 
+	// to the todo_list attribute.  Note: This is the same as writting
+	// "this.todo_list = todo_list;" in the 'initialize' method below.
+	defaults: {
+		'todo_list': function( todo_list ){ return todo_list; }
+	},
+	
+	observables: {
+		'new_todo_text': ''
+	},
+	
+	// Just a stub method to show how this class should be constrcuted
+	initialize: function(todo_list){},
+	
+	// Adds a todo to this view's todo list
+	addTodo: function()
+	{
+		var todo = new Todo({ text: this.new_todo_text() });
+		this.todo_list.todos.append( todo );
+		this.new_todo_text('');
+	},
+	
+	// Removes a todo from this view's todo list
+	removeTodo: function(todo)
+	{
+		this.todo_list.todos.remove( todo );
+	},
+	
+	// Method used to mark a todo as complete
+	completeTodo: function(todo)
+	{
+		todo.set('is_complete', true);
+	},
+	
+	// Method used to trigger an internal 'edit' event.
+	editTodoList: function()
+	{
+		// Trigger an 'edit' event on this view and pass this view's todo list 
+		// to anything that's listening for the 'edit' event. This is 100%
+		// custom and has no particular special meaning to Falcon. Instead,
+		// this can be used for other classes to listen in on activity 
+		// happening within this view. This will be demonstrated later on in
+		// more depth, but essentially this allows us to define a parent view
+		// that can react to an 'edit' event. Here we see the view triggering
+		// a custom 'edit' event that will pass this view's todo_list to any
+		// other class that's listening for the 'edit' event.
+		this.trigger("edit", this.todo_list);
+	},
+	
+	// Method used to trigger an internal 'delete' event. Same concept as 
+	// the edit event.
+	deleteTodoList: function()
+	{
+		this.trigger("delete", this.todo_list);
+	}
+});
+
+// Here we're defining a NewTodoListView which will be used to show a blank
+// form that can be used to create a new todo list.
+var NewTodoListView = Falcon.View.extend({
+	
+	// A generic form template for editting and creating todo lists
+	url: '#todo_list_form_tmpl',
+	
+	observables: {
+		'title': 'Untitled Todo List',
+		'description': ''
+	},
+	
+	// Method used to trigger a cancel event
+	cancelSave: function()
+	{
+		this.trigger("cancel");
+	},
+	
+	// Method used to save the todo list
+	saveTodoList: function()
+	{
+		//Create the todo list
+		todo_list = new TodoList({
+			'title': this.title(),
+			'description': this.description()
+		});
+		
+		// Trigger a custom save event and pass the new todo list to anything
+		// that may be listening for events on this view
+		this.trigger("save", todo_list);
+	}
+});
+
+// Here we're creating a view that will be used to let us edit a todo list
+var EditTodoListView = Falcon.View.extend({
+	//We'll use the same template as the new todo list view
+	url: '#todo_list_form_tmpl',
+	
+	defaults: {
+		// Again, the todo_list here is the same as what's sent to the
+		// initialize method
+		'todo_list': function(todo_list) { return todo_list; }
+	},
+	
+	observables: {
+		'title': '',
+		'description': ''
+	},
+	
+	// This time we'll be using the initialize method to set up the intial
+	// values for a few of our observables defined above (title and description)
+	initialize: function(todo_list) {
+		this.title( todo_list.get('title') );
+		this.description( todo_list.get('description') );
+	},
+	
+	// Method used to trigger a custom 'cancel' event
+	cancelSave: function()
+	{
+		this.trigger("cancel", this.todo_list);
+	},
+	
+	// Method used to save the form data to this view's todo_list
+	saveTodoList: function()
+	{
+		this.todo_list.set({
+			'title': this.title(),
+			'description': this.description()
+		});
+		
+		// Trigger a custom 'save' event with the updated todo list as 
+		// an argument to pass to any listeners
+		this.trigger("save", this.todo_list );
+	}
+});
+
+// Here will wrap everything togethor by creating a view for the entire 
+// layout that can be used to switch between child views (todo list edit 
+// form, todo list create form, todo list view)
+// Imagine this as the view that would show your footer and header elements 
+// but has dynamic content that changes depending what state your application
+// is in.
+var LayoutView = Falcon.View.extend({
+	url: '#layout_tmpl',
+	
+	defaults: {
+		'todo_lists': function() { return new TodoLists }
+	},
+	
+	observables: {
+		// This observable will hold the currently visible child view.
+		// Specifically, in this example, this will be either a TodoListView,
+		// EditTodoListView, or NewTodoListView that were defined above
+		'current_view': null,
+		
+		// This observable will store the currently selected todo list and 
+		// will only be used to determine the todo list from the 'todo_lists'
+		// attribute that is currently being viewed. In the template this is
+		// used to highlight a menu item on the left to show users which todo
+		// list is being focussed on.
+		'selected_todo_list': null
+	},
+	
+	// This method is used to select a specific todo list and display 
+	// a TodoListView
+	selectTodoList: function(todo_list) {
+		//Create the view
+		var view = new TodoListView( todo_list );
+		
+		// Attach event listeners for specific events. Remember the
+		// this.trigger() methods from above? The view.on() method is how 
+		// Falcon allows for assignment of event listeners to those trigger
+		// methods. Notice that the callback method has a first 'todo_list'
+		// argument defined. This is how a listener receives data sent by a
+		// trigger() event. (so when the TodoListView calls this.trigger("edit",
+		// todo_list), this view.on listener is called and the todo_list is
+		// passed into its callback as the first argument). 
+		//
+		// Note: the third argument to the view.on() method below is the 
+		// context in which the callbacks should be called with. This is 
+		// how we can keep scope into this view's methods. Therefore when 
+		// we call this.editTodoList(todo_list), we're actually calling
+		// editTodoList on this LayoutView
+		view.on("edit", function(todo_list) {
+			// LayoutView method for showing the EditTodoListView
+			this.editTodoList(todo_list);
+		}, this);
+		
+		// Listen to delete events
+		view.on("delete", function(todo_list) {
+			// Remove the todo_list from the layout's collection of todo_lists
+			this.todo_lists.remove( todo_list )
+			
+			// Deselect the selected todo list
+			this.selected_todo_list( null );
+			
+			// Remove the current view (prompting the user to pick a different
+			// todo list or make a new one)
+			this.current_view( null );
+		}, this);
+		
+		// Set up the current view to be displayed and state which todo list
+		// we're currently viewing
+		this.current_view( view );
+		this.selected_todo_list( todo_list );
+	},
+	
+	// Method used to generate a NewTodoListView, attach all necessary events,
+	// and display the view in the content area
+	newTodoList: function() {
+		view = new NewTodoListView();
+		
+		// When the save event is triggered from the NewTodoListView we'll
+		// append the newly created todo list to our todo list collection 
+		// and we'll show the TodoListView associated with that todo list
+		view.on("save", function(todo_list) {
+			
+			// Add the generated todo_list to the layout's collection of 
+			// todo lists
+			this.todo_lists.append( todo_list );
+			
+			// Show the TodoListView associated with this todo list
+			this.selectTodoList( todo_list );
+		}, this);
+		
+		// On a cancel event, we'll just deselect the current view
+		view.on("cancel", function() {
+			this.current_view( null );
+		}, this);
+		
+		this.current_view( view );
+		this.selected_todo_list( null );
+	},
+	
+	// Method used to show an EditTodoListView for a specific todo list
+	// This will attach all necessary events and set up all observables
+	// to their correct values.
+	editTodoList: function(todo_list) {
+		view = new EditTodoListView( todo_list );
+		
+		// On save we'll just show the specific todo list's TodoListView
+		view.on("save", function() {
+			this.selectTodoList( todo_list );
+		}, this);
+		
+		// On cancel we'll just show the specific todo list's TodoListView
+		view.on("cancel", function() {
+			this.selectTodoList( todo_list );
+		}, this);
+		
+		this.current_view( view );
+		this.selected_todo_list( todo_list );
+	},
+	
+	// Helper mehtod to determine if a specific todo list is currently selected
+	// This is used in the template to determine if it should highlight which
+	// todo list we're currently viewing.
+	isSelectedList: function(todo_list) {
+		return ( todo_list.equals(this.selected_todo_list) );
+	}
+});
+
+//Initialize our app and the initial view
+view = new LayoutView
+Falcon.apply(view, "#application");
+{% endhighlight %}
+<div class="caption">Application Javascript</div>
+{% highlight html linenos %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="knockout-3.1.0.js"></script>
+		<script src="falcon.min.js"></script>
+		<script src="application.js"></script>
+	</head>
+	<body>
+		<div id="application"></div>
+
+		<template id="layout_tmpl">
+			<div id="layout-sidebar">
+				<button data-bind="click: $view.newTodoList">New Todo List</button>
+				<ul id="todolist-list" data-bind="foreach: $view.todo_lists">
+					<li data-bind="click: $view.selectTodoList, css: {'selected': $view.isSelectedList( $data )}">
+						<strong data-bind="text: title"></strong>
+						<p data-bind="text: description"></p>
+					</li>
+				</ul>
+			</div>
+			<div id="content-view">
+				<!-- ko ifnot: $view.current_view -->
+					<div class="alert alert-info">
+						<h4>No List Selected</h4>
+						<p>Start by selecting a todo list from the menu on the left.</p>
+					</div>
+				<!-- /ko -->
+				<!-- ko if: $view.current_view -->
+					<!-- ko view: $view.current_view --><!-- /ko -->
+				<!-- /ko -->
+			</div>
+		</template>
+
+		<template id="todo_list_form_tmpl">
+			<form class="form-horizontal" data-bind="submit: $view.saveTodoList">
+				<div class="control-group">
+					<label class="control-label">Title</label>
+					<div class="controls">
+						<input type="text" class="input-large" data-bind="value: $view.title" />
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label">Description</label>
+					<div class="controls">
+						<textarea data-bind="value: $view.description"></textarea>
+					</div>
+				</div>
+				<div class="form-actions">
+					<input type="button" class="btn" value="Cancel" data-bind="click: $view.cancelSave" />
+					<input type="submit" class="btn btn-primary" value="Save" />
+				</div>
+			</form>
+		</template>
+
+		<template id="todo_list_tmpl">
+			<!-- ko with: todo_list -->
+				<h3>
+					<!-- ko text: title --><!-- /ko -->
+					<a data-bind="click: $view.editTodoList">Edit</a>
+					<a data-bind="click: $view.deleteTodoList">Delete</a>
+				</h3>
+				<p data-bind="text: description"></p>
+				<ul class="todo-list" data-bind="foreach: todos">
+					<li data-bind="css: {'completed': is_complete}">
+						<!-- ko text: text --><!-- /ko -->
+						<a data-bind="click: $view.completeTodo">[Complete]</a>
+						<a data-bind="click: $view.removeTodo">[X]</a>
+					</li>
+				</ul>
+				<input type="text" data-bind="value: $view.new_todo_text" />
+				<button data-bind="click: $view.addTodo">Add</button>
+			<!-- /ko -->
+		</template>
+	</body>
+</html>
+
+{% endhighlight %}
+<div class="caption">Application HTML</div>
+<a href="http://jsfiddle.net/stoodder/7rEax" target="_blank" class="btn btn-primary">jsFiddle</a>

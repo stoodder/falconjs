@@ -61,7 +61,7 @@ console.log( skip.is_tame ); // => true
 {% include methodOverview.html %}
 <p>
 <p>
-	This is a hash map of the default observables and values that will become members of this class when a new instance is created. If the value of a specific key is a function a computed observable is created. If the value is an object with the keys 'read' and/or 'write' a computed is created with those object keys as the definition for the computed observable. All computed observables are created with this objects's instance as their context.
+	This is a hash map of the default observables and values that will become properties of this class when a new instance is created. If the value of a specific key is a function a computed observable is created. If the value is an object with the keys 'read' and/or 'write' a computed is created with those object keys as the definition for the computed observable. All computed observables are created with this objects's instance as their context.
 </p>
 {% highlight javascript linenos %}
 var Dog = Falcon.Object.extend({
@@ -219,4 +219,54 @@ console.log( obj.has("click") ); // => false
 
 console.log( obj.has("log", log_function) ); // => true
 console.log( obj.has("log", foo_function) ); // => false
+{% endhighlight %}
+{% assign methodName = "listenTo" %}
+{% assign methodExample = "object.listenTo( object, event, callback )" %}
+{% assign returnType = "Falcon.Object" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Adds an event listener onto an object for a certain event while retaining this object's context in the callback.  This method is very similar to 'on' but is useful because we're able to store a reference to all of the events that this object relies on. Because we have an internal record of all of the events, we don't need to store references to the original event defintiion if we want to disable those events later.  Instead, we can just call the stopListening() method to disable all or a specific set of events from this object. 
+</p>
+<dl>
+	<dt data=type="Falcon.Object">object</dt>
+	<dd>The object to listen to.</dd>
+	<dt data-type="String">event</dt>
+	<dd>The event to listen for.</dd>
+	<dt data=type="Function">callback</dt>
+	<dd>The callback function to call when this event is triggered.</dd>
+</dl>
+{% highlight javascript linenos %}
+var obj = new Falcon.Object();
+var dog = new Falcon.Model();
+obj.listenTo(dog, "bark", function() { ... });
+{% endhighlight %}
+{% assign methodName = "stopListening" %}
+{% assign methodExample = "object.stopListening( [object], [event], [callback] )" %}
+{% assign returnType = "Falcon.Object" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Stops listening to all or a sub-set of the current events from this object that were assigned using the 'listenTo' method.  If any of the input parameters are given, we'll only stop listening to certain events if they match the input arguments.
+</p>
+<dl>
+	<dt data=type="Falcon.Object">object</dt>
+	<dd>The object to stop listening to.</dd>
+	<dt data-type="String">event</dt>
+	<dd>The event to stop listening for.</dd>
+	<dt data=type="Function">callback</dt>
+	<dd>Remove events based on a specific event callbakc.</dd>
+</dl>
+{% highlight javascript linenos %}
+var obj = new Falcon.Object();
+var dog = new Falcon.Model();
+
+// Stops listening to all events assigned with listenTo
+obj.stopListening();
+
+// Stops listening to all events on dog
+obj.stopListening(dog);
+
+// Stops listening to all bark events on dog
+obj.stopListening(dog, "bark");
 {% endhighlight %}

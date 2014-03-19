@@ -1,0 +1,25 @@
+{% assign methodName = "defaults" %}
+{% assign methodExample = "model.defaults" %}
+{% include methodOverview.html %}
+<p>
+<p>
+	This is a hash map of non-observable defaults to create whenever an instance of this model is initialized. If the value is a function, the function is called and the return value is assigned. Functions are called in context of this instance and with all the same arguments from the constructor method. Defaults are created before observables which means that any duplicate attributes between the observables (as in the 'observables' attribute on Falcon.Object) and default attributes will be overridden by those in the observables
+</p>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend({
+	defaults: {
+		"is_tame": true,
+		"name": function(name) {
+			return ( name || "Fido" );
+		}
+	}
+});
+
+var dog = new Dog();
+console.log( dog.name ); // => Fido
+console.log( dog.is_tame ); // => true
+
+var skip = new Dog("Skip");
+console.log( skip.name ); // => Skip
+console.log( skip.is_tame ); // => true
+{% endhighlight %}

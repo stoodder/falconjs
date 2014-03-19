@@ -1,0 +1,32 @@
+{% assign methodName = "observables" %}
+{% assign methodExample = "collection.observables" %}
+{% include methodOverview.html %}
+<p>
+<p>
+	This is a hash map of the default observables and values that will become properties of this collection when a new instance is created. If the value of a specific key is a function a computed observable is created. If the value is an object with the keys 'read' and/or 'write' a computed is created with those object keys as the definition for the computed observable. All computed observables are created with this objects's instance as their context.
+</p>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({
+	model: Dog,
+
+	observables: {
+		"are_tame": true,
+		"has_dogs": function() {
+			return this.length() > 0;
+		}
+	}
+});
+
+var dogs = new Dogs(); // Dog not related to Lassie
+
+console.log( ko.isObservable( dogs.are_tame ) ); // => true
+console.log( ko.isComputed( dogs.has_dogs ) ); // => true
+
+console.log( dogs.are_tame() ); // true
+console.log( dogs.has_dogs() ); // false
+
+dog.push(new Dog());
+
+console.log( dogs.has_dogs() ); // true
+{% endhighlight %}

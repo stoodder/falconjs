@@ -1,26 +1,458 @@
 ---
 layout: tutorial
 title: Todo List with a Backend
+fiddle: http://jsfiddle.net/stoodder/G5XFT
 description: Finally, adding some memory to our todo list.
 remote_resources_selected: true
 ---
 <p>
-	In this final example, we take the previous multiple todo list example, and add a remote server to the mix.  Here we'll be loading and saving the view templates and model/collection data from a remote server.  Infact, we're actually using a mock javascript server with local storage. If you're curious to see how that works, the javascript can be found <a href="scripts/mock_todo_server.js">here</a>.
+	In this final example, we take the previous multiple todo list example, and add a remote server to the mix.  <strong>Here we'll be loading the view templates and model/collection data from a remote server.  For this example, we're actually using a mock javascript server with local storage.</strong> If you're curious to see how that works, the javascript can be found <a href="/assets/scripts/mock_todo_server.js" target="_blank">here</a>.
 </p>
 <p>
 	In this example we'll show how Falcon loads and caches view templates. We'll also demonstrate how Falcon's makeUrl method on views, models, and collections generate URLs and what it means for a model or a collection have a 'parent' model.
 </p>
+<a class="btn enable-comments" href="javascript:void(-1)">Show Comments</a>
+<a class="btn disable-comments" href="javascript:void(-1)">Hide Comments</a>
+{% highlight javascript linenos %}
+// First we'll begin by configuring the global settings 'baseTemplateUrl' and
+// 'baseApiUrl'.
+//
+// The 'baseTemplateUrl' defines what url should be prepended to all remote view
+// template ajax requests. This is useful if you have a specific directory or
+// content server that you would like to serve individual templates from.  This
+// variable is utilized by a View's 'makeUrl' method.
+//
+// The 'baseApiUrl' defines what url should be prepended to all remote model and
+// collection ajax requests. Like the template url, this is useful for defining a
+// base endpoint for an api that Falcon should use to interact with RESTful Server
+// APIs
+Falcon.baseTemplateUrl = "/template";
+Falcon.baseApiUrl = "/api";
 
-<ul class="nav nav-tabs">
-	<li class="active"><a href="#remote-todo-list-commented" data-toggle="tab" class="tab">Commented Source</a></li>
-	<li><a href="#remote-todo-list-uncommented" data-toggle="tab" class="tab">Uncommented Source</a></li>
-</ul>
+// Overall, the todo model is the same except for the url attribute which now
+// points to a remote server resource.  How the url attribute is actually used 
+// by Falcon is discussed later in the tutorial
+var Todo = Falcon.Model.extend({
+	// I didn't have to add the .json to the end of the url attribute but 
+	// for the sake of this tutorial, I decided to to show how urls are
+	// generated, even with those that have extensions on them.  So just 
+	// note that this tutorial would work just the same without the .json
+	// extension.  I'll be describing exactly how url's are generated 
+	// throughout the tutorial by the 'sync' related methods located within 
+	// the tutorial's views (TodoListView, NewTodoListView, EditTodoListView,
+	// LayoutView) for models and collections via their 'sync' methods (fetch,
+	// create, save, destroy)
+	url: 'todo.json',
+	
+	observables: {
+		'text': '',
+		'is_complete': ''
+	}
+});
 
-<div class="tab-content">
-	<div class="tab-pane active" id="remote-todo-list-commented">
-		<iframe width="100%" height="500" data-src="http://jsfiddle.net/stoodder/G5XFT/embedded/js,html,result/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
-	</div>
-	<div class="tab-pane" id="remote-todo-list-uncommented">
-		<iframe width="100%" height="500" data-src="http://jsfiddle.net/stoodder/VS9r6/2/embedded/js,html/light/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
-	</div>
-</div>
+// Todos is the same
+var Todos = Falcon.Collection.extend({
+	model: Todo
+});
+
+// TodoList is the same except for the url with it's new extension
+var TodoList = Falcon.Model.extend({
+	url: 'todo_list.json',
+	
+	defaults: {
+		'todos': function() { return new Todos( this ); }
+	},
+	
+	observables: {
+		'title': '',
+		'description': ''
+	}
+});
+
+// TodoLists is the same
+var TodoLists = Falcon.Collection.extend({
+	model: TodoList 
+});
+
+
+
+// The TodoListView has the same functions as before except now it's url is set
+// up to load a template from a remote server rather than a local <template>
+// element.  Also, the models and collections in this method will be using
+// sync() methods to retrieve, save, and delete data from a remote server.
+// The TodoListView is used to display information.
+var TodoListView = Falcon.View.extend({
+	// Here we changed our url to use a remote resource by getting rid of 
+	// the "#" symbol that identifies a local <template> element. Instead,
+	// Falcon will make an ajax request to the server to find this template. 
+	//
+	// In this scenario, the view's 'makeUrl' method will combine the 
+	// 'url' attribute with the configurable Falcon.baseTemplateUrl variable.
+	// The Falcon.baseTemplateUrl variable is set to '/template' so the url 
+	// that will be generated here will be:
+	// 
+	//   '/template/todo_list.tmpl'.
+	//
+	// This url will be utilized in an ajax request to load up and cache the
+	// view's html template.
+	url: 'todo_list.tmpl',
+
+	defaults: {
+		'todo_list': function(todo_list) { return todo_list; }
+	},
+	
+	observables: {
+		'new_todo_text': ''
+	},
+	
+	//Stubbed initialize method just to show the input parameters
+	initialize: function(todo_list){},
+	
+	// Adds a new todo to the todo list and saves it to the server
+	addTodo: function()
+	{
+		// Initialize the todo with the todo_list as its 'parent'
+		var todo = new Todo({ text: this.new_todo_text() }, this.todo_list);
+		
+		// Next we'll create the todo on the server and append it into the
+		// todo_list's collection of todos (todo_list.todos).
+		// 
+		// The create method will send a POST ajax request to the server.
+		// Because the Todo was created with this view's TodoList as its
+		// parent, the url that will be generated is:
+		//
+		// /api/todo_list/{todo_list_id}/todo.json
+		//
+		// Let me disect this URL.
+		// 
+		// Firstly, the '/api' part is the value of Falcon.baseApiUrl. This
+		// variable is similar to Falcon.baseTemplateUrl except that it
+		// applies to urls generated for Models and Collections.
+		// 
+		// Next, the '/todo_list' portion of the url is taken from the TodoList
+		// model which is the 'parent' of this todo.  TodoList is defined with a
+		// 'url' of 'todo_list.json'. Falcon's Model 'makeUrl' method takes
+		// everything before the extension (.json) and considers that to be the
+		// appropriate piece for the url
+		//
+		// Next, the '{todo_list_id}' is set to the id of the current todo list.
+		// Hence, if the id of the todo list is 1, then {todo_list_id} will 
+		// take the value of '1'.  The 'id' attribute of a model is generated
+		// by the server and stored upon a successful response. Here the
+		// response from the server for a todo model will be a json object 
+		// that will represent this todo, including it's unique id
+		//
+		// Lastly, the '/todo.json' piece is taken directly from the Todo
+		// Model's url attribute.
+		this.todo_list.todos.create(todo);
+		
+		// Reset the todo text
+		this.new_todo_text('');
+	},
+	
+	// Method used to remove a todo from a todo list and from a remote server
+	removeTodo: function(todo)
+	{
+		// Here we'll call the todos collection's destroy method to remove the
+		// specified todo.  The destroy function on a collection  will both
+		// remove all instances of a model (based on equal ids) after it makes
+		// a successful DELETE ajax request to the server.  Here the url that
+		// will be generated during the DELETE ajax request is:
+		// 
+		// /api/todo_list/{todo_list_id}/todo/{todo_id}.json
+		//
+		// I'll disect this url as well.
+		//
+		// The '/api/todo_list/{todo_list_id}' portion is all the same as the
+		// todos.create() example above.
+		//
+		// The '/todo' part is extracted from the Todo model's url attribute
+		// ('todo.json') and is stripped of the extension. Since we're
+		// attempting to delete a specific Todo, the Todo's id is appended
+		// to the url which makes up the '{todo_id}' portion.
+		//
+		// Lastly, the .json extension is appended from the second half of the
+		// Todo model's url attribute.
+		this.todo_list.todos.destroy( todo );
+	},
+	
+	// Method used to mark a todo as complete
+	completeTodo: function(todo)
+	{
+		todo.set('is_complete', true);
+		
+		// Here we're going to save the specific Todo to the server. The save
+		// method generates a PUT request to the server. Here the url that will
+		// be generated for the todo is the same as the 'destroy' method above
+		// because we're affecting a specific todo who's parent is a todo list:
+		//
+		//   /api/todo_list/{todo_list_id}/todo/{todo_id}.json
+		//
+		todo.save();
+	},
+	
+	// Trigger to signal the start of an edit to a specific todo list
+	editTodoList: function()
+	{
+		this.trigger("edit", this.todo_list);
+	},
+	
+	// Method used to destroy the internal todo list from the server
+	deleteTodoList: function()
+	{
+		// Here we're going to be destroying a specific todo list from the
+		// server. Once the ajax call is complete, a custom 'delete' event is
+		// triggered.
+		//
+		// In this 'sync' related example the url that will be generated is:
+		//
+		//   /api/todo_list/{todo_list_id}.json
+		//
+		// Since we're only affecting a specific todo list with no parent model
+		// or collection the url is generated using the model's 'url' attribute
+		// (todo_list.json) while injecting the model's specific id into the url
+		//
+		// In this method, we pass in a callback method and a context argument
+		// to the destroy method. Underneath the hood, Falcon realizes that the
+		// first argument is a function and assigns that function to be called
+		// when the ajax call is completed (either successful or errornous). The
+		// resultant model (todo_list) is always passed in as the first argument
+		// to any of the 'sync' related callbacks (complete, success, error).
+		// The second argument given to the destroy method is the context in
+		// which to call any of the sync related methods on.  In this scenario
+		// it's this view.
+		this.todo_list.destroy(function(todo_list) {
+			this.trigger("delete", todo_list);
+		}, this);
+	}
+});
+
+
+
+// Same New Todo List View as before except with a remote template and actual
+// model and collection server interactions
+var NewTodoListView = Falcon.View.extend({
+	// Updated template url, will generate to: '/template/edit_todo_list.tmpl'
+	url: 'todo_list_form.tmpl',
+	
+	observables: {
+		'title': 'Untitled Todo List',
+		'description': ''
+	},
+	
+	// Method to trigger a custom canel event
+	cancelSave: function()
+	{
+		this.trigger("cancel");
+	},
+	
+	// Method used to create a new todo list on the server and trigger a custom
+	// 'save' event on completion.
+	saveTodoList: function()
+	{
+		// Initialize the todo list
+		todo_list = new TodoList({
+			'title': this.title(),
+			'description': this.description()
+		});
+		
+		// Here we're going to create the TodoList on the server and then, on
+		// complete, we'll trigger a custom 'save' event.  On this line, the
+		// create() method creates a POST request to the server and will generate
+		// a url:
+		//
+		//   /api/todo_list.json
+		//
+		// Here the url is simply generated from the parentless TodoList's url
+		// attribute and the Falcon.baseApiUrl variable.
+		//
+		// Lastly, this method is set up to call it's callbacks on complete with
+		// the context of this view (hence the second argument of the create
+		// method).
+		todo_list.create(function(todo_list) {        
+			this.trigger("save", todo_list);
+		}, this);
+	}
+});
+
+
+
+// Again, the EditTodoListView is the same as previous tutorials except that it
+// now refers to a remote resource to locate its template and utilizes the sync
+// methods for collections and models.
+var EditTodoListView = Falcon.View.extend({
+	// Remote url for template, generated url: '/template/edit_todo_list.tmpl'
+	url: 'todo_list_form.tmpl',
+	
+	defaults: {
+		'todo_list': function(todo_list){ return todo_list; }
+	},
+	
+	observables: {
+		'title': '',
+		'description': ''
+	},
+	
+	initialize: function(todo_list) {
+		this.title( todo_list.get('title') );
+		this.description( todo_list.get('description') );
+	},
+	
+	// Method used to trigger a custom 'cancel' event on the form
+	cancelSave: function()
+	{
+		this.trigger("cancel", this.todo_list);
+	},
+	
+	// Method used to save the todo list to the server and then trigger a custom
+	// 'save' event.
+	saveTodoList: function()
+	{
+		// Update the todo list's data
+		this.todo_list.set({
+			'title': this.title(),
+			'description': this.description()
+		});
+		   
+		// Save the TodoList to the server and then on complete trigger a custom
+		// 'save' event.
+		//
+		// In this example the save method will send an ajax PUT request to:
+		//
+		//   /api/todo_list/{todo_list_id}.json
+		//
+		// This url is generated because we're modifying a specific todo list 
+		// that doesn't have a parent Model or Collection
+		this.todo_list.save(function(todo_list) {
+			this.trigger("save", todo_list);
+		}, this);
+	}
+});
+
+
+// Lastly, tie everything together with the layout.  This is the same as the
+// the LayoutView in previous examples except for the use of remote resources.
+var LayoutView = Falcon.View.extend({
+	// Generated url: '/template/layout.tmpl'
+	url: 'layout.tmpl',
+	
+	defaults: {
+		'todo_lists': function() { return new TodoLists }
+	},
+	
+	observables: {
+		'current_view': null,
+		'selected_todo_list': null
+	},
+	
+	// This time we'll initialize the class and fetch any todo lists that have
+	// been saved to the server since our last visit to the application
+	initialize: function()
+	{
+		// The fetch method on a collection will send an ajax GET request to the
+		// url generated by the 'makeUrl' method.  The collection will
+		// automatically be populated by the json response from the server. 
+		// The url that will be generated is:
+		//
+		//   /api/todo_list.json
+		//
+		// This is generated from the TodoList url attribute and the
+		// Falcon.baseApiUrl
+		this.todo_lists.fetch();
+	},
+	
+	// Method to display a TodoListView in the content area of the screen, listen
+	// for all related events, and select the currently viewing todo list.  All
+	// the same as the previous tutorial
+	selectTodoList: function(todo_list) {
+		var view = new TodoListView( todo_list );
+		
+		view.on("edit", function(todo_list) {
+			this.editTodoList(todo_list);
+		}, this );
+		
+		view.on("delete", function(todo_list) {
+			this.todo_lists.remove( todo_list )
+			this.selected_todo_list( null );
+			this.current_view( null );
+		}, this);
+		
+		this.current_view( view );
+		this.selected_todo_list( todo_list );
+	},
+	
+	// Method to display a NewTodoListView in the content area of the screen,
+	// listen for all related events, and select the currently viewing todo list.
+	// All the same as the previous tutorial
+	newTodoList: function() {
+		view = new NewTodoListView();
+		
+		view.on("save", function(todo_list) {
+			this.todo_lists.append( todo_list );
+			this.selectTodoList( todo_list );
+		}, this);
+		
+		view.on("cancel", function() {
+			this.current_view( null );
+		}, this);
+		
+		this.current_view( view );
+		this.selected_todo_list( null );
+	},
+	
+	// Method to display a EditTodoListView in the content area of the screen,
+	// listen for all related events, and select the currently viewing todo list.
+	// All the same as the previous tutorial
+	editTodoList: function(todo_list) {
+		view = new EditTodoListView( todo_list );
+		
+		view.on("save", function() {
+			this.selectTodoList( todo_list );
+		}, this);
+		
+		view.on("cancel", function() {
+			this.selectTodoList( todo_list );
+		}, this);
+		
+		this.current_view( view );
+		this.selected_todo_list( todo_list );
+	},
+	
+	// Method used determine if a specific list is the one that's currently
+	// being viewed
+	isSelectedList: function(todo_list) {
+		return ( todo_list.equals(this.selected_todo_list) );
+	}
+});
+
+//Initialize our app and the initial view
+view = new LayoutView
+//This method is used to apply the bindings to a specific element (in this example
+//the div with the id 'application'). If an element isn't given, Falcon will default
+//to the body element.
+Falcon.apply(view, "#application");
+{% endhighlight %}
+<div class="caption">Application HTML</div>
+{% highlight html linenos %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="knockout-3.1.0.js"></script>
+		<script src="falcon.min.js"></script>
+		
+		<!--
+			Allows us to use ajax methods through jQuery and 
+			request templates and data from a server.
+		-->
+		<script src="jquery-2.1.0.min.js"></script>
+		<script src="falcon.jquery_adapter.min.js"></script>
+
+		<script src="application.js"></script>
+	</head>
+	<body>
+		<div id="application"></div>
+	</body>
+</html>
+{% endhighlight %}
+<div class="caption">Application HTML</div>
+<a href="http://jsfiddle.net/stoodder/G5XFT/" target="_blank" class="btn btn-primary">jsFiddle</a>

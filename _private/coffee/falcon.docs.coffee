@@ -55,3 +55,20 @@ $ ->
 	#END
 #END onload
 ###
+
+$ ->
+	$(".enable-comments").addClass("btn-primary")
+
+	$(".enable-comments").click ->
+		$(".javascript .c, .javascript .c1, .javascript .c2").css("display": "")
+		$(".enable-comments").addClass("btn-primary")
+		$(".disable-comments").removeClass("btn-primary")
+	#END click
+
+	$(".disable-comments").click ->
+		console.log("DISABLE")
+		$(".javascript .c, .javascript .c1, .javascript .c2").css("display": "none")
+		$(".enable-comments").removeClass("btn-primary")
+		$(".disable-comments").addClass("btn-primary")
+	#END click
+#END onload

@@ -13,7 +13,7 @@
 	<dd>An override of the parent to set in the resultant model. If 'null' is explicitly given, then the resultant model will be parent-free</dd>
 </dl>
 {% highlight javascript linenos %}
-var Dog = Falcon.Model.extend({name: ""});
+var Dog = Falcon.Model.extend();
 
 var dog = new Dog({"name": "fido"});
 var fido_clone = dog.clone();

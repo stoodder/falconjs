@@ -58,6 +58,23 @@ $ ->
  */
 
 (function() {
-
+  $(function() {
+    $(".enable-comments").addClass("btn-primary");
+    $(".enable-comments").click(function() {
+      $(".javascript .c, .javascript .c1, .javascript .c2").css({
+        "display": ""
+      });
+      $(".enable-comments").addClass("btn-primary");
+      return $(".disable-comments").removeClass("btn-primary");
+    });
+    return $(".disable-comments").click(function() {
+      console.log("DISABLE");
+      $(".javascript .c, .javascript .c1, .javascript .c2").css({
+        "display": "none"
+      });
+      $(".enable-comments").removeClass("btn-primary");
+      return $(".disable-comments").addClass("btn-primary");
+    });
+  });
 
 }).call(this);

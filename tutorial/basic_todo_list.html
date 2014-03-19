@@ -1,6 +1,7 @@
 ---
 layout: tutorial
 title: Basic Todo List
+fiddle: http://jsfiddle.net/stoodder/2ZX52
 description: Take a step deeper, make a basic todo list.
 basic_todo_list_selected: true
 ---
@@ -18,27 +19,141 @@ basic_todo_list_selected: true
 		<strong>Model</strong> - Represents a single object (such as an Animal, Automobile, or a single Todo)
 	</li>
 	<li>
-		<strong>Collection</strong> - Represents a list of models (such as an Animals, Automobiles, or multiple Todos)
+		<strong>Collection</strong> - Represents a list of models (such as Animals, Automobiles, or multiple Todos)
 	</li>
 	<li>
-		<strong>View</strong> - Handles the interaction between models, collections and other application logic and binds everything to a specified knockout template.
+		<strong>View</strong> - Handles the interaction between models, collections and other application logic and binds everything to a specified Knockout template.
 	</li>
 	<li>
 		<strong>Falcon.apply()</strong> - This is the single method that must be called to initialize Falcon and your app. The first argument must be a Falcon View that will be bound against, by default, the <code>&lt;body&gt;</code>  of the document. Optionally, you may pass in a second parameter to specify what element on the page we would like to initialize our application in. In this example we use the <code>#application</code> element.  This will trigger the specified view to load its html template and inject it into our app's container element.
 	</li>
 	<li>
-		<strong>$view</strong> - This is a new binding context (like knockout's $root, $parent, and $data) added by Falcon to give your templates direct access to a view's methods and variables regardless of what scope you're currently in.  By default, the root level scope of a view's template is the view itself. However, if you're within a 'foreach' binding, then instead of having to call $parent to access the view, you can simply us $view itself.  To get a better understanding of how this is implemented, look at the html tab in the jsFiddle below.
+		<strong>$view</strong> - This is a new binding context (like Knockout's $root, $parent, and $data) added by Falcon to give your templates direct access to a view's methods and variables regardless of what scope you're currently in.  By default, the root level scope of a view's template is the view itself. However, if you're within a 'foreach' binding, then instead of having to call $parent to access the view, you can simply us $view itself.  To get a better understanding of how this is implemented, look at the html tab in the jsFiddle below.
 	</li>
 </ul>
-<ul class="nav nav-tabs">
-	<li class="active"><a href="#basic-todo-list-commented" data-toggle="tab" class="tab">Commented Source</a></li>
-	<li><a href="#basic-todo-list-uncommented" data-toggle="tab" class="tab">Uncommented Source</a></li>
-</ul>
-<div class="tab-content">
-	<div class="tab-pane active" id="basic-todo-list-commented">
-		<iframe width="100%" height="500" data-src="http://jsfiddle.net/stoodder/2ZX52/embedded/js,html,result/light/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
-	</div>
-	<div class="tab-pane" id="basic-todo-list-uncommented">
-		<iframe width="100%" height="500" data-src="http://jsfiddle.net/stoodder/cuTcr/embedded/js,html/light/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
-	</div>
-</div>
+<a class="btn enable-comments" href="javascript:void(-1)">Show Comments</a>
+<a class="btn disable-comments" href="javascript:void(-1)">Hide Comments</a>
+{% highlight javascript linenos %}
+var Todo = Falcon.Model.extend({
+	url: 'todo',
+
+	observables: {
+		'text': '',
+		'is_complete': ''
+	}
+});
+
+var Todos = Falcon.Collection.extend({
+	model: Todo
+});
+
+var TodoListView = Falcon.View.extend({
+	url: '#todo_list_tmpl',
+	
+	defaults: {
+		'todos': function() { return new Todos; }
+	},
+	
+	observables: {
+		'title': 'Untitled List',
+		'is_editting_title': false,
+		'new_todo_text': ''
+	},
+	
+	initialize: function(){},
+
+	addTodo: function()
+	{
+		var todo = new Todo({ text: this.new_todo_text() });
+		
+		// Append the todo to the end of the colleciton. Note: We didn't need 
+		// to define a new Todo model, rather we could have instead passed in 
+		// the todo model's data and the collection would have created the todo 
+		// for us.
+		this.todos.append( todo );
+		
+		// Reset the todo text.
+		this.new_todo_text('');
+	},
+	
+	// Method used to remove a specific todo. Because this will be bound by Knockout's 
+	// 'click' binding, the specific todo is passed in as the first argument for us.
+	removeTodo: function(todo)
+	{
+		this.todos.remove( todo );
+	},
+	
+	// Method used to mark a todo as complete
+	completeTodo: function(todo)
+	{
+		// The set method is used on this model to set the value of 'is_complete'. 
+		// This is useful in the scenario that we might not know if the is_complete 
+		// member is an observable or a primitive value.  In this instance calling 
+		// todo.is_complete( true ) would yield the same result.
+		todo.set('is_complete', true);
+	},
+	
+	// Method used to start editting the list title
+	editTitle: function()
+	{
+		this.is_editting_title( true );
+	},
+	
+	// Method used to 'save' the list's title
+	saveTitle: function()
+	{
+		this.is_editting_title( false );
+	}
+});
+
+//Initialize our app and the initial view
+view = new TodoListView;
+//This method is used to apply the bindings to a specific element (in this example
+//the div with the id 'application'). If an element isn't given, Falcon will default
+//to the body element.
+Falcon.apply(view, "#application");
+
+//Lastly, add some initial mock todos
+view.todos.append([
+	{'text': 'My First Todo'}, //Same as 'new Todo({...})'
+	{'text': 'My Second Todo'},
+	{'text': 'My Third Todo'}
+]);
+{% endhighlight %}
+<div class="caption">Application Javascript</div>
+{% highlight html linenos %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="knockout-3.1.0.js"></script>
+		<script src="falcon.min.js"></script>
+		<script src="application.js"></script>
+	</head>
+	<body>
+		<div id="application"></div>
+		<template id="todo_list_tmpl">
+			<!-- ko if: $view.is_editting_title -->
+				<input type="text" data-bind="value: $view.title" />
+				<button data-bind="click: $view.saveTitle">Save</button>
+			<!-- /ko -->
+			<!-- ko ifnot: $view.is_editting_title -->
+				<h3>
+					<!-- ko text: $view.title --><!-- /ko -->
+					<a data-bind="click: $view.editTitle">Edit</a>
+				</h3>
+			<!-- /ko -->
+			<ul class="todo-list" data-bind="foreach: $view.todos">
+				<li data-bind="css: {'completed': is_complete}">
+					<!-- ko text: text --><!-- /ko -->
+					<a data-bind="click: $view.completeTodo">[Complete]</a>
+					<a data-bind="click: $view.removeTodo">[X]</a>
+				</li>
+			</ul>
+			<input type="text" data-bind="value: $view.new_todo_text" />
+			<button data-bind="click: $view.addTodo">Add</button>
+		</template>
+	</body>
+</html>
+{% endhighlight %}
+<div class="caption">Application HTML</div>
+<a href="http://jsfiddle.net/stoodder/2ZX52" target="_blank" class="btn btn-primary">jsFiddle</a>

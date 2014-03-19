@@ -1,0 +1,29 @@
+{% assign methodName = "set" %}
+{% assign methodExample = "collection.set( key, value )" %}
+{% assign returnType = "Falcon.Collection" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Sets a specific property of all of the models in the collection to a certain value.
+</p>
+<dl>
+	<dt data-type="String">key</dt>
+	<dd>The property to update.</dd>
+</dl>
+<dl>
+	<dt data-type="mixed">value</dt>
+	<dd>The value to set on each model at the given key.</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
+
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"}
+]);
+console.log( dogs.pluck("name") ); // => [Fido, Skip]
+
+dogs.set("name", "Super Dog");
+console.log( dogs.pluck("name") ); // => [Super Dog, Super Dog]
+{% endhighlight %}

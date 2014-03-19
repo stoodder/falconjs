@@ -1,0 +1,21 @@
+{% assign methodName = "decrement" %}
+{% assign methodExample = "model.decrement( key )" %}
+{% assign returnType = "Falcon.Model" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Decrements the value of a property at the key given by one.
+</p>
+<dl>
+	<dt data-type="String">key</dt>
+	<dd>The property that we should decrement.</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+
+var dog = new Dog({
+	"bark_count": ko.observable(1)
+});
+dog.decrement("bark_count");
+console.log( dog.get("bark_count") ); // => 0
+{% endhighlight %}

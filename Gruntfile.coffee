@@ -57,6 +57,9 @@ module.exports = (grunt) ->
 						"docs/object/_off.html"
 						"docs/object/_trigger.html"
 						"docs/object/_has.html"
+						"docs/object/_listenTo.html"
+						"docs/object/_stopListening.html"
+						"docs/object/_*.html"
 					]
 			#END object
 

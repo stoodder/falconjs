@@ -1,8 +1,5 @@
 
 * Add other menu things (gh stars, etc)
-* Add New Model Methods
-* Add New Collection Methods
-* Add New View Methods
 * Add New Utility Methods
 * Add Adapter Documentation
 * Add Conductor Documentation
@@ -12,10 +9,9 @@
 * Create better marketting tagline
 * Create better marketting description
 * Create better marketting splash page
-* Add defaults and observables documentation for models
-* Add defaults and observables documentation for collections
-* Add defaults and observables documentation for views
-* Document the beliefs and architecture diagram
+* Document architecture diagram
 * Blog about new features of 0.10.0
 
-* Update getting started docs to cover the WHY and make sure to include all new changes (configuration, conductor, adapter)
+* Add descriptions to tutorial index page
+* Add notations in 'getting started' about jquery adapter
+* Rename methods in multiple todo lists to prepend 'goto' when changing views
