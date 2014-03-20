@@ -14,7 +14,8 @@
   var ChainedCollection, Falcon, arrayRemove, arrayUnique, clone, extend, findKey, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, startsWith, trim, value, _foreach, _getItems, _options, _ready, _ref, _ref1, _ref2, _ref3, _shouldUpdate,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   isObject = function(object) {
     return (object != null) && Object.prototype.toString.call(object) === "[object Object]";
@@ -1241,6 +1242,10 @@
 
     _makeIterator = function(iterator) {
       var _id, _model, _model_id;
+      iterator = ko.unwrap(iterator);
+      if (Falcon.isCollection(iterator)) {
+        iterator = iterator.models();
+      }
       if (Falcon.isModel(iterator)) {
         _model = iterator;
         _model_id = _model.get('id');
@@ -1270,6 +1275,10 @@
             return false;
           }
           return model.get("id") === _id;
+        };
+      } else if (isArray(iterator)) {
+        return function(model) {
+          return __indexOf.call(iterator, model) >= 0;
         };
       }
       return iterator;

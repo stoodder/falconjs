@@ -18,6 +18,9 @@ class Falcon.Collection extends Falcon.Object
 	#	for certain types of input values
 	#--------------------------------------------------------
 	_makeIterator = (iterator) ->
+		iterator = ko.unwrap(iterator)
+		iterator = iterator.models() if Falcon.isCollection(iterator)
+
 		if Falcon.isModel( iterator )
 			_model = iterator
 			_model_id = _model.get('id')
@@ -45,6 +48,10 @@ class Falcon.Collection extends Falcon.Object
 			return (model) -> 
 				return false unless Falcon.isModel(model)
 				model.get("id") is _id
+			#END iterator
+		else if isArray(iterator)
+			return (model) ->
+				return model in iterator
 			#END iterator
 		#END if
 

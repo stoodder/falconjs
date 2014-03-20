@@ -5296,9 +5296,10 @@
       });
     });
     describe("Test the first() method", function() {
-      var collectionA, model_a1, model_a2, model_a3, model_ab;
+      var collectionA, model_a1, model_a2, model_a3, model_ab, model_none;
       collectionA = null;
       model_a1 = model_a2 = model_a3 = model_ab = null;
+      model_none = null;
       beforeEach(function() {
         model_a1 = new ModelA({
           id: 1
@@ -5312,6 +5313,7 @@
         model_a3 = new ModelA({
           id: 3
         });
+        model_none = new ModelA;
         return collectionA = new CollectionA([model_a1, model_a2, model_ab, model_a3]);
       });
       it("Should get the first element", function() {
@@ -5338,18 +5340,37 @@
         first = collectionA.first('b');
         return expect(first).toBe(model_ab);
       });
-      return it("Should return the null if nothing passes the iterator", function() {
+      it("Should return the null if nothing passes the iterator", function() {
         var first;
         first = collectionA.first(function(model) {
           return false;
         });
         return expect(first).toBe(null);
       });
+      it("Should allow for an array to be passed in", function() {
+        var first;
+        first = collectionA.first([model_none]);
+        expect(first).toBeNull();
+        first = collectionA.first([model_a1]);
+        expect(first).toEqual(model_a1);
+        first = collectionA.first([model_none, model_a1]);
+        return expect(first).toEqual(model_a1);
+      });
+      return it("Should allow for a collection to be passed in", function() {
+        var first;
+        first = collectionA.first(new CollectionA([model_none]));
+        expect(first).toBeNull();
+        first = collectionA.first(new CollectionA([model_a1]));
+        expect(first).toEqual(model_a1);
+        first = collectionA.first(new CollectionA([model_none, model_a1]));
+        return expect(first).toEqual(model_a1);
+      });
     });
-    describe("Test the last() method", function() {
-      var collectionA, model_a1, model_a2, model_a3, model_ab;
+    describe("last", function() {
+      var collectionA, model_a1, model_a2, model_a3, model_ab, model_none;
       collectionA = null;
       model_a1 = model_a2 = model_a3 = model_ab = null;
+      model_none = null;
       beforeEach(function() {
         model_a1 = new ModelA({
           id: 1
@@ -5363,6 +5384,7 @@
         model_a3 = new ModelA({
           id: 3
         });
+        model_none = new ModelA;
         return collectionA = new CollectionA([model_a1, model_a2, model_ab, model_a3]);
       });
       it("Should get the last element", function() {
@@ -5389,16 +5411,34 @@
         last = collectionA.last('b');
         return expect(last).toBe(model_ab);
       });
-      return it("Should return the null if nothing passes the iterator", function() {
+      it("Should return the null if nothing passes the iterator", function() {
         var last;
         last = collectionA.last(function(model) {
           return false;
         });
         return expect(last).toBe(null);
       });
+      it("Should allow for an array to be passed in", function() {
+        var last;
+        last = collectionA.last([model_none]);
+        expect(last).toBeNull();
+        last = collectionA.last([model_a1]);
+        expect(last).toEqual(model_a1);
+        last = collectionA.last([model_none, model_a1]);
+        return expect(last).toEqual(model_a1);
+      });
+      return it("Should allow for a collection to be passed in", function() {
+        var last;
+        last = collectionA.last(new CollectionA([model_none]));
+        expect(last).toBeNull();
+        last = collectionA.last(new CollectionA([model_a1]));
+        expect(last).toEqual(model_a1);
+        last = collectionA.last(new CollectionA([model_none, model_a1]));
+        return expect(last).toEqual(model_a1);
+      });
     });
-    describe("Test the filter() method", function() {
-      var collectionA, model_a1, model_a2, model_a3, model_ab, model_ab2, models;
+    describe("filter", function() {
+      var collectionA, model_a1, model_a2, model_a3, model_ab, model_ab2, model_none, models;
       model_a1 = new ModelA({
         id: 1
       });
@@ -5414,6 +5454,7 @@
       model_a3 = new ModelA({
         id: 3
       });
+      model_none = new ModelA;
       models = [model_a1, model_a2, model_ab, model_ab, model_ab2, model_a3];
       collectionA = new CollectionA(models);
       it("Should return the all of the models", function() {
@@ -5445,7 +5486,7 @@
         expect(all.length).toBe(3);
         return expect(all).toEqual([model_ab, model_ab, model_ab2]);
       });
-      return it("Should return an empty set of models", function() {
+      it("Should return an empty set of models", function() {
         var all;
         all = collectionA.filter(function(model) {
           return false;
@@ -5453,8 +5494,26 @@
         expect(all.length).toBe(0);
         return expect(all).toEqual([]);
       });
+      it("Should allow for an array to be passed in", function() {
+        var filter;
+        filter = collectionA.filter([model_none]);
+        expect(filter).toEqual([]);
+        filter = collectionA.filter([model_a1]);
+        expect(filter).toEqual([model_a1]);
+        filter = collectionA.filter([model_none, model_a1]);
+        return expect(filter).toEqual([model_a1]);
+      });
+      return it("Should allow for a collection to be passed in", function() {
+        var filter;
+        filter = collectionA.filter(new CollectionA([model_none]));
+        expect(filter).toEqual([]);
+        filter = collectionA.filter(new CollectionA([model_a1]));
+        expect(filter).toEqual([model_a1]);
+        filter = collectionA.filter(new CollectionA([model_none, model_a1]));
+        return expect(filter).toEqual([model_a1]);
+      });
     });
-    describe("Test the all() method", function() {
+    describe("all", function() {
       var collectionA, model_a1, model_a2, models;
       model_a1 = new ModelA({
         id: 1
@@ -5471,8 +5530,8 @@
         return expect(all).toEqual(models);
       });
     });
-    describe("Test the any() method", function() {
-      var collectionA, model_a1, model_a2, model_a3, model_a4, model_ab, model_ab2, models;
+    describe("any", function() {
+      var collectionA, model_a1, model_a2, model_a3, model_a4, model_ab, model_ab2, model_none, models;
       model_a1 = new ModelA({
         id: 1
       });
@@ -5491,6 +5550,7 @@
       model_a4 = new ModelA({
         id: 4
       });
+      model_none = new ModelA;
       models = [model_a1, model_a2, model_ab, model_ab, model_ab2, model_a3];
       collectionA = new CollectionA(models);
       it("Should match true based on function", function() {
@@ -5522,13 +5582,31 @@
         any = collectionA.any('c');
         return expect(any).toBe(false);
       });
-      return it("Should not match true based on empty iterator", function() {
+      it("Should not match true based on empty iterator", function() {
         var any;
         any = collectionA.any();
         return expect(any).toBe(false);
       });
+      it("Should allow for an array to be passed in", function() {
+        var any;
+        any = collectionA.any([model_none]);
+        expect(any).toBe(false);
+        any = collectionA.any([model_a1]);
+        expect(any).toBe(true);
+        any = collectionA.any([model_none, model_a1]);
+        return expect(any).toBe(true);
+      });
+      return it("Should allow for a collection to be passed in", function() {
+        var any;
+        any = collectionA.any(new CollectionA([model_none]));
+        expect(any).toBe(false);
+        any = collectionA.any(new CollectionA([model_a1]));
+        expect(any).toBe(true);
+        any = collectionA.any(new CollectionA([model_none, model_a1]));
+        return expect(any).toBe(true);
+      });
     });
-    describe("Test the without() method", function() {
+    describe("without", function() {
       var collectionA, model_a1, model_a2, model_a3, model_ab, model_ab2, models;
       model_a1 = new ModelA({
         id: 1
@@ -5545,8 +5623,12 @@
       model_a3 = new ModelA({
         id: 3
       });
-      models = [model_a1, model_a2, model_ab, model_ab, model_ab2, model_a3];
-      collectionA = new CollectionA(models);
+      collectionA = null;
+      models = null;
+      beforeEach(function() {
+        models = [model_a1, model_a2, model_ab, model_ab, model_ab2, model_a3];
+        return collectionA = new CollectionA(models);
+      });
       it("Should return the full set of the models when called without an iterator", function() {
         var without;
         without = collectionA.without();
@@ -5567,7 +5649,7 @@
         expect(without.length).toBe(5);
         return expect(without).toEqual([model_a1, model_ab, model_ab, model_ab2, model_a3]);
       });
-      return it("Should return a limited set of models by id", function() {
+      it("Should return a limited set of models by id", function() {
         var without;
         without = collectionA.without(3);
         expect(without.length).toBe(5);
@@ -5575,6 +5657,18 @@
         without = collectionA.without('b');
         expect(without.length).toBe(3);
         return expect(without).toEqual([model_a1, model_a2, model_a3]);
+      });
+      it("Should allow for an array to be passed in", function() {
+        var without;
+        without = collectionA.without([model_a1, model_ab]);
+        expect(without.length).toBe(3);
+        return expect(without).toEqual([model_a2, model_ab2, model_a3]);
+      });
+      return it("Should allow for a collection to be passed in", function() {
+        var without;
+        without = collectionA.without(new CollectionA([model_a1, model_ab]));
+        expect(without.length).toBe(3);
+        return expect(without).toEqual([model_a2, model_ab2, model_a3]);
       });
     });
     describe("Test the without() method", function() {

@@ -18,7 +18,6 @@ _Highlights_
 
 **TODO**
 * Add method support for 'obervables' and 'defaults' (rather than dictionary defintion)
-* Add support for Falcon.Collection in the without() method (remove all models from the resultant collection that are in the given collection)
 * Add exec binding
 * add generate binding and Falcon.register for dynamically creating views
 * Cleanup/Redo binding tests
@@ -48,3 +47,4 @@ _Highlights_
 **Bugs Fixed**
 * Fixed reference overwirtting on colleciton merge method.
 * Fix length() on collection chains
+* Added support for arrays and collection in filter methods: first, last, all, any, filter, without
