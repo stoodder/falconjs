@@ -711,13 +711,22 @@
       };
     };
 
-    Adapter.prototype.getTemplate = function(view, uri, loaded_callback) {
-      var template, _ref1, _ref2;
-      template = (_ref1 = (_ref2 = document.getElementById(uri.slice(1))) != null ? _ref2.innerHTML : void 0) != null ? _ref1 : "";
-      Falcon.View.cacheTemplate(uri, template);
-      if (isFunction(loaded_callback)) {
-        loaded_callback();
+    Adapter.prototype.getTemplate = function(uri, callback) {
+      var element, template;
+      if (!isString(uri)) {
+        console.log("HERE", typeof uri, uri);
+        throw new Error("uri must be a String");
       }
+      if (!isFunction(callback)) {
+        throw new Error("callback must be a Function");
+      }
+      element = document.getElementById(uri.slice(1));
+      if (element != null) {
+        template = element.innerHTML;
+      } else {
+        template = "";
+      }
+      callback(template);
       return this;
     };
 
@@ -1098,37 +1107,34 @@
 
     View.prototype.is_loaded = false;
 
-    View.prototype._is_rendered = false;
+    View.prototype.__falcon_view__is_rendered__ = false;
 
     View.prototype.__falcon_view__child_views__ = null;
 
     View.prototype.__falcon_view__loaded_url__ = null;
 
     function View() {
-      var url, _loaded,
+      var url,
         _this = this;
       View.__super__.constructor.apply(this, arguments);
       url = this.makeUrl();
-      this._is_rendered = false;
       this.is_loaded = ko.observable(false);
+      this.__falcon_view__is_rendered__ = false;
       this.__falcon_view__child_views__ = [];
-      _loaded = function() {
-        _this.__falcon_view__loaded_url__ = url;
-        return _this.is_loaded(true);
-      };
+      this.__falcon_view__loaded_url__ = url;
       this.initialize.apply(this, arguments);
       if (isEmpty(url) || url in __falcon_view__template_cache__) {
-        _loaded();
+        this.is_loaded(true);
       } else {
-        Falcon.adapter.getTemplate(this, url, _loaded);
+        Falcon.adapter.getTemplate(url, function(template) {
+          Falcon.View.cacheTemplate(url, template);
+          return _this.is_loaded(true);
+        });
       }
     }
 
     View.prototype.makeUrl = function() {
       var url;
-      if (this.url == null) {
-        return null;
-      }
       url = ko.utils.unwrapObservable(this.url);
       if (isFunction(url)) {
         url = url();
@@ -1137,7 +1143,7 @@
         url = "";
       }
       url = trim(url);
-      if (url.charAt(0) === '#') {
+      if (isEmpty(url) || url.charAt(0) === '#') {
         return url;
       }
       if (url.charAt(0) !== '/') {
@@ -1159,16 +1165,16 @@
     };
 
     View.prototype._render = function() {
-      if (this._is_rendered) {
+      if (this.__falcon_view__is_rendered__) {
         return;
       }
       this.display.apply(this, arguments);
-      this._is_rendered = true;
+      this.__falcon_view__is_rendered__ = true;
     };
 
     View.prototype._unrender = function() {
       var child_view, _i, _len, _ref1;
-      if (!this._is_rendered) {
+      if (!this.__falcon_view__is_rendered__) {
         return;
       }
       _ref1 = this.__falcon_view__child_views__;
@@ -1178,7 +1184,7 @@
       }
       this.__falcon_view__child_views__ = [];
       this.dispose.apply(this, arguments);
-      this._is_rendered = false;
+      this.__falcon_view__is_rendered__ = false;
     };
 
     View.prototype._addChildView = function(view) {

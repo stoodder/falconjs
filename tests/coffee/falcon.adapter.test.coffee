@@ -739,14 +739,12 @@ describe "Falcon.Adapter", ->
 		adapter = new Falcon.Adapter
 		elm_id = "my-template"
 		uri = "##{elm_id}"
-		view = new Falcon.View(url: uri)
 		callback = null
 		template = "Hello World"
 		elm = null
 
 		beforeEach ->
 			callback = jasmine.createSpy()
-			spyOn( Falcon.View, 'cacheTemplate' )
 			spyOn( document, 'getElementById' ).and.callThrough()
 
 			elm = document.createElement("div")
@@ -759,42 +757,36 @@ describe "Falcon.Adapter", ->
 			document.body.removeChild( elm )
 		#END afterEach
 
+		it "Should throw if an invalid uri is given", ->
+			expect( -> adapter.getTemplate() ).toThrow()
+			expect( -> adapter.getTemplate(123) ).toThrow()
+		#END it
+
+		it "Should throw if an invalid callback is given", ->
+			expect( -> adapter.getTemplate(uri) ).toThrow()
+			expect( -> adapter.getTemplate(uri, 123) ).toThrow()
+		#END it
+
 		it "Should retrieve the element and assign the inner html", ->
-			ret = adapter.getTemplate( view, uri, callback )
+			ret = adapter.getTemplate( uri, callback )
 
 			expect( document.getElementById.calls.count() ).toBe( 1 )
 			expect( document.getElementById ).toHaveBeenCalledWith("my-template")
 
-			expect( Falcon.View.cacheTemplate.calls.count() ).toBe( 1 )
-			expect( Falcon.View.cacheTemplate ).toHaveBeenCalledWith( uri, template )
-
 			expect( callback.calls.count() ).toBe( 1 )
+			expect( callback ).toHaveBeenCalledWith(template)
 
 			expect( ret ).toBe( adapter )
 		#END it
 
 		it "Should assign an empty template to an unfound identifier", ->
-			ret = adapter.getTemplate( view, "#the_wrong_template_id", callback )
+			ret = adapter.getTemplate( "#the_wrong_template_id", callback )
 
 			expect( document.getElementById.calls.count() ).toBe( 1 )
 			expect( document.getElementById ).toHaveBeenCalledWith("the_wrong_template_id")
 
-			expect( Falcon.View.cacheTemplate.calls.count() ).toBe( 1 )
-			expect( Falcon.View.cacheTemplate ).toHaveBeenCalledWith( "#the_wrong_template_id", "" )
-
 			expect( callback.calls.count() ).toBe( 1 )
-
-			expect( ret ).toBe( adapter )
-		#END it
-
-		it "Should work properly without a callback", ->
-			ret = adapter.getTemplate( view, uri )
-
-			expect( document.getElementById.calls.count() ).toBe( 1 )
-			expect( document.getElementById ).toHaveBeenCalledWith("my-template")
-
-			expect( Falcon.View.cacheTemplate.calls.count() ).toBe( 1 )
-			expect( Falcon.View.cacheTemplate ).toHaveBeenCalledWith( uri, template )
+			expect( callback ).toHaveBeenCalledWith("")
 
 			expect( ret ).toBe( adapter )
 		#END it

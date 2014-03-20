@@ -164,15 +164,14 @@ class @jQueryAdapter extends Falcon.Adapter
 	#END sync
 
 	#------------------------------------------------------------------------
-	# Method: jQueryAdapter#getTemplate( view, uri, loaded_callback )
+	# Method: jQueryAdapter#getTemplate( view, uri, callback )
 	#	Used to retrieve a template from the server using ajax unless the uri
 	#	is set to request a local template using the identifier syntax (starting)
 	#	with a '#'
 	#
 	# Arguments:
-	#	**view** _(View)_  - The falcon view calling this method
 	#	**uri** _(String)_ - The uri to lookup the template with
-	#	**loaded_callback** _(Function)_  - Method to call when the template has been loaded. 
+	#	**callback** _(Function)_  - Method to call when the template has been loaded. 
 	#										This is here to provide adapters that use asynchronous 
 	#										loading of templates with a way to respond to a 
 	#										completed request.
@@ -180,25 +179,29 @@ class @jQueryAdapter extends Falcon.Adapter
 	# Returns:
 	#	_(Falcon.Adapter)_ - This instance
 	#------------------------------------------------------------------------
-	getTemplate: (view, url, loaded_callback) ->
-		if url.charAt(0) is "#"
-			return super( view, url, loaded_callback )
-		else
-			$.ajax
-				url: url
-				type: "GET"
-				cache: @cache
-				complete: =>
-					loaded_callback() if isFunction( loaded_callback )
-				#END complete
-				error: () =>
-					console.log("Error Loading Template: '#{url}'")
-				#END error
-				success: (html) =>
-					Falcon.View.cacheTemplate(url, html)
-				#END success
-			#END ajax
-		#END if
+	getTemplate: (uri, callback) ->
+		return super(uri, callback) if uri.charAt(0) is "#"
+		
+		unless isString( uri )
+			throw new Error("uri must be a String")
+		#END unless
+		
+		unless isFunction( callback )
+			throw new Error("callback must be a Function")
+		#END unless
+
+		$.ajax
+			url: uri
+			type: "GET"
+			cache: @cache
+			error: =>
+				#console.log("Error Loading Template: '#{uri}'")
+				callback("")
+			#END error
+			success: (html) =>
+				callback(html)
+			#END success
+		#END ajax
 
 		return @
 	#END getTemplate

@@ -382,16 +382,14 @@ describe "jQueryAdapter", ->
 	
 	describe "getTemplate", ->
 		adapter = new jQueryAdapter
-		view = new Falcon.View
-		loaded_callback = jasmine.createSpy("Loaded Callback")
+		callback = jasmine.createSpy("Loaded Callback")
 		elm = null
-		success = complete = null
+		success = error = null
 
 		beforeEach ->
 			spyOn( Falcon.Adapter::, 'getTemplate' ).and.callThrough()
 			spyOn( $, 'ajax' )
-			spyOn( Falcon.View, 'cacheTemplate')
-			loaded_callback.calls.reset()
+			callback.calls.reset()
 
 			elm = document.createElement("div")
 			elm.setAttribute("id", "hello_world")
@@ -403,16 +401,23 @@ describe "jQueryAdapter", ->
 			document.body.removeChild( elm )
 		#END afterEach
 
+		it "Should throw if an invalid uri is given", ->
+			expect( -> adapter.getTemplate() ).toThrow()
+			expect( -> adapter.getTemplate(123) ).toThrow()
+		#END it
+
+		it "Should throw if an invalid callback is given", ->
+			expect( -> adapter.getTemplate(uri) ).toThrow()
+			expect( -> adapter.getTemplate(uri, 123) ).toThrow()
+		#END it
+
 		it "Should fall back to the original getTemplate method if an identifier is passed in", ->
-			ret = adapter.getTemplate(view, "#hello_world", loaded_callback)
+			ret = adapter.getTemplate("#hello_world", callback)
 
 			expect( Falcon.Adapter::getTemplate.calls.count() ).toBe( 1 )
-			expect( Falcon.Adapter::getTemplate ).toHaveBeenCalledWith(view, "#hello_world", loaded_callback)
+			expect( Falcon.Adapter::getTemplate ).toHaveBeenCalledWith("#hello_world", callback)
 
-			expect( Falcon.View.cacheTemplate.calls.count() ).toBe( 1 )
-			expect( Falcon.View.cacheTemplate ).toHaveBeenCalledWith( "#hello_world", "Hello World" )
-
-			expect( loaded_callback.calls.count() ).toBe( 1 )
+			expect( callback.calls.count() ).toBe( 1 )
 
 			expect( $.ajax ).not.toHaveBeenCalled()
 
@@ -420,23 +425,21 @@ describe "jQueryAdapter", ->
 		#END it
 
 		it "Should call the ajax method if a url is passed in", ->
-			ret = adapter.getTemplate(view, "http://www.google.com", loaded_callback)
+			ret = adapter.getTemplate("http://www.google.com", callback)
 
 			expect( Falcon.Adapter::getTemplate ).not.toHaveBeenCalled()
-			expect( loaded_callback ).not.toHaveBeenCalled()
-			expect( Falcon.View.cacheTemplate ).not.toHaveBeenCalled()
+			expect( callback ).not.toHaveBeenCalled()
 
 			expect( $.ajax.calls.count() ).toBe( 1 )
 			expect( $.ajax ).toHaveBeenCalledWith
 				url: "http://www.google.com"
 				type: "GET"
 				cache: false
-				complete: jasmine.any(Function)
 				error: jasmine.any(Function)
 				success: jasmine.any(Function)
 			#END toHaveBeenCalledWith
 
-			{success, complete} = $.ajax.calls.mostRecent().args[0]
+			{success, error} = $.ajax.calls.mostRecent().args[0]
 
 			expect( ret ).toBe( adapter )
 		#END it
@@ -446,19 +449,19 @@ describe "jQueryAdapter", ->
 
 			expect( Falcon.Adapter::getTemplate ).not.toHaveBeenCalled()
 			expect( $.ajax ).not.toHaveBeenCalled()
-			expect( loaded_callback ).not.toHaveBeenCalled()
-
-			expect( Falcon.View.cacheTemplate.calls.count() ).toBe( 1 )
-			expect( Falcon.View.cacheTemplate ).toHaveBeenCalledWith( "http://www.google.com", "Template HTML" )
+			
+			expect( callback.calls.count() ).toBe( 1 )
+			expect( callback ).toHaveBeenCalledWith("Template HTML")
 		#END it
 
-		it "Should call the complete routine properly", ->
-			complete()
+		it "Should call the error routine properly", ->
+			error()
 
 			expect( Falcon.Adapter::getTemplate ).not.toHaveBeenCalled()
 			expect( $.ajax ).not.toHaveBeenCalled()
-			expect( Falcon.View.cacheTemplate ).not.toHaveBeenCalled()
-			expect( loaded_callback.calls.count() ).toBe( 1 )
+
+			expect( callback.calls.count() ).toBe( 1 )
+			expect( callback ).toHaveBeenCalledWith("")
 		#END it
 	#END describe
 #END describe

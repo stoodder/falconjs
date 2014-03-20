@@ -176,28 +176,28 @@
       });
     };
 
-    jQueryAdapter.prototype.getTemplate = function(view, url, loaded_callback) {
+    jQueryAdapter.prototype.getTemplate = function(uri, callback) {
       var _this = this;
-      if (url.charAt(0) === "#") {
-        return jQueryAdapter.__super__.getTemplate.call(this, view, url, loaded_callback);
-      } else {
-        $.ajax({
-          url: url,
-          type: "GET",
-          cache: this.cache,
-          complete: function() {
-            if (isFunction(loaded_callback)) {
-              return loaded_callback();
-            }
-          },
-          error: function() {
-            return console.log("Error Loading Template: '" + url + "'");
-          },
-          success: function(html) {
-            return Falcon.View.cacheTemplate(url, html);
-          }
-        });
+      if (uri.charAt(0) === "#") {
+        return jQueryAdapter.__super__.getTemplate.call(this, uri, callback);
       }
+      if (!isString(uri)) {
+        throw new Error("uri must be a String");
+      }
+      if (!isFunction(callback)) {
+        throw new Error("callback must be a Function");
+      }
+      $.ajax({
+        url: uri,
+        type: "GET",
+        cache: this.cache,
+        error: function() {
+          return callback("");
+        },
+        success: function(html) {
+          return callback(html);
+        }
+      });
       return this;
     };
 

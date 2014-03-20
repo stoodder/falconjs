@@ -386,17 +386,15 @@
       });
     });
     return describe("getTemplate", function() {
-      var adapter, complete, elm, loaded_callback, success, view;
+      var adapter, callback, elm, error, success;
       adapter = new jQueryAdapter;
-      view = new Falcon.View;
-      loaded_callback = jasmine.createSpy("Loaded Callback");
+      callback = jasmine.createSpy("Loaded Callback");
       elm = null;
-      success = complete = null;
+      success = error = null;
       beforeEach(function() {
         spyOn(Falcon.Adapter.prototype, 'getTemplate').and.callThrough();
         spyOn($, 'ajax');
-        spyOn(Falcon.View, 'cacheTemplate');
-        loaded_callback.calls.reset();
+        callback.calls.reset();
         elm = document.createElement("div");
         elm.setAttribute("id", "hello_world");
         elm.innerHTML = "Hello World";
@@ -405,49 +403,60 @@
       afterEach(function() {
         return document.body.removeChild(elm);
       });
+      it("Should throw if an invalid uri is given", function() {
+        expect(function() {
+          return adapter.getTemplate();
+        }).toThrow();
+        return expect(function() {
+          return adapter.getTemplate(123);
+        }).toThrow();
+      });
+      it("Should throw if an invalid callback is given", function() {
+        expect(function() {
+          return adapter.getTemplate(uri);
+        }).toThrow();
+        return expect(function() {
+          return adapter.getTemplate(uri, 123);
+        }).toThrow();
+      });
       it("Should fall back to the original getTemplate method if an identifier is passed in", function() {
         var ret;
-        ret = adapter.getTemplate(view, "#hello_world", loaded_callback);
+        ret = adapter.getTemplate("#hello_world", callback);
         expect(Falcon.Adapter.prototype.getTemplate.calls.count()).toBe(1);
-        expect(Falcon.Adapter.prototype.getTemplate).toHaveBeenCalledWith(view, "#hello_world", loaded_callback);
-        expect(Falcon.View.cacheTemplate.calls.count()).toBe(1);
-        expect(Falcon.View.cacheTemplate).toHaveBeenCalledWith("#hello_world", "Hello World");
-        expect(loaded_callback.calls.count()).toBe(1);
+        expect(Falcon.Adapter.prototype.getTemplate).toHaveBeenCalledWith("#hello_world", callback);
+        expect(callback.calls.count()).toBe(1);
         expect($.ajax).not.toHaveBeenCalled();
         return expect(ret).toBe(adapter);
       });
       it("Should call the ajax method if a url is passed in", function() {
         var ret, _ref;
-        ret = adapter.getTemplate(view, "http://www.google.com", loaded_callback);
+        ret = adapter.getTemplate("http://www.google.com", callback);
         expect(Falcon.Adapter.prototype.getTemplate).not.toHaveBeenCalled();
-        expect(loaded_callback).not.toHaveBeenCalled();
-        expect(Falcon.View.cacheTemplate).not.toHaveBeenCalled();
+        expect(callback).not.toHaveBeenCalled();
         expect($.ajax.calls.count()).toBe(1);
         expect($.ajax).toHaveBeenCalledWith({
           url: "http://www.google.com",
           type: "GET",
           cache: false,
-          complete: jasmine.any(Function),
           error: jasmine.any(Function),
           success: jasmine.any(Function)
         });
-        _ref = $.ajax.calls.mostRecent().args[0], success = _ref.success, complete = _ref.complete;
+        _ref = $.ajax.calls.mostRecent().args[0], success = _ref.success, error = _ref.error;
         return expect(ret).toBe(adapter);
       });
       it("Should call the success routine properly", function() {
         success("Template HTML");
         expect(Falcon.Adapter.prototype.getTemplate).not.toHaveBeenCalled();
         expect($.ajax).not.toHaveBeenCalled();
-        expect(loaded_callback).not.toHaveBeenCalled();
-        expect(Falcon.View.cacheTemplate.calls.count()).toBe(1);
-        return expect(Falcon.View.cacheTemplate).toHaveBeenCalledWith("http://www.google.com", "Template HTML");
+        expect(callback.calls.count()).toBe(1);
+        return expect(callback).toHaveBeenCalledWith("Template HTML");
       });
-      return it("Should call the complete routine properly", function() {
-        complete();
+      return it("Should call the error routine properly", function() {
+        error();
         expect(Falcon.Adapter.prototype.getTemplate).not.toHaveBeenCalled();
         expect($.ajax).not.toHaveBeenCalled();
-        expect(Falcon.View.cacheTemplate).not.toHaveBeenCalled();
-        return expect(loaded_callback.calls.count()).toBe(1);
+        expect(callback.calls.count()).toBe(1);
+        return expect(callback).toHaveBeenCalledWith("");
       });
     });
   });

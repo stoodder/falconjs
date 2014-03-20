@@ -1664,19 +1664,15 @@
       });
     });
     return describe("getTemplate", function() {
-      var adapter, callback, elm, elm_id, template, uri, view;
+      var adapter, callback, elm, elm_id, template, uri;
       adapter = new Falcon.Adapter;
       elm_id = "my-template";
       uri = "#" + elm_id;
-      view = new Falcon.View({
-        url: uri
-      });
       callback = null;
       template = "Hello World";
       elm = null;
       beforeEach(function() {
         callback = jasmine.createSpy();
-        spyOn(Falcon.View, 'cacheTemplate');
         spyOn(document, 'getElementById').and.callThrough();
         elm = document.createElement("div");
         elm.setAttribute("id", elm_id);
@@ -1686,33 +1682,38 @@
       afterEach(function() {
         return document.body.removeChild(elm);
       });
+      it("Should throw if an invalid uri is given", function() {
+        expect(function() {
+          return adapter.getTemplate();
+        }).toThrow();
+        return expect(function() {
+          return adapter.getTemplate(123);
+        }).toThrow();
+      });
+      it("Should throw if an invalid callback is given", function() {
+        expect(function() {
+          return adapter.getTemplate(uri);
+        }).toThrow();
+        return expect(function() {
+          return adapter.getTemplate(uri, 123);
+        }).toThrow();
+      });
       it("Should retrieve the element and assign the inner html", function() {
         var ret;
-        ret = adapter.getTemplate(view, uri, callback);
+        ret = adapter.getTemplate(uri, callback);
         expect(document.getElementById.calls.count()).toBe(1);
         expect(document.getElementById).toHaveBeenCalledWith("my-template");
-        expect(Falcon.View.cacheTemplate.calls.count()).toBe(1);
-        expect(Falcon.View.cacheTemplate).toHaveBeenCalledWith(uri, template);
         expect(callback.calls.count()).toBe(1);
+        expect(callback).toHaveBeenCalledWith(template);
         return expect(ret).toBe(adapter);
       });
-      it("Should assign an empty template to an unfound identifier", function() {
+      return it("Should assign an empty template to an unfound identifier", function() {
         var ret;
-        ret = adapter.getTemplate(view, "#the_wrong_template_id", callback);
+        ret = adapter.getTemplate("#the_wrong_template_id", callback);
         expect(document.getElementById.calls.count()).toBe(1);
         expect(document.getElementById).toHaveBeenCalledWith("the_wrong_template_id");
-        expect(Falcon.View.cacheTemplate.calls.count()).toBe(1);
-        expect(Falcon.View.cacheTemplate).toHaveBeenCalledWith("#the_wrong_template_id", "");
         expect(callback.calls.count()).toBe(1);
-        return expect(ret).toBe(adapter);
-      });
-      return it("Should work properly without a callback", function() {
-        var ret;
-        ret = adapter.getTemplate(view, uri);
-        expect(document.getElementById.calls.count()).toBe(1);
-        expect(document.getElementById).toHaveBeenCalledWith("my-template");
-        expect(Falcon.View.cacheTemplate.calls.count()).toBe(1);
-        expect(Falcon.View.cacheTemplate).toHaveBeenCalledWith(uri, template);
+        expect(callback).toHaveBeenCalledWith("");
         return expect(ret).toBe(adapter);
       });
     });
@@ -6026,6 +6027,7 @@
       beforeEach(function() {
         spyOn(Falcon.View.prototype, 'initialize').and.callThrough();
         spyOn(Falcon.View.prototype, 'makeUrl').and.callThrough();
+        spyOn(Falcon.View, 'cacheTemplate').and.callThrough();
         return spyOn(Falcon.adapter, 'getTemplate').and.callThrough();
       });
       it("Should call the correct methods by default", function() {
@@ -6037,7 +6039,9 @@
         expect(view.initialize.calls.count()).toBe(1);
         expect(view.initialize).toHaveBeenCalledWith();
         expect(Falcon.adapter.getTemplate.calls.count()).toBe(1);
-        expect(Falcon.adapter.getTemplate).toHaveBeenCalledWith(view, "#hello_world", jasmine.any(Function));
+        expect(Falcon.adapter.getTemplate).toHaveBeenCalledWith("#hello_world", jasmine.any(Function));
+        expect(Falcon.View.cacheTemplate.calls.count()).toBe(1);
+        expect(Falcon.View.cacheTemplate).toHaveBeenCalledWith("#hello_world", "");
         return expect(view.is_loaded()).toBe(true);
       });
       it("Should recognized cached templates", function() {
@@ -6048,6 +6052,7 @@
         view.makeUrl.calls.reset();
         view.initialize.calls.reset();
         Falcon.adapter.getTemplate.calls.reset();
+        Falcon.View.cacheTemplate.calls.reset();
         view = new (Falcon.View.extend({
           url: "#hello_world"
         }));
@@ -6055,6 +6060,7 @@
         expect(view.initialize.calls.count()).toBe(1);
         expect(view.initialize).toHaveBeenCalledWith();
         expect(Falcon.adapter.getTemplate).not.toHaveBeenCalled();
+        expect(Falcon.View.cacheTemplate).not.toHaveBeenCalled();
         return expect(view.is_loaded()).toBe(true);
       });
       return it("Should not call the adapter on an empty template uri", function() {
@@ -6160,7 +6166,7 @@
         return expect(hello_spy.firstCall.args[0]).toEqual(1234);
       });
     });
-    describe("Test the makeUrl() method", function() {
+    describe("makeUrl", function() {
       it("Should generate the correct relative url from string", function() {
         return expect(new ViewA().makeUrl()).toEqual("/view_a");
       });
@@ -6227,10 +6233,10 @@
         Falcon.baseTemplateUrl = "http://www.falconjs.com/";
         return expect(new ViewF().makeUrl()).toEqual("http://www.falconjs.com/view_f");
       });
-      return it("Should not make a url for a 'null' url defined", function() {
-        expect(new ViewG().makeUrl()).toEqual(null);
+      return it("Should return an empty string if no url is defined", function() {
+        expect(new ViewG().makeUrl()).toEqual("");
         Falcon.baseTemplateUrl = "http://www.falconjs.com/";
-        return expect(new ViewG().makeUrl()).toEqual(null);
+        return expect(new ViewG().makeUrl()).toEqual("");
       });
     });
     return describe("Test the viewModel() method", function() {

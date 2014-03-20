@@ -33,7 +33,7 @@ class Falcon.Adapter extends Falcon.Object
 
 	#------------------------------------------------------------------------
 	# Method: Falcon.Adapter#resolveContext( data_object, type, options, context )
-	#	Used to discern the context to call the response handlers on
+	#	Used to discern the context to call the response handlers on.
 	#
 	# Arguments:
 	#	**data_object** _(Model|Collection)_  - The data object in question
@@ -335,28 +335,42 @@ class Falcon.Adapter extends Falcon.Object
 	#END sync
 
 	#------------------------------------------------------------------------
-	# Method: Falcon.Adapter#getTemplate( view, uri, loaded_callback )
-	#	Method used to retrieve the template html based on a given falcon view
-	#	and temlate uri.  The default implementation (here) expects to look for
-	#	a template element where the uri is an identifier string starting with
-	#	'#'.  If the loaded_callback is provided, it will also be called
+	# Method: Falcon.Adapter#getTemplate( uri, callback )
+	#	Method used to lookup a template and execute a callback with the
+	#	resultant template's HTML as its only argument.  The base definition
+	#	expects to receive a URI beginning with a '#' to signify that we're
+	#	looking for an Element in the DOM
 	#
 	# Arguments:
-	#	**view** _(View)_  - The falcon view calling this method
 	#	**uri** _(String)_ - The uri to lookup the template with
-	#	**loaded_callback** _(Function)_  - Method to call when the template has been loaded. 
-	#										This is here to provide adapters that use asynchronous 
-	#										loading of templates with a way to respond to a 
-	#										completed request.
+	#	**callback** _(Function)_  - Method to call when the template has been loaded. 
+	#								 This is here to provide adapters that use asynchronous 
+	#								 loading of templates with a way to respond to a 
+	#								 completed request.
 	#
 	# Returns:
 	#	_(Falcon.Adapter)_ - This instance
 	#------------------------------------------------------------------------
-	getTemplate: ( view, uri, loaded_callback ) ->
-		template = document.getElementById(uri.slice(1))?.innerHTML ? ""
-		Falcon.View.cacheTemplate( uri, template )
-		
-		loaded_callback() if isFunction( loaded_callback )
+	getTemplate: (uri, callback) ->
+		unless isString( uri )
+			console.log("HERE", typeof uri, uri)
+			throw new Error("uri must be a String")
+		#END unless
+
+		unless isFunction( callback )
+			throw new Error("callback must be a Function")
+		#END unless
+
+		element = document.getElementById(uri.slice(1))
+
+		if element?
+			template = element.innerHTML
+		else
+			template = ""
+			#console.log("Error Loading Template: '#{uri}'")
+		#END if
+
+		callback( template )
 
 		return @
 	#END getTemplate

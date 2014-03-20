@@ -41,6 +41,7 @@ describe "Falcon.View", ->
 		beforeEach ->
 			spyOn( Falcon.View::, 'initialize' ).and.callThrough()
 			spyOn( Falcon.View::, 'makeUrl' ).and.callThrough()
+			spyOn( Falcon.View, 'cacheTemplate' ).and.callThrough()
 			spyOn( Falcon.adapter, 'getTemplate').and.callThrough()
 		#END beforeEach
 
@@ -53,7 +54,10 @@ describe "Falcon.View", ->
 			expect( view.initialize ).toHaveBeenCalledWith()
 
 			expect( Falcon.adapter.getTemplate.calls.count() ).toBe( 1 )
-			expect( Falcon.adapter.getTemplate ).toHaveBeenCalledWith( view, "#hello_world", jasmine.any(Function) )
+			expect( Falcon.adapter.getTemplate ).toHaveBeenCalledWith( "#hello_world", jasmine.any(Function) )
+
+			expect( Falcon.View.cacheTemplate.calls.count() ).toBe( 1 )
+			expect( Falcon.View.cacheTemplate ).toHaveBeenCalledWith( "#hello_world", "" )
 
 			expect( view.is_loaded() ).toBe( true )
 		#END it
@@ -63,6 +67,7 @@ describe "Falcon.View", ->
 			view.makeUrl.calls.reset()
 			view.initialize.calls.reset()
 			Falcon.adapter.getTemplate.calls.reset()
+			Falcon.View.cacheTemplate.calls.reset()
 
 			view = new ( Falcon.View.extend(url: "#hello_world") )
 
@@ -72,6 +77,7 @@ describe "Falcon.View", ->
 			expect( view.initialize ).toHaveBeenCalledWith()
 
 			expect( Falcon.adapter.getTemplate ).not.toHaveBeenCalled()
+			expect( Falcon.View.cacheTemplate ).not.toHaveBeenCalled()
 
 			expect( view.is_loaded() ).toBe( true )
 		#END it
@@ -199,7 +205,7 @@ describe "Falcon.View", ->
 	# Test the makeUrl() method
 	#
 	#--------------------------------------------------------------
-	describe "Test the makeUrl() method", ->
+	describe "makeUrl", ->
 		it "Should generate the correct relative url from string", ->
 			expect( new ViewA().makeUrl() ).toEqual( "/view_a" )
 		#END it
@@ -290,11 +296,11 @@ describe "Falcon.View", ->
 			expect( new ViewF().makeUrl() ).toEqual( "http://www.falconjs.com/view_f" )
 		#END it
 
-		it "Should not make a url for a 'null' url defined", ->
-			expect( new ViewG().makeUrl() ).toEqual( null )
+		it "Should return an empty string if no url is defined", ->
+			expect( new ViewG().makeUrl() ).toEqual( "" )
 
 			Falcon.baseTemplateUrl = "http://www.falconjs.com/"
-			expect( new ViewG().makeUrl() ).toEqual( null )
+			expect( new ViewG().makeUrl() ).toEqual( "" )
 		#END it
 	#END describe
 
