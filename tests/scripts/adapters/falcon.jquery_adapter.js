@@ -178,14 +178,14 @@
 
     jQueryAdapter.prototype.getTemplate = function(uri, callback) {
       var _this = this;
-      if (uri.charAt(0) === "#") {
-        return jQueryAdapter.__super__.getTemplate.call(this, uri, callback);
-      }
       if (!isString(uri)) {
         throw new Error("uri must be a String");
       }
       if (!isFunction(callback)) {
         throw new Error("callback must be a Function");
+      }
+      if (uri.charAt(0) === "#") {
+        return jQueryAdapter.__super__.getTemplate.call(this, uri, callback);
       }
       $.ajax({
         url: uri,

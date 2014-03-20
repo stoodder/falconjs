@@ -714,7 +714,6 @@
     Adapter.prototype.getTemplate = function(uri, callback) {
       var element;
       if (!isString(uri)) {
-        console.log("HERE", typeof uri, uri);
         throw new Error("uri must be a String");
       }
       if (!isFunction(callback)) {

@@ -180,8 +180,6 @@ class @jQueryAdapter extends Falcon.Adapter
 	#	_(Falcon.Adapter)_ - This instance
 	#------------------------------------------------------------------------
 	getTemplate: (uri, callback) ->
-		return super(uri, callback) if uri.charAt(0) is "#"
-		
 		unless isString( uri )
 			throw new Error("uri must be a String")
 		#END unless
@@ -189,6 +187,8 @@ class @jQueryAdapter extends Falcon.Adapter
 		unless isFunction( callback )
 			throw new Error("callback must be a Function")
 		#END unless
+		
+		return super(uri, callback) if uri.charAt(0) is "#"
 
 		$.ajax
 			url: uri

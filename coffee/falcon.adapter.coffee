@@ -353,7 +353,6 @@ class Falcon.Adapter extends Falcon.Object
 	#------------------------------------------------------------------------
 	getTemplate: (uri, callback) ->
 		unless isString( uri )
-			console.log("HERE", typeof uri, uri)
 			throw new Error("uri must be a String")
 		#END unless
 
