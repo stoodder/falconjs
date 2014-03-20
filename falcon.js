@@ -712,7 +712,7 @@
     };
 
     Adapter.prototype.getTemplate = function(uri, callback) {
-      var element, template;
+      var element;
       if (!isString(uri)) {
         console.log("HERE", typeof uri, uri);
         throw new Error("uri must be a String");
@@ -721,12 +721,7 @@
         throw new Error("callback must be a Function");
       }
       element = document.getElementById(uri.slice(1));
-      if (element != null) {
-        template = element.innerHTML;
-      } else {
-        template = "";
-      }
-      callback(template);
+      callback(element != null ? element.innerHTML : "");
       return this;
     };
 

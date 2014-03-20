@@ -164,7 +164,7 @@ class @jQueryAdapter extends Falcon.Adapter
 	#END sync
 
 	#------------------------------------------------------------------------
-	# Method: jQueryAdapter#getTemplate( view, uri, callback )
+	# Method: jQueryAdapter#getTemplate( uri, callback )
 	#	Used to retrieve a template from the server using ajax unless the uri
 	#	is set to request a local template using the identifier syntax (starting)
 	#	with a '#'
@@ -194,13 +194,8 @@ class @jQueryAdapter extends Falcon.Adapter
 			url: uri
 			type: "GET"
 			cache: @cache
-			error: =>
-				#console.log("Error Loading Template: '#{uri}'")
-				callback("")
-			#END error
-			success: (html) =>
-				callback(html)
-			#END success
+			error: => callback("")
+			success: (html) => callback(html)
 		#END ajax
 
 		return @

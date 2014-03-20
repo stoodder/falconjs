@@ -362,15 +362,7 @@ class Falcon.Adapter extends Falcon.Object
 		#END unless
 
 		element = document.getElementById(uri.slice(1))
-
-		if element?
-			template = element.innerHTML
-		else
-			template = ""
-			#console.log("Error Loading Template: '#{uri}'")
-		#END if
-
-		callback( template )
+		callback( if element? then element.innerHTML else "" )
 
 		return @
 	#END getTemplate
