@@ -8,7 +8,7 @@ layout: conductor
 	During pre-processing of the DOM nodes, when we find a node that has a conductor attached to it, that node's attributes are evaluated against the current bidningContext <em>IF</em> the value inside of the attribute begins with $view, $data, $root, or $parent.  These evaulated attributes will then be passed along to the callback method or into the constructor of the view definition as an object who's properties are the lowercase'd attribute and the evaluated value.  If the value of the attribute is an observable, the observable will not be unwrapped, instead the reference to the observable will be passed along.
 </p>
 <div class="alert alert-info">
-	Conductors are still an experimental part of Falcon and do not come with the base installation. Instead you must download and include it following the include of the base falcon.js file.  Click <a href="/assets/scripts/falcon.conductor.min.js" target="_blank">Here</a> to download the plugin.
+	Conductors are still an experimental part of Falcon and do not come with the base installation. Instead you must download and include it following the include of the base falcon.js file.  Click <a href="{{ site.baseurl }}/assets/scripts/falcon.conductor.min.js" target="_blank">Here</a> to download the plugin.
 </div>
 <div class="alert alert-warning">
 	Conductors are still a highly experimental feature of Falcon and users should expect many breaking changes in the way that conductors work as all of the use-cases are ironed out.

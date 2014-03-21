@@ -1,7 +1,7 @@
 {% assign methodName = "About Adapters" %}
 {% include methodOverview.html %}
 <p>
-	Adapters act as the glue between collections, models, and views and a backend data source. For the majority of the time you'll never need to interact with the adapter directly. Instead, <a href="/docs/model#sync">Falcon.Model.sync()</a> and <a href="/docs/collection#sync">Falcon.Collection.sync()</a> will call the adapter's sync method when saving/updating data.  Additionally, <a href="/docs/view#initialize">Falcon.View's constructor</a> will call the adapter's getTemplate method to fetch a template's HTML.
+	Adapters act as the glue between collections, models, and views and a backend data source. For the majority of the time you'll never need to interact with the adapter directly. Instead, <a href="{{ site.baseurl }}/docs/model#sync">Falcon.Model.sync()</a> and <a href="{{ site.baseurl }}/docs/collection#sync">Falcon.Collection.sync()</a> will call the adapter's sync method when saving/updating data.  Additionally, <a href="{{ site.baseurl }}/docs/view#initialize">Falcon.View's constructor</a> will call the adapter's getTemplate method to fetch a template's HTML.
 </p>
 <p>
 	<strong>By default, Falcon's base adapter does not make any requests to a backend data source.</strong> Instead, if you're intending to utilize a backend, you should also include one of the adapters from the <a href="#List_of_Adapters">List of Adapters</a>. If you need a more customized experience, then feel free to write your own!

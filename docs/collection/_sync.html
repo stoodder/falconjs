@@ -4,13 +4,13 @@
 {% assign returnDescription = "Whatever the response from the adapter's sync method is" %}
 {% include methodOverview.html %}
 <p>
-	Method used to interact with the backend API and this collection. Internally this method just calls the <a href="/docs/adapter#sync">Falcon.adapter.sync</a> method.
+	Method used to interact with the backend API and this collection. Internally this method just calls the <a href="{{ site.baseurl }}/docs/adapter#sync">Falcon.adapter.sync</a> method.
 </p>
 <dl>
 	<dt data-type="String">type</dt>
 	<dd>The HTTP Method to call to the backend with. Valid options options include "GET", "POST", "PUT", "DELETE".</dd>
 	<dt data-type="Object">options</dt>
-	<dd>Optional object of settings to use on this call.  Please refer to <a href="/docs/adapter#standardizeOptions">Falcon.Adapter#standardizeOptions</a></dd>
+	<dd>Optional object of settings to use on this call.  Please refer to <a href="{{ site.baseurl }}/docs/adapter#standardizeOptions">Falcon.Adapter#standardizeOptions</a></dd>
 	<dt data-type="mixed">context</dt>
 	<dd>An optional context value to execute the callback methods on</dd>
 </dl>

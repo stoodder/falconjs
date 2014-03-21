@@ -3,18 +3,18 @@
 	<div class="header-inner">
 		<ul class="header-menu">
 			<li class="header-menu-item {% if tutorial_selected %}selected{% endif %}">
-				<a href="/tutorial">Getting Started</a>
+				<a href="{{ site.baseurl }}/tutorial">Getting Started</a>
 			</li>
 			<li class="header-menu-item {% if docs_selected %}selected{% endif %}">
-				<a href="/docs">Documentation</a>
+				<a href="{{ site.baseurl }}/docs">Documentation</a>
 			</li>
 			<li class="header-menu-item {% if tests_selected %}selected{% endif %}">
-				<a href="/tests/falcon.test.html" target="_blank">Tests</a>
+				<a href="{{ site.baseurl }}/tests/falcon.test.html" target="_blank">Tests</a>
 			</li>
 		</ul>
 		<div class="header-content">
-			<a href="/" class="header-logo">Falcon.js</a>
-			<a class="btn header-btn" href="/assets/scripts/falcon.min.js" target="_blank">Download v0.10.0</a>
+			<a href="{{ site.baseurl }}/" class="header-logo">Falcon.js</a>
+			<a class="btn header-btn" href="{{ site.baseurl }}/assets/scripts/falcon.min.js" target="_blank">Download v0.10.0</a>
 		</div>
 	</div>
 </div>

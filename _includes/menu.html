@@ -1,6 +1,6 @@
 <ul id="menu">
 	{% if expand_object_menu %}
-		<li class="menu-item selected"><a href="/docs/object">Object</a></li>
+		<li class="menu-item selected"><a href="{{ site.baseurl }}/docs/object">Object</a></li>
 		<li class="menu-submenu">
 			<ul class="submenu">
 				<li class="submenu-item"><a href="#extend">extend</a></li>
@@ -15,11 +15,11 @@
 			</ul>
 		<li>
 	{% else %}
-		<li class="menu-item"><a href="/docs/object">Object</a></li>
+		<li class="menu-item"><a href="{{ site.baseurl }}/docs/object">Object</a></li>
 	{% endif %}
 
 	{% if expand_model_menu %}
-		<li class="menu-item selected"><a href="/docs/model">Model</a></li>
+		<li class="menu-item selected"><a href="{{ site.baseurl }}/docs/model">Model</a></li>
 		<li class="menu-submenu">
 			<ul class="submenu">
 				<li class="submenu-item"><a href="#initialize">initialize</a></li>
@@ -54,11 +54,11 @@
 			</ul>
 		<li>
 	{% else %}
-		<li class="menu-item"><a href="/docs/model">Model</a></li>
+		<li class="menu-item"><a href="{{ site.baseurl }}/docs/model">Model</a></li>
 	{% endif %}
 
 	{% if expand_collection_menu %}
-		<li class="menu-item selected"><a href="/docs/collection">Collection</a></li>
+		<li class="menu-item selected"><a href="{{ site.baseurl }}/docs/collection">Collection</a></li>
 		<li class="menu-submenu">
 			<ul class="submenu">
 				<li class="submenu-item"><a href="#initialize">initialize</a></li>
@@ -113,11 +113,11 @@
 			</ul>
 		<li>
 	{% else %}
-		<li class="menu-item"><a href="/docs/collection">Collection</a></li>
+		<li class="menu-item"><a href="{{ site.baseurl }}/docs/collection">Collection</a></li>
 	{% endif %}
 
 	{% if expand_view_menu %}
-		<li class="menu-item selected"><a href="/docs/view">View</a></li>
+		<li class="menu-item selected"><a href="{{ site.baseurl }}/docs/view">View</a></li>
 		<li class="menu-submenu">
 			<ul class="submenu">
 				<li class="submenu-item"><a href="#initialize">initialize</a></li>
@@ -135,11 +135,11 @@
 			</ul>
 		<li>
 	{% else %}
-		<li class="menu-item"><a href="/docs/view">View</a></li>
+		<li class="menu-item"><a href="{{ site.baseurl }}/docs/view">View</a></li>
 	{% endif %}
 
 	{% if expand_adapter_menu %}
-		<li class="menu-item selected"><a href="/docs/adapter">Adapter <span class="badge badge-warning">Beta</span></a></li>
+		<li class="menu-item selected"><a href="{{ site.baseurl }}/docs/adapter">Adapter <span class="badge badge-warning">Beta</span></a></li>
 		<li class="menu-submenu">
 			<ul class="submenu">
 				<li class="submenu-item"><a href="#About_Adapters">About Adapters</a></li>
@@ -165,11 +165,11 @@
 			</ul>
 		</li>
 	{% else %}
-		<li class="menu-item"><a href="/docs/adapter">Adapter <span class="badge badge-warning">Beta</span></a></li>
+		<li class="menu-item"><a href="{{ site.baseurl }}/docs/adapter">Adapter <span class="badge badge-warning">Beta</span></a></li>
 	{% endif %}
 
 	{% if expand_bindings_menu %}
-		<li class="menu-item selected"><a href="/docs/bindings">Bindings</a></li>
+		<li class="menu-item selected"><a href="{{ site.baseurl }}/docs/bindings">Bindings</a></li>
 		<li class="menu-submenu">
 			<ul class="submenu">
 				<li class="submenu-item"><a href="#view">view</a></li>
@@ -179,17 +179,17 @@
 			</ul>
 		<li>
 	{% else %}
-		<li class="menu-item"><a href="/docs/bindings">Bindings</a></li>
+		<li class="menu-item"><a href="{{ site.baseurl }}/docs/bindings">Bindings</a></li>
 	{% endif %}
 
 	{% if expand_conductor_menu %}
-		<li class="menu-item selected"><a href="/docs/conductor">Conductor <span class="badge badge-warning">Alpha</span></a></li>
+		<li class="menu-item selected"><a href="{{ site.baseurl }}/docs/conductor">Conductor <span class="badge badge-warning">Alpha</span></a></li>
 	{% else %}
-		<li class="menu-item"><a href="/docs/conductor">Conductor <span class="badge badge-warning">Alpha</span></a></li>
+		<li class="menu-item"><a href="{{ site.baseurl }}/docs/conductor">Conductor <span class="badge badge-warning">Alpha</span></a></li>
 	{% endif %}
 
 	{% if expand_utility_menu %}
-		<li class="menu-item selected"><a href="/docs/utility">Utility</a></li>
+		<li class="menu-item selected"><a href="{{ site.baseurl }}/docs/utility">Utility</a></li>
 		<li class="menu-submenu">
 			<ul class="submenu">
 				<li class="submenu-item"><a href="#apply">apply</a>
@@ -207,14 +207,14 @@
 			</ul>
 		<li>
 	{% else %}
-		<li class="menu-item"><a href="/docs/utility">Utility</a></li>
+		<li class="menu-item"><a href="{{ site.baseurl }}/docs/utility">Utility</a></li>
 	{% endif %}
 
 	{% comment %}
 		{% if expand_configuration_menu %}
-			<li class="menu-item selected"><a href="/docs/configuration">Configuration</a></li>
+			<li class="menu-item selected"><a href="{{ site.baseurl }}/docs/configuration">Configuration</a></li>
 		{% else %}
-			<li class="menu-item"><a href="/docs/configuration">Configuration</a></li>
+			<li class="menu-item"><a href="{{ site.baseurl }}/docs/configuration">Configuration</a></li>
 		{% endif %}
 	{% endcomment %}
 </ul>

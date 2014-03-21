@@ -4,7 +4,7 @@ layout: adapter
 {% assign methodName = "About Adapters" %}
 {% include methodOverview.html %}
 <p>
-	Adapters act as the glue between collections, models, and views and a backend data source. For the majority of the time you'll never need to interact with the adapter directly. Instead, <a href="/docs/model#sync">Falcon.Model.sync()</a> and <a href="/docs/collection#sync">Falcon.Collection.sync()</a> will call the adapter's sync method when saving/updating data.  Additionally, <a href="/docs/view#initialize">Falcon.View's constructor</a> will call the adapter's getTemplate method to fetch a template's HTML.
+	Adapters act as the glue between collections, models, and views and a backend data source. For the majority of the time you'll never need to interact with the adapter directly. Instead, <a href="{{ site.baseurl }}/docs/model#sync">Falcon.Model.sync()</a> and <a href="{{ site.baseurl }}/docs/collection#sync">Falcon.Collection.sync()</a> will call the adapter's sync method when saving/updating data.  Additionally, <a href="{{ site.baseurl }}/docs/view#initialize">Falcon.View's constructor</a> will call the adapter's getTemplate method to fetch a template's HTML.
 </p>
 <p>
 	<strong>By default, Falcon's base adapter does not make any requests to a backend data source.</strong> Instead, if you're intending to utilize a backend, you should also include one of the adapters from the <a href="#List_of_Adapters">List of Adapters</a>. If you need a more customized experience, then feel free to write your own!
@@ -35,7 +35,7 @@ layout: adapter
 	<tbody>
 		<tr>
 			<td width="25%">
-				<a href="/assets/scripts/adapters/falcon.jquery_adapter.min.js" target="_blank"><strong>jQuery REST Adapter</strong></a>
+				<a href="{{ site.baseurl }}/assets/scripts/adapters/falcon.jquery_adapter.min.js" target="_blank"><strong>jQuery REST Adapter</strong></a>
 			</td>
 			<td>
 				The jQuery REST Adapter utilizes jquery to perform Ajax calls to a backend data source. This adapter supports both ajax calls for sync methods and an ajax call for the getTemplate method so that we may serve templates up asynchronously. Additionally, this adapter supports extra options:
@@ -48,11 +48,11 @@ layout: adapter
 				</ul> 
 			</td>
 			<td width="15%" align="center">
-				<a href="/assets/scripts/adapters/falcon.jquery_adapter.min.js" target="_blank">Production</a>
+				<a href="{{ site.baseurl }}/assets/scripts/adapters/falcon.jquery_adapter.min.js" target="_blank">Production</a>
 				<br />
-				<a href="/assets/scripts/adapters/falcon.jquery_adapter.js" target="_blank">Development</a>
+				<a href="{{ site.baseurl }}/assets/scripts/adapters/falcon.jquery_adapter.js" target="_blank">Development</a>
 				<br />
-				<a href="/tests/falcon.jquery_adapter.test.html" target="_blank">Tests</a>
+				<a href="{{ site.baseurl }}/tests/falcon.jquery_adapter.test.html" target="_blank">Tests</a>
 			</td>
 		</tr>
 	</tbody>
