@@ -3,3 +3,4 @@ build.json
 _site
 node_modules
 .sass-cache
+_config.yml
