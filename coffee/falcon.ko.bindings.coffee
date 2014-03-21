@@ -20,7 +20,7 @@ ko.bindingHandlers['view'] = do ->
 		if value instanceof Falcon.View
 			viewModel = value.viewModel()
 		else
-			viewModel = ko.utils.unwrapObservable( value.viewModel ? {} )
+			viewModel = ko.utils.unwrapObservable( value ? {} )
 		#END if
 
 		return viewModel

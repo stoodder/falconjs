@@ -1,24 +1,28 @@
 Falcon.addConductor = do ->
+	IGNORED_ATTRIBUTES = ["data-bind"]
 	_conductors = {}
 	_conductor_count = 0
 	_conductor_definitions = {}
 	_preprocessor = ko.bindingProvider.instance.preprocessNode
 
 	_createConductorCallback = (node, callback) ->
-		view = null
 		childContext = null
 		id = _conductor_count++
 
 		#Create the conductor definition
-		_conductor_definitions[id] = (context, viewModel) ->
-			childContext = context.createChildContext(viewModel)
-			attributes = _evaluateAttributes(node, childContext)
-			view = callback(node, attributes, childContext)
-			childContext = childContext.extend('$self': view)
+		_conductor_definitions[id] = (parentBindingContext) ->
+			view = null
+			bindingAccessors = ko.bindingProvider.instance.getBindingAccessors(node, parentBindingContext) ? {}
+			
+			bindingAccessors['view'] = ->
+				return view if view?
+				attributes = _evaluateAttributes(node, parentBindingContext)
+				return ( view = callback(node, attributes, parentBindingContext) )
+			#END bindingAccessors
 
-			bindingAccessors = ko.bindingProvider.instance.getBindingAccessors(node, childContext) ? {}
-			bindingAccessors['view'] = -> view
-			ko.applyBindingAccessorsToNode(node, bindingAccessors, childContext)
+			delete bindingAccessors['conductor'] if bindingAccessors?['conductor']?
+
+			ko.applyBindingAccessorsToNode(node, bindingAccessors, parentBindingContext)
 		#END return
 
 		#When this node is removed from the DOM, kill the conductor as well
@@ -26,17 +30,19 @@ Falcon.addConductor = do ->
 			delete _conductor_definitions[id]
 		#END disposal
 
-		node.parentNode.insertBefore( c1 = document.createComment("ko conductor_id: #{id}"), node )
-		node.parentNode.insertBefore( c2 = document.createComment("/ko"), node.nextSibling )
 
-		#Return the id of the conductor for potential later use
-		return [c1,c2]
+		data_bind = trim( node.getAttribute("data-bind") ? "" )
+		unless isEmpty( data_bind )
+			data_bind = "conductor: #{id}, #{data_bind}"
+		else
+			data_bind = "conductor: #{id}"
+		#END unless
+		node.setAttribute("data-bind", data_bind)
 	#END _createConductorCallback
 
 	_shouldEvaluateAttribute = (value) ->
 		return false unless isString( value )
 		value = trim( value )
-		return true if value.indexOf("$self") is 0
 		return true if value.indexOf("$view") is 0
 		return true if value.indexOf("$data") is 0
 		return true if value.indexOf("$root") is 0
@@ -47,7 +53,7 @@ Falcon.addConductor = do ->
 	_evaluateAttributes = (node, parentBindingContext) ->
 		attributes = {}
 
-		for attr in node.attributes when attr.name.toLowerCase() isnt "data-bind"
+		for attr in node.attributes when not ( attr.name.toLowerCase() in IGNORED_ATTRIBUTES )
 			name = attr.name
 			value = attr.value
 
@@ -71,11 +77,11 @@ Falcon.addConductor = do ->
 
 			if conductor?
 				if Falcon.isView(conductor.prototype)
-					added = _createConductorCallback(node, (node, attributes, childContext) ->
+					_createConductorCallback(node, (node, attributes, childContext) ->
 						return new conductor( attributes )
 					)
 				else if isFunction( conductor )
-					added = _createConductorCallback(node, (node, attributes, childContext) ->
+					_createConductorCallback(node, (node, attributes, childContext) ->
 						viewModel = childContext['$data']
 						return conductor( node, attributes, viewModel, childContext)
 					)
@@ -83,18 +89,16 @@ Falcon.addConductor = do ->
 			#END if
 		#END if
 
-		added = (_preprocessor?.call(@, node) ? []).concat(added)
+		nodes = _preprocessor?.call(@, node) ? []
 
-		return (if added.length > 0 then added else null)
+		return (if nodes.length > 0 then nodes else null)
 	#END preprocessNode
 
-	returnVal = { controlsDescendantBindings: true }
-
-	Falcon.addBinding 'conductor_id', true,
+	Falcon.addBinding 'conductor',
 		'init': (element, valueAccessor, allBindings, viewModel, context) ->
 			id = valueAccessor()
-			_conductor_definitions[id]?(context, viewModel)
-			return returnVal
+			_conductor_definitions[id]?(context)
+			return { controlsDescendantBindings: true }
 		#END init
 	#END addBinding
 

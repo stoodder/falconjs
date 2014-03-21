@@ -11,7 +11,8 @@
 
 
 (function() {
-  var isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, startsWith, trim;
+  var isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, startsWith, trim,
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   isObject = function(object) {
     return (object != null) && Object.prototype.toString.call(object) === "[object Object]";
@@ -82,45 +83,49 @@
   };
 
   Falcon.addConductor = (function() {
-    var returnVal, _conductor_count, _conductor_definitions, _conductors, _createConductorCallback, _evaluateAttributes, _preprocessor, _shouldEvaluateAttribute;
+    var IGNORED_ATTRIBUTES, _conductor_count, _conductor_definitions, _conductors, _createConductorCallback, _evaluateAttributes, _preprocessor, _shouldEvaluateAttribute;
+    IGNORED_ATTRIBUTES = ["data-bind"];
     _conductors = {};
     _conductor_count = 0;
     _conductor_definitions = {};
     _preprocessor = ko.bindingProvider.instance.preprocessNode;
     _createConductorCallback = function(node, callback) {
-      var c1, c2, childContext, id, view;
-      view = null;
+      var childContext, data_bind, id, _ref;
       childContext = null;
       id = _conductor_count++;
-      _conductor_definitions[id] = function(context, viewModel) {
-        var attributes, bindingAccessors, _ref;
-        childContext = context.createChildContext(viewModel);
-        attributes = _evaluateAttributes(node, childContext);
-        view = callback(node, attributes, childContext);
-        childContext = childContext.extend({
-          '$self': view
-        });
-        bindingAccessors = (_ref = ko.bindingProvider.instance.getBindingAccessors(node, childContext)) != null ? _ref : {};
+      _conductor_definitions[id] = function(parentBindingContext) {
+        var bindingAccessors, view, _ref;
+        view = null;
+        bindingAccessors = (_ref = ko.bindingProvider.instance.getBindingAccessors(node, parentBindingContext)) != null ? _ref : {};
         bindingAccessors['view'] = function() {
-          return view;
+          var attributes;
+          if (view != null) {
+            return view;
+          }
+          attributes = _evaluateAttributes(node, parentBindingContext);
+          return (view = callback(node, attributes, parentBindingContext));
         };
-        return ko.applyBindingAccessorsToNode(node, bindingAccessors, childContext);
+        if ((bindingAccessors != null ? bindingAccessors['conductor'] : void 0) != null) {
+          delete bindingAccessors['conductor'];
+        }
+        return ko.applyBindingAccessorsToNode(node, bindingAccessors, parentBindingContext);
       };
       ko.utils.domNodeDisposal.addDisposeCallback(node, function() {
         return delete _conductor_definitions[id];
       });
-      node.parentNode.insertBefore(c1 = document.createComment("ko conductor_id: " + id), node);
-      node.parentNode.insertBefore(c2 = document.createComment("/ko"), node.nextSibling);
-      return [c1, c2];
+      data_bind = trim((_ref = node.getAttribute("data-bind")) != null ? _ref : "");
+      if (!isEmpty(data_bind)) {
+        data_bind = "conductor: " + id + ", " + data_bind;
+      } else {
+        data_bind = "conductor: " + id;
+      }
+      return node.setAttribute("data-bind", data_bind);
     };
     _shouldEvaluateAttribute = function(value) {
       if (!isString(value)) {
         return false;
       }
       value = trim(value);
-      if (value.indexOf("$self") === 0) {
-        return true;
-      }
       if (value.indexOf("$view") === 0) {
         return true;
       }
@@ -136,12 +141,12 @@
       return false;
     };
     _evaluateAttributes = function(node, parentBindingContext) {
-      var attr, attributes, function_body, name, value, _i, _len, _ref;
+      var attr, attributes, function_body, name, value, _i, _len, _ref, _ref1;
       attributes = {};
       _ref = node.attributes;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         attr = _ref[_i];
-        if (!(attr.name.toLowerCase() !== "data-bind")) {
+        if (!(!(_ref1 = attr.name.toLowerCase(), __indexOf.call(IGNORED_ATTRIBUTES, _ref1) >= 0))) {
           continue;
         }
         name = attr.name;
@@ -155,18 +160,18 @@
       return attributes;
     };
     ko.bindingProvider.instance.preprocessNode = function(node) {
-      var added, conductor, tag_name, _ref, _ref1;
+      var added, conductor, nodes, tag_name, _ref, _ref1;
       added = [];
       if ((node != null ? node.nodeType : void 0) === 1) {
         tag_name = trim((_ref = node.tagName) != null ? _ref : "").toLowerCase();
         conductor = _conductors[tag_name];
         if (conductor != null) {
           if (Falcon.isView(conductor.prototype)) {
-            added = _createConductorCallback(node, function(node, attributes, childContext) {
+            _createConductorCallback(node, function(node, attributes, childContext) {
               return new conductor(attributes);
             });
           } else if (isFunction(conductor)) {
-            added = _createConductorCallback(node, function(node, attributes, childContext) {
+            _createConductorCallback(node, function(node, attributes, childContext) {
               var viewModel;
               viewModel = childContext['$data'];
               return conductor(node, attributes, viewModel, childContext);
@@ -174,20 +179,19 @@
           }
         }
       }
-      added = ((_ref1 = _preprocessor != null ? _preprocessor.call(this, node) : void 0) != null ? _ref1 : []).concat(added);
-      return (added.length > 0 ? added : null);
+      nodes = (_ref1 = _preprocessor != null ? _preprocessor.call(this, node) : void 0) != null ? _ref1 : [];
+      return (nodes.length > 0 ? nodes : null);
     };
-    returnVal = {
-      controlsDescendantBindings: true
-    };
-    Falcon.addBinding('conductor_id', true, {
+    Falcon.addBinding('conductor', {
       'init': function(element, valueAccessor, allBindings, viewModel, context) {
         var id;
         id = valueAccessor();
         if (typeof _conductor_definitions[id] === "function") {
-          _conductor_definitions[id](context, viewModel);
+          _conductor_definitions[id](context);
         }
-        return returnVal;
+        return {
+          controlsDescendantBindings: true
+        };
       }
     });
     return function(tag_name, conductor) {
