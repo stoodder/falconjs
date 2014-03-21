@@ -1,0 +1,2 @@
+exclude: [.gitignore, Gruntfile.coffee, package.json, TODO.md]
+baseurl: "/falconjs"
