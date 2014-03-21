@@ -1,0 +1,35 @@
+{% assign methodName = "getTemplate" %}
+{% assign methodExample = "adapter.getTemplate( uri, loaded_callback )" %}
+{% assign returnType = "Falcon.Adapter" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Method used to retrieve a template's HTML and return it to the given callback function as its first argument.  This method should be overriden by inherriting adapters though it does not need to be. By default, this method expects to get a DOM Element's identifier beginning with a '#'. If the element is found then its innerHTML will be passed back to the callback. If no element is found, then the callback is triggered with an empty string.
+</p>
+<dl>
+	<dt data-type="String">uri</dt>
+	<dd>The uri of the template to fetch.</dd>
+	<dt data-type="Function">callback</dt>
+	<dd>A callback method used to return the template HTML</dd>
+</dl>
+{% highlight javascript linenos %}
+var adapter = new Falcon.Adapter();
+
+var log_callback = function(html) {
+	console.log(html);
+};
+
+// Logs: 'Hello World'
+adpater.getTemplate("#hello_world", log_callback);
+
+// Logs: ''
+// an empty string because no element was found
+adpater.getTemplate("#invalid_template", log_callback);
+{% endhighlight %}
+<div class="caption">Application Javascript</div>
+{% highlight html linenos %}
+<template id="hello_world">
+	Hello World
+</template>
+{% endhighlight %}
+<div class="caption">Application HTML</div>

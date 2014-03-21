@@ -23,9 +23,9 @@ var owner = new Owner({"id": 1});
 var dog = new Dog({"id": 2}, owner); // owner is the 'parent' model
 
 // baseApiUrl + parent url piece + model url piece + model id (if applicable) + extension
-console.log( dog.makeUrl("GET") ); // => http://www.falconjs.com/owner/1/dog/2.json
-console.log( dog.makeUrl("POST") ); // => http://www.falconjs.com/owner/1/dog.json
-console.log( dog.makeUrl("PUT") ); // => http://www.falconjs.com/owner/1/dog/2.json
-console.log( dog.makeUrl("DELETE") ); // => http://www.falconjs.com/owner/1/dog/2.json
-console.log( dog.makeUrl("GET", null) ); // => http://www.falconjs.com/dog/2.json
+console.log( dog.makeUrl("GET") ); // http://www.falconjs.com/owner/1/dog/2.json
+console.log( dog.makeUrl("POST") ); // http://www.falconjs.com/owner/1/dog.json
+console.log( dog.makeUrl("PUT") ); // http://www.falconjs.com/owner/1/dog/2.json
+console.log( dog.makeUrl("DELETE") ); // http://www.falconjs.com/owner/1/dog/2.json
+console.log( dog.makeUrl("GET", null) ); // http://www.falconjs.com/dog/2.json
 {% endhighlight %}

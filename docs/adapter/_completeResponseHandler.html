@@ -1,0 +1,24 @@
+{% assign methodName = "completeResponseHandler" %}
+{% assign methodExample = "adapter.completeResponseHandler( data_object, type, options, context, response_args )" %}
+{% include methodOverview.html %}
+<p>
+	Method to call on completed responses. This will parse the raw response data and call the 'complete' response method provided in the options on the given context and with the data object, raw response data, the standardized options, and the response args as its arguments
+</p>
+<div class="alert alert-info">
+	This method is a post-request method that should always be called with the same five arguments: data_object, type, options, and context, response_args.
+</div>
+<div class="alert alert-warning">
+	This method does not do anything by itself and should be overridden by an inheritting adapter implementation.
+</div>
+<dl>
+	<dt data-type="Falcon.Model">data_object</dt>
+	<dd>The data object being prepaired. Should be either a Falcon.Model or a Falcon.Collection</dd>
+	<dt data-type="String">type</dt>
+	<dd>The resolved request type</dd>
+	<dt data-type="Object">options</dt>
+	<dd>The standardized options</dd>
+	<dt data-type="mixed">context</dt>
+	<dd>The resolved request context</dd>
+	<dt data-type="Object">response_args</dt>
+	<dd>An object that inheritting adapters can and should use to pass along the inheriting adapter implementation-specific data between post-request methods</dd>
+</dl>

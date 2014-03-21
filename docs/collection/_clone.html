@@ -27,9 +27,9 @@ var dogs = new Dogs([
 
 var dogs_clone = dogs.clone(null);
 
-console.log( dogs === dogs_clone ); // => false
-console.log( dogs.length() === dogs_clone.length() ); // => true
-console.log( dogs.at(2) === dogs_clone.at(2) ); // => false
-console.log( dogs.parent === owner); // => true
-console.log( dogs_clone.parent === null); // => true
+console.log( dogs === dogs_clone ); // false
+console.log( dogs.length() === dogs_clone.length() ); // true
+console.log( dogs.at(2) === dogs_clone.at(2) ); // false
+console.log( dogs.parent === owner); // true
+console.log( dogs_clone.parent === null); // true
 {% endhighlight %}

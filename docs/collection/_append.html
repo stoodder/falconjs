@@ -21,14 +21,14 @@ var Dogs = Falcon.Collection.extend({model: Dog});
 var dogs = new Dogs();
 
 dogs.append({"name": "Fido"});
-console.log( dogs.pluck("name") ); // => [Fido]
+console.log( dogs.pluck("name") ); // [Fido]
 
 dogs.append( new Dog({name: "Spot"}) ); 
-console.log( dogs.pluck("name") ); // => [Fido, Spot]
+console.log( dogs.pluck("name") ); // [Fido, Spot]
 
 dogs.append([
 	{name: "Skip"},
 	{name: "Bump"}
 ]);
-console.log( dogs.pluck("name") ); // => [Fido, Spot, Skip, Bump]
+console.log( dogs.pluck("name") ); // [Fido, Spot, Skip, Bump]
 {% endhighlight %}

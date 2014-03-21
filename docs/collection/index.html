@@ -25,7 +25,7 @@ var Dogs = Falcon.Collection.extend({
 	}
 });
 
-new Dogs(); // => Collecting Dogs
+new Dogs(); // Collecting Dogs
 {% endhighlight %}
 {% assign methodName = "extend" %}
 {% assign methodExample = "Falcon.Collection.extend( protoProps, [staticProps] )" %}
@@ -55,8 +55,8 @@ var Dogs = Falcon.Collection.extend({
 
 var dogs = new Dogs();
 
-Dogs.say(); // => Woof!
-dogs.bark(); // => "All the dogs bark";
+Dogs.say(); // Woof!
+dogs.bark(); // "All the dogs bark";
 {% endhighlight %}
 {% assign methodName = "model" %}
 {% assign methodExample = "collection.model" %}
@@ -82,7 +82,7 @@ var Dogs = Falcon.Collection.extend({model: Dog});
 var owner = new Owner();
 var dogs = new Dogs( owner ); // Owner becomes the 'parent' of dogs
 
-console.log( dogs.parent === owner ); // => true
+console.log( dogs.parent === owner ); // true
 {% endhighlight %}
 {% assign methodName = "defaults" %}
 {% assign methodExample = "collection.defaults" %}
@@ -102,8 +102,8 @@ var Dogs = Falcon.Collection.extend({
 });
 
 var dogs = new Dogs();
-console.log( dogs.name ); // => Fido
-console.log( dogs.are_tame ); // => true
+console.log( dogs.name ); // Fido
+console.log( dogs.are_tame ); // true
 {% endhighlight %}
 {% assign methodName = "observables" %}
 {% assign methodExample = "collection.observables" %}
@@ -125,10 +125,10 @@ var Dogs = Falcon.Collection.extend({
 	}
 });
 
-var dogs = new Dogs(); // Dog not related to Lassie
+var dogs = new Dogs();
 
-console.log( ko.isObservable( dogs.are_tame ) ); // => true
-console.log( ko.isComputed( dogs.has_dogs ) ); // => true
+console.log( ko.isObservable( dogs.are_tame ) ); // true
+console.log( ko.isComputed( dogs.has_dogs ) ); // true
 
 console.log( dogs.are_tame() ); // true
 console.log( dogs.has_dogs() ); // false
@@ -154,7 +154,7 @@ var dogs = new Dogs([
 	{"name": "Skip"}
 ]);
 
-console.log( dogs.all() ); // => [Fido, Skip]
+console.log( dogs.all() ); // [Fido, Skip]
 {% endhighlight %}
 {% assign methodName = "any" %}
 {% assign methodExample = "collection.any( iterator )" %}
@@ -195,8 +195,8 @@ var has_spot = dogs.any(function(dog) {
 	return dog.get("name") === "Spot";
 });
 
-console.log(has_fido); // => true
-console.log(has_spot); // => false
+console.log(has_fido); // true
+console.log(has_spot); // false
 {% endhighlight %}
 {% assign methodName = "append" %}
 {% assign methodExample = "collection.append( items )" %}
@@ -221,16 +221,16 @@ var Dogs = Falcon.Collection.extend({model: Dog});
 var dogs = new Dogs();
 
 dogs.append({"name": "Fido"});
-console.log( dogs.pluck("name") ); // => [Fido]
+console.log( dogs.pluck("name") ); // [Fido]
 
 dogs.append( new Dog({name: "Spot"}) ); 
-console.log( dogs.pluck("name") ); // => [Fido, Spot]
+console.log( dogs.pluck("name") ); // [Fido, Spot]
 
 dogs.append([
 	{name: "Skip"},
 	{name: "Bump"}
 ]);
-console.log( dogs.pluck("name") ); // => [Fido, Spot, Skip, Bump]
+console.log( dogs.pluck("name") ); // [Fido, Spot, Skip, Bump]
 {% endhighlight %}
 {% assign methodName = "at" %}
 {% assign methodExample = "collection.at( index )" %}
@@ -255,8 +255,8 @@ var dogs = new Dogs([
 	{"name": "Bucko"}
 ]);
 
-console.log( dogs.at(1).get("name") ); // => Skip
-console.log( dogs.at(5) ); // => null
+console.log( dogs.at(1).get("name") ); // Skip
+console.log( dogs.at(5) ); // null
 {% endhighlight %}
 {% assign methodName = "chain" %}
 {% assign methodExample = "collection.chain()" %}
@@ -298,9 +298,9 @@ var sorted_b_dogs = dogs.chain().filter(function(dog) {
 	return 0;
 });
 
-console.log( odd_dogs.pluck("name") ); // => [Fido, Bump, Spot]
-console.log( tame_b_dogs.pluck("name") ); // => [Bump, Biscuit]
-console.log( sorted_b_dogs.pluck("name") ); // => [Biscuit, Bucko, Bump]
+console.log( odd_dogs.pluck("name") ); // [Fido, Bump, Spot]
+console.log( tame_b_dogs.pluck("name") ); // [Bump, Biscuit]
+console.log( sorted_b_dogs.pluck("name") ); // [Biscuit, Bucko, Bump]
 {% endhighlight %}
 {% assign methodName = "clone" %}
 {% assign methodExample = "collection.clone( [attributes], [parent] )" %}
@@ -331,11 +331,11 @@ var dogs = new Dogs([
 
 var dogs_clone = dogs.clone(null);
 
-console.log( dogs === dogs_clone ); // => false
-console.log( dogs.length() === dogs_clone.length() ); // => true
-console.log( dogs.at(2) === dogs_clone.at(2) ); // => false
-console.log( dogs.parent === owner); // => true
-console.log( dogs_clone.parent === null); // => true
+console.log( dogs === dogs_clone ); // false
+console.log( dogs.length() === dogs_clone.length() ); // true
+console.log( dogs.at(2) === dogs_clone.at(2) ); // false
+console.log( dogs.parent === owner); // true
+console.log( dogs_clone.parent === null); // true
 {% endhighlight %}
 {% assign methodName = "comparator" %}
 {% assign methodExample = "collection.comparator" %}
@@ -366,10 +366,10 @@ var dogs = new Dogs([
 	{"name": "Bucko"}
 ]);
 
-console.log( dogs.at(0).get("name") ); // => Bucko
-console.log( dogs.at(1).get("name") ); // => Bump
-console.log( dogs.at(2).get("name") ); // => Fido
-console.log( dogs.at(3).get("name") ); // => Skip
+console.log( dogs.at(0).get("name") ); // Bucko
+console.log( dogs.at(1).get("name") ); // Bump
+console.log( dogs.at(2).get("name") ); // Fido
+console.log( dogs.at(3).get("name") ); // Skip
 {% endhighlight %}
 {% assign methodName = "create" %}
 {% assign methodExample = "collection.create( data, [options] )" %}
@@ -477,10 +477,10 @@ var dogs = new Dogs([
 	{"name": "Bucko"}
 ]);
 
-// => Dog's name is Fido
-// => Dog's name is Skip
-// => Dog's name is Bump
-// => Dog's name is Bucko
+// Dog's name is Fido
+// Dog's name is Skip
+// Dog's name is Bump
+// Dog's name is Bucko
 dogs.each(function(dog) {
 	console.log("Dog's name is " + dog.get("name") );
 });
@@ -491,7 +491,7 @@ dogs.each(function(dog) {
 {% assign returnDescription = "Whatever the response from the adapter's sync method is" %}
 {% include methodOverview.html %} 
 <p>
-	Shorthand method for a GET sync request to get all of the models from the server.
+	Shorthand method for a GET sync request to get all of the models from the data source.
 </p>
 <dl>
 	<dt data-type="Object">options</dt>
@@ -501,7 +501,7 @@ dogs.each(function(dog) {
 var Dog = Falcon.Model.extend({url: 'dog.json'});
 var Dogs = Falcon.Collection.extend({model: Dog});
 
-var dogs = new Dogs()
+var dogs = new Dogs();
 
 dogs.fetch() // 'GET' request to '/dog.json'
 {% endhighlight %}
@@ -712,8 +712,8 @@ var first_b_dog = dogs.first(function(dog) {
 	return dog.get("name").charAt(0) === "B";
 });
 
-console.log( first_dog.get("name") ); // => Fido
-console.log( first_b_dog.get("name") ); // => Bump
+console.log( first_dog.get("name") ); // Fido
+console.log( first_b_dog.get("name") ); // Bump
 {% endhighlight %}
 {% assign methodName = "indexOf" %}
 {% assign methodExample = "collection.indexOf( model )" %}
@@ -752,9 +752,9 @@ var index_iterator = dogs.indexOf(function(dog) {
 	return dog.get("name") === "Bucko";
 });
 
-console.log( index_bump );  // => 2
-console.log( index_id );  // => 1
-console.log( index_iterator );  // => 3
+console.log( index_bump );  // 2
+console.log( index_id );  // 1
+console.log( index_iterator );  // 3
 {% endhighlight %}
 {% assign methodName = "insert" %}
 {% assign methodExample = "collection.insert( insert_model, model )" %}
@@ -833,8 +833,8 @@ var last_b_dog = dogs.last(function(dog) {
 	return dog.get("name").charAt(0) === "B";
 });
 
-console.log(last_dog.get("name")); // => Skip
-console.log(last_b_dog.get("name")); // => Bucko
+console.log(last_dog.get("name")); // Skip
+console.log(last_b_dog.get("name")); // Bucko
 {% endhighlight %}
 {% assign methodName = "lastIndexOf" %}
 {% assign methodExample = "collection.lastIndexOf( model )" %}
@@ -873,9 +873,9 @@ var index_iterator = dogs.lastIndexOf(function(dog) {
 	return dog.get("name") === "Bucko";
 });
 
-console.log( index_bump );  // => 4
-console.log( index_id );  // => 5
-console.log( index_iterator );  // => 3
+console.log( index_bump );  // 4
+console.log( index_id );  // 5
+console.log( index_iterator );  // 3
 {% endhighlight %}
 {% assign methodName = "length" %}
 {% assign methodExample = "collection.length()" %}
@@ -892,14 +892,14 @@ var dogs = new Dogs([
 	{"name": "Bump"}
 ]);
 
-console.log( dogs.length() ); // => 2
+console.log( dogs.length() ); // 2
 
 dogs.append([
 	{"name": "Bucko"},
 	{"name": "Skip"}
 ]);
 
-console.log( dogs.length() ); // => 4
+console.log( dogs.length() ); // 4
 {% endhighlight %}
 {% assign methodName = "makeUrl" %}
 {% assign methodExample = "collection.makeUrl( type, [parent] )" %}
@@ -927,8 +927,8 @@ var Dogs = Falcon.Collection.extend({ model: Dog });
 var owner = new Owner({'id': 1});
 var dogs = new Dogs( owner ); // Owner is the parent
 
-console.log( dogs.makeUrl("GET") ); // => http://www.falconjs.com/owner/1/dog.json
-console.log( dogs.makeUrl("GET", null) ); // => http://www.falconjs.com/dog.json
+console.log( dogs.makeUrl("GET") ); // http://www.falconjs.com/owner/1/dog.json
+console.log( dogs.makeUrl("GET", null) ); // http://www.falconjs.com/dog.json
 {% endhighlight %}
 {% assign methodName = "merge" %}
 {% assign methodExample = "collection.merge( items )" %}
@@ -1004,17 +1004,17 @@ dogs.append({"name": "Spot"});
 var fido = dogs.at( 0 );
 var spot = dogs.at( 1 );
 
-console.log( fido.get("name") ); // => Fido
-console.log( fido.get("color") ); // => Black
-console.log( ko.isObservable( fido.is_tame ) ); // => true
-console.log( fido.get("is_tame") ); // => true
-fido.bark(); // => Fido says woof!
+console.log( fido.get("name") ); // Fido
+console.log( fido.get("color") ); // Black
+console.log( ko.isObservable( fido.is_tame ) ); // true
+console.log( fido.get("is_tame") ); // true
+fido.bark(); // Fido says woof!
 
-console.log( spot.get("name") ); // => Spot
-console.log( spot.get("color") ); // => Black
-console.log( ko.isObservable( spot.is_tame ) ); // => true
-console.log( spot.get("is_tame") ); // => true
-spot.bark(); // => Spot says woof!
+console.log( spot.get("name") ); // Spot
+console.log( spot.get("color") ); // Black
+console.log( ko.isObservable( spot.is_tame ) ); // true
+console.log( spot.get("is_tame") ); // true
+spot.bark(); // Spot says woof!
 {% endhighlight %}
 {% assign methodName = "models" %}
 {% assign methodExample = "collection.models()" %}
@@ -1033,8 +1033,8 @@ var dogs = new Dogs([
 	{"name": "Bucko"}
 ]);
 
-console.log( ko.isObservable( dogs.models ) ); // => true 
-console.log( dogs.models() );  // => [Dog, Dog, Dog, Dog]
+console.log( ko.isObservable( dogs.models ) ); // true 
+console.log( dogs.models() );  // [Dog, Dog, Dog, Dog]
 {% endhighlight %}
 {% assign methodName = "parse" %}
 {% assign methodExample = "collection.parse( data, options, xhr )" %}
@@ -1081,9 +1081,9 @@ var dogs = new Dogs();
 // Get's the server data and runs the parse method
 // Callback is called on complete
 dogs.fetch(function(dogs) {
-	console.log( dogs.length() ); // => 3
-	console.log( dogs.at(0).get("id") ); // => 1
-	console.log( dogs.at(0).get("name") ); // => Fido
+	console.log( dogs.length() ); // 3
+	console.log( dogs.at(0).get("id") ); // 1
+	console.log( dogs.at(0).get("name") ); // Fido
 });
 {% endhighlight %}
 <div class="caption">Application Javascript</div>
@@ -1112,7 +1112,7 @@ var dogs = new Dogs([
 	{"name": "Bucko"}
 ]);
 
-console.log(dogs.pluck("name")); // => [Fido, Skip, Bump, Bucko]
+console.log(dogs.pluck("name")); // [Fido, Skip, Bump, Bucko]
 {% endhighlight %}
 {% assign methodName = "pop" %}
 {% assign methodExample = "collection.pop()" %}
@@ -1135,8 +1135,8 @@ var dogs = new Dogs([
 
 var last_dog = dogs.pop();
 
-console.log( dogs.length() ); // => 3
-console.log( last_dog.get("name") ); // => Bucko
+console.log( dogs.length() ); // 3
+console.log( last_dog.get("name") ); // Bucko
 {% endhighlight %}
 {% assign methodName = "prepend" %}
 {% assign methodExample = "collection.prepend( items )" %}
@@ -1161,16 +1161,16 @@ var Dogs = Falcon.Collection.extend({model: Dog});
 var dogs = new Dogs();
 
 dogs.prepend({"name": "Fido"});
-console.log( dogs.pluck("name") ); // => [Fido]
+console.log( dogs.pluck("name") ); // [Fido]
 
 dogs.prepend( new Dog({name: "Spot"}) ); 
-console.log( dogs.pluck("name") ); // => [Spot, Fido]
+console.log( dogs.pluck("name") ); // [Spot, Fido]
 
 dogs.prepend([
 	{name: "Skip"},
 	{name: "Bump"}
 ]);
-console.log( dogs.pluck("name") ); // => [Skip, Bump, Spot, Fido]
+console.log( dogs.pluck("name") ); // [Skip, Bump, Spot, Fido]
 {% endhighlight %}
 {% assign methodName = "push" %}
 {% assign methodExample = "collection.push( items )" %}
@@ -1191,16 +1191,16 @@ var Dogs = Falcon.Collection.extend({model: Dog});
 var dogs = new Dogs();
 
 dogs.push({"name": "Fido"});
-console.log( dogs.pluck("name") ); // => [Fido]
+console.log( dogs.pluck("name") ); // [Fido]
 
 dogs.push( new Dog({name: "Spot"}) ); 
-console.log( dogs.pluck("name") ); // => [Fido, Spot]
+console.log( dogs.pluck("name") ); // [Fido, Spot]
 
 dogs.push([
 	{name: "Skip"},
 	{name: "Bump"}
 ]);
-console.log( dogs.pluck("name") ); // => [Fido, Spot, Skip, Bump]
+console.log( dogs.pluck("name") ); // [Fido, Spot, Skip, Bump]
 {% endhighlight %}
 {% assign methodName = "remove" %}
 {% assign methodExample = "collection.remove( models )" %}
@@ -1236,22 +1236,22 @@ var zeus = new Dog({"name": "Zeus"});
 var dogs = new Dogs([fido, skip, bump, bucko, spot, zeus]);
 
 dogs.remove( skip );
-console.log( dogs.length() ); // => 5
-console.log( dogs.any(skip) ); // => false
+console.log( dogs.length() ); // 5
+console.log( dogs.any(skip) ); // false
 
 dogs.remove( [fido, spot] );
-console.log( dogs.length() ); // => 3
-console.log( dogs.any(fido) ); // => false
-console.log( dogs.any(spot) ); // => false
+console.log( dogs.length() ); // 3
+console.log( dogs.any(fido) ); // false
+console.log( dogs.any(spot) ); // false
 
 dogs.remove(function(dog) {
 	return dog.get("name").charAt(0) === "B";
 });
-console.log( dogs.length() ); // => 1
-console.log( dogs.any(bump) ); // => false
-console.log( dogs.any(bucko) ); // => false
+console.log( dogs.length() ); // 1
+console.log( dogs.any(bump) ); // false
+console.log( dogs.any(bucko) ); // false
 
-console.log( dogs.any(zeus) ); // => true
+console.log( dogs.any(zeus) ); // true
 {% endhighlight %}
 {% assign methodName = "replace" %}
 {% assign methodExample = "collection.replace( items )" %}
@@ -1277,13 +1277,13 @@ var dogs = new Dogs([
 	{"name": "Fido"},
 	{"name": "Skip"}
 ]);
-console.log( dogs.pluck("name") ); // => [Fido, Skip]
+console.log( dogs.pluck("name") ); // [Fido, Skip]
 
 dogs.replace({"name": "Lassie"});
-console.log( dogs.pluck("name") ); // => [Lassie]
+console.log( dogs.pluck("name") ); // [Lassie]
 
 dogs.replace([{"name": "Bucko"}, ["name": "Spot"]]);
-console.log( dogs.pluck("name") ); // => [Bucko, Spot]
+console.log( dogs.pluck("name") ); // [Bucko, Spot]
 {% endhighlight %}
 {% assign methodName = "reset" %}
 {% assign methodExample = "collection.reset()" %}
@@ -1304,11 +1304,11 @@ var dogs = new Dogs([
 	{"name": "Bucko"}
 ]);
 
-console.log( dogs.length() ); // => 4
+console.log( dogs.length() ); // 4
 
 dogs.reset();
 
-console.log( dogs.length() ); // => 0
+console.log( dogs.length() ); // 0
 {% endhighlight %}
 {% assign methodName = "serialize" %}
 {% assign methodExample = "collection.serialize( [attributes] )" %}
@@ -1329,10 +1329,10 @@ var dogs = new Dogs([
 	{id: 3, "name": "Bump"}
 ]);
 
-// => [{id: 1, name: "Fido"}, {id: 2, name: "Skip"}, {id: 3, name: "Bump"}]
+// [{id: 1, name: "Fido"}, {id: 2, name: "Skip"}, {id: 3, name: "Bump"}]
 console.log( dogs.serialize() ); 
 
-// => [{name: "Fido"}, {name: "Skip"}, {name: "Bump"}]
+// [{name: "Fido"}, {name: "Skip"}, {name: "Bump"}]
 console.log( dogs.serialize(["name"]) ); 
 {% endhighlight %}
 {% assign methodName = "set" %}
@@ -1359,10 +1359,10 @@ var dogs = new Dogs([
 	{"name": "Fido"},
 	{"name": "Skip"}
 ]);
-console.log( dogs.pluck("name") ); // => [Fido, Skip]
+console.log( dogs.pluck("name") ); // [Fido, Skip]
 
 dogs.set("name", "Super Dog");
-console.log( dogs.pluck("name") ); // => [Super Dog, Super Dog]
+console.log( dogs.pluck("name") ); // [Super Dog, Super Dog]
 {% endhighlight %}
 {% assign methodName = "shift" %}
 {% assign methodExample = "collection.shift()" %}
@@ -1385,8 +1385,8 @@ var dogs = new Dogs([
 
 var first_dog = dogs.shift();
 
-console.log( dogs.length() ); // => 3
-console.log( first_dog.get("name") ); // => Fido
+console.log( dogs.length() ); // 3
+console.log( first_dog.get("name") ); // Fido
 {% endhighlight %}
 {% assign methodName = "slice" %}
 {% assign methodExample = "collection.slice( start, [end] )" %}
@@ -1413,8 +1413,8 @@ var dogs = new Dogs([
 	{"name": "Bucko"}
 ]);
 
-console.log( dogs.slice( 1 ) ); // => [Skip, Bump, Bucko]
-console.log( dogs.slice( 1, 3 ) );  // => [Skip, Bump]
+console.log( dogs.slice( 1 ) ); // [Skip, Bump, Bucko]
+console.log( dogs.slice( 1, 3 ) );  // [Skip, Bump]
 {% endhighlight %}
 {% assign methodName = "sort" %}
 {% assign methodExample = "collection.sort( comparator )" %}
@@ -1449,92 +1449,53 @@ dogs.sort(function(dog_a, dog_b) {
 	return 0;
 });
 
-console.log( dogs.pluck("name") ); // => [Bucko, Bump, Fido, Skip]
+console.log( dogs.pluck("name") ); // [Bucko, Bump, Fido, Skip]
 {% endhighlight %}
 {% assign methodName = "sync" %}
-{% assign methodExample = "collection.sync( type, [options] )" %}
+{% assign methodExample = "collection.sync( type, [options], [context] )" %}
 {% assign returnType = "mixed" %}
 {% assign returnDescription = "Whatever the response from the adapter's sync method is" %}
 {% include methodOverview.html %}
 <p>
-	Method used to interact with the backend API and this collection. This method utilizes and extends on to the jQuery $.ajax method.  This method currently only supports the GET request type when being used for a collection.  A GET request should return an array of models that belong to this collection.
-</p>
-<p>
-	The sync method also takes an optional 'options' argument which can be used for specifying how this method should handle requests and how it should handle serializing and reacting to success/errornous responses.
-</p>
-<p>
-	Lastly, after the ajax method responds successfully, a success response will occur. Prior to calling the 'success' callback on the options, the raw data returned from the server will be send to the 'parse' method. The resultant data from the parse method is then sent to the 'fill' method (if the fill flag is enabled). Following that, a 'fetch' event is triggered.  Lastly, the success callback method specified in the options is called with this collection as the context, and with the following 4 arguments: This collection, the parsed raw data, the response status, and the XmlHttpRequest object.
+	Method used to interact with the backend API and this collection. Internally this method just calls the <a href="/docs/adapter#sync">Falcon.adapter.sync</a> method.
 </p>
 <dl>
 	<dt data-type="String">type</dt>
-	<dd>The HTTP Method to call to the server with. Valid options options include "GET", "POST", "PUT", "DELETE".</dd>
+	<dd>The HTTP Method to call to the backend with. Valid options options include "GET", "POST", "PUT", "DELETE".</dd>
 	<dt data-type="Object">options</dt>
-	<dd>Optional object of settings to use on this call.  This is useful for configuring ajax callbacks, url parameters, fill parameters, and attribute serialization handling. The available options are:
-		<ul>
-			<li>
-				<strong>url</strong> - The url to make our request to. If the url isn't specified, then the 'makeUrl' method will be called with the given request type to generate a url.
-			</li>
-			<li>
-				<strong>parent</strong> - An override of the parent object to use when generating a url through 'makeUrl'. If the parent option isn't set, then this model's parent is used.  If parent is set to 'null', then no parent will be used.
-			</li>
-			<li>
-				<strong>attributes</strong> - An object or an array of attributes to actually serialize and send to the server. This is the same attributes specification that will be passed into the 'serialize' method which is useful for reducing the load of data that is sent to the server.  See the 'serialize' method for more information on the attributes option.
-			</li>
-			<li>
-				<strong>method</strong> - The fill method to use when receiving data from the server. By default this is 'replace'. Other available options include: 'append', 'prepend', 'merge', 'insert'.  If 'insert' is specified, then 'insert_index' may also be provided in the options.
-			</li>
-			<li>
-				<strong>params</strong> - An object of query parameters to append to the request url.  This is useful for allowing the 'makeUrl' to generate a url for this model but still being able to add specific query parameters without having to modify the makeUrl method.
-			</li>
-			<li>
-				<strong>data</strong> - An object of additional data to send through to the server.  This data is automatically JSON stringified if it is present and valid.  By default, this is set to an empty string.
-			</li>
-			<li>
-				<strong>dataType</strong> - The type of data to send to the server, the default is 'json'.
-			</li>
-			<li>
-				<strong>headers</strong> - An object of HTTP headers to add to this request.
-			</li>
-			<li>
-				<strong>context</strong> - The context to call the ajax callbacks (success, error, complete), on. By default it is set to this collection.
-			</li>
-			<li>
-				<strong>success( collection, data, status, xhr)</strong> - The callback that will be executed when the ajax request has completed with a 200 level response. The callback will be called on the context of this collection unless the context option has been specified. The callback will be given four arguments: This collection, the data after being passed through the parse method, the request status, and the XmlHttpRequest object.
-			</li>
-			<li>
-				<strong>error( collection, response, xhr )</strong> - A callback method to be executed whenever a 400 or above level response is returned from the server. This method will be called on the context of this collection or the context given in the options if one is set.  This callback will be called with three arguments given: This collection, the response text, and the XmlHttpRequest object. 
-			<li>
-				<strong>complete( collection, xhr, status )</strong> - A callback method to be executed whenever any status response is completed. This method is called after success/error. It will be called on the context of this collection unless the context was specified in the options. It will be called with three arguments given: This collection, the XmlHttpRequest object, and the server status.
-			</li>
-			<li>
-				<strong>fill</strong> - A flag to specify whether the 'fill' method should be called once this request has completed successfully. By default, this is set to true.
-			</li>
-		</ul>
-	</dd>
+	<dd>Optional object of settings to use on this call.  Please refer to <a href="/docs/adapter#standardizeOptions">Falcon.Adapter#standardizeOptions</a></dd>
+	<dt data-type="mixed">context</dt>
+	<dd>An optional context value to execute the callback methods on</dd>
 </dl>
 {% highlight javascript linenos %}
 var Dog = Falcon.Model.extend({"url": "dog.json"});
 var Dogs = Falcon.Collection.extend({model: Dog});
 
 var dogs = new Dogs();
+var parent_dogs = new Dogs();
 
-// Creates a GET ajax request that is sent to /dog.json
-// Complete is always called, success is called if called if we found
-// the dog on the server, otherwise error is called if something
-// went wrong.
+// Creates a GET request that will be sent to '/dog.json'
+// each callback method has the same arguments:
+//
+//   dogs: This collection
+//   data: The raw response data prior to being passed into the parse() method
+//   options: The standardized request options
+//   other_args: An object of adapter implementation specific arguments
+//
+// All of the callback methods will be called with parent_dogs as 'this'
 dogs.sync("GET", {
-	complete: function(dogs, data, xhr, status) {
+	complete: function(dogs, data, options, other_args) {
 		console.log("Completed trying to find the Dogs.");
 	},
 
-	success: function(dogs, data, status, xhr) {
+	success: function(dogs, data, options, other_args) {
 		console.log("Successfully found the Dogs!");
 	},
 
-	error: function(dogs, response, xhr ) {
+	error: function(dogs, data, options, other_args) {
 		console.log("Couldn't find the dogs :(");
 	}
-});
+}, parent_dogs);
 {% endhighlight %}
 {% assign methodName = "unshift" %}
 {% assign methodExample = "collection.unshift( items )" %}
@@ -1559,16 +1520,16 @@ var Dogs = Falcon.Collection.extend({model: Dog});
 var dogs = new Dogs();
 
 dogs.unshift({"name": "Fido"});
-console.log( dogs.pluck("name") ); // => [Fido]
+console.log( dogs.pluck("name") ); // [Fido]
 
 dogs.unshift( new Dog({name: "Spot"}) ); 
-console.log( dogs.pluck("name") ); // => [Spot, Fido]
+console.log( dogs.pluck("name") ); // [Spot, Fido]
 
 dogs.unshift([
 	{name: "Skip"},
 	{name: "Bump"}
 ]);
-console.log( dogs.pluck("name") ); // => [Skip, Bump, Spot, Fido]
+console.log( dogs.pluck("name") ); // [Skip, Bump, Spot, Fido]
 {% endhighlight %}
 {% assign methodName = "without" %}
 {% assign methodExample = "collection.without( iterator )" %}
@@ -1605,7 +1566,7 @@ var without_b_dogs = dogs.without(function(dog) {
 	return dog.get("name").charAt(0) === "B";
 });
 
-console.log( without_skip ); // => [Fido, Bump, Bucko]
-console.log( without_bump ); // => [Fido, Skip, Bucko]
-console.log( without_b_dogs ); // => [Fido, Skip]
+console.log( without_skip ); // [Fido, Bump, Bucko]
+console.log( without_bump ); // [Fido, Skip, Bucko]
+console.log( without_b_dogs ); // [Fido, Skip]
 {% endhighlight %}

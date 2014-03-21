@@ -43,9 +43,9 @@ var dogs = new Dogs();
 // Get's the server data and runs the parse method
 // Callback is called on complete
 dogs.fetch(function(dogs) {
-	console.log( dogs.length() ); // => 3
-	console.log( dogs.at(0).get("id") ); // => 1
-	console.log( dogs.at(0).get("name") ); // => Fido
+	console.log( dogs.length() ); // 3
+	console.log( dogs.at(0).get("id") ); // 1
+	console.log( dogs.at(0).get("name") ); // Fido
 });
 {% endhighlight %}
 <div class="caption">Application Javascript</div>

@@ -31,15 +31,15 @@ dogs.append({"name": "Spot"});
 var fido = dogs.at( 0 );
 var spot = dogs.at( 1 );
 
-console.log( fido.get("name") ); // => Fido
-console.log( fido.get("color") ); // => Black
-console.log( ko.isObservable( fido.is_tame ) ); // => true
-console.log( fido.get("is_tame") ); // => true
-fido.bark(); // => Fido says woof!
+console.log( fido.get("name") ); // Fido
+console.log( fido.get("color") ); // Black
+console.log( ko.isObservable( fido.is_tame ) ); // true
+console.log( fido.get("is_tame") ); // true
+fido.bark(); // Fido says woof!
 
-console.log( spot.get("name") ); // => Spot
-console.log( spot.get("color") ); // => Black
-console.log( ko.isObservable( spot.is_tame ) ); // => true
-console.log( spot.get("is_tame") ); // => true
-spot.bark(); // => Spot says woof!
+console.log( spot.get("name") ); // Spot
+console.log( spot.get("color") ); // Black
+console.log( ko.isObservable( spot.is_tame ) ); // true
+console.log( spot.get("is_tame") ); // true
+spot.bark(); // Spot says woof!
 {% endhighlight %}

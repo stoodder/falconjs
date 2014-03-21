@@ -38,7 +38,7 @@ var sorted_b_dogs = dogs.chain().filter(function(dog) {
 	return 0;
 });
 
-console.log( odd_dogs.pluck("name") ); // => [Fido, Bump, Spot]
-console.log( tame_b_dogs.pluck("name") ); // => [Bump, Biscuit]
-console.log( sorted_b_dogs.pluck("name") ); // => [Biscuit, Bucko, Bump]
+console.log( odd_dogs.pluck("name") ); // [Fido, Bump, Spot]
+console.log( tame_b_dogs.pluck("name") ); // [Bump, Biscuit]
+console.log( sorted_b_dogs.pluck("name") ); // [Biscuit, Bucko, Bump]
 {% endhighlight %}

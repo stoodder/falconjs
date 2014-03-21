@@ -16,10 +16,12 @@ var object		= new Falcon.Object();
 var collection	= new Falcon.Collection();
 var model 		= new Falcon.Model();
 var view 		= new Falcon.View();
+var adapter 	= new Falcon.Adapter();
 
-console.log( Falcon.isModel(array) );// => false
-console.log( Falcon.isModel(object) );// => false
-console.log( Falcon.isModel(model) );// => true
-console.log( Falcon.isModel(collection) ); // => false
-console.log( Falcon.isModel(view) );// => false
+console.log( Falcon.isModel(array) );// false
+console.log( Falcon.isModel(object) );// false
+console.log( Falcon.isModel(model) );// true
+console.log( Falcon.isModel(collection) ); // false
+console.log( Falcon.isModel(view) );// false
+console.log( Falcon.isModel(adapter) );// false
 {% endhighlight %}

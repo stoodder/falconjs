@@ -33,7 +33,7 @@ var without_b_dogs = dogs.without(function(dog) {
 	return dog.get("name").charAt(0) === "B";
 });
 
-console.log( without_skip ); // => [Fido, Bump, Bucko]
-console.log( without_bump ); // => [Fido, Skip, Bucko]
-console.log( without_b_dogs ); // => [Fido, Skip]
+console.log( without_skip ); // [Fido, Bump, Bucko]
+console.log( without_bump ); // [Fido, Skip, Bucko]
+console.log( without_b_dogs ); // [Fido, Skip]
 {% endhighlight %}

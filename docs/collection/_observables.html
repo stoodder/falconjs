@@ -18,10 +18,10 @@ var Dogs = Falcon.Collection.extend({
 	}
 });
 
-var dogs = new Dogs(); // Dog not related to Lassie
+var dogs = new Dogs();
 
-console.log( ko.isObservable( dogs.are_tame ) ); // => true
-console.log( ko.isComputed( dogs.has_dogs ) ); // => true
+console.log( ko.isObservable( dogs.are_tame ) ); // true
+console.log( ko.isComputed( dogs.has_dogs ) ); // true
 
 console.log( dogs.are_tame() ); // true
 console.log( dogs.has_dogs() ); // false

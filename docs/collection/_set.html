@@ -22,8 +22,8 @@ var dogs = new Dogs([
 	{"name": "Fido"},
 	{"name": "Skip"}
 ]);
-console.log( dogs.pluck("name") ); // => [Fido, Skip]
+console.log( dogs.pluck("name") ); // [Fido, Skip]
 
 dogs.set("name", "Super Dog");
-console.log( dogs.pluck("name") ); // => [Super Dog, Super Dog]
+console.log( dogs.pluck("name") ); // [Super Dog, Super Dog]
 {% endhighlight %}

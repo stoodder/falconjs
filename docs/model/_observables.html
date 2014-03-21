@@ -19,15 +19,15 @@ var Dog = Falcon.Model.extend({
 
 var dog = new Dog(); // Dog not related to Lassie
 
-console.log( ko.isObservable( dog.name ) ); // => true
-console.log( ko.isComputed( dog.child_of_lassie ) ); // => true
+console.log( ko.isObservable( dog.name ) ); // true
+console.log( ko.isComputed( dog.child_of_lassie ) ); // true
 
-console.log( dog.name() ); // => Fido
-console.log( dog.child_of_lassie() ); // => false
+console.log( dog.name() ); // Fido
+console.log( dog.child_of_lassie() ); // false
 
 dog.name("Spot");
 dog.parent_dog_name("Lassie");
 
-console.log( dog.name() ); // => Spot
-console.log( dog.child_of_lassie() ); // => true
+console.log( dog.name() ); // Spot
+console.log( dog.child_of_lassie() ); // true
 {% endhighlight %}

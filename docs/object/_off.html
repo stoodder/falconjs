@@ -19,11 +19,11 @@ obj.on("log", function() {
 	console.log("Hello World");
 });
 
-obj.trigger("log"); // => Logs 'Hello World'
+obj.trigger("log"); // Logs 'Hello World'
 
 obj.off("log");
 
-obj.trigger("log"); // => Nothing Happens
+obj.trigger("log"); // Nothing Happens
 {% endhighlight %}
 {% highlight javascript linenos %}
 var obj = new Falcon.Object();
@@ -39,9 +39,9 @@ var log_callback_two = function() {
 obj.on("log", log_callback_one);
 obj.on("log", log_callback_two);
 
-obj.trigger("log");  // => Logs 'Log One', then 'Log Two'
+obj.trigger("log");  // Logs 'Log One', then 'Log Two'
 
 obj.off("log", log_callback_one);
 
-obj.trigger("log");  // => Logs 'Log Two'
+obj.trigger("log");  // Logs 'Log Two'
 {% endhighlight %}

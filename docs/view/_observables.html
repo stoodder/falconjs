@@ -19,15 +19,15 @@ var DogView = Falcon.View.extend({
 
 var dog_view = new DogView(); // Dog not related to Lassie
 
-console.log( ko.isObservable( dog_view.name ) ); // => true
-console.log( ko.isComputed( dog_view.child_of_lassie ) ); // => true
+console.log( ko.isObservable( dog_view.name ) ); // true
+console.log( ko.isComputed( dog_view.child_of_lassie ) ); // true
 
-console.log( dog_view.name() ); // => Fido
-console.log( dog_view.child_of_lassie() ); // => false
+console.log( dog_view.name() ); // Fido
+console.log( dog_view.child_of_lassie() ); // false
 
 dog_view.name("Spot");
 dog_view.parent_dog_name("Lassie");
 
-console.log( dog_view.name() ); // => Spot
-console.log( dog_view.child_of_lassie() ); // => true
+console.log( dog_view.name() ); // Spot
+console.log( dog_view.child_of_lassie() ); // true
 {% endhighlight %}

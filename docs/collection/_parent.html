@@ -12,5 +12,5 @@ var Dogs = Falcon.Collection.extend({model: Dog});
 var owner = new Owner();
 var dogs = new Dogs( owner ); // Owner becomes the 'parent' of dogs
 
-console.log( dogs.parent === owner ); // => true
+console.log( dogs.parent === owner ); // true
 {% endhighlight %}

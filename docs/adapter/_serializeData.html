@@ -1,0 +1,49 @@
+{% assign methodName = "serializeData" %}
+{% assign methodExample = "adapter.serializeData( data_object, type, options, context )" %}
+{% assign returnType = "String" %}
+{% assign returnDescription = "The generated url" %}
+{% include methodOverview.html %}
+<p>
+	Serializes the data_object by calling its serialize method with the 'attributes' peropety of the standardized options on POST and PUT request types. If a 'data' property already exists on the options, however, then that will always be returned and the 'serialize' method will never be called. The result of this method is typically assigned to the 'data' property of the standradized options from within the standardizeOptions method.
+</p>
+<div class="alert alert-info">
+	This method is a pre-request method that should always be called with the same four arguments: data_object, type, options, and context.
+</div>
+<div class="alert alert-warning">
+	This method should always be called with the resolved request type (from resolveRequestType) and the standardized options (from or within standardizeOptions).
+</div>
+<dl>
+	<dt data-type="Falcon.Model">data_object</dt>
+	<dd>The data object being prepaired. Should be either a Falcon.Model or a Falcon.Collection</dd>
+	<dt data-type="String">type</dt>
+	<dd>The resolved request type</dd>
+	<dt data-type="Object">options</dt>
+	<dd>The partially standardized options</dd>
+	<dt data-type="mixed">context</dt>
+	<dd>The unresolved request context</dd>
+</dl>
+{% highlight javascript linenos %}
+var model = new Falcon.Model({"hello": "world", "foo": "bar"});
+var adapter = new Falcon.Adapter();
+
+// Returns: undefined
+apater.serializeData( model, "GET", {}, model );
+
+// Returns: {"id": null, "hello": "world", "foo": "bar"}
+apater.serializeData( model, "POST", {}, model );
+
+// Returns: {"id": null, "hello": "world", "foo": "bar"}
+apater.serializeData( model, "PUT", {}, model );
+
+// Returns: undefined
+apater.serializeData( model, "DELETE", {}, model );
+
+// Returns: {"foo": "bar"}
+apater.serializeData( model, "POST", {attributes: ["foo"]}, model );
+
+// All of these Returns: {"free": "bird"}
+apater.serializeData( model, "GET", {data: {"free": "bird"}}, model );
+apater.serializeData( model, "POST", {data: {"free": "bird"}}, model );
+apater.serializeData( model, "PUT", {data: {"free": "bird"}}, model );
+apater.serializeData( model, "DELETE", {data: {"free": "bird"}}, model );
+{% endhighlight %}

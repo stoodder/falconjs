@@ -11,5 +11,5 @@ var Owner = Falcon.Model.extend({"url": "owner.json"});
 var owner = new Owner();
 var dog = new Dog( owner ); // Owner becomes the 'parent' of dog
 
-console.log( dog.parent === owner ); // => true
+console.log( dog.parent === owner ); // true
 {% endhighlight %}

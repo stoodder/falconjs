@@ -26,9 +26,9 @@ var foo_function = function() {
 
 obj.on("log", log_function);
 
-console.log( obj.has("log") ); // => true
-console.log( obj.has("click") ); // => false
+console.log( obj.has("log") ); // true
+console.log( obj.has("click") ); // false
 
-console.log( obj.has("log", log_function) ); // => true
-console.log( obj.has("log", foo_function) ); // => false
+console.log( obj.has("log", log_function) ); // true
+console.log( obj.has("log", foo_function) ); // false
 {% endhighlight %}

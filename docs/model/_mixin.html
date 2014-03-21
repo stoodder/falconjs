@@ -19,8 +19,8 @@ var Dog = Falcon.Model.extend({
 
 var dog = new Dog();
 
-console.log( ko.isObservable( dog.name ) ); // => false
-console.log( dog.bark instanceof Function ); // => false
+console.log( ko.isObservable( dog.name ) ); // false
+console.log( dog.bark instanceof Function ); // false
 
 dog.mixin({
 	"name": ko.observable(),
@@ -29,8 +29,8 @@ dog.mixin({
 	}
 });
 
-console.log( ko.isObservable( dog.name ) ); // => true
-console.log( dog.bark instanceof Function ); // => true
+console.log( ko.isObservable( dog.name ) ); // true
+console.log( dog.bark instanceof Function ); // true
 
-dog.bark() // => Fido says woof!
+dog.bark() // Fido says woof!
 {% endhighlight %}

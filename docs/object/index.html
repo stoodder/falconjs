@@ -28,8 +28,8 @@ var Dog = Falcon.Object.extend({
 
 var my_dog = new Dog();
 
-Dog.says(); // => Woof!
-my_dog.bark(); // => The dog barks
+Dog.says(); // Woof!
+my_dog.bark(); // The dog barks
 {% endhighlight %}
 {% assign methodName = "defaults" %}
 {% assign methodExample = "object.defaults" %}
@@ -49,12 +49,12 @@ var Dog = Falcon.Object.extend({
 });
 
 var dog = new Dog();
-console.log( dog.name ); // => Fido
-console.log( dog.is_tame ); // => true
+console.log( dog.name ); // Fido
+console.log( dog.is_tame ); // true
 
 var skip = new Dog("Skip");
-console.log( skip.name ); // => Skip
-console.log( skip.is_tame ); // => true
+console.log( skip.name ); // Skip
+console.log( skip.is_tame ); // true
 {% endhighlight %}
 {% assign methodName = "observables" %}
 {% assign methodExample = "object.observables" %}
@@ -77,17 +77,17 @@ var Dog = Falcon.Object.extend({
 
 var dog = new Dog(); // Dog not related to Lassie
 
-console.log( ko.isObservable( dog.name ) ); // => true
-console.log( ko.isComputed( dog.child_of_lassie ) ); // => true
+console.log( ko.isObservable( dog.name ) ); // true
+console.log( ko.isComputed( dog.child_of_lassie ) ); // true
 
-console.log( dog.name() ); // => Fido
-console.log( dog.child_of_lassie() ); // => false
+console.log( dog.name() ); // Fido
+console.log( dog.child_of_lassie() ); // false
 
 dog.name("Spot")
 dog.parent_dog_name("Lassie")
 
-console.log( dog.name() ); // => Spot
-console.log( dog.child_of_lassie() ); // => true
+console.log( dog.name() ); // Spot
+console.log( dog.child_of_lassie() ); // true
 {% endhighlight %}
 {% assign methodName = "on" %}
 {% assign methodExample = "object.on( event, callback, [context] )" %}
@@ -130,11 +130,11 @@ obj.on("log", function() {
 	console.log("Hello World");
 });
 
-obj.trigger("log"); // => Logs 'Hello World'
+obj.trigger("log"); // Logs 'Hello World'
 
 obj.off("log");
 
-obj.trigger("log"); // => Nothing Happens
+obj.trigger("log"); // Nothing Happens
 {% endhighlight %}
 {% highlight javascript linenos %}
 var obj = new Falcon.Object();
@@ -150,11 +150,11 @@ var log_callback_two = function() {
 obj.on("log", log_callback_one);
 obj.on("log", log_callback_two);
 
-obj.trigger("log");  // => Logs 'Log One', then 'Log Two'
+obj.trigger("log");  // Logs 'Log One', then 'Log Two'
 
 obj.off("log", log_callback_one);
 
-obj.trigger("log");  // => Logs 'Log Two'
+obj.trigger("log");  // Logs 'Log Two'
 {% endhighlight %}
 {% assign methodName = "trigger" %}
 {% assign methodExample = "object.trigger( event, [args...] )" %}
@@ -183,8 +183,8 @@ obj.on("custom_log", function(message)
 	console.log( message );
 });
 
-obj.trigger("log"); // => Logs 'Hello World'
-obj.trigger("custom_log", "Foo Bar"); // => Logs 'Foo Bar'
+obj.trigger("log"); // Logs 'Hello World'
+obj.trigger("custom_log", "Foo Bar"); // Logs 'Foo Bar'
 {% endhighlight %}
 {% assign methodName = "has" %}
 {% assign methodExample = "object.has( event, callback )" %}
@@ -214,11 +214,11 @@ var foo_function = function() {
 
 obj.on("log", log_function);
 
-console.log( obj.has("log") ); // => true
-console.log( obj.has("click") ); // => false
+console.log( obj.has("log") ); // true
+console.log( obj.has("click") ); // false
 
-console.log( obj.has("log", log_function) ); // => true
-console.log( obj.has("log", foo_function) ); // => false
+console.log( obj.has("log", log_function) ); // true
+console.log( obj.has("log", foo_function) ); // false
 {% endhighlight %}
 {% assign methodName = "listenTo" %}
 {% assign methodExample = "object.listenTo( object, event, callback )" %}

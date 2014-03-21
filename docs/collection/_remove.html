@@ -32,20 +32,20 @@ var zeus = new Dog({"name": "Zeus"});
 var dogs = new Dogs([fido, skip, bump, bucko, spot, zeus]);
 
 dogs.remove( skip );
-console.log( dogs.length() ); // => 5
-console.log( dogs.any(skip) ); // => false
+console.log( dogs.length() ); // 5
+console.log( dogs.any(skip) ); // false
 
 dogs.remove( [fido, spot] );
-console.log( dogs.length() ); // => 3
-console.log( dogs.any(fido) ); // => false
-console.log( dogs.any(spot) ); // => false
+console.log( dogs.length() ); // 3
+console.log( dogs.any(fido) ); // false
+console.log( dogs.any(spot) ); // false
 
 dogs.remove(function(dog) {
 	return dog.get("name").charAt(0) === "B";
 });
-console.log( dogs.length() ); // => 1
-console.log( dogs.any(bump) ); // => false
-console.log( dogs.any(bucko) ); // => false
+console.log( dogs.length() ); // 1
+console.log( dogs.any(bump) ); // false
+console.log( dogs.any(bucko) ); // false
 
-console.log( dogs.any(zeus) ); // => true
+console.log( dogs.any(zeus) ); // true
 {% endhighlight %}

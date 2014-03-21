@@ -17,9 +17,9 @@ var dogs = new Dogs([
 	{id: 3, "name": "Bump"}
 ]);
 
-// => [{id: 1, name: "Fido"}, {id: 2, name: "Skip"}, {id: 3, name: "Bump"}]
+// [{id: 1, name: "Fido"}, {id: 2, name: "Skip"}, {id: 3, name: "Bump"}]
 console.log( dogs.serialize() ); 
 
-// => [{name: "Fido"}, {name: "Skip"}, {name: "Bump"}]
+// [{name: "Fido"}, {name: "Skip"}, {name: "Bump"}]
 console.log( dogs.serialize(["name"]) ); 
 {% endhighlight %}

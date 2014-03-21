@@ -19,9 +19,9 @@ var Dog = Falcon.Model.extend({
 
 var dog = new Dog({"is_tame": true});
 
-console.log( dog.get("is_tame") ); // => true
+console.log( dog.get("is_tame") ); // true
 
 dog.toggle("is_tame");
 
-console.log( dog.get("is_tame") ); // => false
+console.log( dog.get("is_tame") ); // false
 {% endhighlight %}

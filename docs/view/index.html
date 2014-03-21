@@ -5,7 +5,7 @@ layout: view
 {% assign methodExample = "new Falcon.View()" %}
 {% include methodOverview.html %}
 <p>
-	Initializes this class, this is called within the default constructor and is expected to be overridden by inheriting classes.  Internally this also called the Falcon.Object constructor to in initialize any 'defaults' or 'observables'.  Any arguments that are passed into the native constructor will also be passed in as the arguments for the initialize method.
+	Initializes this class, this is called within the default constructor and is expected to be overridden by inheriting classes.  Internally this also calls the Falcon.Object constructor to in initialize any 'defaults' or 'observables'.  Any arguments that are passed into the native constructor will also be passed in as the arguments for the initialize method.
 </p>
 {% highlight javascript linenos %}
 var DogView = Falcon.View.extend({
@@ -15,7 +15,7 @@ var DogView = Falcon.View.extend({
 	}
 });
 
-new DogView(); // => Initialized the Dog View
+new DogView(); // "Initialized the Dog View"
 {% endhighlight %}
 {% assign methodName = "extend" %}
 {% assign methodExample = "Falcon.View.extend( protoProps, [staticProps] )" %}
@@ -43,8 +43,8 @@ var DogView = Falcon.View.extend({
 
 var my_dog_view = new DogView();
 
-DogView.says(); // => Woof!
-my_dog_view.bark(); // => The dog view barks
+DogView.says(); // Woof!
+my_dog_view.bark(); // The dog view barks
 {% endhighlight %}
 {% assign methodName = "url" %}
 {% assign methodExample = "view.url" %}
@@ -73,9 +73,9 @@ var dog_function_view = new DogFunctionView();
 
 Falcon.baseTemplateUrl = "http://www.falconjs.com/";
 
-console.log( dog_url_view.makeUrl() ); // => http://www.falconjs.com/dog.tmpl
-console.log( dog_id_view.makeUrl() ); // => #dog
-console.log( dog_function_view.makeUrl() ); // => http://www.falconjs.com/dog.html
+console.log( dog_url_view.makeUrl() ); // http://www.falconjs.com/dog.tmpl
+console.log( dog_id_view.makeUrl() ); // #dog
+console.log( dog_function_view.makeUrl() ); // http://www.falconjs.com/dog.html
 {% endhighlight %}
 {% assign methodName = "defaults" %}
 {% assign methodExample = "view.defaults" %}
@@ -95,12 +95,12 @@ var DogView = Falcon.View.extend({
 });
 
 var dog_view = new DogView();
-console.log( dog.name ); // => Fido
-console.log( dog.is_tame ); // => true
+console.log( dog.name ); // Fido
+console.log( dog.is_tame ); // true
 
 var skip_view = new DogView("Skip");
-console.log( skip_view.name ); // => Skip
-console.log( skip_view.is_tame ); // => true
+console.log( skip_view.name ); // Skip
+console.log( skip_view.is_tame ); // true
 {% endhighlight %}
 {% assign methodName = "observables" %}
 {% assign methodExample = "view.observables" %}
@@ -123,17 +123,17 @@ var DogView = Falcon.View.extend({
 
 var dog_view = new DogView(); // Dog not related to Lassie
 
-console.log( ko.isObservable( dog_view.name ) ); // => true
-console.log( ko.isComputed( dog_view.child_of_lassie ) ); // => true
+console.log( ko.isObservable( dog_view.name ) ); // true
+console.log( ko.isComputed( dog_view.child_of_lassie ) ); // true
 
-console.log( dog_view.name() ); // => Fido
-console.log( dog_view.child_of_lassie() ); // => false
+console.log( dog_view.name() ); // Fido
+console.log( dog_view.child_of_lassie() ); // false
 
 dog_view.name("Spot");
 dog_view.parent_dog_name("Lassie");
 
-console.log( dog_view.name() ); // => Spot
-console.log( dog_view.child_of_lassie() ); // => true
+console.log( dog_view.name() ); // Spot
+console.log( dog_view.child_of_lassie() ); // true
 {% endhighlight %}
 {% assign methodName = "display" %}
 {% assign methodExample = "view.display()" %}
@@ -256,11 +256,11 @@ Falcon.apply(view_model, '#application');
 	var dog_url_view = new DogUrlView();
 	var dog_id_view = new DogIdView();
 
-	console.log( dog_url_view.makeUrl() ); // => /dog.tmpl
-	console.log( dog_id_view.makeUrl() ); // => #dog
+	console.log( dog_url_view.makeUrl() ); // /dog.tmpl
+	console.log( dog_id_view.makeUrl() ); // #dog
 
 	Falcon.baseTemplateUrl = "http://www.falconjs.com/";
 
-	console.log( dog_url_view.makeUrl() ); // => http://www.falconjs.com/dog.tmpl
-	console.log( 	dog_id_view.makeUrl() ); // => #dog
+	console.log( dog_url_view.makeUrl() ); // http://www.falconjs.com/dog.tmpl
+	console.log( dog_id_view.makeUrl() ); // #dog
 {% endhighlight %}

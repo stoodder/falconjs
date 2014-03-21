@@ -1,0 +1,18 @@
+{% assign methodName = "About Adapters" %}
+{% include methodOverview.html %}
+<p>
+	Adapters act as the glue between collections, models, and views and a backend data source. For the majority of the time you'll never need to interact with the adapter directly. Instead, <a href="/docs/model#sync">Falcon.Model.sync()</a> and <a href="/docs/collection#sync">Falcon.Collection.sync()</a> will call the adapter's sync method when saving/updating data.  Additionally, <a href="/docs/view#initialize">Falcon.View's constructor</a> will call the adapter's getTemplate method to fetch a template's HTML.
+</p>
+<p>
+	<strong>By default, Falcon's base adapter does not make any requests to a backend data source.</strong> Instead, if you're intending to utilize a backend, you should also include one of the adapters from the <a href="#List_of_Adapters">List of Adapters</a>. If you need a more customized experience, then feel free to write your own!
+</p>
+<p>
+	If you do decide to write your own adapter, please take note of a few rules of thumb:
+	<ul>
+		<li>Utilize <code>Falcon.Adapter.extend({})</code> to create a custom adapter from the base adapter</li>
+		<li>You should always override the sync() method but still call the base Falcon.Adapter sync method. The base Falcon.Adapter sync method returns an object of resolved and standardized options, callback context, request type, and the input data object. Additionally, the returned object from the base sync method, also returns an 'is_valid' flag. If this is set to false, then your custom implementation should not continue as it means that a model's validations failed as part of a POST (create) or PUT (save) routine.
+		</li>
+		<li>If you're looking to utilize your data source to also serve up View templates, then you may also want to override the getTemplate method</li>
+		<li>After defining your custom adapter, you should also initilize it and assign it to the <code>Falcon.adapter = new MyCustomAdapter();</code> configuration. The Falcon.adapter configuration is utilized throughout the application in Falcon.Model.sync(), Falcon.Collection.sync() and the Falcon.View constrcutor (for fetching a template with getTemplate).</li>
+	</ul>
+</p>

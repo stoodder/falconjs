@@ -23,8 +23,8 @@ var Dog = Falcon.Model.extend({
 
 var dog = new Dog();
 
-console.log( ko.isObservable( dog.name ) ); // => false
-console.log( ko.isObservable( dog.hello ) ); // => true
-console.log( dog.get("name") ); // => Fido
-console.log( dog.get("hello") ); // => world
+console.log( ko.isObservable( dog.name ) ); // false
+console.log( ko.isObservable( dog.hello ) ); // true
+console.log( dog.get("name") ); // Fido
+console.log( dog.get("hello") ); // world
 {% endhighlight %}

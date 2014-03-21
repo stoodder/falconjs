@@ -1,4 +1,4 @@
-describe "Test Collection Methods", ->
+describe "Falcon.Collection", ->
 	class ModelA extends Falcon.Model
 		url: 'model_a'
 	#END ModelA
@@ -66,339 +66,801 @@ describe "Test Collection Methods", ->
 	#	TODO: Break this down into multiple 'it' statements
 	#
 	#--------------------------------------------------------------
-	it "Should initialize properly", ->
-		init_stub = sinon.stub(CollectionA::, "initialize")
-
-		collectionA = new CollectionA
-		init_stub.should.have.been.calledOnce
-		init_stub.should.have.been.calledWith()
-		init_stub.should.have.been.calledOn( collectionA )
-		init_stub.reset()
-
+	describe "initialize", ->
 		models = [{"hello": "world"},{"hello": "world2"}]
-		collectionA = new CollectionA( models )
-		init_stub.should.have.been.calledOnce
-		init_stub.should.have.been.calledWith( models )
-		expect( collectionA.parent ).to.be.undefined
-		expect( collectionA.length() ).to.equal 2
-		init_stub.reset()
+		model = new ModelB
 
-		modelB = new ModelB
-		collectionA = new CollectionA( models, modelB )
-		init_stub.should.have.been.calledOnce
-		init_stub.should.have.been.calledWith( models )
-		expect( collectionA.parent ).to.equal modelB
-		expect( collectionA.length() ).to.equal 2
-		init_stub.reset()
+		beforeEach ->
+			sinonSpyOn( CollectionA::, 'initialize')
+		#END beforeEach
 
-		modelB = new ModelB
-		collectionA = new CollectionA( modelB, models )
-		init_stub.should.have.been.calledOnce
-		init_stub.should.have.been.calledWith( models )
-		expect( collectionA.parent ).to.equal modelB
-		expect( collectionA.length() ).to.equal 2
-		init_stub.reset()
+		it "Should initialize properly with an empty collection", ->
+			collection = new CollectionA
+			expect( CollectionA::initialize ).toHaveBeenCalledOnce()
+			expect( CollectionA::initialize ).toHaveBeenCalledWith()
+			expect( CollectionA::initialize ).toHaveBeenCalledOn( collection )
+		#END it
 
-		models = [new ModelA({"hello": "world"}), new ModelA({"hello": "world2"}) ]
-		collectionA = new CollectionA( models )
-		init_stub.should.have.been.calledOnce
-		init_stub.should.have.been.calledWith( models )
-		expect( collectionA.parent ).to.be.undefined
-		expect( collectionA.length() ).to.equal 2
-		init_stub.reset()
+		it "Should initialize properly with an array of objects", ->
+			collection = new CollectionA( models )
+			expect( CollectionA::initialize ).toHaveBeenCalledOnce()
+			expect( CollectionA::initialize ).toHaveBeenCalledWith( models )
+			expect( collection.parent ).not.toBeDefined()
+			expect( collection.length() ).toBe( 2 )
+		#END it
 
-		modelB = new ModelB
-		collectionA = new CollectionA( models, modelB )
-		init_stub.should.have.been.calledOnce
-		init_stub.should.have.been.calledWith( models )
-		expect( collectionA.parent ).to.equal modelB
-		expect( collectionA.length() ).to.equal 2
-		init_stub.reset()
+		it "Should set up the parent correctly", ->
+			collection = new CollectionA( models, model )
+			expect( CollectionA::initialize ).toHaveBeenCalledOnce()
+			expect( CollectionA::initialize ).toHaveBeenCalledWith( models )
+			expect( collection.parent ).toBe( model )
+			expect( collection.length() ).toBe( 2 )
+		#END it
 
-		modelB = new ModelB
-		collectionA = new CollectionA( modelB, models )
-		init_stub.should.have.been.calledOnce
-		init_stub.should.have.been.calledWith( models )
-		expect( collectionA.parent ).to.equal modelB
-		expect( collectionA.length() ).to.equal 2
-		init_stub.reset()
+		it "Should be able to switch the order of the models and parent", ->
+			collection = new CollectionA( model, models )
+			expect( CollectionA::initialize ).toHaveBeenCalledOnce()
+			expect( CollectionA::initialize ).toHaveBeenCalledWith( models )
+			expect( collection.parent ).toBe( model )
+			expect( collection.length() ).toBe( 2 )
+		#END it
 
-		init_stub.restore()
+		it "Should be able to accept an array of models", ->
+			models = [new ModelA({"hello": "world"}), new ModelA({"hello": "world2"}) ]
+			collection = new CollectionA( models )
+			expect( CollectionA::initialize ).toHaveBeenCalledOnce()
+			expect( CollectionA::initialize ).toHaveBeenCalledWith( models )
+			expect( collection.parent ).not.toBeDefined()
+			expect( collection.length() ).toBe( 2 )
+		#END it
+
+		it "Should be able to accept an array of models with a parent model", ->
+			collection = new CollectionA( models, model )
+			expect( CollectionA::initialize ).toHaveBeenCalledOnce()
+			expect( CollectionA::initialize ).toHaveBeenCalledWith( models )
+			expect( collection.parent ).toBe( model )
+			expect( collection.length() ).toBe( 2 )
+		#END it
+
+		it "Should be able to switch the order of an array of models and parent", ->
+			collection = new CollectionA( model, models )
+			expect( CollectionA::initialize ).toHaveBeenCalledOnce()
+			expect( CollectionA::initialize ).toHaveBeenCalledWith( models )
+			expect( collection.parent ).toBe( model )
+			expect( collection.length() ).toBe( 2 )
+		#END it
+
+		it "Should throw if the parent isn't a model", ->
+			expect( -> new CollectionA( models, {} ) ).toThrow()
+		#END 
+	#END describe
+
+	#--------------------------------------------------------------
+	#
+	# Test the defaults initialization
+	#
+	#--------------------------------------------------------------
+	it "Should create RawrCollection with defaults that have correct arguments", ->
+		hello_spy = null
+
+		class RawrCollection extends Falcon.Collection
+			defaults:
+				'hello': ( hello_spy = sinon.spy() )
+			#END defaults
+		#END RawrCollection
+		
+		expect( hello_spy ).not.toHaveBeenCalled()
+
+		rawr_class = new RawrCollection(input_data = ["one", "two", "three"])
+
+		expect( hello_spy ).toHaveBeenCalled
+		expect( hello_spy.callCount ).toBe( 1 )
+		expect( hello_spy.firstCall.args.length ).toBe( 1 )
+		expect( hello_spy.firstCall.args[0] ).toBe( input_data )
 	#END it
 
+	describe "set", ->
+		model_1 = new ModelA({'hello': 'water', 'foo': 'baz'})
+		model_2 = new ModelA({'hello': 'earth', 'foo': 'zip'})
+		model_3 = new ModelA({'hello': 'mars', 'foo': 'zab'})
+		collection = new CollectionA([model_1, model_2, model_3])
 
+		beforeEach ->
+			spyOn( model_1, 'set' )
+			spyOn( model_2, 'set' )
+			spyOn( model_3, 'set' )
+		#END beforeEach
+
+		it "Should update all of the values", ->
+			ret = collection.set('hello', 'world')
+
+			expect( model_1.set.calls.count() ).toBe( 1 )
+			expect( model_1.set ).toHaveBeenCalledWith('hello', 'world')
+			
+			expect( model_2.set.calls.count() ).toBe( 1 )
+			expect( model_2.set ).toHaveBeenCalledWith('hello', 'world')
+			
+			expect( model_3.set.calls.count() ).toBe( 1 )
+			expect( model_3.set ).toHaveBeenCalledWith('hello', 'world')
+
+			expect( ret ).toBe( collection )
+		#END it
+
+		it "Should be able to set using an object", ->
+			ret = collection.set({'hello': 'world :D', 'foo': 'bar'})
+
+			expect( model_1.set.calls.count() ).toBe( 1 )
+			expect( model_1.set ).toHaveBeenCalledWith({'hello': 'world :D', 'foo': 'bar'}, undefined)
+			
+			expect( model_2.set.calls.count() ).toBe( 1 )
+			expect( model_2.set ).toHaveBeenCalledWith({'hello': 'world :D', 'foo': 'bar'}, undefined)
+			
+			expect( model_3.set.calls.count() ).toBe( 1 )
+			expect( model_3.set ).toHaveBeenCalledWith({'hello': 'world :D', 'foo': 'bar'}, undefined)
+
+			expect( ret ).toBe( collection )
+		#END it
+	#END describe
 	#--------------------------------------------------------------
 	#
 	# Test the fill() method
 	#
 	#--------------------------------------------------------------
-	describe "Testing the different fill method combinations", ->
-		describe "Test default option", ->
-			it "Should properly add items into an empty collection", ->
-				collectionA = new CollectionA
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-				]
+	describe "fill", ->
+		collection = null
+		items = options = null
+		beforeEach ->
+			collection = new CollectionA
+			items = [{}, {}]
+			spyOn( collection, 'replace' )
+			spyOn( collection, 'prepend' )
+			spyOn( collection, 'append' )
+			spyOn( collection, 'insert' )
+			spyOn( collection, 'merge' )
+		#END beforeEach
 
-				collectionA.length().should.equal 2
-				collectionA.at(0).should.be.instanceof ModelA
-				collectionA.at(0).get('id').should.equal 1
-				collectionA.at(0).get('hello').should.equal "world"
-				collectionA.at(1).should.be.instanceof ModelA
-				collectionA.at(1).get('id').should.equal 2
-				collectionA.at(1).get('hello').should.equal "world2"
-			#END it
+		it "Should call the replace method by default", ->
+			options = {}
+			collection.fill(items, options)
+			expect( collection.replace.calls.count() ).toBe( 1 )
+			expect( collection.replace ).toHaveBeenCalledWith( items, {'method': 'replace', 'comparator': null} )
+			expect( collection.append ).not.toHaveBeenCalled()
+			expect( collection.prepend ).not.toHaveBeenCalled()
+			expect( collection.merge ).not.toHaveBeenCalled()
+			expect( collection.insert ).not.toHaveBeenCalled()
 
-			it "Should properly replace items into a populated collection", ->
-				collectionA = new CollectionA [
-					{id: 2, "hello": "world3"}
-				]
-				
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-				]
+			expect( collection.replace.calls.mostRecent().args[1] ).not.toBe( options )
+		#END it
 
-				collectionA.length().should.equal 2
-				collectionA.at(0).should.be.instanceof ModelA
-				collectionA.at(0).get('id').should.equal 1
-				collectionA.at(0).get('hello').should.equal "world"
-				collectionA.at(1).should.be.instanceof ModelA
-				collectionA.at(1).get('id').should.equal 2
-				collectionA.at(1).get('hello').should.equal "world2"
-			#END it
-		#END describe
+		it "Should call the replace when an invalid method is given", ->
+			options = {'method': 'replacezzzzzz'}
+			collection.fill(items, options)
+			expect( collection.replace.calls.count() ).toBe( 1 )
+			expect( collection.replace ).toHaveBeenCalledWith( items, {'method': 'replace', 'comparator': null} )
+			expect( collection.append ).not.toHaveBeenCalled()
+			expect( collection.prepend ).not.toHaveBeenCalled()
+			expect( collection.merge ).not.toHaveBeenCalled()
+			expect( collection.insert ).not.toHaveBeenCalled()
 
-		describe "Test 'replace' option", ->
-			it "Should properly add items into an empty collection", ->
-				collectionA = new CollectionA
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-				], { 'method': 'replace' }
+			expect( collection.replace.calls.mostRecent().args[1] ).not.toBe( options )
+		#END it
 
-				collectionA.length().should.equal 2
-				collectionA.at(0).should.be.instanceof ModelA
-				collectionA.at(0).get('id').should.equal 1
-				collectionA.at(0).get('hello').should.equal "world"
-				collectionA.at(1).should.be.instanceof ModelA
-				collectionA.at(1).get('id').should.equal 2
-				collectionA.at(1).get('hello').should.equal "world2"
-			#END it
+		it "Should call the replace when requested", ->
+			options = {'method': 'replace'}
+			collection.fill(items, options)
+			expect( collection.replace.calls.count() ).toBe( 1 )
+			expect( collection.replace ).toHaveBeenCalledWith( items, {'method': 'replace', 'comparator': null} )
+			expect( collection.append ).not.toHaveBeenCalled()
+			expect( collection.prepend ).not.toHaveBeenCalled()
+			expect( collection.merge ).not.toHaveBeenCalled()
+			expect( collection.insert ).not.toHaveBeenCalled()
 
-			it "Should properly replace items into a populated collection", ->
-				collectionA = new CollectionA [
-					{id: 2, "hello": "world3"}
-				]
-				
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-				], { 'method': 'replace' }
+			expect( collection.replace.calls.mostRecent().args[1] ).not.toBe( options )
+		#END it
 
-				collectionA.length().should.equal 2
-				collectionA.at(0).should.be.instanceof ModelA
-				collectionA.at(0).get('id').should.equal 1
-				collectionA.at(0).get('hello').should.equal "world"
-				collectionA.at(1).should.be.instanceof ModelA
-				collectionA.at(1).get('id').should.equal 2
-				collectionA.at(1).get('hello').should.equal "world2"
-			#END it
-		#END describe
+		it "Should call the append when requested", ->
+			options = {'method': 'append'}
+			collection.fill(items, options)
+			expect( collection.append.calls.count() ).toBe( 1 )
+			expect( collection.append ).toHaveBeenCalledWith( items, {'method': 'append', 'comparator': null} )
+			expect( collection.replace ).not.toHaveBeenCalled()
+			expect( collection.prepend ).not.toHaveBeenCalled()
+			expect( collection.merge ).not.toHaveBeenCalled()
+			expect( collection.insert ).not.toHaveBeenCalled()
 
-		describe "Test 'append' option", ->
-			it "Should properly add items into an empty collection", ->
-				collectionA = new CollectionA
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-				], { 'method': 'append' }
+			expect( collection.append.calls.mostRecent().args[1] ).not.toBe( options )
+		#END it
 
-				collectionA.length().should.equal 2
-				collectionA.at(0).should.be.instanceof ModelA
-				collectionA.at(0).get('id').should.equal 1
-				collectionA.at(0).get('hello').should.equal "world"
-				collectionA.at(1).should.be.instanceof ModelA
-				collectionA.at(1).get('id').should.equal 2
-				collectionA.at(1).get('hello').should.equal "world2"
-			#END it
+		it "Should call the prepend when requested", ->
+			options = {'method': 'prepend'}
+			collection.fill(items, options)
+			expect( collection.prepend.calls.count() ).toBe( 1 )
+			expect( collection.prepend ).toHaveBeenCalledWith( items, {'method': 'prepend', 'comparator': null} )
+			expect( collection.replace ).not.toHaveBeenCalled()
+			expect( collection.append ).not.toHaveBeenCalled()
+			expect( collection.merge ).not.toHaveBeenCalled()
+			expect( collection.insert ).not.toHaveBeenCalled()
 
-			it "Should properly append items into a populated collection", ->
-				collectionA = new CollectionA [
-					{id: 3, "hello": "world3"}
-				]
-				
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-				], { 'method': 'append' }
+			expect( collection.prepend.calls.mostRecent().args[1] ).not.toBe( options )
+		#END it
 
-				collectionA.length().should.equal 3
-				collectionA.at(0).should.be.instanceof ModelA
-				collectionA.at(0).get('id').should.equal 3
-				collectionA.at(0).get('hello').should.equal "world3"
-				collectionA.at(1).should.be.instanceof ModelA
-				collectionA.at(1).get('id').should.equal 1
-				collectionA.at(1).get('hello').should.equal "world"
-				collectionA.at(2).should.be.instanceof ModelA
-				collectionA.at(2).get('id').should.equal 2
-				collectionA.at(2).get('hello').should.equal "world2"
-			#END it
-		#END describe
+		it "Should call the merge when requested", ->
+			options = {'method': 'merge'}
+			collection.fill(items, options)
+			expect( collection.merge.calls.count() ).toBe( 1 )
+			expect( collection.merge ).toHaveBeenCalledWith( items, {'method': 'merge', 'comparator': null} )
+			expect( collection.replace ).not.toHaveBeenCalled()
+			expect( collection.append ).not.toHaveBeenCalled()
+			expect( collection.prepend ).not.toHaveBeenCalled()
+			expect( collection.insert ).not.toHaveBeenCalled()
 
-		describe "Test 'prepend' option", ->
-			it "Should properly add items into an empty collection", ->
-				collectionA = new CollectionA
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-				], { 'method': 'prepend' }
+			expect( collection.merge.calls.mostRecent().args[1] ).not.toBe( options )
+		#END it
 
-				collectionA.length().should.equal 2
-				collectionA.at(0).should.be.instanceof ModelA
-				collectionA.at(0).get('id').should.equal 1
-				collectionA.at(0).get('hello').should.equal "world"
-				collectionA.at(1).should.be.instanceof ModelA
-				collectionA.at(1).get('id').should.equal 2
-				collectionA.at(1).get('hello').should.equal "world2"
-			#END it
+		it "Should call the insert when requested", ->
+			options = {'method': 'insert', 'index': 3}
+			collection.fill(items, options)
+			expect( collection.insert.calls.count() ).toBe( 1 )
+			expect( collection.insert ).toHaveBeenCalledWith( items, {'method': 'insert', 'index': 3, 'comparator': null} )
+			expect( collection.replace ).not.toHaveBeenCalled()
+			expect( collection.append ).not.toHaveBeenCalled()
+			expect( collection.prepend ).not.toHaveBeenCalled()
+			expect( collection.merge ).not.toHaveBeenCalled()
 
-			it "Should properly prepend items into a populated collection", ->
-				collectionA = new CollectionA [
-					{id: 3, "hello": "world3"}
-				]
-				
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-				], { 'method': 'prepend' }
+			expect( collection.insert.calls.mostRecent().args[1] ).not.toBe( options )
+		#END it
+	#END describe
 
-				index = 0
-				collectionA.length().should.equal 3
+	describe "replace", ->
+		it "Should properly add items into an empty collection", ->
+			collectionA = new CollectionA
+			collectionA.replace [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+			]
 
-				collectionA.at(index).should.be.instanceof ModelA
-				collectionA.at(index).get('id').should.equal 1
-				collectionA.at(index).get('hello').should.equal "world"
-				index++
+			expect( collectionA.length() ).toBe( 2 )
+			expect( collectionA.at(0) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(0).get('id') ).toBe( 1 )
+			expect( collectionA.at(0).get('hello') ).toBe( "world" )
+			expect( collectionA.at(1) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(1).get('id') ).toBe( 2 )
+			expect( collectionA.at(1).get('hello') ).toBe( "world2" )
+		#END it
 
-				collectionA.at(index).should.be.instanceof ModelA
-				collectionA.at(index).get('id').should.equal 2
-				collectionA.at(index).get('hello').should.equal "world2"
-				index++
+		it "Should properly replace items into a populated collection", ->
+			collectionA = new CollectionA [
+				{id: 2, "hello": "world3"}
+			]
+			
+			collectionA.replace [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+			]
 
-				collectionA.at(index).should.be.instanceof ModelA
-				collectionA.at(index).get('id').should.equal 3
-				collectionA.at(index).get('hello').should.equal "world3"
-			#END it
-		#END describe
+			expect( collectionA.length() ).toBe( 2 )
+			expect( collectionA.at(0) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(0).get('id') ).toBe( 1 )
+			expect( collectionA.at(0).get('hello') ).toBe( "world" )
+			expect( collectionA.at(1) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(1).get('id') ).toBe( 2 )
+			expect( collectionA.at(1).get('hello') ).toBe( "world2" )
+		#END it
+	#END describe
 
-		describe "Test 'merge' option", ->
-			it "Should properly add items into an empty collection", ->
-				collectionA = new CollectionA
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-				], { 'method': 'merge' }
+	describe "append", ->
+		it "Should properly add items into an empty collection", ->
+			collectionA = new CollectionA
+			collectionA.append [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+			]
 
-				collectionA.length().should.equal 2
-				collectionA.at(0).should.be.instanceof ModelA
-				collectionA.at(0).get('id').should.equal 1
-				collectionA.at(0).get('hello').should.equal "world"
-				collectionA.at(1).should.be.instanceof ModelA
-				collectionA.at(1).get('id').should.equal 2
-				collectionA.at(1).get('hello').should.equal "world2"
-			#END it
+			expect( collectionA.length() ).toBe( 2 )
+			expect( collectionA.at(0) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(0).get('id') ).toBe( 1 )
+			expect( collectionA.at(0).get('hello') ).toBe( "world" )
+			expect( collectionA.at(1) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(1).get('id') ).toBe( 2 )
+			expect( collectionA.at(1).get('hello') ).toBe( "world2" )
+		#END it
 
-			it "Should properly merge items into a populated collection", ->
-				collectionA = new CollectionA [
-					{id: 3, "hello": "world3"}
-					{id: 4, "hello": "world4"}
-				]
-				
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-					{id: 4, "hello": "world5"}
-				], { 'method': 'merge' }
+		it "Should properly append items into a populated collection", ->
+			collectionA = new CollectionA [
+				{id: 3, "hello": "world3"}
+			]
+			
+			collectionA.append [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+			]
 
-				index = 0
-				collectionA.length().should.equal 4
+			expect( collectionA.length() ).toBe( 3 )
+			expect( collectionA.at(0) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(0).get('id') ).toBe( 3 )
+			expect( collectionA.at(0).get('hello') ).toBe( "world3" )
+			expect( collectionA.at(1) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(1).get('id') ).toBe( 1 )
+			expect( collectionA.at(1).get('hello') ).toBe( "world" )
+			expect( collectionA.at(2) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(2).get('id') ).toBe( 2 )
+			expect( collectionA.at(2).get('hello') ).toBe( "world2" )
+		#END it
 
-				collectionA.at(index).should.be.instanceof ModelA
-				collectionA.at(index).get('id').should.equal 3
-				collectionA.at(index).get('hello').should.equal "world3"
-				index++
-
-				collectionA.at(index).should.be.instanceof ModelA
-				collectionA.at(index).get('id').should.equal 4
-				collectionA.at(index).get('hello').should.equal "world5"
-				index++
-
-				collectionA.at(index).should.be.instanceof ModelA
-				collectionA.at(index).get('id').should.equal 1
-				collectionA.at(index).get('hello').should.equal "world"
-				index++
-
-				collectionA.at(index).should.be.instanceof ModelA
-				collectionA.at(index).get('id').should.equal 2
-				collectionA.at(index).get('hello').should.equal "world2"
-				index++
-			#END it
-		#END describe
-
-		describe "Test invalid option", ->
-			it "Should properly add items into an empty collection", ->
-				collectionA = new CollectionA
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-				], {'method': 'invalid'}
-
-				collectionA.length().should.equal 2
-				collectionA.at(0).should.be.instanceof ModelA
-				collectionA.at(0).get('id').should.equal 1
-				collectionA.at(0).get('hello').should.equal "world"
-				collectionA.at(1).should.be.instanceof ModelA
-				collectionA.at(1).get('id').should.equal 2
-				collectionA.at(1).get('hello').should.equal "world2"
-			#END it
-
-			it "Should properly replace items into a populated collection", ->
-				collectionA = new CollectionA [
-					{id: 2, "hello": "world3"}
-				]
-				
-				collectionA.fill [
-					{id: 1, "hello": "world"}
-					{id: 2, "hello": "world2"}
-				], {'method': 'invalid'}
-
-				collectionA.length().should.equal 2
-				collectionA.at(0).should.be.instanceof ModelA
-				collectionA.at(0).get('id').should.equal 1
-				collectionA.at(0).get('hello').should.equal "world"
-				collectionA.at(1).should.be.instanceof ModelA
-				collectionA.at(1).get('id').should.equal 2
-				collectionA.at(1).get('hello').should.equal "world2"
-			#END it
-		#END describe
-
-		describe "Test that parent is being set properly on children models", ->
-			it "Should properly add items into an empty collection", ->
+		it "Should properly add items into an empty collection and set the parent properly", ->
 				modelB = new ModelB
 				collectionA = new CollectionA( modelB )
-				collectionA.fill [
+				collectionA.append [
 					{id: 1, "hello": "world"}
 				]
 
-				collectionA.length().should.equal 1
-				collectionA.at(0).should.be.instanceof ModelA
-				collectionA.at(0).get('id').should.equal 1
-				collectionA.at(0).get('hello').should.equal "world"
-				collectionA.at(0).parent.should.equal modelB
+				expect( collectionA.length() ).toBe( 1 )
+				expect( collectionA.at(0) ).toEqual( jasmine.any(ModelA) )
+				expect( collectionA.at(0).get('id') ).toBe( 1 )
+				expect( collectionA.at(0).get('hello') ).toBe( "world" )
+				expect( collectionA.at(0).parent ).toBe( modelB )
 			#END it
-		#END describe
+	#END describe
+
+	describe "prepend", ->
+		it "Should properly add items into an empty collection", ->
+			collectionA = new CollectionA
+			collectionA.prepend [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+			]
+
+			expect( collectionA.length() ).toBe( 2 )
+			expect( collectionA.at(0) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(0).get('id') ).toBe( 1 )
+			expect( collectionA.at(0).get('hello') ).toBe( "world" )
+			expect( collectionA.at(1) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(1).get('id') ).toBe( 2 )
+			expect( collectionA.at(1).get('hello') ).toBe( "world2" )
+		#END it
+
+		it "Should properly prepend items into a populated collection", ->
+			collectionA = new CollectionA [
+				{id: 3, "hello": "world3"}
+			]
+			
+			collectionA.prepend [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+			]
+
+			index = 0
+			expect( collectionA.length() ).toBe( 3 )
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 1 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 2 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world2" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 3 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world3" )
+		#END it
+	#END describe
+
+	describe "merge", ->
+		it "Should properly add items into an empty collection", ->
+			collectionA = new CollectionA
+			collectionA.merge [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+			]
+
+			expect( collectionA.length() ).toBe( 2 )
+			expect( collectionA.at(0) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(0).get('id') ).toBe( 1 )
+			expect( collectionA.at(0).get('hello') ).toBe( "world" )
+			expect( collectionA.at(1) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(1).get('id') ).toBe( 2 )
+			expect( collectionA.at(1).get('hello') ).toBe( "world2" )
+		#END it
+
+		it "Should properly merge items into a populated collection", ->
+			collectionA = new CollectionA [
+				{id: 3, "hello": "world3"}
+				{id: 4, "hello": "world4"}
+			]
+			
+			collectionA.merge [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+				{id: 4, "hello": "world5"}
+			]
+
+			index = 0
+			expect( collectionA.length() ).toBe( 4 )
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 3 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world3" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 4 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world5" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 1 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 2 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world2" )
+			index++
+		#END it
+
+		it "Should not overwrite previous references on merge", ->
+			class MergeModel extends Falcon.Model
+				defaults:
+					'sub': -> new SubMergeModel
+				#END defaults
+
+				observables:
+					'foo': 'bar'
+				#END observables
+			#END MergeModel
+
+			class SubMergeModel extends Falcon.Model
+				observables:
+					'hello': 'world'
+				#END observables
+			#END SubMergeModel
+
+			class MergeCollection extends Falcon.Collection
+				model: MergeModel
+			#END class
+
+			merge_model = new MergeModel(id: 1)
+			merge_collection = new MergeCollection([merge_model])
+
+			expect( merge_model.get('foo') ).toBe( 'bar' )
+			expect( merge_model.sub.get('hello') ).toBe( 'world' )
+
+			foo_obs = merge_model.foo
+			hello_obs = merge_model.sub.hello
+
+			expect( ko.isObservable(foo_obs) ).toBe( true )
+			expect( ko.isObservable(hello_obs) ).toBe( true )
+
+			expect( merge_collection.all() ).toEqual([merge_model])
+
+			merge_collection.merge [{
+				'id': 1,
+				'foo': 'BAR',
+				'sub': {'hello': 'WORLD'}
+			}, (merge_model2 = new MergeModel)]
+
+			expect( merge_model.get('foo') ).toBe( 'BAR' )
+			expect( merge_model.sub.get('hello') ).toBe( 'WORLD' )
+
+			expect( foo_obs ).toBe( merge_model.foo )
+			expect( hello_obs ).toBe( merge_model.sub.hello )
+
+			expect( merge_collection.all() ).toEqual([merge_model, merge_model2])
+		#END it
+
+		it "Should properly merge items into a populated collection that has a specified comparator", ->
+			collectionA = new CollectionA [
+				{id: 3, "hello": "world3"}
+				{id: 4, "hello": "world4"}
+			]
+
+			collectionA.comparator = (model_a, model_b) ->
+				a_id = parseInt( model_a.get("id") )
+				b_id = parseInt( model_b.get("id") )
+
+				return -1 if a_id > b_id
+				return 1 if a_id < b_id
+				return 0
+			#END comparator
+			
+			collectionA.merge [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+				{id: 4, "hello": "world5"}
+			]
+
+			index = 0
+			expect( collectionA.length() ).toBe( 4 )
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 4 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world5" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 3 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world3" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 2 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world2" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 1 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world" )
+			index++
+		#END it
+	#END describe
+
+	describe "insert", ->
+		it "Should properly add items into an empty collection", ->
+			collectionA = new CollectionA
+			collectionA.insert [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+			], { 'index': 2 }
+
+			expect( collectionA.length() ).toBe( 2 )
+			expect( collectionA.at(0) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(0).get('id') ).toBe( 1 )
+			expect( collectionA.at(0).get('hello') ).toBe( "world" )
+			expect( collectionA.at(1) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(1).get('id') ).toBe( 2 )
+			expect( collectionA.at(1).get('hello') ).toBe( "world2" )
+		#END it
+
+		it "Should properly insert items into a populated collection", ->
+			collectionA = new CollectionA [
+				{id: 3, "hello": "world3"}
+				{id: 4, "hello": "world4"}
+			]
+			
+			collectionA.insert [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+			], { 'index': 1 }
+
+			index = 0
+			expect( collectionA.length() ).toBe( 4 )
+
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 3 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world3" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 1 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 2 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world2" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 4 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world4" )
+			index++
+		#END it
+
+		it "Should properly insert items into a populated collection with an iterator function", ->
+			collectionA = new CollectionA [
+				{id: 3, "hello": "world3"}
+				{id: 4, "hello": "world4"}
+			]
+			
+			collectionA.insert [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+			], (model) ->
+				(model.get('id') is 4)
+			#END insert
+
+			index = 0
+			expect( collectionA.length() ).toBe( 4 )
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 3 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world3" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 1 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 2 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world2" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 4 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world4" )
+			index++
+		#END it
+
+		it "Should properly insert items into a populated collection with an integer id", ->
+			collectionA = new CollectionA [
+				{id: 3, "hello": "world3"}
+				{id: 4, "hello": "world4"}
+			]
+			
+			collectionA.insert [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+			], 4
+
+			index = 0
+			expect( collectionA.length() ).toBe( 4 )
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 3 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world3" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 1 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 2 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world2" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 4 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world4" )
+			index++
+		#END it
+
+		it "Should properly insert items into a populated collection with a string id", ->
+			collectionA = new CollectionA [
+				{id: '3', "hello": "world3"}
+				{id: '4', "hello": "world4"}
+			]
+			
+			collectionA.insert [
+				{id: '1', "hello": "world"}
+				{id: '2', "hello": "world2"}
+			], '4'
+
+			index = 0
+			expect( collectionA.length() ).toBe( 4 )
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( '3' )
+			expect( collectionA.at(index).get('hello') ).toBe( "world3" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( '1' )
+			expect( collectionA.at(index).get('hello') ).toBe( "world" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( '2' )
+			expect( collectionA.at(index).get('hello') ).toBe( "world2" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( '4' )
+			expect( collectionA.at(index).get('hello') ).toBe( "world4" )
+			index++
+		#END it
+
+		it "Should properly insert items into a populated collection with a model", ->
+			collectionA = new CollectionA [
+				new ModelA({id: 3, "hello": "world3"})
+				model = new ModelA({id: 4, "hello": "world4"})
+			]
+			
+			collectionA.insert [
+				new ModelA({id: 1, "hello": "world"})
+				new ModelA({id: 2, "hello": "world2"})
+			], model
+
+			index = 0
+			expect( collectionA.length() ).toBe( 4 )
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 3 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world3" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 1 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 2 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world2" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 4 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world4" )
+			index++
+		#END it
+
+		it "Should properly insert items into a populated collection at an invalid index", ->
+			collectionA = new CollectionA [
+				{id: 3, "hello": "world3"}
+				{id: 4, "hello": "world4"}
+			]
+			
+			collectionA.insert [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+			], { 'index': 5 }
+
+			index = 0
+			expect( collectionA.length() ).toBe( 4 )
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 3 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world3" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 4 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world4" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 1 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 2 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world2" )
+			index++
+		#END it
+
+		it "Should properly insert items into the beginning of a populated collection", ->
+			collectionA = new CollectionA [
+				{id: 3, "hello": "world3"}
+				{id: 4, "hello": "world4"}
+			]
+			
+			collectionA.insert [
+				{id: 1, "hello": "world"}
+				{id: 2, "hello": "world2"}
+			], { 'index': 0 }
+
+			index = 0
+			expect( collectionA.length() ).toBe( 4 )
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 1 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 2 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world2" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 3 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world3" )
+			index++
+
+			expect( collectionA.at(index) ).toEqual( jasmine.any(ModelA) )
+			expect( collectionA.at(index).get('id') ).toBe( 4 )
+			expect( collectionA.at(index).get('hello') ).toBe( "world4" )
+			index++
+		#END it
 	#END describe
 
 
@@ -422,39 +884,41 @@ describe "Test Collection Methods", ->
 		#END beforeEach
 
 		it "Should test basic form of serialize method", ->
+			Falcon.debug = true
 			serialized = collectionA.serialize()
 
-			serialized.should.deep.equal models
+			expect( serialized ).toEqual( models )
+			Falcon.debug = false
 		#END it
 
 		it "Should test specific fields for serialize method", ->
 			serialized = collectionA.serialize(["foo"])
 
-			serialized.should.deep.equal [
+			expect( serialized ).toEqual([
 				{"foo": "bar"}
 				{"foo": "bar2"}
 				{"foo": "barA"}
-			]
+			])
 		#END it
 
 		it "Should test specific fields for serialize method, just id", ->
 			serialized = collectionA.serialize("id")
 
-			serialized.should.deep.equal [
+			expect( serialized ).toEqual([
 				{id: 1}
 				{id: 2}
 				{id: 'a'}
-			]
+			])
 		#END it
 
 		it "Should test specific fields for serialize method, string value", ->
 			serialized = collectionA.serialize("foo")
 
-			serialized.should.deep.equal [
+			expect( serialized ).toEqual([
 				{"foo": "bar"}
 				{"foo": "bar2"}
 				{"foo": "barA"}
-			]
+			])
 		#END it
 	#END it
 
@@ -468,30 +932,30 @@ describe "Test Collection Methods", ->
 		it "Tests the basic makeUrl method", ->
 			collectionA = new CollectionA()
 
-			expect( collectionA.makeUrl("GET") ).to.equal "/model_a"
-			expect( collectionA.makeUrl("POST") ).to.equal "/model_a"
-			expect( collectionA.makeUrl("PUT") ).to.equal "/model_a"
-			expect( collectionA.makeUrl("DELETE") ).to.equal "/model_a"
+			expect( collectionA.makeUrl("GET") ).toBe( "/model_a" )
+			expect( collectionA.makeUrl("POST") ).toBe( "/model_a" )
+			expect( collectionA.makeUrl("PUT") ).toBe( "/model_a" )
+			expect( collectionA.makeUrl("DELETE") ).toBe( "/model_a" )
 		#END it
 
 		it "Tests the basic makeUrl method, base API url", ->
 			collectionA = new CollectionA()
 			Falcon.baseApiUrl = "http://www.falconjs.com"
 
-			expect( collectionA.makeUrl("GET") ).to.equal "http://www.falconjs.com/model_a"
-			expect( collectionA.makeUrl("POST") ).to.equal "http://www.falconjs.com/model_a"
-			expect( collectionA.makeUrl("PUT") ).to.equal "http://www.falconjs.com/model_a"
-			expect( collectionA.makeUrl("DELETE") ).to.equal "http://www.falconjs.com/model_a"
+			expect( collectionA.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_a" )
+			expect( collectionA.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_a" )
+			expect( collectionA.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_a" )
+			expect( collectionA.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_a" )
 		#END it
 
 		it "Tests the basic makeUrl method, base API url ending with a '/'", ->
 			collectionA = new CollectionA()
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			expect( collectionA.makeUrl("GET") ).to.equal "http://www.falconjs.com/model_a"
-			expect( collectionA.makeUrl("POST") ).to.equal "http://www.falconjs.com/model_a"
-			expect( collectionA.makeUrl("PUT") ).to.equal "http://www.falconjs.com/model_a"
-			expect( collectionA.makeUrl("DELETE") ).to.equal "http://www.falconjs.com/model_a"
+			expect( collectionA.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_a" )
+			expect( collectionA.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_a" )
+			expect( collectionA.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_a" )
+			expect( collectionA.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_a" )
 		#END it
 
 
@@ -499,30 +963,30 @@ describe "Test Collection Methods", ->
 		it "Tests the basic makeUrl method, with parent", ->
 			collectionA = new CollectionA( new ModelB(id: '1b') )
 
-			expect( collectionA.makeUrl("GET") ).to.equal "/model_b/1b/model_a"
-			expect( collectionA.makeUrl("POST") ).to.equal "/model_b/1b/model_a"
-			expect( collectionA.makeUrl("PUT") ).to.equal "/model_b/1b/model_a"
-			expect( collectionA.makeUrl("DELETE") ).to.equal "/model_b/1b/model_a"
+			expect( collectionA.makeUrl("GET") ).toBe( "/model_b/1b/model_a" )
+			expect( collectionA.makeUrl("POST") ).toBe( "/model_b/1b/model_a" )
+			expect( collectionA.makeUrl("PUT") ).toBe( "/model_b/1b/model_a" )
+			expect( collectionA.makeUrl("DELETE") ).toBe( "/model_b/1b/model_a" )
 		#END it
 
 		it "Tests the basic makeUrl method, base API url, with parent", ->
 			collectionA = new CollectionA( new ModelB(id: '2b') )
 			Falcon.baseApiUrl = "http://www.falconjs.com"
 
-			expect( collectionA.makeUrl("GET") ).to.equal "http://www.falconjs.com/model_b/2b/model_a"
-			expect( collectionA.makeUrl("POST") ).to.equal "http://www.falconjs.com/model_b/2b/model_a"
-			expect( collectionA.makeUrl("PUT") ).to.equal "http://www.falconjs.com/model_b/2b/model_a"
-			expect( collectionA.makeUrl("DELETE") ).to.equal "http://www.falconjs.com/model_b/2b/model_a"
+			expect( collectionA.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_b/2b/model_a" )
+			expect( collectionA.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_b/2b/model_a" )
+			expect( collectionA.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_b/2b/model_a" )
+			expect( collectionA.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_b/2b/model_a" )
 		#END it
 
 		it "Tests the basic makeUrl method, base API url ending with a '/', with parent", ->
 			collectionA = new CollectionA( new ModelB(id: '3b') )
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			expect( collectionA.makeUrl("GET") ).to.equal "http://www.falconjs.com/model_b/3b/model_a"
-			expect( collectionA.makeUrl("POST") ).to.equal "http://www.falconjs.com/model_b/3b/model_a"
-			expect( collectionA.makeUrl("PUT") ).to.equal "http://www.falconjs.com/model_b/3b/model_a"
-			expect( collectionA.makeUrl("DELETE") ).to.equal "http://www.falconjs.com/model_b/3b/model_a"
+			expect( collectionA.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_b/3b/model_a" )
+			expect( collectionA.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_b/3b/model_a" )
+			expect( collectionA.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_b/3b/model_a" )
+			expect( collectionA.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_b/3b/model_a" )
 		#END it
 
 
@@ -536,30 +1000,30 @@ describe "Test Collection Methods", ->
 		it "Tests the basic makeUrl method, model url is a function", ->
 			collectionD = new CollectionD()
 
-			expect( collectionD.makeUrl("GET") ).to.equal "/model_d"
-			expect( collectionD.makeUrl("POST") ).to.equal "/model_d"
-			expect( collectionD.makeUrl("PUT") ).to.equal "/model_d"
-			expect( collectionD.makeUrl("DELETE") ).to.equal "/model_d"
+			expect( collectionD.makeUrl("GET") ).toBe( "/model_d" )
+			expect( collectionD.makeUrl("POST") ).toBe( "/model_d" )
+			expect( collectionD.makeUrl("PUT") ).toBe( "/model_d" )
+			expect( collectionD.makeUrl("DELETE") ).toBe( "/model_d" )
 		#END it
 
 		it "Tests the basic makeUrl method, model url is a function, base API url", ->
 			collectionD = new CollectionD()
 			Falcon.baseApiUrl = "http://www.falconjs.com"
 
-			expect( collectionD.makeUrl("GET") ).to.equal "http://www.falconjs.com/model_d"
-			expect( collectionD.makeUrl("POST") ).to.equal "http://www.falconjs.com/model_d"
-			expect( collectionD.makeUrl("PUT") ).to.equal "http://www.falconjs.com/model_d"
-			expect( collectionD.makeUrl("DELETE") ).to.equal "http://www.falconjs.com/model_d"
+			expect( collectionD.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_d" )
+			expect( collectionD.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_d" )
+			expect( collectionD.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_d" )
+			expect( collectionD.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_d" )
 		#END it
 
 		it "Tests the basic makeUrl method, model url is a function, base API url ending with a '/'", ->
 			collectionD = new CollectionD()
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			expect( collectionD.makeUrl("GET") ).to.equal "http://www.falconjs.com/model_d"
-			expect( collectionD.makeUrl("POST") ).to.equal "http://www.falconjs.com/model_d"
-			expect( collectionD.makeUrl("PUT") ).to.equal "http://www.falconjs.com/model_d"
-			expect( collectionD.makeUrl("DELETE") ).to.equal "http://www.falconjs.com/model_d"
+			expect( collectionD.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_d" )
+			expect( collectionD.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_d" )
+			expect( collectionD.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_d" )
+			expect( collectionD.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_d" )
 		#END it
 
 
@@ -567,30 +1031,30 @@ describe "Test Collection Methods", ->
 		it "Tests the basic makeUrl method, model url is a function, with parent", ->
 			collectionD = new CollectionD( new ModelB(id: '1b') )
 
-			expect( collectionD.makeUrl("GET") ).to.equal "/model_b/1b/model_d"
-			expect( collectionD.makeUrl("POST") ).to.equal "/model_b/1b/model_d"
-			expect( collectionD.makeUrl("PUT") ).to.equal "/model_b/1b/model_d"
-			expect( collectionD.makeUrl("DELETE") ).to.equal "/model_b/1b/model_d"
+			expect( collectionD.makeUrl("GET") ).toBe( "/model_b/1b/model_d" )
+			expect( collectionD.makeUrl("POST") ).toBe( "/model_b/1b/model_d" )
+			expect( collectionD.makeUrl("PUT") ).toBe( "/model_b/1b/model_d" )
+			expect( collectionD.makeUrl("DELETE") ).toBe( "/model_b/1b/model_d" )
 		#END it
 
 		it "Tests the basic makeUrl method, model url is a function, with parent, base API url", ->
 			collectionD = new CollectionD( new ModelB(id: '2b') )
 			Falcon.baseApiUrl = "http://www.falconjs.com"
 
-			expect( collectionD.makeUrl("GET") ).to.equal "http://www.falconjs.com/model_b/2b/model_d"
-			expect( collectionD.makeUrl("POST") ).to.equal "http://www.falconjs.com/model_b/2b/model_d"
-			expect( collectionD.makeUrl("PUT") ).to.equal "http://www.falconjs.com/model_b/2b/model_d"
-			expect( collectionD.makeUrl("DELETE") ).to.equal "http://www.falconjs.com/model_b/2b/model_d"
+			expect( collectionD.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_b/2b/model_d" )
+			expect( collectionD.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_b/2b/model_d" )
+			expect( collectionD.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_b/2b/model_d" )
+			expect( collectionD.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_b/2b/model_d" )
 		#END it
 
 		it "Tests the basic makeUrl method, model url is a function, with parent, base API url ending with a '/'", ->
 			collectionD = new CollectionD( new ModelB(id: '3b') )
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			expect( collectionD.makeUrl("GET") ).to.equal "http://www.falconjs.com/model_b/3b/model_d"
-			expect( collectionD.makeUrl("POST") ).to.equal "http://www.falconjs.com/model_b/3b/model_d"
-			expect( collectionD.makeUrl("PUT") ).to.equal "http://www.falconjs.com/model_b/3b/model_d"
-			expect( collectionD.makeUrl("DELETE") ).to.equal "http://www.falconjs.com/model_b/3b/model_d"
+			expect( collectionD.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_b/3b/model_d" )
+			expect( collectionD.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_b/3b/model_d" )
+			expect( collectionD.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_b/3b/model_d" )
+			expect( collectionD.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_b/3b/model_d" )
 		#END it
 
 
@@ -604,30 +1068,30 @@ describe "Test Collection Methods", ->
 		it "Tests the basic makeUrl method, defined url string", ->
 			collectionD2 = new CollectionD2()
 
-			expect( collectionD2.makeUrl("GET") ).to.equal "/collection_d2"
-			expect( collectionD2.makeUrl("POST") ).to.equal "/collection_d2"
-			expect( collectionD2.makeUrl("PUT") ).to.equal "/collection_d2"
-			expect( collectionD2.makeUrl("DELETE") ).to.equal "/collection_d2"
+			expect( collectionD2.makeUrl("GET") ).toBe( "/collection_d2" )
+			expect( collectionD2.makeUrl("POST") ).toBe( "/collection_d2" )
+			expect( collectionD2.makeUrl("PUT") ).toBe( "/collection_d2" )
+			expect( collectionD2.makeUrl("DELETE") ).toBe( "/collection_d2" )
 		#END it
 
 		it "Tests the basic makeUrl method, defined url string, base API url", ->
 			collectionD2 = new CollectionD2()
 			Falcon.baseApiUrl = "http://www.falconjs.com"
 
-			expect( collectionD2.makeUrl("GET") ).to.equal "http://www.falconjs.com/collection_d2"
-			expect( collectionD2.makeUrl("POST") ).to.equal "http://www.falconjs.com/collection_d2"
-			expect( collectionD2.makeUrl("PUT") ).to.equal "http://www.falconjs.com/collection_d2"
-			expect( collectionD2.makeUrl("DELETE") ).to.equal "http://www.falconjs.com/collection_d2"
+			expect( collectionD2.makeUrl("GET") ).toBe( "http://www.falconjs.com/collection_d2" )
+			expect( collectionD2.makeUrl("POST") ).toBe( "http://www.falconjs.com/collection_d2" )
+			expect( collectionD2.makeUrl("PUT") ).toBe( "http://www.falconjs.com/collection_d2" )
+			expect( collectionD2.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/collection_d2" )
 		#END it
 
 		it "Tests the basic makeUrl method, defined url string, base API url ending with a '/'", ->
 			collectionD2 = new CollectionD2()
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			expect( collectionD2.makeUrl("GET") ).to.equal "http://www.falconjs.com/collection_d2"
-			expect( collectionD2.makeUrl("POST") ).to.equal "http://www.falconjs.com/collection_d2"
-			expect( collectionD2.makeUrl("PUT") ).to.equal "http://www.falconjs.com/collection_d2"
-			expect( collectionD2.makeUrl("DELETE") ).to.equal "http://www.falconjs.com/collection_d2"
+			expect( collectionD2.makeUrl("GET") ).toBe( "http://www.falconjs.com/collection_d2" )
+			expect( collectionD2.makeUrl("POST") ).toBe( "http://www.falconjs.com/collection_d2" )
+			expect( collectionD2.makeUrl("PUT") ).toBe( "http://www.falconjs.com/collection_d2" )
+			expect( collectionD2.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/collection_d2" )
 		#END it
 
 
@@ -635,30 +1099,30 @@ describe "Test Collection Methods", ->
 		it "Tests the basic makeUrl method, defined url string, with parent", ->
 			collectionD2 = new CollectionD2( new ModelB(id: '1b') )
 
-			expect( collectionD2.makeUrl("GET") ).to.equal "/model_b/1b/collection_d2"
-			expect( collectionD2.makeUrl("POST") ).to.equal "/model_b/1b/collection_d2"
-			expect( collectionD2.makeUrl("PUT") ).to.equal "/model_b/1b/collection_d2"
-			expect( collectionD2.makeUrl("DELETE") ).to.equal "/model_b/1b/collection_d2"
+			expect( collectionD2.makeUrl("GET") ).toBe( "/model_b/1b/collection_d2" )
+			expect( collectionD2.makeUrl("POST") ).toBe( "/model_b/1b/collection_d2" )
+			expect( collectionD2.makeUrl("PUT") ).toBe( "/model_b/1b/collection_d2" )
+			expect( collectionD2.makeUrl("DELETE") ).toBe( "/model_b/1b/collection_d2" )
 		#END it
 
 		it "Tests the basic makeUrl method, defined url string, with parent, base API url", ->
 			collectionD2 = new CollectionD2( new ModelB(id: '2b') )
 			Falcon.baseApiUrl = "http://www.falconjs.com"
 
-			expect( collectionD2.makeUrl("GET") ).to.equal "http://www.falconjs.com/model_b/2b/collection_d2"
-			expect( collectionD2.makeUrl("POST") ).to.equal "http://www.falconjs.com/model_b/2b/collection_d2"
-			expect( collectionD2.makeUrl("PUT") ).to.equal "http://www.falconjs.com/model_b/2b/collection_d2"
-			expect( collectionD2.makeUrl("DELETE") ).to.equal "http://www.falconjs.com/model_b/2b/collection_d2"
+			expect( collectionD2.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_b/2b/collection_d2" )
+			expect( collectionD2.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_b/2b/collection_d2" )
+			expect( collectionD2.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_b/2b/collection_d2" )
+			expect( collectionD2.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_b/2b/collection_d2" )
 		#END it
 
 		it "Tests the basic makeUrl method, defined url string, with parent, base API url ending with a '/'", ->
 			collectionD2 = new CollectionD2( new ModelB(id: '3b') )
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			expect( collectionD2.makeUrl("GET") ).to.equal "http://www.falconjs.com/model_b/3b/collection_d2"
-			expect( collectionD2.makeUrl("POST") ).to.equal "http://www.falconjs.com/model_b/3b/collection_d2"
-			expect( collectionD2.makeUrl("PUT") ).to.equal "http://www.falconjs.com/model_b/3b/collection_d2"
-			expect( collectionD2.makeUrl("DELETE") ).to.equal "http://www.falconjs.com/model_b/3b/collection_d2"
+			expect( collectionD2.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_b/3b/collection_d2" )
+			expect( collectionD2.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_b/3b/collection_d2" )
+			expect( collectionD2.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_b/3b/collection_d2" )
+			expect( collectionD2.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_b/3b/collection_d2" )
 		#END it
 
 
@@ -672,30 +1136,30 @@ describe "Test Collection Methods", ->
 		it "Tests the basic makeUrl method, defined url function", ->
 			collectionD3 = new CollectionD3()
 
-			expect( collectionD3.makeUrl("GET") ).to.equal "/collection_d3"
-			expect( collectionD3.makeUrl("POST") ).to.equal "/collection_d3"
-			expect( collectionD3.makeUrl("PUT") ).to.equal "/collection_d3"
-			expect( collectionD3.makeUrl("DELETE") ).to.equal "/collection_d3"
+			expect( collectionD3.makeUrl("GET") ).toBe( "/collection_d3" )
+			expect( collectionD3.makeUrl("POST") ).toBe( "/collection_d3" )
+			expect( collectionD3.makeUrl("PUT") ).toBe( "/collection_d3" )
+			expect( collectionD3.makeUrl("DELETE") ).toBe( "/collection_d3" )
 		#END it
 
 		it "Tests the basic makeUrl method, defined url function, base API url", ->
 			collectionD3 = new CollectionD3()
 			Falcon.baseApiUrl = "http://www.falconjs.com"
 
-			expect( collectionD3.makeUrl("GET") ).to.equal "http://www.falconjs.com/collection_d3"
-			expect( collectionD3.makeUrl("POST") ).to.equal "http://www.falconjs.com/collection_d3"
-			expect( collectionD3.makeUrl("PUT") ).to.equal "http://www.falconjs.com/collection_d3"
-			expect( collectionD3.makeUrl("DELETE") ).to.equal "http://www.falconjs.com/collection_d3"
+			expect( collectionD3.makeUrl("GET") ).toBe( "http://www.falconjs.com/collection_d3" )
+			expect( collectionD3.makeUrl("POST") ).toBe( "http://www.falconjs.com/collection_d3" )
+			expect( collectionD3.makeUrl("PUT") ).toBe( "http://www.falconjs.com/collection_d3" )
+			expect( collectionD3.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/collection_d3" )
 		#END it
 
 		it "Tests the basic makeUrl method, defined url function, base API url ending with a '/'", ->
 			collectionD3 = new CollectionD3()
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			expect( collectionD3.makeUrl("GET") ).to.equal "http://www.falconjs.com/collection_d3"
-			expect( collectionD3.makeUrl("POST") ).to.equal "http://www.falconjs.com/collection_d3"
-			expect( collectionD3.makeUrl("PUT") ).to.equal "http://www.falconjs.com/collection_d3"
-			expect( collectionD3.makeUrl("DELETE") ).to.equal "http://www.falconjs.com/collection_d3"
+			expect( collectionD3.makeUrl("GET") ).toBe( "http://www.falconjs.com/collection_d3" )
+			expect( collectionD3.makeUrl("POST") ).toBe( "http://www.falconjs.com/collection_d3" )
+			expect( collectionD3.makeUrl("PUT") ).toBe( "http://www.falconjs.com/collection_d3" )
+			expect( collectionD3.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/collection_d3" )
 		#END it
 
 
@@ -703,30 +1167,45 @@ describe "Test Collection Methods", ->
 		it "Tests the basic makeUrl method, defined url function, with parent", ->
 			collectionD3 = new CollectionD3( new ModelB(id: '1b') )
 
-			expect( collectionD3.makeUrl("GET") ).to.equal "/model_b/1b/collection_d3"
-			expect( collectionD3.makeUrl("POST") ).to.equal "/model_b/1b/collection_d3"
-			expect( collectionD3.makeUrl("PUT") ).to.equal "/model_b/1b/collection_d3"
-			expect( collectionD3.makeUrl("DELETE") ).to.equal "/model_b/1b/collection_d3"
+			expect( collectionD3.makeUrl("GET") ).toBe( "/model_b/1b/collection_d3" )
+			expect( collectionD3.makeUrl("POST") ).toBe( "/model_b/1b/collection_d3" )
+			expect( collectionD3.makeUrl("PUT") ).toBe( "/model_b/1b/collection_d3" )
+			expect( collectionD3.makeUrl("DELETE") ).toBe( "/model_b/1b/collection_d3" )
 		#END it
 
 		it "Tests the basic makeUrl method, defined url function, with parent, base API url", ->
 			collectionD3 = new CollectionD3( new ModelB(id: '2b') )
 			Falcon.baseApiUrl = "http://www.falconjs.com"
 
-			expect( collectionD3.makeUrl("GET") ).to.equal "http://www.falconjs.com/model_b/2b/collection_d3"
-			expect( collectionD3.makeUrl("POST") ).to.equal "http://www.falconjs.com/model_b/2b/collection_d3"
-			expect( collectionD3.makeUrl("PUT") ).to.equal "http://www.falconjs.com/model_b/2b/collection_d3"
-			expect( collectionD3.makeUrl("DELETE") ).to.equal "http://www.falconjs.com/model_b/2b/collection_d3"
+			expect( collectionD3.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_b/2b/collection_d3" )
+			expect( collectionD3.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_b/2b/collection_d3" )
+			expect( collectionD3.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_b/2b/collection_d3" )
+			expect( collectionD3.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_b/2b/collection_d3" )
 		#END it
 
 		it "Tests the basic makeUrl method, defined url function, with parent, base API url ending with a '/'", ->
 			collectionD3 = new CollectionD3( new ModelB(id: '3b') )
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			expect( collectionD3.makeUrl("GET") ).to.equal "http://www.falconjs.com/model_b/3b/collection_d3"
-			expect( collectionD3.makeUrl("POST") ).to.equal "http://www.falconjs.com/model_b/3b/collection_d3"
-			expect( collectionD3.makeUrl("PUT") ).to.equal "http://www.falconjs.com/model_b/3b/collection_d3"
-			expect( collectionD3.makeUrl("DELETE") ).to.equal "http://www.falconjs.com/model_b/3b/collection_d3"
+			expect( collectionD3.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_b/3b/collection_d3" )
+			expect( collectionD3.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_b/3b/collection_d3" )
+			expect( collectionD3.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_b/3b/collection_d3" )
+			expect( collectionD3.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_b/3b/collection_d3" )
+		#END it
+
+		it "Should be able to make a url with just a / baseApiUrl", ->
+			class MyModel extends Falcon.Model
+				url: 'my_models'
+			#END MYModel
+
+			class MyCollection extends Falcon.Collection
+				model: MyModel
+			#END MyCollection
+
+			Falcon.baseApiUrl = "/"
+
+			my_collection = new MyCollection
+			expect( my_collection.makeUrl("GET") ).toBe( "/my_models" )
 		#END it
 	#END describe
 
@@ -749,205 +1228,27 @@ describe "Test Collection Methods", ->
 
 				collectionA.fetch({'hello': 'world'})
 
-				sync_stub.should.have.been.calledOnce
-				sync_stub.should.have.been.calledOn collectionA
-				sync_stub.should.have.been.calledWith 'GET', {'hello': 'world'}
+				expect( sync_stub ).toHaveBeenCalledOnce()
+				expect( sync_stub ).toHaveBeenCalledOn( collectionA )
+				expect( sync_stub ).toHaveBeenCalledWith 'GET', {'hello': 'world'}
 			#END it
 		#END describe
 
-		describe "Testing sync method $.ajax calls", ->
-			ajax_stub = null
+		describe "sync", ->
+			collection = new Falcon.Collection
 
 			beforeEach ->
-				ajax_stub = sinon.stub(jQuery, "ajax")
-				Falcon.cache = false
+				spyOn( Falcon.adapter, 'sync' )
 			#END beforeEach
 
-			afterEach ->
-				ajax_stub.restore()
-			#END afterEach
+			it "Should call the falcon adapter", ->
+				type = "GET"
+				options = {}
+				context = new Falcon.Collection
+				collection.sync(type, options, context)
 
-			it "Should fetch properly without options", ->
-				collectionA.fetch()
-
-				ajax_stub.should.have.been.calledOnce
-				ajax_stub.should.have.been.calledWithMatch {type: "GET"}
-				ajax_stub.should.have.been.calledWithMatch {url: collectionA.makeUrl("GET")}
-				ajax_stub.should.have.been.calledWithMatch {data: ""}
-				ajax_stub.should.have.been.calledWithMatch {contentType: "application/json"}
-				ajax_stub.should.have.been.calledWithMatch {cache: false}
-				ajax_stub.should.have.been.calledWithMatch {headers: {}}
-				expect( ajax_stub.firstCall.args[0].success ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].success ).to.have.length 3
-
-				expect( ajax_stub.firstCall.args[0].error ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].error ).to.have.length 1
-
-				expect( ajax_stub.firstCall.args[0].complete ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].complete ).to.have.length 2
-			#END it
-
-			it "Should fetch properly with options", ->
-				Falcon.cache = true
-				collectionA.fetch
-					url: "http://www.falconjs.com"
-					data: {"hello": "world"}
-					contentType: "text/html"
-					headers: {"User-Agent", "Chrome"}
-					success: ( _success = -> )
-					error: ( _error = -> )
-					complete: ( _complete = -> )
-				#END fetch
-
-				ajax_stub.should.have.been.calledOnce
-				ajax_stub.should.have.been.calledWithMatch {type: "GET"}
-				ajax_stub.should.have.been.calledWithMatch {url: "http://www.falconjs.com"}
-				ajax_stub.should.have.been.calledWithMatch {data: JSON.stringify("hello": "world")}
-				ajax_stub.should.have.been.calledWithMatch {contentType: "text/html"}
-				ajax_stub.should.have.been.calledWithMatch {cache: true}
-				ajax_stub.should.have.been.calledWithMatch {headers: {"User-Agent", "Chrome"}}
-				
-				expect( ajax_stub.firstCall.args[0].success ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].success ).to.have.length 3
-				expect( ajax_stub.firstCall.args[0].success ).to.not.equal _success
-
-				expect( ajax_stub.firstCall.args[0].error ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].error ).to.have.length 1
-				expect( ajax_stub.firstCall.args[0].error ).to.not.equal _error
-
-				expect( ajax_stub.firstCall.args[0].complete ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].complete ).to.have.length 2
-				expect( ajax_stub.firstCall.args[0].complete ).to.not.equal _complete
-			#END it
-		#END describe
-
-		describe "Testing sync method XHR responses", ->
-			server = null
-			collectionA = null
-
-			parse_stub = null
-			fill_stub = null
-
-			fetch_spy = null
-			create_spy = null
-			save_spy = null
-			destroy_spy = null
-
-			success_spy = null
-			error_spy = null
-			complete_spy = null
-
-			data = null
-			error_data = null
-			success_data = null
-
-			options = null
-
-			beforeEach ->
-				server = sinon.fakeServer.create()
-
-				collectionA = new CollectionA
-				data = {'list': [{"foo": "bar", id: 1}, {"foo": "bar2", id: 2}] }
-				error_data = {"error": "Something Wrong"}
-				success_data = [{"foo": "bar", id: 1}, {"foo": "bar2", id: 2}]
-				parse_stub = sinon.stub(collectionA, "parse").returns( success_data )
-				fill_stub = sinon.stub(collectionA, "fill")
-
-				collectionA.on "fetch", ( fetch_spy = sinon.spy() )
-
-				options = {
-					success: ( success_spy = sinon.spy() )
-					error: ( error_spy = sinon.spy() )
-					complete: ( complete_spy = sinon.spy() )
-				}
-			#END beforeEach
-
-			afterEach ->
-				server.restore()
-			#END afterEach
-
-			it "Should call the proper success method", ->
-				collectionA.fetch( options )
-
-				server.respondWith [ 200, {}, JSON.stringify(data) ]
-				server.respond()
-
-				parse_stub.callCount.should.equal 1
-				parse_stub.firstCall.args[0].should.deep.equal data
-
-				fill_stub.callCount.should.equal 1
-				fill_stub.firstCall.args[0].should.deep.equal success_data
-				fill_stub.should.have.been.calledAfter parse_stub
-
-				fetch_spy.should.have.been.calledOnce
-				fetch_spy.should.have.been.calledAfter fill_stub
-
-				success_spy.callCount.should.equal 1
-				success_spy.should.have.been.calledOn collectionA
-				success_spy.firstCall.args.length.should.equal 4
-				success_spy.firstCall.args[0].should.equal collectionA
-
-				error_spy.should.not.have.been.called
-
-				complete_spy.callCount.should.equal 1
-				complete_spy.should.have.been.calledOn collectionA
-				complete_spy.firstCall.args.length.should.equal 3
-				complete_spy.firstCall.args[0].should.equal collectionA
-				complete_spy.should.have.been.calledAfter success_spy
-			#END it
-
-			it "Should not fill when fill option is false on fetch", ->
-				options.fill = false
-				collectionA.fetch( options )
-
-				server.respondWith [ 200, {}, JSON.stringify(data) ]
-				server.respond()
-
-				parse_stub.callCount.should.equal 1
-				parse_stub.firstCall.args[0].should.deep.equal data
-
-				fill_stub.callCount.should.equal 0
-
-				fetch_spy.should.have.been.calledOnce
-				fetch_spy.should.have.been.calledAfter parse_stub
-
-				success_spy.callCount.should.equal 1
-				success_spy.should.have.been.calledOn collectionA
-				success_spy.firstCall.args.length.should.equal 4
-				success_spy.firstCall.args[0].should.equal collectionA
-
-				error_spy.should.not.have.been.called
-
-				complete_spy.callCount.should.equal 1
-				complete_spy.should.have.been.calledOn collectionA
-				complete_spy.firstCall.args.length.should.equal 3
-				complete_spy.firstCall.args[0].should.equal collectionA
-				complete_spy.should.have.been.calledAfter success_spy
-			#END it
-
-			it "Should call the error response on an errornous result", ->
-				collectionA.fetch( options )
-
-				server.respondWith [ 400, {}, JSON.stringify(error_data) ]
-				server.respond()
-
-				parse_stub.callCount.should.equal 0
-				fill_stub.callCount.should.equal 0
-
-				fetch_spy.should.not.have.been.called
-
-				success_spy.callCount.should.equal 0
-
-				error_spy.callCount.should.equal 1
-				error_spy.firstCall.args.length.should.equal 3
-				error_spy.should.have.been.calledOn collectionA
-				complete_spy.firstCall.args[0].should.equal collectionA
-
-				complete_spy.callCount.should.equal 1
-				complete_spy.should.have.been.calledOn collectionA
-				complete_spy.firstCall.args.length.should.equal 3
-				complete_spy.firstCall.args[0].should.equal collectionA
-				complete_spy.should.have.been.calledAfter error_spy
+				expect( Falcon.adapter.sync.calls.count() ).toBe( 1 )
+				expect( Falcon.adapter.sync ).toHaveBeenCalledWith(collection, type, options, context)
 			#END it
 		#END describe
 	#END describe
@@ -978,84 +1279,64 @@ describe "Test Collection Methods", ->
 		#END beforeEach
 
 		it "Should be able to remove a single item", ->
-			expect( collectionA.length() ).to.equal 4
+			expect( collectionA.length() ).toBe( 4 )
 
 			collectionA.remove( model_a2 )
 
-			expect( collectionA.length() ).to.equal 3
-			expect( collectionA.at(0) ).to.equal model_a1
-			expect( collectionA.at(1) ).to.equal model_a3
-			expect( collectionA.at(2) ).to.equal model_a4
+			expect( collectionA.length() ).toBe( 3 )
+			expect( collectionA.at(0) ).toBe( model_a1 )
+			expect( collectionA.at(1) ).toBe( model_a3 )
+			expect( collectionA.at(2) ).toBe( model_a4 )
 		#END it
 
 		it "Should be able to remove multiple items", ->
-			expect( collectionA.length() ).to.equal 4
+			expect( collectionA.length() ).toBe( 4 )
 
 			collectionA.remove( [model_a2, model_a3] )
 
-			expect( collectionA.length() ).to.equal 2
-			expect( collectionA.at(0) ).to.equal model_a1
-			expect( collectionA.at(1) ).to.equal model_a4
+			expect( collectionA.length() ).toBe( 2 )
+			expect( collectionA.at(0) ).toBe( model_a1 )
+			expect( collectionA.at(1) ).toBe( model_a4 )
 		#END it
 
 		it "Should be able to remove items with a function", ->
-			expect( collectionA.length() ).to.equal 4
+			expect( collectionA.length() ).toBe( 4 )
 
 			collectionA.remove (model) ->
 				return model.get('id') % 2 is 0
 			#END remove
 
-			expect( collectionA.length() ).to.equal 2
-			expect( collectionA.at(0) ).to.equal model_a1
-			expect( collectionA.at(1) ).to.equal model_a3
+			expect( collectionA.length() ).toBe( 2 )
+			expect( collectionA.at(0) ).toBe( model_a1 )
+			expect( collectionA.at(1) ).toBe( model_a3 )
 		#END it
 
 		it "Should be able to remove a different model but with the same id", ->
-			expect( collectionA.length() ).to.equal 4
+			expect( collectionA.length() ).toBe( 4 )
 
 			collectionA.remove( new ModelA(id: 3) )
-			expect( collectionA.at(0) ).to.equal model_a1
-			expect( collectionA.at(1) ).to.equal model_a2
-			expect( collectionA.at(2) ).to.equal model_a4
+			expect( collectionA.at(0) ).toBe( model_a1 )
+			expect( collectionA.at(1) ).toBe( model_a2 )
+			expect( collectionA.at(2) ).toBe( model_a4 )
 			#END remove
 		#END it
-	#END describe
 
+		it "Should be able to remove models who don't have an id, properly", ->
+			collectionA = new CollectionA()
+			collectionA.append([
+				{'text': '1'}
+				{'text': '2'}
+				{'text': '3'}
+			])
 
-	#--------------------------------------------------------------
-	#
-	# Test the append() and prepend() methods
-	#
-	#--------------------------------------------------------------
-	describe "Test the append and prepend methods", ->
-		collectionA = null
-		fill_stub = null
+			expect( collectionA.length() ).toBe( 3 )
 
-		beforeEach ->
-			collectionA = new CollectionA
+			model_a1 = collectionA.first()
+			collectionA.remove( model_a1 )
 
-			fill_stub = sinon.stub( collectionA, "fill" )
-		#END beforeEach
-
-		afterEach ->
-			fill_stub.restore()
-		#END afterEach
-
-		it "Should call the proper fill method when appending", ->
-			collectionA.append(input = {'hello': 'world'})
-
-			fill_stub.should.have.been.calledOnce
-			fill_stub.should.have.been.deep.calledWith input, {'method': 'append'}
-		#END it
-
-		it "Should call the proper fill method when prepending", ->
-			collectionA.prepend(input = {'hello': 'world'})
-
-			fill_stub.should.have.been.calledOnce
-			fill_stub.should.have.been.deep.calledWith input, {'method': 'prepend'}
+			expect( collectionA.length() ).toBe( 2 )
 		#END it
 	#END describe
-
 
 	#--------------------------------------------------------------
 	#
@@ -1079,23 +1360,23 @@ describe "Test Collection Methods", ->
 		#END afterEach
 
 		it "Should have unshift be an alias of prepend", ->
-			collectionA.length().should.equal 2
+			expect( collectionA.length() ).toBe( 2 )
 
 			collectionA.unshift({id: 3})
 
-			append_stub.should.not.have.been.called
-			prepend_stub.should.have.been.calledOnce
-			prepend_stub.should.have.been.deep.calledWith {id: 3}
+			expect( append_stub ).not.toHaveBeenCalled()
+			expect( prepend_stub ).toHaveBeenCalledOnce()
+			expect( prepend_stub ).toHaveBeenCalledWith( jasmine.objectContaining({id: 3}) )
 		#END it
 
 		it "Should have push be an alias of append", ->
-			collectionA.length().should.equal 2
+			expect( collectionA.length() ).toBe( 2 )
 
 			collectionA.push({id: 3})
 
-			prepend_stub.should.not.have.been.called
-			append_stub.should.have.been.calledOnce
-			append_stub.should.have.been.deep.calledWith {id: 3}
+			expect( prepend_stub ).not.toHaveBeenCalled()
+			expect( append_stub ).toHaveBeenCalledOnce()
+			expect( append_stub ).toHaveBeenCalledWith( jasmine.objectContaining({id: 3}) )
 		#END it
 	#END describe
 
@@ -1119,15 +1400,15 @@ describe "Test Collection Methods", ->
 		it "Should shift the first element off the front", ->
 			elm = collectionA.shift()
 
-			expect( elm ).to.equal model_a1
-			expect( collectionA.length() ).to.equal 2
+			expect( elm ).toBe( model_a1 )
+			expect( collectionA.length() ).toBe( 2 )
 		#END it
 
 		it "Should shift the first element off the front", ->
 			elm = collectionA.pop()
 
-			expect( elm ).to.equal model_a3
-			expect( collectionA.length() ).to.equal 2
+			expect( elm ).toBe( model_a3 )
+			expect( collectionA.length() ).toBe( 2 )
 		#END it
 	#END decribe
 
@@ -1147,7 +1428,7 @@ describe "Test Collection Methods", ->
 			model_a3 = new ModelA(id: 3)
 			collectionA = new CollectionA([model_a2, model_a1, model_a3])
 
-			expect( collectionA.models() ).to.deep.equal([ model_a2, model_a1, model_a3 ])
+			expect( collectionA.models() ).toEqual([ model_a2, model_a1, model_a3 ])
 
 			collectionA.sort (a, b) ->
 				a_id = a.get("id")
@@ -1158,7 +1439,7 @@ describe "Test Collection Methods", ->
 				return 0
 			#END sort
 
-			expect( collectionA.models() ).to.deep.equal([ model_a1, model_a2, model_a3 ])
+			expect( collectionA.models() ).toEqual([ model_a1, model_a2, model_a3 ])
 		#END it
 	#END describe
 
@@ -1168,76 +1449,107 @@ describe "Test Collection Methods", ->
 	# Test the create() method
 	#
 	#--------------------------------------------------------------
-	describe "Test the create method", ->
-		collectionA = null
-		modelB = null
-		modelA = null
-		options = null
-		server = null
-		data = null
-		success_spy = null
+	describe "create", ->
+		model = new ModelA
+		options =
+			success: jasmine.createSpy("Success Spy")
+		#END options
+		context = new ModelA
+		collection = new CollectionA
+		collection.parent = new ModelB
+		success = null
 
 		beforeEach ->
-			server = sinon.fakeServer.create()
-			data = {id: 2}
-			modelB = new ModelB(id: 'b')
-			collectionA = new CollectionA([{id: 1}], modelB)
-			modelA = new ModelA(data, collectionA.parent)
+			spyOn( model, 'create' )
+			spyOn( collection, 'fill' )
+			spyOn( Falcon.adapter, 'standardizeOptions').and.callThrough()
 
-			options =
-				success: ( success_spy = sinon.spy() )
-			#END options
+			options.success.calls.reset()
 		#END beforeEach
 
-		afterEach ->
-			server.restore()
-		#END afterEach
+		it "Should return null if no model is set in the collection", ->
+			collection.model = null
 
-		it "Should attempt to initialize and create a new model", ->
-			initialize_stub = sinon.stub( ModelA::, "initialize")
-			create_stub = sinon.stub( ModelA::, "create")
+			expect( collection.create(model, options, context) ).toBeNull()
 
-			expect( initialize_stub ).to.not.have.been.called
-			expect( create_stub ).to.not.have.been.called
+			expect( model.create ).not.toHaveBeenCalled()
+			expect( collection.fill ).not.toHaveBeenCalled()
+			expect( options.success ).not.toHaveBeenCalled()
+			expect( Falcon.adapter.standardizeOptions ).not.toHaveBeenCalled()
 
-			collectionA.create(data = {id: 2}, options)
-
-			expect( initialize_stub ).to.have.been.calledOnce
-			expect( initialize_stub ).to.have.been.calledWith( data )
-
-			expect( create_stub ).to.have.been.calledOnce
-			expect( create_stub ).to.have.been.calledAfter initialize_stub
-			expect( create_stub.firstCall.args.length ).to.equal 1
-			expect( create_stub.firstCall.args[0] ).to.equal options
-			expect( create_stub.firstCall.args[0].success ).to.be.a 'function'
-			expect( create_stub.firstCall.args[0].method ).to.equal 'append'
-
-			initialize_stub.restore()
-			create_stub.restore()
+			collection.model = ModelA
 		#END it
 
-		it "Should respond correctly from the server", ->
-			fill_stub = sinon.stub(collectionA, "fill").returns([])
-			collectionA.create(data, options)
+		it "Should call the model create method", ->
+			collection.create(model, options, context)
 
-			expect( collectionA.length() ).to.equal 1
+			expect( Falcon.adapter.standardizeOptions.calls.count() ).toBe( 1 )
+			expect( Falcon.adapter.standardizeOptions ).toHaveBeenCalledWith(model, 'POST', options, context)
 
-			server.respondWith [ 200, {}, JSON.stringify(data) ]
-			server.respond()
+			expect( model.create.calls.count() ).toBe( 1 )
+			expect( model.create ).toHaveBeenCalledWith(jasmine.any(Object), context)
 
-			fill_stub.should.have.been.calledOnce
-			expect( fill_stub.firstCall.args.length ).to.equal 2
-			expect( fill_stub.firstCall.args[0] ).to.be.instanceof Falcon.Model
-			expect( fill_stub.firstCall.args[1] ).to.equal options
+			expect( collection.fill ).not.toHaveBeenCalled()
+			expect( options.success ).not.toHaveBeenCalled()
 
-			new_model = fill_stub.firstCall.args[0]
+			output_options = model.create.calls.mostRecent().args[0]
 
-			expect( success_spy.callCount ).to.equal 1
-			expect( success_spy ).to.have.been.calledAfter fill_stub
-			expect( success_spy ).to.have.been.calledOn new_model
-			expect( success_spy.firstCall.args[0] ).to.equal new_model
+			expect( output_options ).not.toBe( options )
 
-			fill_stub.restore()
+			{success, fill_options} = output_options
+			expect( success ).not.toBe( options.success )
+			expect(fill_options).toEqual({'method': 'append'})
+		#END it
+
+		it "Should call the proper routines in the success method", ->
+			success(model)
+
+			expect( model.create ).not.toHaveBeenCalled()
+			expect( Falcon.adapter.standardizeOptions ).not.toHaveBeenCalled()
+
+			expect( collection.fill.calls.count() ).toBe( 1 )
+			expect( collection.fill ).toHaveBeenCalledWith( model, {'method': 'append'} )
+
+			expect( options.success.calls.count() ).toBe( 1 )
+			expect( options.success ).toHaveBeenCalledWith( model )
+			expect( options.success.calls.mostRecent().object ).toBe( context )
+		#END it
+
+		it "Should generate a model if raw data is passed in", ->
+			spyOn( ModelA::, 'initialize')
+			spyOn( ModelA::, 'create')
+			data = {}
+			collection.create(data, options, context)
+
+			expect( ModelA::initialize.calls.count() ).toBe( 1 )
+			expect( ModelA::initialize ).toHaveBeenCalledWith(data)
+
+			model = ModelA::initialize.calls.mostRecent().object
+
+			expect( Falcon.adapter.standardizeOptions.calls.count() ).toBe( 1 )
+			expect( Falcon.adapter.standardizeOptions ).toHaveBeenCalledWith( model, 'POST', options, context )
+
+			expect( model.create.calls.count() ).toBe( 1 )
+			expect( model.create ).toHaveBeenCalledWith(jasmine.any(Object), context)
+
+			expect( collection.fill ).not.toHaveBeenCalled()
+			expect( options.success ).not.toHaveBeenCalled()
+		#END it
+
+		it "Should set up the correct context if none is given", ->
+			collection.create(model, options)
+
+			expect( Falcon.adapter.standardizeOptions.calls.count() ).toBe( 1 )
+			expect( Falcon.adapter.standardizeOptions ).toHaveBeenCalledWith(model, 'POST', options, model)
+
+			expect( model.create.calls.count() ).toBe( 1 )
+			expect( model.create ).toHaveBeenCalledWith(jasmine.any(Object), model)
+		#END it
+
+		it "Should not overwrite the fill options", ->
+			collection.create(model, {fill_options: {'method': 'merge'}}, context)
+			{fill_options} = model.create.calls.mostRecent().args[0]
+			expect(fill_options).toEqual({'method': 'merge'})
 		#END it
 	#END describe
 
@@ -1247,57 +1559,103 @@ describe "Test Collection Methods", ->
 	# Test the destroy() method
 	#
 	#--------------------------------------------------------------
-	describe "Test the detroy method", ->
-		collectionA = null
-		model_a1 = model_a2 = null
-		options = null
-		success_spy = null
+	describe "destroy", ->
+		model_1 = new ModelA(id: 1)
+		model_2 = new ModelA(id: 2)
+		model_3 = new ModelA(id: 3)
+		model_4 = new ModelA(id: 4)
+		collection = new CollectionA([model_1, model_2, model_4])
+		context = new ModelA
+
+		options =
+			success: jasmine.createSpy("Success Spy")
+		#END options
+
+		success = null
 
 		beforeEach ->
-			model_a1 = new ModelA(id: 1)
-			model_a2 = new ModelA(id: 2)
-			collectionA = new CollectionA([model_a1, model_a2])
+			spyOn( model_1, 'destroy' )
+			spyOn( model_2, 'destroy' )
+			spyOn( model_3, 'destroy' )
+			spyOn( model_4, 'destroy' )
 
-			options =
-				success: ( success_spy = sinon.spy() )
-			#END options
+			spyOn( collection, 'remove' )
+
+			spyOn( Falcon.adapter, 'standardizeOptions').and.callThrough()
+			options.success.calls.reset()
 		#END beforeEach
 
-		it "Should call the destroy method on the model", ->
-			destroy_stub = sinon.stub( model_a1, "destroy" )
+		it "Should return null if a model isn't set on the collection", ->
+			collection.model = null
 
-			destroy_stub.should.not.have.been.called
+			expect( collection.destroy(model_1, options, context) ).toBeNull()
+			expect( Falcon.adapter.standardizeOptions ).not.toHaveBeenCalled()
+			expect( model_1.destroy ).not.toHaveBeenCalled()
 
-			collectionA.destroy( model_a1, options )
-
-			destroy_stub.should.have.been.calledOnce
-			destroy_stub.should.have.been.calledWith options
-
-			destroy_stub.restore()
+			collection.model = ModelA
 		#END it
 
-		it "Should respond correctly from the server", ->
-			server = sinon.fakeServer.create()
+		it "Should return null if a model that doesnt exist in the collection is given", ->
+			expect( collection.destroy(model_3, options, context) ).toBeNull()
+			expect( Falcon.adapter.standardizeOptions ).not.toHaveBeenCalled()
+			expect( model_1.destroy ).not.toHaveBeenCalled()
+		#END it
 
-			remove_stub = sinon.stub(collectionA, "remove")
-			collectionA.destroy(model_a1, options)
+		it "Should call the correct method when removing a model that exists in the collection", ->
+			collection.destroy(model_1, options, context)
 
-			server.respondWith [ 200, {}, JSON.stringify({}) ]
-			server.respond()
+			expect( Falcon.adapter.standardizeOptions.calls.count() ).toBe( 1 )
+			expect( Falcon.adapter.standardizeOptions ).toHaveBeenCalledWith(model_1, 'DELETE', options, context)
 
-			remove_stub.should.have.been.calledOnce
-			expect( remove_stub.firstCall.args.length ).to.equal 1
-			expect( remove_stub.firstCall.args[0] ).to.be.instanceof Falcon.Model
+			expect( model_1.destroy.calls.count() ).toBe( 1 )
+			expect( model_1.destroy ).toHaveBeenCalledWith(jasmine.any(Object), context)
 
-			removed_model = remove_stub.firstCall.args[0]
+			expect( collection.remove ).not.toHaveBeenCalled()
+			expect( options.success ).not.toHaveBeenCalled()
 
-			expect( success_spy.callCount ).to.equal 1
-			expect( success_spy ).to.have.been.calledAfter remove_stub
-			expect( success_spy ).to.have.been.calledOn removed_model
-			expect( success_spy.firstCall.args[0] ).to.equal removed_model
+			output_options = model_1.destroy.calls.mostRecent().args[0]
 
-			remove_stub.restore()
-			server.restore()
+			expect( output_options ).not.toBe( options )
+
+			{success} = output_options
+			expect( success ).not.toBe( options.success )
+		#END it
+
+		it "Should call the proper routines in the success method", ->
+			success(model_1)
+
+			expect( model_1.destroy ).not.toHaveBeenCalled()
+			expect( Falcon.adapter.standardizeOptions ).not.toHaveBeenCalled()
+
+			expect( collection.remove.calls.count() ).toBe( 1 )
+			expect( collection.remove ).toHaveBeenCalledWith( model_1 )
+
+			expect( options.success.calls.count() ).toBe( 1 )
+			expect( options.success ).toHaveBeenCalledWith( model_1 )
+			expect( options.success.calls.mostRecent().object ).toBe( context )
+		#END it
+
+		it "Should be able to remove a model based on id", ->
+			collection.destroy(2, options, context)
+
+			expect( Falcon.adapter.standardizeOptions.calls.count() ).toBe( 1 )
+			expect( Falcon.adapter.standardizeOptions ).toHaveBeenCalledWith(model_2, 'DELETE', options, context)
+
+			expect( model_2.destroy.calls.count() ).toBe( 1 )
+			expect( model_2.destroy ).toHaveBeenCalledWith(jasmine.any(Object), context)
+
+			expect( collection.remove ).not.toHaveBeenCalled()
+			expect( options.success ).not.toHaveBeenCalled()
+		#END it
+
+		it "Should set up the correct context if none is given", ->
+			collection.destroy(model_4, options)
+
+			expect( Falcon.adapter.standardizeOptions.calls.count() ).toBe( 1 )
+			expect( Falcon.adapter.standardizeOptions ).toHaveBeenCalledWith(model_4, 'DELETE', options, model_4)
+
+			expect( model_4.destroy.calls.count() ).toBe( 1 )
+			expect( model_4.destroy ).toHaveBeenCalledWith(jasmine.any(Object), model_4)
 		#END it
 	#END describe
 
@@ -1320,15 +1678,99 @@ describe "Test Collection Methods", ->
 		#END beforeEach
 
 		it "Should be able to find the correct element at an index", ->
-			expect( collectionA.at(0) ).to.equal model_a1
-			expect( collectionA.at(1) ).to.equal model_a2
-			expect( collectionA.at(2) ).to.equal model_a3
+			expect( collectionA.at(0) ).toBe( model_a1 )
+			expect( collectionA.at(1) ).toBe( model_a2 )
+			expect( collectionA.at(2) ).toBe( model_a3 )
 		#END it
 
 		it "Should return null for invalid indices", ->
-			expect( collectionA.at(-1) ).to.equal null
-			expect( collectionA.at(3) ).to.equal null
-			expect( collectionA.at("HELLO") ).to.equal null
+			expect( collectionA.at(-1) ).toBe( null )
+			expect( collectionA.at(3) ).toBe( null )
+			expect( collectionA.at("HELLO") ).toBe( null )
+		#END it
+	#END describe
+
+
+	#--------------------------------------------------------------
+	#
+	# Test the indexOf() method
+	#
+	#--------------------------------------------------------------
+	describe "Test the indexOf() method", ->
+		collectionA = null
+		model_a1 = model_a2 = model_a3 = model_a4 = null
+
+		beforeEach ->
+			model_a1 = new ModelA(id: 1)
+			model_a2 = new ModelA(id: 3)
+			model_a3 = new ModelA(id: 5)
+			model_a4 = new ModelA(id: 8)
+
+			collectionA = new CollectionA([model_a1, model_a2, model_a3, model_a4, model_a3])
+		#END beforeEach
+
+		it "Should find the correct index by model", ->
+			expect( collectionA.indexOf( model_a3 ) ).toBe( 2 )
+		#END it
+
+		it "Should find no match index by model", ->
+			expect( collectionA.indexOf( new ModelA ) ).toBe( -1 )
+		#END it
+
+		it "Should find the correct match index by id", ->
+			expect( collectionA.indexOf( 3 ) ).toBe( 1 )
+		#END it
+
+		it "Should find the correct match index by truth test method", ->
+			index = collectionA.indexOf (model) -> model.get('id') > 4
+			expect( index ).toBe( 2 )
+		#END it
+
+		it "Should find the no match index by truth test method", ->
+			index = collectionA.indexOf (model) -> model.get('id') > 8
+			expect( index ).toBe( -1 )
+		#END it
+	#END describe
+
+
+	#--------------------------------------------------------------
+	#
+	# Test the lastIndexOf() method
+	#
+	#--------------------------------------------------------------
+	describe "Test the lastIndexOf() method", ->
+		collectionA = null
+		model_a1 = model_a2 = model_a3 = model_a4 = null
+
+		beforeEach ->
+			model_a1 = new ModelA(id: 1)
+			model_a2 = new ModelA(id: 3)
+			model_a3 = new ModelA(id: 5)
+			model_a4 = new ModelA(id: 8)
+
+			collectionA = new CollectionA([model_a1, model_a2, model_a3, model_a4, model_a2, model_a3])
+		#END beforeEach
+
+		it "Should find the correct index by model", ->
+			expect( collectionA.lastIndexOf( model_a3 ) ).toBe( 5 )
+		#END it
+
+		it "Should find no match index by model", ->
+			expect( collectionA.lastIndexOf( new ModelA ) ).toBe( -1 )
+		#END it
+
+		it "Should find the correct match index by id", ->
+			expect( collectionA.lastIndexOf( 3 ) ).toBe( 4 )
+		#END it
+
+		it "Should find the correct match index by truth test method", ->
+			index = collectionA.lastIndexOf (model) -> model.get('id') > 4
+			expect( index ).toBe( 5 )
+		#END it
+
+		it "Should find the no match index by truth test method", ->
+			index = collectionA.lastIndexOf (model) -> model.get('id') > 8
+			expect( index ).toBe( -1 )
 		#END it
 	#END describe
 
@@ -1347,29 +1789,30 @@ describe "Test Collection Methods", ->
 			model_a2 = new ModelA(id: 2)
 			model_a3 = new ModelA(id: 3)
 
-			collectionA = new CollectionA([model_a1, model_a2, model_a3])
+			collectionA = new CollectionA()
+			collectionA.fill( [model_a1, model_a2, model_a3] )
 		#END beforeEach
 
 		it "Should call the iterator with one argument", ->
 			spy = sinon.spy()
 			collectionA.each (item) -> spy.call(@, item)
 
-			expect( spy.callCount ).to.equal 3
-			expect( spy.firstCall ).to.be.calledWith model_a1
-			expect( spy.secondCall ).to.be.calledWith model_a2
-			expect( spy.thirdCall ).to.be.calledWith model_a3
-			expect( spy ).to.have.always.been.calledOn collectionA
+			expect( spy.callCount ).toBe( 3 )
+			expect( spy.firstCall ).toHaveBeenCalledWith( model_a1 )
+			expect( spy.secondCall ).toHaveBeenCalledWith( model_a2 )
+			expect( spy.thirdCall ).toHaveBeenCalledWith( model_a3 )
+			expect( spy ).toHaveBeenAlwaysCalledOn( collectionA )
 		#END it
 
 		it "Should call the iterator with two arguments", ->
 			spy = sinon.spy()
 			collectionA.each (index, item) -> spy.call(@, index, item)
 
-			expect( spy.callCount ).to.equal 3
-			expect( spy.firstCall ).to.be.calledWith 0, model_a1
-			expect( spy.secondCall ).to.be.calledWith 1, model_a2
-			expect( spy.thirdCall ).to.be.calledWith 2, model_a3
-			expect( spy ).to.have.always.been.calledOn collectionA
+			expect( spy.callCount ).toBe( 3 )
+			expect( spy.firstCall ).toHaveBeenCalledWith( 0, model_a1 )
+			expect( spy.secondCall ).toHaveBeenCalledWith( 1, model_a2 )
+			expect( spy.thirdCall ).toHaveBeenCalledWith( 2, model_a3 )
+			expect( spy ).toHaveBeenAlwaysCalledOn( collectionA )
 		#END it
 
 		it "Should call the iterator with a specific context and one argument", ->
@@ -1378,11 +1821,11 @@ describe "Test Collection Methods", ->
 			iterator = (item) -> spy.call(@, item)
 			collectionA.each( iterator, context )
 
-			expect( spy.callCount ).to.equal 3
-			expect( spy.firstCall ).to.be.calledWith model_a1
-			expect( spy.secondCall ).to.be.calledWith model_a2
-			expect( spy.thirdCall ).to.be.calledWith model_a3
-			expect( spy ).to.have.always.been.calledOn context
+			expect( spy.callCount ).toBe( 3 )
+			expect( spy.firstCall ).toHaveBeenCalledWith( model_a1 )
+			expect( spy.secondCall ).toHaveBeenCalledWith( model_a2 )
+			expect( spy.thirdCall ).toHaveBeenCalledWith( model_a3 )
+			expect( spy ).toHaveBeenAlwaysCalledOn( context )
 		#END it
 
 		it "Should call the iterator with a specific context and two arguments", ->
@@ -1391,11 +1834,11 @@ describe "Test Collection Methods", ->
 			iterator = (index, item) -> spy.call(@, index, item)
 			collectionA.each( iterator, context )
 
-			expect( spy.callCount ).to.equal 3
-			expect( spy.firstCall ).to.be.calledWith 0, model_a1
-			expect( spy.secondCall ).to.be.calledWith 1, model_a2
-			expect( spy.thirdCall ).to.be.calledWith 2, model_a3
-			expect( spy ).to.have.always.been.calledOn context
+			expect( spy.callCount ).toBe( 3 )
+			expect( spy.firstCall ).toHaveBeenCalledWith( 0, model_a1 )
+			expect( spy.secondCall ).toHaveBeenCalledWith( 1, model_a2 )
+			expect( spy.thirdCall ).toHaveBeenCalledWith( 2, model_a3 )
+			expect( spy ).toHaveBeenAlwaysCalledOn( context )
 		#END it
 	#END decribe
 
@@ -1408,45 +1851,65 @@ describe "Test Collection Methods", ->
 	describe "Test the first() method", ->
 		collectionA = null
 		model_a1 = model_a2 = model_a3 = model_ab = null
+		model_none = null
 
 		beforeEach ->
 			model_a1 = new ModelA(id: 1)
 			model_a2 = new ModelA(id: 2)
 			model_ab = new ModelA(id: 'b')
 			model_a3 = new ModelA(id: 3)
+			model_none = new ModelA
 
 			collectionA = new CollectionA([model_a1, model_a2, model_ab, model_a3])
 		#END beforeEach
 
 		it "Should get the first element", ->
 			first = collectionA.first()
-			expect( first ).to.equal( model_a1 )
+			expect( first ).toBe(( model_a1 ) )
 		#END it
 
 		it "Should get the first matcing mdel based on function iterator", ->
 			first = collectionA.first (model) ->
 				return model is model_a2
 			#END first
-			expect( first ).to.equal( model_a2 )
+			expect( first ).toBe(( model_a2 ) )
 		#END it
 
 		it "Should get the first matching model based on a model", ->
 			first = collectionA.first( model_ab )
-			expect( first ).to.equal( model_ab )
+			expect( first ).toBe(( model_ab ) )
 		#END it
 
 		it "Should get the first matching model based on an id", ->
 			first = collectionA.first( 2 )
-			expect( first ).to.equal( model_a2 )
+			expect( first ).toBe(( model_a2 ) )
 
 			first = collectionA.first( 'b' )
-			expect( first ).to.equal( model_ab )
+			expect( first ).toBe(( model_ab ) )
 		#END it
 
 		it "Should return the null if nothing passes the iterator", ->
 			first = collectionA.first (model) -> false
-			expect( first ).to.equal( null )
+			expect( first ).toBe(( null ) )
 		#END
+
+		it "Should allow for an array to be passed in", ->
+			first = collectionA.first([model_none])
+			expect(first).toBeNull()
+			first = collectionA.first([model_a1])
+			expect(first).toEqual(model_a1)
+			first = collectionA.first([model_none, model_a1])
+			expect(first).toEqual(model_a1)
+		#END it
+
+		it "Should allow for a collection to be passed in", ->
+			first = collectionA.first(new CollectionA([model_none]))
+			expect(first).toBeNull()
+			first = collectionA.first(new CollectionA([model_a1]))
+			expect(first).toEqual(model_a1)
+			first = collectionA.first(new CollectionA([model_none, model_a1]))
+			expect(first).toEqual(model_a1)
+		#END it
 	#END describe
 
 
@@ -1455,48 +1918,139 @@ describe "Test Collection Methods", ->
 	# Test the last() method
 	#
 	#--------------------------------------------------------------
-	describe "Test the last() method", ->
+	describe "last", ->
 		collectionA = null
 		model_a1 = model_a2 = model_a3 = model_ab = null
+		model_none = null
 
 		beforeEach ->
 			model_a1 = new ModelA(id: 1)
 			model_a2 = new ModelA(id: 2)
 			model_ab = new ModelA(id: 'b')
 			model_a3 = new ModelA(id: 3)
+			model_none = new ModelA
 
 			collectionA = new CollectionA([model_a1, model_a2, model_ab, model_a3])
 		#END beforeEach
 
 		it "Should get the last element", ->
 			last = collectionA.last()
-			expect( last ).to.equal( model_a3 )
+			expect( last ).toBe(( model_a3 ) )
 		#END it
 
 		it "Should get the last matcing mdel based on function iterator", ->
 			last = collectionA.last (model) ->
 				return model is model_a2
 			#END last
-			expect( last ).to.equal( model_a2 )
+			expect( last ).toBe(( model_a2 ) )
 		#END it
 
 		it "Should get the last matching model based on a model", ->
 			last = collectionA.last( model_ab )
-			expect( last ).to.equal( model_ab )
+			expect( last ).toBe(model_ab)
 		#END it
 
 		it "Should get the last matching model based on an id", ->
 			last = collectionA.last( 2 )
-			expect( last ).to.equal( model_a2 )
+			expect( last ).toBe(( model_a2 ) )
 
 			last = collectionA.last( 'b' )
-			expect( last ).to.equal( model_ab )
+			expect( last ).toBe(model_ab)
 		#END it
 
 		it "Should return the null if nothing passes the iterator", ->
 			last = collectionA.last (model) -> false
-			expect( last ).to.equal( null )
+			expect( last ).toBe(( null ) )
 		#END
+
+		it "Should allow for an array to be passed in", ->
+			last = collectionA.last([model_none])
+			expect(last).toBeNull()
+			last = collectionA.last([model_a1])
+			expect(last).toEqual(model_a1)
+			last = collectionA.last([model_none, model_a1])
+			expect(last).toEqual(model_a1)
+		#END it
+
+		it "Should allow for a collection to be passed in", ->
+			last = collectionA.last(new CollectionA([model_none]))
+			expect(last).toBeNull()
+			last = collectionA.last(new CollectionA([model_a1]))
+			expect(last).toEqual(model_a1)
+			last = collectionA.last(new CollectionA([model_none, model_a1]))
+			expect(last).toEqual(model_a1)
+		#END it
+	#END describe
+
+
+	#--------------------------------------------------------------
+	#
+	# Test the filter() method
+	#
+	#--------------------------------------------------------------
+	describe "filter", ->
+		model_a1 = new ModelA(id: 1)
+		model_a2 = new ModelA(id: 2)
+		model_ab = new ModelA(id: 'b')
+		model_ab2 = new ModelA(id: 'b')
+		model_a3 = new ModelA(id: 3)
+		model_none = new ModelA
+
+		models = [model_a1, model_a2, model_ab, model_ab, model_ab2, model_a3]
+
+		collectionA = new CollectionA(models)
+
+		it "Should return the all of the models", ->
+			all = collectionA.filter()
+			expect( all.length ).toBe( 6 )
+			expect( all ).toEqual models
+		#END it
+
+		it "Should return a limited set of models by function", ->
+			all = collectionA.filter (model) -> return model in [model_a1, model_ab]
+			expect( all.length ).toBe( 3 )
+			expect( all ).toEqual([model_a1, model_ab, model_ab])
+		#END it
+
+		it "Should return a limited set of models by model", ->
+			all = collectionA.filter( model_a2 )
+			expect( all.length ).toBe( 1 )
+			expect( all ).toEqual([model_a2])
+		#END it
+
+		it "Should return a limited set of models by id", ->
+			all = collectionA.filter( 3 )
+			expect( all.length ).toBe( 1 )
+			expect( all ).toEqual([model_a3 ])
+
+			all = collectionA.filter( 'b' )
+			expect( all.length ).toBe( 3 )
+			expect( all ).toEqual([model_ab, model_ab, model_ab2])
+		#END it
+
+		it "Should return an empty set of models", ->
+			all = collectionA.filter (model) -> return false
+			expect( all.length ).toBe( 0 )
+			expect( all ).toEqual([])
+		#END it
+
+		it "Should allow for an array to be passed in", ->
+			filter = collectionA.filter([model_none])
+			expect(filter).toEqual([])
+			filter = collectionA.filter([model_a1])
+			expect(filter).toEqual([model_a1])
+			filter = collectionA.filter([model_none, model_a1])
+			expect(filter).toEqual([model_a1])
+		#END it
+
+		it "Should allow for a collection to be passed in", ->
+			filter = collectionA.filter(new CollectionA([model_none]))
+			expect(filter).toEqual([])
+			filter = collectionA.filter(new CollectionA([model_a1]))
+			expect(filter).toEqual([model_a1])
+			filter = collectionA.filter(new CollectionA([model_none, model_a1]))
+			expect(filter).toEqual([model_a1])
+		#END it
 	#END describe
 
 
@@ -1505,49 +2059,18 @@ describe "Test Collection Methods", ->
 	# Test the all() method
 	#
 	#--------------------------------------------------------------
-	describe "Test the all() method", ->
+	describe "all", ->
 		model_a1 = new ModelA(id: 1)
 		model_a2 = new ModelA(id: 2)
-		model_ab = new ModelA(id: 'b')
-		model_ab2 = new ModelA(id: 'b')
-		model_a3 = new ModelA(id: 3)
 
-		models = [model_a1, model_a2, model_ab, model_ab, model_ab2, model_a3]
+		models = [model_a1, model_a2]
 
 		collectionA = new CollectionA(models)
 
-		it "Should return the all of the models", ->
+		it "Should return all of the models", ->
 			all = collectionA.all()
-			expect( all.length ).to.equal 6
-			expect( all ).to.deep.equal models
-		#END it
-
-		it "Should return a limited set of models by function", ->
-			all = collectionA.all (model) -> return model in [model_a1, model_ab]
-			expect( all.length ).to.equal 3
-			expect( all ).to.deep.equal [model_a1, model_ab, model_ab]
-		#END it
-
-		it "Should return a limited set of models by model", ->
-			all = collectionA.all( model_a2 )
-			expect( all.length ).to.equal 1
-			expect( all ).to.deep.equal [model_a2]
-		#END it
-
-		it "Should return a limited set of models by id", ->
-			all = collectionA.all( 3 )
-			expect( all.length ).to.equal 1
-			expect( all ).to.deep.equal [model_a3 ]
-
-			all = collectionA.all( 'b' )
-			expect( all.length ).to.equal 3
-			expect( all ).to.deep.equal [model_ab, model_ab, model_ab2]
-		#END it
-
-		it "Should return an empty set of models", ->
-			all = collectionA.all (model) -> return false
-			expect( all.length ).to.equal 0
-			expect( all ).to.deep.equal []
+			expect( all.length ).toBe( 2 )
+			expect( all ).toEqual models
 		#END it
 	#END describe
 
@@ -1557,13 +2080,14 @@ describe "Test Collection Methods", ->
 	# Test the any() method
 	#
 	#--------------------------------------------------------------
-	describe "Test the any() method", ->
+	describe "any", ->
 		model_a1 = new ModelA(id: 1)
 		model_a2 = new ModelA(id: 2)
 		model_ab = new ModelA(id: 'b')
 		model_ab2 = new ModelA(id: 'b')
 		model_a3 = new ModelA(id: 3)
 		model_a4 = new ModelA(id: 4)
+		model_none = new ModelA
 
 		models = [model_a1, model_a2, model_ab, model_ab, model_ab2, model_a3]
 
@@ -1571,37 +2095,55 @@ describe "Test Collection Methods", ->
 
 		it "Should match true based on function", ->
 			any = collectionA.any (model) -> return model in [model_a1, model_ab]
-			expect( any ).to.be.true
+			expect( any ).toBe( true )
 
 			any = collectionA.any (model) -> return model is model_a4
-			expect( any ).to.be.false
+			expect( any ).toBe( false )
 		#END it
 
 		it "Should match true based on model", ->
 			any = collectionA.any( model_a2 )
-			expect( any ).to.be.true
+			expect( any ).toBe( true )
 
 			any = collectionA.any( model_a4 )
-			expect( any ).to.be.false
+			expect( any ).toBe( false )
 		#END it
 
 		it "Should match correctly based on id", ->
 			any = collectionA.any( 3 )
-			expect( any ).to.be.true
+			expect( any ).toBe( true )
 
 			any = collectionA.any( 'b' )
-			expect( any ).to.be.true
+			expect( any ).toBe( true )
 
 			any = collectionA.any( 4 )
-			expect( any ).to.be.false
+			expect( any ).toBe( false )
 
 			any = collectionA.any( 'c' )
-			expect( any ).to.be.false
+			expect( any ).toBe( false )
 		#END it
 
 		it "Should not match true based on empty iterator", ->
 			any = collectionA.any()
-			expect( any ).to.be.false
+			expect( any ).toBe( false )
+		#END it
+
+		it "Should allow for an array to be passed in", ->
+			any = collectionA.any([model_none])
+			expect(any).toBe(false)
+			any = collectionA.any([model_a1])
+			expect(any).toBe(true)
+			any = collectionA.any([model_none, model_a1])
+			expect(any).toBe(true)
+		#END it
+
+		it "Should allow for a collection to be passed in", ->
+			any = collectionA.any(new CollectionA([model_none]))
+			expect(any).toBe(false)
+			any = collectionA.any(new CollectionA([model_a1]))
+			expect(any).toBe(true)
+			any = collectionA.any(new CollectionA([model_none, model_a1]))
+			expect(any).toBe(true)
 		#END it
 	#END describe
 
@@ -1611,43 +2153,58 @@ describe "Test Collection Methods", ->
 	# Test the without() method
 	#
 	#--------------------------------------------------------------
-	describe "Test the without() method", ->
+	describe "without", ->
 		model_a1 = new ModelA(id: 1)
 		model_a2 = new ModelA(id: 2)
 		model_ab = new ModelA(id: 'b')
 		model_ab2 = new ModelA(id: 'b')
 		model_a3 = new ModelA(id: 3)
+		collectionA = null
+		models = null
 
-		models = [model_a1, model_a2, model_ab, model_ab, model_ab2, model_a3]
-
-		collectionA = new CollectionA(models)
+		beforeEach ->
+			models = [model_a1, model_a2, model_ab, model_ab, model_ab2, model_a3]
+			collectionA = new CollectionA(models)
+		#END beforeEach
 
 		it "Should return the full set of the models when called without an iterator", ->
 			without = collectionA.without()
-			expect( without.length ).to.equal 6
-			expect( without ).to.deep.equal models
+			expect( without.length ).toBe( 6 )
+			expect( without ).toEqual models
 		#END it
 
 		it "Should return a limited set of models by function", ->
 			without = collectionA.without (model) -> return model in [model_a1, model_ab]
-			expect( without.length ).to.equal 3
-			expect( without ).to.deep.equal [model_a2, model_ab2, model_a3]
+			expect( without.length ).toBe( 3 )
+			expect( without ).toEqual([model_a2, model_ab2, model_a3])
 		#END it
 
 		it "Should return a limited set of models by model", ->
 			without = collectionA.without( model_a2 )
-			expect( without.length ).to.equal 5
-			expect( without ).to.deep.equal [model_a1, model_ab, model_ab, model_ab2, model_a3]
+			expect( without.length ).toBe( 5 )
+			expect( without ).toEqual([model_a1, model_ab, model_ab, model_ab2, model_a3])
 		#END it
 
 		it "Should return a limited set of models by id", ->
 			without = collectionA.without( 3 )
-			expect( without.length ).to.equal 5
-			expect( without ).to.deep.equal [model_a1, model_a2, model_ab, model_ab, model_ab2]
+			expect( without.length ).toBe( 5 )
+			expect( without ).toEqual([model_a1, model_a2, model_ab, model_ab, model_ab2])
 
 			without = collectionA.without( 'b' )
-			expect( without.length ).to.equal 3
-			expect( without ).to.deep.equal [model_a1, model_a2, model_a3]
+			expect( without.length ).toBe( 3 )
+			expect( without ).toEqual([model_a1, model_a2, model_a3])
+		#END it
+
+		it "Should allow for an array to be passed in", ->
+			without = collectionA.without([model_a1, model_ab])
+			expect( without.length ).toBe( 3 )
+			expect( without ).toEqual([model_a2, model_ab2, model_a3])
+		#END it
+
+		it "Should allow for a collection to be passed in", ->
+			without = collectionA.without(new CollectionA([model_a1, model_ab]))
+			expect( without.length ).toBe( 3 )
+			expect( without ).toEqual([model_a2, model_ab2, model_a3])
 		#END it
 	#END describe
 
@@ -1668,20 +2225,20 @@ describe "Test Collection Methods", ->
 
 		it "Should pluck the title and unwrap the observables", ->
 			pluck = collectionE.pluck("title")
-			expect(pluck.length).to.equal 3
-			expect(pluck).to.deep.equal ['e1', 'e2', 'e3']
+			expect(pluck.length).toBe( 3 )
+			expect(pluck).toEqual(['e1', 'e2', 'e3'])
 		#END it
 
 		it "Should pluck the title and shouldn't unwrap the observables", ->
 			pluck = collectionE.pluck("title", false)
-			expect(pluck.length).to.equal 3
-			expect(pluck).to.not.deep.equal ['e1', 'e2', 'e3']
+			expect(pluck.length).toBe( 3 )
+			expect(pluck).not.toEqual(['e1', 'e2', 'e3'])
 		#END it
 
 		it "Should pluck the an invalid attribute", ->
 			pluck = collectionE.pluck("title2")
-			expect(pluck.length).to.equal 3
-			expect(pluck).to.deep.equal [undefined, undefined, undefined]
+			expect(pluck.length).toBe( 3 )
+			expect(pluck).toEqual([undefined, undefined, undefined])
 		#END it
 	#END describe
 
@@ -1701,10 +2258,10 @@ describe "Test Collection Methods", ->
 		collectionE = new CollectionE(models)
 
 		it "Should slice properly", ->
-			expect( collectionE.slice(0, 3) ).to.deep.equal models
-			expect( collectionE.slice(0, 1) ).to.deep.equal [model_e1]
-			expect( collectionE.slice(1, 3) ).to.deep.equal [model_e2, model_e3]
-			expect( collectionE.slice(-1) ).to.deep.equal [model_e3]
+			expect( collectionE.slice(0, 3) ).toEqual models
+			expect( collectionE.slice(0, 1) ).toEqual([model_e1])
+			expect( collectionE.slice(1, 3) ).toEqual([model_e2, model_e3])
+			expect( collectionE.slice(-1) ).toEqual([model_e3])
 		#END it
 	#END describe
 
@@ -1721,9 +2278,9 @@ describe "Test Collection Methods", ->
 			modelA.bees = new CollectionB([modelB])
 			collectionA = new CollectionA([modelA])
 
-			expect( modelA.hello ).to.be.undefined
-			expect( modelA.foo ).to.be.undefined
-			expect( modelB.test ).to.be.undefined
+			expect( modelA.hello ).not.toBeDefined()
+			expect( modelA.foo ).not.toBeDefined()
+			expect( modelB.test ).not.toBeDefined()
 
 			collectionA.mixin {
 				"hello": ( mixin_spy = sinon.spy() )
@@ -1733,19 +2290,43 @@ describe "Test Collection Methods", ->
 				}
 			}
 
-			expect( modelA.hello ).not.to.be.undefined
-			expect( modelA.hello ).to.be.a 'function'
-			expect( ko.isObservable( modelA.foo ) ).to.be.true
-			expect( modelA.foo() ).to.equal 'bar'
-			expect( modelB.test ).not.to.be.undefined
-			expect( modelB.test ).to.equal '123'
+			expect( modelA.hello ).toEqual( jasmine.any(Function) )
+			expect( ko.isObservable( modelA.foo ) ).toBe( true )
+			expect( modelA.foo() ).toBe( 'bar' )
+			expect( modelB.test ).toBe( '123' )
 
 			modelA.hello('world')
-			mixin_spy.should.have.been.calledOnce
-			mixin_spy.should.have.been.calledOn modelA
-			mixin_spy.firstCall.args[0].should.equal modelA
-			mixin_spy.firstCall.args[1].should.equal collectionA
-			mixin_spy.firstCall.args[2].should.equal 'world'
+			expect( mixin_spy ).toHaveBeenCalledOnce()
+			expect( mixin_spy ).toHaveBeenCalledOn( modelA )
+			expect( mixin_spy.firstCall.args[0] ).toBe( modelA )
+			expect( mixin_spy.firstCall.args[1] ).toBe( collectionA )
+			expect( mixin_spy.firstCall.args[2] ).toBe( 'world' )
+		#END it
+
+		it "Should allow for models with values to be added post mixin", ->
+			class TheModel extends Falcon.Model
+				defaults:
+					"hello": "world"
+				#END defaults
+			#END TheModel
+
+			class TheCollection extends Falcon.Collection
+				model: TheModel
+			#END theCollection
+
+			theCollection = new TheCollection()
+
+			theCollection.mixin
+				"hello": ko.observable()
+			#END mixin
+
+			theModel = new TheModel
+
+			expect( theModel.get("hello") ).toBe( "world" )
+
+			theCollection.append( theModel )
+			
+			expect( theModel.get("hello") ).toBe( "world" )
 		#END it
 	#END describe
 
@@ -1755,153 +2336,111 @@ describe "Test Collection Methods", ->
 	# Test the clone() method
 	#
 	#--------------------------------------------------------------
-	describe "Testing the clone() method", ->
+	describe "Test the clone() method", ->
 		collectionA = null
 		model_a1 = model_a2 = model_a3 = null
 
 		beforeEach ->
-			model_a1 = new ModelA(id: 1)
-			model_a2 = new ModelA(id: 2)
-			model_a3 = new ModelA(id: 3)
-
-			collectionA = new CollectionA([model_a1, model_a2, model_a3], new ModelB)
-		#END beforeEach
-
-		it "Should clone properly with same parent", ->
-			clone = collectionA.clone()
-
-			expect( clone ).to.not.equal collectionA
-			expect( clone.length() ).to.equal 3
-			expect( clone.at(0) ).to.equal( model_a1 )
-			expect( clone.at(1) ).to.equal( model_a2 )
-			expect( clone.at(2) ).to.equal( model_a3 )
-			expect( clone.parent ).to.equal( collectionA.parent )
-		#END it
-
-		it "Should clone properly with different parent", ->
-			clone = collectionA.clone( parent = new ModelD )
-
-			expect( clone ).to.not.equal collectionA
-			expect( clone.length() ).to.equal 3
-			expect( clone.at(0) ).to.equal( model_a1 )
-			expect( clone.at(1) ).to.equal( model_a2 )
-			expect( clone.at(2) ).to.equal( model_a3 )
-			expect( clone.parent ).to.not.equal( collectionA.parent )
-			expect( clone.parent ).to.equal( parent )
-		#END it
-
-		it "Should clone properly with different no parent", ->
-			clone = collectionA.clone( null )
-
-			expect( clone ).to.not.equal collectionA
-			expect( clone.length() ).to.equal 3
-			expect( clone.at(0) ).to.equal( model_a1 )
-			expect( clone.at(1) ).to.equal( model_a2 )
-			expect( clone.at(2) ).to.equal( model_a3 )
-			expect( clone.parent ).to.not.equal( collectionA.parent )
-			expect( clone.parent ).to.equal( null )
-		#END it
-	#END describe
-
-
-	#--------------------------------------------------------------
-	#
-	# Test the copy() method
-	#
-	#--------------------------------------------------------------
-	describe "Test the copy() method", ->
-		collectionA = null
-		model_a1 = model_a2 = model_a3 = null
-
-		beforeEach ->
-			model_a1 = new ModelA({id: 1, 'title': 'Hello World'})
-			model_a2 = new ModelA({id: 2, 'title': 'Foo Bar'})
+			model_a1 = new ModelA({id: 1, 'title': 'Hello World', 'extra': 'things'})
+			model_a2 = new ModelA({id: 2, 'title': 'Foo Bar', 'extra': 'things2'})
 
 			collectionA = new CollectionA([model_a1, model_a2], new ModelB)
 		#END beforeEach
 
-		it "Should do a basic copy properly", ->
-			copy = collectionA.copy()
+		it "Should do a basic clone properly", ->
+			clone = collectionA.clone()
 
-			expect( copy ).to.not.equal collectionA
-			expect( copy.parent ).to.equal collectionA.parent
-			expect( copy.length() ).to.equal 2
-			expect( copy.at(0) ).to.not.equal( model_a1 )
-			expect( copy.at(0).get('id') ).to.equal 1
-			expect( copy.at(0).get('title') ).to.be.undefined
-			expect( copy.at(1) ).to.not.equal( model_a2 )
-			expect( copy.at(1).get('id') ).to.equal 2
-			expect( copy.at(1).get('title') ).to.be.undefined
+			expect( clone ).not.toBe(collectionA)
+			expect( clone.parent ).toBe( collectionA.parent )
+			expect( clone.length() ).toBe( 2 )
+			expect( clone.at(0) ).not.toBe( model_a1 )
+			expect( clone.at(0).get('id') ).toBe( 1 )
+			expect( clone.at(0).get('title') ).toBe( "Hello World" )
+			expect( clone.at(0).get('extra') ).toBe( "things" )
+			expect( clone.at(1) ).not.toBe( model_a2 )
+			expect( clone.at(1).get('id') ).toBe( 2 )
+			expect( clone.at(1).get('title') ).toBe( "Foo Bar" )
+			expect( clone.at(1).get('extra') ).toBe( "things2" )
 		#END it
 
-		it "Should do a basic copy properly with extra fields", ->
-			copy = collectionA.copy(["id", "title"])
+		it "Should do a basic clone properly with extra fields", ->
+			clone = collectionA.clone(["id", "title"])
 
-			expect( copy ).to.not.equal collectionA
-			expect( copy.parent ).to.equal collectionA.parent
-			expect( copy.length() ).to.equal 2
-			expect( copy.at(0) ).to.not.equal( model_a1 )
-			expect( copy.at(0).get('id') ).to.equal 1
-			expect( copy.at(0).get('title') ).to.be.equal "Hello World"
-			expect( copy.at(1) ).to.not.equal( model_a2 )
-			expect( copy.at(1).get('id') ).to.equal 2
-			expect( copy.at(1).get('title') ).to.be.equal "Foo Bar"
+			expect( clone ).not.toBe(collectionA)
+			expect( clone.parent ).toBe( collectionA.parent )
+			expect( clone.length() ).toBe( 2 )
+			expect( clone.at(0) ).not.toBe( model_a1 )
+			expect( clone.at(0).get('id') ).toBe( 1 )
+			expect( clone.at(0).get('title') ).toBe( "Hello World" )
+			expect( clone.at(0).get('extra') ).not.toBeDefined()
+			expect( clone.at(1) ).not.toBe( model_a2 )
+			expect( clone.at(1).get('id') ).toBe( 2 )
+			expect( clone.at(1).get('title') ).toBe( "Foo Bar" )
+			expect( clone.at(1).get('extra') ).not.toBeDefined()
 		#END it
 
-		it "Should do a basic copy properly without a parent", ->
-			copy = collectionA.copy(null)
+		it "Should do a basic clone properly without a parent", ->
+			clone = collectionA.clone(null)
 
-			expect( copy ).to.not.equal collectionA
-			expect( copy.parent ).to.equal null
-			expect( copy.length() ).to.equal 2
-			expect( copy.at(0) ).to.not.equal( model_a1 )
-			expect( copy.at(0).get('id') ).to.equal 1
-			expect( copy.at(0).get('title') ).to.be.undefined
-			expect( copy.at(1) ).to.not.equal( model_a2 )
-			expect( copy.at(1).get('id') ).to.equal 2
-			expect( copy.at(1).get('title') ).to.be.undefined
+			expect( clone ).not.toBe(collectionA)
+			expect( clone.parent ).toBe( null )
+			expect( clone.length() ).toBe( 2 )
+			expect( clone.at(0) ).not.toBe( model_a1 )
+			expect( clone.at(0).get('id') ).toBe( 1 )
+			expect( clone.at(0).get('title') ).toBe( "Hello World" )
+			expect( clone.at(0).get('extra') ).toBe( "things" )
+			expect( clone.at(1) ).not.toBe( model_a2 )
+			expect( clone.at(1).get('id') ).toBe( 2 )
+			expect( clone.at(1).get('title') ).toBe( "Foo Bar" )
+			expect( clone.at(1).get('extra') ).toBe( "things2" )
 		#END it
 
-		it "Should do a basic copy properly with extra fields without a parent", ->
-			copy = collectionA.copy(["id", "title"], null)
+		it "Should do a basic clone properly with extra fields without a parent", ->
+			clone = collectionA.clone(["id", "title"], null)
 
-			expect( copy ).to.not.equal collectionA
-			expect( copy.parent ).to.equal null
-			expect( copy.length() ).to.equal 2
-			expect( copy.at(0) ).to.not.equal( model_a1 )
-			expect( copy.at(0).get('id') ).to.equal 1
-			expect( copy.at(0).get('title') ).to.be.equal "Hello World"
-			expect( copy.at(1) ).to.not.equal( model_a2 )
-			expect( copy.at(1).get('id') ).to.equal 2
-			expect( copy.at(1).get('title') ).to.be.equal "Foo Bar"
+			expect( clone ).not.toBe(collectionA)
+			expect( clone.parent ).toBe( null )
+			expect( clone.length() ).toBe( 2 )
+			expect( clone.at(0) ).not.toBe( model_a1 )
+			expect( clone.at(0).get('id') ).toBe( 1 )
+			expect( clone.at(0).get('title') ).toBe( "Hello World" )
+			expect( clone.at(0).get('extra') ).not.toBeDefined()
+			expect( clone.at(1) ).not.toBe( model_a2 )
+			expect( clone.at(1).get('id') ).toBe( 2 )
+			expect( clone.at(1).get('title') ).toBe( "Foo Bar" )
+			expect( clone.at(1).get('extra') ).not.toBeDefined()
 		#END it
 
-		it "Should do a basic copy properly without a parent", ->
-			copy = collectionA.copy( parent = new ModelC )
+		it "Should do a basic clone properly with a new parent", ->
+			clone = collectionA.clone( parent = new ModelC )
 
-			expect( copy ).to.not.equal collectionA
-			expect( copy.parent ).to.equal parent
-			expect( copy.length() ).to.equal 2
-			expect( copy.at(0) ).to.not.equal( model_a1 )
-			expect( copy.at(0).get('id') ).to.equal 1
-			expect( copy.at(0).get('title') ).to.be.undefined
-			expect( copy.at(1) ).to.not.equal( model_a2 )
-			expect( copy.at(1).get('id') ).to.equal 2
-			expect( copy.at(1).get('title') ).to.be.undefined
+			expect( clone ).not.toBe(collectionA)
+			expect( clone.parent ).toBe( parent )
+			expect( clone.length() ).toBe( 2 )
+			expect( clone.at(0) ).not.toBe( model_a1 )
+			expect( clone.at(0).get('id') ).toBe( 1 )
+			expect( clone.at(0).get('title') ).toBe( "Hello World" )
+			expect( clone.at(0).get('extra') ).toBe( "things" )
+			expect( clone.at(1) ).not.toBe( model_a2 )
+			expect( clone.at(1).get('id') ).toBe( 2 )
+			expect( clone.at(1).get('title') ).toBe( "Foo Bar" )
+			expect( clone.at(1).get('extra') ).toBe( "things2" )
 		#END it
 
-		it "Should do a basic copy properly with extra fields without a parent", ->
-			copy = collectionA.copy(["id", "title"],  parent = new ModelC )
+		it "Should do a basic clone properly with extra fields without a parent", ->
+			clone = collectionA.clone(["id", "title"],  parent = new ModelC )
 
-			expect( copy ).to.not.equal collectionA
-			expect( copy.parent ).to.equal parent
-			expect( copy.length() ).to.equal 2
-			expect( copy.at(0) ).to.not.equal( model_a1 )
-			expect( copy.at(0).get('id') ).to.equal 1
-			expect( copy.at(0).get('title') ).to.be.equal "Hello World"
-			expect( copy.at(1) ).to.not.equal( model_a2 )
-			expect( copy.at(1).get('id') ).to.equal 2
-			expect( copy.at(1).get('title') ).to.be.equal "Foo Bar"
+			expect( clone ).not.toBe(collectionA)
+			expect( clone.parent ).toBe( parent )
+			expect( clone.length() ).toBe( 2 )
+			expect( clone.at(0) ).not.toBe( model_a1 )
+			expect( clone.at(0).get('id') ).toBe( 1 )
+			expect( clone.at(0).get('title') ).toBe( "Hello World" )
+			expect( clone.at(0).get('extra') ).not.toBeDefined()
+			expect( clone.at(1) ).not.toBe( model_a2 )
+			expect( clone.at(1).get('id') ).toBe( 2 )
+			expect( clone.at(1).get('title') ).toBe( "Foo Bar" )
+			expect( clone.at(1).get('extra') ).not.toBeDefined()
 		#END it
 	#END describe
 
@@ -1926,13 +2465,86 @@ describe "Test Collection Methods", ->
 		#END beforeEach
 
 		it "Should reset properly", ->
-			expect( collectionA.length() ).to.equal 3
-			expect( collectionA.models() ).to.deep.equal models
+			expect( collectionA.length() ).toBe( 3 )
+			expect( collectionA.models() ).toEqual models
 
 			collectionA.reset()
 
-			expect( collectionA.length() ).to.equal 0
-			expect( collectionA.models() ).to.deep.equal []
+			expect( collectionA.length() ).toBe( 0 )
+			expect( collectionA.models() ).toEqual([])
+		#END it
+	#END describe
+
+	#--------------------------------------------------------------
+	#
+	# Test the chain() method
+	#
+	#--------------------------------------------------------------
+	describe "Test the chain() method", ->
+		collectionA = null
+		model_a1 = model_a2 = model_a3  = model_a4 = model_a5 = null
+
+		beforeEach ->
+			model_a1 = new ModelA({id: 1, title: "Model A 1"})
+			model_a2 = new ModelA({id: 2, title: "Model A 2"})
+			model_a3 = new ModelA({id: 3, title: "Model A 3"})
+			model_a4 = new ModelA({id: 4, title: "Model A 4"})
+			model_a5 = new ModelA({id: 5, title: "Model A 5"})
+
+			collectionA = new CollectionA([model_a1, model_a2, model_a3, model_a4, model_a5])
+		#END beforeEach
+
+		it "Should be able to chain slice methods", ->
+			chain_result = collectionA.chain().slice(1).slice(0, 4).models()
+
+			expect( chain_result ).toEqual( jasmine.any(Array) )
+			expect( chain_result.length ).toBe( 4 )
+		#END it
+
+		it "Should be able to chain filter methods", ->
+			chain_result = collectionA.chain().filter( (model) -> model.get("id") < 4 ).filter( (model) -> model.get("id") isnt 2 ).models()
+
+			expect( chain_result ).toEqual( jasmine.any(Array) )
+			expect( chain_result.length ).toBe( 2 )
+			expect( chain_result ).toEqual([model_a1, model_a3])
+		#END it
+
+		it "Should be able to chain without methods", ->
+			chain_result = collectionA.chain().without(2).without(model_a5).models()
+
+			expect( chain_result ).toEqual( jasmine.any(Array) )
+			expect( chain_result.length ).toBe( 3 )
+			expect( chain_result ).toEqual([model_a1, model_a3, model_a4])
+		#END it
+
+		it "Should be able to chain a without method and sort method", ->
+			chain_result = collectionA.chain().without(2).sort((a, b) ->
+				return -1 if a.id > b.id
+				return 1 if a.id < b.id
+				return 0
+			).models()
+
+			expect( chain_result ).toEqual( jasmine.any(Array) )
+			expect( chain_result.length ).toBe( 4 )
+			expect( chain_result ).toEqual([model_a5, model_a4, model_a3, model_a1])
+		#END it
+
+		it "Should keep the length up to date", ->
+			chain = collectionA.chain()
+			expect( chain.length() ).toBe( 5 )
+			expect( collectionA.length() ).toBe( 5 )
+
+			chain.slice(0,3)
+			expect( chain.length() ).toBe( 3 )
+			expect( collectionA.length() ).toBe( 5 )
+
+			chain.push(new ModelA)
+			expect( chain.length() ).toBe( 4 )
+			expect( collectionA.length() ).toBe( 5 )
+			
+			chain.unshift(new ModelA)
+			expect( chain.length() ).toBe( 5 )
+			expect( collectionA.length() ).toBe( 5 )
 		#END it
 	#END describe
 #END describe

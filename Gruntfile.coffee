@@ -7,7 +7,7 @@ module.exports = (grunt) ->
 	grunt.loadNpmTasks('grunt-contrib-watch')
 	grunt.loadNpmTasks('grunt-contrib-concat')
 
-	grunt.registerTask('default', ['coffee', 'uglify', 'sass', 'concat', 'watch'])
+	grunt.registerTask('default', ['coffee', 'uglify', 'sass', 'concat', 'copy', 'watch'])
 
 	grunt.initConfig
 		pkg: grunt.file.readJSON('package.json')
@@ -111,6 +111,25 @@ module.exports = (grunt) ->
 					]
 			#END view
 
+			adapter:
+				options:
+					banner: "---\nlayout: adapter\n---\n"
+				#END options
+				files:
+					'docs/adapter/index.html': [
+						"docs/adapter/_about_adapters.html"
+						"docs/adapter/_list_of_adapters.html"
+						"docs/adapter/_extend.html"
+						"docs/adapter/_sync.html"
+						"docs/adapter/_standardizeOptions.html"
+						"docs/adapter/_getTemplate.html"
+						"docs/adapter/_successResponseHandler.html"
+						"docs/adapter/_errorResponseHandler.html"
+						"docs/adapter/_completeResponseHandler.html"
+						"docs/adapter/_*.html"
+					]
+			#END adapter
+
 			bindings:
 				options:
 					banner: "---\nlayout: bindings\n---\n"
@@ -134,6 +153,37 @@ module.exports = (grunt) ->
 					]
 			#END bindings
 		#END concat
+
+		copy:
+			dist:
+				files: [
+					{src: [
+						"../falconjs/falcon.js"
+						"../falconjs/falcon.min.js"
+						"../falconjs/falcon.conductor.js"
+						"../falconjs/falcon.conductor.min.js"
+					], dest: "assets/scripts/", expand: true, flatten: true, filter: "isFile"}
+				]
+			#END dist
+
+			adapter:
+				files: [
+					{src: [
+						"../falconjs/adapters/*.js"
+					], dest: "assets/scripts/adapters/", expand: true, flatten: true, filter: "isFile"}
+				]
+			#END adapter
+
+			test:
+				files: [
+					{cwd: "../falconjs"
+					src: [
+						"tests/*.*"
+						"tests/**/*.*"
+					], dest: "../falconjs-pages/", expand: true}
+				]
+			#END test
+		#END copy
 
 		watch:
 			coffee:
@@ -166,6 +216,11 @@ module.exports = (grunt) ->
 				tasks: ['concat:view']
 			#END concat:view
 
+			'concat:adapter':
+				files: ['docs/adapter/_*.html']
+				tasks: ['concat:adapter']
+			#END concat:adapter
+
 			'concat:bindings':
 				files: ['docs/bindings/_*.html']
 				tasks: ['concat:bindings']
@@ -175,6 +230,21 @@ module.exports = (grunt) ->
 				files: ['docs/utility/_*.html']
 				tasks: ['concat:utility']
 			#END concat:utility
+
+			'copy:dist':
+				files: ['../falconjs/*.js']
+				tasks: ['copy:dist']
+			#END copy:dist
+
+			'copy:adapter':
+				files: ['../falconjs/adapters/*.js']
+				tasks: ['copy:adapter']
+			#END copy:adapter
+
+			'copy:test':
+				files: ['../falconjs/tests/*.*','../falconjs/tests/**/*.*']
+				tasks: ['copy:test']
+			#END copy:test
 		#END watch
 	#END initConfig
 #END exports

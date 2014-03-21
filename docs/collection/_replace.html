@@ -22,11 +22,11 @@ var dogs = new Dogs([
 	{"name": "Fido"},
 	{"name": "Skip"}
 ]);
-console.log( dogs.pluck("name") ); // => [Fido, Skip]
+console.log( dogs.pluck("name") ); // [Fido, Skip]
 
 dogs.replace({"name": "Lassie"});
-console.log( dogs.pluck("name") ); // => [Lassie]
+console.log( dogs.pluck("name") ); // [Lassie]
 
 dogs.replace([{"name": "Bucko"}, ["name": "Spot"]]);
-console.log( dogs.pluck("name") ); // => [Bucko, Spot]
+console.log( dogs.pluck("name") ); // [Bucko, Spot]
 {% endhighlight %}
