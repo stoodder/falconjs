@@ -6,128 +6,139 @@
       beforeEach(function() {
         var observable_view;
         spyOn(ko, 'applyBindings');
+        spyOn(ko, 'applyBindingAccessorsToNode');
         view = new Falcon.View;
         return observable_view = ko.observable(view);
       });
       it("Should find the correct element with an HTMLElement", function() {
-        var callback, element, observable, ret;
+        var callback, element, ret;
         element = document.createElement("div");
         document.body.appendChild(element);
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, element, callback);
-        expect(ko.applyBindings.calls.count()).toBe(1);
-        expect(ko.applyBindings).toHaveBeenCalledWith(jasmine.any(Function), element);
-        observable = ko.applyBindings.calls.mostRecent().args[0];
-        expect(ko.isObservable(observable)).toBe(true);
-        expect(observable()).toBe(view);
-        expect(callback.calls.count()).toBe(1);
+        expect(ko.applyBindings).not.toHaveBeenCalled();
+        expect(ko.applyBindingAccessorsToNode.calls.count()).toBe(1);
+        expect(ko.applyBindingAccessorsToNode).toHaveBeenCalledWith(element, {
+          view: jasmine.any(Function)
+        });
         expect(ret).toBe(Falcon);
         return document.body.removeChild(element);
       });
       it("Should find the correct element by id", function() {
-        var callback, element, observable, ret;
+        var callback, element, ret;
         element = document.createElement("div");
         element.setAttribute("id", "test");
         document.body.appendChild(element);
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, "#test", callback);
-        expect(ko.applyBindings.calls.count()).toBe(1);
-        expect(ko.applyBindings).toHaveBeenCalledWith(jasmine.any(Function), element);
-        observable = ko.applyBindings.calls.mostRecent().args[0];
-        expect(ko.isObservable(observable)).toBe(true);
-        expect(observable()).toBe(view);
+        expect(ko.applyBindings).not.toHaveBeenCalled();
+        expect(ko.applyBindingAccessorsToNode.calls.count()).toBe(1);
+        expect(ko.applyBindingAccessorsToNode).toHaveBeenCalledWith(element, {
+          view: jasmine.any(Function)
+        });
         expect(callback.calls.count()).toBe(1);
         expect(ret).toBe(Falcon);
         return document.body.removeChild(element);
       });
       it("Should find the correct element using Falcon.applicationElement", function() {
-        var callback, element, observable, ret;
+        var callback, element, ret;
         element = document.createElement("div");
         document.body.appendChild(element);
         Falcon.applicationElement = element;
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, callback);
-        expect(ko.applyBindings.calls.count()).toBe(1);
-        expect(ko.applyBindings).toHaveBeenCalledWith(jasmine.any(Function), element);
-        observable = ko.applyBindings.calls.mostRecent().args[0];
-        expect(ko.isObservable(observable)).toBe(true);
-        expect(observable()).toBe(view);
+        expect(ko.applyBindings).not.toHaveBeenCalled();
+        expect(ko.applyBindingAccessorsToNode.calls.count()).toBe(1);
+        expect(ko.applyBindingAccessorsToNode).toHaveBeenCalledWith(element, {
+          view: jasmine.any(Function)
+        });
         expect(callback.calls.count()).toBe(1);
         expect(ret).toBe(Falcon);
         return document.body.removeChild(element);
       });
       it("Should find the correct element by id us Falcon.applicationElement", function() {
-        var callback, element, observable, ret;
+        var callback, element, ret;
         element = document.createElement("div");
         element.setAttribute("id", "test");
         document.body.appendChild(element);
         Falcon.applicationElement = "#test";
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, callback);
-        expect(ko.applyBindings.calls.count()).toBe(1);
-        expect(ko.applyBindings).toHaveBeenCalledWith(jasmine.any(Function), element);
-        observable = ko.applyBindings.calls.mostRecent().args[0];
-        expect(ko.isObservable(observable)).toBe(true);
-        expect(observable()).toBe(view);
+        expect(ko.applyBindings).not.toHaveBeenCalled();
+        expect(ko.applyBindingAccessorsToNode.calls.count()).toBe(1);
+        expect(ko.applyBindingAccessorsToNode).toHaveBeenCalledWith(element, {
+          view: jasmine.any(Function)
+        });
         expect(callback.calls.count()).toBe(1);
         expect(ret).toBe(Falcon);
         return document.body.removeChild(element);
       });
       it("Should allow for an HTMLElement as the applicationElement", function() {
-        var callback, element, observable, ret;
+        var callback, element, ret;
         element = document.createElement("div");
         document.body.appendChild(element);
         Falcon.applicationElement = element;
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, callback);
-        expect(ko.applyBindings.calls.count()).toBe(1);
-        expect(ko.applyBindings).toHaveBeenCalledWith(jasmine.any(Function), element);
-        observable = ko.applyBindings.calls.mostRecent().args[0];
-        expect(ko.isObservable(observable)).toBe(true);
-        expect(observable()).toBe(view);
+        expect(ko.applyBindings).not.toHaveBeenCalled();
+        expect(ko.applyBindingAccessorsToNode.calls.count()).toBe(1);
+        expect(ko.applyBindingAccessorsToNode).toHaveBeenCalledWith(element, {
+          view: jasmine.any(Function)
+        });
         expect(callback.calls.count()).toBe(1);
         expect(ret).toBe(Falcon);
         return document.body.removeChild(element);
       });
       it("Should find the correct element by id in the applicationEement", function() {
-        var callback, element, observable, ret;
+        var callback, element, ret;
         element = document.createElement("div");
         element.setAttribute("id", "test");
         document.body.appendChild(element);
         Falcon.applicationElement = "#test";
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, callback);
-        expect(ko.applyBindings.calls.count()).toBe(1);
-        expect(ko.applyBindings).toHaveBeenCalledWith(jasmine.any(Function), element);
-        observable = ko.applyBindings.calls.mostRecent().args[0];
-        expect(ko.isObservable(observable)).toBe(true);
-        expect(observable()).toBe(view);
+        expect(ko.applyBindings).not.toHaveBeenCalled();
+        expect(ko.applyBindingAccessorsToNode.calls.count()).toBe(1);
+        expect(ko.applyBindingAccessorsToNode).toHaveBeenCalledWith(element, {
+          view: jasmine.any(Function)
+        });
         expect(callback.calls.count()).toBe(1);
         expect(ret).toBe(Falcon);
         return document.body.removeChild(element);
       });
       it("Should not fail if no element can be found", function() {
-        var callback, observable, ret;
+        var callback, ret;
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, "#notreal", callback);
-        expect(ko.applyBindings.calls.count()).toBe(1);
-        expect(ko.applyBindings).toHaveBeenCalledWith(jasmine.any(Function), document.body);
-        observable = ko.applyBindings.calls.mostRecent().args[0];
-        expect(ko.isObservable(observable)).toBe(true);
-        expect(observable()).toBe(view);
+        expect(ko.applyBindings).not.toHaveBeenCalled();
+        expect(ko.applyBindingAccessorsToNode.calls.count()).toBe(1);
+        expect(ko.applyBindingAccessorsToNode).toHaveBeenCalledWith(document.body, {
+          view: jasmine.any(Function)
+        });
         expect(callback.calls.count()).toBe(1);
         return expect(ret).toBe(Falcon);
       });
-      return it("Should not fail if no applicationElement can be found", function() {
-        var callback, observable, ret;
+      it("Should not fail if no applicationElement can be found", function() {
+        var callback, ret;
         Falcon.applicationElement = "#notreal";
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, callback);
+        expect(ko.applyBindings).not.toHaveBeenCalled();
+        expect(ko.applyBindingAccessorsToNode.calls.count()).toBe(1);
+        expect(ko.applyBindingAccessorsToNode).toHaveBeenCalledWith(document.body, {
+          view: jasmine.any(Function)
+        });
+        expect(callback.calls.count()).toBe(1);
+        return expect(ret).toBe(Falcon);
+      });
+      return it("Should call applyBindings if no root view or viewModel is given", function() {
+        var callback, ret;
+        Falcon.applicationElement = "#notreal";
+        callback = jasmine.createSpy("Callback");
+        ret = Falcon.apply(callback);
+        expect(ko.applyBindingAccessorsToNode).not.toHaveBeenCalled();
         expect(ko.applyBindings.calls.count()).toBe(1);
-        expect(ko.applyBindings).toHaveBeenCalledWith(jasmine.any(Function), document.body);
-        observable = ko.applyBindings.calls.mostRecent().args[0];
-        expect(ko.isObservable(observable)).toBe(true);
-        expect(observable()).toBe(view);
+        expect(ko.applyBindings).toHaveBeenCalledWith({}, document.body);
         expect(callback.calls.count()).toBe(1);
         return expect(ret).toBe(Falcon);
       });
@@ -6631,8 +6642,8 @@
         });
         return it("Should react to the entire, root, view being updated", function() {
           obs(new ContentView);
-          expect(view_init_spy).not.toHaveBeenCalled();
-          expect(view_update_spy).toHaveBeenCalledOnce();
+          expect(view_init_spy).toHaveBeenCalledTwice();
+          expect(view_update_spy).toHaveBeenCalledThrice();
           expect(render_spy).not.toHaveBeenCalled();
           expect(content_render_spy).not.toHaveBeenCalled();
           expect(footer_render_spy).not.toHaveBeenCalled();

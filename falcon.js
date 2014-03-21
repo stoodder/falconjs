@@ -204,24 +204,34 @@
     deferEvaluation: true,
     adapter: null,
     apply: function(root, element, callback) {
-      var _ref;
+      var _ref, _ref1;
       if (isFunction(element)) {
-        _ref = [callback, element], element = _ref[0], callback = _ref[1];
+        _ref = [element, null], callback = _ref[0], element = _ref[1];
+      }
+      if (isFunction(root) && !ko.isObservable(root) && !isFunction(callback)) {
+        _ref1 = [root, null], callback = _ref1[0], root = _ref1[1];
       }
       if (element == null) {
         element = Falcon.applicationElement;
       }
       _ready(function() {
-        var _ref1;
+        var _ref2;
         if (!isElement(element)) {
           if (!isString(element)) {
             element = "";
           }
           element = isEmpty(element) ? "body" : trim(element);
-          element = (_ref1 = document.querySelectorAll(element)[0]) != null ? _ref1 : document.body;
+          element = (_ref2 = document.querySelectorAll(element)[0]) != null ? _ref2 : document.body;
         }
-        element.setAttribute("data-bind", "view: $data");
-        ko.applyBindings(ko.observable(root), element);
+        if (root != null) {
+          ko.applyBindingAccessorsToNode(element, {
+            view: function() {
+              return root;
+            }
+          });
+        } else {
+          ko.applyBindings({}, element);
+        }
         if (isFunction(callback)) {
           return callback();
         }
@@ -2043,13 +2053,15 @@
       }
       return viewModel;
     };
-    getTemplate = function(value) {
+    getTemplate = function(element, value) {
       var template, _ref2;
       template = "";
       if (value == null) {
         value = {};
       }
-      if (value instanceof Falcon.View) {
+      if (element.nodeType === 1 && !isEmpty(trim(element.innerHTML))) {
+        return element.innerHTML;
+      } else if (value instanceof Falcon.View) {
         template = value.template();
       } else {
         template = ko.utils.unwrapObservable((_ref2 = value.template) != null ? _ref2 : "");
@@ -2094,7 +2106,7 @@
           value = value();
         }
         viewModel = getViewModel(value);
-        template = getTemplate(value);
+        template = getTemplate(element, value);
         if (value == null) {
           ko.virtualElements.emptyNode(element);
         }
