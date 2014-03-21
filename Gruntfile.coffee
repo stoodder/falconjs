@@ -141,6 +141,16 @@ module.exports = (grunt) ->
 					]
 			#END bindings
 
+			conductor:
+				options:
+					banner: "---\nlayout: conductor\n---\n"
+				#END options
+				files:
+					'docs/conductor/index.html': [
+						"docs/conductor/_*.html"
+					]
+			#END conductor
+
 			utility:
 				options:
 					banner: "---\nlayout: utility\n---\n"
@@ -151,7 +161,7 @@ module.exports = (grunt) ->
 						"docs/utility/_addBinding.html"
 						"docs/utility/_*.html"
 					]
-			#END bindings
+			#END utility
 		#END concat
 
 		copy:
@@ -225,6 +235,11 @@ module.exports = (grunt) ->
 				files: ['docs/bindings/_*.html']
 				tasks: ['concat:bindings']
 			#END concat:bindings
+
+			'concat:conductor':
+				files: ['docs/conductor/_*.html']
+				tasks: ['concat:conductor']
+			#END concat:conductor
 
 			'concat:utility':
 				files: ['docs/utility/_*.html']

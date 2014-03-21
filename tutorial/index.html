@@ -1,35 +1,100 @@
 ---
 layout: tutorial
-title: Getting Started
-description: Some basic tutorials to help you jump-start your first Falcon application!
+title: Introduction
+description: Getting started with Falcon with a simple Hello World application.
+introduction_selected: true
 ---
-<div class="section-header">
-	<a href="/tutorial/introduction.html">
-		<h1>1. Introduction</h1>
-		<div class="section-return">Read &rarr;</div>
-	</a>
-</div>
-<div class="section-header">
-	<a href="/tutorial/Knockout_crash_course.html">
-		<h1>2. Knockout Crash Course</h1>
-		<div class="section-return">Read &rarr;</div>
-	</a>
-</div>
-<div class="section-header">
-	<a href="/tutorial/basic_todo_list.html">
-		<h1>3. Basic Todo List</h1>
-		<div class="section-return">Read &rarr;</div>
-	</a>
-</div>
-<div class="section-header">
-	<a href="/tutorial/multiple_todo_lists.html">
-		<h1>4. Multiple Todo Lists</h1>
-		<div class="section-return">Read &rarr;</div>
-	</a>
-</div>
-<div class="section-header">
-	<a href="/tutorial/remote_resources.html">
-		<h1>5. Todo List with a Backend</h1>
-		<div class="section-return">Read &rarr;</div>
-	</a>
-</div>
+<div class="section-header">Dependencies</div>
+<p>
+	Falcon's only dependency is Knockout 3.0.0+
+	<br />
+	<br />
+	<a href="http://knockoutjs.com/downloads/Knockout-3.1.0.js" alt="Download jQuery">Download Knockout 3.1.0</a>
+</p>
+
+<div class="section-header">Installation</div>
+<p>
+	Installing Falcon is as simple as including Falcon and Knockout and then running the <code>Falcon.apply();</code> method to initialize your app.
+</p>
+{% highlight html linenos %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="knockout-3.1.0.js"></script>
+		<script src="falcon.min.js"></script>
+
+		<script>
+			var HelloWorldView = Falcon.View.extend({
+				url: "#hello_world-tmpl"
+			});
+
+			//Apply only needs to be called once to initialize the app
+			Falcon.apply( new HelloWorldView );
+		</script>
+	</head>
+	<body></body>
+	<template id="hello_world-tmpl">
+		Hello World!
+	</template>
+</html>
+{% endhighlight %}
+<div class="caption">Here we have a basic HelloWorldView that will be injected into the body tag of the document when the page loads.</div>
+
+<p>
+	By default, Falcon does not assume how you would like to communicate with your backend data source. Instead, you must include or write your own <a href="/docs/adapter/">Falcon.Adapter</a>.  Falcon.Adapter defines the 'glue' between your front-end application and how it sends data to and receives data from a backend data source. You can go see a <a href="/docs/adapter#List_of_Adapters">List of Adapters</a> to find already implemented adapters.
+</p>
+{% highlight html linenos %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="knockout-3.1.0.js"></script>
+		<script src="falcon.min.js"></script>
+		
+		<script src="jquery-2.1.0.min.js"></script>
+		<script src="falcon.jquery_adapter.min.js"></script>
+	</head>
+</html>
+{% endhighlight %}
+<div class="caption">Example application that uses the jQuery adapter to communicate with a backend server via jQuery's ajax methods.</div>
+
+
+<div class="section-header">Motivations</div>
+<p>
+	Falcon was created to help organize small to large scale single-page javascript applications. Anyone who's work with Javascript and any number of libraries knows how tough it can be to visualize, organize, and execute a well-written, maintanable, and still flexible application.  In other words, <strong>it's tough to organize javascript applications in a sensible and scalable way</strong>. Falcon's goal is to aid this problem by utilizing Knockout's awesome data-binding implementation with some basic constructs to help organize web applications.
+</p>
+
+<div class="section-header">Beliefs <small>discerning between design logic and application logic</small></div>
+<p>
+	Falcon was designed with a few beliefs in mind:
+	<ul>
+		<li>
+			<strong>HTML and Javascript should always be kept separate</strong> -
+			In the world of designers and developers, the last thing developers should need to worry about is what colors or icons are being displayed. Inversly, designers shouldn't need to dig through any javascript code to make the changes to said colors or icons.  Mixing HTML and Javascript forces developers to design and designers to understand how to develop. And, not to say that we can't or shouldn't mix those rolls, but the design of Falcon believes that we shouldn't HAVE to.
+		</li>
+		<li>
+			<strong>It should be dead simple to get an app started</strong> -
+			With Falcon, our goal is to make it as seriosuly trivial as possible to get a hello world application going and to start building on top of it quickly.  With that said, every other, more complex interaction, is also taken in to consideration to be made as easy as possible.  Our goal is to not do any 'crazy auto-magic stuff' behind the scenes, but rather to give a toolset and some basic structure to organize our javascript applications in a sensible and scalable way that doesn't too-highly enforce any specifics (except for probably using data bindings).
+		</li>
+		<li>
+			<strong>Apps should be highly testible without having to deal with the DOM</strong> -
+			Since we're worried about keeping HTML and Javascript as separate as possible, we should therefore be able to unit test the majority of our javascript without having to touch any of the DOM. Of course, it's always better to get as much coverage as possible, but when you have a brand new app that is continuously changing with design requests and needs, being able to keep your javascript 100% tested (regardless of design changes) will allow you to push code with higher confidence.
+		</li>
+		<li>
+			<strong>Event triggers should be a designers concern</strong> -
+			Imagine an application that saves a user's information when a button is clicked. If we wanted to change this interaction to occur on double click, then, in most current-day javascript architectures, a designer would need to request that the developer make changes in the code and re-deploy the javascript. This isn't ideal for two reasons:
+			<ul>
+				<li>We've just given the developer another trivial task that shouldn't need to be on their plate</li>
+				<li>A designer shouldn't need to wait on a developer for such a small task.</li>
+			</ul>
+		</li>
+		<li>
+			<strong>Animations should also be a designers concern</strong> -
+			Again, the thought of an element fading in vs. sliding in should really be that of a designer to test on the fly rather than having to relay more work on to the developer.
+		</li>
+	</ul>
+</p>
+
+<div class="section-header">Architecture Diagram</div>
+<script src="https://raw.github.com/DmitryBaranovskiy/raphael/master/raphael-min.js"></script>
+<script>
+</script>

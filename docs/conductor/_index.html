@@ -1,0 +1,115 @@
+ <p>
+	Conductors are used to preprocess any custom html tags of your choosing and inject a generated view within that tag.  They come in two forms. Both forms require a tag name as the first argument and either a callback function or view definition as the second argument. Internally, conductors will simply apply the view binding against the custom node with a new instance of the view definition.
+</p>
+<p>
+	During pre-processing of the DOM nodes, when we find a node that has a conductor attached to it, that node's attributes are evaluated against the current bidningContext <em>IF</em> the value inside of the attribute begins with $view, $data, $root, or $parent.  These evaulated attributes will then be passed along to the callback method or into the constructor of the view definition as an object who's properties are the lowercase'd attribute and the evaluated value.  If the value of the attribute is an observable, the observable will not be unwrapped, instead the reference to the observable will be passed along.
+</p>
+<div class="alert alert-info">
+	Conductors are still an experimental part of Falcon and do not come with the base installation. Instead you must download and include it following the include of the base falcon.js file.  Click <a href="/assets/scripts/falcon.conductor.min.js" target="_blank">Here</a> to download the plugin.
+</div>
+<div class="alert alert-warning">
+	Conductors are still a highly experimental feature of Falcon and users should expect many breaking changes in the way that conductors work as all of the use-cases are ironed out.
+</div>
+<div class="alert alert-warning">
+	The conductor assigns a method to the default knockout preprocessor <code>ko.bindingProvider.instance.preprocessNode</code>.  If a preprocessor is already defined, then it will be saved and recalled from within Falcon's Conductor preprocessor method.
+</div>
+{% assign methodName = "Falcon.addConductor(tag, view_definition)" %}
+{% include methodOverview.html %}
+<dl>
+	<dt data-type="String">tag</dt>
+	<dd>The custom HTML tag to identify this conductor with.</dd>
+	<dt data-type="Falcon.View.prototype">view_definition</dt>
+	<dd>The view definition to instantiate each time this conductor is executed. Optionally, as a shorthand way to define a view, this may be an object that will be passed into the Falcon.View.extend() method and assigned as the view_definition.</dd>
+</dl>
+{% highlight javascript linenos %}
+var HelloWorldView = Falcon.View.extend({
+	url: "#hello-world-tmpl",
+	initialize: function(attributes) {
+		this.message = attributes['message'] || "World";
+	}
+});
+
+Falcon.addConductor('hello-world', HelloWorldView);
+
+Falcon.apply({name: "Spot"});
+{% endhighlight %}
+<div class="caption">Application Javascript</div>
+{% highlight html linenos %}
+<html>
+	<head>
+		<script src="knockout-3.1.0.js"></script>
+		<script src="falcon.min.js"></script>
+		<script src="falcon.conductor.min.js"></script>
+		<script src="application.js"></script>
+	</head>
+	<body>
+		<hello-world></hello-world>
+		<br />
+		<hello-world message="$data.name"></hello-world>
+	</body>
+	<template id="hello-world-tmpl">
+		Hello <!-- ko text: $view.message --><!-- /ko -->!
+	</template>
+</html>
+{% endhighlight %}
+<div class="caption">Application HTML</div>
+{% highlight text %}
+	Hello World!
+	Hello Spot!
+{% endhighlight %}
+<div class="caption">Rendered on-screen output</div>
+
+{% assign methodName = "Falcon.addConductor(tag, callback)" %}
+{% include methodOverview.html %}
+<dl>
+	<dt data-type="String">tag</dt>
+	<dd>The custom HTML tag to identify this conductor with.</dd>
+	<dt data-type="Function">callback</dt>
+	<dd>A callback method to trigger on each node match. This method should return an instance of the view you would like to inject into the node and will be called with the arguments:
+		<ul>
+			<li><strong>node</strong> - A reference to the node being processed.</li>
+			<li><strong>attributes</strong> - An object of the evaluated attributes. ex: If we have an attribute <code>title="$data.title"</code> then the value of $data.title will be assigned to the 'title' property of this object.</li>
+			<li><strong>bindingcontext</strong> - The current binding context. An object containing '$view', '$parent', '$root', '$data', etc. properties</li>
+		</ul>
+	</dd>
+</dl>
+{% highlight javascript linenos %}
+var HelloWorldView = Falcon.View.extend({
+	url: "#hello-world-tmpl",
+	initialize: function(message) {
+		this.message = message || "World";
+	}
+});
+
+// Callback conductors must return an instance of a Falcon.View
+Falcon.addConductor('hello-world', function(node, attributes, bindingContext) {
+	return new HelloWorldView(attributes['message']);
+});
+
+Falcon.apply({name: "Spot"});
+{% endhighlight %}
+<div class="caption">Application Javascript</div>
+{% highlight html linenos %}
+<html>
+	<head>
+		<script src="knockout-3.1.0.js"></script>
+		<script src="falcon.min.js"></script>
+		<script src="falcon.conductor.min.js"></script>
+		<script src="application.js"></script>
+	</head>
+	<body>
+		<hello-world></hello-world>
+		<br />
+		<hello-world message="$data.name"></hello-world>
+	</body>
+	<template id="hello-world-tmpl">
+		Hello <!-- ko text: $view.message --><!-- /ko -->!
+	</template>
+</html>
+{% endhighlight %}
+<div class="caption">Application HTML</div>
+{% highlight text %}
+	Hello World!
+	Hello Spot!
+{% endhighlight %}
+<div class="caption">Rendered on-screen output</div>

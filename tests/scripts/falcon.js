@@ -2041,7 +2041,7 @@
       };
     };
     getViewModel = function(value) {
-      var viewModel, _ref2;
+      var viewModel;
       viewModel = {};
       if (value == null) {
         value = {};
@@ -2049,7 +2049,7 @@
       if (value instanceof Falcon.View) {
         viewModel = value.viewModel();
       } else {
-        viewModel = ko.utils.unwrapObservable((_ref2 = value.viewModel) != null ? _ref2 : {});
+        viewModel = ko.utils.unwrapObservable(value != null ? value : {});
       }
       return viewModel;
     };

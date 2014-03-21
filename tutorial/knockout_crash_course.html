@@ -2,14 +2,14 @@
 layout: tutorial
 title: Knockout Crash Course
 description: A quick overview of Knockout.js
-Knockout_crash_course_selected: true
+knockout_crash_course_selected: true
 ---
 <p>
-	Before getting started with Falcon, let's need to run briefly through how <a href="http://Knockoutjs.com/">Knockout.js</a> works. If you already have a decent understanding of general Knockout concepts, feel free to skip this portion of the tutorial and get started with our <a href="/tutorial/basic_todo_list.html">Basic Todo List example</a>.  Additionally, if you're looking for more information on Knockout, be sure to check out their <a href="http://learn.Knockoutjs.com/">interactive tutorial</a> and <a href="http://Knockoutjs.com/documentation/introduction.html">documentation</a>.  Nevertheless, let's get started.
+	Before getting started with Falcon, let's need to run briefly through how <a href="http://knockoutjs.com/">Knockout.js</a> works. If you already have a decent understanding of general Knockout concepts, feel free to skip this portion of the tutorial and get started with our <a href="/tutorial/basic_todo_list.html">Basic Todo List example</a>.  Additionally, if you're looking for more information on Knockout, be sure to check out their <a href="http://learn.knockoutjs.com/">interactive tutorial</a> and <a href="http://knockoutjs.com/documentation/introduction.html">documentation</a>.  Nevertheless, let's get started.
 </p>
 <h4>What is Knockout?</h4>
 <p>
-	<a href="http://Knockoutjs.com/">Knockout.js</a> is a Javascript library that provides a Model View ViewModel (MVVM) architecture for web applications. Essentially, it allows DOM elements to be dynamically updated and re-rendered when certain variables are updated without creating a hard dependency between your Javascript and HTML. In other words, Knockout allows us to update a value in Javascript and then have all of the related HTML elements (think form fields, paragraphs, css classes, etc.) update and re-rendered when needed.
+	<a href="http://www.knockoutjs.com/">Knockout.js</a> is a Javascript library that provides a Model View ViewModel (MVVM) architecture for web applications. Essentially, it allows DOM elements to be dynamically updated and re-rendered when certain variables are updated without creating a hard dependency between your Javascript and HTML. In other words, Knockout allows us to update a value in Javascript and then have all of the related HTML elements (think form fields, paragraphs, css classes, etc.) update and re-rendered when needed.
 </p>
 <h4>Observables and Bindings</h4>
 <p>
@@ -26,7 +26,7 @@ Knockout_crash_course_selected: true
 		<li>Toggling a css class on an element when an observable that is truthy or falsey.</li>
 		<li>Calling certain Javascript functions when an event is triggered on an element.</li>
 	</ul>
-	Additionally, it's possible to create your own, custom bindings, but we won't discuss that in these early tutorials. If you're interested in learning how, take a look at the <a href="http://Knockoutjs.com/documentation/custom-bindings.html">Knockout documentation for custom bindings</a>.
+	Additionally, it's possible to create your own, custom bindings, but we won't discuss that in these early tutorials. If you're interested in learning how, take a look at the <a href="http://knockoutjs.com/documentation/custom-bindings.html">Knockout documentation for custom bindings</a>.
 </p>
 <p>
 	Take a look at the jsFiddle example below.  Here we're creating an observable 'name' on a viewModel object. We're setting the name to 'Mr. Falcon' and then applying the bindings to our html. <code>ko.applyBindings( viewModel )</code> is how we initialize Knockout and tell it to parse through our html to link bindings with the specified viewModel.
@@ -53,7 +53,7 @@ ko.applyBindings( viewModel );
 Welcome, <span data-bind="text: name"></span>!
 {% endhighlight %}
 <div class="caption">Application HTML</div>
-<a href="http://jsfiddle.net/stoodder/yusbY/" class="btn btn-primary">jsFiddle</a>
+<!-- <a href="http://jsfiddle.net/stoodder/yusbY/" class="btn btn-primary">jsFiddle</a> -->
 
 <h4>Computed Observables</h4>
 <p>
@@ -94,7 +94,7 @@ ko.applyBindings( viewModel );
 </div>
 {% endhighlight %}
 <div class="caption">Application HTML</div>
-<a href="http://jsfiddle.net/stoodder/VGjV8" target="_blank" class="btn btn-primary">jsFiddle</a>
+<!-- <a href="http://jsfiddle.net/stoodder/VGjV8" target="_blank" class="btn btn-primary">jsFiddle</a> -->
 
 <h4>Writeable Computed Observables and Virtual Bindings</h4>
 <p>
@@ -160,7 +160,7 @@ ko.applyBindings( viewModel );
 <!-- /ko -->
 {% endhighlight %}
 <div class="caption">Application HTML</div>
-<a href="http://jsfiddle.net/stoodder/MH3vq" target="_blank" class="btn btn-primary">jsFiddle</a>
+<!-- <a href="http://jsfiddle.net/stoodder/MH3vq" target="_blank" class="btn btn-primary">jsFiddle</a> -->
 
 
 <h4>Observable Arrays, Event Bindings, and Binding Contexts</h4>
@@ -174,7 +174,7 @@ ko.applyBindings( viewModel );
 	Also in this example we have two methods, 'addName' and 'removeName', that will be bound to buttons with the 'click' binding. The click binding is an example of an <strong>event binding</strong>. With the 'click' binding, the current template context will be passed in as the first argument.  In other words, when using the 'foreach' binding on the 'names' observables array, a list of names is displayed to the user with a 'remove' button next to each. Each remove button is bound to the 'removeName' function on the viewModel through the 'click' binding. When a user clicks the remove button, that specific name object is passed into the 'removeName' function as the first argument.
 </p>
 <p>
-	Finally, if you look at how the 'removeName' function is bound to the 'click' binding in the html tab of the jsFiddle you'll see that we use <code>click: $root.removeName</code>. In Knockout, $root is called a <strong>Binding Context</strong>.  Essentially, binding contexts are just variables that can be used in templates to help us navigate to different parts of the context hierarchy.  In other words, the $root context always references the root viewModel that is bound with ko.applyBindings(). In our example we needed to use the $root binding from within the foreach binding because the current context would be that of each individual name object rather than the root view model. Other binding contexts include: $root, $parent, $parents, $data and more. To learn about them in-depth, checkout the <a href="http://Knockoutjs.com/documentation/binding-context.html">Knockout Docs on Binding Contexts</a>.
+	Finally, if you look at how the 'removeName' function is bound to the 'click' binding in the html tab of the jsFiddle you'll see that we use <code>click: $root.removeName</code>. In Knockout, $root is called a <strong>Binding Context</strong>.  Essentially, binding contexts are just variables that can be used in templates to help us navigate to different parts of the context hierarchy.  In other words, the $root context always references the root viewModel that is bound with ko.applyBindings(). In our example we needed to use the $root binding from within the foreach binding because the current context would be that of each individual name object rather than the root view model. Other binding contexts include: $root, $parent, $parents, $data and more. To learn about them in-depth, checkout the <a href="http://knockoutjs.com/documentation/binding-context.html">Knockout Docs on Binding Contexts</a>.
 </p>
 {% highlight javascript linenos %}
 //Helper method to trim whitespace
@@ -235,4 +235,4 @@ ko.applyBindings( viewModel );
 </ul>
 {% endhighlight %}
 <div class="caption">Application HTML</div>
-<a href="http://jsfiddle.net/stoodder/T3Q38" target="_blank" class="btn btn-primary">jsFiddle</a>
+<!-- <a href="http://jsfiddle.net/stoodder/T3Q38" target="_blank" class="btn btn-primary">jsFiddle</a> -->
