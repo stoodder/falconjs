@@ -6756,50 +6756,6 @@
         return expect(second_content.title()).toEqual("Second Title");
       });
     });
-    describe("Test execScripts: true for view binding", function() {
-      var TestView, test_view_template, _ref;
-      TestView = (function(_super) {
-        __extends(TestView, _super);
-
-        function TestView() {
-          _ref = TestView.__super__.constructor.apply(this, arguments);
-          return _ref;
-        }
-
-        TestView.prototype.url = "#test_view";
-
-        TestView.prototype.execScripts = true;
-
-        return TestView;
-
-      })(Falcon.View);
-      test_view_template = _createTemplate("test_view", "			<script type='text/javascript'>window.call_spy();</script>			<script>window.call_another_spy();</script>			<script type='text/template'>window.call_a_third_spy();</script>		");
-      beforeEach(function() {
-        window.call_spy = jasmine.createSpy("'Call Spy'");
-        window.call_another_spy = jasmine.createSpy("'Call Another Spy'");
-        window.call_a_third_spy = jasmine.createSpy("'Call A Third Spy'");
-        document.body.appendChild(test_view_template);
-        window.call_spy.calls.reset();
-        window.call_another_spy.calls.reset();
-        return window.call_a_third_spy.calls.reset();
-      });
-      afterEach(function() {
-        document.body.removeChild(test_view_template);
-        window.call_spy = window.call_another_spy = window.call_a_third_spy = null;
-        delete window.call_spy;
-        delete window.call_another_spy;
-        return delete window.call_a_third_spy;
-      });
-      return it("Should call the spies", function() {
-        expect(window.call_spy).not.toHaveBeenCalled();
-        expect(window.call_another_spy).not.toHaveBeenCalled();
-        expect(window.call_a_third_spy).not.toHaveBeenCalled();
-        applyApp(new TestView);
-        expect(window.call_spy.calls.count()).toBe(1);
-        expect(window.call_another_spy.calls.count()).toBe(1);
-        return expect(window.call_a_third_spy).not.toHaveBeenCalled();
-      });
-    });
     describe("Test updated foreach binding", function() {
       var CollectionA, ModelA, foreach_binding, foreach_init_spy, foreach_update_spy, _ref, _ref1;
       foreach_binding = ko.bindingHandlers['foreach'];
