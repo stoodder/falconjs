@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+	{% include head.html %}
+	<body>
+		{% assign docs_selected = true %}
+		{% include header.html %}
+		<div id="subheader">
+			<div class="subheader-inner">
+				<h1>
+					Falcon.Model
+					<small>
+						<a href="/docs/object">extends Falcon.Object</a>
+					</small>
+				</h1>
+				<h4>Models represent a single object in your application.</h4>
+			</div>
+		</div>
+		<div id="content">
+			{% assign expand_model_menu = true %}
+			{% include menu.html %}
+			<div class="content-inner">
+				{{ content }}
+			</div>
+		</div>
+		{% include scripts.html %}
+	</body>
+</html>

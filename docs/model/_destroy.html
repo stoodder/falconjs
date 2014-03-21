@@ -1,0 +1,22 @@
+{% assign methodName = "destroy" %}
+{% assign methodExample = "model.destroy( [options] )" %}
+{% assign returnType = "mixed" %}
+{% assign returnDescription = "Whatever the response from the adapter's sync method is" %}
+{% include methodOverview.html %}
+<p>
+	Method used to delete this model from the server. This method just called 'sync' with the 'DELETE' request type pre-filled.
+</p>
+<dl>
+	<dt data-type="Object">options</dt>
+	<dd>The options to pass into the 'sync' method</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend({ url: "dog.json" });
+
+var dog = new Dog({id: '1', name: "Fido"});
+
+// Delete a dog
+// Sends the data {"id": 1, "name": "Fido"} to '/dog/1.json'
+// If using the jQuery adapter, this will be an ajax DELETE to '/dog/1.json'
+dog.destroy();
+{% endhighlight %}

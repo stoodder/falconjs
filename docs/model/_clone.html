@@ -1,0 +1,23 @@
+{% assign methodName = "clone" %}
+{% assign methodExample = "model.clone( [attributes], [parent] )" %}
+{% assign returnType = "Falcon.Model" %}
+{% assign returnDescription = "A clone of this model" %}
+{% include methodOverview.html %}
+<p>
+	Method used to create a clone of this model. This method is can be used to only copy certain attributes from this model by stating so in the 'attributes' argument.  If a 'parent' argument is given, then the resultant model will have that parent rather than the original model's parent. If 'null' is given for parent, then the resultant model will not have a parent.
+</p>
+<dl>
+	<dt data-type="Object">attributes</dt>
+	<dd>An object or an array attributes to copy from this model to the new model. If this is not provided all attributes will be copied.</dd>
+	<dt data-type="Falcon.Model">parent</dt>
+	<dd>An override of the parent to set in the resultant model. If 'null' is explicitly given, then the resultant model will be parent-free</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+
+var dog = new Dog({"name": "fido"});
+var fido_clone = dog.clone();
+
+console.log( dog.get("name"), fido_clone.get("name") ); // fido, fido
+console.log( dog === fido_clone ); // false
+{% endhighlight %}

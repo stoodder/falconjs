@@ -1,0 +1,260 @@
+---
+layout: utility
+---
+{% assign methodName = "apply" %}
+{% assign methodExample = "Falcon.apply( [root], [element], [callback] )" %}
+{% assign returnType = "Falcon" %}
+{% assign returnDescription = "The global Falcon instance" %}
+{% include methodOverview.html %}
+<p>
+	Initializes a Falcon application and applies its bindings against an initial view.
+</p>
+<dl>
+	<dt data-type="Falcon.View | ko.observable">root</dt>
+	<dd>A view or an observable containing a view to be applied to the application element</dd>
+	<dt data-type="String | DOMElement">element</dt>
+	<dd>The element to initialize the application in. If none is provided, the body element is used.</dd>
+	<dt data-type="Function">callback</dt>
+	<dd>Method called after the bindings have been initialized and applied.</dd>
+</dl>
+{% highlight javascript linenos %}
+var LayoutView = Falcon.View.extend({ "url": "#layout_view_tmpl" });
+
+// Applies the view and bindings to the 'body' tag
+Falcon.apply( new LayoutView ); 
+
+// Applies the view and bindings the element with id="application"
+Falcon.apply( new LayoutView, "#application" ); 
+
+// Falcon.apply can also handle observables
+// Applies the observable to the 'body' tag, nothing is currently rendered
+var viewObs = ko.observable();
+Falcon.apply( viewObs ); 
+
+// Renders a layout view in 'body'
+viewObs( new LayoutView ); 
+{% endhighlight %}
+{% assign methodName = "addBinding" %}
+{% assign methodExample = "Falcon.addBinding( name, [allowVirtual], definition)" %}
+{% assign returnType = "Object" %}
+{% assign returnDescription = "The binding definition" %}
+{% include methodOverview.html %}
+<p>
+	Used to create a new binding. If the allowVirtual flag is set, then the binding may also be used as a virtual binding.
+</p>
+<dl>
+	<dt data-type="String">name</dt>
+	<dd>The binding name.</dd>
+	<dt data-type="Boolean">allowVirtual</dt>
+	<dd>Should this binding be accessible using Knockout's virtual binding pattern?</dd>
+	<dt data-type="Object">definition</dt>
+	<dd>The binding definition.</dd>
+</dl>
+<dl>
+	<dt data-type="String">name</dt>
+	<dd>The binding name.</dd>
+	<dt data-type="Boolean">allowVirtual</dt>
+	<dd>Should this binding be accessible using Knockout's virtual binding pattern?</dd>
+	<dt data-type="Function">update_function</dt>
+	<dd>The function to apply to the 'update' key in the binding definition.</dd>
+</dl>
+{% highlight javascript linenos %}
+Falcon.addBinding("slideVisible", {
+	update: function(element, valueAccessor, allBindingsAccessor) {
+		// First get the latest data that we're bound to
+		var value = valueAccessor(), allBindings = allBindingsAccessor();
+
+		// Next, whether or not the supplied model property is observable, get its current value
+		var valueUnwrapped = ko.unwrap(value);
+
+		// Grab some more data from another binding property
+		// 400ms is default duration unless otherwise specified
+		var duration = allBindings.slideDuration || 400; 
+
+		// Now manipulate the DOM element
+		if (valueUnwrapped == true) {
+			$(element).slideDown(duration); // Make the element visible
+		} else {
+			$(element).slideUp(duration);   // Make the element invisible
+		}
+	}
+});
+{% endhighlight %}
+{% assign methodName = "getBinding" %}
+{% assign methodExample = "Falcon.getBinding( name )" %}
+{% assign returnType = "Object" %}
+{% assign returnDescription = "The binding definition" %}
+{% include methodOverview.html %}
+<p>
+	Used to look up a specific binding definition object based on the binding's name.
+</p>
+<dl>
+	<dt data-type="String">name</dt>
+	<dd>The binding name.</dd>
+</dl>
+{% highlight javascript linenos %}
+binding_definition = Falcon.getBinding("foreach");
+console.log( binding_definition ); // The binding definition object
+{% endhighlight %}
+{% assign methodName = "isAdapter" %}
+{% assign methodExample = "Falcon.isAdapter( object )" %}
+{% assign returnType = "Boolean" %}
+{% assign returnDescription = "Is the object an adapter?" %}
+{% include methodOverview.html %}
+<p>
+	Method used to test if an object is a Falcon Adapter.
+</p>
+<dl>
+	<dt data-type="object">object</dt>
+	<dd>The Object to test</dd>
+</dl>
+{% highlight javascript linenos %}
+var array		= [];
+var object		= new Falcon.Object();
+var collection	= new Falcon.Collection();
+var model 		= new Falcon.Model();
+var view 		= new Falcon.View();
+var adapter 	= new Falcon.Adapter();
+
+console.log( Falcon.isAdapter(array) );// false
+console.log( Falcon.isAdapter(object) );// false
+console.log( Falcon.isAdapter(model) );// false
+console.log( Falcon.isAdapter(collection) ); // false
+console.log( Falcon.isAdapter(view) );// false
+console.log( Falcon.isAdapter(adapter) );// true
+{% endhighlight %}
+{% assign methodName = "isCollection" %}
+{% assign methodExample = "Falcon.isCollection( object )" %}
+{% assign returnType = "Boolean" %}
+{% assign returnDescription = "Is the object a collection" %}
+{% include methodOverview.html %}
+<p>
+	Method used to test if an object is a Falcon Collection.
+</p>
+<dl>
+	<dt data-type="Object">object</dt>
+	<dd>The Object to test</dd>
+</dl>
+{% highlight javascript linenos %}
+var array		= [];
+var object		= new Falcon.Object();
+var collection	= new Falcon.Collection();
+var model 		= new Falcon.Model();
+var view 		= new Falcon.View();
+var adapter 	= new Falcon.Adapter();
+
+console.log( Falcon.isCollection(array) );// false
+console.log( Falcon.isCollection(object) );// false
+console.log( Falcon.isCollection(model) );// false
+console.log( Falcon.isCollection(collection) ); // true
+console.log( Falcon.isCollection(view) );// false
+console.log( Falcon.isCollection(adapter) );// false
+{% endhighlight %}
+{% assign methodName = "isDataObject" %}
+{% assign methodExample = "Falcon.isDataObject( object )" %}
+{% assign returnType = "Boolean" %}
+{% assign returnDescription = "Is the object a DataObject (Model or Collection)?" %}
+{% include methodOverview.html %}
+<p>
+	Method used to test if an object is a Falcon Model or Collection
+</p>
+<dl>
+	<dt data-type="object">object</dt>
+	<dd>The Object to test</dd>
+</dl>
+{% highlight javascript linenos %}
+var array		= [];
+var object		= new Falcon.Object();
+var collection	= new Falcon.Collection();
+var model 		= new Falcon.Model();
+var view 		= new Falcon.View();
+var adapter 	= new Falcon.Adapter();
+
+console.log( Falcon.isDataObject(array) );// false
+console.log( Falcon.isDataObject(object) );// false
+console.log( Falcon.isDataObject(model) );// true
+console.log( Falcon.isDataObject(collection) ); // true
+console.log( Falcon.isDataObject(view) );// false
+console.log( Falcon.isDataObject(adapter) );// false
+{% endhighlight %}
+{% assign methodName = "isFalconObject" %}
+{% assign methodExample = "Falcon.isFalconObject( object )" %}
+{% assign returnType = "Boolean" %}
+{% assign returnDescription = "Is the object a Falcon object?" %}
+{% include methodOverview.html %}
+<p>
+	Method used to test if an object is a Falcon Model, View, or Collection.
+</p>
+<dl>
+	<dt data-type="object">object</dt>
+	<dd>The Object to test</dd>
+</dl>
+{% highlight javascript linenos %}
+var array		= [];
+var object		= new Falcon.Object();
+var collection	= new Falcon.Collection();
+var model 		= new Falcon.Model();
+var view 		= new Falcon.View();
+var adapter 	= new Falcon.Adapter();
+
+console.log( Falcon.isFalconObject(array) );// false
+console.log( Falcon.isFalconObject(object) );// true
+console.log( Falcon.isFalconObject(model) );// true
+console.log( Falcon.isFalconObject(collection) ); // true
+console.log( Falcon.isFalconObject(view) );// true
+console.log( Falcon.isFalconObject(adapter) );// true
+{% endhighlight %}
+{% assign methodName = "isModel" %}
+{% assign methodExample = "Falcon.isModel( object )" %}
+{% assign returnType = "Boolean" %}
+{% assign returnDescription = "Is the object a model?" %}
+{% include methodOverview.html %}
+<p>
+	Method used to test if an object is a Falcon Model.
+</p>
+<dl>
+	<dt data-type="object">object</dt>
+	<dd>The Object to test</dd>
+</dl>
+{% highlight javascript linenos %}
+var array		= [];
+var object		= new Falcon.Object();
+var collection	= new Falcon.Collection();
+var model 		= new Falcon.Model();
+var view 		= new Falcon.View();
+var adapter 	= new Falcon.Adapter();
+
+console.log( Falcon.isModel(array) );// false
+console.log( Falcon.isModel(object) );// false
+console.log( Falcon.isModel(model) );// true
+console.log( Falcon.isModel(collection) ); // false
+console.log( Falcon.isModel(view) );// false
+console.log( Falcon.isModel(adapter) );// false
+{% endhighlight %}
+{% assign methodName = "isView" %}
+{% assign methodExample = "Falcon.isView( object )" %}
+{% assign returnType = "Boolean" %}
+{% assign returnDescription = "Is this a Falcon view?" %}
+{% include methodOverview.html %}
+<p>
+	Method used to test if an object is a Falcon View.
+</p>
+<dl>
+	<dt data-type="object">object</dt>
+	<dd>The Object to test</dd>
+</dl>
+{% highlight javascript linenos %}
+var array		= [];
+var object		= new Falcon.Object();
+var collection	= new Falcon.Collection();
+var model 		= new Falcon.Model();
+var view 		= new Falcon.View();
+var adapter 	= new Falcon.Adapter();
+
+console.log( Falcon.isView(array) );// false
+console.log( Falcon.isView(object) );// false
+console.log( Falcon.isView(model) );// false
+console.log( Falcon.isView(collection) ); // false
+console.log( Falcon.isView(view) );// true
+console.log( Falcon.isView(adapter) );// false
+{% endhighlight %}

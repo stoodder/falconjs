@@ -1,0 +1,24 @@
+{% assign methodName = "successResponseHandler" %}
+{% assign methodExample = "adapter.successResponseHandler( data_object, type, options, context, response_args )" %}
+{% include methodOverview.html %}
+<p>
+	Method used to handle success responses. This will parse the raw response data, present the raw data to the data_object's parse() method, and then use that parsed data to call the data_object's fill() method with the parsed_data and fill options (if specified).  This method will also trigger a "fetch" event on GET, "create" event on POST, "save" event on PUT, and "destroy" event on DELETE all with the parsed_data being the trigger arguments. Finally, this method will call the success callback on the given context and with the data_object, raw response data, standardized options, and response_args as its arguments.
+</p>
+<div class="alert alert-info">
+	This method is a post-request method that should always be called with the same five arguments: data_object, type, options, and context, response_args.
+</div>
+<div class="alert alert-warning">
+	This method does not do anything by itself and should be overridden by an inheritting adapter implementation.
+</div>
+<dl>
+	<dt data-type="Falcon.Model">data_object</dt>
+	<dd>The data object being prepaired. Should be either a Falcon.Model or a Falcon.Collection</dd>
+	<dt data-type="String">type</dt>
+	<dd>The resolved request type</dd>
+	<dt data-type="Object">options</dt>
+	<dd>The standardized options</dd>
+	<dt data-type="mixed">context</dt>
+	<dd>The resolved request context</dd>
+	<dt data-type="Object">response_args</dt>
+	<dd>An object that inheritting adapters can and should use to pass along the inheriting adapter implementation-specific data between post-request methods</dd>
+</dl>

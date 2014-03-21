@@ -1,0 +1,21 @@
+{% assign methodName = "listenTo" %}
+{% assign methodExample = "object.listenTo( object, event, callback )" %}
+{% assign returnType = "Falcon.Object" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Adds an event listener onto an object for a certain event while retaining this object's context in the callback.  This method is very similar to 'on' but is useful because we're able to store a reference to all of the events that this object relies on. Because we have an internal record of all of the events, we don't need to store references to the original event defintiion if we want to disable those events later.  Instead, we can just call the stopListening() method to disable all or a specific set of events from this object. 
+</p>
+<dl>
+	<dt data=type="Falcon.Object">object</dt>
+	<dd>The object to listen to.</dd>
+	<dt data-type="String">event</dt>
+	<dd>The event to listen for.</dd>
+	<dt data=type="Function">callback</dt>
+	<dd>The callback function to call when this event is triggered.</dd>
+</dl>
+{% highlight javascript linenos %}
+var obj = new Falcon.Object();
+var dog = new Falcon.Model();
+obj.listenTo(dog, "bark", function() { ... });
+{% endhighlight %}

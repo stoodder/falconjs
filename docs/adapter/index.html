@@ -1,0 +1,533 @@
+---
+layout: adapter
+---
+{% assign methodName = "About Adapters" %}
+{% include methodOverview.html %}
+<p>
+	Adapters act as the glue between collections, models, and views and a backend data source. For the majority of the time you'll never need to interact with the adapter directly. Instead, <a href="/docs/model#sync">Falcon.Model.sync()</a> and <a href="/docs/collection#sync">Falcon.Collection.sync()</a> will call the adapter's sync method when saving/updating data.  Additionally, <a href="/docs/view#initialize">Falcon.View's constructor</a> will call the adapter's getTemplate method to fetch a template's HTML.
+</p>
+<p>
+	<strong>By default, Falcon's base adapter does not make any requests to a backend data source.</strong> Instead, if you're intending to utilize a backend, you should also include one of the adapters from the <a href="#List_of_Adapters">List of Adapters</a>. If you need a more customized experience, then feel free to write your own!
+</p>
+<p>
+	If you do decide to write your own adapter, please take note of a few rules of thumb:
+	<ul>
+		<li>Utilize <code>Falcon.Adapter.extend({})</code> to create a custom adapter from the base adapter</li>
+		<li>You should always override the sync() method but still call the base Falcon.Adapter sync method. The base Falcon.Adapter sync method returns an object of resolved and standardized options, callback context, request type, and the input data object. Additionally, the returned object from the base sync method, also returns an 'is_valid' flag. If this is set to false, then your custom implementation should not continue as it means that a model's validations failed as part of a POST (create) or PUT (save) routine.
+		</li>
+		<li>If you're looking to utilize your data source to also serve up View templates, then you may also want to override the getTemplate method</li>
+		<li>After defining your custom adapter, you should also initilize it and assign it to the <code>Falcon.adapter = new MyCustomAdapter();</code> configuration. The Falcon.adapter configuration is utilized throughout the application in Falcon.Model.sync(), Falcon.Collection.sync() and the Falcon.View constrcutor (for fetching a template with getTemplate).</li>
+	</ul>
+</p>
+{% assign methodName = "List of Adapters" %}
+{% include methodOverview.html %}
+<p>
+	Below is a list of the currently supported adapters.  These should be included directly after Falcon and must be included in order to communicate with a backend data source.
+</p>
+<table>
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Description</th>
+			<th>Download</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td width="25%">
+				<a href="/assets/scripts/adapters/falcon.jquery_adapter.min.js" target="_blank"><strong>jQuery REST Adapter</strong></a>
+			</td>
+			<td>
+				The jQuery REST Adapter utilizes jquery to perform Ajax calls to a backend data source. This adapter supports both ajax calls for sync methods and an ajax call for the getTemplate method so that we may serve templates up asynchronously. Additionally, this adapter supports extra options:
+				<ul>
+					<li><strong>dataType</strong> - The data type of the request, default is 'json'.</li>
+					<li><strong>contentType</strong> - The return data type of the response, default is 'application/json'.</li>
+					<li><strong>params</strong> - Query string parameters to append to the url.</li>
+					<li><strong>headers</strong> - An object of additional headers to send with the request.</li>
+					<li><strong>cache</strong> - Should we cache the response of this request? The default for this is whatever `Falcon.adapter.cache` is set to.</li>
+				</ul> 
+			</td>
+			<td width="15%" align="center">
+				<a href="/assets/scripts/adapters/falcon.jquery_adapter.min.js" target="_blank">Production</a>
+				<br />
+				<a href="/assets/scripts/adapters/falcon.jquery_adapter.js" target="_blank">Development</a>
+				<br />
+				<a href="/tests/falcon.jquery_adapter.test.html" target="_blank">Tests</a>
+			</td>
+		</tr>
+	</tbody>
+</table>
+{% assign methodName = "extend" %}
+{% assign methodExample = "Falcon.Adapter.extend( protoProps, [staticProps] )" %}
+{% include methodOverview.html %}
+<p>
+	Method used to create a new adapter that inherits from the base Falcon Adapter.
+</p>
+<dl>
+	<dt data-type="Object">protoProps</dt>
+	<dd>Properties for the prototype of a class</dd>
+	<dt data-type="Object">staticProps</dt>
+	<dd>Static properties for a given object</dd>
+</dl>
+{% highlight javascript linenos %}
+var DogAdapter = Falcon.Adapter.extend({});
+{% endhighlight %}
+{% assign methodName = "sync" %}
+{% assign methodExample = "adapter.sync( data_object, type, options, context )" %}
+{% assign returnType = "Object" %}
+{% assign returnDescription = "An object of the standardized input parameters." %}
+{% include methodOverview.html %}
+<p>
+	This is the core method that Adapters provide which is called by both the Falcon.Model.sync() and Falcon.Collection.sync() methods.  This method takes a set of unresolved and non-standard options and passes them through the various different adapter methods to determine the request type, provide standardized options, and determines a callback context. Additionally, this method will run any model validations if we're executing a PUT or POST request against a model.
+</p>
+<p>
+	By itself, this base implementation does not make any requests to a backend data source.  Instead, it is up to you, the developer, to choose an implemntation specific adapter that suites your needs (or write your own).  Please refer to the <a href="#About_Adapters">'About Adapters'</a> section to get a list of current adapter implementations.  To be more clear, this base adapter class provides the ground work for making and responding to requests, but the actual communication between the front-end application and your data source is provided by adapters who inherit from this base class. For example, if you're using jQuery to connect to a RESTful API with JSON data, then you may want to look at the jQuery Adapter.
+</p>
+<p>
+	Internally, this method will throw an exception if the input data_object isn't a Falcon.Model or Falcon.Collection. If the type checking passes, then this method begins by resolving the request type (<a href="#resolveRequestType">resolveRequestType</a>). Following this, it standardizes the options (<a href="#standardizeOptions">standardizeOptions</a>) with the resolved request type and then we resolve the context (<a href="#resolveContext">resolveContext</a>) with both the resolved request type and standardized options.  Lastly, if the data object is a Falcon.Model and our request type is "POST" or "PUT", we check to ensure that the model is valid by executing the model validate() method.  This method finishes by returning an object of the input data object (data_object), the resolved request type (type), the standardized options (options), the resolved callback context (context), and whether the model is valid or not (is_valid). No actual request to a backend is made.
+</p>
+<div class="alert alert-info">
+	This method is a pre-request method that should always be called with the same four arguments: data_object, type, options, and context.
+</div>
+<div class="alert alert-warning">
+	This base sync method does not make any requests to a backend data source. Instead it is up to inheritting classes to define how we send and retrive data from a data source.  This method must be overriden if writting a custom adapter.
+</div>
+<dl>
+	<dt data-type="Falcon.Model">data_object</dt>
+	<dd>The data object being prepaired. Should be either a Falcon.Model or a Falcon.Collection</dd>
+	<dt data-type="String">type</dt>
+	<dd>The resolved request type</dd>
+	<dt data-type="Object">options</dt>
+	<dd>The standardized options</dd>
+	<dt data-type="mixed">context</dt>
+	<dd>The unresolved request context, will be the context for all of the response handlers</dd>
+</dl>
+{% highlight javascript linenos %}
+var model = new Falcon.Model();
+var adapter = new Falcon.Adapter();
+
+/* Returns: {
+	data_object: model,
+	type: "GET",
+	options: { ... standardized options ... },
+	context: model,
+	is_valid: true
+} */
+adapter.sync( model, "get", {}, model );
+{% endhighlight %}
+{% assign methodName = "standardizeOptions" %}
+{% assign methodExample = "adapter.standardizeOptions( data_object, type, options, context )" %}
+{% assign returnType = "mixed" %}
+{% assign returnDescription = "An new object of the standardized options" %}
+{% include methodOverview.html %}
+<p>
+	Used to standardize the input options and ensure that the resultant options object has all of the correct options for our sync request.  This method will do a shallow clone on the input options so that we do not disturb the original object.
+</p>
+<p>
+	This method will return an object that, at it's base, will always have:
+	<ul>
+		<li><strong>url</strong> - The url to send this request to.  This is assigned using the adapter's makeUrl method which should acknowledge a previously defined url in the options and pass that through if it exists otherwise use the data_object's makeUrl method.</li>
+		<li><strong>data</strong> - The data to send to the data source. This is created from the response of the adapter.serializeData method which should pass through any pre-existing 'data' property on the input options. If no 'data' is present, the serializeData method will return the data_objects serialize(attributes) response.</li>
+		<li><strong>success</strong> - The success callback to trigger from within the adapter.successResponseHandler. This will be called on the context and with arguments: data_object, raw_response_data, standardized options, and other adapter-specific arguments.</li>
+		<li><strong>error</strong> - The error callback to trigger from within the adapter.errorResponseHandler. This will be called on the context and with arguments: data_object, raw_response_data, standardized options, and other adapter-specific arguments.</li>
+		<li><strong>complete</strong> - The error callback to trigger from within the adapter.completeResponseHandler. This will be called on the context and with arguments: data_object, raw_response_data, standardized options, and other adapter-specific arguments.</li>
+		<li><strong>parent</strong> - The parent data object to utilize in the makeUrl method.  This may be 'null' if we're looking to not utilize a parent at all</li>
+		<li><strong>attributes</strong> - The attributes to pass into the data_object's serialize method (reduces which properties are serialized in the resultant JSON)</li>
+		<li><strong>fill_options</strong> - An object of optional options to pass along to the 'fill' method on successful responses</li>
+	</ul>
+</p>
+<div class="alert alert-info">
+	This method is a pre-request method that should always be called with the same four arguments: data_object, type, options, and context.
+</div>
+<div class="alert alert-warning">
+	This method should always be called with the resolved request type (from resolveRequestType).
+</div>
+<dl>
+	<dt data-type="Falcon.Model">data_object</dt>
+	<dd>The data object being prepaired. Should be either a Falcon.Model or a Falcon.Collection</dd>
+	<dt data-type="String">type</dt>
+	<dd>The resolved request type</dd>
+	<dt data-type="Object">options</dt>
+	<dd>The non-standardized options. This may be an object who's values will be carrier over to the output options, a callback function that will be assigned to the 'complete' property, a string that will be split on ',' and the resultant array assigned to the attributes property, or an array which will be assigned to the 'attribute' property.</dd>
+	<dt data-type="mixed">context</dt>
+	<dd>The unresolved request context, will be the context for all of the response handlers</dd>
+</dl>
+{% highlight javascript linenos %}
+var parent_model = new Falcon.Model();
+var collection = new Falcon.Collection(parent_model);
+var other_model = new Falcon.Model();
+var adapter = new Falcon.Adapter();
+var my_callback = function(){}
+
+/*
+	Returns: {
+		url: "",                    //url generated by adapter.makeUrl
+		data: serialized_collection //The collection.serialize() response
+		success: function(){},      //Blank success callback
+		complete: function(){},     //Blank complete callback
+		error: function(){},        //Blank error callback
+		parent: parent_model,       //The collection's parent
+		attributes: null,           //Attributes to serialize
+		fill_options: null,         //Options to pass to the fill method after success
+	}
+*/
+adapter.standardizeOptions( collection, "GET", {}, null ); 
+
+/*
+	Returns: {
+		url: "http://www.falconjs.com",
+		data: {'hello': 'world'},
+		success: my_callback,
+		error: my_callback,
+		complete: my_callback,
+		parent: other_model,
+		attributes: ["id", "name"],
+		fill_options: {'method': 'merge'}
+	}
+*/
+adapter.standardizeOptions( collection, "GET", {
+	"url": "http://www.falconjs.com",
+	"data": {'hello': 'world'},
+	"success": my_callback,
+	"error": my_callback,
+	"complete": my_callback,
+	"parent": other_model,
+	"attributes": ["id", "name"],
+	"fill_options": {'method': 'merge'}
+}, null);
+
+/*
+	Returns: {
+		url: "",
+		data: serialized_collection,
+		success: function(){},
+		complete: my_callback,
+		error: function(){},
+		parent: parent_model,
+		attributes: null,
+		fill_options: null
+	}
+*/
+adapter.standardizeOptions( collection, "GET", my_callback, null );
+
+/*
+	Returns: {
+		url: "",
+		data: serialized_collection,
+		success: function(){},
+		complete: function(){},
+		error: function(){},
+		parent: parent_model,
+		attributes: ["id","name","foo"],
+		fill_options: null
+	}
+*/
+adapter.standardizeOptions( collection, "GET", "id,name,foo", null );
+
+/*
+	Returns: {
+		url: "",
+		data: serialized_collection,
+		success: function(){},
+		complete: function(){},
+		error: function(){},
+		parent: parent_model,
+		attributes: ["id","name","foo"],
+		fill_options: null
+	}
+*/
+adapter.standardizeOptions( collection, "GET", ["id","name","foo"], null );
+{% endhighlight %}
+{% assign methodName = "getTemplate" %}
+{% assign methodExample = "adapter.getTemplate( uri, loaded_callback )" %}
+{% assign returnType = "Falcon.Adapter" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Method used to retrieve a template's HTML and return it to the given callback function as its first argument.  This method should be overriden by inherriting adapters though it does not need to be. By default, this method expects to get a DOM Element's identifier beginning with a '#'. If the element is found then its innerHTML will be passed back to the callback. If no element is found, then the callback is triggered with an empty string.
+</p>
+<dl>
+	<dt data-type="String">uri</dt>
+	<dd>The uri of the template to fetch.</dd>
+	<dt data-type="Function">callback</dt>
+	<dd>A callback method used to return the template HTML</dd>
+</dl>
+{% highlight javascript linenos %}
+var adapter = new Falcon.Adapter();
+
+var log_callback = function(html) {
+	console.log(html);
+};
+
+// Logs: 'Hello World'
+adpater.getTemplate("#hello_world", log_callback);
+
+// Logs: ''
+// an empty string because no element was found
+adpater.getTemplate("#invalid_template", log_callback);
+{% endhighlight %}
+<div class="caption">Application Javascript</div>
+{% highlight html linenos %}
+<template id="hello_world">
+	Hello World
+</template>
+{% endhighlight %}
+<div class="caption">Application HTML</div>
+{% assign methodName = "successResponseHandler" %}
+{% assign methodExample = "adapter.successResponseHandler( data_object, type, options, context, response_args )" %}
+{% include methodOverview.html %}
+<p>
+	Method used to handle success responses. This will parse the raw response data, present the raw data to the data_object's parse() method, and then use that parsed data to call the data_object's fill() method with the parsed_data and fill options (if specified).  This method will also trigger a "fetch" event on GET, "create" event on POST, "save" event on PUT, and "destroy" event on DELETE all with the parsed_data being the trigger arguments. Finally, this method will call the success callback on the given context and with the data_object, raw response data, standardized options, and response_args as its arguments.
+</p>
+<div class="alert alert-info">
+	This method is a post-request method that should always be called with the same five arguments: data_object, type, options, and context, response_args.
+</div>
+<div class="alert alert-warning">
+	This method does not do anything by itself and should be overridden by an inheritting adapter implementation.
+</div>
+<dl>
+	<dt data-type="Falcon.Model">data_object</dt>
+	<dd>The data object being prepaired. Should be either a Falcon.Model or a Falcon.Collection</dd>
+	<dt data-type="String">type</dt>
+	<dd>The resolved request type</dd>
+	<dt data-type="Object">options</dt>
+	<dd>The standardized options</dd>
+	<dt data-type="mixed">context</dt>
+	<dd>The resolved request context</dd>
+	<dt data-type="Object">response_args</dt>
+	<dd>An object that inheritting adapters can and should use to pass along the inheriting adapter implementation-specific data between post-request methods</dd>
+</dl>
+{% assign methodName = "errorResponseHandler" %}
+{% assign methodExample = "adapter.errorResponseHandler( data_object, type, options, context, response_args )" %}
+{% include methodOverview.html %}
+<p>
+	Method to call on erroneous responses. This will parse the raw response data and call the 'error' response method provided in the options on the given context and with the data object, raw response data, standardized options, and the response args as its arguments
+</p>
+<div class="alert alert-info">
+	This method is a post-request method that should always be called with the same five arguments: data_object, type, options, and context, response_args.
+</div>
+<div class="alert alert-warning">
+	This method does not do anything by itself and should be overridden by an inheritting adapter implementation.
+</div>
+<dl>
+	<dt data-type="Falcon.Model">data_object</dt>
+	<dd>The data object being prepaired. Should be either a Falcon.Model or a Falcon.Collection</dd>
+	<dt data-type="String">type</dt>
+	<dd>The resolved request type</dd>
+	<dt data-type="Object">options</dt>
+	<dd>The standardized options</dd>
+	<dt data-type="mixed">context</dt>
+	<dd>The resolved request context</dd>
+	<dt data-type="Object">response_args</dt>
+	<dd>An object that inheritting adapters can and should use to pass along the inheriting adapter implementation-specific data between post-request methods</dd>
+</dl>
+{% assign methodName = "completeResponseHandler" %}
+{% assign methodExample = "adapter.completeResponseHandler( data_object, type, options, context, response_args )" %}
+{% include methodOverview.html %}
+<p>
+	Method to call on completed responses. This will parse the raw response data and call the 'complete' response method provided in the options on the given context and with the data object, raw response data, the standardized options, and the response args as its arguments
+</p>
+<div class="alert alert-info">
+	This method is a post-request method that should always be called with the same five arguments: data_object, type, options, and context, response_args.
+</div>
+<div class="alert alert-warning">
+	This method does not do anything by itself and should be overridden by an inheritting adapter implementation.
+</div>
+<dl>
+	<dt data-type="Falcon.Model">data_object</dt>
+	<dd>The data object being prepaired. Should be either a Falcon.Model or a Falcon.Collection</dd>
+	<dt data-type="String">type</dt>
+	<dd>The resolved request type</dd>
+	<dt data-type="Object">options</dt>
+	<dd>The standardized options</dd>
+	<dt data-type="mixed">context</dt>
+	<dd>The resolved request context</dd>
+	<dt data-type="Object">response_args</dt>
+	<dd>An object that inheritting adapters can and should use to pass along the inheriting adapter implementation-specific data between post-request methods</dd>
+</dl>
+{% assign methodName = "makeUrl" %}
+{% assign methodExample = "adapter.makeUrl( data_object, type, options, context )" %}
+{% assign returnType = "String" %}
+{% assign returnDescription = "The generated url" %}
+{% include methodOverview.html %}
+<p>
+	Called from within the standardizeOptions method to generate a valid URL for the data object being prepaired.  If the input options already have a url property, then that value is returned. Otherwise, the makeUrl() method of the data object is called with the resolvedRequestType and options.parent.
+</p>
+<div class="alert alert-info">
+	This method is a pre-request method that should always be called with the same four arguments: data_object, type, options, and context.
+</div>
+<div class="alert alert-warning">
+	This method should always be called with the resolved request type (from resolveRequestType) and the standardized options (from or within standardizeOptions).
+</div>
+<dl>
+	<dt data-type="Falcon.Model">data_object</dt>
+	<dd>The data object being prepaired. Should be either a Falcon.Model or a Falcon.Collection</dd>
+	<dt data-type="String">type</dt>
+	<dd>The resolved request type</dd>
+	<dt data-type="Object">options</dt>
+	<dd>The partially standardized options</dd>
+	<dt data-type="mixed">context</dt>
+	<dd>The unresolved request context</dd>
+</dl>
+{% highlight javascript linenos %}
+var model = new Falcon.Model({url: "hello_world"});
+var adapter = new Falcon.Adapter();
+
+// Returns: '/hello_world'
+apater.makeUrl( model, "GET", {}, model );
+
+// Returns: '/foo_bar'
+adapter.makeUrl( model, "GET", {url: '/foo_bar'}, model );
+{% endhighlight %}
+{% assign methodName = "parseRawResponseData" %}
+{% assign methodExample = "adapter.parseRawResponseData( data_object, type, options, context, response_args )" %}
+{% assign returnType = "Object" %}
+{% assign returnDescription = "The 'response_args' argument" %}
+{% include methodOverview.html %}
+<p>
+	Method used to parse the raw response data to ensure that it is a javascript array or object to pass along to the data_object's parse() method (eg. Parsing a JSON string). This base implementation does nothing but return the response_args.  It is expected that this method will be overridden by an inheritting adapter who's task it is to parse the data and return it from its version of this method properly.  This method will be called from the adapter.successResponseHandler, adapter.errorResponseHandler, and adapter.completeResponseHandler
+</p>
+<div class="alert alert-info">
+	This method is a post-request method that should always be called with the same five arguments: data_object, type, options, and context, response_args.
+</div>
+<div class="alert alert-warning">
+	This method does not do anything by itself and should be overridden by an inheritting adapter implementation.
+</div>
+<dl>
+	<dt data-type="Falcon.Model">data_object</dt>
+	<dd>The data object being prepaired. Should be either a Falcon.Model or a Falcon.Collection</dd>
+	<dt data-type="String">type</dt>
+	<dd>The resolved request type</dd>
+	<dt data-type="Object">options</dt>
+	<dd>The standardized options</dd>
+	<dt data-type="mixed">context</dt>
+	<dd>The resolved request context</dd>
+	<dt data-type="Object">response_args</dt>
+	<dd>An object that inheritting adapters can and should use to pass along the inheriting adapter implementation-specific data between post-request methods</dd>
+</dl>
+{% highlight javascript linenos %}
+var model = new Falcon.Model();
+var adapter = new Falcon.Adapter();
+
+// Returns: {"hello": "world"}
+apater.parseRawResponseData( model, "GET", options, model, {"hello": "world"} );
+{% endhighlight %}
+{% assign methodName = "resolveContext" %}
+{% assign methodExample = "adapter.resolveContext( data_object, type, options, context )" %}
+{% assign returnType = "mixed" %}
+{% assign returnDescription = "The resolved context" %}
+{% include methodOverview.html %}
+<p>
+	Used to discern the context to call the response handlers on.  If no context is given as the fourth argument or there's no context property of the standardized the data object will be selected as the context. If no fourth argument is given, but a context is present in the standardized options, then the context from the options will be used. Otherwise, if a fourth context argument is given, that context is returned.
+</p>
+<div class="alert alert-info">
+	This method is a pre-request method that should always be called with the same four arguments: data_object, type, options, and context.
+</div>
+<div class="alert alert-warning">
+	This method should always be called with the resolved request type (from resolveRequestType) and the standardized options (from standardizeOptions).
+</div>
+<dl>
+	<dt data-type="Falcon.Model">data_object</dt>
+	<dd>The data object being prepaired. Should be either a Falcon.Model or a Falcon.Collection</dd>
+	<dt data-type="String">type</dt>
+	<dd>The resolved request type</dd>
+	<dt data-type="Object">options</dt>
+	<dd>The standardized options</dd>
+	<dt data-type="mixed">context</dt>
+	<dd>The unresolved request context</dd>
+</dl>
+{% highlight javascript linenos %}
+var model = new Falcon.Model();
+var other_model = new Falcon.Model();
+var third_model = new Falcon.Model();
+var adapter = new Falcon.Adapter();
+
+// returns model
+adapter.resolveContext( model, "GET", {}, null ); 
+
+// returns other_model
+adapter.resolveContext( model, "GET", {context: other_model}, null ); 
+
+// returns third_model
+adapter.resolveContext( model, "GET", {}, third_model ); 
+{% endhighlight %}
+{% assign methodName = "resolveRequestType" %}
+{% assign methodExample = "adapter.resolveRequestType( data_object, type, options, context )" %}
+{% assign returnType = "String" %}
+{% assign returnDescription = "The resolved request type. 'GET' if we were unable to resolve" %}
+{% include methodOverview.html %}
+<p>
+	Used to reslve and standardize the request type to either GET, PUT, POST, or DELETE.  This method will try its best to select the correct type and ensure that it's always returned in the correct format (trimmed and capitalized).
+</p>
+<div class="alert alert-info">
+	This method is a pre-request method that should always be called with the same four arguments: data_object, type, options, and context.
+</div>
+<dl>
+	<dt data-type="Falcon.Model">data_object</dt>
+	<dd>The data object being prepaired. Should be either a Falcon.Model or a Falcon.Collection</dd>
+	<dt data-type="String">type</dt>
+	<dd>The unresolved request type</dd>
+	<dt data-type="Object">options</dt>
+	<dd>The non-standardized options</dd>
+	<dt data-type="mixed">context</dt>
+	<dd>The unresolved request context, will be the context for all of the response handlers</dd>
+</dl>
+{% highlight javascript linenos %}
+var model = new Falcon.Model();
+var adapter = new Falcon.Adapter();
+
+adapter.resolveRequestType( model, "get", {}, model ); // GET
+adapter.resolveRequestType( model, "put", {}, model ); // PUT
+adapter.resolveRequestType( model, "post", {}, model ); // POST
+adapter.resolveRequestType( model, "delete", {}, model ); // DELETE
+adapter.resolveRequestType( model, "invalid", {}, model ); // GET
+{% endhighlight %}
+{% assign methodName = "serializeData" %}
+{% assign methodExample = "adapter.serializeData( data_object, type, options, context )" %}
+{% assign returnType = "String" %}
+{% assign returnDescription = "The generated url" %}
+{% include methodOverview.html %}
+<p>
+	Serializes the data_object by calling its serialize method with the 'attributes' peropety of the standardized options on POST and PUT request types. If a 'data' property already exists on the options, however, then that will always be returned and the 'serialize' method will never be called. The result of this method is typically assigned to the 'data' property of the standradized options from within the standardizeOptions method.
+</p>
+<div class="alert alert-info">
+	This method is a pre-request method that should always be called with the same four arguments: data_object, type, options, and context.
+</div>
+<div class="alert alert-warning">
+	This method should always be called with the resolved request type (from resolveRequestType) and the standardized options (from or within standardizeOptions).
+</div>
+<dl>
+	<dt data-type="Falcon.Model">data_object</dt>
+	<dd>The data object being prepaired. Should be either a Falcon.Model or a Falcon.Collection</dd>
+	<dt data-type="String">type</dt>
+	<dd>The resolved request type</dd>
+	<dt data-type="Object">options</dt>
+	<dd>The partially standardized options</dd>
+	<dt data-type="mixed">context</dt>
+	<dd>The unresolved request context</dd>
+</dl>
+{% highlight javascript linenos %}
+var model = new Falcon.Model({"hello": "world", "foo": "bar"});
+var adapter = new Falcon.Adapter();
+
+// Returns: undefined
+apater.serializeData( model, "GET", {}, model );
+
+// Returns: {"id": null, "hello": "world", "foo": "bar"}
+apater.serializeData( model, "POST", {}, model );
+
+// Returns: {"id": null, "hello": "world", "foo": "bar"}
+apater.serializeData( model, "PUT", {}, model );
+
+// Returns: undefined
+apater.serializeData( model, "DELETE", {}, model );
+
+// Returns: {"foo": "bar"}
+apater.serializeData( model, "POST", {attributes: ["foo"]}, model );
+
+// All of these Returns: {"free": "bird"}
+apater.serializeData( model, "GET", {data: {"free": "bird"}}, model );
+apater.serializeData( model, "POST", {data: {"free": "bird"}}, model );
+apater.serializeData( model, "PUT", {data: {"free": "bird"}}, model );
+apater.serializeData( model, "DELETE", {data: {"free": "bird"}}, model );
+{% endhighlight %}

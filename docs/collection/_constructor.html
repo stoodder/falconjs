@@ -1,0 +1,26 @@
+{% assign methodName = "initialize" %}
+{% assign methodExample = "new Falcon.Collection( [models], [parent] )" %}
+{% assign returnType = "Falcon.Collection" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	The constructor method for a Falcon Collection.  Creates a new instance of a Falcon Collection and should be overridden instead of overriding the internal constructor method.
+</p>
+<dl>
+	<dt data-type="Array">models</dt>
+	<dd>An initial set of models to populate the collection with</dd>
+	<dt data-type="Falcon.Model">parent</dt>
+	<dd>The owner of this collection, used for generating urls when making requests to the server.</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({
+	model: Dog,
+
+	initialize: function() {
+		console.log("Collecting Dogs");
+	}
+});
+
+new Dogs(); // Collecting Dogs
+{% endhighlight %}

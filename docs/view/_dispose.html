@@ -1,0 +1,50 @@
+{% assign methodName = "dispose" %}
+{% assign methodExample = "view.dispose()" %}
+{% include methodOverview.html %}
+<p>
+	Executed when this view is disposed (removed from the DOM). This method is called from the unrender method which itself is called from the 'view' binding.  This should be overridden by inheriting classes and should primarily be used for removing any 'on-display' functionality that was added in the display method
+</p>
+{% highlight javascript linenos %}
+var DogView = Falcon.View.extend({
+	url: '#dog_view',
+
+	dispose: function()
+	{
+		console.log("Dog View Displayed No Longer")
+	}
+});
+
+var view_model = {
+	showing_dog_view: ko.observable(true),
+	my_dog_view: new DogView()
+};
+
+console.log("Initializing");
+setTimeout(function() {
+	view_model.show_dog_view(false)
+}, 5000);
+
+Falcon.apply(view_model, '#application');
+{% endhighlight %}
+<div class="caption">Application Javascript</div>
+
+{% highlight html linenos %}
+<div id="application">
+	<!-- ko if: showing_dog_view -->
+		<!-- ko view: my_dog_view --><!-- /ko -->
+	<!-- /ko -->
+</div>
+<template id="dog_view">
+	This is the Dog View
+</template>
+{% endhighlight %}
+<div class="caption">Application HTML</div>
+
+{% highlight console linenos %}
+... my_dog_view is currently rendered because showing_dog_view is set to true
+=>  Initializing
+... Waits five seconds and then sets show_dog_view to false, 
+	my_dog_view will no longer appear in the DOM
+=>  Dog View Displayed No Longer
+{% endhighlight %}
+<div class="caption">Console Output</div>

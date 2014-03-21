@@ -1,0 +1,22 @@
+{% assign methodName = "create" %}
+{% assign methodExample = "model.create( [options] )" %}
+{% assign returnType = "mixed" %}
+{% assign returnDescription = "Whatever the response from the adapter's sync method is" %}
+{% include methodOverview.html %}
+<p>
+	Method used to create a new model, with this model's data, on the server. This method is really just a wrapper around the 'sync' method with a request type of 'POST' auto-filled.
+</p>
+<dl>
+	<dt data-type="Object">options</dt>
+	<dd>The options to pass into the 'sync' method</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend({ url: "dog.json" });
+
+var dog = new Dog({name: "Fido"});
+
+// Create a dog
+// Sends the data {"name": "Fido"} to '/dog.json'
+// If using the jQuery adapter, this will be an ajax POST to '/dog.json'
+dog.create();
+{% endhighlight %}

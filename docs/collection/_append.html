@@ -1,0 +1,34 @@
+{% assign methodName = "append" %}
+{% assign methodExample = "collection.append( items )" %}
+{% assign returnType = "Falcon.Collection" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Append a single model or an array of models to the end of a collection. Append is simply a wrapper for the fill method with the option {'method': 'append'} pre-set.
+</p>
+<dl>
+	<dt data-type="Falcon.Model">item</dt>
+	<dd>A model to add to the end of the collection</dd>
+</dl>
+<dl>
+	<dt data-type="Array">items</dt>
+	<dd>An array of models to add to the end of the collection</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
+
+var dogs = new Dogs();
+
+dogs.append({"name": "Fido"});
+console.log( dogs.pluck("name") ); // [Fido]
+
+dogs.append( new Dog({name: "Spot"}) ); 
+console.log( dogs.pluck("name") ); // [Fido, Spot]
+
+dogs.append([
+	{name: "Skip"},
+	{name: "Bump"}
+]);
+console.log( dogs.pluck("name") ); // [Fido, Spot, Skip, Bump]
+{% endhighlight %}

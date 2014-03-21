@@ -1,0 +1,21 @@
+<div class="section-header">
+	<a id="{{methodName | replace:' ','_' }}" class="hidden"></a>
+	{{methodName}}
+	{% if methodExample %}
+		<small class="section-method">
+			{{methodExample}}
+		</small>
+	{% endif %}
+	{% if returnDescription %}
+		<div class="section-return">
+			{% if returnType %}
+				<span class="section-return-type">{{returnType}}</span>
+			{% endif %}
+			{{returnDescription}}
+		</div>
+	{% endif %}
+</div>
+{% assign methodName = false %}
+{% assign methodExample = false %}
+{% assign returnType = false %}
+{% assign returnDescription = false %}

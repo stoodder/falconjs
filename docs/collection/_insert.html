@@ -1,0 +1,49 @@
+{% assign methodName = "insert" %}
+{% assign methodExample = "collection.insert( insert_model, model )" %}
+{% assign returnType = "Falcon.Collection" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Method used to insert a model before another within the collection. If no model is found in the collection, the model is added to the end of the collection.  Alternatively, an iterator can be given and the model will be inserted before the first model to pass the truth test
+</p>
+<dl>
+	<dt data-type="Falcon.Model">insert_model</dt>
+	<dd>The model to insert</dd>
+	<dt data-type="Falcon.Model">model</dt>
+	<dd>The model to insert before.</dd>
+</dl>
+<dl>
+	<dt data-type="Falcon.Model">insert_model</dt>
+	<dd>The model to insert</dd>
+	<dt data-type="Number | String">id</dt>
+	<dd>The model id to insert before.</dd>
+</dl>
+<dl>
+	<dt data-type="Falcon.Model">insert_model.</dt>
+	<dd>The model to insert</dd>
+	<dt data-type="Function">iterator</dt>
+	<dd>The iterator to truth test each model against</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
+
+var fido = new Dog({id: 1, "name": "Fido"});
+var skip = new Dog({id: 2, "name": "Skip"});
+var bump = new Dog({id: 3, "name": "Bump"});
+var bucko = new Dog({id: 4, "name": "Bucko"});
+var spot = new Dog({id: 5, "name": "Spot"});
+
+var dogs = new Dogs([ fido, skip ]);
+
+dogs.insert( bump, skip ); // insert bump before skip
+console.log( dogs.pluck("name") ); // [Fido, Bump, Skip]
+
+dogs.insert( bucko, 2 ); // insert bucko before skip
+console.log( dogs.pluck("name") ); // [Fido, Bump, Bucko, Skip]
+
+dogs.insert( spot, function(dog) {
+	return dog.get("name") === "Bump";
+});
+console.log( dogs.pluck("name") ); // [Fido, Spot, Bump, Bucko, Skip]
+{% endhighlight %}

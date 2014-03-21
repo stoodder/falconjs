@@ -1,0 +1,23 @@
+{% assign methodName = "extend" %}
+{% assign methodExample = "Falcon.Model.extend( protoProps, [staticProps] )" %}
+{% include methodOverview.html %}
+<p>
+	Method used to create a new model that inherits from the base Falcon Model.
+</p>
+<dl>
+	<dt data-type="Object">protoProps</dt>
+	<dd>Properties for the prototype of a class</dd>
+	<dt data-type="Object">staticProps</dt>
+	<dd>Static properties for a given object</dd>
+</dl>
+{% highlight javascript linenos%}
+var Dog = Falcon.Model.extend({
+	url: "dog.json"
+});
+
+var dog = new Dog();
+
+console.log( dog instanceof Falcon.Object ); // true
+console.log( dog instanceof Falcon.Model ); // true
+console.log( dog instanceof Dog ); // true
+{% endhighlight %}

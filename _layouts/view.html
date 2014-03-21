@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+	{% include head.html %}
+	<body>
+		{% assign docs_selected = true %}
+		{% include header.html %}
+		<div id="subheader">
+			<div class="subheader-inner">
+				<h1>
+					Falcon.View
+					<small>
+						<a href="/docs/object">extends Falcon.Object</a>
+					</small>
+				</h1>
+				<h4>Views represent the logic for screens and widgets. They handle how models and collections are displayed and interacted with.</h4>
+			</div>
+		</div>
+		<div id="content">
+			{% assign expand_view_menu = true %}
+			{% include menu.html %}
+			<div class="content-inner">
+				{{ content }}
+			</div>
+		</content>
+		{% include scripts.html %}
+	</body>
+</html>

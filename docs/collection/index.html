@@ -1,0 +1,1572 @@
+---
+layout: collection
+---
+{% assign methodName = "initialize" %}
+{% assign methodExample = "new Falcon.Collection( [models], [parent] )" %}
+{% assign returnType = "Falcon.Collection" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	The constructor method for a Falcon Collection.  Creates a new instance of a Falcon Collection and should be overridden instead of overriding the internal constructor method.
+</p>
+<dl>
+	<dt data-type="Array">models</dt>
+	<dd>An initial set of models to populate the collection with</dd>
+	<dt data-type="Falcon.Model">parent</dt>
+	<dd>The owner of this collection, used for generating urls when making requests to the server.</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({
+	model: Dog,
+
+	initialize: function() {
+		console.log("Collecting Dogs");
+	}
+});
+
+new Dogs(); // Collecting Dogs
+{% endhighlight %}
+{% assign methodName = "extend" %}
+{% assign methodExample = "Falcon.Collection.extend( protoProps, [staticProps] )" %}
+{% include methodOverview.html %}
+<p>
+	Method used to create a new collection that inherits from the base Falcon Collection.
+</p>
+<dl>
+	<dt data-type="Object">protoProps</dt>
+	<dd>Properties for the prototype of a class</dd>
+	<dt data-type="Object">staticProps</dt>
+	<dd>Static properties for a given object</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({
+	model: Dog,
+	bark: function()
+	{
+		console.log("All the dogs bark");
+	}
+},{
+	say: function() {
+		console.log("Woof!");
+	}
+});
+
+var dogs = new Dogs();
+
+Dogs.say(); // Woof!
+dogs.bark(); // "All the dogs bark";
+{% endhighlight %}
+{% assign methodName = "model" %}
+{% assign methodExample = "collection.model" %}
+{% include methodOverview.html %}
+<p>
+	The prototype of the model of each item in this collection. This is used to ensure that all models within this collection are the correct type. It is also used to determine the relative url for models in this collection when making sync requests to the server.
+</p>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
+{% endhighlight %}
+{% assign methodName = "parent" %}
+{% assign methodExample = "collection.parent" %}
+{% include methodOverview.html %}
+<p>
+	This represents the 'parent' object that holds these models.  Generally this is used for determining the URL structure of rest objects in the makeURL() routine. This should also be a Model.
+</p>
+{% highlight javascript linenos %}
+var Owner = Falcon.Model.extend();
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
+
+var owner = new Owner();
+var dogs = new Dogs( owner ); // Owner becomes the 'parent' of dogs
+
+console.log( dogs.parent === owner ); // true
+{% endhighlight %}
+{% assign methodName = "defaults" %}
+{% assign methodExample = "collection.defaults" %}
+{% include methodOverview.html %}
+<p>
+<p>
+	This is a hash map of non-observable defaults to create whenever an instance of this collection is initialized. If the value is a function, the function is called and the return value is assigned. Functions are called in context of this instance and with all the same arguments from the constructor method. Defaults are created before observables which means that any duplicate attributes between the observables (as in the 'observables' attribute on Falcon.Object) and default attributes will be overridden by those in the observables
+</p>
+{% highlight javascript linenos %}
+var Dogs = Falcon.Collection.extend({
+	defaults: {
+		"are_tame": true,
+		"name": function() {
+			return ( name || "Fido" );
+		}
+	}
+});
+
+var dogs = new Dogs();
+console.log( dogs.name ); // Fido
+console.log( dogs.are_tame ); // true
+{% endhighlight %}
+{% assign methodName = "observables" %}
+{% assign methodExample = "collection.observables" %}
+{% include methodOverview.html %}
+<p>
+<p>
+	This is a hash map of the default observables and values that will become properties of this collection when a new instance is created. If the value of a specific key is a function a computed observable is created. If the value is an object with the keys 'read' and/or 'write' a computed is created with those object keys as the definition for the computed observable. All computed observables are created with this objects's instance as their context.
+</p>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({
+	model: Dog,
+
+	observables: {
+		"are_tame": true,
+		"has_dogs": function() {
+			return this.length() > 0;
+		}
+	}
+});
+
+var dogs = new Dogs();
+
+console.log( ko.isObservable( dogs.are_tame ) ); // true
+console.log( ko.isComputed( dogs.has_dogs ) ); // true
+
+console.log( dogs.are_tame() ); // true
+console.log( dogs.has_dogs() ); // false
+
+dog.push(new Dog());
+
+console.log( dogs.has_dogs() ); // true
+{% endhighlight %}
+{% assign methodName = "all" %}
+{% assign methodExample = "collection.all()" %}
+{% assign returnType = "Array" %}
+{% assign returnDescription = "An array of all of the models in the collection" %}
+{% include methodOverview.html %}
+<p>
+	Used to retrieve a basic array of all of the models in this collection
+</p>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
+
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"}
+]);
+
+console.log( dogs.all() ); // [Fido, Skip]
+{% endhighlight %}
+{% assign methodName = "any" %}
+{% assign methodExample = "collection.any( iterator )" %}
+{% assign returnType = "Boolean" %}
+{% assign returnDescription = "Does this collection match any of the itertor tests or models?" %}
+{% include methodOverview.html %}
+<p>
+	Method used to check if any of the models in the collection match the given iterator, id, or model. Returns true if at least of the models match the truth test.
+</p>
+<dl>
+	<dt data-type="Function">iterator</dt>
+	<dd>Method used to test each model against.</dd>
+</dl>
+<dl>
+	<dt data-type="String or Number">id</dt>
+	<dd>The id to compare against each model in the collection.</dd>
+</dl>
+<dl>
+	<dt data-type="Falcon.Model">model</dt>
+	<dd>A model to compare against each of the collection's models using an id-based comparison.</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
+
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
+
+var has_fido = dogs.any(function(dog) {
+	return dog.get("name") === "Fido";
+});
+
+var has_spot = dogs.any(function(dog) {
+	return dog.get("name") === "Spot";
+});
+
+console.log(has_fido); // true
+console.log(has_spot); // false
+{% endhighlight %}
+{% assign methodName = "append" %}
+{% assign methodExample = "collection.append( items )" %}
+{% assign returnType = "Falcon.Collection" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Append a single model or an array of models to the end of a collection. Append is simply a wrapper for the fill method with the option {'method': 'append'} pre-set.
+</p>
+<dl>
+	<dt data-type="Falcon.Model">item</dt>
+	<dd>A model to add to the end of the collection</dd>
+</dl>
+<dl>
+	<dt data-type="Array">items</dt>
+	<dd>An array of models to add to the end of the collection</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
+
+var dogs = new Dogs();
+
+dogs.append({"name": "Fido"});
+console.log( dogs.pluck("name") ); // [Fido]
+
+dogs.append( new Dog({name: "Spot"}) ); 
+console.log( dogs.pluck("name") ); // [Fido, Spot]
+
+dogs.append([
+	{name: "Skip"},
+	{name: "Bump"}
+]);
+console.log( dogs.pluck("name") ); // [Fido, Spot, Skip, Bump]
+{% endhighlight %}
+{% assign methodName = "at" %}
+{% assign methodExample = "collection.at( index )" %}
+{% assign returnType = "Falcon.Model" %}
+{% assign returnDescription = "The model at the specified index" %}
+{% include methodOverview.html %}
+<p>
+	Method used to retrieve a model from this collection at a specific, zero-based, index. If no model exists at the specified index, or the index is invalid, 'null' is returned.
+</p>
+<dl>
+	<dt data-type="Number">index</dt>
+	<dd>zero-based index of the model to look up in the collection</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
+
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
+
+console.log( dogs.at(1).get("name") ); // Skip
+console.log( dogs.at(5) ); // null
+{% endhighlight %}
+{% assign methodName = "chain" %}
+{% assign methodExample = "collection.chain()" %}
+{% assign returnType = "ChainedCollection" %}
+{% assign returnDescription = "A Chained collection object with the sort, filter, without, and slice methods overridden" %}
+{% include methodOverview.html %}
+<p>
+	Method used to create a chained version of this collection. A Chained Collection allows us to chain together mutliple filter methods.  Typically, when calling 'sort', 'without', 'filter', or 'slice', a javascript array is returned and no other collection filter methods can be called on the resultant array. 'chain' fixes this and allows us to string together multiple filter methods.
+</p>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
+
+var dogs = new Dogs([
+	{"id": 1, "name": "Fido", "is_tame": true},
+	{"id": 2, "name": "Skip", "is_tame": true},
+	{"id": 3, "name": "Bump", "is_tame": true},
+	{"id": 4, "name": "Bucko", "is_tame": false},
+	{"id": 5, "name": "Spot", "is_tame": true},
+	{"id": 6, "name": "Biscuit", "is_tame": true}
+]);
+
+var odd_dogs = dogs.chain().without(2).without(4).without(6);
+
+var tame_b_dogs = dogs.chain().filter(function(dog) {
+	return dog.get("name").charAt(0) === "B";
+}).filter(function(dog) {
+	return dog.get("is_tame")
+});
+
+var sorted_b_dogs = dogs.chain().filter(function(dog) {
+	return dog.get("name").charAt(0) === "B";
+}).sort(function(dog_a, dog_b) {
+	var name_a = dog_a.get("name");
+	var name_b = dog_b.get("name");
+
+	if( name_a < name_b ) { return -1; }
+	if( name_a > name_b ) { return 1; }
+	return 0;
+});
+
+console.log( odd_dogs.pluck("name") ); // [Fido, Bump, Spot]
+console.log( tame_b_dogs.pluck("name") ); // [Bump, Biscuit]
+console.log( sorted_b_dogs.pluck("name") ); // [Biscuit, Bucko, Bump]
+{% endhighlight %}
+{% assign methodName = "clone" %}
+{% assign methodExample = "collection.clone( [attributes], [parent] )" %}
+{% assign returnType = "Falcon.Collection" %}
+{% assign returnDescription = "A clone of this collection" %}
+{% include methodOverview.html %}
+<p>
+	Method used to create a deep clone of this collection and it's models. This method can only select certain attributes from each of the models in the collection.  If a parent is given, then the resultant collection will have that parent rather than the original collection's parent. If 'null' is given for parent, then the resultant collection will have no parent set.
+</p>
+<dl>
+	<dt data-type="Object">attributes</dt>
+	<dd>An object or an array of attributes to copy from each model in this collection. If this is not provided all attributes will be copied.</dd>
+	<dt data-type="Falcon.Model">parent</dt>
+	<dd> An override of the parent to set in the resultant collection. If 'null' is explicitly given, then the resultant collection will be parent-free</dd>
+</dl>
+{% highlight javascript linenos %}
+var Owner = Falcon.Model.extend();
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
+
+var owner = new Owner();
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+], owner);
+
+var dogs_clone = dogs.clone(null);
+
+console.log( dogs === dogs_clone ); // false
+console.log( dogs.length() === dogs_clone.length() ); // true
+console.log( dogs.at(2) === dogs_clone.at(2) ); // false
+console.log( dogs.parent === owner); // true
+console.log( dogs_clone.parent === null); // true
+{% endhighlight %}
+{% assign methodName = "comparator" %}
+{% assign methodExample = "collection.comparator" %}
+{% include methodOverview.html %}
+<p>
+	Method used to sort this collection when a new model(s) is added.  By default, this is null and no sorting will occur.  Note: If this is set then any model that is inserted into this collection will be sorted (regardless of append, prepend, etc.).
+</p>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({
+	model: Dog,
+
+	//Sort names ascending
+	comparator: function(dog_a, dog_b) {
+		name_a = dog_a.get("name");
+		name_b = dog_b.get("name");
+
+		if(name_a < name_b) { return -1; }
+		if(name_a > name_b) { return 1; }
+		return 0;
+	}
+});
+
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
+
+console.log( dogs.at(0).get("name") ); // Bucko
+console.log( dogs.at(1).get("name") ); // Bump
+console.log( dogs.at(2).get("name") ); // Fido
+console.log( dogs.at(3).get("name") ); // Skip
+{% endhighlight %}
+{% assign methodName = "create" %}
+{% assign methodExample = "collection.create( data, [options] )" %}
+{% assign returnType = "mixed" %}
+{% assign returnDescription = "Whatever the response from the adapter's sync method is" %}
+{% include methodOverview.html %} 
+<p>
+	Method used to both create and add a model on the server and to this collection.  An optional options argument can be set to define options for the sync and fill methods.
+</p>
+<dl>
+	<dt data-type="Object">data</dt>
+	<dd>The raw data that defines the model to be created based on the collection's 'model' attribute.</dd>
+	<dt data-type="Object">options</dt>
+	<dd>The options to pass to the sync and fill methods.</dd>
+</dl>
+<dl>
+	<dt data-type="Falcon.Model">model</dt>
+	<dd>The model to create on the server and to add to this collection. This model's data will be unwrapped and a new model will be created in this collection if this argument is set.</dd>
+	<dt data-type="Object">options</dt>
+	<dd>See Above.</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend({url: "dog.json"});
+var Dogs = Falcon.Collection.extend({model: Dog});
+
+var dogs = new Dogs();
+
+// Sends a POST request to '/dog.json'. Upon success, appends
+// the new dog model to the end of the dogs collection.
+dogs.create({"name": "Fido"}); 
+dogs.create(new Dog({"name": "Spot"})); 
+{% endhighlight %}
+{% assign methodName = "destroy" %}
+{% assign methodExample = "collection.destroy( model, [options] )" %}
+{% assign returnType = "mixed" %}
+{% assign returnDescription = "Whatever the response from the adapter's sync method is" %}
+{% include methodOverview.html %} 
+<p>
+	Method used to both remove a model from this collection and delete it on the server. This method takes either an iterator, a model id, or a model to look up an existing model within this collection. If a model is given, it does not need to be the same instance of any model in this collection but rather an identical model based on its 'id'. If no models are found, then null is returned.  If the delete method from the server fails, this method does not remove anything from the collection.
+</p>
+<dl>
+	<dt data-type="Falcon.Model">model</dt>
+	<dd>The model to delete from the server and, upon successful delete, remove from this collection.</dd>
+	<dt data-type="Object">options</dt>
+	<dd>An optional set of options to pass into the 'sync' method when deleting the model from the server</dd>
+</dl>
+<dl>
+	<dt data-type="String or Integer">id</dt>
+	<dd>The id of the model to remove</dd>
+	<dt data-type="Object">options</dt>
+	<dd>An optional set of options to pass into the 'sync' method when deleting the model from the server</dd>
+</dl>
+<dl>
+	<dt data-type="Function">iterator</dt>
+	<dd>Iterator that can be used to find the first instance of a matching model in this collection.</dd>
+	<dt data-type="Object">options</dt>
+	<dd>An optional set of options to pass into the 'sync' method when deleting the model from the server</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend({url: "dog.json"});
+var Dogs = Falcon.Collection.extend({model: Dog});
+
+var fido = new Dog({"id": 1, "name": "Fido"});
+var spot = new Dog({"id": 2, "name": "Spot"});
+var skip = new Dog({"id": 3, "name": "Skip"});
+
+var dogs = new Dogs([ fido, spot, skip ]);
+
+// Sends a DELETE request to '/dog/{dog_id}.json'. Upon success, removes
+// the specific model from the collection.
+
+// deletes fido
+dogs.destroy(fido); 
+
+ // deletes spot
+dogs.destroy(2);
+
+ // deletes skip
+dogs.destroy(function(dog) {
+	return dog.get("name") === "Skip";
+});
+{% endhighlight %}
+{% assign methodName = "each" %}
+{% assign methodExample = "collection.each( iterator, [context] )" %}
+{% assign returnType = "Falcon.Collection" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Iterates over each model in this collection based on a given iterator. For each model that exists in this collection, the iterator method is called with the model passed into the first argument and that model's index in the collection passed into the second argument.
+</p>
+<dl>
+	<dt data-type="Function">iterator([index], model)</dt>
+	<dd>A function used to iterate over each model in this collection. The method will be called with each model passed in as the first argument and, optionally, the current index being as the second aguments.</dd>
+	<dt data=type="mixed">context</dt>
+	<dd>Optionally, the context to apply to the iterator function.</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
+
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
+
+// Dog's name is Fido
+// Dog's name is Skip
+// Dog's name is Bump
+// Dog's name is Bucko
+dogs.each(function(dog) {
+	console.log("Dog's name is " + dog.get("name") );
+});
+{% endhighlight %}
+{% assign methodName = "fetch" %}
+{% assign methodExample = "collection.fetch( [options] )" %}
+{% assign returnType = "mixed" %}
+{% assign returnDescription = "Whatever the response from the adapter's sync method is" %}
+{% include methodOverview.html %} 
+<p>
+	Shorthand method for a GET sync request to get all of the models from the data source.
+</p>
+<dl>
+	<dt data-type="Object">options</dt>
+	<dd>The options to pass to the 'sync' method</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend({url: 'dog.json'});
+var Dogs = Falcon.Collection.extend({model: Dog});
+
+var dogs = new Dogs();
+
+dogs.fetch() // 'GET' request to '/dog.json'
+{% endhighlight %}
+{% assign methodName = "fill" %}
+{% assign methodExample = "collection.fill( items, [options] )" %}
+{% assign returnType = "Falcon.Collection" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Method used to add new models to the collection. By default, this method just replaces all of the existing models in the collection. Optionally, one may define how models are added to the collection by defining the 'method' attribute of the options argument. 'method' can be either 'replace', 'append', 'prepend', 'merge', or 'insert'. By default, 'replace' is chosen.
+</p>
+<dl>
+	<dt data-type="Array">items</dt>
+	<dd>An array of models or model-like objects to add to the collection.</dd>
+	<dt data-type="Object">options</dt>
+	<dd>An object of options to use when filling this collection with the given models. The 'method' attribute of options can be used to dictate how the models are added to this collection. The possible options are:
+		<ul>
+			<li>
+				<strong>{method: 'replace'}</strong> - Relays hte information onto the replace method
+			</li>
+			<li>
+				<strong>{method: 'append'}</strong> - Relays hte information onto the append method
+			</li>
+			<li>
+				<strong>{method: 'prepend'}</strong> - Relays hte information onto the prepend method
+			</li>
+			<li>
+				<strong>{method: 'merge'}</strong> - Relays the information onto the merge method.
+			</li>
+			<li>
+				<strong>{method: 'insert', ['index': 0], ['iterator': function(){}], ['model': Falcon.Model]}</strong> - Relays the information and options onto the insert method.
+			</li>
+		</ul>
+		by default, the 'replace' method is chosen.
+	</dd>
+</dl>
+<dl>
+	<dt data-type="Falcon.Model">item</dt>
+	<dd>A model to add to the collection.</dd>
+	<dt data-type="Object">options</dt>
+	<dd>See Above</dd>
+</dl>
+
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
+
+var dogs = new Dogs([
+	{name: "Skip"},
+	{name: "Spot"}
+]);
+
+console.log( dogs.pluck("name") ); // [Skip, Spot]
+
+dogs.fill([
+	{'name': "Fido"},
+	{'name': "Bump"}
+]);
+
+console.log( dogs.pluck("name") ); // [Fido, Bump]
+{% endhighlight %}
+<div class="caption">Example of default fill method</div>
+
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
+
+var dogs = new Dogs([
+	{name: "Skip"},
+	{name: "Spot"}
+]);
+
+console.log( dogs.pluck("name") ); // [Skip, Spot]
+
+dogs.fill([
+	{'name': "Fido"},
+	{'name': "Bump"}
+], {method: 'append'});
+
+console.log( dogs.pluck("name") ); // [Skip, Spot, Fido, Bump]
+{% endhighlight %}
+<div class="caption">Example of append fill method</div>
+
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
+
+var dogs = new Dogs([
+	{name: "Skip"},
+	{name: "Spot"}
+]);
+
+console.log( dogs.pluck("name") ); // [Skip, Spot]
+
+dogs.fill([
+	{'name': "Fido"},
+	{'name': "Bump"}
+], {method: 'prepend'});
+
+console.log( dogs.pluck("name") ); // [Fido, Bump, Skip, Spot]
+{% endhighlight %}
+<div class="caption">Example of prepend fill method</div>
+
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
+
+var dogs = new Dogs([
+	{id: 1, name: "Skip"},
+	{id: 2, name: "Spot"}
+]);
+
+console.log( dogs.pluck("name") ); // [Skip, Spot]
+
+dogs.fill([
+	{id: 2, 'name': "Fido"},
+	{id: 3, 'name': "Bump"}
+], {method: 'merge'});
+
+console.log( dogs.pluck("name") ); // [Skip, Fido, Bump]
+{% endhighlight %}
+<div class="caption">Example of merge fill method</div>
+
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
+
+var dogs = new Dogs([
+	{name: "Skip"},
+	{name: "Spot"}
+]);
+
+console.log( dogs.pluck("name") ); // [Skip, Spot]
+
+dogs.fill([
+	{'name': "Fido"},
+	{'name': "Bump"}
+], {
+	method: 'insert',
+	index: 1
+});
+
+console.log( dogs.pluck("name") ); // [Skip, Fido, Bump, Spot]
+{% endhighlight %}
+<div class="caption">Example of insert fill method</div>
+{% assign methodName = "filter" %}
+{% assign methodExample = "collection.filter( [iterator] )" %}
+{% assign returnType = "Array" %}
+{% assign returnDescription = "An array of the matched models" %}
+{% include methodOverview.html %}
+<p>
+	Filter method used to get an array of all the models that match the given truth-test iterator.
+</p>
+<dl>
+	<dt data-type="Function">iterator</dt>
+	<dd>An iterator to truth-test each model in the collection.</dd>
+</dl>
+<dl>
+	<dt data-type="String | Number">id</dt>
+	<dd>The id of models to match against in the collection</dd>
+</dl>
+<dl>
+	<dt data-type="Falcon.Model">model</dt>
+	<dd>A model to look up in the collection</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
+
+var my_dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
+
+var dogs_with_b_names = my_dogs.filter(function(dog) {
+	return dog.get("name").charAt(0) === "B";
+});
+
+console.log( dogs_with_b_names ); // [Bump, Bucko]
+{% endhighlight %}
+{% assign methodName = "first" %}
+{% assign methodExample = "collection.first( [iterator] )" %}
+{% assign returnType = "Falcon.Model" %}
+{% assign returnDescription = "The first model in this collection or the first model that passes the iterator's truth test. If no model was found, then 'null' is returned." %}
+{% include methodOverview.html %}
+<p>
+	Method used to obtain the first model in the collection. If an iterator is given, then each model starting from the beginning and moving towards the end of the collection, is tested. The first model to pass the truth test is returned. If no model could be found, then 'null' is returned.
+</p>
+<dl>
+	<dt data-type="Function">iterator</dt>
+	<dd>A function to check each model in this collection against. If the iterator returns true then that model is selected.</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
+
+var dogs = new Dogs([
+	{id: 1, "name": "Fido"},
+	{id: 2, "name": "Skip"},
+	{id: 3, "name": "Bump"},
+	{id: 4, "name": "Bucko"}
+]);
+
+var first_dog = dogs.first();
+var first_b_dog = dogs.first(function(dog) {
+	return dog.get("name").charAt(0) === "B";
+});
+
+console.log( first_dog.get("name") ); // Fido
+console.log( first_b_dog.get("name") ); // Bump
+{% endhighlight %}
+{% assign methodName = "indexOf" %}
+{% assign methodExample = "collection.indexOf( model )" %}
+{% assign returnType = "Number" %}
+{% assign returnDescription = "The index of the matched model, -1 if none found" %}
+{% include methodOverview.html %}
+<p>
+	Find the index for the specified model or where the iterator first returns true. -1 is returned if nothing matches.
+</p>
+<dl>
+	<dt data-type="Falcon.Model">model</dt>
+	<dd>The model to look up.</dd>
+</dl>
+<dl>
+	<dt data-type="Number | String">id</dt>
+	<dd>The id of the model to look up.</dd>
+</dl>
+<dl>
+	<dt data-type="Function">iterator</dt>
+	<dd>Truth test iterator function to test each model with.</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
+
+var fido = new Dog({id: 1, "name": "Fido"});
+var skip = new Dog({id: 2, "name": "Skip"});
+var bump = new Dog({id: 3, "name": "Bump"});
+var bucko = new Dog({id: 4, "name": "Bucko"});
+
+var dogs = new Dogs([fido, skip, bump, bucko]);
+
+var index_bump = dogs.indexOf(bump);
+var index_id = dogs.indexOf(2);
+var index_iterator = dogs.indexOf(function(dog) {
+	return dog.get("name") === "Bucko";
+});
+
+console.log( index_bump );  // 2
+console.log( index_id );  // 1
+console.log( index_iterator );  // 3
+{% endhighlight %}
+{% assign methodName = "insert" %}
+{% assign methodExample = "collection.insert( insert_model, model )" %}
+{% assign returnType = "Falcon.Collection" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Method used to insert a model before another within the collection. If no model is found in the collection, the model is added to the end of the collection.  Alternatively, an iterator can be given and the model will be inserted before the first model to pass the truth test
+</p>
+<dl>
+	<dt data-type="Falcon.Model">insert_model</dt>
+	<dd>The model to insert</dd>
+	<dt data-type="Falcon.Model">model</dt>
+	<dd>The model to insert before.</dd>
+</dl>
+<dl>
+	<dt data-type="Falcon.Model">insert_model</dt>
+	<dd>The model to insert</dd>
+	<dt data-type="Number | String">id</dt>
+	<dd>The model id to insert before.</dd>
+</dl>
+<dl>
+	<dt data-type="Falcon.Model">insert_model.</dt>
+	<dd>The model to insert</dd>
+	<dt data-type="Function">iterator</dt>
+	<dd>The iterator to truth test each model against</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
+
+var fido = new Dog({id: 1, "name": "Fido"});
+var skip = new Dog({id: 2, "name": "Skip"});
+var bump = new Dog({id: 3, "name": "Bump"});
+var bucko = new Dog({id: 4, "name": "Bucko"});
+var spot = new Dog({id: 5, "name": "Spot"});
+
+var dogs = new Dogs([ fido, skip ]);
+
+dogs.insert( bump, skip ); // insert bump before skip
+console.log( dogs.pluck("name") ); // [Fido, Bump, Skip]
+
+dogs.insert( bucko, 2 ); // insert bucko before skip
+console.log( dogs.pluck("name") ); // [Fido, Bump, Bucko, Skip]
+
+dogs.insert( spot, function(dog) {
+	return dog.get("name") === "Bump";
+});
+console.log( dogs.pluck("name") ); // [Fido, Spot, Bump, Bucko, Skip]
+{% endhighlight %}
+{% assign methodName = "last" %}
+{% assign methodExample = "collection.last( [iterator] )" %}
+{% assign returnType = "Falcon.Model" %}
+{% assign returnDescription = "The last model in this collection or the last model that passed the iterator's truth test. If no model was found, then 'null' is returned." %}
+{% include methodOverview.html %}
+<p>
+	Method used to obtain the last model in the collection. If an iterator is given, then each model starting from the end and moving towards the beginning of the collection, is tested. The first model to pass the truth test is returned. If no model could be found, then 'null' is returned.
+</p>
+<dl>
+	<dt data-type="Function">iterator</dt>
+	<dd>A function to check each model in this collection against. If the iterator returns true then that model is selected.</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
+
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Bump"},
+	{"name": "Bucko"},
+	{"name": "Skip"}
+]);
+
+var last_dog = dogs.last();
+var last_b_dog = dogs.last(function(dog) {
+	return dog.get("name").charAt(0) === "B";
+});
+
+console.log(last_dog.get("name")); // Skip
+console.log(last_b_dog.get("name")); // Bucko
+{% endhighlight %}
+{% assign methodName = "lastIndexOf" %}
+{% assign methodExample = "collection.lastIndexOf( model )" %}
+{% assign returnType = "Number" %}
+{% assign returnDescription = "The index of the last matched model, -1 if none found" %}
+{% include methodOverview.html %}
+<p>
+	Find the last index for the specified model or where the iterator first returns true. -1 is returned if nothing matches.
+</p>
+<dl>
+	<dt data-type="Falcon.Model">model</dt>
+	<dd>The model to look up.</dd>
+</dl>
+<dl>
+	<dt data-type="Number | String">id</dt>
+	<dd>The id of the model to look up.</dd>
+</dl>
+<dl>
+	<dt data-type="Function">iterator</dt>
+	<dd>Truth test iterator function to test each model with.</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
+
+var fido = new Dog({id: 1, "name": "Fido"});
+var skip = new Dog({id: 2, "name": "Skip"});
+var bump = new Dog({id: 3, "name": "Bump"});
+var bucko = new Dog({id: 4, "name": "Bucko"});
+
+var dogs = new Dogs([fido, skip, bump, bucko, bump, skip, fido]);
+
+var index_bump = dogs.lastIndexOf(bump);
+var index_id = dogs.lastIndexOf(2);
+var index_iterator = dogs.lastIndexOf(function(dog) {
+	return dog.get("name") === "Bucko";
+});
+
+console.log( index_bump );  // 4
+console.log( index_id );  // 5
+console.log( index_iterator );  // 3
+{% endhighlight %}
+{% assign methodName = "length" %}
+{% assign methodExample = "collection.length()" %}
+{% include methodOverview.html %}
+<p>
+	The total number of models in this collection. This is an observable so anything that is bound against this will also be updated when any models are added or removed from the collection.
+</p>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
+
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Bump"}
+]);
+
+console.log( dogs.length() ); // 2
+
+dogs.append([
+	{"name": "Bucko"},
+	{"name": "Skip"}
+]);
+
+console.log( dogs.length() ); // 4
+{% endhighlight %}
+{% assign methodName = "makeUrl" %}
+{% assign methodExample = "collection.makeUrl( type, [parent] )" %}
+{% assign returnType = "String" %}
+{% assign returnDescription = "The generated url" %}
+{% include methodOverview.html %}
+<p>
+	Attempts to generate url for a specific type of request being made. Url's are generated based on this collection's relative url (extracted from the collection's model prototype), the parent model for this collection, and the Falcon.baseApiUrl setting. 
+</p>
+<p>
+	An optional override to the 'parent' attribute can be passed into the second argument of this method. If the parent argument is set, then that will be used instead of the instance parent attribute. Alternatively, if 'null' is explicitly set for the parent attribute, then this collection's url will be used as the base url for the full url generation.
+</p>
+<dl>
+	<dt data-type="String">type</dt>
+	<dd>The type of request that is trying to be executed. Type can be either "GET", "POST", "PUT", "DELETE".</dd>
+	<dt data-type="Falcon.Model">parent</dt>
+	<dd>An override to the parent model of this collection. If 'null' is explicitly stated, then no parent will be used meaning this collection's model prototype will be used to find the the base relative url for this request.</dd>
+</dl>
+{% highlight javascript linenos %}
+	Falcon.baseApiUrl = "http://www.falconjs.com/"
+var Owner = Falcon.Model.extend({"url": "owner.json"});
+var Dog = Falcon.Model.extend({"url": "dog.json"});
+var Dogs = Falcon.Collection.extend({ model: Dog });
+
+var owner = new Owner({'id': 1});
+var dogs = new Dogs( owner ); // Owner is the parent
+
+console.log( dogs.makeUrl("GET") ); // http://www.falconjs.com/owner/1/dog.json
+console.log( dogs.makeUrl("GET", null) ); // http://www.falconjs.com/dog.json
+{% endhighlight %}
+{% assign methodName = "merge" %}
+{% assign methodExample = "collection.merge( items )" %}
+{% assign returnType = "Falcon.Collection" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Attempts to merge the current collection with the given items.  A collection is merged by attempting to find a model in the existing collection that matches the id each model or model-like object and filled with its data if found.  If no model is found in the colleciton, then the input model is appended on to the collection.
+</p>
+<dl>
+	<dt data-type="Falcon.Model">item</dt>
+	<dd>A model to merge into the collection.</dd>
+</dl>
+<dl>
+	<dt data-type="Array">items</dt>
+	<dd>A list of models or model-like objects to merge into the collection</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
+
+var dog_one = new Dog({"id": 1, "name": "Fido"});
+var dog_two = new Dog({"id": 2, "name": "Skip"});
+var dogs = new Dogs([dog_one, dog_two]);
+
+// Updates Fido -> Bump
+dogs.merge(new Dog({"id": 1, "name": "Bump"}))
+console.log( dogs.pluck("name") ); // [Bump, Skip]
+console.log( dogs.at(0) === dog_one ); // true
+console.log( dogs.at(1) === dog_two ); // true
+
+// Can be merged based on objects without losing reference
+// to the original object
+dogs.merge([
+	{"id": 1, "name": "Lassie"},
+	{"id": 2, "name": "Howard"},
+	{"id": 3, "name": "Bucko"}
+]);
+console.log( dogs.pluck("name") ); // [Lassie, Howard, Bucko]
+console.log( dogs.at(0) === dog_one ); // true
+console.log( dogs.at(1) === dog_two ); // true
+{% endhighlight %}
+{% assign methodName = "mixin" %}
+{% assign methodExample = "collection.mixin( mapping )" %}
+{% assign returnType = "Falcon.Collection" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Adds attributes and functions to all of the current and future models in the collection.  This is especially useful for adding one-off functions or observables where needed on each item in the collection that isn't really necessary for every time this specific collection is created. A good example of this would be adding a 'deleting' flag to each current and future model in the collection to signify if the model is currently being deleted (hence allowing us to show a loader and ignore any additional delete requests).
+</p>
+<dl>
+	<dt data-type="Object">mapping</dt>
+	<dd>The mapping to apply to each of the current models and any future models that are added to the collection.  This should be an object of values, observables, and functions to add to this collection's models.</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
+
+var dogs = new Dogs([
+	{"name": "Fido"}
+]);
+
+dogs.mixin({
+	"color": "Black",
+	"is_tame": ko.observable( true ),
+	"bark": function() {
+		console.log(this.get("name") + " says woof!");
+	}
+});
+
+dogs.append({"name": "Spot"});
+
+var fido = dogs.at( 0 );
+var spot = dogs.at( 1 );
+
+console.log( fido.get("name") ); // Fido
+console.log( fido.get("color") ); // Black
+console.log( ko.isObservable( fido.is_tame ) ); // true
+console.log( fido.get("is_tame") ); // true
+fido.bark(); // Fido says woof!
+
+console.log( spot.get("name") ); // Spot
+console.log( spot.get("color") ); // Black
+console.log( ko.isObservable( spot.is_tame ) ); // true
+console.log( spot.get("is_tame") ); // true
+spot.bark(); // Spot says woof!
+{% endhighlight %}
+{% assign methodName = "models" %}
+{% assign methodExample = "collection.models()" %}
+{% include methodOverview.html %}
+<p>
+	The internal observable array that contains all of the models added to this collection.
+</p>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
+
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
+
+console.log( ko.isObservable( dogs.models ) ); // true 
+console.log( dogs.models() );  // [Dog, Dog, Dog, Dog]
+{% endhighlight %}
+{% assign methodName = "parse" %}
+{% assign methodExample = "collection.parse( data, options, xhr )" %}
+{% assign returnType = "Array" %}
+{% assign returnDescription = "The formatted response to fill the collection with." %}
+{% include methodOverview.html %}
+<p>
+	The parse method is called after any successful request is completed but before any of the data is actually filled into the collection. It's purpose is to allow you to intercept and parse through the raw server data in order to format it correctly to how this collection expects to see it. This method must return an array of objects in order for the collection to be filled correctly.
+</p>
+<dl>
+	<dt data-type='Object'>data</dt>
+	<dd>The raw data returned from the server</dd>
+	<dt data-type='Object'>options</dt>
+	<dd>The options that were passed into the sync function</dd>
+	<dt data-type="XmlHttpRequest">xhr</dt>
+	<dd>The XmlHttpRequest that was created when making this request</dd>
+</dl>
+{% highlight json linenos %}
+{
+	"data": [
+		{"id": 1, "name": "Fido"},
+		{"id": 2, "name": "Spot"},
+		{"id": 3, "name": "Skip"}
+	],
+	"created_at": "01/01/1970",
+	"updated_at": "01/01/1970"
+}
+{% endhighlight %}
+<div class="caption">Response JSON</div>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend({'url': "dog.json"});
+var Dogs = Falcon.Collection.extend({
+	model: Dog,
+
+	// Example parse method, the array that is returned from 
+	// this will be passed into the collection's fill() method.
+	parse: function( response ) {
+		return response["data"];
+	}
+});
+
+var dogs = new Dogs();
+
+// Get's the server data and runs the parse method
+// Callback is called on complete
+dogs.fetch(function(dogs) {
+	console.log( dogs.length() ); // 3
+	console.log( dogs.at(0).get("id") ); // 1
+	console.log( dogs.at(0).get("name") ); // Fido
+});
+{% endhighlight %}
+<div class="caption">Application Javascript</div>
+{% assign methodName = "pluck" %}
+{% assign methodExample = "collection.pluck( attribute, [unwrap] )" %}
+{% assign returnType = "Array" %}
+{% assign returnDescription = "An array of the values from each model corresponding to the given attribute." %}
+{% include methodOverview.html %}
+<p>
+	This method extracts a specific attribute from each model in the collection and returns it in an array. If the unwrap flag is set to true (which it is by default), each attribute is removed from its observable container if it exists wihin one.  If the attribute given isn't found in a model, 'undefined' is returned in the resultant array.
+</p>
+<dl>
+	<dt data-type="String">attribute</dt>
+	<dd>The attribute to pluck from each model in the collecton</dd>
+	<dt data-type="Boolean" data-default="true">unwrap</dt>
+	<dd>Flag that states if we should unwrap the values that are observables. This is true by default.</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
+
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
+
+console.log(dogs.pluck("name")); // [Fido, Skip, Bump, Bucko]
+{% endhighlight %}
+{% assign methodName = "pop" %}
+{% assign methodExample = "collection.pop()" %}
+{% assign returnType = "Falcon.Model" %}
+{% assign returnDescription = "The last model in this collection. 'null' is returned if the collection is empty." %}
+{% include methodOverview.html %}
+<p>
+	Removes and returns the last model from this collection.  If this collection is empty, 'null' is returned instead.
+</p>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
+
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
+
+var last_dog = dogs.pop();
+
+console.log( dogs.length() ); // 3
+console.log( last_dog.get("name") ); // Bucko
+{% endhighlight %}
+{% assign methodName = "prepend" %}
+{% assign methodExample = "collection.prepend( items )" %}
+{% assign returnType = "Falcon.Collection" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Adds a model or an array of models to the beginning of this collection.
+</p>
+<dl>
+	<dt type="Falcon.Model">item</dt>
+	<dd>A model to prepend to the beginning of this collection.</dd>
+</dl>
+<dl>
+	<dt type="Array">items</dt>
+	<dd>An array of models to prepend to the beginning of this collection.</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
+
+var dogs = new Dogs();
+
+dogs.prepend({"name": "Fido"});
+console.log( dogs.pluck("name") ); // [Fido]
+
+dogs.prepend( new Dog({name: "Spot"}) ); 
+console.log( dogs.pluck("name") ); // [Spot, Fido]
+
+dogs.prepend([
+	{name: "Skip"},
+	{name: "Bump"}
+]);
+console.log( dogs.pluck("name") ); // [Skip, Bump, Spot, Fido]
+{% endhighlight %}
+{% assign methodName = "push" %}
+{% assign methodExample = "collection.push( items )" %}
+{% assign returnType = "Falcon.Collection" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Push an element on to the end of this collection. This method is an alias of append.
+</p>
+<dl>
+	<dt type="Falcon.Model">item</dt>
+	<dd>A model to add to the collection</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
+
+var dogs = new Dogs();
+
+dogs.push({"name": "Fido"});
+console.log( dogs.pluck("name") ); // [Fido]
+
+dogs.push( new Dog({name: "Spot"}) ); 
+console.log( dogs.pluck("name") ); // [Fido, Spot]
+
+dogs.push([
+	{name: "Skip"},
+	{name: "Bump"}
+]);
+console.log( dogs.pluck("name") ); // [Fido, Spot, Skip, Bump]
+{% endhighlight %}
+{% assign methodName = "remove" %}
+{% assign methodExample = "collection.remove( models )" %}
+{% assign returnType = "Falcon.Collection" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Used to remove elements from this collection. This method does not make any API delete requests and will simply remove an instance of a model from this collection.
+</p>
+<dl>
+	<dt data-type="Array">models</dt>
+	<dd>An array of models to remove from this collection.</dd>
+</dl>
+<dl>
+	<dt data-type="Falcon.Model">model</dt>
+	<dd>A model to remove from this collection.</dd>
+</dl>
+<dl>
+	<dt data-type="Function">iterator</dt>
+	<dd>An iterator function to truth test each of this collection's models with. If the iterator is true, then the model is removed.</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
+
+var fido = new Dog({"name": "Fido"});
+var skip = new Dog({"name": "Skip"});
+var bump = new Dog({"name": "Bump"});
+var bucko = new Dog({"name": "Bucko"});
+var spot = new Dog({"name": "Spot"});
+var zeus = new Dog({"name": "Zeus"});
+
+var dogs = new Dogs([fido, skip, bump, bucko, spot, zeus]);
+
+dogs.remove( skip );
+console.log( dogs.length() ); // 5
+console.log( dogs.any(skip) ); // false
+
+dogs.remove( [fido, spot] );
+console.log( dogs.length() ); // 3
+console.log( dogs.any(fido) ); // false
+console.log( dogs.any(spot) ); // false
+
+dogs.remove(function(dog) {
+	return dog.get("name").charAt(0) === "B";
+});
+console.log( dogs.length() ); // 1
+console.log( dogs.any(bump) ); // false
+console.log( dogs.any(bucko) ); // false
+
+console.log( dogs.any(zeus) ); // true
+{% endhighlight %}
+{% assign methodName = "replace" %}
+{% assign methodExample = "collection.replace( items )" %}
+{% assign returnType = "Falcon.Collection" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Replaces all of the models in the collection with the input array
+</p>
+<dl>
+	<dt data-type="Falcon.Model">item</dt>
+	<dd>A model to replace all of the models in the current collection with.</dd>
+</dl>
+<dl>
+	<dt data-type="Array">items</dt>
+	<dd>An array of models to replace the current list of models in the collection.</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
+
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"}
+]);
+console.log( dogs.pluck("name") ); // [Fido, Skip]
+
+dogs.replace({"name": "Lassie"});
+console.log( dogs.pluck("name") ); // [Lassie]
+
+dogs.replace([{"name": "Bucko"}, ["name": "Spot"]]);
+console.log( dogs.pluck("name") ); // [Bucko, Spot]
+{% endhighlight %}
+{% assign methodName = "reset" %}
+{% assign methodExample = "collection.reset()" %}
+{% assign returnType = "Falcon.Collection" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	'resets' the internal observable array of this collection. This will make sure the model list is an observable array, has no elements, and the length of the collection is restored to zero.
+</p>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
+
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
+
+console.log( dogs.length() ); // 4
+
+dogs.reset();
+
+console.log( dogs.length() ); // 0
+{% endhighlight %}
+{% assign methodName = "serialize" %}
+{% assign methodExample = "collection.serialize( [attributes] )" %}
+{% assign returnType = "Array" %}
+{% assign returnDescription = "The serialized collection" %}
+{% include methodOverview.html %}
+<dl>
+	<dt data-type="Array">attributes</dt>
+	<dd>The attributes that should be included in the serialization of each model in this collection. If none given, all attributes unique to each model is included.</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
+
+var dogs = new Dogs([
+	{id: 1, "name": "Fido"},
+	{id: 2, "name": "Skip"},
+	{id: 3, "name": "Bump"}
+]);
+
+// [{id: 1, name: "Fido"}, {id: 2, name: "Skip"}, {id: 3, name: "Bump"}]
+console.log( dogs.serialize() ); 
+
+// [{name: "Fido"}, {name: "Skip"}, {name: "Bump"}]
+console.log( dogs.serialize(["name"]) ); 
+{% endhighlight %}
+{% assign methodName = "set" %}
+{% assign methodExample = "collection.set( key, value )" %}
+{% assign returnType = "Falcon.Collection" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Sets a specific property of all of the models in the collection to a certain value.
+</p>
+<dl>
+	<dt data-type="String">key</dt>
+	<dd>The property to update.</dd>
+</dl>
+<dl>
+	<dt data-type="mixed">value</dt>
+	<dd>The value to set on each model at the given key.</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
+
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"}
+]);
+console.log( dogs.pluck("name") ); // [Fido, Skip]
+
+dogs.set("name", "Super Dog");
+console.log( dogs.pluck("name") ); // [Super Dog, Super Dog]
+{% endhighlight %}
+{% assign methodName = "shift" %}
+{% assign methodExample = "collection.shift()" %}
+{% assign returnType = "Falcon.Model" %}
+{% assign returnDescription = "The first model in this collection" %}
+{% include methodOverview.html %}
+<p>
+	Removes the first element from the collection and returns it.
+</p>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
+
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
+
+var first_dog = dogs.shift();
+
+console.log( dogs.length() ); // 3
+console.log( first_dog.get("name") ); // Fido
+{% endhighlight %}
+{% assign methodName = "slice" %}
+{% assign methodExample = "collection.slice( start, [end] )" %}
+{% assign returnType = "Array" %}
+{% assign returnDescription = "A subset of the collection's array" %}
+{% include methodOverview.html %}
+<p>
+	Slices the collection the same way slice works on an array.  Returns an array of the models within the range.
+</p>
+<dl>
+	<dt>start</dt>
+	<dd>An integer that specifies where to start the selection (The first element has an index of 0).  Use negative numbers to select from the end of an array.</dd>
+	<dt>end</dt>
+	<dd>An integer that specifies where to end the selection.  If omitted, all elements from the start position and to the end of the array will be selected. Use negative numbers to select from the end of an array</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
+
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
+
+console.log( dogs.slice( 1 ) ); // [Skip, Bump, Bucko]
+console.log( dogs.slice( 1, 3 ) );  // [Skip, Bump]
+{% endhighlight %}
+{% assign methodName = "sort" %}
+{% assign methodExample = "collection.sort( comparator )" %}
+{% assign returnType = "Array" %}
+{% assign returnDescription = "The sorted array" %}
+{% include methodOverview.html %}
+<p>
+	Sorts the collection by a given comparator function.
+</p>
+<dl>
+	<dt>comparator(a, b)</dt>
+	<dd>A comparator function to sort the collection with.</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
+
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"},
+	{"name": "Bump"},
+	{"name": "Bucko"}
+]);
+
+// Sort names from A->Z
+dogs.sort(function(dog_a, dog_b) {
+	name_a = dog_a.get("name");
+	name_b = dog_b.get("name");
+
+	if(name_a < name_b) { return -1; }
+	if(name_a > name_b) { return 1; }
+	return 0;
+});
+
+console.log( dogs.pluck("name") ); // [Bucko, Bump, Fido, Skip]
+{% endhighlight %}
+{% assign methodName = "sync" %}
+{% assign methodExample = "collection.sync( type, [options], [context] )" %}
+{% assign returnType = "mixed" %}
+{% assign returnDescription = "Whatever the response from the adapter's sync method is" %}
+{% include methodOverview.html %}
+<p>
+	Method used to interact with the backend API and this collection. Internally this method just calls the <a href="/docs/adapter#sync">Falcon.adapter.sync</a> method.
+</p>
+<dl>
+	<dt data-type="String">type</dt>
+	<dd>The HTTP Method to call to the backend with. Valid options options include "GET", "POST", "PUT", "DELETE".</dd>
+	<dt data-type="Object">options</dt>
+	<dd>Optional object of settings to use on this call.  Please refer to <a href="/docs/adapter#standardizeOptions">Falcon.Adapter#standardizeOptions</a></dd>
+	<dt data-type="mixed">context</dt>
+	<dd>An optional context value to execute the callback methods on</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend({"url": "dog.json"});
+var Dogs = Falcon.Collection.extend({model: Dog});
+
+var dogs = new Dogs();
+var parent_dogs = new Dogs();
+
+// Creates a GET request that will be sent to '/dog.json'
+// each callback method has the same arguments:
+//
+//   dogs: This collection
+//   data: The raw response data prior to being passed into the parse() method
+//   options: The standardized request options
+//   other_args: An object of adapter implementation specific arguments
+//
+// All of the callback methods will be called with parent_dogs as 'this'
+dogs.sync("GET", {
+	complete: function(dogs, data, options, other_args) {
+		console.log("Completed trying to find the Dogs.");
+	},
+
+	success: function(dogs, data, options, other_args) {
+		console.log("Successfully found the Dogs!");
+	},
+
+	error: function(dogs, data, options, other_args) {
+		console.log("Couldn't find the dogs :(");
+	}
+}, parent_dogs);
+{% endhighlight %}
+{% assign methodName = "unshift" %}
+{% assign methodExample = "collection.unshift( items )" %}
+{% assign returnType = "Falcon.Collection" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Prepend a model or a list of models to the front of this collection. This is an alias of prepend.
+</p>
+<dl>
+	<dt type="Falcon.Model">item</dt>
+	<dd>A model to prepend to the beginning of this collection.</dd>
+</dl>
+<dl>
+	<dt type="Array">items</dt>
+	<dd>An array of models to prepend to the beginning of this collection.</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
+
+var dogs = new Dogs();
+
+dogs.unshift({"name": "Fido"});
+console.log( dogs.pluck("name") ); // [Fido]
+
+dogs.unshift( new Dog({name: "Spot"}) ); 
+console.log( dogs.pluck("name") ); // [Spot, Fido]
+
+dogs.unshift([
+	{name: "Skip"},
+	{name: "Bump"}
+]);
+console.log( dogs.pluck("name") ); // [Skip, Bump, Spot, Fido]
+{% endhighlight %}
+{% assign methodName = "without" %}
+{% assign methodExample = "collection.without( iterator )" %}
+{% assign returnType = "Array" %}
+{% assign returnDescription = "The list of models after being filtered by the iterator" %}
+{% include methodOverview.html %}
+<p>Used to generate an array of models from this collection without the matching models included.</p>
+<dl>
+	<dt>model</dt>
+	<dd>The model to remove from the list.</dd>
+</dl>
+<dl>
+	<dt>id</dt>
+	<dd>The id of the model to remove from the list.</dd>
+</dl>
+<dl>
+	<dt>iterator</dt>
+	<dd>A truth test iterator to check each model against.</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
+
+var fido = new Dog({"id": 1, "name": "Fido"});
+var skip = new Dog({"id": 2, "name": "Skip"});
+var bump = new Dog({"id": 3, "name": "Bump"});
+var bucko = new Dog({"id": 4, "name": "Bucko"});
+
+var dogs = new Dogs([ fido, skip, bump, bucko ]);
+
+var without_skip = dogs.without( skip );
+var without_bump = dogs.without( 3 );
+var without_b_dogs = dogs.without(function(dog) {
+	return dog.get("name").charAt(0) === "B";
+});
+
+console.log( without_skip ); // [Fido, Bump, Bucko]
+console.log( without_bump ); // [Fido, Skip, Bucko]
+console.log( without_b_dogs ); // [Fido, Skip]
+{% endhighlight %}

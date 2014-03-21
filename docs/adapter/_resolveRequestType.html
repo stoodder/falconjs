@@ -1,0 +1,31 @@
+{% assign methodName = "resolveRequestType" %}
+{% assign methodExample = "adapter.resolveRequestType( data_object, type, options, context )" %}
+{% assign returnType = "String" %}
+{% assign returnDescription = "The resolved request type. 'GET' if we were unable to resolve" %}
+{% include methodOverview.html %}
+<p>
+	Used to reslve and standardize the request type to either GET, PUT, POST, or DELETE.  This method will try its best to select the correct type and ensure that it's always returned in the correct format (trimmed and capitalized).
+</p>
+<div class="alert alert-info">
+	This method is a pre-request method that should always be called with the same four arguments: data_object, type, options, and context.
+</div>
+<dl>
+	<dt data-type="Falcon.Model">data_object</dt>
+	<dd>The data object being prepaired. Should be either a Falcon.Model or a Falcon.Collection</dd>
+	<dt data-type="String">type</dt>
+	<dd>The unresolved request type</dd>
+	<dt data-type="Object">options</dt>
+	<dd>The non-standardized options</dd>
+	<dt data-type="mixed">context</dt>
+	<dd>The unresolved request context, will be the context for all of the response handlers</dd>
+</dl>
+{% highlight javascript linenos %}
+var model = new Falcon.Model();
+var adapter = new Falcon.Adapter();
+
+adapter.resolveRequestType( model, "get", {}, model ); // GET
+adapter.resolveRequestType( model, "put", {}, model ); // PUT
+adapter.resolveRequestType( model, "post", {}, model ); // POST
+adapter.resolveRequestType( model, "delete", {}, model ); // DELETE
+adapter.resolveRequestType( model, "invalid", {}, model ); // GET
+{% endhighlight %}

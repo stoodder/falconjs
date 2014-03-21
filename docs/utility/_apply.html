@@ -1,0 +1,33 @@
+{% assign methodName = "apply" %}
+{% assign methodExample = "Falcon.apply( [root], [element], [callback] )" %}
+{% assign returnType = "Falcon" %}
+{% assign returnDescription = "The global Falcon instance" %}
+{% include methodOverview.html %}
+<p>
+	Initializes a Falcon application and applies its bindings against an initial view.
+</p>
+<dl>
+	<dt data-type="Falcon.View | ko.observable">root</dt>
+	<dd>A view or an observable containing a view to be applied to the application element</dd>
+	<dt data-type="String | DOMElement">element</dt>
+	<dd>The element to initialize the application in. If none is provided, the body element is used.</dd>
+	<dt data-type="Function">callback</dt>
+	<dd>Method called after the bindings have been initialized and applied.</dd>
+</dl>
+{% highlight javascript linenos %}
+var LayoutView = Falcon.View.extend({ "url": "#layout_view_tmpl" });
+
+// Applies the view and bindings to the 'body' tag
+Falcon.apply( new LayoutView ); 
+
+// Applies the view and bindings the element with id="application"
+Falcon.apply( new LayoutView, "#application" ); 
+
+// Falcon.apply can also handle observables
+// Applies the observable to the 'body' tag, nothing is currently rendered
+var viewObs = ko.observable();
+Falcon.apply( viewObs ); 
+
+// Renders a layout view in 'body'
+viewObs( new LayoutView ); 
+{% endhighlight %}

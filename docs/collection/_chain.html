@@ -1,0 +1,44 @@
+{% assign methodName = "chain" %}
+{% assign methodExample = "collection.chain()" %}
+{% assign returnType = "ChainedCollection" %}
+{% assign returnDescription = "A Chained collection object with the sort, filter, without, and slice methods overridden" %}
+{% include methodOverview.html %}
+<p>
+	Method used to create a chained version of this collection. A Chained Collection allows us to chain together mutliple filter methods.  Typically, when calling 'sort', 'without', 'filter', or 'slice', a javascript array is returned and no other collection filter methods can be called on the resultant array. 'chain' fixes this and allows us to string together multiple filter methods.
+</p>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
+
+var dogs = new Dogs([
+	{"id": 1, "name": "Fido", "is_tame": true},
+	{"id": 2, "name": "Skip", "is_tame": true},
+	{"id": 3, "name": "Bump", "is_tame": true},
+	{"id": 4, "name": "Bucko", "is_tame": false},
+	{"id": 5, "name": "Spot", "is_tame": true},
+	{"id": 6, "name": "Biscuit", "is_tame": true}
+]);
+
+var odd_dogs = dogs.chain().without(2).without(4).without(6);
+
+var tame_b_dogs = dogs.chain().filter(function(dog) {
+	return dog.get("name").charAt(0) === "B";
+}).filter(function(dog) {
+	return dog.get("is_tame")
+});
+
+var sorted_b_dogs = dogs.chain().filter(function(dog) {
+	return dog.get("name").charAt(0) === "B";
+}).sort(function(dog_a, dog_b) {
+	var name_a = dog_a.get("name");
+	var name_b = dog_b.get("name");
+
+	if( name_a < name_b ) { return -1; }
+	if( name_a > name_b ) { return 1; }
+	return 0;
+});
+
+console.log( odd_dogs.pluck("name") ); // [Fido, Bump, Spot]
+console.log( tame_b_dogs.pluck("name") ); // [Bump, Biscuit]
+console.log( sorted_b_dogs.pluck("name") ); // [Biscuit, Bucko, Bump]
+{% endhighlight %}

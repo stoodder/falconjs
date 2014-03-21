@@ -1,0 +1,27 @@
+{% assign methodName = "isCollection" %}
+{% assign methodExample = "Falcon.isCollection( object )" %}
+{% assign returnType = "Boolean" %}
+{% assign returnDescription = "Is the object a collection" %}
+{% include methodOverview.html %}
+<p>
+	Method used to test if an object is a Falcon Collection.
+</p>
+<dl>
+	<dt data-type="Object">object</dt>
+	<dd>The Object to test</dd>
+</dl>
+{% highlight javascript linenos %}
+var array		= [];
+var object		= new Falcon.Object();
+var collection	= new Falcon.Collection();
+var model 		= new Falcon.Model();
+var view 		= new Falcon.View();
+var adapter 	= new Falcon.Adapter();
+
+console.log( Falcon.isCollection(array) );// false
+console.log( Falcon.isCollection(object) );// false
+console.log( Falcon.isCollection(model) );// false
+console.log( Falcon.isCollection(collection) ); // true
+console.log( Falcon.isCollection(view) );// false
+console.log( Falcon.isCollection(adapter) );// false
+{% endhighlight %}

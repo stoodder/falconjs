@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+	<head>
+		<script src="/assets/scripts/knockout-3.1.0.min.js"></script>
+		<script src="/assets/scripts/falcon.min.js"></script>
+		<script src="/assets/scripts/falcon.conductor.min.js"></script>
+		<script>
+			Falcon.addConductor('hello-world', {
+				url: "#hello-world-tmpl",
+				
+				defaults: {
+					passed_in_extra: function(attributes) { return attributes.extra; }
+				},
+
+				initialize: function(attributes) {
+					this.message = attributes['message'] || "World";
+				}
+			});
+
+			Falcon.addConductor('foo-bar', {
+				url: '#foo-bar-tmpl',
+				
+				defaults: {
+					message: function(attributes) { return attributes.message; }
+				}
+			})
+
+			Falcon.apply(window.vm = {
+				color: ko.observable("#999"),
+				name: "Spot",
+				username: ko.observable("Senior Rick"),
+				extra: "Singing"
+			});
+		</script>
+	</head>
+	<body>
+		<hello-world></hello-world><br />
+		<hello-world message="Birds" data-bind="style: {'color': $view.color, 'text-decoration': 'underline'}"></hello-world><br />
+		<hello-world message="$view.name"></hello-world><br />
+		<hello-world message="$view.username" extra="$view.extra"></hello-world><br />
+		<hello-world message="$view.username"></hello-world><br />
+		<hello-world message="$view.username" extra="$view.extra"></hello-world><br />
+		<hello-world message="$view.username"></hello-world><br />
+		<hello-world message="$view.username" extra="$view.extra"></hello-world><br />
+		<hello-world message="$view.username"></hello-world><br />
+		<hello-world message="$view.username" extra="$view.extra"></hello-world><br />
+		<foo-bar></foo-bar>
+	</body>
+	<template id="hello-world-tmpl">
+		Hello <!-- ko text: message --><!-- /ko -->!
+		<foo-bar message="$view.passed_in_extra"></foo-bar>
+	</template>
+	<template id ="foo-bar-tmpl">
+		Foo Bar!
+		<!-- ko if: $view.message -->
+			Has a message:
+			<!-- ko text: $view.message --><!-- /ko -->!
+		<!-- /ko -->
+	</template>
+</html>

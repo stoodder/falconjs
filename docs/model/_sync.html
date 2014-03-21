@@ -1,0 +1,47 @@
+{% assign methodName = "sync" %}
+{% assign methodExample = "model.sync( type, [options], [context] )" %}
+{% assign returnType = "mixed" %}
+{% assign returnDescription = "Whatever the response from the adapter's sync method is" %}
+{% include methodOverview.html %}
+<p>
+	Method used to interact with the backend API and this collection. Internally this method just calls the <a href="/docs/adapter#sync">Falcon.adapter.sync</a> method.
+</p>
+<dl>
+	<dt data-type="String">type</dt>
+	<dd>The HTTP Method to call to the backend with. Valid options options include "GET", "POST", "PUT", "DELETE".</dd>
+	<dt data-type="Object">options</dt>
+	<dd>Optional object of settings to use on this call.  Please refer to <a href="/docs/adapter#standardizeOptions">Falcon.Adapter#standardizeOptions</a></dd>
+	<dt data-type="mixed">context</dt>
+	<dd>An optional context value to execute the callback methods on</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend({
+	"url": "dog.json"
+});
+
+var dog = new Dog({id: 1});
+var parent_dog = new Dog({id: 2});
+
+// Creates a GET request that will be sent to '/dog/1.json'
+// each callback method has the same arguments:
+//
+//   dogs: This model
+//   data: The raw response data prior to being passed into the parse() method
+//   options: The standardized request options
+//   other_args: An object of adapter implementation specific arguments
+//
+// All of the callback methods will be called with parent_dog as 'this'
+dog.sync("GET", {
+	complete: function(dogs, data, options, other_args) {
+		console.log("Completed trying to find the Dog.");
+	},
+
+	success: function(dogs, data, options, other_args) {
+		console.log("Successfully found the Dog!");
+	},
+
+	error: function(dogs, data, options, other_args) {
+		console.log("Couldn't find the dog :(");
+	}
+}, parent_dog);
+{% endhighlight %}

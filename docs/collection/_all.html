@@ -1,0 +1,19 @@
+{% assign methodName = "all" %}
+{% assign methodExample = "collection.all()" %}
+{% assign returnType = "Array" %}
+{% assign returnDescription = "An array of all of the models in the collection" %}
+{% include methodOverview.html %}
+<p>
+	Used to retrieve a basic array of all of the models in this collection
+</p>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({ model: Dog });
+
+var dogs = new Dogs([
+	{"name": "Fido"},
+	{"name": "Skip"}
+]);
+
+console.log( dogs.all() ); // [Fido, Skip]
+{% endhighlight %}

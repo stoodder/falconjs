@@ -1,0 +1,48 @@
+{% assign methodName = "display" %}
+{% assign methodExample = "view.display()" %}
+{% include methodOverview.html %}
+<p>
+	Executed when this view is displayed (added to the DOM). This method is called from the view binding when rendering this view's template is complete and added to the DOM.  This should be overridden by inheriting classes and should primarily be used for 'on-display' functionality such as certain event handlers
+</p>
+{% highlight javascript linenos %}
+var DogView = Falcon.View.extend({
+	url: '#dog_view',
+
+	display: function()
+	{
+		console.log("Dog View Displayed")
+	}
+});
+
+var view_model = {
+	showing_dog_view: ko.observable(false),
+	my_dog_view: new DogView()
+};
+
+console.log("Initializing");
+setTimeout(function() {
+	view_model.show_dog_view(true)
+}, 5000);
+
+Falcon.apply(view_model, '#application');
+{% endhighlight %}
+<div class="caption">Application Javascript</div>
+{% highlight html linenos %}
+<div id="application">
+	<!-- ko if: showing_dog_view -->
+		<!-- ko view: my_dog_view --><!-- /ko -->
+	<!-- /ko -->
+</div>
+<template id="dog_view">
+	This is the Dog View
+</template>
+{% endhighlight %}
+<div class="caption">Application HTML</div>
+{% highlight console linenos %}
+... my_dog_view is currently not rendered because showing_dog_view is set to false
+=> Initializing
+... Waits five seconds and then sets show_dog_view to true, my_dog_view
+	is then rendered on the screen
+=> Dog View Displayed
+{% endhighlight %}
+<div class="caption">Console Output</div>

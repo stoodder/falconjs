@@ -1,0 +1,34 @@
+{% assign methodName = "makeUrl" %}
+{% assign methodExample = "adapter.makeUrl( data_object, type, options, context )" %}
+{% assign returnType = "String" %}
+{% assign returnDescription = "The generated url" %}
+{% include methodOverview.html %}
+<p>
+	Called from within the standardizeOptions method to generate a valid URL for the data object being prepaired.  If the input options already have a url property, then that value is returned. Otherwise, the makeUrl() method of the data object is called with the resolvedRequestType and options.parent.
+</p>
+<div class="alert alert-info">
+	This method is a pre-request method that should always be called with the same four arguments: data_object, type, options, and context.
+</div>
+<div class="alert alert-warning">
+	This method should always be called with the resolved request type (from resolveRequestType) and the standardized options (from or within standardizeOptions).
+</div>
+<dl>
+	<dt data-type="Falcon.Model">data_object</dt>
+	<dd>The data object being prepaired. Should be either a Falcon.Model or a Falcon.Collection</dd>
+	<dt data-type="String">type</dt>
+	<dd>The resolved request type</dd>
+	<dt data-type="Object">options</dt>
+	<dd>The partially standardized options</dd>
+	<dt data-type="mixed">context</dt>
+	<dd>The unresolved request context</dd>
+</dl>
+{% highlight javascript linenos %}
+var model = new Falcon.Model({url: "hello_world"});
+var adapter = new Falcon.Adapter();
+
+// Returns: '/hello_world'
+apater.makeUrl( model, "GET", {}, model );
+
+// Returns: '/foo_bar'
+adapter.makeUrl( model, "GET", {url: '/foo_bar'}, model );
+{% endhighlight %}

@@ -1,0 +1,41 @@
+{% assign methodName = "merge" %}
+{% assign methodExample = "collection.merge( items )" %}
+{% assign returnType = "Falcon.Collection" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Attempts to merge the current collection with the given items.  A collection is merged by attempting to find a model in the existing collection that matches the id each model or model-like object and filled with its data if found.  If no model is found in the colleciton, then the input model is appended on to the collection.
+</p>
+<dl>
+	<dt data-type="Falcon.Model">item</dt>
+	<dd>A model to merge into the collection.</dd>
+</dl>
+<dl>
+	<dt data-type="Array">items</dt>
+	<dd>A list of models or model-like objects to merge into the collection</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
+
+var dog_one = new Dog({"id": 1, "name": "Fido"});
+var dog_two = new Dog({"id": 2, "name": "Skip"});
+var dogs = new Dogs([dog_one, dog_two]);
+
+// Updates Fido -> Bump
+dogs.merge(new Dog({"id": 1, "name": "Bump"}))
+console.log( dogs.pluck("name") ); // [Bump, Skip]
+console.log( dogs.at(0) === dog_one ); // true
+console.log( dogs.at(1) === dog_two ); // true
+
+// Can be merged based on objects without losing reference
+// to the original object
+dogs.merge([
+	{"id": 1, "name": "Lassie"},
+	{"id": 2, "name": "Howard"},
+	{"id": 3, "name": "Bucko"}
+]);
+console.log( dogs.pluck("name") ); // [Lassie, Howard, Bucko]
+console.log( dogs.at(0) === dog_one ); // true
+console.log( dogs.at(1) === dog_two ); // true
+{% endhighlight %}

@@ -1,4 +1,4 @@
-describe "Testing Model Methods", ->
+describe "Falcon.Model", ->
 	beforeEach ->
 		Falcon.baseApiUrl = ""
 		Falcon.baseTemplateUrl = ""
@@ -7,60 +7,105 @@ describe "Testing Model Methods", ->
 	#--------------------------------------------------------------
 	#
 	# Test the initialize() method
-	#	TODO: Test array 'fields' attribute
 	#
 	#--------------------------------------------------------------
-	it "Should initialize correctly", ->
+	describe "initialize", ->
 		class ModelA extends Falcon.Model
 		#END class
 
 		class ModelB extends Falcon.Model
 		#END class
 
-		init_stub = sinon.stub( ModelA::, "initialize" )
+		beforeEach ->
+			sinonSpyOn( ModelA::, 'initialize' )
+			sinonSpyOn( ModelA::, 'fill' )
+		#END beforeEach
 
-		model = new ModelA
-		init_stub.should.have.been.calledOnce
-		init_stub.should.have.been.calledWith()
-		init_stub.reset()
+		it "Should call initialize on construction", ->
+			model = new ModelA
+			expect( ModelA::initialize ).toHaveBeenCalledOnce()
+		#END it
 
-		modelA = new ModelA( modelB = new ModelB )
-		init_stub.should.have.been.calledOnce
-		init_stub.should.have.been.calledWith()
-		expect( modelA.parent ).to.be.equal( modelB )
-		init_stub.reset()
+		it "Shoudl allow for a parent model", ->
+			modelA = new ModelA( modelB = new ModelB )
+			expect( ModelA::initialize ).toHaveBeenCalledOnce()
+			expect( ModelA::fill ).not.toHaveBeenCalled()
+			expect( modelA.parent ).toBe( modelB )
+		#END it
 
-		modelA = new ModelA( data = {"hello": "world"} )
-		init_stub.should.have.been.calledOnce
-		init_stub.should.have.been.calledWith( data )
-		expect( modelA.parent ).to.be.undefined
-		init_stub.reset()
+		it "Should allow for input data", ->
+			modelA = new ModelA( data = {"hello": "world"} )
+			expect( ModelA::initialize ).toHaveBeenCalledOnce()
+			expect( ModelA::initialize ).toHaveBeenCalledWith( data )
+			expect( ModelA::fill ).toHaveBeenCalledOnce()
+			expect( ModelA::fill ).toHaveBeenCalledWith( data )
+			expect( modelA.parent ).not.toBeDefined()
+		#END it
 
-		modelA = new ModelA( data = {"hello": "world"}, modelB = new ModelB )
-		init_stub.should.have.been.calledOnce
-		init_stub.should.have.been.calledWith( data )
-		expect( modelA.parent ).to.be.equal( modelB )
-		init_stub.reset()
+		it "Should allow for input data and a parent model", ->
+			modelA = new ModelA( data = {"hello": "world"}, modelB = new ModelB )
+			expect( ModelA::initialize ).toHaveBeenCalledOnce()
+			expect( ModelA::initialize ).toHaveBeenCalledWith( data )
+			expect( ModelA::fill ).toHaveBeenCalledOnce()
+			expect( ModelA::fill ).toHaveBeenCalledWith( data )
+			expect( modelA.parent ).toBe( modelB )
+		#END it
 
-		modelA = new ModelA( modelB = new ModelB, data = {"hello": "world"} )
-		init_stub.should.have.been.calledOnce
-		init_stub.should.have.been.calledWith( data )
-		expect( modelA.parent ).to.be.equal( modelB )
-		init_stub.reset()
+		it "Should allow for the data and parent to be switched", ->
+			modelA = new ModelA( modelB = new ModelB, data = {"hello": "world"} )
+			expect( ModelA::initialize ).toHaveBeenCalledOnce()
+			expect( ModelA::initialize ).toHaveBeenCalledWith( data )
+			expect( ModelA::fill ).toHaveBeenCalledOnce()
+			expect( ModelA::fill ).toHaveBeenCalledWith( data )
+			expect( modelA.parent ).toBe( modelB )
+		#END it
 
-		modelA = new ModelA( dataModel = new Falcon.Model({"hello":"world"}), modelB = new ModelB )
-		init_stub.should.have.been.calledOnce
-		init_stub.should.have.been.calledWith( dataModel.unwrap() )
-		expect( modelA.parent ).to.be.equal( modelB )
-		init_stub.reset()
+		it "Should allow for a falcon mode to be the datat object", ->
+			modelA = new ModelA( dataModel = new Falcon.Model({"hello":"world"}), modelB = new ModelB )
+			expect( ModelA::initialize ).toHaveBeenCalledOnce()
+			expect( ModelA::initialize ).toHaveBeenCalledWith( dataModel )
+			expect( ModelA::fill ).toHaveBeenCalledOnce()
+			expect( ModelA::fill ).toHaveBeenCalledWith( dataModel )
+			expect( modelA.parent ).toBe( modelB )
+		#END it
 
-		init_stub.restore()
+		it "Should throw if a model isn't passed in as the parent", ->
+			expect( -> new modelA(data, {}) ).toThrow()
+			expect( -> new modelA(data, new Falcon.Collection) ).toThrow()
+
+			expect( ModelA::initialize ).not.toHaveBeenCalled()
+			expect( ModelA::fill ).not.toHaveBeenCalled()
+		#END it
+	#END it
+
+	#--------------------------------------------------------------
+	#
+	# Test the defaults initialization
+	#
+	#--------------------------------------------------------------
+	it "Should create RawrModel with defaults that have correct arguments", ->
+		hello_spy = null
+
+		class RawrModel extends Falcon.Model
+			defaults:
+				'hello': ( hello_spy = sinon.spy() )
+			#END defaults
+		#END RawrModel
+		
+		expect( hello_spy ).not.toHaveBeenCalled()
+
+		rawr_class = new RawrModel(input_data = {"one", "two", "three"})
+
+		expect( hello_spy ).toHaveBeenCalled()
+		expect( hello_spy.callCount ).toBe( 1 )
+		expect( hello_spy.firstCall.args.length ).toBe( 1 )
+		expect( hello_spy.firstCall.args[0] ).toBe( input_data )
 	#END it
 
 
 	#--------------------------------------------------------------
 	#
-	# Test the get(), set(), and toggle() methods
+	# Test the get(), set(), toggle(), increment(), and decrement() methods
 	#
 	#--------------------------------------------------------------
 	it "Should test the get, set, and toggle methods", ->
@@ -83,49 +128,84 @@ describe "Testing Model Methods", ->
 			"model_b": {"something": "cool"}
 		#END modelA
 
-		expect( modelA["hello"] ).to.be.equal "world"
-		expect( modelA["foo"] ).to.be.a "function"
-		expect( modelA["truth"] ).to.be.true
-		expect( modelA["model_b"] ).to.be.instanceOf ModelB
-		expect( modelA["model_b"] ).to.be.equal modelB
+		expect( modelA["hello"] ).toBe( "world")
+		expect( modelA["foo"] ).toEqual(jasmine.any(Function))
+		expect( modelA["truth"] ).toBe( true )
+		expect( modelA["model_b"] ).toEqual(jasmine.any(ModelB))
+		expect( modelA["model_b"] ).toBe( modelB)
 
-		expect( modelA.get("hello") ).to.be.equal "world"
-		expect( modelA.get("foo") ).to.be.equal "bar"
-		expect( modelA.get("truth") ).to.be.equal true
-		expect( modelA["model_b"] ).to.be.instanceOf ModelB
-		expect( modelA["model_b"] ).to.be.equal modelB
+		expect( modelA.get("hello") ).toBe( "world")
+		expect( modelA.get("foo") ).toBe( "bar")
+		expect( modelA.get("truth") ).toBe( true)
+		expect( modelA["model_b"] ).toEqual(jasmine.any(ModelB))
+		expect( modelA["model_b"] ).toBe( modelB)
 
 		modelA.set "foo", "baz"
 		modelA.set "hello", "goodbye"
 
-		expect( modelA.get("hello") ).to.be.equal "goodbye"
-		expect( modelA.get("foo") ).to.be.equal "baz"
-		expect( modelA.get("truth") ).to.be.equal true
-		expect( modelA["model_b"] ).to.be.instanceOf ModelB
-		expect( modelA["model_b"] ).to.be.instanceOf ModelB
-		expect( modelA["model_b"] ).to.be.equal modelB
+		expect( modelA.get("hello") ).toBe( "goodbye")
+		expect( modelA.get("foo") ).toBe( "baz")
+		expect( modelA.get("truth") ).toBe( true)
+		expect( modelA["model_b"] ).toEqual(jasmine.any(ModelB))
+		expect( modelA["model_b"] ).toEqual(jasmine.any(ModelB))
+		expect( modelA["model_b"] ).toBe( modelB)
 
 		modelA.set
 			"foo": "bar"
 			"hello": "world"
 		#END set
 
-		expect( modelA.get("hello") ).to.be.equal "world"
-		expect( modelA.get("foo") ).to.be.equal "bar"
-		expect( modelA.get("truth") ).to.be.equal true
-		expect( modelA["model_b"] ).to.be.instanceOf ModelB
-		expect( modelA["model_b"] ).to.be.instanceOf ModelB
-		expect( modelA["model_b"] ).to.be.equal modelB
+		expect( modelA.get("hello") ).toBe( "world")
+		expect( modelA.get("foo") ).toBe( "bar")
+		expect( modelA.get("truth") ).toBe( true)
+		expect( modelA["model_b"] ).toEqual(jasmine.any(ModelB))
+		expect( modelA["model_b"] ).toEqual(jasmine.any(ModelB))
+		expect( modelA["model_b"] ).toBe( modelB)
 
 		modelA.toggle "truth"
 
-		expect( modelA.get("hello") ).to.be.equal "world"
-		expect( modelA.get("foo") ).to.be.equal "bar"
-		expect( modelA.get("truth") ).to.be.equal false
-		expect( modelA["model_b"] ).to.be.instanceOf ModelB
-		expect( modelA["model_b"] ).to.be.equal modelB
+		expect( modelA.get("hello") ).toBe( "world")
+		expect( modelA.get("foo") ).toBe( "bar")
+		expect( modelA.get("truth") ).toBe( false)
+		expect( modelA["model_b"] ).toEqual(jasmine.any(ModelB))
+		expect( modelA["model_b"] ).toBe( modelB)
 
-		expect( modelB.get("something") ).to.be.equal "cool"
+		expect( modelB.get("something") ).toBe( "cool")
+	#END it
+
+	it "Should test the increment and decrement methods", ->
+		class ModelA extends Falcon.Model
+			defaults:
+				'first': 1
+			#END defaults
+
+			observables:
+				'second': 2
+			#END observables
+		#END class
+
+		model_a = new ModelA
+
+		expect( model_a.get('first') ).toBe( 1)
+		expect( model_a.get('second') ).toBe( 2)
+
+		ret = model_a.increment('first')
+		expect( ret ).toBe(( model_a ))
+
+		ret = model_a.increment('second')
+		expect( ret ).toBe(( model_a ))
+
+		expect( model_a.get('first') ).toBe( 2)
+		expect( model_a.get('second') ).toBe( 3)
+
+		ret = model_a.decrement('first')
+		expect( ret ).toBe(( model_a ))
+
+		ret = model_a.decrement('second')
+		expect( ret ).toBe(( model_a ))
+
+		expect( model_a.get('first') ).toBe( 1)
+		expect( model_a.get('second') ).toBe( 2)
 	#END it
 
 
@@ -136,7 +216,7 @@ describe "Testing Model Methods", ->
 	#		  model key).
 	#
 	#--------------------------------------------------------------
-	it "Should test the fill and serialize methods", ->
+	describe "serialize and fill", ->
 		modelB = null
 		modelB2 = null
 		collectionC = null
@@ -149,6 +229,7 @@ describe "Testing Model Methods", ->
 				@model_b = modelB = new ModelB
 				@model_b2 = modelB2 = new ModelB
 				@collection_c = collectionC = new CollectionC
+				@model_b3 = new ModelB
 			#END initialize
 		#END class
 
@@ -163,6 +244,24 @@ describe "Testing Model Methods", ->
 			model: ModelC
 		#END collection c
 
+		class ModelD extends Falcon.Model
+			defaults:
+				'model_e': -> new ModelE
+			#END defaults
+
+			observables:
+				'hello': 'world'
+				'foo': true
+			#END observables
+		#END class
+
+		class ModelE extends Falcon.Model
+			observables:
+				'free': 'bird'
+				'bar': true
+			#END observables
+		#END ModelE
+
 		data = {
 			"id": 33
 			"foo": "bar"
@@ -175,104 +274,159 @@ describe "Testing Model Methods", ->
 				"b_foo": "B BAR 2"
 				"url": "model_b2"
 			},
+			"model_b3": new ModelB,
 			"collection_c": [
 				{"that": "That One"}
 				{"that": "That Two"}
 				{"that": "That Three"}
 			]
 		}
+
 		modelA = new ModelA()
+		original_model_b3 = modelA.get("model_b3")
 		modelA.fill( data )
-		#END fill
 
-		#TEST
-		expect( modelA.get("id") ).to.be.equal 33
-		expect( modelA.get("foo") ).to.be.equal "bar"
-		expect( modelA.get("url") ).to.be.equal "MODEL_A2"
-		
-		expect( modelA.get("model_b") ).to.be.equal modelB
-		expect( modelA.get("model_b").get("b_foo") ).to.be.equal "B BAR"
-		expect( modelA.get("model_b").get("url") ).to.be.equal "model_b"
-		
-		expect( modelA.get("model_b2") ).to.be.equal modelB2
-		expect( modelA.get("model_b2").get("id") ).to.be.equal "test"
-		expect( modelA.get("model_b2").get("b_foo") ).to.be.equal "B BAR 2"
-		expect( modelA.get("model_b2").get("url") ).to.be.equal "model_b2"
-		
-		expect( modelA.get("collection_c") ).to.be.equal collectionC
-		expect( modelA.get("collection_c").length() ).to.equal 3
-		expect( modelA.get("collection_c").first() ).to.be.instanceOf ModelC
-		expect( modelA.get("collection_c").first().get("that") ).to.equal "That One"
+		it "Should fill properly", ->
+			expect( modelA.get("id") ).toBe( 33)
+			expect( modelA.get("foo") ).toBe( "bar")
+			expect( modelA.get("url") ).toBe( "MODEL_A2")
+			
+			expect( modelA.get("model_b") ).toBe( modelB)
+			expect( modelA.get("model_b").get("b_foo") ).toBe( "B BAR")
+			expect( modelA.get("model_b").get("url") ).toBe( "model_b")
+			
+			expect( modelA.get("model_b2") ).toBe( modelB2)
+			expect( modelA.get("model_b2").get("id") ).toBe( "test")
+			expect( modelA.get("model_b2").get("b_foo") ).toBe( "B BAR 2")
+			expect( modelA.get("model_b2").get("url") ).toBe( "model_b2")
+
+			expect( original_model_b3 ).toEqual( jasmine.any(ModelB) )
+			expect( data.model_b3 ).toEqual( jasmine.any(ModelB) )
+			expect( data.model_b3 ).not.toBe( original_model_b3 )
+			expect( modelA.get("model_b3") ).toBe( data.model_b3 )
+			
+			expect( modelA.get("collection_c") ).toBe( collectionC )
+			expect( modelA.get("collection_c").length() ).toBe( 3 )
+			expect( modelA.get("collection_c").first() ).toEqual(jasmine.any(ModelC))
+			expect( modelA.get("collection_c").first().get("that") ).toBe( "That One" )
+		#END it
+
+		it "Should retain reference to the original observables", ->
+			model_d = new ModelD()
+
+			expect( model_d.get('hello') ).toBe( 'world' )
+			expect( model_d.get('foo') ).toBe( true )
+
+			expect( model_d.model_e.get('free') ).toBe( 'bird' )
+			expect( model_d.model_e.get('bar') ).toBe( true )
+
+			hello_obs = model_d.hello
+			foo_obs = model_d.foo
+			free_obs = model_d.model_e.free
+			bar_obs = model_d.model_e.bar
+
+			expect( ko.isWriteableObservable(hello_obs) ).toBe( true )
+			expect( ko.isWriteableObservable(foo_obs) ).toBe( true )
+			expect( ko.isWriteableObservable(free_obs) ).toBe( true )
+			expect( ko.isWriteableObservable(bar_obs) ).toBe( true )
+
+			model_d.fill
+				'hello': 'WORLD!'
+				'foo': false
+				'model_e':
+					'free': 'BIRD!'
+					'bar': false
+				#END model_e 
+			#END fill
+
+			expect( model_d.get('hello') ).toBe( 'WORLD!' )
+			expect( model_d.get('foo') ).toBe( false )
+			expect( model_d.model_e.get('free') ).toBe( 'BIRD!' )
+			expect( model_d.model_e.get('bar') ).toBe( false )
+
+			expect( model_d.hello ).toBe( hello_obs )
+			expect( model_d.foo ).toBe( foo_obs )
+			expect( model_d.model_e.free ).toBe( free_obs )
+			expect( model_d.model_e.bar ).toBe( bar_obs )
+		#END it
+
+		it "Should serialize properly", ->
+			serialized = modelA.serialize()
+			expect( serialized['id'] ).toBe( 33 )
+			expect( serialized['foo'] ).toBe( "bar" )
+
+			expect( serialized['model_b'] ).toEqual(jasmine.any(Object))
+			expect( serialized['model_b']['id'] ).toBeNull()
+			expect( serialized['model_b']['b_foo'] ).toBe( "B BAR" )
+
+			expect( serialized['model_b2'] ).toEqual(jasmine.any(Object))
+			expect( serialized['model_b2']['id'] ).toBe( "test" )
+			expect( serialized['model_b2']['b_foo'] ).toBe( "B BAR 2" )
+
+			expect( serialized['model_b3'] ).toEqual(jasmine.any(Object))
+
+			expect( serialized['collection_c'] ).toEqual(jasmine.any(Array))
+			expect( serialized['collection_c'].length ).toBe( 3 )
+			expect( serialized['collection_c'][0] ).toEqual(jasmine.any(Object))
+			expect( serialized['collection_c'][0]['that'] ).toBe( "That One" )
+		#END it
 
 
-		#TEST
-		serialized = modelA.serialize()
-		expect( serialized['id'] ).to.equal 33
-		expect( serialized['foo'] ).to.equal "bar"
+		it "Should serialzie properly with attributes", ->
+			serialized = modelA.serialize(["id", "foo"])
+			expect( serialized['id'] ).toBe( 33 )
+			expect( serialized['foo'] ).toBe( "bar" )
 
-		expect( serialized['model_b'] ).to.be.a "object"
-		expect( serialized['model_b']['id'] ).to.equal null
-		expect( serialized['model_b']['b_foo'] ).to.equal "B BAR"
-
-		expect( serialized['model_b2'] ).to.be.a "object"
-		expect( serialized['model_b2']['id'] ).to.equal "test"
-		expect( serialized['model_b2']['b_foo'] ).to.equal "B BAR 2"
-
-		expect( serialized['collection_c'] ).to.be.a "array"
-		expect( serialized['collection_c'] ).to.have.length 3
-		expect( serialized['collection_c'][0] ).to.be.a "object"
-		expect( serialized['collection_c'][0]['that'] ).to.equal "That One"
+			expect( serialized["model_b"] ).not.toBeDefined()
+			expect( serialized["model_b2"] ).not.toBeDefined()
+			expect( serialized["collection_c"] ).not.toBeDefined()
+		#END it
 
 
-		#TEST
-		serialized = modelA.serialize(["id", "foo"])
-		expect( serialized['id'] ).to.equal 33
-		expect( serialized['foo'] ).to.equal "bar"
+		it "Should serialzie properly with a single attribute", ->
+			serialized = modelA.serialize(["foo"])
+			expect( serialized['foo'] ).toBe( "bar" )
 
-		expect( serialized["model_b"] ).to.be.undefined
-		expect( serialized["model_b2"] ).to.be.undefined
-		expect( serialized["collection_c"] ).to.be.undefined
+			expect( serialized['id'] ).not.toBeDefined()
+			expect( serialized["model_b"] ).not.toBeDefined()
+			expect( serialized["model_b2"] ).not.toBeDefined()
+			expect( serialized["model_b3"] ).not.toBeDefined()
+			expect( serialized["collection_c"] ).not.toBeDefined()
+		#END it
 
-
-		#TEST
-		serialized = modelA.serialize(["foo"])
-		expect( serialized['foo'] ).to.equal "bar"
-
-		expect( serialized['id'] ).to.be.undefined
-		expect( serialized["model_b"] ).to.be.undefined
-		expect( serialized["model_b2"] ).to.be.undefined
-		expect( serialized["collection_c"] ).to.be.undefined
-
-		#TEST
-		serialized = modelA.serialize {
-			"id": null
-			"model_b2": {
-				"b_foo": null
-				"url": null
+		it "Should serialzie properly with a deep attributes", ->
+			serialized = modelA.serialize {
+				"id": null
+				"model_b2": {
+					"b_foo": null
+					"url": null
+				}
 			}
-		}
 
-		expect( serialized['id'] ).to.equal 33
+			expect( serialized['id'] ).toBe( 33 )
 
-		expect( serialized['model_b2'] ).to.be.a "object"
-		expect( serialized['model_b2']['b_foo'] ).to.equal "B BAR 2"
+			expect( serialized['model_b2'] ).toEqual(jasmine.any(Object))
+			expect( serialized['model_b2']['b_foo'] ).toBe( "B BAR 2" )
 
-		expect( serialized["model_b"] ).to.be.undefined
-		expect( serialized["collection_c"] ).to.be.undefined
+			expect( serialized["model_b"] ).not.toBeDefined()
+			expect( serialized["model_b3"] ).not.toBeDefined()
+			expect( serialized["collection_c"] ).not.toBeDefined()
+		#END it
 
-		#TEST serialize shouldn't include prototype elements of Falcon.Object
-		serialized = modelA.serialize()
+		it "Should serialize without prototype elements of Falcon.Object", ->
+			serialized = modelA.serialize()
 
-		for key, value of serialized
-			expect( Falcon.Object.prototype ).to.not.include.keys( key )
-		#END for
+			for key, value of serialized
+				expect( Falcon.Object.prototype[key] ).not.toBeDefined()
+			#END for
 
-		#TEST serialize shouldn't include prototype elements of Falcon.Model
-		serialized = modelA.serialize()
+			#TEST serialize shouldn't include prototype elements of Falcon.Model
+			serialized = modelA.serialize()
 
-		for key, value of serialized when key isnt "id"
-			expect( Falcon.Model.prototype ).to.not.include.keys( key )
-		#END for
+			for key, value of serialized when key isnt "id"
+				expect( Falcon.Model.prototype[key] ).not.toBeDefined()
+			#END for
+		#END it
 	#END test fill
 
 
@@ -310,7 +464,6 @@ describe "Testing Model Methods", ->
 		#END CollectionC
 
 		modelA = new ModelA
-		modelA.fill
 			"foo": "bar"
 			"model_b": {
 				"something": "cool"
@@ -322,15 +475,20 @@ describe "Testing Model Methods", ->
 		#END fill
 
 		unwrapped = modelA.unwrap()
-		unwrapped['foo'].should.be.a "function"
-		unwrapped['foo']().should.equal "bar"
-		unwrapped['model_b'].should.be.a "object"
-		unwrapped['model_b']['something'].should.be.a "function"
-		unwrapped['model_b']['something']().should.equal "cool"
-		unwrapped['collection_c'].should.be.a "array"
-		unwrapped['collection_c'].should.have.length 2
-		unwrapped['collection_c'][0]['hello'].should.equal "world"
-		unwrapped['collection_c'][1]['hello'].should.equal "world2"
+		expect( unwrapped['foo'] ).toEqual(jasmine.any(Function))
+		expect( unwrapped['foo']() ).toBe( "bar" )
+		expect( unwrapped['model_b'] ).toEqual(jasmine.any(Object))
+		expect( unwrapped['model_b']['something'] ).toEqual(jasmine.any(Function))
+		expect( unwrapped['model_b']['something']() ).toBe( "cool" )
+		expect( unwrapped['collection_c'] ).toEqual(jasmine.any(Array))
+		expect( unwrapped['collection_c'].length ).toBe( 2 )
+		expect( unwrapped['collection_c'][0]['hello'] ).toBe( "world" )
+		expect( unwrapped['collection_c'][1]['hello'] ).toBe( "world2" )
+
+		#Make sure that we avoid having attributes from the Falcon.Model definition
+		expect( unwrapped['id'] ).toBeNull()
+		expect( unwrapped['parent'] ).not.toBeDefined()
+		expect( unwrapped['url'] ).not.toBeDefined()
 	#END it
 
 
@@ -369,69 +527,69 @@ describe "Testing Model Methods", ->
 		it "Should test the makeUrl method, numeric id, no baseUrl, no parent, no extension", ->
 			modelA = new ModelA(id: 1)
 
-			modelA.makeUrl("GET").should.equal "/model_a/1"
-			modelA.makeUrl("POST").should.equal "/model_a"
-			modelA.makeUrl("PUT").should.equal "/model_a/1"
-			modelA.makeUrl("DELETE").should.equal "/model_a/1"
+			expect( modelA.makeUrl("GET") ).toBe( "/model_a/1" )
+			expect( modelA.makeUrl("POST") ).toBe( "/model_a" )
+			expect( modelA.makeUrl("PUT") ).toBe( "/model_a/1" )
+			expect( modelA.makeUrl("DELETE") ).toBe( "/model_a/1" )
 		#END it
 
 		it "Should test the makeUrl method, string id, no baseUrl, no parent, no extension", ->
 			modelB = new ModelB(id: "b")
 
-			modelB.makeUrl("GET").should.equal "/model_b/b"
-			modelB.makeUrl("POST").should.equal "/model_b"
-			modelB.makeUrl("PUT").should.equal "/model_b/b"
-			modelB.makeUrl("DELETE").should.equal "/model_b/b"
+			expect( modelB.makeUrl("GET") ).toBe( "/model_b/b" )
+			expect( modelB.makeUrl("POST") ).toBe( "/model_b" )
+			expect( modelB.makeUrl("PUT") ).toBe( "/model_b/b" )
+			expect( modelB.makeUrl("DELETE") ).toBe( "/model_b/b" )
 		#END it
 
 		it "Should test the makeUrl method, numeric id, with shorter baseUrl, no parent, no extension", ->
 			modelA = new ModelA(id: 1)
 			Falcon.baseApiUrl = "http://www.falconjs.com"
 
-			modelA.makeUrl("GET").should.equal "http://www.falconjs.com/model_a/1"
-			modelA.makeUrl("POST").should.equal "http://www.falconjs.com/model_a"
-			modelA.makeUrl("PUT").should.equal "http://www.falconjs.com/model_a/1"
-			modelA.makeUrl("DELETE").should.equal "http://www.falconjs.com/model_a/1"
+			expect( modelA.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_a/1" )
+			expect( modelA.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_a" )
+			expect( modelA.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_a/1" )
+			expect( modelA.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_a/1" )
 		#END it
 
 		it "Should test the makeUrl method, string id, with shorter baseUrl, no parent, no extension", ->
 			modelB = new ModelB(id: "b")
 			Falcon.baseApiUrl = "http://www.falconjs.com"
 
-			modelB.makeUrl("GET").should.equal "http://www.falconjs.com/model_b/b"
-			modelB.makeUrl("POST").should.equal "http://www.falconjs.com/model_b"
-			modelB.makeUrl("PUT").should.equal "http://www.falconjs.com/model_b/b"
-			modelB.makeUrl("DELETE").should.equal "http://www.falconjs.com/model_b/b"
+			expect( modelB.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_b/b" )
+			expect( modelB.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_b" )
+			expect( modelB.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_b/b" )
+			expect( modelB.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_b/b" )
 		#END it
 
 		it "Should test the makeUrl method, numeric id, with baseUrl, no parent, no extension", ->
 			modelA = new ModelA(id: 1)
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			modelA.makeUrl("GET").should.equal "http://www.falconjs.com/model_a/1"
-			modelA.makeUrl("POST").should.equal "http://www.falconjs.com/model_a"
-			modelA.makeUrl("PUT").should.equal "http://www.falconjs.com/model_a/1"
-			modelA.makeUrl("DELETE").should.equal "http://www.falconjs.com/model_a/1"
+			expect( modelA.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_a/1" )
+			expect( modelA.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_a" )
+			expect( modelA.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_a/1" )
+			expect( modelA.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_a/1" )
 		#END it
 
 		it "Should test the makeUrl method, string id, with baseUrl, no parent, no extension", ->
 			modelB = new ModelB(id: "b")
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			modelB.makeUrl("GET").should.equal "http://www.falconjs.com/model_b/b"
-			modelB.makeUrl("POST").should.equal "http://www.falconjs.com/model_b"
-			modelB.makeUrl("PUT").should.equal "http://www.falconjs.com/model_b/b"
-			modelB.makeUrl("DELETE").should.equal "http://www.falconjs.com/model_b/b"
+			expect( modelB.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_b/b" )
+			expect( modelB.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_b" )
+			expect( modelB.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_b/b" )
+			expect( modelB.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_b/b" )
 		#END it
 
 		it "Should test the makeUrl method, no baseUrl, with parent, no extension", ->
 			modelB = new ModelB(id: "b")
 			modelA = new ModelA(id: 2, modelB)
 
-			modelA.makeUrl("GET").should.equal "/model_b/b/model_a/2"
-			modelA.makeUrl("POST").should.equal "/model_b/b/model_a"
-			modelA.makeUrl("PUT").should.equal "/model_b/b/model_a/2"
-			modelA.makeUrl("DELETE").should.equal "/model_b/b/model_a/2"
+			expect( modelA.makeUrl("GET") ).toBe( "/model_b/b/model_a/2" )
+			expect( modelA.makeUrl("POST") ).toBe( "/model_b/b/model_a" )
+			expect( modelA.makeUrl("PUT") ).toBe( "/model_b/b/model_a/2" )
+			expect( modelA.makeUrl("DELETE") ).toBe( "/model_b/b/model_a/2" )
 		#END it
 
 		it "Should test the makeUrl method, with baseUrl, with parent, no extension", ->
@@ -439,20 +597,20 @@ describe "Testing Model Methods", ->
 			modelA = new ModelA(id: 2, modelB)
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			modelA.makeUrl("GET").should.equal "http://www.falconjs.com/model_b/b/model_a/2"
-			modelA.makeUrl("POST").should.equal "http://www.falconjs.com/model_b/b/model_a"
-			modelA.makeUrl("PUT").should.equal "http://www.falconjs.com/model_b/b/model_a/2"
-			modelA.makeUrl("DELETE").should.equal "http://www.falconjs.com/model_b/b/model_a/2"
+			expect( modelA.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_b/b/model_a/2" )
+			expect( modelA.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_b/b/model_a" )
+			expect( modelA.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_b/b/model_a/2" )
+			expect( modelA.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_b/b/model_a/2" )
 		#END it
 
 		it "Should test the makeUrl method, no baseUrl, with explicit parent, no extension", ->
 			modelB = new ModelB(id: "b")
 			modelA = new ModelA(id: 3)
 
-			modelA.makeUrl("GET", modelB).should.equal "/model_b/b/model_a/3"
-			modelA.makeUrl("POST", modelB).should.equal "/model_b/b/model_a"
-			modelA.makeUrl("PUT", modelB).should.equal "/model_b/b/model_a/3"
-			modelA.makeUrl("DELETE", modelB).should.equal "/model_b/b/model_a/3"
+			expect( modelA.makeUrl("GET", modelB) ).toBe( "/model_b/b/model_a/3" )
+			expect( modelA.makeUrl("POST", modelB) ).toBe( "/model_b/b/model_a" )
+			expect( modelA.makeUrl("PUT", modelB) ).toBe( "/model_b/b/model_a/3" )
+			expect( modelA.makeUrl("DELETE", modelB) ).toBe( "/model_b/b/model_a/3" )
 		#END it
 
 		it "Should test the makeUrl method, with baseUrl, with explicit parent, no extension", ->
@@ -460,70 +618,70 @@ describe "Testing Model Methods", ->
 			modelA = new ModelA(id: 3)
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			modelA.makeUrl("GET", modelB).should.equal "http://www.falconjs.com/model_b/b/model_a/3"
-			modelA.makeUrl("POST", modelB).should.equal "http://www.falconjs.com/model_b/b/model_a"
-			modelA.makeUrl("PUT", modelB).should.equal "http://www.falconjs.com/model_b/b/model_a/3"
-			modelA.makeUrl("DELETE", modelB).should.equal "http://www.falconjs.com/model_b/b/model_a/3"
+			expect( modelA.makeUrl("GET", modelB) ).toBe( "http://www.falconjs.com/model_b/b/model_a/3" )
+			expect( modelA.makeUrl("POST", modelB) ).toBe( "http://www.falconjs.com/model_b/b/model_a" )
+			expect( modelA.makeUrl("PUT", modelB) ).toBe( "http://www.falconjs.com/model_b/b/model_a/3" )
+			expect( modelA.makeUrl("DELETE", modelB) ).toBe( "http://www.falconjs.com/model_b/b/model_a/3" )
 		#END it
 
-		it "Should test the makeUrl method, no baseUrl, with overridden parent, no extension", ->
+		it "Should test the makeUrl method, no baseUrl, with overriden parent, no extension", ->
 			modelB = new ModelB(id: "b")
 			modelA = new ModelA(id: 3, modelB)
 
-			modelA.makeUrl("GET", null).should.equal "/model_a/3"
-			modelA.makeUrl("POST", null).should.equal "/model_a"
-			modelA.makeUrl("PUT", null).should.equal "/model_a/3"
-			modelA.makeUrl("DELETE", null).should.equal "/model_a/3"
+			expect( modelA.makeUrl("GET", null) ).toBe( "/model_a/3" )
+			expect( modelA.makeUrl("POST", null) ).toBe( "/model_a" )
+			expect( modelA.makeUrl("PUT", null) ).toBe( "/model_a/3" )
+			expect( modelA.makeUrl("DELETE", null) ).toBe( "/model_a/3" )
 		#END it
 
-		it "Should test the makeUrl method, with baseUrl, with overridden parent, no extension", ->
+		it "Should test the makeUrl method, with baseUrl, with overriden parent, no extension", ->
 			modelB = new ModelB(id: "b")
 			modelA = new ModelA(id: 3, modelB)
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			modelA.makeUrl("GET", null).should.equal "http://www.falconjs.com/model_a/3"
-			modelA.makeUrl("POST", null).should.equal "http://www.falconjs.com/model_a"
-			modelA.makeUrl("PUT", null).should.equal "http://www.falconjs.com/model_a/3"
-			modelA.makeUrl("DELETE", null).should.equal "http://www.falconjs.com/model_a/3"
+			expect( modelA.makeUrl("GET", null) ).toBe( "http://www.falconjs.com/model_a/3" )
+			expect( modelA.makeUrl("POST", null) ).toBe( "http://www.falconjs.com/model_a" )
+			expect( modelA.makeUrl("PUT", null) ).toBe( "http://www.falconjs.com/model_a/3" )
+			expect( modelA.makeUrl("DELETE", null) ).toBe( "http://www.falconjs.com/model_a/3" )
 		#END it
 
 		it "Should test the makeUrl method, numeric index, no baseUrl, no parent, with extension", ->
 			modelC = new ModelC(id: 1)
 
-			modelC.makeUrl("GET").should.equal "/model_c/1.json"
-			modelC.makeUrl("POST").should.equal "/model_c.json"
-			modelC.makeUrl("PUT").should.equal "/model_c/1.json"
-			modelC.makeUrl("DELETE").should.equal "/model_c/1.json"
+			expect( modelC.makeUrl("GET") ).toBe( "/model_c/1.json" )
+			expect( modelC.makeUrl("POST") ).toBe( "/model_c.json" )
+			expect( modelC.makeUrl("PUT") ).toBe( "/model_c/1.json" )
+			expect( modelC.makeUrl("DELETE") ).toBe( "/model_c/1.json" )
 		#END it
 
 		it "Should test the makeUrl method, numeric index, with shorter baseUrl, no parent, with extension", ->
 			modelC = new ModelC(id: 1)
 			Falcon.baseApiUrl = "http://www.falconjs.com"
 
-			modelC.makeUrl("GET").should.equal "http://www.falconjs.com/model_c/1.json"
-			modelC.makeUrl("POST").should.equal "http://www.falconjs.com/model_c.json"
-			modelC.makeUrl("PUT").should.equal "http://www.falconjs.com/model_c/1.json"
-			modelC.makeUrl("DELETE").should.equal "http://www.falconjs.com/model_c/1.json"
+			expect( modelC.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_c/1.json" )
+			expect( modelC.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_c.json" )
+			expect( modelC.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_c/1.json" )
+			expect( modelC.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_c/1.json" )
 		#END it
 
 		it "Should test the makeUrl method, numeric index, no baseUrl, no parent, with extension", ->
 			modelC = new ModelC(id: 1)
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			modelC.makeUrl("GET").should.equal "http://www.falconjs.com/model_c/1.json"
-			modelC.makeUrl("POST").should.equal "http://www.falconjs.com/model_c.json"
-			modelC.makeUrl("PUT").should.equal "http://www.falconjs.com/model_c/1.json"
-			modelC.makeUrl("DELETE").should.equal "http://www.falconjs.com/model_c/1.json"
+			expect( modelC.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_c/1.json" )
+			expect( modelC.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_c.json" )
+			expect( modelC.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_c/1.json" )
+			expect( modelC.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_c/1.json" )
 		#END it
 
 		it "Should test the makeUrl method, no baseUrl, with parent, with extension", ->
 			modelB = new ModelB(id: "b")
 			modelC = new ModelC(id: 2, modelB)
 
-			modelC.makeUrl("GET").should.equal "/model_b/b/model_c/2.json"
-			modelC.makeUrl("POST").should.equal "/model_b/b/model_c.json"
-			modelC.makeUrl("PUT").should.equal "/model_b/b/model_c/2.json"
-			modelC.makeUrl("DELETE").should.equal "/model_b/b/model_c/2.json"
+			expect( modelC.makeUrl("GET") ).toBe( "/model_b/b/model_c/2.json" )
+			expect( modelC.makeUrl("POST") ).toBe( "/model_b/b/model_c.json" )
+			expect( modelC.makeUrl("PUT") ).toBe( "/model_b/b/model_c/2.json" )
+			expect( modelC.makeUrl("DELETE") ).toBe( "/model_b/b/model_c/2.json" )
 		#END it
 
 		it "Should test the makeUrl method, with baseUrl, with parent, with extension", ->
@@ -531,20 +689,20 @@ describe "Testing Model Methods", ->
 			modelC = new ModelC(id: 2, modelB)
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			modelC.makeUrl("GET").should.equal "http://www.falconjs.com/model_b/b/model_c/2.json"
-			modelC.makeUrl("POST").should.equal "http://www.falconjs.com/model_b/b/model_c.json"
-			modelC.makeUrl("PUT").should.equal "http://www.falconjs.com/model_b/b/model_c/2.json"
-			modelC.makeUrl("DELETE").should.equal "http://www.falconjs.com/model_b/b/model_c/2.json"
+			expect( modelC.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_b/b/model_c/2.json" )
+			expect( modelC.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_b/b/model_c.json" )
+			expect( modelC.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_b/b/model_c/2.json" )
+			expect( modelC.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_b/b/model_c/2.json" )
 		#END it
 
 		it "Should test the makeUrl method, no baseUrl, with explicit parent, with extension", ->
 			modelB = new ModelB(id: "b")
 			modelC = new ModelC(id: 3)
 
-			modelC.makeUrl("GET", modelB).should.equal "/model_b/b/model_c/3.json"
-			modelC.makeUrl("POST", modelB).should.equal "/model_b/b/model_c.json"
-			modelC.makeUrl("PUT", modelB).should.equal "/model_b/b/model_c/3.json"
-			modelC.makeUrl("DELETE", modelB).should.equal "/model_b/b/model_c/3.json"
+			expect( modelC.makeUrl("GET", modelB) ).toBe( "/model_b/b/model_c/3.json" )
+			expect( modelC.makeUrl("POST", modelB) ).toBe( "/model_b/b/model_c.json" )
+			expect( modelC.makeUrl("PUT", modelB) ).toBe( "/model_b/b/model_c/3.json" )
+			expect( modelC.makeUrl("DELETE", modelB) ).toBe( "/model_b/b/model_c/3.json" )
 		#END it
 
 		it "Should test the makeUrl method, with baseUrl, with  explicit parent, with extension", ->
@@ -552,49 +710,49 @@ describe "Testing Model Methods", ->
 			modelC = new ModelC(id: 3)
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			modelC.makeUrl("GET", modelB).should.equal "http://www.falconjs.com/model_b/b/model_c/3.json"
-			modelC.makeUrl("POST", modelB).should.equal "http://www.falconjs.com/model_b/b/model_c.json"
-			modelC.makeUrl("PUT", modelB).should.equal "http://www.falconjs.com/model_b/b/model_c/3.json"
-			modelC.makeUrl("DELETE", modelB).should.equal "http://www.falconjs.com/model_b/b/model_c/3.json"
+			expect( modelC.makeUrl("GET", modelB) ).toBe( "http://www.falconjs.com/model_b/b/model_c/3.json" )
+			expect( modelC.makeUrl("POST", modelB) ).toBe( "http://www.falconjs.com/model_b/b/model_c.json" )
+			expect( modelC.makeUrl("PUT", modelB) ).toBe( "http://www.falconjs.com/model_b/b/model_c/3.json" )
+			expect( modelC.makeUrl("DELETE", modelB) ).toBe( "http://www.falconjs.com/model_b/b/model_c/3.json" )
 		#END it
 
 		it "Should test the makeUrl method, string index, no baseUrl, no parent, with extension", ->
 			modelD = new ModelD(id: "d")
 
-			modelD.makeUrl("GET").should.equal "/model_d/d.json"
-			modelD.makeUrl("POST").should.equal "/model_d.json"
-			modelD.makeUrl("PUT").should.equal "/model_d/d.json"
-			modelD.makeUrl("DELETE").should.equal "/model_d/d.json"
+			expect( modelD.makeUrl("GET") ).toBe( "/model_d/d.json" )
+			expect( modelD.makeUrl("POST") ).toBe( "/model_d.json" )
+			expect( modelD.makeUrl("PUT") ).toBe( "/model_d/d.json" )
+			expect( modelD.makeUrl("DELETE") ).toBe( "/model_d/d.json" )
 		#END it
 
 		it "Should test the makeUrl method, string index, with shorter baseUrl, no parent, with extension", ->
 			modelD = new ModelD(id: "d")
 			Falcon.baseApiUrl = "http://www.falconjs.com"
 
-			modelD.makeUrl("GET").should.equal "http://www.falconjs.com/model_d/d.json"
-			modelD.makeUrl("POST").should.equal "http://www.falconjs.com/model_d.json"
-			modelD.makeUrl("PUT").should.equal "http://www.falconjs.com/model_d/d.json"
-			modelD.makeUrl("DELETE").should.equal "http://www.falconjs.com/model_d/d.json"
+			expect( modelD.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_d/d.json" )
+			expect( modelD.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_d.json" )
+			expect( modelD.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_d/d.json" )
+			expect( modelD.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_d/d.json" )
 		#END it
 
 		it "Should test the makeUrl method, string index, with baseUrl, no parent, with extension", ->
 			modelD = new ModelD(id: "d")
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			modelD.makeUrl("GET").should.equal "http://www.falconjs.com/model_d/d.json"
-			modelD.makeUrl("POST").should.equal "http://www.falconjs.com/model_d.json"
-			modelD.makeUrl("PUT").should.equal "http://www.falconjs.com/model_d/d.json"
-			modelD.makeUrl("DELETE").should.equal "http://www.falconjs.com/model_d/d.json"
+			expect( modelD.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_d/d.json" )
+			expect( modelD.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_d.json" )
+			expect( modelD.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_d/d.json" )
+			expect( modelD.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_d/d.json" )
 		#END it
 
 		it "Should test the makeUrl method, no baseUrl, with non-ext. parent, with extension", ->
 			modelD = new ModelD(id: "d")
 			modelA = new ModelA(id: 2, modelD)
 
-			modelA.makeUrl("GET").should.equal "/model_d/d/model_a/2"
-			modelA.makeUrl("POST").should.equal "/model_d/d/model_a"
-			modelA.makeUrl("PUT").should.equal "/model_d/d/model_a/2"
-			modelA.makeUrl("DELETE").should.equal "/model_d/d/model_a/2"
+			expect( modelA.makeUrl("GET") ).toBe( "/model_d/d/model_a/2" )
+			expect( modelA.makeUrl("POST") ).toBe( "/model_d/d/model_a" )
+			expect( modelA.makeUrl("PUT") ).toBe( "/model_d/d/model_a/2" )
+			expect( modelA.makeUrl("DELETE") ).toBe( "/model_d/d/model_a/2" )
 		#END it
 
 		it "Should test the makeUrl method, with baseUrl, with non-ext. parent, with extension", ->
@@ -602,20 +760,20 @@ describe "Testing Model Methods", ->
 			modelA = new ModelA(id: 2, modelD)
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			modelA.makeUrl("GET").should.equal "http://www.falconjs.com/model_d/d/model_a/2"
-			modelA.makeUrl("POST").should.equal "http://www.falconjs.com/model_d/d/model_a"
-			modelA.makeUrl("PUT").should.equal "http://www.falconjs.com/model_d/d/model_a/2"
-			modelA.makeUrl("DELETE").should.equal "http://www.falconjs.com/model_d/d/model_a/2"
+			expect( modelA.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_d/d/model_a/2" )
+			expect( modelA.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_d/d/model_a" )
+			expect( modelA.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_d/d/model_a/2" )
+			expect( modelA.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_d/d/model_a/2" )
 		#END it
 
 		it "Should test the makeUrl method, no baseUrl, with explicit non-ext. parent, with extension", ->
 			modelD = new ModelD(id: "d")
 			modelA = new ModelA(id: 3)
 
-			modelA.makeUrl("GET", modelD).should.equal "/model_d/d/model_a/3"
-			modelA.makeUrl("POST", modelD).should.equal "/model_d/d/model_a"
-			modelA.makeUrl("PUT", modelD).should.equal "/model_d/d/model_a/3"
-			modelA.makeUrl("DELETE", modelD).should.equal "/model_d/d/model_a/3"
+			expect( modelA.makeUrl("GET", modelD) ).toBe( "/model_d/d/model_a/3" )
+			expect( modelA.makeUrl("POST", modelD) ).toBe( "/model_d/d/model_a" )
+			expect( modelA.makeUrl("PUT", modelD) ).toBe( "/model_d/d/model_a/3" )
+			expect( modelA.makeUrl("DELETE", modelD) ).toBe( "/model_d/d/model_a/3" )
 		#END it
 
 		it "Should test the makeUrl method, no baseUrl, with explicit non-ext. parent, with extension", ->
@@ -623,20 +781,20 @@ describe "Testing Model Methods", ->
 			modelA = new ModelA(id: 3)
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			modelA.makeUrl("GET", modelD).should.equal "http://www.falconjs.com/model_d/d/model_a/3"
-			modelA.makeUrl("POST", modelD).should.equal "http://www.falconjs.com/model_d/d/model_a"
-			modelA.makeUrl("PUT", modelD).should.equal "http://www.falconjs.com/model_d/d/model_a/3"
-			modelA.makeUrl("DELETE", modelD).should.equal "http://www.falconjs.com/model_d/d/model_a/3"
+			expect( modelA.makeUrl("GET", modelD) ).toBe( "http://www.falconjs.com/model_d/d/model_a/3" )
+			expect( modelA.makeUrl("POST", modelD) ).toBe( "http://www.falconjs.com/model_d/d/model_a" )
+			expect( modelA.makeUrl("PUT", modelD) ).toBe( "http://www.falconjs.com/model_d/d/model_a/3" )
+			expect( modelA.makeUrl("DELETE", modelD) ).toBe( "http://www.falconjs.com/model_d/d/model_a/3" )
 		#END it
 
 		it "Should test the makeUrl method, no baseUrl, with parent, with extension", ->
 			modelD = new ModelD(id: "d")
 			modelC = new ModelC(id: 2, modelD)
 
-			modelC.makeUrl("GET").should.equal "/model_d/d/model_c/2.json"
-			modelC.makeUrl("POST").should.equal "/model_d/d/model_c.json"
-			modelC.makeUrl("PUT").should.equal "/model_d/d/model_c/2.json"
-			modelC.makeUrl("DELETE").should.equal "/model_d/d/model_c/2.json"
+			expect( modelC.makeUrl("GET") ).toBe( "/model_d/d/model_c/2.json" )
+			expect( modelC.makeUrl("POST") ).toBe( "/model_d/d/model_c.json" )
+			expect( modelC.makeUrl("PUT") ).toBe( "/model_d/d/model_c/2.json" )
+			expect( modelC.makeUrl("DELETE") ).toBe( "/model_d/d/model_c/2.json" )
 		#END it
 
 		it "Should test the makeUrl method, with baseUrl, with parent, with extension", ->
@@ -644,20 +802,20 @@ describe "Testing Model Methods", ->
 			modelC = new ModelC(id: 2, modelD)
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			modelC.makeUrl("GET").should.equal "http://www.falconjs.com/model_d/d/model_c/2.json"
-			modelC.makeUrl("POST").should.equal "http://www.falconjs.com/model_d/d/model_c.json"
-			modelC.makeUrl("PUT").should.equal "http://www.falconjs.com/model_d/d/model_c/2.json"
-			modelC.makeUrl("DELETE").should.equal "http://www.falconjs.com/model_d/d/model_c/2.json"
+			expect( modelC.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_d/d/model_c/2.json" )
+			expect( modelC.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_d/d/model_c.json" )
+			expect( modelC.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_d/d/model_c/2.json" )
+			expect( modelC.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_d/d/model_c/2.json" )
 		#END it
 
 		it "Should test the makeUrl method, no baseUrl, with  explicit parent, with extension", ->
 			modelD = new ModelD(id: "d")
 			modelC = new ModelC(id: 3)
 
-			modelC.makeUrl("GET", modelD).should.equal "/model_d/d/model_c/3.json"
-			modelC.makeUrl("POST", modelD).should.equal "/model_d/d/model_c.json"
-			modelC.makeUrl("PUT", modelD).should.equal "/model_d/d/model_c/3.json"
-			modelC.makeUrl("DELETE", modelD).should.equal "/model_d/d/model_c/3.json"
+			expect( modelC.makeUrl("GET", modelD) ).toBe( "/model_d/d/model_c/3.json" )
+			expect( modelC.makeUrl("POST", modelD) ).toBe( "/model_d/d/model_c.json" )
+			expect( modelC.makeUrl("PUT", modelD) ).toBe( "/model_d/d/model_c/3.json" )
+			expect( modelC.makeUrl("DELETE", modelD) ).toBe( "/model_d/d/model_c/3.json" )
 		#END it
 
 		it "Should test the makeUrl method, with baseUrl, with explicit parent, with extension", ->
@@ -665,46 +823,110 @@ describe "Testing Model Methods", ->
 			modelC = new ModelC(id: 3)
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			modelC.makeUrl("GET", modelD).should.equal "http://www.falconjs.com/model_d/d/model_c/3.json"
-			modelC.makeUrl("POST", modelD).should.equal "http://www.falconjs.com/model_d/d/model_c.json"
-			modelC.makeUrl("PUT", modelD).should.equal "http://www.falconjs.com/model_d/d/model_c/3.json"
-			modelC.makeUrl("DELETE", modelD).should.equal "http://www.falconjs.com/model_d/d/model_c/3.json"
+			expect( modelC.makeUrl("GET", modelD) ).toBe( "http://www.falconjs.com/model_d/d/model_c/3.json" )
+			expect( modelC.makeUrl("POST", modelD) ).toBe( "http://www.falconjs.com/model_d/d/model_c.json" )
+			expect( modelC.makeUrl("PUT", modelD) ).toBe( "http://www.falconjs.com/model_d/d/model_c/3.json" )
+			expect( modelC.makeUrl("DELETE", modelD) ).toBe( "http://www.falconjs.com/model_d/d/model_c/3.json" )
 		#END it
 
 		it "Should be able to use url as a function, no parent", ->
 			modelE = new ModelE(id: "e")
 
-			modelE.makeUrl("GET").should.equal "/model_e/e"
-			modelE.makeUrl("POST").should.equal "/model_e"
-			modelE.makeUrl("PUT").should.equal "/model_e/e"
-			modelE.makeUrl("DELETE").should.equal "/model_e/e"
+			expect( modelE.makeUrl("GET") ).toBe( "/model_e/e" )
+			expect( modelE.makeUrl("POST") ).toBe( "/model_e" )
+			expect( modelE.makeUrl("PUT") ).toBe( "/model_e/e" )
+			expect( modelE.makeUrl("DELETE") ).toBe( "/model_e/e" )
 		#END it
 
 		it "Should be able to use url as a function, with parent", ->
 			modelE = new ModelE(id: "e", new ModelB(id: "b") )
 
-			modelE.makeUrl("GET").should.equal "/model_b/b/model_e/e"
-			modelE.makeUrl("POST").should.equal "/model_b/b/model_e"
-			modelE.makeUrl("PUT").should.equal "/model_b/b/model_e/e"
-			modelE.makeUrl("DELETE").should.equal "/model_b/b/model_e/e"
+			expect( modelE.makeUrl("GET") ).toBe( "/model_b/b/model_e/e" )
+			expect( modelE.makeUrl("POST") ).toBe( "/model_b/b/model_e" )
+			expect( modelE.makeUrl("PUT") ).toBe( "/model_b/b/model_e/e" )
+			expect( modelE.makeUrl("DELETE") ).toBe( "/model_b/b/model_e/e" )
 		#END it
 
 		it "Should be able to use override the url, no parent", ->
 			modelE = new ModelE(id: "e", url: "model_e2")
 
-			modelE.makeUrl("GET").should.equal "/model_e2/e"
-			modelE.makeUrl("POST").should.equal "/model_e2"
-			modelE.makeUrl("PUT").should.equal "/model_e2/e"
-			modelE.makeUrl("DELETE").should.equal "/model_e2/e"
+			expect( modelE.makeUrl("GET") ).toBe( "/model_e2/e" )
+			expect( modelE.makeUrl("POST") ).toBe( "/model_e2" )
+			expect( modelE.makeUrl("PUT") ).toBe( "/model_e2/e" )
+			expect( modelE.makeUrl("DELETE") ).toBe( "/model_e2/e" )
 		#END it
 
 		it "Should be able to use override the url,with parent", ->
 			modelE = new ModelE({id: "e", url: "model_e3"}, new ModelB(id: "b") )
 
-			modelE.makeUrl("GET").should.equal "/model_b/b/model_e3/e"
-			modelE.makeUrl("POST").should.equal "/model_b/b/model_e3"
-			modelE.makeUrl("PUT").should.equal "/model_b/b/model_e3/e"
-			modelE.makeUrl("DELETE").should.equal "/model_b/b/model_e3/e"
+			expect( modelE.makeUrl("GET") ).toBe( "/model_b/b/model_e3/e" )
+			expect( modelE.makeUrl("POST") ).toBe( "/model_b/b/model_e3" )
+			expect( modelE.makeUrl("PUT") ).toBe( "/model_b/b/model_e3/e" )
+			expect( modelE.makeUrl("DELETE") ).toBe( "/model_b/b/model_e3/e" )
+		#END it
+
+		it "Should be able to handle '/' baseApiUrl", ->
+			modelA = new ModelA({id: 1})
+			Falcon.baseApiUrl = "/"
+
+			expect( modelA.makeUrl("GET") ).toBe( "/model_a/1" )
+			expect( modelA.makeUrl("POST") ).toBe( "/model_a" )
+			expect( modelA.makeUrl("PUT") ).toBe( "/model_a/1" )
+			expect( modelA.makeUrl("DELETE") ).toBe( "/model_a/1" )
+		#END it
+
+		it "Should be able to handle have id override", ->
+			modelA = new ModelA({id: 1})
+
+			expect( modelA.makeUrl("GET", null, "things") ).toBe( "/model_a/things" )
+			expect( modelA.makeUrl("POST", null, "things") ).toBe( "/model_a" )
+			expect( modelA.makeUrl("PUT", null, "things") ).toBe( "/model_a/things" )
+			expect( modelA.makeUrl("DELETE", null, "things") ).toBe( "/model_a/things" )
+		#END it
+
+		it "Should test the makeUrl method having id override with extension", ->
+			modelC = new ModelC(id: 1)
+
+			expect( modelC.makeUrl("GET", null, "things") ).toBe( "/model_c/things.json" )
+			expect( modelC.makeUrl("POST", null, "things") ).toBe( "/model_c.json" )
+			expect( modelC.makeUrl("PUT", null, "things") ).toBe( "/model_c/things.json" )
+			expect( modelC.makeUrl("DELETE", null, "things") ).toBe( "/model_c/things.json" )
+		#END it
+
+		it "Should be able to handle have id override", ->
+			modelA = new ModelA({id: 1})
+
+			expect( modelA.makeUrl("GET", "things") ).toBe( "/model_a/things" )
+			expect( modelA.makeUrl("POST", "things") ).toBe( "/model_a" )
+			expect( modelA.makeUrl("PUT", "things") ).toBe( "/model_a/things" )
+			expect( modelA.makeUrl("DELETE", "things") ).toBe( "/model_a/things" )
+		#END it
+
+		it "Should test the makeUrl method having id override with extension", ->
+			modelC = new ModelC(id: 1)
+
+			expect( modelC.makeUrl("GET", "things") ).toBe( "/model_c/things.json" )
+			expect( modelC.makeUrl("POST", "things") ).toBe( "/model_c.json" )
+			expect( modelC.makeUrl("PUT", "things") ).toBe( "/model_c/things.json" )
+			expect( modelC.makeUrl("DELETE", "things") ).toBe( "/model_c/things.json" )
+		#END it
+
+		it "Should be able to handle have id override with an undefined parent", ->
+			modelA = new ModelA({id: 1})
+
+			expect( modelA.makeUrl("GET", undefined, "things") ).toBe( "/model_a/things" )
+			expect( modelA.makeUrl("POST", undefined, "things") ).toBe( "/model_a" )
+			expect( modelA.makeUrl("PUT", undefined, "things") ).toBe( "/model_a/things" )
+			expect( modelA.makeUrl("DELETE", undefined, "things") ).toBe( "/model_a/things" )
+		#END it
+
+		it "Should test the makeUrl method having id override with extension and an undefined parent", ->
+			modelC = new ModelC(id: 1)
+
+			expect( modelC.makeUrl("GET", undefined, "things") ).toBe( "/model_c/things.json" )
+			expect( modelC.makeUrl("POST", undefined, "things") ).toBe( "/model_c.json" )
+			expect( modelC.makeUrl("PUT", undefined, "things") ).toBe( "/model_c/things.json" )
+			expect( modelC.makeUrl("DELETE", undefined, "things") ).toBe( "/model_c/things.json" )
 		#END it
 	#END describe
 
@@ -735,528 +957,68 @@ describe "Testing Model Methods", ->
 
 			it "Should call sync correctly on fetch without options", ->
 				modelA.fetch()
-				sync_stub.should.have.been.calledOnce
-				sync_stub.should.have.been.calledWith "GET", undefined
+				expect( sync_stub ).toHaveBeenCalledOnce()
+				expect( sync_stub ).toHaveBeenCalledWith( "GET", undefined )
 			#END it
 
 			it "Should call sync correctly on fetch with options", ->
 				modelA.fetch({})
-				sync_stub.should.have.been.calledOnce
-				sync_stub.should.have.been.calledWith "GET", {}
+				expect( sync_stub ).toHaveBeenCalledOnce()
+				expect( sync_stub ).toHaveBeenCalledWith( "GET", {} )
 			#END it
 
 			it "Should call sync correctly on create without options", ->
 				modelA.create()
-				sync_stub.should.have.been.calledOnce
-				sync_stub.should.have.been.calledWith "POST", undefined
+				expect( sync_stub ).toHaveBeenCalledOnce()
+				expect( sync_stub ).toHaveBeenCalledWith( "POST", undefined )
 			#END it
 
 			it "Should call sync correctly on create with options", ->
 				modelA.create({})
-				sync_stub.should.have.been.calledOnce
-				sync_stub.should.have.been.calledWith "POST", {}
+				expect( sync_stub ).toHaveBeenCalledOnce()
+				expect( sync_stub ).toHaveBeenCalledWith( "POST", {} )
 
 			it "Should call sync correctly on save without options", ->
 				modelA.set('id',1)
 				modelA.save()
-				sync_stub.should.have.been.calledOnce
-				sync_stub.should.have.been.calledWith "PUT", undefined
+				expect( sync_stub ).toHaveBeenCalledOnce()
+				expect( sync_stub ).toHaveBeenCalledWith( "PUT", undefined )
 			#END it
 
 			it "Should call sync correctly on save with options", ->
 				modelA.set('id',1)
 				modelA.save({})
-				sync_stub.should.have.been.calledOnce
-				sync_stub.should.have.been.calledWith "PUT", {}
+				expect( sync_stub ).toHaveBeenCalledOnce()
+				expect( sync_stub ).toHaveBeenCalledWith( "PUT", {} )
 
 			it "Should call sync correctly on destroy without options", ->
 				modelA.destroy()
-				sync_stub.should.have.been.calledOnce
-				sync_stub.should.have.been.calledWith "DELETE", undefined
+				expect( sync_stub ).toHaveBeenCalledOnce()
+				expect( sync_stub ).toHaveBeenCalledWith( "DELETE", undefined )
 			#END it
 
 			it "Should call sync correctly on destroy with options", ->
 				modelA.destroy({})
-				sync_stub.should.have.been.calledOnce
-				sync_stub.should.have.been.calledWith "DELETE", {}
+				expect( sync_stub ).toHaveBeenCalledOnce()
+				expect( sync_stub ).toHaveBeenCalledWith( "DELETE", {} )
 			#END it
 		#END describe
 
-		describe "Testing sync method $.ajax calls", ->
-			class ModelA extends Falcon.Model
-				url: "model_a"
-			#END ModelA
-
-			ajax_stub = null
+		describe "sync", ->
+			model = new Falcon.Model
 
 			beforeEach ->
-				ajax_stub = sinon.stub(jQuery, "ajax")
-				Falcon.cache = false
+				spyOn( Falcon.adapter, 'sync' )
 			#END beforeEach
 
-			afterEach ->
-				ajax_stub.restore()
-			#END afterEach
-
-			it "Should fetch properly without options", ->
-				modelA = new ModelA(id: 1)
-				modelA.fetch()
-
-				ajax_stub.should.have.been.calledOnce
-				ajax_stub.should.have.been.calledWithMatch {type: "GET"}
-				ajax_stub.should.have.been.calledWithMatch {url: modelA.makeUrl("GET")}
-				ajax_stub.should.have.been.calledWithMatch {data: ""}
-				ajax_stub.should.have.been.calledWithMatch {contentType: "application/json"}
-				ajax_stub.should.have.been.calledWithMatch {cache: false}
-				ajax_stub.should.have.been.calledWithMatch {headers: {}}
-				expect( ajax_stub.firstCall.args[0].success ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].success ).to.have.length 3
-				expect( ajax_stub.firstCall.args[0].error ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].error ).to.have.length 1
-				expect( ajax_stub.firstCall.args[0].complete ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].complete ).to.have.length 2
-			#END it
-
-			it "Should fetch properly with options", ->
-				modelA = new ModelA(id: 1)
-				Falcon.cache = true
-				modelA.fetch
-					url: "http://www.falconjs.com"
-					data: {"hello": "world"}
-					contentType: "text/html"
-					headers: {"User-Agent", "Chrome"}
-					success: ( _success = -> )
-					error: ( _error = -> )
-					complete: ( _complete = -> )
-				#END fetch
-
-				ajax_stub.should.have.been.calledOnce
-				ajax_stub.should.have.been.calledWithMatch {type: "GET"}
-				ajax_stub.should.have.been.calledWithMatch {url: "http://www.falconjs.com"}
-				ajax_stub.should.have.been.calledWithMatch {data: JSON.stringify("hello": "world")}
-				ajax_stub.should.have.been.calledWithMatch {contentType: "text/html"}
-				ajax_stub.should.have.been.calledWithMatch {cache: true}
-				ajax_stub.should.have.been.calledWithMatch {headers: {"User-Agent", "Chrome"}}
-				
-				expect( ajax_stub.firstCall.args[0].success ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].success ).to.have.length 3
-				expect( ajax_stub.firstCall.args[0].success ).to.not.equal _success
-
-				expect( ajax_stub.firstCall.args[0].error ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].error ).to.have.length 1
-				expect( ajax_stub.firstCall.args[0].error ).to.not.equal _error
-
-				expect( ajax_stub.firstCall.args[0].complete ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].complete ).to.have.length 2
-				expect( ajax_stub.firstCall.args[0].complete ).to.not.equal _complete
-			#END it
-
-			it "Should save properly without options", ->
-				modelA = new ModelA(id: 1)
-				modelA.save()
-
-				expect( ajax_stub ).to.have.been.calledOnce
-				expect( ajax_stub ).to.have.been.calledWithMatch {type: "PUT"}
-				expect( ajax_stub ).to.have.been.calledWithMatch {url: modelA.makeUrl("PUT")}
-				expect( ajax_stub ).to.have.been.calledWithMatch {data: JSON.stringify("id": 1) }
-				expect( ajax_stub ).to.have.been.calledWithMatch {contentType: "application/json"}
-				expect( ajax_stub ).to.have.been.calledWithMatch {cache: false}
-				expect( ajax_stub ).to.have.been.calledWithMatch {headers: {}}
-				expect( ajax_stub.firstCall.args[0].success ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].success ).to.have.length 3
-				expect( ajax_stub.firstCall.args[0].error ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].error ).to.have.length 1
-				expect( ajax_stub.firstCall.args[0].complete ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].complete ).to.have.length 2
-			#END it
-
-			it "Should save properly with options", ->
-				modelA = new ModelA(id: 1)
-				Falcon.cache = true
-				modelA.save
-					url: "http://www.falconjs.com"
-					data: {"hello": "world"}
-					contentType: "text/html"
-					headers: {"User-Agent", "Chrome"}
-					success: ( _success = -> )
-					error: ( _error = -> )
-					complete: ( _complete = -> )
-				#END save
-
-				ajax_stub.should.have.been.calledOnce
-				ajax_stub.should.have.been.calledWithMatch {type: "PUT"}
-				ajax_stub.should.have.been.calledWithMatch {url: "http://www.falconjs.com"}
-				ajax_stub.should.have.been.calledWithMatch {data: JSON.stringify("hello": "world")}
-				ajax_stub.should.have.been.calledWithMatch {contentType: "text/html"}
-				ajax_stub.should.have.been.calledWithMatch {cache: true}
-				ajax_stub.should.have.been.calledWithMatch {headers: {"User-Agent", "Chrome"}}
-				
-				expect( ajax_stub.firstCall.args[0].success ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].success ).to.have.length 3
-				expect( ajax_stub.firstCall.args[0].success ).to.not.equal _success
-
-				expect( ajax_stub.firstCall.args[0].error ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].error ).to.have.length 1
-				expect( ajax_stub.firstCall.args[0].error ).to.not.equal _error
-
-				expect( ajax_stub.firstCall.args[0].complete ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].complete ).to.have.length 2
-				expect( ajax_stub.firstCall.args[0].complete ).to.not.equal _complete
-			#END it
-
-			it "Should create properly without options", ->
-				modelA = new ModelA(id: 1)
-				modelA.create()
-
-				ajax_stub.should.have.been.calledOnce
-				ajax_stub.should.have.been.calledWithMatch {type: "POST"}
-				ajax_stub.should.have.been.calledWithMatch {url: modelA.makeUrl("POST")}
-				ajax_stub.should.have.been.calledWithMatch {data: JSON.stringify("id": 1) }
-				ajax_stub.should.have.been.calledWithMatch {contentType: "application/json"}
-				ajax_stub.should.have.been.calledWithMatch {cache: false}
-				ajax_stub.should.have.been.calledWithMatch {headers: {}}
-				expect( ajax_stub.firstCall.args[0].success ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].success ).to.have.length 3
-				expect( ajax_stub.firstCall.args[0].error ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].error ).to.have.length 1
-				expect( ajax_stub.firstCall.args[0].complete ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].complete ).to.have.length 2
-			#END it
-
-			it "Should create properly with options", ->
-				modelA = new ModelA(id: 1)
-				Falcon.cache = true
-				modelA.create
-					url: "http://www.falconjs.com"
-					data: {"hello": "world"}
-					contentType: "text/html"
-					headers: {"User-Agent", "Chrome"}
-					success: ( _success = -> )
-					error: ( _error = -> )
-					complete: ( _complete = -> )
-				#END create
-
-				ajax_stub.should.have.been.calledOnce
-				ajax_stub.should.have.been.calledWithMatch {type: "POST"}
-				ajax_stub.should.have.been.calledWithMatch {url: "http://www.falconjs.com"}
-				ajax_stub.should.have.been.calledWithMatch {data: JSON.stringify("hello": "world")}
-				ajax_stub.should.have.been.calledWithMatch {contentType: "text/html"}
-				ajax_stub.should.have.been.calledWithMatch {cache: true}
-				ajax_stub.should.have.been.calledWithMatch {headers: {"User-Agent", "Chrome"}}
-				
-				expect( ajax_stub.firstCall.args[0].success ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].success ).to.have.length 3
-				expect( ajax_stub.firstCall.args[0].success ).to.not.equal _success
-
-				expect( ajax_stub.firstCall.args[0].error ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].error ).to.have.length 1
-				expect( ajax_stub.firstCall.args[0].error ).to.not.equal _error
-
-				expect( ajax_stub.firstCall.args[0].complete ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].complete ).to.have.length 2
-				expect( ajax_stub.firstCall.args[0].complete ).to.not.equal _complete
-			#END it
-
-			it "Should destroy properly without options", ->
-				modelA = new ModelA(id: 1)
-				modelA.destroy()
-
-				ajax_stub.should.have.been.calledOnce
-				ajax_stub.should.have.been.calledWithMatch {type: "DELETE"}
-				ajax_stub.should.have.been.calledWithMatch {url: modelA.makeUrl("DELETE")}
-				ajax_stub.should.have.been.calledWithMatch {data: "" }
-				ajax_stub.should.have.been.calledWithMatch {contentType: "application/json"}
-				ajax_stub.should.have.been.calledWithMatch {cache: false}
-				ajax_stub.should.have.been.calledWithMatch {headers: {}}
-				expect( ajax_stub.firstCall.args[0].success ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].success ).to.have.length 3
-				expect( ajax_stub.firstCall.args[0].error ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].error ).to.have.length 1
-				expect( ajax_stub.firstCall.args[0].complete ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].complete ).to.have.length 2
-			#END it
-
-			it "Should destroy properly with options", ->
-				modelA = new ModelA(id: 1)
-				Falcon.cache = true
-				modelA.destroy
-					url: "http://www.falconjs.com"
-					data: {"hello": "world"}
-					contentType: "text/html"
-					headers: {"User-Agent", "Chrome"}
-					success: ( _success = -> )
-					error: ( _error = -> )
-					complete: ( _complete = -> )
-				#END destroy
-
-				ajax_stub.should.have.been.calledOnce
-				ajax_stub.should.have.been.calledWithMatch {type: "DELETE"}
-				ajax_stub.should.have.been.calledWithMatch {url: "http://www.falconjs.com"}
-				ajax_stub.should.have.been.calledWithMatch {data: JSON.stringify("hello": "world")}
-				ajax_stub.should.have.been.calledWithMatch {contentType: "text/html"}
-				ajax_stub.should.have.been.calledWithMatch {cache: true}
-				ajax_stub.should.have.been.calledWithMatch {headers: {"User-Agent", "Chrome"}}
-				
-				expect( ajax_stub.firstCall.args[0].success ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].success ).to.have.length 3
-				expect( ajax_stub.firstCall.args[0].success ).to.not.equal _success
-
-				expect( ajax_stub.firstCall.args[0].error ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].error ).to.have.length 1
-				expect( ajax_stub.firstCall.args[0].error ).to.not.equal _error
-
-				expect( ajax_stub.firstCall.args[0].complete ).to.be.a "function"
-				expect( ajax_stub.firstCall.args[0].complete ).to.have.length 2
-				expect( ajax_stub.firstCall.args[0].complete ).to.not.equal _complete
-			#END it
-		#END describe
-
-		describe "Testing sync method XHR responses", ->
-			class ModelA extends Falcon.Model
-				url: "model_a"
-			#END ModelA
-
-			server = null
-			modelA = null
-
-			parse_stub = null
-			fill_stub = null
-
-			fetch_spy = null
-			create_spy = null
-			save_spy = null
-			destroy_spy = null
-
-			success_spy = null
-			error_spy = null
-			complete_spy = null
-
-			data = null
-			error_data = null
-			success_data = null
-
-			options = null
-
-			beforeEach ->
-				server = sinon.fakeServer.create()
-
-				modelA = new ModelA
-				data = {"hello": "world"}
-				error_data = {"error": "Something Wrong"}
-				success_data = {"foo": "bar"}
-				parse_stub = sinon.stub(modelA, "parse").returns( success_data )
-				fill_stub = sinon.stub(modelA, "fill")
-
-				modelA.on "fetch", ( fetch_spy = sinon.spy() )
-				modelA.on "create", ( create_spy = sinon.spy() )
-				modelA.on "save", ( save_spy = sinon.spy() )
-				modelA.on "destroy", ( destroy_spy = sinon.spy() )
-
-				options = {
-					success: ( success_spy = sinon.spy() )
-					error: ( error_spy = sinon.spy() )
-					complete: ( complete_spy = sinon.spy() )
-				}
-			#END beforeEach
-
-			afterEach ->
-				server.restore()
-			#END afterEach
-
-			it "Should call the proper success method", ->
-				modelA.fetch( options )
-
-				server.respondWith [ 200, {}, JSON.stringify(data) ]
-				server.respond()
-
-				parse_stub.callCount.should.equal 1
-				parse_stub.firstCall.args[0].should.deep.equal data
-
-				fill_stub.callCount.should.equal 1
-				fill_stub.firstCall.args[0].should.deep.equal success_data
-
-				fill_stub.should.have.been.calledAfter parse_stub
-
-				fetch_spy.should.have.been.calledOnce
-				create_spy.should.not.have.been.called
-				save_spy.should.not.have.been.called
-				destroy_spy.should.not.have.been.called
-
-				fetch_spy.should.have.been.calledAfter fill_stub
-
-				success_spy.callCount.should.equal 1
-				success_spy.should.have.been.calledOn modelA
-				success_spy.firstCall.args.length.should.equal 4
-				success_spy.firstCall.args[0].should.equal modelA
-
-				error_spy.should.not.have.been.called
-
-				complete_spy.callCount.should.equal 1
-				complete_spy.should.have.been.calledOn modelA
-				complete_spy.firstCall.args.length.should.equal 3
-				complete_spy.firstCall.args[0].should.equal modelA
-				complete_spy.should.have.been.calledAfter success_spy
-			#END it
-
-			it "Should not fill when fill option is false on fetch", ->
-				options.fill = false
-				modelA.fetch( options )
-
-				server.respondWith [ 200, {}, JSON.stringify(data) ]
-				server.respond()
-
-				parse_stub.callCount.should.equal 1
-				parse_stub.firstCall.args[0].should.deep.equal data
-
-				fill_stub.callCount.should.equal 0
-
-				fetch_spy.should.have.been.calledOnce
-				create_spy.should.not.have.been.called
-				save_spy.should.not.have.been.called
-				destroy_spy.should.not.have.been.called
-
-				fetch_spy.should.have.been.calledAfter parse_stub
-
-				success_spy.callCount.should.equal 1
-				success_spy.should.have.been.calledOn modelA
-				success_spy.firstCall.args.length.should.equal 4
-				success_spy.firstCall.args[0].should.equal modelA
-
-				error_spy.should.not.have.been.called
-
-				complete_spy.callCount.should.equal 1
-				complete_spy.should.have.been.calledOn modelA
-				complete_spy.firstCall.args.length.should.equal 3
-				complete_spy.firstCall.args[0].should.equal modelA
-				complete_spy.should.have.been.calledAfter success_spy
-			#END it
-
-			it "Should call the error response on an errornous result", ->
-				modelA.fetch( options )
-
-				server.respondWith [ 400, {}, JSON.stringify(error_data) ]
-				server.respond()
-
-				parse_stub.callCount.should.equal 0
-				fill_stub.callCount.should.equal 0
-
-				fetch_spy.should.not.have.been.called
-				create_spy.should.not.have.been.called
-				save_spy.should.not.have.been.called
-				destroy_spy.should.not.have.been.called
-
-				success_spy.callCount.should.equal 0
-
-				error_spy.callCount.should.equal 1
-				error_spy.firstCall.args.length.should.equal 3
-				error_spy.should.have.been.calledOn modelA
-				complete_spy.firstCall.args[0].should.equal modelA
-
-				complete_spy.callCount.should.equal 1
-				complete_spy.should.have.been.calledOn modelA
-				complete_spy.firstCall.args.length.should.equal 3
-				complete_spy.firstCall.args[0].should.equal modelA
-				complete_spy.should.have.been.calledAfter error_spy
-			#END it
-
-			it "Should call the success response on create", ->
-				modelA.create( options )
-
-				server.respondWith [ 200, {}, JSON.stringify(data) ]
-				server.respond()
-
-				parse_stub.callCount.should.equal 1
-				parse_stub.firstCall.args[0].should.deep.equal data
-
-				fill_stub.callCount.should.equal 1
-				fill_stub.firstCall.args[0].should.deep.equal success_data
-
-				fill_stub.should.have.been.calledAfter parse_stub
-
-				fetch_spy.should.not.have.been.called
-				create_spy.callCount.should.equal 1
-				save_spy.should.not.have.been.called
-				destroy_spy.should.not.have.been.called
-
-				success_spy.callCount.should.equal 1
-				success_spy.should.have.been.calledOn modelA
-				success_spy.firstCall.args.length.should.equal 4
-				success_spy.firstCall.args[0].should.equal modelA
-
-				error_spy.should.not.have.been.called
-
-				complete_spy.callCount.should.equal 1
-				complete_spy.should.have.been.calledOn modelA
-				complete_spy.firstCall.args.length.should.equal 3
-				complete_spy.firstCall.args[0].should.equal modelA
-				complete_spy.should.have.been.calledAfter success_spy
-			#END it
-
-			it "Should call the success response on save", ->
-				modelA.set('id', 1)
-				modelA.save( options )
-
-				server.respondWith [ 200, {}, JSON.stringify(data) ]
-				server.respond()
-
-				parse_stub.callCount.should.equal 1
-				parse_stub.firstCall.args[0].should.deep.equal data
-
-				fill_stub.callCount.should.equal 1
-				fill_stub.firstCall.args[0].should.deep.equal success_data
-
-				fill_stub.should.have.been.calledAfter parse_stub
-
-				fetch_spy.should.not.have.been.called
-				create_spy.should.not.have.been.called
-				save_spy.callCount.should.equal 1
-				destroy_spy.should.not.have.been.called
-
-				success_spy.callCount.should.equal 1
-				success_spy.should.have.been.calledOn modelA
-				success_spy.firstCall.args.length.should.equal 4
-				success_spy.firstCall.args[0].should.equal modelA
-
-				error_spy.should.not.have.been.called
-
-				complete_spy.callCount.should.equal 1
-				complete_spy.should.have.been.calledOn modelA
-				complete_spy.firstCall.args.length.should.equal 3
-				complete_spy.firstCall.args[0].should.equal modelA
-				complete_spy.should.have.been.calledAfter success_spy
-			#END it
-
-			it "Should call the success response on destroy", ->
-				modelA.destroy( options )
-
-				server.respondWith [ 200, {}, JSON.stringify(data) ]
-				server.respond()
-
-				parse_stub.callCount.should.equal 1
-				parse_stub.firstCall.args[0].should.deep.equal data
-
-				fill_stub.callCount.should.equal 1
-				fill_stub.firstCall.args[0].should.deep.equal success_data
-
-				fill_stub.should.have.been.calledAfter parse_stub
-
-				fetch_spy.should.not.have.been.called
-				create_spy.should.not.have.been.called
-				save_spy.should.not.have.been.called
-				destroy_spy.callCount.should.equal 1
-
-				success_spy.callCount.should.equal 1
-				success_spy.should.have.been.calledOn modelA
-				success_spy.firstCall.args.length.should.equal 4
-				success_spy.firstCall.args[0].should.equal modelA
-
-				error_spy.should.not.have.been.called
-
-				complete_spy.callCount.should.equal 1
-				complete_spy.should.have.been.calledOn modelA
-				complete_spy.firstCall.args.length.should.equal 3
-				complete_spy.firstCall.args[0].should.equal modelA
-				complete_spy.should.have.been.calledAfter success_spy
+			it "Should call the falcon adapter", ->
+				type = "GET"
+				options = {}
+				context = new Falcon.Model
+				model.sync(type, options, context)
+
+				expect( Falcon.adapter.sync.calls.count() ).toBe( 1 )
+				expect( Falcon.adapter.sync ).toHaveBeenCalledWith(model, type, options, context)
 			#END it
 		#END describe
 	#END describe
@@ -1274,16 +1036,21 @@ describe "Testing Model Methods", ->
 		modelA_1 = new ModelA(id: 1)
 		modelA_2 = new ModelA(id: 2)
 		modelA_a = new ModelA(id: 'a')
+		modelA_null_1 = new ModelA
+		modelA_null_2 = new ModelA
 
-		expect( modelA_1.equals( modelA_1 ) ).to.be.true
-		expect( modelA_1.equals( modelA_2 ) ).to.be.false
-		expect( modelA_1.equals( 1 ) ).to.be.true
-		expect( modelA_1.equals( new ModelA(id: 1) ) ).to.be.true
+		expect( modelA_1.equals( modelA_1 ) ).toBe( true )
+		expect( modelA_1.equals( modelA_2 ) ).toBe( false )
+		expect( modelA_1.equals( 1 ) ).toBe( true )
+		expect( modelA_1.equals( new ModelA(id: 1) ) ).toBe( true )
 
-		expect( modelA_a.equals( modelA_a ) ).to.be.true
-		expect( modelA_a.equals( modelA_2 ) ).to.be.false
-		expect( modelA_a.equals( 'a' ) ).to.be.true
-		expect( modelA_a.equals( new ModelA(id: 'a') ) ).to.be.true
+		expect( modelA_a.equals( modelA_a ) ).toBe( true )
+		expect( modelA_a.equals( modelA_2 ) ).toBe( false )
+		expect( modelA_a.equals( 'a' ) ).toBe( true )
+		expect( modelA_a.equals( new ModelA(id: 'a') ) ).toBe( true )
+
+		expect( modelA_null_1.equals(modelA_null_2) ).toBe( false )
+		expect( modelA_null_1.equals(modelA_null_1) ).toBe( true )
 	#END if
 
 
@@ -1292,49 +1059,70 @@ describe "Testing Model Methods", ->
 	# Test the mixin() method
 	#
 	#--------------------------------------------------------------
-	it "Should implement mixins properly", ->
-		class ModelA extends Falcon.Model
-			initialize: -> @model_b = new ModelB
-		#END model a
+	describe "Testing the mixin method", ->
+		it "Should implement mixins properly", ->
+			class ModelA extends Falcon.Model
+				initialize: -> @model_b = new ModelB
+			#END model a
 
-		class ModelB extends Falcon.Model
-		#END ModelB
+			class ModelB extends Falcon.Model
+			#END ModelB
 
-		modelA = new ModelA
+			modelA = new ModelA
 
-		expect( modelA.hello ).to.be.undefined
-		expect( modelA.foo ).to.be.undefined
-		expect( modelA.model_b.test ).to.be.undefined
+			expect( modelA.hello ).not.toBeDefined()
+			expect( modelA.foo ).not.toBeDefined()
+			expect( modelA.model_b.test ).not.toBeDefined()
 
-		modelA.mixin {
-			"hello": ( mixin_spy = sinon.spy() )
-			"foo": ko.observable( "bar" )
-			"model_b": {
-				"test": "123"
+			modelA.mixin {
+				"hello": ( mixin_spy = sinon.spy() )
+				"foo": ko.observable( "bar" )
+				"model_b": {
+					"test": "123"
+				}
 			}
-		}
 
-		expect( modelA.hello ).not.to.be.undefined
-		expect( modelA.hello ).to.be.a 'function'
-		expect( ko.isObservable( modelA.foo ) ).to.be.true
-		expect( modelA.foo() ).to.equal 'bar'
-		expect( modelA.model_b.test ).not.to.be.undefined
-		expect( modelA.model_b.test ).to.equal '123'
+			expect( modelA.hello ).toBeDefined()
+			expect( modelA.hello ).toEqual(jasmine.any(Function))
+			expect( ko.isObservable( modelA.foo ) ).toBe( true )
+			expect( modelA.foo() ).toBe( 'bar' )
+			expect( modelA.model_b.test ).toBeDefined()
+			expect( modelA.model_b.test ).toBe( '123' )
 
-		modelA.hello('world')
-		mixin_spy.should.have.been.calledOnce
-		mixin_spy.should.have.been.calledOn modelA
-		mixin_spy.firstCall.args[0].should.equal modelA
-		mixin_spy.firstCall.args[1].should.equal 'world'
-	#END it
+			modelA.hello('world')
+			expect( mixin_spy ).toHaveBeenCalledOnce()
+			expect( mixin_spy ).toHaveBeenCalledOn( modelA )
+			expect( mixin_spy.firstCall.args[0] ).toBe( modelA )
+			expect( mixin_spy.firstCall.args[1] ).toBe( 'world' )
+		#END it
 
+		it "Should preserve existing values in the model", ->
+			class ModelA extends Falcon.Model
+			#END model a
+
+			model_a = new ModelA({"hello": "world", "foo": "bar"})
+
+			expect( model_a.get("hello") ).toBe( "world" )
+			expect( model_a.get("foo") ).toBe( "bar" )
+			expect( ko.isObservable( model_a.hello ) ).toBe( false )
+
+			model_a.mixin
+				"hello": ko.observable()
+				"foo": "baz"
+			#END mixin
+
+			expect( model_a.get("hello") ).toBe( "world" )
+			expect( model_a.get("foo") ).toBe( "bar" )
+			expect( ko.isObservable( model_a.hello ) ).toBe( true )
+		#END it
+	#END describe
 
 	#--------------------------------------------------------------
 	#
 	# Test the clone() method
 	#
 	#--------------------------------------------------------------
-	describe "Testing clone combinations", ->
+	describe "Testing clone() method", ->
 		class ModelA extends Falcon.Model
 			initialize: ->
 				@foo = ko.observable()
@@ -1345,173 +1133,100 @@ describe "Testing Model Methods", ->
 		#END ModelB
 
 		class ModelC extends Falcon.Model
-		#END ModelC
+		#END ModelB
 
-		it "Should clone properly without overridden parent", ->
-			modelB = new ModelB
+		it "Should do a basic clone properly", ->
+			modelB  = new ModelB()
 			modelA1 = new ModelA({
 				id:		1
 				hello:	"world"
-				foo:	"bar"
+				foo:	ko.observable("bar")
 			}, modelB)
 			modelA2 = modelA1.clone()
 
-			modelA1.should.not.equal modelA2
-			modelA1.parent.should.equal modelA2.parent
-			modelA1.id.should.equal modelA2.id
+			expect( modelA1 ).not.toBe( modelA2 )
 
-			modelA2.hello.should.equal "world"
-			expect( ko.isObservable( modelA2.foo ) ).to.be.true
-			modelA2.foo().should.equal "bar"
+			expect( modelA2.hello ).toBeDefined()
+			expect( modelA2.foo ).toBeDefined()
+			expect( modelA2.id ).toBeDefined()
+			expect( modelA2.parent ).toBeDefined()
+
+			expect( modelA2.id ).toBe( 1 )
+			expect( modelA2.parent ).toBe( modelB )
+			expect( ko.isObservable(modelA2.foo) ).toBe( true )
+			expect( modelA2.foo() ).toBe( "bar")
 		#END it
 
-		it "Should clone properly with overridden parent", ->
-			modelB = new ModelB
-			modelC = new ModelC
-			modelA1 = new ModelA({
-				id:		1
-				hello:	"world"
-				foo:	ko.observable("bar")
-			}, modelB)
-			modelA2 = modelA1.clone(modelC)
-
-			modelA2.should.not.equal modelA1
-			modelA2.id.should.equal modelA1.id
-			modelA2.parent.should.equal modelC
-
-			modelA2.hello.should.equal "world"
-			expect( ko.isObservable( modelA2.foo ) ).to.be.true
-			modelA2.foo().should.equal "bar"
-		#END it
-
-		it "Should clone properly with overridden null parent", ->
-			modelB = new ModelB
-			modelA1 = new ModelA({
-				id:		1
-				hello:	"world"
-				foo:	ko.observable("bar")
-			}, modelB)
-			modelA2 = modelA1.clone(null)
-
-			modelA2.should.not.equal modelA1
-			modelA2.id.should.equal modelA1.id
-			expect( modelA2.parent ).to.be.equal null
-
-			modelA2.hello.should.equal "world"
-			expect( ko.isObservable( modelA2.foo ) ).to.be.true
-			modelA2.foo().should.equal "bar"
-		#END it
-	#END it
-
-
-	#--------------------------------------------------------------
-	#
-	# Test the copy() method
-	#
-	#--------------------------------------------------------------
-	describe "Testing copy() method", ->
-		class ModelA extends Falcon.Model
-			initialize: ->
-				@foo = ko.observable()
-			#END initialzie
-		#END ModelA
-
-		class ModelB extends Falcon.Model
-		#END ModelB
-
-		class ModelC extends Falcon.Model
-		#END ModelB
-
-		it "Should do a basic copy properly", ->
+		it "Should do clone properly additional fields properly", ->
 			modelB  = new ModelB()
 			modelA1 = new ModelA({
 				id:		1
 				hello:	"world"
 				foo:	ko.observable("bar")
 			}, modelB)
-			modelA2 = modelA1.copy()
+			modelA2 = modelA1.clone(["id", "foo"])
 
-			modelA1.should.not.equal modelA2
+			expect( modelA1 ).not.toBe( modelA2 )
 
-			expect( modelA2.hello ).not.to.exist
-			expect( modelA2.foo ).to.exist
-			expect( modelA2.id ).to.exist
-			expect( modelA2.parent ).to.exist
+			expect( modelA2.hello ).not.toBeDefined()
+			expect( modelA2.foo ).toBeDefined()
+			expect( modelA2.id ).toBeDefined()
+			expect( modelA2.parent ).toBeDefined()
 
-			expect( modelA2.id ).to.equal 1
-			expect( modelA2.parent ).to.equal modelB
-			expect( ko.isObservable(modelA2.foo) ).to.be.true
-			expect( modelA2.foo() ).to.be.undefined
+			expect( modelA2.id ).toBe( 1 )
+			expect( modelA2.parent ).toBe( modelB )
+			expect( ko.isObservable(modelA2.foo) ).toBe( true )
+			expect( modelA2.foo() ).toBe( "bar")
 		#END it
 
-		it "Should do copy properly additional fields properly", ->
+		it "Should do clone properly additional fields properly without parent", ->
 			modelB  = new ModelB()
 			modelA1 = new ModelA({
 				id:		1
 				hello:	"world"
 				foo:	ko.observable("bar")
 			}, modelB)
-			modelA2 = modelA1.copy(["id", "foo"])
+			modelA2 = modelA1.clone(["id", "hello"], null)
 
-			modelA1.should.not.equal modelA2
+			expect( modelA1 ).not.toBe( modelA2 )
 
-			expect( modelA2.hello ).not.to.exist
-			expect( modelA2.foo ).to.exist
-			expect( modelA2.id ).to.exist
-			expect( modelA2.parent ).to.exist
+			expect( modelA2.hello ).toBeDefined()
+			expect( modelA2.foo ).toBeDefined()
+			expect( modelA2.id ).toBeDefined()
+			expect( modelA2.parent ).toBeNull()
 
-			expect( modelA2.id ).to.equal 1
-			expect( modelA2.parent ).to.equal modelB
-			expect( ko.isObservable(modelA2.foo) ).to.be.true
-			expect( modelA2.foo() ).to.be.equal "bar"
+			expect( modelA2.id ).toBe( 1 )
+			expect( modelA2.parent ).toBeNull()
+			expect( ko.isObservable(modelA2.hello) ).toBe( false )
+			expect( modelA2.hello ).toBe( "world")
+			expect( ko.isObservable(modelA2.foo) ).toBe( true )
+			expect( modelA2.foo() ).not.toBeDefined()
 		#END it
 
-		it "Should do copy properly additional fields properly without parent", ->
+		it "Should do clone properly with additional fields properly without parent or id fields", ->
 			modelB  = new ModelB()
 			modelA1 = new ModelA({
 				id:		1
 				hello:	"world"
 				foo:	ko.observable("bar")
 			}, modelB)
-			modelA2 = modelA1.copy(["id", "hello"], null)
+			modelA2 = modelA1.clone(["hello"], null)
 
-			modelA1.should.not.equal modelA2
+			expect( modelA1 ).not.toBe( modelA2 )
 
-			expect( modelA2.hello ).to.exist
-			expect( modelA2.foo ).to.exist
-			expect( modelA2.id ).to.exist
-			expect( modelA2.parent ).not.to.exist
+			expect( modelA2.hello ).toBeDefined()
+			expect( modelA2.foo ).toBeDefined()
+			expect( modelA2.parent ).toBeNull()
 
-			expect( modelA2.id ).to.equal 1
-			expect( ko.isObservable(modelA2.hello) ).to.be.false
-			expect( modelA2.hello ).to.be.equal "world"
-			expect( ko.isObservable(modelA2.foo) ).to.be.true
-			expect( modelA2.foo() ).to.be.undefined
+			expect( modelA2.id ).toBeNull()
+			expect( modelA2.parent ).toBeNull()
+			expect( ko.isObservable(modelA2.hello) ).toBe( false )
+			expect( modelA2.hello ).toBe( "world")
+			expect( ko.isObservable(modelA2.foo) ).toBe( true )
+			expect( modelA2.foo() ).not.toBeDefined()
 		#END it
 
-		it "Should do copy properly additional fields properly without parent or id fields", ->
-			modelB  = new ModelB()
-			modelA1 = new ModelA({
-				id:		1
-				hello:	"world"
-				foo:	ko.observable("bar")
-			}, modelB)
-			modelA2 = modelA1.copy(["hello"], null)
-
-			modelA1.should.not.equal modelA2
-
-			expect( modelA2.hello ).to.exist
-			expect( modelA2.foo ).to.exist
-			expect( modelA2.parent ).not.to.exist
-
-			expect( modelA2.id ).to.equal null
-			expect( ko.isObservable(modelA2.hello) ).to.be.false
-			expect( modelA2.hello ).to.be.equal "world"
-			expect( ko.isObservable(modelA2.foo) ).to.be.true
-			expect( modelA2.foo() ).to.be.undefined
-		#END it
-
-		it "Should do copy properly additional fields properly with new parent", ->
+		it "Should do clone properly additional fields properly with new parent", ->
 			modelC = new ModelC()
 			modelB  = new ModelB()
 			modelA1 = new ModelA({
@@ -1519,24 +1234,25 @@ describe "Testing Model Methods", ->
 				hello:	"world"
 				foo:	ko.observable("bar")
 			}, modelB)
-			modelA2 = modelA1.copy(["id", "hello"], modelC)
+			modelA2 = modelA1.clone(["id", "hello"], modelC)
 
-			modelA1.should.not.equal modelA2
+			expect( modelA1 ).not.toBe( modelA2 )
 
-			expect( modelA2.hello ).to.exist
-			expect( modelA2.foo ).to.exist
-			expect( modelA2.id ).to.exist
-			expect( modelA2.parent ).to.exist
-			expect( modelA2.parent ).to.equal modelC
+			expect( modelA2.hello ).toBeDefined()
+			expect( modelA2.foo ).toBeDefined()
+			expect( modelA2.id ).toBeDefined()
+			expect( modelA2.parent ).toBeDefined()
+			expect( modelA2.parent ).toBe( modelC )
 
-			expect( modelA2.id ).to.equal 1
-			expect( ko.isObservable(modelA2.hello) ).to.be.false
-			expect( modelA2.hello ).to.be.equal "world"
-			expect( ko.isObservable(modelA2.foo) ).to.be.true
-			expect( modelA2.foo() ).to.be.undefined
+			expect( modelA2.id ).toBe( 1 )
+			expect( modelA2.parent ).toBe( modelC )
+			expect( ko.isObservable(modelA2.hello) ).toBe( false )
+			expect( modelA2.hello ).toBe( "world")
+			expect( ko.isObservable(modelA2.foo) ).toBe( true )
+			expect( modelA2.foo() ).not.toBeDefined()
 		#END it
 
-		it "Should do copy properly additional fields properly with new parent or id fields", ->
+		it "Should do clone properly additional fields properly with new parent or id fields", ->
 			modelC = new ModelC()
 			modelB  = new ModelB()
 			modelA1 = new ModelA({
@@ -1544,20 +1260,21 @@ describe "Testing Model Methods", ->
 				hello:	"world"
 				foo:	ko.observable("bar")
 			}, modelB)
-			modelA2 = modelA1.copy(["hello"], modelC)
+			modelA2 = modelA1.clone(["hello"], modelC)
 
-			modelA1.should.not.equal modelA2
+			expect( modelA1 ).not.toBe( modelA2 )
 
-			expect( modelA2.hello ).to.exist
-			expect( modelA2.foo ).to.exist
-			expect( modelA2.parent ).to.exist
-			expect( modelA2.parent ).to.equal modelC
+			expect( modelA2.hello ).toBeDefined()
+			expect( modelA2.foo ).toBeDefined()
+			expect( modelA2.parent ).toBeDefined()
+			expect( modelA2.parent ).toBe( modelC )
 
-			expect( modelA2.id ).to.equal null
-			expect( ko.isObservable(modelA2.hello) ).to.be.false
-			expect( modelA2.hello ).to.be.equal "world"
-			expect( ko.isObservable(modelA2.foo) ).to.be.true
-			expect( modelA2.foo() ).to.be.undefined
+			expect( modelA2.id ).toBeNull()
+			expect( modelA2.parent ).toBe( modelC )
+			expect( ko.isObservable(modelA2.hello) ).toBe( false )
+			expect( modelA2.hello ).toBe( "world")
+			expect( ko.isObservable(modelA2.foo) ).toBe( true )
+			expect( modelA2.foo() ).not.toBeDefined()
 		#END it
 	#END describe
 
@@ -1572,13 +1289,13 @@ describe "Testing Model Methods", ->
 		#END ModelA
 
 		modelA = new ModelA
-		expect( modelA.isNew() ).to.be.true
+		expect( modelA.isNew() ).toBe( true )
 
 		modelA = new ModelA(id: 1)
-		expect( modelA.isNew() ).to.be.false
+		expect( modelA.isNew() ).toBe( false )
 
 		modelA = new ModelA(id: 'a')
-		expect( modelA.isNew() ).to.be.false
+		expect( modelA.isNew() ).toBe( false )
 	#END it
 #END describe
 

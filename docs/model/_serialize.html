@@ -1,0 +1,32 @@
+{% assign methodName = "serialize" %}
+{% assign methodExample = "model.serialize( [attributes] )" %}
+{% assign returnType = "Object" %}
+{% assign returnDescription = "The resultant 'raw' object to send to the server" %}
+{% include methodOverview.html %}
+<p>
+	Serializes the data into a raw json object and only corresponds to the attributes that are primitive and that we wish to be able to send back to the server.
+</p>
+<dl>
+	<dt>attributes</dt>
+	<dd>
+		The attributes that should be included in the serialization. If none given, all attributes from this model (except for functions) are serialized
+	</dd>
+</dl>
+{% highlight javascript linenos%}
+var Dog = Falcon.Model.extend({
+	url: 'dog.json',
+
+	defaults: {
+		"name": "Fido",
+		"color": "Black"
+	}
+});
+
+var dog = new Dog({"id": 1});
+
+console.log( dog.serialize() ); // {"id": 1, "name": "Fido", "color": "Black"}
+
+dog.set("name", "Spot");
+
+console.log( dog.serialize(["name"]) ); // {"name": "Spot"}
+{% endhighlight %}

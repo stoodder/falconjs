@@ -1,0 +1,33 @@
+{% assign methodName = "parseRawResponseData" %}
+{% assign methodExample = "adapter.parseRawResponseData( data_object, type, options, context, response_args )" %}
+{% assign returnType = "Object" %}
+{% assign returnDescription = "The 'response_args' argument" %}
+{% include methodOverview.html %}
+<p>
+	Method used to parse the raw response data to ensure that it is a javascript array or object to pass along to the data_object's parse() method (eg. Parsing a JSON string). This base implementation does nothing but return the response_args.  It is expected that this method will be overridden by an inheritting adapter who's task it is to parse the data and return it from its version of this method properly.  This method will be called from the adapter.successResponseHandler, adapter.errorResponseHandler, and adapter.completeResponseHandler
+</p>
+<div class="alert alert-info">
+	This method is a post-request method that should always be called with the same five arguments: data_object, type, options, and context, response_args.
+</div>
+<div class="alert alert-warning">
+	This method does not do anything by itself and should be overridden by an inheritting adapter implementation.
+</div>
+<dl>
+	<dt data-type="Falcon.Model">data_object</dt>
+	<dd>The data object being prepaired. Should be either a Falcon.Model or a Falcon.Collection</dd>
+	<dt data-type="String">type</dt>
+	<dd>The resolved request type</dd>
+	<dt data-type="Object">options</dt>
+	<dd>The standardized options</dd>
+	<dt data-type="mixed">context</dt>
+	<dd>The resolved request context</dd>
+	<dt data-type="Object">response_args</dt>
+	<dd>An object that inheritting adapters can and should use to pass along the inheriting adapter implementation-specific data between post-request methods</dd>
+</dl>
+{% highlight javascript linenos %}
+var model = new Falcon.Model();
+var adapter = new Falcon.Adapter();
+
+// Returns: {"hello": "world"}
+apater.parseRawResponseData( model, "GET", options, model, {"hello": "world"} );
+{% endhighlight %}

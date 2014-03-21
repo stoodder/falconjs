@@ -1,0 +1,51 @@
+{% assign methodName = "parse" %}
+{% assign methodExample = "collection.parse( data, options, xhr )" %}
+{% assign returnType = "Array" %}
+{% assign returnDescription = "The formatted response to fill the collection with." %}
+{% include methodOverview.html %}
+<p>
+	The parse method is called after any successful request is completed but before any of the data is actually filled into the collection. It's purpose is to allow you to intercept and parse through the raw server data in order to format it correctly to how this collection expects to see it. This method must return an array of objects in order for the collection to be filled correctly.
+</p>
+<dl>
+	<dt data-type='Object'>data</dt>
+	<dd>The raw data returned from the server</dd>
+	<dt data-type='Object'>options</dt>
+	<dd>The options that were passed into the sync function</dd>
+	<dt data-type="XmlHttpRequest">xhr</dt>
+	<dd>The XmlHttpRequest that was created when making this request</dd>
+</dl>
+{% highlight json linenos %}
+{
+	"data": [
+		{"id": 1, "name": "Fido"},
+		{"id": 2, "name": "Spot"},
+		{"id": 3, "name": "Skip"}
+	],
+	"created_at": "01/01/1970",
+	"updated_at": "01/01/1970"
+}
+{% endhighlight %}
+<div class="caption">Response JSON</div>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend({'url': "dog.json"});
+var Dogs = Falcon.Collection.extend({
+	model: Dog,
+
+	// Example parse method, the array that is returned from 
+	// this will be passed into the collection's fill() method.
+	parse: function( response ) {
+		return response["data"];
+	}
+});
+
+var dogs = new Dogs();
+
+// Get's the server data and runs the parse method
+// Callback is called on complete
+dogs.fetch(function(dogs) {
+	console.log( dogs.length() ); // 3
+	console.log( dogs.at(0).get("id") ); // 1
+	console.log( dogs.at(0).get("name") ); // Fido
+});
+{% endhighlight %}
+<div class="caption">Application Javascript</div>

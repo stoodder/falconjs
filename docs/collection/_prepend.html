@@ -1,0 +1,34 @@
+{% assign methodName = "prepend" %}
+{% assign methodExample = "collection.prepend( items )" %}
+{% assign returnType = "Falcon.Collection" %}
+{% assign returnDescription = "This instance" %}
+{% include methodOverview.html %}
+<p>
+	Adds a model or an array of models to the beginning of this collection.
+</p>
+<dl>
+	<dt type="Falcon.Model">item</dt>
+	<dd>A model to prepend to the beginning of this collection.</dd>
+</dl>
+<dl>
+	<dt type="Array">items</dt>
+	<dd>An array of models to prepend to the beginning of this collection.</dd>
+</dl>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend();
+var Dogs = Falcon.Collection.extend({model: Dog});
+
+var dogs = new Dogs();
+
+dogs.prepend({"name": "Fido"});
+console.log( dogs.pluck("name") ); // [Fido]
+
+dogs.prepend( new Dog({name: "Spot"}) ); 
+console.log( dogs.pluck("name") ); // [Spot, Fido]
+
+dogs.prepend([
+	{name: "Skip"},
+	{name: "Bump"}
+]);
+console.log( dogs.pluck("name") ); // [Skip, Bump, Spot, Fido]
+{% endhighlight %}

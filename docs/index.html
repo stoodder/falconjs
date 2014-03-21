@@ -1,0 +1,100 @@
+---
+layout: docs
+---
+{% assign methodName = "Object" %}
+<div class="section-header">
+	<a href="/docs/object">
+		<h1>Object</h1>
+		<div class="section-return">Falcon.Object Documentation &rarr;</div>
+	</a>
+</div>
+<p>
+	Falcon.Object is the base-most class that all other Falcon classes (Model, Collection, View, Adapter) inherit from.  It provides functionality for event handling, defaults/observables creation, and the definition for extend that exists on all subclasses.
+</p>
+
+<div class="section-header">
+	<a href="/docs/model">
+		<h1>Model</h1>
+		<div class="section-return">Falcon.Model Documentation &rarr;</div>
+	</a>
+</div>
+<p>
+	Falcon.Model is Falcon's class that is used to represent individual data objects (eg. Dog, Cat, User, etc).  Models can be used to interact with data to/from a backend API, provide data specific validation, and create general data definitions.
+</p>
+
+<div class="section-header">
+	<a href="/docs/collection">
+		<h1>Collection</h1>
+		<div class="section-return">Falcon.Collection Documentation &rarr;</div>
+	</a>
+</div>
+<p>
+	Falcon.Collection is Falcon's class that is used to represent a list of models. Collections can be used to retrieve a list of models from a backend API and they provide numerous sorting and filtering methods.
+</p>
+
+
+<div class="section-header">
+	<a href="/docs/view">
+		<h1>View</h1>
+		<div class="section-return">Falcon.View Documentation &rarr;</div>
+	</a>
+</div>
+<p>
+	Falcon.View is Falcon's class that is used to represent an individual view which is bound to a Knockout template. Views can be used to organize individual application components and their specific data representations and functionality.  Views can also be used to trigger certain functionality when being displayed or hidden from the DOM.
+</p>
+
+<div class="section-header">
+	<a href="/docs/adapter">
+		<h1>Adapter</h1>
+		<div class="section-return">Falcon.Adapter Documentation &rarr;</div>
+	</a>
+</div>
+<p>
+	Falcon.Adapter is Falcon's class that defines how we send, retrieve, and respond to requests from a back-end data source. Adapters should be a singleton and assigned to <code>Falcon.adapter</code>. In previous version fo Falcon, we were stuck assuming that we'd be using jQuery for our Ajax Calls with a RESTful interface.  Adapters remove this assumption and dependency on jQuery and allow for us to write any interface that we would like depending on what backend service we have present.
+</p>
+
+<div class="section-header">
+	<a href="/docs/bindings">
+		<h1>Bindings</h1>
+		<div class="section-return">Bindings Documentation &rarr;</div>
+	</a>
+</div>
+<p>
+	Falcon provides new implementations for certain bindings in order to make Knockout templates compatable with Falcon views and data objects.
+</p>
+
+
+
+<div class="section-header">
+	<a href="/docs/conductor">
+		<h1>Conductor</h1>
+		<div class="section-return">Conductor Documentation &rarr;</div>
+	</a>
+</div>
+<p>
+	The conductor is an <strong>experimental</strong> plugin (and separate javascript file) that allows us to directly link any (custom or otherwise) HTML tag to a user-defined method or Falcon view.  Additionally, the attributes of a custom tag processed by the conductor are evaluated against the current context and hence can be used to pass data from parent context into the generated views.
+</p>
+
+
+
+<div class="section-header">
+	<a href="/docs/utility">
+		<h1>Utility</h1>
+		<div class="section-return">Utility Documentation &rarr;</div>
+	</a>
+</div>
+<p>
+	Utility methods are used to initialize your application, add custom bindings, and check data for specific Falcon related types.
+</p>
+
+
+
+<div class="section-header">
+	<a href="/docs/configuration">
+		<h1>Configuration</h1>
+		<div class="section-return">Configuration Documentation &rarr;</div>
+	</a>
+</div>
+<p>
+	The configuration documents and discusses all of the different configuration options available in Falcon.
+</p>

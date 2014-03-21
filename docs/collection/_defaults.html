@@ -1,0 +1,21 @@
+{% assign methodName = "defaults" %}
+{% assign methodExample = "collection.defaults" %}
+{% include methodOverview.html %}
+<p>
+<p>
+	This is a hash map of non-observable defaults to create whenever an instance of this collection is initialized. If the value is a function, the function is called and the return value is assigned. Functions are called in context of this instance and with all the same arguments from the constructor method. Defaults are created before observables which means that any duplicate attributes between the observables (as in the 'observables' attribute on Falcon.Object) and default attributes will be overridden by those in the observables
+</p>
+{% highlight javascript linenos %}
+var Dogs = Falcon.Collection.extend({
+	defaults: {
+		"are_tame": true,
+		"name": function() {
+			return ( name || "Fido" );
+		}
+	}
+});
+
+var dogs = new Dogs();
+console.log( dogs.name ); // Fido
+console.log( dogs.are_tame ); // true
+{% endhighlight %}

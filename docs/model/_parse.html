@@ -1,0 +1,54 @@
+{% assign methodName = "parse" %}
+{% assign methodExample = "model.parse( data, [options], [xhr] )" %}
+{% assign returnType = "Object" %}
+{% assign returnDescription = "Parsing on a model expects an object to be returned" %}
+{% include methodOverview.html %}
+<p>
+	Parses the response data from an XmlHttpRequest request.  A json object must be returned from this method in order for the data to be filled back into the model properly.  This is useful if you're in need of converting a server response into a different format before attempting to fill all of the model's data.
+</p>
+<dl>
+	<dt data-type="Object">data</dt>
+	<dd>The raw response data</dd>
+	<dt data-type="Object">options</dt>
+	<dd>The options fed initially into the 'sync' request</dd>
+	<dt data-type="XmlHttpRequest">xhr</dt>
+	<dd>The XmlHttpRequest object</dd>
+</dl>
+{% highlight json linenos %}
+{
+	"meta": {
+		"page": 1,
+		"page_size": 10,
+		"page_count": 3
+	},
+	"data": {
+		"id": 1,
+		"name": "Fido"
+	}
+}
+{% endhighlight %}
+<p>Example Server Response JSON for /dog.json</p>
+{% highlight javascript linenos %}
+var Dog = Falcon.Model.extend({
+	'url': "dog.json",
+
+	defaults: {
+		"name": ""
+	}
+
+	// Example parse method, the object that is returned from 
+	// this will be passed into the model's fill() method.
+	parse: function( response ) {
+		return response["data"];
+	}
+});
+
+var dog = new Dog();
+
+// Get's the server data and runs the parse method
+// Callback is called on complete
+dog.fetch(function() {
+	console.log( dog.get("id") ); // 1
+	console.log( dog.get("name") ); // Fido
+});
+{% endhighlight %}

@@ -1,33 +1,39 @@
 ---
-layout: layout
+version: 0.10.0
 ---
-{% assign category = 'Getting Started' %}
-{% assign description = "Falcon.js is an MV* framework that helps organize small and large single-page applications that wish to utilize Knockout.js for templating and data binding. Falcon provides: <br/><br/><ul><li><strong>Models</strong> represent individual data objects that need to sync with server data</li><li><strong>Collections</strong> represent a list of models and provide numerous list filtering methods</li><li><strong>Views</strong> relate functionality between data objects and Knockout templates</li>" %}
-{% include contentsection.html %}
-
-{% assign category = 'Object' %}
-{% assign description = "Falcon.Object is the base-most class that all other Falcon classes (Model, Collection, View) inherit from.  It provides functionality for event handling, defaults/observables creation, and the definition for extend that exists on all subclasses." %}
-{% include contentsection.html %}
-
-{% assign category = 'Model' %}
-{% assign extends = 'Falcon.Object' %}
-{% assign description = "Falcon.Model is Falcon's class that is used to represent individual data objects (eg. Dog, Cat, User, etc).  Models can be used to interact with data to/from a backend API, provide data specific validation, and create general data definitions." %}
-{% include contentsection.html %}
-
-{% assign category = 'Collection' %}
-{% assign extends = 'Falcon.Object' %}
-{% assign description = "Falcon.Collection is Falcon's class that is used to represent a list of models. Collections can be used to retrieve a list of models from a backend API and they provide numerous sorting and filtering methods." %}
-{% include contentsection.html %}
-
-{% assign category = 'View' %}
-{% assign extends = 'Falcon.Object' %}
-{% assign description = "Falcon.View is Falcon's class that is used to represent an individual view which is bound to a Knockout template. Views can be used to organize individual application components and their specific data representations and functionality.  Views can also be used to trigger certain functionality when being displayed or hidden from the DOM." %}
-{% include contentsection.html %}
-
-{% assign category = 'Bindings' %}
-{% assign description = "Falcon provides new implementations for certain bindings in order to make Knockout templates compatable with Falcon views and data objects." %}
-{% include contentsection.html %}
-
-{% assign category = 'Utility' %}
-{% assign description = "Utility methods are used to initialize your application, add custom bindings, and check data for specific Falcon related types." %}
-{% include contentsection.html %}
+<!DOCTYPE html>
+<html lang="en">
+	{% include head.html %}
+	<body>
+		<a href="https://github.com/stoodder/falconjs"><img style="position: absolute; top: 0; right: 0; border: 0; z-index: 1000" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+		<div id="content">
+			<div id="hero">
+				<div class="hero-links">
+					<a class="hero-link" href="/tutorial">Getting Started</a>
+					<a class="hero-link" href="/docs">Documentation</a>
+					<a class="hero-link" href="/tests/falcon.test.html" target="_blank">Tests</a>
+				</div>
+				<div class="hero-headline">
+					Falcon.js
+				</div>
+				<div class="hero-tagline">MVVM Framework for Superb Web Apps</div>
+				<p class="hero-description">
+					Falcon.js provides <a href="/docs/model"><strong>models</strong></a>, <a href="/docs/collection"><strong>collections</strong></a>, and <a href="/docs/view"><strong>views</strong></a> with Knockout.js' awesome data binding architecture to make developing, scaling, and maintaining javascript applications a breeze.
+				</p>
+				<div class="hero-actions">
+					<a class="btn btn-danger" href="/assets/scripts/falcon.min.js" target="_blank">
+						Download v{{ page.version }}
+						<small>
+							Requires Knockout 3.X.X
+						</small>
+					</a>
+					<a class="btn btn-danger btn-lite btn-sm" href="/assets/scripts/falcon.js" target="_blank">
+						Download Development Version
+					</a>
+				</div>
+				</p>
+			</div>
+		</div>
+		{% include scripts.html %}
+	</body>
+</html>

@@ -1,0 +1,266 @@
+---
+layout: view
+---
+{% assign methodName = "initialize" %}
+{% assign methodExample = "new Falcon.View()" %}
+{% include methodOverview.html %}
+<p>
+	Initializes this class, this is called within the default constructor and is expected to be overridden by inheriting classes.  Internally this also calls the Falcon.Object constructor to in initialize any 'defaults' or 'observables'.  Any arguments that are passed into the native constructor will also be passed in as the arguments for the initialize method.
+</p>
+{% highlight javascript linenos %}
+var DogView = Falcon.View.extend({
+	initialize: function()
+	{
+		console.log("Initialized the Dog View");
+	}
+});
+
+new DogView(); // "Initialized the Dog View"
+{% endhighlight %}
+{% assign methodName = "extend" %}
+{% assign methodExample = "Falcon.View.extend( protoProps, [staticProps] )" %}
+{% include methodOverview.html %}
+<p>
+	Method used to create a new view that inherits from the base Falcon View.
+</p>
+<dl>
+	<dt data-type="Object">protoProps</dt>
+	<dd>Properties for the prototype of a class</dd>
+	<dt data-type="Object">staticProps</dt>
+	<dd>Static properties for a given object</dd>
+</dl>
+{% highlight javascript linenos %}
+var DogView = Falcon.View.extend({
+	bark: function()
+	{
+		console.log("The dog view barks");
+	}
+},{
+	says: function() {
+		console.log("Woof!");
+	}
+});
+
+var my_dog_view = new DogView();
+
+DogView.says(); // Woof!
+my_dog_view.bark(); // The dog view barks
+{% endhighlight %}
+{% assign methodName = "url" %}
+{% assign methodExample = "view.url" %}
+{% include methodOverview.html %}
+<p>
+	The url or element id where this template is defined. Can either be a string or a function and can either point to a uri or a DOM object identifier.  This attribute should be overridden by any inheriting classes
+</p>
+{% highlight javascript linenos %}
+var DogUrlView = Falcon.View.extend({
+	url: "dog.tmpl"
+});
+
+var DogIdView = Falcon.View.extend({
+	url: "#dog"
+});
+
+var DogFunctionView = Falcon.View.extend({
+	url: function() {
+		return "dog.html"
+	}
+});
+
+var dog_url_view = new DogUrlView();
+var dog_id_view = new DogIdView();
+var dog_function_view = new DogFunctionView();
+
+Falcon.baseTemplateUrl = "http://www.falconjs.com/";
+
+console.log( dog_url_view.makeUrl() ); // http://www.falconjs.com/dog.tmpl
+console.log( dog_id_view.makeUrl() ); // #dog
+console.log( dog_function_view.makeUrl() ); // http://www.falconjs.com/dog.html
+{% endhighlight %}
+{% assign methodName = "defaults" %}
+{% assign methodExample = "view.defaults" %}
+{% include methodOverview.html %}
+<p>
+<p>
+	This is a hash map of non-observable defaults to create whenever an instance of this view is initialized. If the value is a function, the function is called and the return value is assigned. Functions are called in context of this instance and with all the same arguments from the constructor method. Defaults are created before observables which means that any duplicate attributes between the observables (as in the 'observables' attribute on Falcon.Object) and default attributes will be overridden by those in the observables
+</p>
+{% highlight javascript linenos %}
+var DogView = Falcon.View.extend({
+	defaults: {
+		"is_tame": true,
+		"name": function(name) {
+			return ( name || "Fido" );
+		}
+	}
+});
+
+var dog_view = new DogView();
+console.log( dog.name ); // Fido
+console.log( dog.is_tame ); // true
+
+var skip_view = new DogView("Skip");
+console.log( skip_view.name ); // Skip
+console.log( skip_view.is_tame ); // true
+{% endhighlight %}
+{% assign methodName = "observables" %}
+{% assign methodExample = "view.observables" %}
+{% include methodOverview.html %}
+<p>
+<p>
+	This is a hash map of the default observables and values that will become properties of this view when a new instance is created. If the value of a specific key is a function a computed observable is created. If the value is an object with the keys 'read' and/or 'write' a computed is created with those object keys as the definition for the computed observable. All computed observables are created with this objects's instance as their context.
+</p>
+{% highlight javascript linenos %}
+var DogView = Falcon.View.extend({
+	observables: {
+		"name": "Fido",
+		"parent_dog_name": "",
+		"child_of_lassie": function(parent_dog_name)
+		{
+			return this.parent_dog_name() === "Lassie";
+		}
+	}
+});
+
+var dog_view = new DogView(); // Dog not related to Lassie
+
+console.log( ko.isObservable( dog_view.name ) ); // true
+console.log( ko.isComputed( dog_view.child_of_lassie ) ); // true
+
+console.log( dog_view.name() ); // Fido
+console.log( dog_view.child_of_lassie() ); // false
+
+dog_view.name("Spot");
+dog_view.parent_dog_name("Lassie");
+
+console.log( dog_view.name() ); // Spot
+console.log( dog_view.child_of_lassie() ); // true
+{% endhighlight %}
+{% assign methodName = "display" %}
+{% assign methodExample = "view.display()" %}
+{% include methodOverview.html %}
+<p>
+	Executed when this view is displayed (added to the DOM). This method is called from the view binding when rendering this view's template is complete and added to the DOM.  This should be overridden by inheriting classes and should primarily be used for 'on-display' functionality such as certain event handlers
+</p>
+{% highlight javascript linenos %}
+var DogView = Falcon.View.extend({
+	url: '#dog_view',
+
+	display: function()
+	{
+		console.log("Dog View Displayed")
+	}
+});
+
+var view_model = {
+	showing_dog_view: ko.observable(false),
+	my_dog_view: new DogView()
+};
+
+console.log("Initializing");
+setTimeout(function() {
+	view_model.show_dog_view(true)
+}, 5000);
+
+Falcon.apply(view_model, '#application');
+{% endhighlight %}
+<div class="caption">Application Javascript</div>
+{% highlight html linenos %}
+<div id="application">
+	<!-- ko if: showing_dog_view -->
+		<!-- ko view: my_dog_view --><!-- /ko -->
+	<!-- /ko -->
+</div>
+<template id="dog_view">
+	This is the Dog View
+</template>
+{% endhighlight %}
+<div class="caption">Application HTML</div>
+{% highlight console linenos %}
+... my_dog_view is currently not rendered because showing_dog_view is set to false
+=> Initializing
+... Waits five seconds and then sets show_dog_view to true, my_dog_view
+	is then rendered on the screen
+=> Dog View Displayed
+{% endhighlight %}
+<div class="caption">Console Output</div>
+{% assign methodName = "dispose" %}
+{% assign methodExample = "view.dispose()" %}
+{% include methodOverview.html %}
+<p>
+	Executed when this view is disposed (removed from the DOM). This method is called from the unrender method which itself is called from the 'view' binding.  This should be overridden by inheriting classes and should primarily be used for removing any 'on-display' functionality that was added in the display method
+</p>
+{% highlight javascript linenos %}
+var DogView = Falcon.View.extend({
+	url: '#dog_view',
+
+	dispose: function()
+	{
+		console.log("Dog View Displayed No Longer")
+	}
+});
+
+var view_model = {
+	showing_dog_view: ko.observable(true),
+	my_dog_view: new DogView()
+};
+
+console.log("Initializing");
+setTimeout(function() {
+	view_model.show_dog_view(false)
+}, 5000);
+
+Falcon.apply(view_model, '#application');
+{% endhighlight %}
+<div class="caption">Application Javascript</div>
+
+{% highlight html linenos %}
+<div id="application">
+	<!-- ko if: showing_dog_view -->
+		<!-- ko view: my_dog_view --><!-- /ko -->
+	<!-- /ko -->
+</div>
+<template id="dog_view">
+	This is the Dog View
+</template>
+{% endhighlight %}
+<div class="caption">Application HTML</div>
+
+{% highlight console linenos %}
+... my_dog_view is currently rendered because showing_dog_view is set to true
+=>  Initializing
+... Waits five seconds and then sets show_dog_view to false, 
+	my_dog_view will no longer appear in the DOM
+=>  Dog View Displayed No Longer
+{% endhighlight %}
+<div class="caption">Console Output</div>
+{% assign methodName = "is_loaded" %}
+{% assign methodExample = "view.is_loaded()" %}
+{% assign returnType = "Boolean" %}
+{% assign returnDescription = "Is the view loaded?" %}
+{% include methodOverview.html %}
+<p>
+	An observable that specifies if the view has loaded  not. A view is loaded when its template is found and stored into the template cache. Making this an observable allows us to bind against it and for the 'view' binding to update properly.
+</p>
+{% assign methodName = "makeUrl" %}
+{% assign methodExample = "view.makeUrl()" %}
+{% assign returnType = "String" %}
+{% assign returnDescription = "The full url to the template" %}
+{% include methodOverview.html %}
+<p>
+	Method used to 'intelligently' make a url to point to the remote version of this template. If the URL begins with a '#' it will leave the url as is because we're identifying an on-page template element to look up rather than a remote resource.
+</p>
+{% highlight javascript linenos %}
+	var DogUrlView = Falcon.View.extend({ url: "dog.tmpl" });
+	var DogIdView = Falcon.View.extend({ url: "#dog" });
+
+	var dog_url_view = new DogUrlView();
+	var dog_id_view = new DogIdView();
+
+	console.log( dog_url_view.makeUrl() ); // /dog.tmpl
+	console.log( dog_id_view.makeUrl() ); // #dog
+
+	Falcon.baseTemplateUrl = "http://www.falconjs.com/";
+
+	console.log( dog_url_view.makeUrl() ); // http://www.falconjs.com/dog.tmpl
+	console.log( dog_id_view.makeUrl() ); // #dog
+{% endhighlight %}

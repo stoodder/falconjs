@@ -1,0 +1,34 @@
+{% assign methodName = "has" %}
+{% assign methodExample = "object.has( event, callback )" %}
+{% assign returnType = "Boolean" %}
+{% assign returnDescription = "Does this object have the event defined?" %}
+{% include methodOverview.html %}
+<p>
+<p>
+	Checks to see if a specific event is defined for an object. Optionally, if a callback is given, this method will check to see if that callback is defined for the specified event.
+</p>
+<dl>
+	<dt data-type="String">event</dt>
+	<dd>The event to check.</dd>
+	<dt data=type="Function">callback</dt>
+	<dd>A specific callback for an event to check.</dd>
+</dl>
+{% highlight javascript linenos %}
+var obj = new Falcon.Object();
+
+var log_function = function() {
+	log("Hello World")
+};
+
+var foo_function = function() {
+	log("Foo Bar")
+};
+
+obj.on("log", log_function);
+
+console.log( obj.has("log") ); // true
+console.log( obj.has("click") ); // false
+
+console.log( obj.has("log", log_function) ); // true
+console.log( obj.has("log", foo_function) ); // false
+{% endhighlight %}

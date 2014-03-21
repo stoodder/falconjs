@@ -1,0 +1,39 @@
+{% assign methodName = "resolveContext" %}
+{% assign methodExample = "adapter.resolveContext( data_object, type, options, context )" %}
+{% assign returnType = "mixed" %}
+{% assign returnDescription = "The resolved context" %}
+{% include methodOverview.html %}
+<p>
+	Used to discern the context to call the response handlers on.  If no context is given as the fourth argument or there's no context property of the standardized the data object will be selected as the context. If no fourth argument is given, but a context is present in the standardized options, then the context from the options will be used. Otherwise, if a fourth context argument is given, that context is returned.
+</p>
+<div class="alert alert-info">
+	This method is a pre-request method that should always be called with the same four arguments: data_object, type, options, and context.
+</div>
+<div class="alert alert-warning">
+	This method should always be called with the resolved request type (from resolveRequestType) and the standardized options (from standardizeOptions).
+</div>
+<dl>
+	<dt data-type="Falcon.Model">data_object</dt>
+	<dd>The data object being prepaired. Should be either a Falcon.Model or a Falcon.Collection</dd>
+	<dt data-type="String">type</dt>
+	<dd>The resolved request type</dd>
+	<dt data-type="Object">options</dt>
+	<dd>The standardized options</dd>
+	<dt data-type="mixed">context</dt>
+	<dd>The unresolved request context</dd>
+</dl>
+{% highlight javascript linenos %}
+var model = new Falcon.Model();
+var other_model = new Falcon.Model();
+var third_model = new Falcon.Model();
+var adapter = new Falcon.Adapter();
+
+// returns model
+adapter.resolveContext( model, "GET", {}, null ); 
+
+// returns other_model
+adapter.resolveContext( model, "GET", {context: other_model}, null ); 
+
+// returns third_model
+adapter.resolveContext( model, "GET", {}, third_model ); 
+{% endhighlight %}

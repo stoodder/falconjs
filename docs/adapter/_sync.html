@@ -1,0 +1,43 @@
+{% assign methodName = "sync" %}
+{% assign methodExample = "adapter.sync( data_object, type, options, context )" %}
+{% assign returnType = "Object" %}
+{% assign returnDescription = "An object of the standardized input parameters." %}
+{% include methodOverview.html %}
+<p>
+	This is the core method that Adapters provide which is called by both the Falcon.Model.sync() and Falcon.Collection.sync() methods.  This method takes a set of unresolved and non-standard options and passes them through the various different adapter methods to determine the request type, provide standardized options, and determines a callback context. Additionally, this method will run any model validations if we're executing a PUT or POST request against a model.
+</p>
+<p>
+	By itself, this base implementation does not make any requests to a backend data source.  Instead, it is up to you, the developer, to choose an implemntation specific adapter that suites your needs (or write your own).  Please refer to the <a href="#About_Adapters">'About Adapters'</a> section to get a list of current adapter implementations.  To be more clear, this base adapter class provides the ground work for making and responding to requests, but the actual communication between the front-end application and your data source is provided by adapters who inherit from this base class. For example, if you're using jQuery to connect to a RESTful API with JSON data, then you may want to look at the jQuery Adapter.
+</p>
+<p>
+	Internally, this method will throw an exception if the input data_object isn't a Falcon.Model or Falcon.Collection. If the type checking passes, then this method begins by resolving the request type (<a href="#resolveRequestType">resolveRequestType</a>). Following this, it standardizes the options (<a href="#standardizeOptions">standardizeOptions</a>) with the resolved request type and then we resolve the context (<a href="#resolveContext">resolveContext</a>) with both the resolved request type and standardized options.  Lastly, if the data object is a Falcon.Model and our request type is "POST" or "PUT", we check to ensure that the model is valid by executing the model validate() method.  This method finishes by returning an object of the input data object (data_object), the resolved request type (type), the standardized options (options), the resolved callback context (context), and whether the model is valid or not (is_valid). No actual request to a backend is made.
+</p>
+<div class="alert alert-info">
+	This method is a pre-request method that should always be called with the same four arguments: data_object, type, options, and context.
+</div>
+<div class="alert alert-warning">
+	This base sync method does not make any requests to a backend data source. Instead it is up to inheritting classes to define how we send and retrive data from a data source.  This method must be overriden if writting a custom adapter.
+</div>
+<dl>
+	<dt data-type="Falcon.Model">data_object</dt>
+	<dd>The data object being prepaired. Should be either a Falcon.Model or a Falcon.Collection</dd>
+	<dt data-type="String">type</dt>
+	<dd>The resolved request type</dd>
+	<dt data-type="Object">options</dt>
+	<dd>The standardized options</dd>
+	<dt data-type="mixed">context</dt>
+	<dd>The unresolved request context, will be the context for all of the response handlers</dd>
+</dl>
+{% highlight javascript linenos %}
+var model = new Falcon.Model();
+var adapter = new Falcon.Adapter();
+
+/* Returns: {
+	data_object: model,
+	type: "GET",
+	options: { ... standardized options ... },
+	context: model,
+	is_valid: true
+} */
+adapter.sync( model, "get", {}, model );
+{% endhighlight %}
