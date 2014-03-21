@@ -16,18 +16,8 @@
 * Model and Collection constructors will now throw an error if the parent object isn't null/undefined or a model
 * Elements with the 'view' binding may now specifiy internal HTML which will override the lookup of a template from the 'url' attribute.  This may break existing apps that provide HTML inside of their view declarations before the binding is applied.
 
-**TODO**
-<<<<<<< HEAD
-* Add method support for 'obervables' and 'defaults' (rather than dictionary defintion)
-* Add exec binding
-* add generate binding and Falcon.register for dynamically creating views
-* Cleanup/Redo binding tests
-
 **Breaking Changes**
 * Falcon.Collection#insert() has breaking changes. You must now pass in an 'options' object as the second parameteter instead of the insert index or model to insert after. In the options parameter, you'll be able to pass in an 'index' attribute for the index to insert the models after. A model attribute to specific which model to insert the models after. Or an iterator to truth test the collection (to find an insert index, based on first success) to insert the models after
-=======
-* Add support for Falcon.Collection in the without() method (remove all models from the resultant collection that are in the given collection)
->>>>>>> conductor
 
 **Enhancements**
 * Convert Build process to Grunt.js
@@ -51,13 +41,9 @@
 * Removed auto-magic setting of the 'data-bind' attribute of our application elements in favor of programatic application of the bindings (using ko.applyBindingAccessorsToNode instead).
 
 **Bugs Fixed**
-<<<<<<< HEAD
-* Fixed reference overwirtting on colleciton merge method.
-* Fix length() on collection chains
-* Added support for arrays and collection in filter methods: first, last, all, any, filter, without
-=======
 * Fixed reference overwritting on colleciton merge method.
 * Fixed length() on collection chains
+* Added support for arrays and collection in filter methods: first, last, all, any, filter, without
 
 
 ###v0.8.0
@@ -75,4 +61,3 @@
 ### 0.11.0
 * Add method support for 'obervables' and 'defaults' (rather than dictionary defintion)
 * Add exec binding
->>>>>>> conductor
