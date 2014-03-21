@@ -25,8 +25,27 @@ class Falcon.View extends Falcon.Object
 
 		__falcon_view__template_cache__[identifier] = template
 
-		return
+		return Falcon.View
 	#END cacheTemplate
+
+	#--------------------------------------------------------
+	# Method: Falcon.View.cacheTemplates
+	#	Method used to cache and remove the template elements
+	#
+	# Returns:
+	#	_(Falcon)_ - This Instance
+	#--------------------------------------------------------
+	@cacheTemplates = ->
+		templates = Array::slice.call( document.getElementsByTagName("template") )
+		
+		for template in templates
+			identifier = template.getAttribute("id")
+			Falcon.View.cacheTemplate( "##{identifier}", template.innerHTML ) if identifier?
+			template.parentNode?.removeChild(template)
+		#END each template
+
+		return Falcon.View
+	#END cacheTemplates
 
 	#--------------------------------------------------------
 	# Method: Falcon.View.resetCache()
@@ -35,7 +54,7 @@ class Falcon.View extends Falcon.Object
 	@resetCache = () ->
 		__falcon_view__template_cache__ = {}
 
-		return
+		return Falcon.View
 	#END resetCache
 
 	#--------------------------------------------------------
@@ -63,12 +82,12 @@ class Falcon.View extends Falcon.Object
 	is_loaded: false
 
 	#--------------------------------------------------------
-	# Member: Falcon.View#_is_rendered
+	# Member: Falcon.View#__falcon_view__is_rendered__
 	#	This will be a flag to determines if the view is being 
 	#	displayed on the screen or not. This also acts as a
 	#	gate check for render() and unrender()
 	#--------------------------------------------------------
-	_is_rendered: false
+	__falcon_view__is_rendered__: false
 
 	#--------------------------------------------------------
 	# Member: Falcon.View#__falcon_view__child_views__
@@ -98,42 +117,22 @@ class Falcon.View extends Falcon.Object
 		url = @makeUrl()
 
 		# Setup the is_loaded variable
-		@_is_rendered = false
 		@is_loaded = ko.observable( false )
+		@__falcon_view__is_rendered__ = false
 		@__falcon_view__child_views__ = []
-		
-		_loaded = () =>
-			@__falcon_view__loaded_url__ = url
-			@is_loaded( true )
-		#END _loaded
+		@__falcon_view__loaded_url__ = url
 
 		@initialize.apply(this, arguments)
 
 		# Attempt to load the template from the server or cache
 		if isEmpty(url) or url of __falcon_view__template_cache__
-			_loaded()
-
-		else if startsWith(url, "#")
-			Falcon.View.cacheTemplate( url, $(url).html() )
-			_loaded()
-
+			@is_loaded( true )
 		else
-			$.ajax
-				url: url
-				type: "GET"
-				cache: Falcon.cache
-				error: () =>
-					console.log("[FALCON] Error Loading Template: '#{url}'")
-					@trigger("error")
-				#END error
-				success: (html) =>
-					Falcon.View.cacheTemplate(url, html)
-					_loaded()
-				#END success
-			#END ajax
+			Falcon.adapter.getTemplate(url, (template) =>
+				Falcon.View.cacheTemplate( url, template )
+				@is_loaded( true )
+			)#END getTemplate
 		#END if
-
-		return @
 	#END constructor
 
 	#--------------------------------------------------------
@@ -146,14 +145,12 @@ class Falcon.View extends Falcon.Object
 	#	_(String)_ - The full url
 	#--------------------------------------------------------
 	makeUrl: () ->
-		return null unless @url?
-
 		url = ko.utils.unwrapObservable( @url )
 		url = url() if isFunction( url )
 		url = "" unless isString( url )
 		url = trim( url )
 
-		return url if url.charAt(0) is '#'
+		return url if isEmpty( url ) or url.charAt(0) is '#'
 
 		#Make sure the url is now formatted correctly
 		url = "/#{url}" unless url.charAt(0) is '/'
@@ -194,11 +191,11 @@ class Falcon.View extends Falcon.Object
 	#	method when you need to run any custom display routine.
 	#--------------------------------------------------------
 	_render: () ->
-		return if @_is_rendered
+		return if @__falcon_view__is_rendered__
 
 		@display.apply(this, arguments)
 
-		@_is_rendered = true
+		@__falcon_view__is_rendered__ = true
 		return
 	#END _render
 
@@ -218,13 +215,13 @@ class Falcon.View extends Falcon.Object
 	#	method when you need to run any custom disposal routine.
 	#--------------------------------------------------------
 	_unrender: () ->
-		return unless @_is_rendered
+		return unless @__falcon_view__is_rendered__
 
 		child_view._unrender() for child_view in @__falcon_view__child_views__
 		@__falcon_view__child_views__ = []
 		@dispose.apply(this, arguments)
 
-		@_is_rendered = false
+		@__falcon_view__is_rendered__ = false
 		return
 	#END _unrender
 

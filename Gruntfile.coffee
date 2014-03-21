@@ -5,72 +5,111 @@
 #
 #=================================================
 
-Install Ruby
 Install Node.js (http://nodejs.org/)
 npm install -g grunt-cli
-gem install haml
-npm install coffee-script
-npm install grunt --save-dev
-npm install grunt-contrib-coffee --save-dev
-npm install grunt-contrib-uglify --save-dev
-npm install grunt-contrib-haml --save-dev
-npm install grunt-contrib-copy --save-dev
-npm install grunt-contrib-watch --save-dev
+npm install
+grunt
 
 ###
+CoffeeScript = require('coffee-script')
+
 module.exports = (grunt) ->
 	grunt.loadNpmTasks('grunt-contrib-coffee')
 	grunt.loadNpmTasks('grunt-contrib-uglify')
-	grunt.loadNpmTasks('grunt-contrib-haml')
 	grunt.loadNpmTasks('grunt-contrib-copy')
+	grunt.loadNpmTasks('grunt-contrib-jasmine')
 	grunt.loadNpmTasks('grunt-contrib-watch')
-	grunt.registerTask('default', ['coffee', 'uglify', 'haml', 'copy', 'watch'])
 
-	banner = grunt.file.read('scripts/banner.js').toString()
+	grunt.registerTask('test', ['coffee:test', 'jasmine'])
+	grunt.registerTask('default', [
+		'update_banner'
+		'coffee:dist'
+		'coffee:adapters'
+		'uglify:dist'
+		'uglify:adapters'
+		'copy'
+		'watch'
+	])
+
+	grunt.registerTask 'update_banner', 'updates the banner information', ->
+		try
+			banner = grunt.file.read('coffee/banner.coffee').toString()
+			banner = CoffeeScript.compile(banner, {bare: true})
+		catch e
+			banner = ""
+		#END try
+
+		uglfiy_cfg = grunt.config('uglify')
+		uglfiy_cfg.dist.options.banner = banner
+
+		grunt.config('uglify', uglfiy_cfg)
+	#END registerTask
 	
 	grunt.initConfig
 		'pkg': grunt.file.readJSON('package.json')
 
 		'coffee':
-			'banner':
-				options:
-					bare: true
-				#END options
-
-				files:
-					'scripts/banner.js': ["coffee/banner.coffee"]
-				#END files
-			#END banner
-
 			'dist':
 				options:
 					join: true
-					banner: banner
 				#END options
 
 				files:
-					'<%= pkg.name %>.js': [
+					'falcon.js': [
 						"coffee/banner.coffee"
-						"coffee/utility.coffee"
+
+						"coffee/checking.utility.coffee"
+						"coffee/string.utility.coffee"
+						"coffee/object.utility.coffee"
+						"coffee/array.utility.coffee"
+
 						"coffee/falcon.coffee"
 						"coffee/falcon.object.coffee"
+						"coffee/falcon.adapter.coffee"
 						"coffee/falcon.model.coffee"
 						"coffee/falcon.view.coffee"
 						"coffee/falcon.collection.coffee"
 						"coffee/falcon.ko.bindings.coffee"
+					],
+
+					'falcon.conductor.js': [
+						"coffee/banner.coffee"
+
+						"coffee/checking.utility.coffee"
+						"coffee/string.utility.coffee"
+						
+						"coffee/falcon.conductor.coffee"
+					]
+				#END files
+			#END coffee:dist
+
+			'adapters':
+				options:
+					join: true
+				#END options
+
+				files:
+					'adapters/falcon.jquery_adapter.js': [
+						"coffee/checking.utility.coffee"
+						"coffee/adapters/jquery_adapter.coffee"
 					]
 				#END files
 			#END coffee:dist
 
 			'test':
 				files:
-					"tests/scripts/falcon.object.test.js": "tests/coffee/falcon.object.test.coffee"
-					"tests/scripts/falcon.model.test.js": "tests/coffee/falcon.model.test.coffee"
-					"tests/scripts/falcon.collection.test.js": "tests/coffee/falcon.collection.test.coffee"
-					"tests/scripts/falcon.view.test.js": "tests/coffee/falcon.view.test.coffee"
-					"tests/scripts/falcon.ko.bindings.test.js": "tests/coffee/falcon.ko.bindings.test.coffee"
-
-					"tests/scripts/demo.js": "tests/coffee/demo.coffee"
+					"tests/lib/jasmine2.0.0-sinon.js": ["tests/coffee/jasmine2.0.0-sinon.coffee"]
+					"tests/scripts/falcon.tests.js": [
+						"tests/coffee/falcon.test.coffee"
+						"tests/coffee/falcon.object.test.coffee"
+						"tests/coffee/falcon.adapter.test.coffee"
+						"tests/coffee/falcon.model.test.coffee"
+						"tests/coffee/falcon.collection.test.coffee"
+						"tests/coffee/falcon.view.test.coffee"
+						"tests/coffee/falcon.ko.bindings.test.coffee"
+					]
+					"tests/scripts/falcon.conductor.test.js": ["tests/coffee/falcon.conductor.test.coffee"]
+					"tests/scripts/adapters/falcon.jquery_adapter.test.js": ["tests/coffee/adapters/falcon.jquery_adapter.test.coffee"]
 				#END files
 			#END coffee:test
 		#END coffee
@@ -78,29 +117,71 @@ module.exports = (grunt) ->
 		'uglify':
 			'dist':
 				options:
-					banner: banner
+					'banner': '' #Updated lated in the update_banner task
 				#END options
 				files:
-					'<%= pkg.name %>.min.js': '<%= pkg.name %>.js'
+					'falcon.min.js': 'falcon.js'
+					'falcon.conductor.min.js': 'falcon.conductor.js'
 				#END files
-			#END uglifY:dist
+			#END uglify:dist
+
+			'adapters':
+				files:
+					'adapters/falcon.jquery_adapter.min.js': 'adapters/falcon.jquery_adapter.js'
+				#END files
+			#END uglify:adapters
 		#END uglify
 
-		'haml':
-			options:
-				'style': 'ugly'
-				'double-quote-attributes': true
-				'no-escape-attrs': true
-				'require': './haml_helpers.rb'
-				'bundleExec': false
-			#END options
-			
-			'test':
-				'files':
-					"tests/demo.html": "tests/demo.haml"
-				#END files
-			#END haml:test
-		#END haml
+		'jasmine':
+			'dist':
+				src: [
+					'falcon.min.js'
+				]
+				options:
+					vendor: [
+						'tests/lib/sinon-1.7.3.js'
+						'tests/lib/jasmine2.0.0-sinon.js'
+						'tests/lib/knockout-3.1.0.min.js'
+					]
+					specs: 'tests/scripts/falcon.tests.js'
+				#END options
+			#END jasmine:dist
+
+			'conductor':
+				src: [
+					'falcon.conductor.min.js'
+				]
+				options:
+					vendor: [
+						'tests/lib/sinon-1.7.3.js'
+						'tests/lib/jasmine2.0.0-sinon.js'
+						'tests/lib/jquery-1.10.2.min.js'
+						'tests/lib/knockout-3.1.0.min.js'
+						'tests/scripts/falcon.min.js'
+					]
+					specs: [
+						'tests/scripts/falcon.conductor.test.js'
+					]
+				#END options
+			#END conductor
+
+			'adapters':
+				src: [
+					'adapters/falcon.jquery_adapter.min.js'
+				]
+				options:
+					vendor: [
+						'tests/lib/sinon-1.7.3.js'
+						'tests/lib/jasmine2.0.0-sinon.js'
+						'tests/lib/jquery-1.10.2.min.js'
+						'tests/lib/knockout-3.1.0.min.js'
+						'tests/scripts/falcon.min.js'
+					]
+					specs: [
+						'tests/scripts/adapters/falcon.jquery_adapter.test.js'
+					]
+				#END options
+		#END jasmine
 
 		'copy':
 			'test':
@@ -113,7 +194,16 @@ module.exports = (grunt) ->
 						src: [
 							"falcon.js"
 							"falcon.min.js"
-							"scripts/*.js"
+							"falcon.conductor.js"
+							"falcon.conductor.min.js"
+						]
+					},{
+						expand: true
+						dest: 'tests/scripts/adapters/'
+						filter: 'isFile'
+						flatten: true
+						src: [
+							"adapters/*.js"
 						]
 					}
 				]
@@ -123,26 +213,21 @@ module.exports = (grunt) ->
 		'watch':
 			'banner_coffee':
 				'files': ["coffee/banner.coffee"]
-				'tasks': ['coffee:banner']
+				'tasks': ['update_banner', 'coffee:dist', 'uglify:dist']
 			#END watch:banner_coffee
 
 			'dist_coffee':
-				'files': ["coffee/*.coffee"]
+				'files': ["coffee/falcon.coffee", "coffee/falcon.*.coffee", "coffee/*.utility.coffee"]
 				'tasks': ['coffee:dist', 'uglify:dist']
 			#END watch:dist_coffee
 
-			'test_coffee':
-				'files': ['tests/coffee/*.coffee']
-				'tasks': ['coffee:test']
-			#END watch:test_coffee
-
-			'test_haml':
-				'files': ['tests/*.haml']
-				'tasks': ['haml:test']
-			#END watch:test_haml
+			'adapters_coffee':
+				'files': ["coffee/adapters/*.coffee"]
+				'tasks': ['coffee:adapters', 'uglify:adapters']
+			#END watch:dist_coffee
 
 			'test_copy':
-				'files': ['falcon.js', 'falcon.min.js', 'scripts/*.js']
+				'files': ['falcon.js', 'falcon.min.js', 'adapters/*.js']
 				'tasks': ['copy:test']
 			#END test_copy
 		#END watch

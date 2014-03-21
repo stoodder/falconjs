@@ -1,6 +1,6 @@
 {
   "name": "Falcon JS",
-  "version": "0.9.2",
+  "version": "0.10.0",
   "homepage": "https://github.com/stoodder/falconjs",
   "authors": [
     "Rick Allen <rick@rokkincat.com>"
@@ -18,17 +18,13 @@
   "license": "MIT",
   "private": false,
   "ignore": [
-    "**/.*",
     "node_modules",
     "bower_components",
-    "test",
     "tests",
-    "scripts",
     "coffee",
     "falcon.sublime-project",
     "falcon.sublime-workspace",
     "Gruntfile.coffee",
-    "haml_helpers.rb",
     "package.json",
     "TODO.txt"
   ]

@@ -20,17 +20,19 @@ ko.bindingHandlers['view'] = do ->
 		if value instanceof Falcon.View
 			viewModel = value.viewModel()
 		else
-			viewModel = ko.utils.unwrapObservable( value.viewModel ? {} )
+			viewModel = ko.utils.unwrapObservable( value ? {} )
 		#END if
 
 		return viewModel
 	#END getViewModel
 
-	getTemplate = (value) -> 
+	getTemplate = (element, value) -> 
 		template = ""
 		value ?= {}
 
-		if value instanceof Falcon.View
+		if element.nodeType is 1 and not isEmpty(trim(element.innerHTML))
+			return element.innerHTML
+		else if value instanceof Falcon.View
 			template = value.template()
 		else
 			template = ko.utils.unwrapObservable( value.template ? "" )
@@ -45,7 +47,7 @@ ko.bindingHandlers['view'] = do ->
 		'init': (element, valueAccessor, allBindingsAccessor, viewModel, context) ->
 			value = valueAccessor()
 
-			if value? and ko.isSubscribable( value )
+			if ko.isSubscribable( value )
 				oldViewModel = ko.utils.unwrapObservable( value )
 				subscription = value.subscribe (newViewModel) ->
 					oldViewModel._unrender() if Falcon.isView(oldViewModel)
@@ -69,15 +71,15 @@ ko.bindingHandlers['view'] = do ->
 			container = document.createElement('div')
 			ko.utils.domData.set(element, "__falcon_view__container__", container)
 			new ko.templateSources.anonymousTemplate(element)['nodes'](container)
-			
+
 			return returnVal
 		#END init
 
 		'update': (element, valueAccessor, allBindingsAccessor, viewModel, context) ->
 			value = valueAccessor()
-			value = ko.utils.unwrapObservable(value)
+			value = value() if ko.isObservable( value )
 			viewModel = getViewModel(value)
-			template = getTemplate(value)
+			template = getTemplate(element, value)
 
 			ko.virtualElements.emptyNode(element) unless value?
 
@@ -93,19 +95,13 @@ ko.bindingHandlers['view'] = do ->
 
 			if isEmpty( viewModel ) or isEmpty( template )
 				ko.virtualElements.emptyNode(element)
-			else if not (value instanceof Falcon.View) or ko.utils.unwrapObservable( value.is_loaded )
+			else if not Falcon.isView( value ) or ko.utils.unwrapObservable( value.is_loaded )
 
 				container = ko.utils.domData.get(element, "__falcon_view__container__")
 				container.innerHTML = template
 				ko.renderTemplate(element, childContext, {}, element)
 
-				execScripts = !!ko.utils.unwrapObservable(value.execScripts)
-				if execScripts is true
-					$(element).find("script").each( (index, script) ->
-						script = $(script)
-						eval( script.text() ) if script.attr('type').toLowerCase() is "text/javascript"
-					)
-				#END if template updated
+				#TODO: Consider reverting back t using execScripts here
 
 				#Notify the view that it is being displayed
 				value._render() if Falcon.isView( value )

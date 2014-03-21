@@ -18,6 +18,9 @@ class Falcon.Collection extends Falcon.Object
 	#	for certain types of input values
 	#--------------------------------------------------------
 	_makeIterator = (iterator) ->
+		iterator = ko.unwrap(iterator)
+		iterator = iterator.models() if Falcon.isCollection(iterator)
+
 		if Falcon.isModel( iterator )
 			_model = iterator
 			_model_id = _model.get('id')
@@ -45,6 +48,10 @@ class Falcon.Collection extends Falcon.Object
 			return (model) -> 
 				return false unless Falcon.isModel(model)
 				model.get("id") is _id
+			#END iterator
+		else if isArray(iterator)
+			return (model) ->
+				return model in iterator
 			#END iterator
 		#END if
 
@@ -133,20 +140,29 @@ class Falcon.Collection extends Falcon.Object
 	constructor: (models, parent) ->
 		super(arguments...)
 		
-		models = ko.utils.unwrapObservable(models)
-		parent = ko.utils.unwrapObservable(parent)
+		models = ko.unwrap(models)
+		parent = ko.unwrap(parent)
 
 		[parent, models] = [models, parent] if not parent? and Falcon.isModel( models )
 		[parent, models] = [models, parent] if Falcon.isModel( models ) and isArray( parent )
+		
+		unless (not parent?) or Falcon.isModel( parent )
+			throw new Error("parent must be null or a Falcon.Model")
+		#END unless
 
 		@url ?= @model::url if @model?
-		@length = ko.observable(0)
+		@length = ko.computed
+			deferEvaluation: true
+			read: => @models().length
+		#END computed
 		@parent = parent
 
 		@__falcon_collection__mixins__ = []
 		@reset()
+		@initialize.apply(this, arguments)
 		@fill(models) unless isEmpty( models )
-		@initialize(models)
+
+		return this
 	#END constructor
 
 	#--------------------------------------------------------
@@ -157,8 +173,29 @@ class Falcon.Collection extends Falcon.Object
 	#
 	# Arguments:
 	#	**data** _(Array)_ - The initial models that were loaded
+	#	**parent** _(Falcon.Model)_ - The parent object of this collection
 	#--------------------------------------------------------
-	initialize: ( (models) -> )
+	initialize: ( (models, parent) -> )
+
+	#--------------------------------------------------------
+	# Method: Falcon.Collection#set()
+	#	Sets a value for the specific attribute in each model
+	#	of this collection
+	#
+	# Arguments:
+	#	**attribute** _(string)_ - The attribute to look up
+	#	**value** -(mixed)_ - The value to assign
+	#
+	# Arguments:
+	#	**attribute** _(Object)_ - An object of values to set
+	#
+	# Returns:
+	#	_(Falcon.Collection)_ - This Collection
+	#--------------------------------------------------------
+	set: (attribute, value) ->
+		@each (model) -> model.set(attribute, value)
+		return @
+	#END set
 
 	#--------------------------------------------------------
 	# Method: Falcon.Collection#parse()
@@ -175,117 +212,6 @@ class Falcon.Collection extends Falcon.Object
 	parse: (data, options, xhr) ->
 		return data
 	#END parse
-
-	#--------------------------------------------------------
-	# Method: Falcon.Collection#fill()
-	#	'fills' this collection with new data
-	#
-	# Arguments:
-	#	**items** _(Array)_ - An array of items to fill this collection with
-	#	**options** _(Object)_ - An object of options for the fill method
-	#
-	# Returns:
-	#	_(Falcon.Collection)_ - This instance
-	#--------------------------------------------------------
-	fill: (items, options) ->
-		return this unless @model?
-
-		items ?= []
-		items = items.models() if Falcon.isCollection(items)
-		items = ko.utils.unwrapObservable(items) if ko.isObservable(items)
-		items = [items] unless isArray(items)
-		models = []
-		
-		options = {} unless isObject(options)
-
-
-		{method} = options
-		method = '' unless isString(method)
-		method = method.toLowerCase()
-		method = 'replace' unless method in ['replace', 'append', 'prepend', 'insert', 'merge']
-		comparator = options.comparator ? @comparator
-
-		return [] if method isnt 'replace' and isEmpty( items ) 
-
-		#Increment the change count
-		@__falcon_collection__change_count__++
-
-		# Make sure that each of the elements passed in are a model that this 
-		for m, i in items
-			if Falcon.isModel( m )
-				#If this is the correct type of model, go ahead, otherwise 
-				#serialize the model and re-create as an applicable model
-				if m instanceof @model
-					models[i] = items[i]
-					models[i].parent = @parent if @parent?
-				else
-					models[i] = new @model(m.serialize(), @parent)
-				#END if
-			else
-				models[i] = new @model(m, @parent)
-			#END if
-
-			#Add the mixins
-			models[i].mixin(mapping) for mapping in @__falcon_collection__mixins__
-		#END for
-		
-		#Determine how we should proceed adding models to the models
-		if method is 'replace'
-			_models = models
-
-		#merging the models adds new models and updates existing models
-		else if method is 'merge'
-			_models = @models()
-
-			#iterate over the new collection
-			for model in models
-				#Create the iterator and initialze the model
-				iterator = _makeIterator( model )
-				_model = null #The existing model in this collection
-
-				#Try to find this model in this collection
-				for m in _models when iterator( m )
-					_model = m
-					break
-				#END for
-				
-				if _model then _model.fill( model ) else _models.push( model )
-			#END for
-
-		#Add the models to the beginning of the list
-		else if method is 'prepend'
-			_length = models.length-1
-			_models = @models()
-			_models.unshift( models[_length-i] ) for model, i in models
-
-		#Add the models to the bottom of the list
-		else if method is 'append'
-			_models = @models()
-			_models = _models.concat( models )
-
-		#Insert the models into the list at the specified index, if the index is
-		#invalid, append the models
-		else if method is 'insert'
-			insert_index = options.insert_index ? -1
-			_models = @models()
-
-			if insert_index < 0 or insert_index >= _models.length
-				_models = _models.concat( models )
-			else
-				head = _models[0...insert_index]
-				tail = _models[insert_index..]
-				_models = head.concat( models, tail )
-			#END if
-		#END if
-
-		_models.sort( comparator ) if isFunction( comparator )
-		@models( _models )
-
-		#Update the length
-		@length( @models().length )
-
-		return models
-	#END fill
 
 	#--------------------------------------------------------
 	# Method: Falcon.Collection#unwrap()
@@ -387,79 +313,10 @@ class Falcon.Collection extends Falcon.Object
 	#	**options** _(Object)_ - Optional object of settings to use on this call
 	#
 	# Returns:
-	#	_(XmlHttpRequest)_ - The XmlHttpRequest created
+	#	_(mixed)_ - Whatever the response from the adapter's sync method is
 	#--------------------------------------------------------
 	sync: (type, options, context) ->
-		options = {complete: options} if isFunction(options)
-		options = {attributes: trim( options ).split(",")} if isString(options)
-		options = {attributes: options} if isArray( options )
-
-		options = {} unless isObject(options)
-		options.data = null unless isObject(options.data)
-		options.dataType = "json" unless isString(options.dataType)
-		options.contentType = "application/json" unless isString(options.contentType)
-		options.success = (->) unless isFunction(options.success)
-		options.complete = (->) unless isFunction(options.complete)
-		options.error = (->) unless isFunction(options.error)
-		options.parent = @parent unless Falcon.isModel( options.parent ) or options.parent is null
-		options.attributes = null unless options.attributes?
-		options.params = {} unless isObject( options.params )
-		options.fill = true unless isBoolean( options.fill )
-		options.headers = {} unless isObject( options.headers )
-
-		type = trim( if isString(type) then type.toUpperCase() else "GET" )
-		type = "GET" unless type in ["GET", "POST", "PUT", "DELETE"]
-
-		#serialize the data to json
-		json = if options.data is null then "" else JSON.stringify(options.data)
-
-		#Determine the context
-		context = context ? options.context ? this
-
-		url = options.url ? trim(@makeUrl(type, options.parent))
-
-		unless isEmpty( options.params )
-			url += "?" unless url.indexOf("?") > -1
-			url += ( "#{key}=#{value}" for key, value of options.params ).join("&")
-		#END if params
-
-		return $.ajax
-			'url': url
-			'type': type
-			'data': json
-			'dataType': options.dataType
-			'contentType': options.contentType
-			'cache': Falcon.cache
-			'headers': options.headers
-
-			'success': (data, status, xhr) =>
-				data = JSON.parse( data ) if isString(data)
-				data = JSON.parse( xhr.responseText ) if not data? and isString( xhr.responseText )
-				data ?= []
-
-				parsed_data = @parse( data, options, xhr )
-				
-				if type is "GET"
-					@fill(parsed_data, options) if options.fill
-					@trigger("fetch", parsed_data)
-				#END if
-
-				options.success.call(context, this, data, status, xhr)
-			#END success
-
-			'error': (xhr) => 
-				response = xhr.responseText
-				try
-					response = JSON.parse(response) if isString(response)
-				catch e
-
-				options.error.call(context, this, response, xhr)
-			#END error
-
-			'complete': (xhr, status) =>
-				options.complete.call(context, this, xhr, status)
-			#END complete
-		#END $.ajax
+		return Falcon.adapter.sync( @, type, options, context )
 	#END sync
 
 	#--------------------------------------------------------
@@ -472,7 +329,7 @@ class Falcon.Collection extends Falcon.Object
 	#	**context** _(Object)_ - Optional object to set the context of the request
 	#
 	# Returns:
-	#	_(XmlHttpRequest)_ - The XmlHttpRequest created
+	#	_(mixed)_ - Whatever the response from the adapter's sync method is
 	#--------------------------------------------------------
 	fetch: (options, context) -> 
 		return @sync('GET', options, context)
@@ -484,31 +341,28 @@ class Falcon.Collection extends Falcon.Object
 	#	also sends off a corresponding ajax request
 	#
 	# Arguments:
-	#	**data** _(Object)_ - The model data to create
+	#	**data** _(Falcon.Model|Object)_ - The model data to create
 	#	**options** _(Object)_ - optional options for the ajax request
 	#	**context** _(Object)_ - Optional object to set the context of the request
 	#
 	# Returns:
-	#	_(XmlHttpRequest)_ - The XmlHttpRequest created
+	#	_(mixed)_ - Whatever the response from the adapter's sync method is
 	#--------------------------------------------------------
 	create: (data, options, context) ->
-		return unless @model?
+		return null unless @model?
 		
-		data = data.unwrap() if Falcon.isModel(data)
-		data = {} unless isObject(data)
-		
-		options = {success:options} if isFunction(options)
-		options = {} unless isObject(options)
-		options.success = (->) unless isFunction(options.success)
-		options.method = 'append' unless isString(options.method)
+		data = {} unless isObject(data) or Falcon.isModel(data)
+		model = if Falcon.isModel(data) then data else new @model(data)
+		context ?= model
 
-		_success = options.success
-		options.success = (model) =>
-			models = @fill(model, options)
-			_success.apply(models[0] ? model, arguments)
+		output_options = Falcon.adapter.standardizeOptions( model, 'POST', options, context )
+		output_options.fill_options ?= {method: 'append'}
+		output_options.success = (model) =>
+			@fill(model, output_options.fill_options)
+			options.success.apply(context, arguments) if isFunction( options.success )
 		#END success
-
-		return ( new @model(data, @parent).create(options, context) )
+		
+		return model.create(output_options, context)
 	#END create
 
 	#--------------------------------------------------------
@@ -529,27 +383,23 @@ class Falcon.Collection extends Falcon.Object
 	#	**context** _(Object)_ - Optional object to set the context of the request
 	#
 	# Returns:
-	#	_(XmlHttpRequest)_ - The XmlHttpRequest created
+	#	_(mixed)_ - Whatever the response from the adapter's sync method is
 	#--------------------------------------------------------
 	destroy: (model, options, context) ->
 		return null unless @model?
 
-		model = @first( ko.utils.unwrapObservable( model ) )
+		model = @first( ko.unwrap( model ) )
 
 		return null unless Falcon.isModel( model )
 
-		options = {success:options} if isFunction(options)
-		options = {} unless isObject(options)
-		options.success = (->) unless isFunction(options.success)
-		options.parent = @parent if options.parent is undefined
-
-		_success = options.success
-		options.success = (model) =>
+		context ?= model
+		output_options = Falcon.adapter.standardizeOptions( model, 'DELETE', options, context )
+		output_options.success = (model) =>
 			@remove(model)
-			_success.apply(model, arguments)
+			options.success.apply(context, arguments) if isFunction( options.success )
 		#END success
 
-		return model.destroy(options, context)
+		return model.destroy(output_options, context)
 	#END destroy
 
 	#--------------------------------------------------------
@@ -565,30 +415,137 @@ class Falcon.Collection extends Falcon.Object
 	#	_(Falcon.Collection)_ - This instance
 	#--------------------------------------------------------
 	remove: (items) ->
-		items = ko.utils.unwrapObservable( items )
+		items = ko.unwrap( items )
 		items = items.models() if Falcon.isCollection( items )
 		@__falcon_collection__change_count__++
 
 		removedItems = if isArray(items) then @models.removeAll(items) else @models.remove(_makeIterator(items))
 
-		unless isEmpty(removedItems)
-			@length( @models().length )
-		#END unless
-
 		return this
 	#END remove
+
+
+	#========================================================================================
+	#
+	# FILL RELATED METHODS
+	#
+	#========================================================================================
+	_fill_standardizeItems = (collection, items) ->
+		items = ko.unwrap(items) if ko.isObservable(items)
+		items ?= []
+		items = items.all() if Falcon.isCollection(items)
+		items = [items] unless isArray(items)
+		items = items.slice(0) #Shallow clone the items array so that we don't disturb the original input
+
+		return items
+	#END _standardizeItems
+
+	_fill_createModels = (collection, items) ->
+		#Create new models where needed
+		for item, i in items when isObject(item) and not Falcon.isModel(item)
+			items[i] = new collection.model(item, collection.parent)
+		#END for
+
+		return items
+	#END _fill_createModels
+
+	_fill_addMixins = (collection, added_models) ->
+		#Add the mixins
+		for added_model in added_models
+			added_model.mixin(mapping) for mapping in collection.__falcon_collection__mixins__
+		#END for
+	#END _fill_addMixins
+
+	_fill_standardizeOptions = (collection, options) ->
+		options = {} unless isObject(options)
+		output_options = {}
+
+		#clone the options so we don't distrub the original object
+		output_options[key] = value for key, value of options
+
+		output_options.comparator ?= collection.comparator
+
+		output_options.method = 'replace' unless isString( output_options.method )
+		output_options.method = trim( output_options.method.toLowerCase() )
+		output_options.method = 'replace' unless output_options.method in ['replace', 'append', 'prepend', 'insert', 'merge']
+		
+		return output_options
+	#END _fill_standardizeOptions
+
+	_fill_updateModels = (collection, new_models_list, options) ->
+		new_models_list.sort( options.comparator ) if isFunction( options.comparator )
+
+		collection.__falcon_collection__change_count__++
+		collection.models( new_models_list )
+	#END _fill_updateModels
+
+	#--------------------------------------------------------
+	# Method: Falcon.Collection#fill()
+	#	'fills' this collection with new data
+	#
+	# Arguments:
+	#	**items** _(Array)_ - An array of items to fill this collection with
+	#	**options** _(Object)_ - The options specific to this fill related method.
+	#
+	# Returns:
+	#	_(Array)_ - An array of the models that were added
+	#--------------------------------------------------------
+	fill: (items, options) ->
+		options = _fill_standardizeOptions( @, options )
+		return @[options.method]( items, options )
+	#END fill
+
+	#--------------------------------------------------------
+	# Method: Falcon.Collection#replace
+	#	Replaces all of the items in the collections
+	#
+	# Arguments:
+	#	**items** _(Falcon.Model|Array)_ - The model(s) to add
+	#	**options** _(Object)_ - The options specific to this fill related method.
+	#		comparator: Method used to sort the resultant list of models (optional)
+	#
+	# Returns:
+	#	_(Array)_ - An array of the models that were added
+	#--------------------------------------------------------
+	replace: (items, options) ->
+		return [] unless @model?
+
+		options = _fill_standardizeOptions( @, options )
+		items = _fill_standardizeItems(@, items )
+		items = _fill_createModels(@, items )
+		_fill_addMixins( @, items )
+		_fill_updateModels( @, items, options )
+
+		return items
+	#END replace
 
 	#--------------------------------------------------------
 	# Method: Falcon.Collection#append
 	#	Appends an items or a list of items to the end of the collection
 	#
 	# Arguments:
-	#	**item** _(Falcon.Model)_ - The model(s) to add
+	#	**items** _(Falcon.Model|Array)_ - The model(s) to add
+	#	**options** _(Object)_ - The options specific to this fill related method.
+	#		comparator: Method used to sort the resultant list of models (optional)
 	#
 	# Returns:
-	#	_(Falcon.Collection)_ - This instance
+	#	_(Array)_ - An array of the models that were added
 	#--------------------------------------------------------
-	append: (items) -> @fill(items, {'method': 'append'})
+	append: (items, options) ->
+		return [] unless @model?
+
+		options = _fill_standardizeOptions( @, options )
+		items = _fill_standardizeItems( @, items )
+		items = _fill_createModels( @, items ) 
+
+		new_models_list = @models()
+		new_models_list = new_models_list.concat( items )
+
+		_fill_addMixins( @, items, options )
+		_fill_updateModels( @, new_models_list, options )
+
+		return items
+	#END append
 
 	#--------------------------------------------------------
 	# Method: Falcon.Collection#prepend
@@ -596,11 +553,33 @@ class Falcon.Collection extends Falcon.Object
 	#
 	# Arguments:
 	#	**items** _(Falcon.Model)_ - The model(s) to add
+	#	**options** _(Object)_ - The options specific to this fill related method.
+	#		comparator: Method used to sort the resultant list of models (optional)
 	#
 	# Returns:
-	#	_(Falcon.Collection)_ - This instance
+	#	_(Array)_ - An array of the models that were added
 	#--------------------------------------------------------
-	prepend: (items) -> @fill(items, {'method': 'prepend'})
+	prepend: (items, options) ->
+		return [] unless @model?
+
+		options = _fill_standardizeOptions( @, options )
+		items = _fill_standardizeItems( @, items )
+		items = _fill_createModels( @, items )
+
+		#Create new models where needed
+		for item, i in items when isObject(item) and not Falcon.isModel(item)
+			items[i] = new @model(item, @parent)
+		#END for
+
+		_length = items.length-1
+		new_models_list = @models()
+		new_models_list.unshift( items[_length-i] ) for item, i in items
+
+		_fill_addMixins( @, items, options )
+		_fill_updateModels( @, new_models_list, options )
+
+		return items
+	#END prepend
 
 	#--------------------------------------------------------
 	# Method: Falcon.Collection#insert
@@ -610,23 +589,118 @@ class Falcon.Collection extends Falcon.Object
 	#	will be inserted before the first model to pass the truth test
 	#
 	# Arguments:
-	#	**insert_model** _(Falcon.Model)_ - The model to insert
-	#	**model** _(Falcon.Model) - The model to insert before
-	#
-	# Arguments:
-	#	**insert_model** _(Falcon.Model)_ - The model to insert
-	#	**iterator** _(Function) - The iterator to truth test each model against
+	#	**items** _(Falcon.Model)_ - The model(s) to insert
+	#	**options** _(Object)_ - The options specific to this fill related method.
+	#		index: The index to insert at. This will override the iterator attribute
+	#		iterator: The iterator (id, model, method) to use to find which model we should insert the new model(s) after
+	#				  If no iterator could be made, then we'll append the models instead
+	#		model: This is the same as iterator
+	#		comparator: Method used to sort the resultant list of models (optional)
 	#
 	# Returns:
-	#	_(Falcon.Model)_ - The inserted models
+	#	_(Array)_ - An array of the models that were added
 	#--------------------------------------------------------
-	insert: (insert_model, model) ->
-		iterator = _makeIterator( model )
-		return @fill( insert_model, {'method': 'append'} ) unless isFunction( iterator )
+	insert: (items, options) ->
+		options = {iterator: options} if isFunction( options )
+		options = {model: options} if isNumber( options ) or isString( options ) or Falcon.isModel( options )
+		options = _fill_standardizeOptions( @, options )
+
+		items = _fill_standardizeItems( @, items )
+		items = _fill_createModels( @, items )
 		
-		insert_index = @indexOf( model )
-		return @fill( insert_model, {'method': 'insert', 'insert_index': insert_index })
+		insert_index = options.index ? @indexOf( _makeIterator( options.iterator ? options.model ) )
+		new_models_list = @models()
+
+		if insert_index < 0 or insert_index >= new_models_list.length
+			new_models_list = new_models_list.concat( items )
+		else
+			head = new_models_list[0...insert_index]
+			tail = new_models_list[insert_index..]
+			new_models_list = head.concat( items, tail )
+		#END if
+
+		_fill_addMixins( @, items, options )
+		_fill_updateModels( @, new_models_list, options )
+
+		return items
 	#END insert
+
+	#--------------------------------------------------------
+	# Method: Falcon.Collection#merge
+	#	Merges a list of objects/models into the current list
+	#
+	# Arguments:
+	#	**items** _(Falcon.Model)_ - The model(s) to insert
+	#	**options** _(Object)_ - The options specific to this fill related method.
+	#		comparator: Method used to sort the resultant list of models (optional)
+	#
+	# Returns:
+	#	_(Array)_ - An array of the models that were added
+	#--------------------------------------------------------
+	merge: (items, options) ->
+		return [] unless @model?
+
+		options = _fill_standardizeOptions( @, options )
+		items = _fill_standardizeItems( @, items)
+
+		added_models = []
+		new_models_list = @models()
+
+		#iterate over the new collection
+		for item in items
+			existing_model = null
+
+			#Check if this new model is already a Model
+			if Falcon.isModel( item )
+				#Create the appropriate iterator
+				iterator = _makeIterator( item )
+
+				#Try to find an existing model in this collection
+				for m in new_models_list when iterator( m )
+					existing_model = m
+					break
+				#END for
+
+				#If we found a model, then fill it with the unwrapped data
+				#from the input item (so we avoid overwitting references)
+				if Falcon.isModel( existing_model )
+					existing_model.fill( item.unwrap() )
+
+				#Otherwise simply append the model to the collection
+				else
+					new_models_list.push( item )
+					added_models.push( item )
+				#END if
+
+			#Check if this item is an object of data
+			else if isObject( item )
+				#Create the appropriate iterator
+				iterator = _makeIterator( item.id )
+
+				#Attempt to find a item in this collection
+				for m in new_models_list when iterator( m )
+					existing_model = m
+					break
+				#END for
+
+				#If we found a item, then just fill it with the data
+				if Falcon.isModel( existing_model )
+					existing_model.fill( item )
+
+				#Otherwise, create a new item and append it to the collection
+				else
+					new_model = new @model( item, @parent )
+					new_models_list.push( new_model )
+					added_models.push( new_model )
+				#END if
+			#END if
+		#END for
+
+		_fill_addMixins( @, added_models )
+		_fill_updateModels( @, new_models_list, options )
+
+		return added_models
+	#END merge
 
 	#--------------------------------------------------------
 	# Method: Falcon.Collection#unshift
@@ -654,7 +728,6 @@ class Falcon.Collection extends Falcon.Object
 	#--------------------------------------------------------
 	shift: ->
 		item = @models.shift()
-		@length( @models().length )
 		return item
 	#END shift
 
@@ -685,7 +758,6 @@ class Falcon.Collection extends Falcon.Object
 	pop: ->
 		@__falcon_collection__change_count__++
 		item = @models.pop()
-		@length( @models().length )
 		return item
 	#END pop
 
@@ -847,6 +919,17 @@ class Falcon.Collection extends Falcon.Object
 	#END last
 
 	#--------------------------------------------------------
+	# Method: Falcon.Collection#all
+	#	Returns all of the models in a raw array
+	#
+	# Returns:
+	#	_(Array)_ - An array of all the models in the collection
+	#--------------------------------------------------------
+	all: ->
+		return @models()
+	#END all
+
+	#--------------------------------------------------------
 	# Method: Falcon.Collection#filter
 	#	Gets a list of all items that match the iterator.
 	#	If no iterator is present, all of the models are returned
@@ -923,7 +1006,7 @@ class Falcon.Collection extends Falcon.Object
 
 		for model in models
 			if model?
-				plucked_values.push( if unwrap then ko.utils.unwrapObservable(model[attribute]) else model[attribute] )
+				plucked_values.push( if unwrap then ko.unwrap(model[attribute]) else model[attribute] )
 			else
 				plucked_values.push( undefined )
 			#END if
@@ -990,7 +1073,7 @@ class Falcon.Collection extends Falcon.Object
 
 		for key, value of mapping
 			if ko.isObservable(value)
-				_mapping[key] = ko.observable( ko.utils.unwrapObservable(value) )
+				_mapping[key] = ko.observable( ko.unwrap(value) )
 			else if isFunction(value)
 				do =>
 					_value = value
@@ -1044,7 +1127,6 @@ class Falcon.Collection extends Falcon.Object
 		else
 			@models = ko.observableArray([])
 		#END unless
-		@length(0)
 		return this
 	#END reset
 #END Falcon.Collection
