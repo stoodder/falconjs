@@ -1115,6 +1115,22 @@ describe "Falcon.Model", ->
 			expect( model_a.get("foo") ).toBe( "bar" )
 			expect( ko.isObservable( model_a.hello ) ).toBe( true )
 		#END it
+
+		it "Should not overwrite existing values", ->
+			class TheModel extends Falcon.Model
+			#END TheModel
+
+			the_model = new TheModel
+			expect( the_model.get('is_read') ).not.toBeDefined()
+
+			the_model.mixin(is_read: ko.observable(true))
+			expect( ko.isObservable(the_model.is_read) ).toBe( true )
+			expect( the_model.get('is_read') ).toBe( true )
+
+			the_model.mixin(is_read: ko.observable(false))
+			expect( ko.isObservable(the_model.is_read) ).toBe( true )
+			expect( the_model.get('is_read') ).toBe( true )
+		#END it
 	#END describe
 
 	#--------------------------------------------------------------

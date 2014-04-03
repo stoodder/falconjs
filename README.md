@@ -2,6 +2,14 @@
 [http://stoodder.github.io/falconjs/](http://stoodder.github.io/falconjs/)
 
 ## Change Log
+###v0.10.1
+**Bugs Fixed**
+* Prevented model mixin() method from overwritting currently defined values
+
+**TODO**
+* Cleanup/Redo binding tests
+* Pass fill options through recursive calls to the fill methods
+
 ###v0.10.0
 **Highlights**
 * Added Falcon.Adapter for splitting out dependencies on how we transmit, respond to, and receive data form a backend data source.
@@ -54,10 +62,6 @@
 * Fixed bug in makeUrl when setting baseApiUrl and baseTemplateUrl to "/"
 
 ## For The Future
-### 0.10.1
-* Cleanup/Redo binding tests
-* Pass fill options through recursive calls to the fill methods
-
 ### 0.11.0
 * Add method support for 'obervables' and 'defaults' (rather than dictionary defintion)
 * Add exec binding

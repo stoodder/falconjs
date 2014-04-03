@@ -1026,7 +1026,7 @@
           this[key].mixin(value);
         } else {
           if (ko.isObservable(value)) {
-            this[key] = ko.observable((_ref1 = this[key]) != null ? _ref1 : ko.unwrap(value));
+            this[key] = ko.observable((_ref1 = this.get(key)) != null ? _ref1 : ko.unwrap(value));
           } else if (isFunction(value)) {
             (function() {
               var _value;

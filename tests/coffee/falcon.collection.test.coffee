@@ -2328,6 +2328,33 @@ describe "Falcon.Collection", ->
 			
 			expect( theModel.get("hello") ).toBe( "world" )
 		#END it
+
+		it "Should unwrap observables when exchanging lists", ->
+			class TheModel extends Falcon.Model
+			#END TheModel
+
+			class TheCollection extends Falcon.Collection
+				model: TheModel
+			#END TheCollection
+
+			the_first_collection = new TheCollection
+			the_next_collection = new TheCollection
+
+			the_first_collection.mixin('is_read': ko.observable(false))
+			the_next_collection.mixin('is_read': ko.observable(false))
+
+			the_model = new TheModel
+			expect( the_model.get('is_read') ).not.toBeDefined()
+			
+			the_first_collection.push(the_model)
+			expect( the_model.get('is_read') ).toBe( false )
+
+			the_first_collection.remove(the_model)
+			expect( the_model.get('is_read') ).toBe( false )
+
+			the_next_collection.push(the_model)
+			expect( the_model.get('is_read') ).toBe( false )
+		#END it
 	#END describe
 
 

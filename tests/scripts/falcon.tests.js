@@ -3053,7 +3053,7 @@
         expect(mixin_spy.firstCall.args[0]).toBe(modelA);
         return expect(mixin_spy.firstCall.args[1]).toBe('world');
       });
-      return it("Should preserve existing values in the model", function() {
+      it("Should preserve existing values in the model", function() {
         var ModelA, model_a, _ref;
         ModelA = (function(_super) {
           __extends(ModelA, _super);
@@ -3080,6 +3080,32 @@
         expect(model_a.get("hello")).toBe("world");
         expect(model_a.get("foo")).toBe("bar");
         return expect(ko.isObservable(model_a.hello)).toBe(true);
+      });
+      return it("Should not overwrite existing values", function() {
+        var TheModel, the_model, _ref;
+        TheModel = (function(_super) {
+          __extends(TheModel, _super);
+
+          function TheModel() {
+            _ref = TheModel.__super__.constructor.apply(this, arguments);
+            return _ref;
+          }
+
+          return TheModel;
+
+        })(Falcon.Model);
+        the_model = new TheModel;
+        expect(the_model.get('is_read')).not.toBeDefined();
+        the_model.mixin({
+          is_read: ko.observable(true)
+        });
+        expect(ko.isObservable(the_model.is_read)).toBe(true);
+        expect(the_model.get('is_read')).toBe(true);
+        the_model.mixin({
+          is_read: ko.observable(false)
+        });
+        expect(ko.isObservable(the_model.is_read)).toBe(true);
+        return expect(the_model.get('is_read')).toBe(true);
       });
     });
     describe("Testing clone() method", function() {
@@ -5762,7 +5788,7 @@
         expect(mixin_spy.firstCall.args[1]).toBe(collectionA);
         return expect(mixin_spy.firstCall.args[2]).toBe('world');
       });
-      return it("Should allow for models with values to be added post mixin", function() {
+      it("Should allow for models with values to be added post mixin", function() {
         var TheCollection, TheModel, theCollection, theModel, _ref12, _ref13;
         TheModel = (function(_super) {
           __extends(TheModel, _super);
@@ -5800,6 +5826,49 @@
         expect(theModel.get("hello")).toBe("world");
         theCollection.append(theModel);
         return expect(theModel.get("hello")).toBe("world");
+      });
+      return it("Should unwrap observables when exchanging lists", function() {
+        var TheCollection, TheModel, the_first_collection, the_model, the_next_collection, _ref12, _ref13;
+        TheModel = (function(_super) {
+          __extends(TheModel, _super);
+
+          function TheModel() {
+            _ref12 = TheModel.__super__.constructor.apply(this, arguments);
+            return _ref12;
+          }
+
+          return TheModel;
+
+        })(Falcon.Model);
+        TheCollection = (function(_super) {
+          __extends(TheCollection, _super);
+
+          function TheCollection() {
+            _ref13 = TheCollection.__super__.constructor.apply(this, arguments);
+            return _ref13;
+          }
+
+          TheCollection.prototype.model = TheModel;
+
+          return TheCollection;
+
+        })(Falcon.Collection);
+        the_first_collection = new TheCollection;
+        the_next_collection = new TheCollection;
+        the_first_collection.mixin({
+          'is_read': ko.observable(false)
+        });
+        the_next_collection.mixin({
+          'is_read': ko.observable(false)
+        });
+        the_model = new TheModel;
+        expect(the_model.get('is_read')).not.toBeDefined();
+        the_first_collection.push(the_model);
+        expect(the_model.get('is_read')).toBe(false);
+        the_first_collection.remove(the_model);
+        expect(the_model.get('is_read')).toBe(false);
+        the_next_collection.push(the_model);
+        return expect(the_model.get('is_read')).toBe(false);
       });
     });
     describe("Test the clone() method", function() {
