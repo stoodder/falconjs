@@ -9,6 +9,7 @@
 **TODO**
 * Cleanup/Redo binding tests
 * Pass fill options through recursive calls to the fill methods
+* Fix view binding attached to elements
 
 ###v0.10.0
 **Highlights**
