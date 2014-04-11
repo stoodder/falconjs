@@ -1522,9 +1522,11 @@ describe "Falcon.Collection", ->
 			collection.create(data, options, context)
 
 			expect( ModelA::initialize.calls.count() ).toBe( 1 )
-			expect( ModelA::initialize ).toHaveBeenCalledWith(data)
+			expect( ModelA::initialize ).toHaveBeenCalledWith(data, collection.parent)
 
 			model = ModelA::initialize.calls.mostRecent().object
+
+			expect( model.parent ).toBe( collection.parent )
 
 			expect( Falcon.adapter.standardizeOptions.calls.count() ).toBe( 1 )
 			expect( Falcon.adapter.standardizeOptions ).toHaveBeenCalledWith( model, 'POST', options, context )
