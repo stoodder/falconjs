@@ -1434,7 +1434,7 @@
       if (!(isObject(data) || Falcon.isModel(data))) {
         data = {};
       }
-      model = Falcon.isModel(data) ? data : new this.model(data);
+      model = Falcon.isModel(data) ? data : new this.model(data, this.parent);
       if (context == null) {
         context = model;
       }

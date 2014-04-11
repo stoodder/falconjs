@@ -352,7 +352,7 @@ class Falcon.Collection extends Falcon.Object
 		return null unless @model?
 		
 		data = {} unless isObject(data) or Falcon.isModel(data)
-		model = if Falcon.isModel(data) then data else new @model(data)
+		model = if Falcon.isModel(data) then data else new @model(data, @parent)
 		context ?= model
 
 		output_options = Falcon.adapter.standardizeOptions( model, 'POST', options, context )

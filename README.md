@@ -5,6 +5,7 @@
 ###v0.10.1
 **Bugs Fixed**
 * Prevented model mixin() method from overwritting currently defined values
+* When using Falcon.Collections create() method with a raw object, we assign the collection's parent as the newly created model's parent
 
 **TODO**
 * Cleanup/Redo binding tests

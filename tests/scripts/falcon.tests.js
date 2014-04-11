@@ -5038,8 +5038,9 @@
         data = {};
         collection.create(data, options, context);
         expect(ModelA.prototype.initialize.calls.count()).toBe(1);
-        expect(ModelA.prototype.initialize).toHaveBeenCalledWith(data);
+        expect(ModelA.prototype.initialize).toHaveBeenCalledWith(data, collection.parent);
         model = ModelA.prototype.initialize.calls.mostRecent().object;
+        expect(model.parent).toBe(collection.parent);
         expect(Falcon.adapter.standardizeOptions.calls.count()).toBe(1);
         expect(Falcon.adapter.standardizeOptions).toHaveBeenCalledWith(model, 'POST', options, context);
         expect(model.create.calls.count()).toBe(1);
