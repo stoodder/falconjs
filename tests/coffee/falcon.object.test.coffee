@@ -1,16 +1,16 @@
 describe "Falcon.Object", ->
-	klass = null
+	obj = null
 
 	beforeEach ->
-		klass = new Falcon.Object
+		obj = new Falcon.Object()
 	#END beforeEach
 
 	describe "on, off, trigger, has", ->
 		click_one = click_two = context_two = mouseover_one = null
 		beforeEach ->
-			klass.on "click", ( click_one = sinon.spy() )
-			klass.on "click", ( click_two = sinon.spy() ), (context_two = {})
-			klass.on "mouseover", ( mouseover_one = sinon.spy() )
+			obj.on "click", ( click_one = sinon.spy() )
+			obj.on "click", ( click_two = sinon.spy() ), (context_two = {})
+			obj.on "mouseover", ( mouseover_one = sinon.spy() )
 		#END beforeEach
 
 		it "Should not call any of the methods before trigger", ->
@@ -20,7 +20,7 @@ describe "Falcon.Object", ->
 		#END it
 
 		it "Should trigger both click routines", ->
-			klass.trigger "click", 1, 2, 3
+			obj.trigger "click", 1, 2, 3
 
 			expect( click_one ).toHaveBeenCalledOnce()
 			expect( click_one ).toHaveBeenCalledWith( 1, 2, 3 )
@@ -33,7 +33,7 @@ describe "Falcon.Object", ->
 		#END it
 
 		it "Should call the mouseover routine", ->
-			klass.trigger "mouseover", "go", true, {}
+			obj.trigger "mouseover", "go", true, {}
 
 			expect( click_one ).not.toHaveBeenCalled()
 			expect( click_two ).not.toHaveBeenCalled()
@@ -43,9 +43,9 @@ describe "Falcon.Object", ->
 		#END it
 
 		it "Should be able to find the click event methods and shouldn't have attempted to call the methods", ->
-			expect( klass.has "click", click_one ).toBe( true )
-			expect( klass.has "click", click_two ).toBe( true )
-			expect( klass.has "click", mouseover_one ).toBe( false )
+			expect( obj.has "click", click_one ).toBe( true )
+			expect( obj.has "click", click_two ).toBe( true )
+			expect( obj.has "click", mouseover_one ).toBe( false )
 
 			expect( click_one ).not.toHaveBeenCalled()
 			expect( click_two ).not.toHaveBeenCalled()
@@ -53,9 +53,9 @@ describe "Falcon.Object", ->
 		#END it
 
 		it "Should be able to find the mouseover event methods", ->
-			expect( klass.has "mouseover", click_one ).toBe( false )
-			expect( klass.has "mouseover", click_two ).toBe( false )
-			expect( klass.has "mouseover", mouseover_one ).toBe( true )
+			expect( obj.has "mouseover", click_one ).toBe( false )
+			expect( obj.has "mouseover", click_two ).toBe( false )
+			expect( obj.has "mouseover", mouseover_one ).toBe( true )
 
 			expect( click_one ).not.toHaveBeenCalled()
 			expect( click_two ).not.toHaveBeenCalled()
@@ -63,8 +63,8 @@ describe "Falcon.Object", ->
 		#END it
 
 		it "Should be able to remove an event properly", ->
-			klass.off "click", click_one
-			klass.trigger "click", 4,5,6
+			obj.off "click", click_one
+			obj.trigger "click", 4,5,6
 
 			expect( click_one ).not.toHaveBeenCalled()
 
@@ -440,77 +440,77 @@ describe "Falcon.Object", ->
 			#END observables
 		#END Klass
 
-		klass = null
+		obj = null
 
 		beforeEach ->
-			klass = new Klass
+			obj = new Klass
 		#END beforeEach
 
 		it "Should have added the correct default attributes", ->
-			expect( klass['id'] ).toBeDefined()
-			expect( klass['foo'] ).toBeDefined()
-			expect( klass['free'] ).toBeDefined()
-			expect( klass['def_arr'] ).toBeDefined()
-			expect( klass['clazz'] ).toBeDefined()
+			expect( obj['id'] ).toBeDefined()
+			expect( obj['foo'] ).toBeDefined()
+			expect( obj['free'] ).toBeDefined()
+			expect( obj['def_arr'] ).toBeDefined()
+			expect( obj['clazz'] ).toBeDefined()
 		#END it
 
 		it "Should have added the correct observable attributes", ->
-			expect( klass['hello'] ).toBeDefined()
-			expect( klass['foo'] ).toBeDefined()
-			expect( klass['test'] ).toBeDefined()
-			expect( klass['_another'] ).toBeDefined()
-			expect( klass['another'] ).toBeDefined()
+			expect( obj['hello'] ).toBeDefined()
+			expect( obj['foo'] ).toBeDefined()
+			expect( obj['test'] ).toBeDefined()
+			expect( obj['_another'] ).toBeDefined()
+			expect( obj['another'] ).toBeDefined()
 		#END it
 
 		it "Should have added the correct default values", ->
-			expect( klass.id ).toBe( -1 )
-			expect( klass.foo ).not.toBe 'bar' #Should have been overitten by
-			expect( klass.free ).toBe( 'bird'  )
-			expect( klass.clazz ).toEqual( jasmine.any(Clazz) )
+			expect( obj.id ).toBe( -1 )
+			expect( obj.foo ).not.toBe 'bar' #Should have been overitten by
+			expect( obj.free ).toBe( 'bird'  )
+			expect( obj.clazz ).toEqual( jasmine.any(Clazz) )
 		#END it
 
 		it "Should have the correct values for a default array", ->
-			expect( klass.def_arr ).toEqual( [1,2,3] )
-			expect( klass.def_arr ).not.toBe( Klass::defaults.def_arr )
+			expect( obj.def_arr ).toEqual( [1,2,3] )
+			expect( obj.def_arr ).not.toBe( Klass::defaults.def_arr )
 		#END it
 
 		it "Should have added the correct observable type", ->
-			expect( ko.isObservable( klass.hello ) ).toBe( true )
-			expect( ko.isObservable( klass.foo ) ).toBe( true )
-			expect( ko.isComputed( klass.test ) ).toBe( true )
-			expect( ko.isObservable( klass._another ) ).toBe( true )
-			expect( ko.isComputed( klass.another ) ).toBe( true )
+			expect( ko.isObservable( obj.hello ) ).toBe( true )
+			expect( ko.isObservable( obj.foo ) ).toBe( true )
+			expect( ko.isComputed( obj.test ) ).toBe( true )
+			expect( ko.isObservable( obj._another ) ).toBe( true )
+			expect( ko.isComputed( obj.another ) ).toBe( true )
 		#END it
 
 		it "Should have added the correct writeable observable type", ->
-			expect( ko.isWriteableObservable( klass.hello ) ).toBe( true )
-			expect( ko.isWriteableObservable( klass.foo ) ).toBe( true )
-			expect( ko.isWriteableObservable( klass.test ) ).toBe( false )
-			expect( ko.isWriteableObservable( klass._another ) ).toBe( true )
-			expect( ko.isWriteableObservable( klass.another ) ).toBe( true )
+			expect( ko.isWriteableObservable( obj.hello ) ).toBe( true )
+			expect( ko.isWriteableObservable( obj.foo ) ).toBe( true )
+			expect( ko.isWriteableObservable( obj.test ) ).toBe( false )
+			expect( ko.isWriteableObservable( obj._another ) ).toBe( true )
+			expect( ko.isWriteableObservable( obj.another ) ).toBe( true )
 		#END it
 
 		it "Should have assigned the correct values to observables", ->
-			expect( ko.utils.unwrapObservable( klass.hello ) ).toBe( "world" )
-			expect( ko.utils.unwrapObservable( klass.foo ) ).toBe( "baz" )
-			expect( ko.utils.unwrapObservable( klass.test ) ).toBe( "method" )
-			expect( ko.utils.unwrapObservable( klass._another ) ).toBe( "good" )
-			expect( ko.utils.unwrapObservable( klass.another ) ).toBe( "good method" )
+			expect( ko.utils.unwrapObservable( obj.hello ) ).toBe( "world" )
+			expect( ko.utils.unwrapObservable( obj.foo ) ).toBe( "baz" )
+			expect( ko.utils.unwrapObservable( obj.test ) ).toBe( "method" )
+			expect( ko.utils.unwrapObservable( obj._another ) ).toBe( "good" )
+			expect( ko.utils.unwrapObservable( obj.another ) ).toBe( "good method" )
 
-			klass.another("great")
-			expect( ko.utils.unwrapObservable( klass.another ) ).toBe( "great method" )
+			obj.another("great")
+			expect( ko.utils.unwrapObservable( obj.another ) ).toBe( "great method" )
 		#END it
 
 		it "Should have propogated defaults in the child class", ->
-			expect( klass.clazz.id ).toBe( 'z' )
-			expect( klass.clazz.im ).toBe( 'here' )
+			expect( obj.clazz.id ).toBe( 'z' )
+			expect( obj.clazz.im ).toBe( 'here' )
 		#END it
 
 		it "Should have an observable array", ->
-			expect( ko.isObservable( klass.arr ) ).toBe( true )
-			expect( klass.arr() ).toEqual( jasmine.any(Array) )
-			expect( klass.arr().length ).toBe( 2 )
-			expect( klass.arr() ).not.toBe( Klass::observables.arr ) #Make sure this is a clone, not the original array definition
+			expect( ko.isObservable( obj.arr ) ).toBe( true )
+			expect( obj.arr() ).toEqual( jasmine.any(Array) )
+			expect( obj.arr().length ).toBe( 2 )
+			expect( obj.arr() ).not.toBe( Klass::observables.arr ) #Make sure this is a clone, not the original array definition
 		#END it
 
 		it "Should create RawrClass with defaults that have the correct arguments", ->
@@ -547,24 +547,24 @@ describe "Falcon.Object", ->
 				'things': -> things_spy.call( @ )
 			});
 
-			my_klass = new Klass
+			my_obj = new Klass
 
-			expect( my_klass ).toEqual( jasmine.any(Falcon.Object) )
-			expect( my_klass ).not.toEqual( jasmine.any(Falcon.Model) )
-			expect( my_klass ).not.toEqual( jasmine.any(Falcon.Collection) )
-			expect( my_klass ).not.toEqual( jasmine.any(Falcon.View) )
+			expect( my_obj ).toEqual( jasmine.any(Falcon.Object) )
+			expect( my_obj ).not.toEqual( jasmine.any(Falcon.Model) )
+			expect( my_obj ).not.toEqual( jasmine.any(Falcon.Collection) )
+			expect( my_obj ).not.toEqual( jasmine.any(Falcon.View) )
 
 			expect( Klass::custom ).toEqual(jasmine.any(Function))
 			expect( Klass::text ).toEqual(jasmine.any(String))
 			expect( Klass.things ).toEqual(jasmine.any(Function))
 
-			expect( my_klass.custom ).toEqual(jasmine.any(Function))
-			expect( my_klass.text ).toEqual(jasmine.any(String))
+			expect( my_obj.custom ).toEqual(jasmine.any(Function))
+			expect( my_obj.text ).toEqual(jasmine.any(String))
 
-			my_klass.custom()
+			my_obj.custom()
 
 			expect( custom_spy ).toHaveBeenCalled()
-			expect( custom_spy.firstCall ).toHaveBeenCalledOn( my_klass )
+			expect( custom_spy.firstCall ).toHaveBeenCalledOn( my_obj )
 
 			Klass.things()
 
@@ -585,29 +585,29 @@ describe "Falcon.Object", ->
 				'things': -> things_spy.call( @ )
 			});
 
-			my_klass = new Klass
+			my_obj = new Klass
 
-			expect( my_klass ).toEqual( jasmine.any(Falcon.Object) )
-			expect( my_klass ).toEqual( jasmine.any(Falcon.Model) )
-			expect( my_klass ).not.toEqual( jasmine.any(Falcon.Collection) )
-			expect( my_klass ).not.toEqual( jasmine.any(Falcon.View) )
+			expect( my_obj ).toEqual( jasmine.any(Falcon.Object) )
+			expect( my_obj ).toEqual( jasmine.any(Falcon.Model) )
+			expect( my_obj ).not.toEqual( jasmine.any(Falcon.Collection) )
+			expect( my_obj ).not.toEqual( jasmine.any(Falcon.View) )
 
 			expect( Klass::initialize ).toEqual(jasmine.any(Function))
 			expect( Klass::custom ).toEqual(jasmine.any(Function))
 			expect( Klass::text ).toEqual(jasmine.any(String))
 			expect( Klass.things ).toEqual(jasmine.any(Function))
 
-			expect( my_klass.initialize ).toEqual(jasmine.any(Function))
-			expect( my_klass.custom ).toEqual(jasmine.any(Function))
-			expect( my_klass.text ).toEqual(jasmine.any(String))
+			expect( my_obj.initialize ).toEqual(jasmine.any(Function))
+			expect( my_obj.custom ).toEqual(jasmine.any(Function))
+			expect( my_obj.text ).toEqual(jasmine.any(String))
 
 			expect( init_spy ).toHaveBeenCalled()
-			expect( init_spy.firstCall ).toHaveBeenCalledOn( my_klass )
+			expect( init_spy.firstCall ).toHaveBeenCalledOn( my_obj )
 
-			my_klass.custom()
+			my_obj.custom()
 
 			expect( custom_spy ).toHaveBeenCalled()
-			expect( custom_spy.firstCall ).toHaveBeenCalledOn( my_klass )
+			expect( custom_spy.firstCall ).toHaveBeenCalledOn( my_obj )
 
 			Klass.things()
 
@@ -628,29 +628,29 @@ describe "Falcon.Object", ->
 				'things': -> things_spy.call( @ )
 			});
 
-			my_klass = new Klass
+			my_obj = new Klass
 
-			expect( my_klass ).toEqual( jasmine.any(Falcon.Object) )
-			expect( my_klass ).not.toEqual( jasmine.any(Falcon.Model) )
-			expect( my_klass ).toEqual( jasmine.any(Falcon.Collection) )
-			expect( my_klass ).not.toEqual( jasmine.any(Falcon.View) )
+			expect( my_obj ).toEqual( jasmine.any(Falcon.Object) )
+			expect( my_obj ).not.toEqual( jasmine.any(Falcon.Model) )
+			expect( my_obj ).toEqual( jasmine.any(Falcon.Collection) )
+			expect( my_obj ).not.toEqual( jasmine.any(Falcon.View) )
 
 			expect( Klass::initialize ).toEqual(jasmine.any(Function))
 			expect( Klass::custom ).toEqual(jasmine.any(Function))
 			expect( Klass::text ).toEqual(jasmine.any(String))
 			expect( Klass.things ).toEqual(jasmine.any(Function))
 
-			expect( my_klass.initialize ).toEqual(jasmine.any(Function))
-			expect( my_klass.custom ).toEqual(jasmine.any(Function))
-			expect( my_klass.text ).toEqual(jasmine.any(String))
+			expect( my_obj.initialize ).toEqual(jasmine.any(Function))
+			expect( my_obj.custom ).toEqual(jasmine.any(Function))
+			expect( my_obj.text ).toEqual(jasmine.any(String))
 
 			expect( init_spy ).toHaveBeenCalled()
-			expect( init_spy.firstCall ).toHaveBeenCalledOn( my_klass )
+			expect( init_spy.firstCall ).toHaveBeenCalledOn( my_obj )
 
-			my_klass.custom()
+			my_obj.custom()
 
 			expect( custom_spy ).toHaveBeenCalled()
-			expect( custom_spy.firstCall ).toHaveBeenCalledOn( my_klass )
+			expect( custom_spy.firstCall ).toHaveBeenCalledOn( my_obj )
 
 			Klass.things()
 
@@ -671,29 +671,29 @@ describe "Falcon.Object", ->
 				'things': -> things_spy.call( @ )
 			});
 
-			my_klass = new Klass
+			my_obj = new Klass
 
-			expect( my_klass ).toEqual( jasmine.any(Falcon.Object) )
-			expect( my_klass ).not.toEqual( jasmine.any(Falcon.Model) )
-			expect( my_klass ).not.toEqual( jasmine.any(Falcon.Collection) )
-			expect( my_klass ).toEqual( jasmine.any(Falcon.View) )
+			expect( my_obj ).toEqual( jasmine.any(Falcon.Object) )
+			expect( my_obj ).not.toEqual( jasmine.any(Falcon.Model) )
+			expect( my_obj ).not.toEqual( jasmine.any(Falcon.Collection) )
+			expect( my_obj ).toEqual( jasmine.any(Falcon.View) )
 
 			expect( Klass::initialize ).toEqual(jasmine.any(Function))
 			expect( Klass::custom ).toEqual(jasmine.any(Function))
 			expect( Klass::text ).toEqual(jasmine.any(String))
 			expect( Klass.things ).toEqual(jasmine.any(Function))
 
-			expect( my_klass.initialize ).toEqual(jasmine.any(Function))
-			expect( my_klass.custom ).toEqual(jasmine.any(Function))
-			expect( my_klass.text ).toEqual(jasmine.any(String))
+			expect( my_obj.initialize ).toEqual(jasmine.any(Function))
+			expect( my_obj.custom ).toEqual(jasmine.any(Function))
+			expect( my_obj.text ).toEqual(jasmine.any(String))
 
 			expect( init_spy ).toHaveBeenCalled()
-			expect( init_spy.firstCall ).toHaveBeenCalledOn( my_klass )
+			expect( init_spy.firstCall ).toHaveBeenCalledOn( my_obj )
 
-			my_klass.custom()
+			my_obj.custom()
 
 			expect( custom_spy ).toHaveBeenCalled()
-			expect( custom_spy.firstCall ).toHaveBeenCalledOn( my_klass )
+			expect( custom_spy.firstCall ).toHaveBeenCalledOn( my_obj )
 
 			Klass.things()
 
@@ -718,13 +718,13 @@ describe "Falcon.Object", ->
 				'foo': 'bar'
 			})
 
-			child_klass = new ChildKlass
+			child_obj = new ChildKlass
 
-			expect( child_klass ).toEqual( jasmine.any(Falcon.Object) )
-			expect( child_klass ).toEqual( jasmine.any(Klass) )
-			expect( child_klass ).not.toEqual( jasmine.any(Falcon.Model) )
-			expect( child_klass ).not.toEqual( jasmine.any(Falcon.Collection) )
-			expect( child_klass ).not.toEqual( jasmine.any(Falcon.View) )
+			expect( child_obj ).toEqual( jasmine.any(Falcon.Object) )
+			expect( child_obj ).toEqual( jasmine.any(Klass) )
+			expect( child_obj ).not.toEqual( jasmine.any(Falcon.Model) )
+			expect( child_obj ).not.toEqual( jasmine.any(Falcon.Collection) )
+			expect( child_obj ).not.toEqual( jasmine.any(Falcon.View) )
 
 			expect( ChildKlass::custom ).toEqual(jasmine.any(Function))
 			expect( ChildKlass::text ).toEqual(jasmine.any(String))
@@ -732,14 +732,14 @@ describe "Falcon.Object", ->
 			expect( ChildKlass.things ).toEqual(jasmine.any(Function))
 			expect( ChildKlass.foo ).toEqual(jasmine.any(String))
 
-			expect( child_klass.custom ).toEqual(jasmine.any(Function))
-			expect( child_klass.text ).toEqual(jasmine.any(String))
-			expect( child_klass.another ).toEqual(jasmine.any(Function))
+			expect( child_obj.custom ).toEqual(jasmine.any(Function))
+			expect( child_obj.text ).toEqual(jasmine.any(String))
+			expect( child_obj.another ).toEqual(jasmine.any(Function))
 
-			child_klass.custom()
+			child_obj.custom()
 
 			expect( custom_spy ).toHaveBeenCalled()
-			expect( custom_spy.firstCall ).toHaveBeenCalledOn( child_klass )
+			expect( custom_spy.firstCall ).toHaveBeenCalledOn( child_obj )
 
 			ChildKlass.things()
 

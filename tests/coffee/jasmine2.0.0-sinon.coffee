@@ -26,28 +26,28 @@ jasmineMessageGenerator =
 		message = "Expected spy '#{spy}' "
 		message += "not " if passed
 		message += "toHaveBeenCalled"
-		return message.trim()
+		return message
 	#END toHaveBeenCalled	
 
 	'toHaveBeenCalledOnce': (passed, spy, other_args) ->
 		message = "Expected spy '#{spy}' "
 		message += "not " if passed
 		message += "toHaveBeenCalledOnce"
-		return message.trim()
+		return message
 	#END toHaveBeenCalledOnce	
 
 	'toHaveBeenCalledTwice': (passed, spy, other_args) ->
 		message = "Expected spy '#{spy}' "
 		message += "not " if passed
 		message += "toHaveBeenCalledTwice"
-		return message.trim()
+		return message
 	#END toHaveBeenCalledTwice	
 
 	'toHaveBeenCalledThrice': (passed, spy, other_args) ->
 		message = "Expected spy '#{spy}' "
 		message += "not " if passed
 		message += "toHaveBeenCalledThrice"
-		return message.trim()
+		return message
 	#END toHaveBeenCalledThrice	
 
 	'toHaveBeenCalledBefore': (passed, spy, other_args) ->
@@ -57,7 +57,7 @@ jasmineMessageGenerator =
 		if other_args?.length > 0
 			message += jasmine.pp(other_args) + " but was CalledBefore #{jasmine.pp spy.lastCall.args}"
 		#END if
-		return message.trim()
+		return message
 	#END toHaveBeenCalledBefore	
 
 	'toHaveBeenCalledAfter': (passed, spy, other_args) ->
@@ -67,14 +67,14 @@ jasmineMessageGenerator =
 		if other_args?.length > 0
 			message += jasmine.pp(other_args) + " but was CalledAfter #{jasmine.pp spy.lastCall.args}"
 		#END if
-		return message.trim()
+		return message
 	#END toHaveBeenCalledAfter	
 
 	'toHaveBeenCalledOn': (passed, spy, other_args) ->
 		message = "Expected spy '#{spy}' "
 		message += "not " if passed
 		message += "toHaveBeenCalledOn "
-		return message.trim()
+		return message
 	#END toHaveBeenCalledOn	
 
 	'toHaveBeenAlwaysCalledOn': (passed, spy, other_args) ->
@@ -84,7 +84,7 @@ jasmineMessageGenerator =
 		if other_args?.length > 0
 			message += jasmine.pp(other_args) + " but was AlwaysCalledOn #{jasmine.pp spy.lastCall.args}"
 		#END if
-		return message.trim()
+		return message
 	#END toHaveBeenAlwaysCalledOn	
 
 	'toHaveBeenCalledWith': (passed, spy, other_args) ->
@@ -94,7 +94,7 @@ jasmineMessageGenerator =
 		if other_args?.length > 0
 			message += jasmine.pp(other_args)
 		#END if
-		return message.trim()
+		return message
 	#END toHaveBeenCalledWith	
 
 	'toHaveBeenAlwaysCalledWith': (passed, spy, other_args) ->
@@ -104,7 +104,7 @@ jasmineMessageGenerator =
 		if other_args?.length > 0
 			message += jasmine.pp(other_args) + " but was AlwaysCalledWith #{jasmine.pp spy.lastCall.args}"
 		#END if
-		return message.trim()
+		return message
 	#END toHaveBeenAlwaysCalledWith	
 
 	'toHaveBeenCalledWithExactly': (passed, spy, other_args) ->
@@ -114,7 +114,7 @@ jasmineMessageGenerator =
 		if other_args?.length > 0
 			message += jasmine.pp(other_args) + " but was CalledWithExactly #{jasmine.pp spy.lastCall.args}"
 		#END if
-		return message.trim()
+		return message
 	#END toHaveBeenCalledWithExactly	
 
 	'toHaveBeenAlwaysCalledWithExactly': (passed, spy, other_args) ->
@@ -124,7 +124,7 @@ jasmineMessageGenerator =
 		if other_args?.length > 0
 			message += jasmine.pp(other_args) + " but was AlwaysCalledWithExactly #{jasmine.pp spy.lastCall.args}"
 		#END if
-		return message.trim()
+		return message
 	#END toHaveBeenAlwaysCalledWithExactly	
 
 	'toHaveBeenCalledWithMatch': (passed, spy, other_args) ->
@@ -134,7 +134,7 @@ jasmineMessageGenerator =
 		if other_args?.length > 0
 			message += jasmine.pp(other_args) + " but was CalledWithMatch #{jasmine.pp spy.lastCall.args}"
 		#END if
-		return message.trim()
+		return message
 	#END toHaveBeenCalledWithMatch	
 
 	'toHaveBeenAlwaysCalledWithMatch': (passed, spy, other_args) ->
@@ -144,7 +144,7 @@ jasmineMessageGenerator =
 		if other_args?.length > 0
 			message += jasmine.pp(other_args) + " but was AlwaysCalledWithMatch #{jasmine.pp spy.lastCall.args}"
 		#END if
-		return message.trim()
+		return message
 	#END toHaveBeenAlwaysCalledWithMatch	
 
 
@@ -155,7 +155,7 @@ jasmineMessageGenerator =
 		if other_args?.length > 0
 			message += jasmine.pp(other_args) + " but returned #{jasmine.pp spy.lastCall.args}"
 		#END if
-		return message.trim()
+		return message
 	#END toHaveReturned	
 
 	'toHaveAlwaysReturned': (passed, spy, other_args) ->
@@ -165,7 +165,7 @@ jasmineMessageGenerator =
 		if other_args?.length > 0
 			message += jasmine.pp(other_args) + " but returned #{jasmine.pp spy.lastCall.args}"
 		#END if
-		return message.trim()
+		return message
 	#END toHaveAlwaysReturned	
 
 	'toHaveThrown': (passed, spy, other_args) ->
@@ -175,7 +175,7 @@ jasmineMessageGenerator =
 		if other_args?.length > 0
 			message += jasmine.pp(other_args) + " but threw #{jasmine.pp spy.lastCall.args}"
 		#END if
-		return message.trim()
+		return message
 	#END toHaveThrown	
 
 	'toHaveAlwaysThrown': (passed, spy, other_args) ->
@@ -185,7 +185,7 @@ jasmineMessageGenerator =
 		if other_args?.length > 0
 			message += jasmine.pp(other_args) + " but threw #{jasmine.pp spy.lastCall.args}"
 		#END if
-		return message.trim()
+		return message
 	#END toHaveAlwaysThrown	
 #END jasmineMessageGenerator
 

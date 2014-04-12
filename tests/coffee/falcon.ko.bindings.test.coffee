@@ -1,4 +1,5 @@
-describe "Knockout Bindings", ->
+
+xdescribe "Knockout Bindings", ->
 	application = null
 	application_index = 0
 
@@ -27,7 +28,16 @@ describe "Knockout Bindings", ->
 		document.body.appendChild( application = _createApplication() )
 
 		Falcon.apply( view, "#application_#{application_index}" )
+
+		expect( Falcon.ready.calls.count() ).toBe( 1 )
+		expect( Falcon.ready ).toHaveBeenCalledWith( jasmine.any(Function) )
+
+		Falcon.ready.calls.mostRecent().args[0]()
 	#END applyApp
+
+	beforeEach ->
+		spyOn( Falcon, 'ready' )
+	#END beforeEach
 
 	describe "'view' Binding", ->
 		layout_template = footer_template = content_template = null

@@ -8,7 +8,8 @@
         spyOn(ko, 'applyBindings');
         spyOn(ko, 'applyBindingAccessorsToNode');
         view = new Falcon.View;
-        return observable_view = ko.observable(view);
+        observable_view = ko.observable(view);
+        return spyOn(Falcon, 'ready');
       });
       it("Should find the correct element with an HTMLElement", function() {
         var callback, element, ret;
@@ -16,6 +17,11 @@
         document.body.appendChild(element);
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, element, callback);
+        expect(ko.applyBindings).not.toHaveBeenCalled();
+        expect(ko.applyBindingAccessorsToNode).not.toHaveBeenCalled();
+        expect(Falcon.ready.calls.count()).toBe(1);
+        expect(Falcon.ready).toHaveBeenCalledWith(jasmine.any(Function));
+        Falcon.ready.calls.mostRecent().args[0]();
         expect(ko.applyBindings).not.toHaveBeenCalled();
         expect(ko.applyBindingAccessorsToNode.calls.count()).toBe(1);
         expect(ko.applyBindingAccessorsToNode).toHaveBeenCalledWith(element, {
@@ -32,6 +38,11 @@
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, "#test", callback);
         expect(ko.applyBindings).not.toHaveBeenCalled();
+        expect(ko.applyBindingAccessorsToNode).not.toHaveBeenCalled();
+        expect(Falcon.ready.calls.count()).toBe(1);
+        expect(Falcon.ready).toHaveBeenCalledWith(jasmine.any(Function));
+        Falcon.ready.calls.mostRecent().args[0]();
+        expect(ko.applyBindings).not.toHaveBeenCalled();
         expect(ko.applyBindingAccessorsToNode.calls.count()).toBe(1);
         expect(ko.applyBindingAccessorsToNode).toHaveBeenCalledWith(element, {
           view: jasmine.any(Function)
@@ -47,6 +58,11 @@
         Falcon.applicationElement = element;
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, callback);
+        expect(ko.applyBindings).not.toHaveBeenCalled();
+        expect(ko.applyBindingAccessorsToNode).not.toHaveBeenCalled();
+        expect(Falcon.ready.calls.count()).toBe(1);
+        expect(Falcon.ready).toHaveBeenCalledWith(jasmine.any(Function));
+        Falcon.ready.calls.mostRecent().args[0]();
         expect(ko.applyBindings).not.toHaveBeenCalled();
         expect(ko.applyBindingAccessorsToNode.calls.count()).toBe(1);
         expect(ko.applyBindingAccessorsToNode).toHaveBeenCalledWith(element, {
@@ -65,6 +81,11 @@
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, callback);
         expect(ko.applyBindings).not.toHaveBeenCalled();
+        expect(ko.applyBindingAccessorsToNode).not.toHaveBeenCalled();
+        expect(Falcon.ready.calls.count()).toBe(1);
+        expect(Falcon.ready).toHaveBeenCalledWith(jasmine.any(Function));
+        Falcon.ready.calls.mostRecent().args[0]();
+        expect(ko.applyBindings).not.toHaveBeenCalled();
         expect(ko.applyBindingAccessorsToNode.calls.count()).toBe(1);
         expect(ko.applyBindingAccessorsToNode).toHaveBeenCalledWith(element, {
           view: jasmine.any(Function)
@@ -80,6 +101,11 @@
         Falcon.applicationElement = element;
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, callback);
+        expect(ko.applyBindings).not.toHaveBeenCalled();
+        expect(ko.applyBindingAccessorsToNode).not.toHaveBeenCalled();
+        expect(Falcon.ready.calls.count()).toBe(1);
+        expect(Falcon.ready).toHaveBeenCalledWith(jasmine.any(Function));
+        Falcon.ready.calls.mostRecent().args[0]();
         expect(ko.applyBindings).not.toHaveBeenCalled();
         expect(ko.applyBindingAccessorsToNode.calls.count()).toBe(1);
         expect(ko.applyBindingAccessorsToNode).toHaveBeenCalledWith(element, {
@@ -98,6 +124,11 @@
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, callback);
         expect(ko.applyBindings).not.toHaveBeenCalled();
+        expect(ko.applyBindingAccessorsToNode).not.toHaveBeenCalled();
+        expect(Falcon.ready.calls.count()).toBe(1);
+        expect(Falcon.ready).toHaveBeenCalledWith(jasmine.any(Function));
+        Falcon.ready.calls.mostRecent().args[0]();
+        expect(ko.applyBindings).not.toHaveBeenCalled();
         expect(ko.applyBindingAccessorsToNode.calls.count()).toBe(1);
         expect(ko.applyBindingAccessorsToNode).toHaveBeenCalledWith(element, {
           view: jasmine.any(Function)
@@ -110,6 +141,11 @@
         var callback, ret;
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, "#notreal", callback);
+        expect(ko.applyBindings).not.toHaveBeenCalled();
+        expect(ko.applyBindingAccessorsToNode).not.toHaveBeenCalled();
+        expect(Falcon.ready.calls.count()).toBe(1);
+        expect(Falcon.ready).toHaveBeenCalledWith(jasmine.any(Function));
+        Falcon.ready.calls.mostRecent().args[0]();
         expect(ko.applyBindings).not.toHaveBeenCalled();
         expect(ko.applyBindingAccessorsToNode.calls.count()).toBe(1);
         expect(ko.applyBindingAccessorsToNode).toHaveBeenCalledWith(document.body, {
@@ -124,6 +160,11 @@
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(view, callback);
         expect(ko.applyBindings).not.toHaveBeenCalled();
+        expect(ko.applyBindingAccessorsToNode).not.toHaveBeenCalled();
+        expect(Falcon.ready.calls.count()).toBe(1);
+        expect(Falcon.ready).toHaveBeenCalledWith(jasmine.any(Function));
+        Falcon.ready.calls.mostRecent().args[0]();
+        expect(ko.applyBindings).not.toHaveBeenCalled();
         expect(ko.applyBindingAccessorsToNode.calls.count()).toBe(1);
         expect(ko.applyBindingAccessorsToNode).toHaveBeenCalledWith(document.body, {
           view: jasmine.any(Function)
@@ -136,6 +177,11 @@
         Falcon.applicationElement = "#notreal";
         callback = jasmine.createSpy("Callback");
         ret = Falcon.apply(callback);
+        expect(ko.applyBindings).not.toHaveBeenCalled();
+        expect(ko.applyBindingAccessorsToNode).not.toHaveBeenCalled();
+        expect(Falcon.ready.calls.count()).toBe(1);
+        expect(Falcon.ready).toHaveBeenCalledWith(jasmine.any(Function));
+        Falcon.ready.calls.mostRecent().args[0]();
         expect(ko.applyBindingAccessorsToNode).not.toHaveBeenCalled();
         expect(ko.applyBindings.calls.count()).toBe(1);
         expect(ko.applyBindings).toHaveBeenCalledWith({}, document.body);
@@ -258,18 +304,18 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   describe("Falcon.Object", function() {
-    var klass;
-    klass = null;
+    var obj;
+    obj = null;
     beforeEach(function() {
-      return klass = new Falcon.Object;
+      return obj = new Falcon.Object();
     });
     describe("on, off, trigger, has", function() {
       var click_one, click_two, context_two, mouseover_one;
       click_one = click_two = context_two = mouseover_one = null;
       beforeEach(function() {
-        klass.on("click", (click_one = sinon.spy()));
-        klass.on("click", (click_two = sinon.spy()), (context_two = {}));
-        return klass.on("mouseover", (mouseover_one = sinon.spy()));
+        obj.on("click", (click_one = sinon.spy()));
+        obj.on("click", (click_two = sinon.spy()), (context_two = {}));
+        return obj.on("mouseover", (mouseover_one = sinon.spy()));
       });
       it("Should not call any of the methods before trigger", function() {
         expect(click_one).not.toHaveBeenCalled();
@@ -277,7 +323,7 @@
         return expect(mouseover_one).not.toHaveBeenCalled();
       });
       it("Should trigger both click routines", function() {
-        klass.trigger("click", 1, 2, 3);
+        obj.trigger("click", 1, 2, 3);
         expect(click_one).toHaveBeenCalledOnce();
         expect(click_one).toHaveBeenCalledWith(1, 2, 3);
         expect(click_two).toHaveBeenCalledOnce();
@@ -286,31 +332,31 @@
         return expect(mouseover_one).not.toHaveBeenCalled();
       });
       it("Should call the mouseover routine", function() {
-        klass.trigger("mouseover", "go", true, {});
+        obj.trigger("mouseover", "go", true, {});
         expect(click_one).not.toHaveBeenCalled();
         expect(click_two).not.toHaveBeenCalled();
         expect(mouseover_one).toHaveBeenCalledOnce();
         return expect(mouseover_one).toHaveBeenCalledWith("go", true, {});
       });
       it("Should be able to find the click event methods and shouldn't have attempted to call the methods", function() {
-        expect(klass.has("click", click_one)).toBe(true);
-        expect(klass.has("click", click_two)).toBe(true);
-        expect(klass.has("click", mouseover_one)).toBe(false);
+        expect(obj.has("click", click_one)).toBe(true);
+        expect(obj.has("click", click_two)).toBe(true);
+        expect(obj.has("click", mouseover_one)).toBe(false);
         expect(click_one).not.toHaveBeenCalled();
         expect(click_two).not.toHaveBeenCalled();
         return expect(mouseover_one).not.toHaveBeenCalled();
       });
       it("Should be able to find the mouseover event methods", function() {
-        expect(klass.has("mouseover", click_one)).toBe(false);
-        expect(klass.has("mouseover", click_two)).toBe(false);
-        expect(klass.has("mouseover", mouseover_one)).toBe(true);
+        expect(obj.has("mouseover", click_one)).toBe(false);
+        expect(obj.has("mouseover", click_two)).toBe(false);
+        expect(obj.has("mouseover", mouseover_one)).toBe(true);
         expect(click_one).not.toHaveBeenCalled();
         expect(click_two).not.toHaveBeenCalled();
         return expect(mouseover_one).not.toHaveBeenCalled();
       });
       return it("Should be able to remove an event properly", function() {
-        klass.off("click", click_one);
-        klass.trigger("click", 4, 5, 6);
+        obj.off("click", click_one);
+        obj.trigger("click", 4, 5, 6);
         expect(click_one).not.toHaveBeenCalled();
         expect(click_two).toHaveBeenCalledOnce();
         expect(click_two).toHaveBeenCalledWith(4, 5, 6);
@@ -653,66 +699,66 @@
         return Klass;
 
       })(Falcon.Object);
-      klass = null;
+      obj = null;
       beforeEach(function() {
-        return klass = new Klass;
+        return obj = new Klass;
       });
       it("Should have added the correct default attributes", function() {
-        expect(klass['id']).toBeDefined();
-        expect(klass['foo']).toBeDefined();
-        expect(klass['free']).toBeDefined();
-        expect(klass['def_arr']).toBeDefined();
-        return expect(klass['clazz']).toBeDefined();
+        expect(obj['id']).toBeDefined();
+        expect(obj['foo']).toBeDefined();
+        expect(obj['free']).toBeDefined();
+        expect(obj['def_arr']).toBeDefined();
+        return expect(obj['clazz']).toBeDefined();
       });
       it("Should have added the correct observable attributes", function() {
-        expect(klass['hello']).toBeDefined();
-        expect(klass['foo']).toBeDefined();
-        expect(klass['test']).toBeDefined();
-        expect(klass['_another']).toBeDefined();
-        return expect(klass['another']).toBeDefined();
+        expect(obj['hello']).toBeDefined();
+        expect(obj['foo']).toBeDefined();
+        expect(obj['test']).toBeDefined();
+        expect(obj['_another']).toBeDefined();
+        return expect(obj['another']).toBeDefined();
       });
       it("Should have added the correct default values", function() {
-        expect(klass.id).toBe(-1);
-        expect(klass.foo).not.toBe('bar');
-        expect(klass.free).toBe('bird');
-        return expect(klass.clazz).toEqual(jasmine.any(Clazz));
+        expect(obj.id).toBe(-1);
+        expect(obj.foo).not.toBe('bar');
+        expect(obj.free).toBe('bird');
+        return expect(obj.clazz).toEqual(jasmine.any(Clazz));
       });
       it("Should have the correct values for a default array", function() {
-        expect(klass.def_arr).toEqual([1, 2, 3]);
-        return expect(klass.def_arr).not.toBe(Klass.prototype.defaults.def_arr);
+        expect(obj.def_arr).toEqual([1, 2, 3]);
+        return expect(obj.def_arr).not.toBe(Klass.prototype.defaults.def_arr);
       });
       it("Should have added the correct observable type", function() {
-        expect(ko.isObservable(klass.hello)).toBe(true);
-        expect(ko.isObservable(klass.foo)).toBe(true);
-        expect(ko.isComputed(klass.test)).toBe(true);
-        expect(ko.isObservable(klass._another)).toBe(true);
-        return expect(ko.isComputed(klass.another)).toBe(true);
+        expect(ko.isObservable(obj.hello)).toBe(true);
+        expect(ko.isObservable(obj.foo)).toBe(true);
+        expect(ko.isComputed(obj.test)).toBe(true);
+        expect(ko.isObservable(obj._another)).toBe(true);
+        return expect(ko.isComputed(obj.another)).toBe(true);
       });
       it("Should have added the correct writeable observable type", function() {
-        expect(ko.isWriteableObservable(klass.hello)).toBe(true);
-        expect(ko.isWriteableObservable(klass.foo)).toBe(true);
-        expect(ko.isWriteableObservable(klass.test)).toBe(false);
-        expect(ko.isWriteableObservable(klass._another)).toBe(true);
-        return expect(ko.isWriteableObservable(klass.another)).toBe(true);
+        expect(ko.isWriteableObservable(obj.hello)).toBe(true);
+        expect(ko.isWriteableObservable(obj.foo)).toBe(true);
+        expect(ko.isWriteableObservable(obj.test)).toBe(false);
+        expect(ko.isWriteableObservable(obj._another)).toBe(true);
+        return expect(ko.isWriteableObservable(obj.another)).toBe(true);
       });
       it("Should have assigned the correct values to observables", function() {
-        expect(ko.utils.unwrapObservable(klass.hello)).toBe("world");
-        expect(ko.utils.unwrapObservable(klass.foo)).toBe("baz");
-        expect(ko.utils.unwrapObservable(klass.test)).toBe("method");
-        expect(ko.utils.unwrapObservable(klass._another)).toBe("good");
-        expect(ko.utils.unwrapObservable(klass.another)).toBe("good method");
-        klass.another("great");
-        return expect(ko.utils.unwrapObservable(klass.another)).toBe("great method");
+        expect(ko.utils.unwrapObservable(obj.hello)).toBe("world");
+        expect(ko.utils.unwrapObservable(obj.foo)).toBe("baz");
+        expect(ko.utils.unwrapObservable(obj.test)).toBe("method");
+        expect(ko.utils.unwrapObservable(obj._another)).toBe("good");
+        expect(ko.utils.unwrapObservable(obj.another)).toBe("good method");
+        obj.another("great");
+        return expect(ko.utils.unwrapObservable(obj.another)).toBe("great method");
       });
       it("Should have propogated defaults in the child class", function() {
-        expect(klass.clazz.id).toBe('z');
-        return expect(klass.clazz.im).toBe('here');
+        expect(obj.clazz.id).toBe('z');
+        return expect(obj.clazz.im).toBe('here');
       });
       it("Should have an observable array", function() {
-        expect(ko.isObservable(klass.arr)).toBe(true);
-        expect(klass.arr()).toEqual(jasmine.any(Array));
-        expect(klass.arr().length).toBe(2);
-        return expect(klass.arr()).not.toBe(Klass.prototype.observables.arr);
+        expect(ko.isObservable(obj.arr)).toBe(true);
+        expect(obj.arr()).toEqual(jasmine.any(Array));
+        expect(obj.arr().length).toBe(2);
+        return expect(obj.arr()).not.toBe(Klass.prototype.observables.arr);
       });
       return it("Should create RawrClass with defaults that have the correct arguments", function() {
         var RawrClass, hello_spy, rawr_class, _ref2;
@@ -744,7 +790,7 @@
     });
     return describe("Test the extend method on objects", function() {
       it("Should extend Falcon.Object properly", function() {
-        var Klass, custom_spy, my_klass, things_spy;
+        var Klass, custom_spy, my_obj, things_spy;
         custom_spy = sinon.spy();
         things_spy = sinon.spy();
         Klass = Falcon.Object.extend({
@@ -757,25 +803,25 @@
             return things_spy.call(this);
           }
         });
-        my_klass = new Klass;
-        expect(my_klass).toEqual(jasmine.any(Falcon.Object));
-        expect(my_klass).not.toEqual(jasmine.any(Falcon.Model));
-        expect(my_klass).not.toEqual(jasmine.any(Falcon.Collection));
-        expect(my_klass).not.toEqual(jasmine.any(Falcon.View));
+        my_obj = new Klass;
+        expect(my_obj).toEqual(jasmine.any(Falcon.Object));
+        expect(my_obj).not.toEqual(jasmine.any(Falcon.Model));
+        expect(my_obj).not.toEqual(jasmine.any(Falcon.Collection));
+        expect(my_obj).not.toEqual(jasmine.any(Falcon.View));
         expect(Klass.prototype.custom).toEqual(jasmine.any(Function));
         expect(Klass.prototype.text).toEqual(jasmine.any(String));
         expect(Klass.things).toEqual(jasmine.any(Function));
-        expect(my_klass.custom).toEqual(jasmine.any(Function));
-        expect(my_klass.text).toEqual(jasmine.any(String));
-        my_klass.custom();
+        expect(my_obj.custom).toEqual(jasmine.any(Function));
+        expect(my_obj.text).toEqual(jasmine.any(String));
+        my_obj.custom();
         expect(custom_spy).toHaveBeenCalled();
-        expect(custom_spy.firstCall).toHaveBeenCalledOn(my_klass);
+        expect(custom_spy.firstCall).toHaveBeenCalledOn(my_obj);
         Klass.things();
         expect(things_spy).toHaveBeenCalled();
         return expect(things_spy.firstCall).toHaveBeenCalledOn(Klass);
       });
       it("Should extend Falcon.Model properly", function() {
-        var Klass, custom_spy, init_spy, my_klass, things_spy;
+        var Klass, custom_spy, init_spy, my_obj, things_spy;
         custom_spy = sinon.spy();
         things_spy = sinon.spy();
         init_spy = sinon.spy();
@@ -792,29 +838,29 @@
             return things_spy.call(this);
           }
         });
-        my_klass = new Klass;
-        expect(my_klass).toEqual(jasmine.any(Falcon.Object));
-        expect(my_klass).toEqual(jasmine.any(Falcon.Model));
-        expect(my_klass).not.toEqual(jasmine.any(Falcon.Collection));
-        expect(my_klass).not.toEqual(jasmine.any(Falcon.View));
+        my_obj = new Klass;
+        expect(my_obj).toEqual(jasmine.any(Falcon.Object));
+        expect(my_obj).toEqual(jasmine.any(Falcon.Model));
+        expect(my_obj).not.toEqual(jasmine.any(Falcon.Collection));
+        expect(my_obj).not.toEqual(jasmine.any(Falcon.View));
         expect(Klass.prototype.initialize).toEqual(jasmine.any(Function));
         expect(Klass.prototype.custom).toEqual(jasmine.any(Function));
         expect(Klass.prototype.text).toEqual(jasmine.any(String));
         expect(Klass.things).toEqual(jasmine.any(Function));
-        expect(my_klass.initialize).toEqual(jasmine.any(Function));
-        expect(my_klass.custom).toEqual(jasmine.any(Function));
-        expect(my_klass.text).toEqual(jasmine.any(String));
+        expect(my_obj.initialize).toEqual(jasmine.any(Function));
+        expect(my_obj.custom).toEqual(jasmine.any(Function));
+        expect(my_obj.text).toEqual(jasmine.any(String));
         expect(init_spy).toHaveBeenCalled();
-        expect(init_spy.firstCall).toHaveBeenCalledOn(my_klass);
-        my_klass.custom();
+        expect(init_spy.firstCall).toHaveBeenCalledOn(my_obj);
+        my_obj.custom();
         expect(custom_spy).toHaveBeenCalled();
-        expect(custom_spy.firstCall).toHaveBeenCalledOn(my_klass);
+        expect(custom_spy.firstCall).toHaveBeenCalledOn(my_obj);
         Klass.things();
         expect(things_spy).toHaveBeenCalled();
         return expect(things_spy.firstCall).toHaveBeenCalledOn(Klass);
       });
       it("Should extend Falcon.Collection properly", function() {
-        var Klass, custom_spy, init_spy, my_klass, things_spy;
+        var Klass, custom_spy, init_spy, my_obj, things_spy;
         custom_spy = sinon.spy();
         things_spy = sinon.spy();
         init_spy = sinon.spy();
@@ -831,29 +877,29 @@
             return things_spy.call(this);
           }
         });
-        my_klass = new Klass;
-        expect(my_klass).toEqual(jasmine.any(Falcon.Object));
-        expect(my_klass).not.toEqual(jasmine.any(Falcon.Model));
-        expect(my_klass).toEqual(jasmine.any(Falcon.Collection));
-        expect(my_klass).not.toEqual(jasmine.any(Falcon.View));
+        my_obj = new Klass;
+        expect(my_obj).toEqual(jasmine.any(Falcon.Object));
+        expect(my_obj).not.toEqual(jasmine.any(Falcon.Model));
+        expect(my_obj).toEqual(jasmine.any(Falcon.Collection));
+        expect(my_obj).not.toEqual(jasmine.any(Falcon.View));
         expect(Klass.prototype.initialize).toEqual(jasmine.any(Function));
         expect(Klass.prototype.custom).toEqual(jasmine.any(Function));
         expect(Klass.prototype.text).toEqual(jasmine.any(String));
         expect(Klass.things).toEqual(jasmine.any(Function));
-        expect(my_klass.initialize).toEqual(jasmine.any(Function));
-        expect(my_klass.custom).toEqual(jasmine.any(Function));
-        expect(my_klass.text).toEqual(jasmine.any(String));
+        expect(my_obj.initialize).toEqual(jasmine.any(Function));
+        expect(my_obj.custom).toEqual(jasmine.any(Function));
+        expect(my_obj.text).toEqual(jasmine.any(String));
         expect(init_spy).toHaveBeenCalled();
-        expect(init_spy.firstCall).toHaveBeenCalledOn(my_klass);
-        my_klass.custom();
+        expect(init_spy.firstCall).toHaveBeenCalledOn(my_obj);
+        my_obj.custom();
         expect(custom_spy).toHaveBeenCalled();
-        expect(custom_spy.firstCall).toHaveBeenCalledOn(my_klass);
+        expect(custom_spy.firstCall).toHaveBeenCalledOn(my_obj);
         Klass.things();
         expect(things_spy).toHaveBeenCalled();
         return expect(things_spy.firstCall).toHaveBeenCalledOn(Klass);
       });
       it("Should extend Falcon.View properly", function() {
-        var Klass, custom_spy, init_spy, my_klass, things_spy;
+        var Klass, custom_spy, init_spy, my_obj, things_spy;
         custom_spy = sinon.spy();
         things_spy = sinon.spy();
         init_spy = sinon.spy();
@@ -870,29 +916,29 @@
             return things_spy.call(this);
           }
         });
-        my_klass = new Klass;
-        expect(my_klass).toEqual(jasmine.any(Falcon.Object));
-        expect(my_klass).not.toEqual(jasmine.any(Falcon.Model));
-        expect(my_klass).not.toEqual(jasmine.any(Falcon.Collection));
-        expect(my_klass).toEqual(jasmine.any(Falcon.View));
+        my_obj = new Klass;
+        expect(my_obj).toEqual(jasmine.any(Falcon.Object));
+        expect(my_obj).not.toEqual(jasmine.any(Falcon.Model));
+        expect(my_obj).not.toEqual(jasmine.any(Falcon.Collection));
+        expect(my_obj).toEqual(jasmine.any(Falcon.View));
         expect(Klass.prototype.initialize).toEqual(jasmine.any(Function));
         expect(Klass.prototype.custom).toEqual(jasmine.any(Function));
         expect(Klass.prototype.text).toEqual(jasmine.any(String));
         expect(Klass.things).toEqual(jasmine.any(Function));
-        expect(my_klass.initialize).toEqual(jasmine.any(Function));
-        expect(my_klass.custom).toEqual(jasmine.any(Function));
-        expect(my_klass.text).toEqual(jasmine.any(String));
+        expect(my_obj.initialize).toEqual(jasmine.any(Function));
+        expect(my_obj.custom).toEqual(jasmine.any(Function));
+        expect(my_obj.text).toEqual(jasmine.any(String));
         expect(init_spy).toHaveBeenCalled();
-        expect(init_spy.firstCall).toHaveBeenCalledOn(my_klass);
-        my_klass.custom();
+        expect(init_spy.firstCall).toHaveBeenCalledOn(my_obj);
+        my_obj.custom();
         expect(custom_spy).toHaveBeenCalled();
-        expect(custom_spy.firstCall).toHaveBeenCalledOn(my_klass);
+        expect(custom_spy.firstCall).toHaveBeenCalledOn(my_obj);
         Klass.things();
         expect(things_spy).toHaveBeenCalled();
         return expect(things_spy.firstCall).toHaveBeenCalledOn(Klass);
       });
       return it("Should allow for deep inheritence", function() {
-        var ChildKlass, Klass, child_klass, custom_spy, things_spy;
+        var ChildKlass, Klass, child_obj, custom_spy, things_spy;
         custom_spy = sinon.spy();
         things_spy = sinon.spy();
         Klass = Falcon.Object.extend({
@@ -910,23 +956,23 @@
         }, {
           'foo': 'bar'
         });
-        child_klass = new ChildKlass;
-        expect(child_klass).toEqual(jasmine.any(Falcon.Object));
-        expect(child_klass).toEqual(jasmine.any(Klass));
-        expect(child_klass).not.toEqual(jasmine.any(Falcon.Model));
-        expect(child_klass).not.toEqual(jasmine.any(Falcon.Collection));
-        expect(child_klass).not.toEqual(jasmine.any(Falcon.View));
+        child_obj = new ChildKlass;
+        expect(child_obj).toEqual(jasmine.any(Falcon.Object));
+        expect(child_obj).toEqual(jasmine.any(Klass));
+        expect(child_obj).not.toEqual(jasmine.any(Falcon.Model));
+        expect(child_obj).not.toEqual(jasmine.any(Falcon.Collection));
+        expect(child_obj).not.toEqual(jasmine.any(Falcon.View));
         expect(ChildKlass.prototype.custom).toEqual(jasmine.any(Function));
         expect(ChildKlass.prototype.text).toEqual(jasmine.any(String));
         expect(ChildKlass.prototype.another).toEqual(jasmine.any(Function));
         expect(ChildKlass.things).toEqual(jasmine.any(Function));
         expect(ChildKlass.foo).toEqual(jasmine.any(String));
-        expect(child_klass.custom).toEqual(jasmine.any(Function));
-        expect(child_klass.text).toEqual(jasmine.any(String));
-        expect(child_klass.another).toEqual(jasmine.any(Function));
-        child_klass.custom();
+        expect(child_obj.custom).toEqual(jasmine.any(Function));
+        expect(child_obj.text).toEqual(jasmine.any(String));
+        expect(child_obj.another).toEqual(jasmine.any(Function));
+        child_obj.custom();
         expect(custom_spy).toHaveBeenCalled();
-        expect(custom_spy.firstCall).toHaveBeenCalledOn(child_klass);
+        expect(custom_spy.firstCall).toHaveBeenCalledOn(child_obj);
         ChildKlass.things();
         expect(things_spy).toHaveBeenCalled();
         return expect(things_spy.firstCall).toHaveBeenCalledOn(ChildKlass);
@@ -6203,7 +6249,8 @@
         spyOn(Falcon.View.prototype, 'initialize').and.callThrough();
         spyOn(Falcon.View.prototype, 'makeUrl').and.callThrough();
         spyOn(Falcon.View, 'cacheTemplate').and.callThrough();
-        return spyOn(Falcon.adapter, 'getTemplate').and.callThrough();
+        spyOn(Falcon.adapter, 'getTemplate').and.callThrough();
+        return spyOn(Falcon, 'ready');
       });
       it("Should call the correct methods by default", function() {
         var view;
@@ -6213,6 +6260,11 @@
         expect(view.makeUrl.calls.count()).toBe(1);
         expect(view.initialize.calls.count()).toBe(1);
         expect(view.initialize).toHaveBeenCalledWith();
+        expect(Falcon.adapter.getTemplate).not.toHaveBeenCalled();
+        expect(Falcon.View.cacheTemplate).not.toHaveBeenCalled();
+        expect(Falcon.ready.calls.count()).toBe(1);
+        expect(Falcon.ready).toHaveBeenCalledWith(jasmine.any(Function));
+        Falcon.ready.calls.mostRecent().args[0]();
         expect(Falcon.adapter.getTemplate.calls.count()).toBe(1);
         expect(Falcon.adapter.getTemplate).toHaveBeenCalledWith("#hello_world", jasmine.any(Function));
         expect(Falcon.View.cacheTemplate.calls.count()).toBe(1);
@@ -6228,12 +6280,18 @@
         view.initialize.calls.reset();
         Falcon.adapter.getTemplate.calls.reset();
         Falcon.View.cacheTemplate.calls.reset();
+        Falcon.ready.calls.reset();
         view = new (Falcon.View.extend({
           url: "#hello_world"
         }));
         expect(view.makeUrl.calls.count()).toBe(1);
         expect(view.initialize.calls.count()).toBe(1);
         expect(view.initialize).toHaveBeenCalledWith();
+        expect(Falcon.adapter.getTemplate).not.toHaveBeenCalled();
+        expect(Falcon.View.cacheTemplate).not.toHaveBeenCalled();
+        expect(Falcon.ready.calls.count()).toBe(1);
+        expect(Falcon.ready).toHaveBeenCalledWith(jasmine.any(Function));
+        Falcon.ready.calls.mostRecent().args[0]();
         expect(Falcon.adapter.getTemplate).not.toHaveBeenCalled();
         expect(Falcon.View.cacheTemplate).not.toHaveBeenCalled();
         return expect(view.is_loaded()).toBe(true);
@@ -6246,6 +6304,11 @@
         expect(view.makeUrl.calls.count()).toBe(1);
         expect(view.initialize.calls.count()).toBe(1);
         expect(view.initialize).toHaveBeenCalledWith();
+        expect(Falcon.adapter.getTemplate).not.toHaveBeenCalled();
+        expect(Falcon.View.cacheTemplate).not.toHaveBeenCalled();
+        expect(Falcon.ready.calls.count()).toBe(1);
+        expect(Falcon.ready).toHaveBeenCalledWith(jasmine.any(Function));
+        Falcon.ready.calls.mostRecent().args[0]();
         expect(Falcon.adapter.getTemplate).not.toHaveBeenCalled();
         return expect(view.is_loaded()).toBe(true);
       });
@@ -6499,7 +6562,7 @@
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  describe("Knockout Bindings", function() {
+  xdescribe("Knockout Bindings", function() {
     var application, application_index, applyApp, _childCount, _createApplication, _createTemplate;
     application = null;
     application_index = 0;
@@ -6534,8 +6597,14 @@
         document.body.removeChild(application);
       }
       document.body.appendChild(application = _createApplication());
-      return Falcon.apply(view, "#application_" + application_index);
+      Falcon.apply(view, "#application_" + application_index);
+      expect(Falcon.ready.calls.count()).toBe(1);
+      expect(Falcon.ready).toHaveBeenCalledWith(jasmine.any(Function));
+      return Falcon.ready.calls.mostRecent().args[0]();
     };
+    beforeEach(function() {
+      return spyOn(Falcon, 'ready');
+    });
     describe("'view' Binding", function() {
       var ContentView, FooterView, LayoutView, content_template, footer_template, layout_template, view_binding, view_init_spy, view_update_spy, _ref, _ref1, _ref2;
       layout_template = footer_template = content_template = null;

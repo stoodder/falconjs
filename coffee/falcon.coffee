@@ -80,7 +80,9 @@
 			, false
 		else if document.attachEvent
 			document.attachEvent "readystatechange", handler = ->
+				console.log("State Changed #{document.readyState}")
 				if document.readyState is "complete"
+					console.log("Completed")
 					_domLoadedEvent()
 					document.detachEvent( "readystatechange", handler )
 				#END if

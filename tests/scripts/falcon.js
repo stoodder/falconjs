@@ -231,7 +231,9 @@
         }, false);
       } else if (document.attachEvent) {
         document.attachEvent("readystatechange", handler = function() {
+          console.log("State Changed " + document.readyState);
           if (document.readyState === "complete") {
+            console.log("Completed");
             _domLoadedEvent();
             return document.detachEvent("readystatechange", handler);
           }
@@ -1082,12 +1084,6 @@
       if (!isString(template)) {
         template = "";
       }
-      if (isEmpty(identifier)) {
-        return Falcon.View;
-      }
-      if (isEmpty(template)) {
-        return Falcon.View;
-      }
       identifier = trim(identifier);
       __falcon_view__template_cache__[identifier] = template;
       return Falcon.View;
@@ -1118,7 +1114,7 @@
 
     View.prototype.url = null;
 
-    View.prototype.is_loaded = false;
+    View.prototype.__falcon_view__is_loaded__ = false;
 
     View.prototype.__falcon_view__is_rendered__ = false;
 
@@ -1131,18 +1127,18 @@
         _this = this;
       View.__super__.constructor.apply(this, arguments);
       url = this.makeUrl();
-      this.is_loaded = ko.observable(false);
+      this.__falcon_view__is_loaded__ = ko.observable(false);
       this.__falcon_view__is_rendered__ = false;
       this.__falcon_view__child_views__ = [];
       this.__falcon_view__loaded_url__ = url;
       this.initialize.apply(this, arguments);
       Falcon.ready(function() {
-        if (isEmpty(url) || url in __falcon_view__template_cache__) {
-          return _this.is_loaded(true);
+        if (isEmpty(url) || (__falcon_view__template_cache__[url] != null)) {
+          return _this.__falcon_view__is_loaded__(true);
         } else {
           return Falcon.adapter.getTemplate(url, function(template) {
             Falcon.View.cacheTemplate(url, template);
-            return _this.is_loaded(true);
+            return _this.__falcon_view__is_loaded__(true);
           });
         }
       });
@@ -1173,7 +1169,7 @@
 
     View.prototype.template = function() {
       var _ref1;
-      if (!ko.utils.unwrapObservable(this.is_loaded)) {
+      if (!ko.utils.unwrapObservable(this.__falcon_view__is_loaded__)) {
         return "";
       }
       return (_ref1 = __falcon_view__template_cache__[this.__falcon_view__loaded_url__]) != null ? _ref1 : "";
@@ -2040,106 +2036,73 @@
 
   })(Falcon.Collection);
 
-  ko.bindingHandlers['view'] = (function() {
-    var getTemplate, getViewModel, makeTemplateValueAccessor, returnVal;
-    makeTemplateValueAccessor = function(viewModel) {
-      return function() {
-        return {
-          'data': viewModel,
-          'templateEngine': ko.nativeTemplateEngine.instance
-        };
-      };
-    };
-    getViewModel = function(value) {
-      var viewModel;
-      viewModel = {};
-      if (value == null) {
-        value = {};
-      }
-      if (value instanceof Falcon.View) {
-        viewModel = value.viewModel();
-      } else {
-        viewModel = ko.utils.unwrapObservable(value != null ? value : {});
-      }
-      return viewModel;
-    };
-    getTemplate = function(element, value) {
-      var template, _ref2;
-      template = "";
-      if (value == null) {
-        value = {};
-      }
-      if (value instanceof Falcon.View) {
-        return value.template();
-      } else {
-        return (_ref2 = ko.unwrap(value.template)) != null ? _ref2 : "";
-      }
-    };
-    returnVal = {
-      controlsDescendantBindings: true
-    };
-    return {
-      'init': function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
-        var container, oldViewModel, subscription, value;
-        value = valueAccessor();
-        if (ko.isSubscribable(value)) {
-          oldViewModel = ko.utils.unwrapObservable(value);
-          subscription = value.subscribe(function(newViewModel) {
-            if (Falcon.isView(oldViewModel)) {
-              oldViewModel._unrender();
-            }
-            return oldViewModel = newViewModel;
-          });
-          ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-            if (Falcon.isView(oldViewModel)) {
-              oldViewModel._unrender();
-            }
-            return subscription.dispose();
-          });
-        } else if (Falcon.isView(value)) {
-          ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-            return value._unrender();
-          });
-        }
-        container = document.createElement('div');
-        ko.utils.domData.set(element, "__falcon_view__container__", container);
-        new ko.templateSources.anonymousTemplate(element)['nodes'](container);
-        return returnVal;
-      },
-      'update': function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
-        var childContext, container, template, value;
-        value = valueAccessor();
-        if (ko.isObservable(value)) {
-          value = value();
-        }
-        viewModel = getViewModel(value);
-        template = getTemplate(element, value);
-        if (value == null) {
-          ko.virtualElements.emptyNode(element);
-        }
-        if (!isObject(value)) {
-          return returnVal;
-        }
-        if ((context != null ? context['__falcon_view__addChildView__'] : void 0) != null) {
-          context['__falcon_view__addChildView__'](value);
-        }
-        childContext = context.createChildContext(viewModel).extend({
-          '$view': viewModel
-        });
-        if (isEmpty(viewModel) || isEmpty(template)) {
-          ko.virtualElements.emptyNode(element);
-        } else if (!Falcon.isView(value) || ko.utils.unwrapObservable(value.is_loaded)) {
-          container = ko.utils.domData.get(element, "__falcon_view__container__");
-          container.innerHTML = template;
-          ko.renderTemplate(element, childContext, {}, element);
-          if (Falcon.isView(value)) {
-            value._render();
+  ko.bindingHandlers['view'] = {
+    'init': function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
+      var container, oldViewModel, subscription, view;
+      view = valueAccessor();
+      if (ko.isSubscribable(view)) {
+        oldViewModel = ko.utils.unwrapObservable(view);
+        subscription = view.subscribe(function(newViewModel) {
+          if (Falcon.isView(oldViewModel)) {
+            oldViewModel._unrender();
           }
-        }
-        return returnVal;
+          return oldViewModel = newViewModel;
+        });
+        ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+          if (Falcon.isView(oldViewModel)) {
+            oldViewModel._unrender();
+          }
+          return subscription.dispose();
+        });
+      } else if (Falcon.isView(view)) {
+        ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+          return view._unrender();
+        });
       }
-    };
-  })();
+      container = document.createElement('div');
+      ko.utils.domData.set(element, "__falcon_view__container__", container);
+      new ko.templateSources.anonymousTemplate(element)['nodes'](container);
+      return {
+        controlsDescendantBindings: true
+      };
+    },
+    'update': function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
+      var childContext, container, template, view, _ref2;
+      view = ko.unwrap(valueAccessor());
+      if (!Falcon.isView(view)) {
+        ko.virtualElements.emptyNode(element);
+        return {
+          controlsDescendantBindings: true
+        };
+      }
+      if (!view.__falcon_view__is_loaded__()) {
+        ko.virtualElements.emptyNode(element);
+        return {
+          controlsDescendantBindings: true
+        };
+      }
+      template = ((_ref2 = view.template()) != null ? _ref2 : "").toString();
+      if (isEmpty(template)) {
+        ko.virtualElements.emptyNode(element);
+        return {
+          controlsDescendantBindings: true
+        };
+      }
+      if ((context != null ? context['__falcon_view__addChildView__'] : void 0) != null) {
+        context['__falcon_view__addChildView__'](view);
+      }
+      childContext = context.createChildContext(viewModel).extend({
+        '$view': view.viewModel()
+      });
+      container = ko.utils.domData.get(element, "__falcon_view__container__");
+      container.innerHTML = template;
+      ko.renderTemplate(element, childContext, {}, element);
+      view._render();
+      return {
+        controlsDescendantBindings: true
+      };
+    }
+  };
 
   _getItems = function(value) {
     value = ko.utils.peekObservable(value);

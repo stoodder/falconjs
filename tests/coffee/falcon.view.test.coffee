@@ -43,6 +43,7 @@ describe "Falcon.View", ->
 			spyOn( Falcon.View::, 'makeUrl' ).and.callThrough()
 			spyOn( Falcon.View, 'cacheTemplate' ).and.callThrough()
 			spyOn( Falcon.adapter, 'getTemplate').and.callThrough()
+			spyOn( Falcon, 'ready' )
 		#END beforeEach
 
 		it "Should call the correct methods by default", ->
@@ -52,6 +53,14 @@ describe "Falcon.View", ->
 
 			expect( view.initialize.calls.count() ).toBe( 1 )
 			expect( view.initialize ).toHaveBeenCalledWith()
+
+			expect( Falcon.adapter.getTemplate ).not.toHaveBeenCalled()
+			expect( Falcon.View.cacheTemplate ).not.toHaveBeenCalled()
+
+			expect( Falcon.ready.calls.count() ).toBe( 1 )
+			expect( Falcon.ready ).toHaveBeenCalledWith( jasmine.any(Function) )
+
+			Falcon.ready.calls.mostRecent().args[0]()
 
 			expect( Falcon.adapter.getTemplate.calls.count() ).toBe( 1 )
 			expect( Falcon.adapter.getTemplate ).toHaveBeenCalledWith( "#hello_world", jasmine.any(Function) )
@@ -68,6 +77,7 @@ describe "Falcon.View", ->
 			view.initialize.calls.reset()
 			Falcon.adapter.getTemplate.calls.reset()
 			Falcon.View.cacheTemplate.calls.reset()
+			Falcon.ready.calls.reset()
 
 			view = new ( Falcon.View.extend(url: "#hello_world") )
 
@@ -75,6 +85,14 @@ describe "Falcon.View", ->
 
 			expect( view.initialize.calls.count() ).toBe( 1 )
 			expect( view.initialize ).toHaveBeenCalledWith()
+
+			expect( Falcon.adapter.getTemplate ).not.toHaveBeenCalled()
+			expect( Falcon.View.cacheTemplate ).not.toHaveBeenCalled()
+
+			expect( Falcon.ready.calls.count() ).toBe( 1 )
+			expect( Falcon.ready ).toHaveBeenCalledWith( jasmine.any(Function) )
+
+			Falcon.ready.calls.mostRecent().args[0]()
 
 			expect( Falcon.adapter.getTemplate ).not.toHaveBeenCalled()
 			expect( Falcon.View.cacheTemplate ).not.toHaveBeenCalled()
@@ -89,6 +107,14 @@ describe "Falcon.View", ->
 
 			expect( view.initialize.calls.count() ).toBe( 1 )
 			expect( view.initialize ).toHaveBeenCalledWith()
+
+			expect( Falcon.adapter.getTemplate ).not.toHaveBeenCalled()
+			expect( Falcon.View.cacheTemplate ).not.toHaveBeenCalled()
+
+			expect( Falcon.ready.calls.count() ).toBe( 1 )
+			expect( Falcon.ready ).toHaveBeenCalledWith( jasmine.any(Function) )
+
+			Falcon.ready.calls.mostRecent().args[0]()
 
 			expect( Falcon.adapter.getTemplate ).not.toHaveBeenCalled()
 
