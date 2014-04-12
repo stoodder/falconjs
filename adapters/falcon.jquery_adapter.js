@@ -1,5 +1,5 @@
 (function() {
-  var isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, _ref,
+  var isArray, isBoolean, isElement, isElementEmpty, isEmpty, isFunction, isNaN, isNumber, isObject, isString, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -35,7 +35,9 @@
     var key, value;
     if (object == null) {
       return true;
-    } else if (isString(object) || isArray(object)) {
+    } else if (isString(object)) {
+      return trim(object).length === 0;
+    } else if (isArray(object)) {
       return object.length === 0;
     } else if (isObject(object)) {
       for (key in object) {
@@ -45,6 +47,13 @@
       return true;
     }
     return false;
+  };
+
+  isElementEmpty = function(object) {
+    if (!isElement(object)) {
+      return true;
+    }
+    return trim(object.innerHTML).length === 0;
   };
 
   if (typeof HTMLElement === "object") {

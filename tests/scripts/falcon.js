@@ -11,7 +11,7 @@
 
 
 (function() {
-  var ChainedCollection, Falcon, arrayRemove, arrayUnique, clone, extend, findKey, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, startsWith, trim, value, _foreach, _getItems, _options, _ready, _ref, _ref1, _ref2, _ref3, _shouldUpdate,
+  var ChainedCollection, Falcon, arrayRemove, arrayUnique, clone, extend, findKey, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, startsWith, trim, value, _foreach, _getItems, _options, _ref, _ref1, _ref2, _ref3, _shouldUpdate,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -49,7 +49,9 @@
     var key, value;
     if (object == null) {
       return true;
-    } else if (isString(object) || isArray(object)) {
+    } else if (isString(object)) {
+      return trim(object).length === 0;
+    } else if (isArray(object)) {
       return object.length === 0;
     } else if (isObject(object)) {
       for (key in object) {
@@ -194,8 +196,6 @@
     return arr;
   };
 
-  _ready = null;
-
   this.Falcon = Falcon = {
     version: "0.10.0",
     applicationElement: "body",
@@ -203,6 +203,48 @@
     baseTemplateUrl: "",
     deferEvaluation: true,
     adapter: null,
+    ready: (function() {
+      var handler, _domLoadedEvent, _ready, _ready_callbacks;
+      _ready_callbacks = [];
+      _ready = function(callback) {
+        if (isFunction(callback)) {
+          return _ready_callbacks.push(callback);
+        }
+      };
+      _domLoadedEvent = function() {
+        var callback, _i, _len;
+        _ready = function(callback) {
+          if (isFunction(callback)) {
+            return callback();
+          }
+        };
+        for (_i = 0, _len = _ready_callbacks.length; _i < _len; _i++) {
+          callback = _ready_callbacks[_i];
+          callback();
+        }
+        return _ready_callbacks = null;
+      };
+      if (document.addEventListener) {
+        document.addEventListener("DOMContentLoaded", handler = function() {
+          _domLoadedEvent();
+          return document.removeEventListener("DOMContentLoaded", handler, false);
+        }, false);
+      } else if (document.attachEvent) {
+        document.attachEvent("readystatechange", handler = function() {
+          if (document.readyState === "complete") {
+            _domLoadedEvent();
+            return document.detachEvent("readystatechange", handler);
+          }
+        });
+      }
+      document.createElement("template");
+      _ready(function() {
+        return Falcon.View.cacheTemplates();
+      });
+      return function() {
+        return _ready.apply(null, arguments);
+      };
+    })(),
     apply: function(root, element, callback) {
       var _ref, _ref1;
       if (isFunction(element)) {
@@ -214,7 +256,7 @@
       if (element == null) {
         element = Falcon.applicationElement;
       }
-      _ready(function() {
+      Falcon.ready(function() {
         var _ref2;
         if (!isElement(element)) {
           if (!isString(element)) {
@@ -276,46 +318,6 @@
       return ko.bindingHandlers[name];
     }
   };
-
-  (function() {
-    var handler, _domLoadedEvent, _ready_callbacks;
-    _ready_callbacks = [];
-    _ready = function(callback) {
-      if (isFunction(callback)) {
-        return _ready_callbacks.push(callback);
-      }
-    };
-    _domLoadedEvent = function() {
-      var callback, _i, _len;
-      _ready = function(callback) {
-        if (isFunction(callback)) {
-          return callback();
-        }
-      };
-      for (_i = 0, _len = _ready_callbacks.length; _i < _len; _i++) {
-        callback = _ready_callbacks[_i];
-        callback();
-      }
-      return _ready_callbacks = null;
-    };
-    if (document.addEventListener) {
-      document.addEventListener("DOMContentLoaded", handler = function() {
-        _domLoadedEvent();
-        return document.removeEventListener("DOMContentLoaded", handler, false);
-      }, false);
-    } else if (document.attachEvent) {
-      document.attachEvent("readystatechange", handler = function() {
-        if (document.readyState === "complete") {
-          _domLoadedEvent();
-          return document.detachEvent("readystatechange", handler);
-        }
-      });
-    }
-    document.createElement("template");
-    return _ready(function() {
-      return Falcon.View.cacheTemplates();
-    });
-  })();
 
   Falcon.Object = (function() {
     var __falcon_object__current_cid__;
@@ -1080,6 +1082,12 @@
       if (!isString(template)) {
         template = "";
       }
+      if (isEmpty(identifier)) {
+        return Falcon.View;
+      }
+      if (isEmpty(template)) {
+        return Falcon.View;
+      }
       identifier = trim(identifier);
       __falcon_view__template_cache__[identifier] = template;
       return Falcon.View;
@@ -1128,14 +1136,16 @@
       this.__falcon_view__child_views__ = [];
       this.__falcon_view__loaded_url__ = url;
       this.initialize.apply(this, arguments);
-      if (isEmpty(url) || url in __falcon_view__template_cache__) {
-        this.is_loaded(true);
-      } else {
-        Falcon.adapter.getTemplate(url, function(template) {
-          Falcon.View.cacheTemplate(url, template);
+      Falcon.ready(function() {
+        if (isEmpty(url) || url in __falcon_view__template_cache__) {
           return _this.is_loaded(true);
-        });
-      }
+        } else {
+          return Falcon.adapter.getTemplate(url, function(template) {
+            Falcon.View.cacheTemplate(url, template);
+            return _this.is_loaded(true);
+          });
+        }
+      });
     }
 
     View.prototype.makeUrl = function() {
@@ -2059,14 +2069,11 @@
       if (value == null) {
         value = {};
       }
-      if (element.nodeType === 1 && !isEmpty(trim(element.innerHTML))) {
-        return element.innerHTML;
-      } else if (value instanceof Falcon.View) {
-        template = value.template();
+      if (value instanceof Falcon.View) {
+        return value.template();
       } else {
-        template = ko.utils.unwrapObservable((_ref2 = value.template) != null ? _ref2 : "");
+        return (_ref2 = ko.unwrap(value.template)) != null ? _ref2 : "";
       }
-      return template;
     };
     returnVal = {
       controlsDescendantBindings: true

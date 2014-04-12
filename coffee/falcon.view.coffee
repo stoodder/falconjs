@@ -21,6 +21,9 @@ class Falcon.View extends Falcon.Object
 		identifier = "" unless isString( identifier )
 		template = "" unless isString( template )
 
+		return Falcon.View if isEmpty( identifier )
+		return Falcon.View if isEmpty( template )
+
 		identifier = trim( identifier )
 
 		__falcon_view__template_cache__[identifier] = template
@@ -125,14 +128,16 @@ class Falcon.View extends Falcon.Object
 		@initialize.apply(this, arguments)
 
 		# Attempt to load the template from the server or cache
-		if isEmpty(url) or url of __falcon_view__template_cache__
-			@is_loaded( true )
-		else
-			Falcon.adapter.getTemplate(url, (template) =>
-				Falcon.View.cacheTemplate( url, template )
+		Falcon.ready =>
+			if isEmpty(url) or url of __falcon_view__template_cache__
 				@is_loaded( true )
-			)#END getTemplate
-		#END if
+			else
+				Falcon.adapter.getTemplate(url, (template) =>
+					Falcon.View.cacheTemplate( url, template )
+					@is_loaded( true )
+				)#END getTemplate
+			#END if
+		#END ready
 	#END constructor
 
 	#--------------------------------------------------------

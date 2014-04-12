@@ -30,15 +30,11 @@ ko.bindingHandlers['view'] = do ->
 		template = ""
 		value ?= {}
 
-		if element.nodeType is 1 and not isEmpty(trim(element.innerHTML))
-			return element.innerHTML
-		else if value instanceof Falcon.View
-			template = value.template()
+		if value instanceof Falcon.View
+			return value.template()
 		else
-			template = ko.utils.unwrapObservable( value.template ? "" )
+			return ko.unwrap( value.template ) ? ""
 		#END if
-
-		return template
 	#END getTemplate
 
 	returnVal = { controlsDescendantBindings: true }
@@ -66,8 +62,6 @@ ko.bindingHandlers['view'] = do ->
 				#END domDisposal
 			#END if
 
-			#templateNodes = ko.virtualElements.childNodes(element)
-			#container = ko.utils.moveCleanedNodesToContainerElement(templateNodes)
 			container = document.createElement('div')
 			ko.utils.domData.set(element, "__falcon_view__container__", container)
 			new ko.templateSources.anonymousTemplate(element)['nodes'](container)
@@ -96,12 +90,10 @@ ko.bindingHandlers['view'] = do ->
 			if isEmpty( viewModel ) or isEmpty( template )
 				ko.virtualElements.emptyNode(element)
 			else if not Falcon.isView( value ) or ko.utils.unwrapObservable( value.is_loaded )
-
 				container = ko.utils.domData.get(element, "__falcon_view__container__")
 				container.innerHTML = template
-				ko.renderTemplate(element, childContext, {}, element)
 
-				#TODO: Consider reverting back t using execScripts here
+				ko.renderTemplate(element, childContext, {}, element)
 
 				#Notify the view that it is being displayed
 				value._render() if Falcon.isView( value )

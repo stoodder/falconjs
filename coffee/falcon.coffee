@@ -1,5 +1,3 @@
-_ready = null
-
 @Falcon = Falcon =
 	#--------------------------------------------------------
 	# Attribute: Falcon.version
@@ -52,6 +50,53 @@ _ready = null
 	adapter: null
 
 	#--------------------------------------------------------
+	# Method: Falcon.ready(callback)
+	#	Methods to call when the document is loaded, or right away
+	#	if the document is already loaded
+	#
+	# Arguments:
+	#	**callback** _(Function)_ - Callback method to trigger after document loads
+	#--------------------------------------------------------
+	ready: do ->
+		#Define the '_ready' method.
+		_ready_callbacks = []
+		_ready = (callback) ->
+			_ready_callbacks.push( callback ) if isFunction( callback )
+		#END _ready
+
+		_domLoadedEvent = ->
+			_ready = (callback) ->
+				callback() if isFunction( callback )
+			#END _ready re-assignment
+
+			callback() for callback in _ready_callbacks
+			_ready_callbacks = null
+		#END _domLoadedEvent
+
+		if document.addEventListener
+			document.addEventListener "DOMContentLoaded", handler = ->
+				_domLoadedEvent()
+				document.removeEventListener( "DOMContentLoaded", handler, false )
+			, false
+		else if document.attachEvent
+			document.attachEvent "readystatechange", handler = ->
+				if document.readyState is "complete"
+					_domLoadedEvent()
+					document.detachEvent( "readystatechange", handler )
+				#END if
+			#END on readystatechange
+		#END if
+
+		#We need to create a template element for IE to recognize the tag
+		document.createElement("template")
+		
+		#Cache of the the <template> elements when the DOM has loaded
+		_ready -> Falcon.View.cacheTemplates()
+
+		return -> _ready(arguments...)
+	#END do
+
+	#--------------------------------------------------------
 	# Method: Falcon.apply
 	#	The method to initialize a Falcon application and apply its bindings against an initial view.
 	#
@@ -70,7 +115,7 @@ _ready = null
 
 		element ?= Falcon.applicationElement
 
-		_ready ->
+		Falcon.ready ->
 			unless isElement( element )
 				element = "" unless isString( element )
 				element = if isEmpty( element ) then "body" else trim( element )
@@ -209,42 +254,4 @@ _ready = null
 	#--------------------------------------------------------
 	getBinding: (name) -> ko.bindingHandlers[name]
 #END Falcon
-
-#Lastly, execute a setup routine for handling DOM loads
-do ->
-	#Define the '_ready' method.
-	_ready_callbacks = []
-	_ready = (callback) ->
-		_ready_callbacks.push( callback ) if isFunction( callback )
-	#END _ready
-
-	_domLoadedEvent = ->
-		_ready = (callback) ->
-			callback() if isFunction( callback )
-		#END _ready re-assignment
-
-		callback() for callback in _ready_callbacks
-		_ready_callbacks = null
-	#END _domLoadedEvent
-
-	if document.addEventListener
-		document.addEventListener "DOMContentLoaded", handler = ->
-			_domLoadedEvent()
-			document.removeEventListener( "DOMContentLoaded", handler, false )
-		, false
-	else if document.attachEvent
-		document.attachEvent "readystatechange", handler = ->
-			if document.readyState is "complete"
-				_domLoadedEvent()
-				document.detachEvent( "readystatechange", handler )
-			#END if
-		#END on readystatechange
-	#END if
-
-	#We need to create a template element for IE to recognize the tag
-	document.createElement("template")
-	
-	#Cache of the the <template> elements when the DOM has loaded
-	_ready -> Falcon.View.cacheTemplates()
-#END do
 

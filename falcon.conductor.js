@@ -46,7 +46,9 @@
     var key, value;
     if (object == null) {
       return true;
-    } else if (isString(object) || isArray(object)) {
+    } else if (isString(object)) {
+      return trim(object).length === 0;
+    } else if (isArray(object)) {
       return object.length === 0;
     } else if (isObject(object)) {
       for (key in object) {
