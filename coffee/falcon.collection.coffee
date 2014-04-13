@@ -1032,7 +1032,12 @@ class Falcon.Collection extends Falcon.Object
 	#	_(Array)_ - The sliced array of models from the underlying array in this collection
 	#--------------------------------------------------------
 	slice: (start, end) ->
-		return @models.slice( start, end )
+		# This if is needed for ie8
+		if end?
+			return @models.slice( start, end )
+		else
+			return @models.slice( start )
+		#END if 
 	#END slice
 
 	#--------------------------------------------------------

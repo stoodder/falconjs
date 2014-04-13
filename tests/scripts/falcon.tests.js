@@ -6269,13 +6269,14 @@
         expect(Falcon.adapter.getTemplate).toHaveBeenCalledWith("#hello_world", jasmine.any(Function));
         expect(Falcon.View.cacheTemplate.calls.count()).toBe(1);
         expect(Falcon.View.cacheTemplate).toHaveBeenCalledWith("#hello_world", "");
-        return expect(view.is_loaded()).toBe(true);
+        return expect(view.__falcon_view__is_loaded__()).toBe(true);
       });
       it("Should recognized cached templates", function() {
         var view;
         view = new (Falcon.View.extend({
           url: "#hello_world"
         }));
+        Falcon.ready.calls.mostRecent().args[0]();
         view.makeUrl.calls.reset();
         view.initialize.calls.reset();
         Falcon.adapter.getTemplate.calls.reset();
@@ -6294,7 +6295,7 @@
         Falcon.ready.calls.mostRecent().args[0]();
         expect(Falcon.adapter.getTemplate).not.toHaveBeenCalled();
         expect(Falcon.View.cacheTemplate).not.toHaveBeenCalled();
-        return expect(view.is_loaded()).toBe(true);
+        return expect(view.__falcon_view__is_loaded__()).toBe(true);
       });
       return it("Should not call the adapter on an empty template uri", function() {
         var view;
@@ -6310,7 +6311,7 @@
         expect(Falcon.ready).toHaveBeenCalledWith(jasmine.any(Function));
         Falcon.ready.calls.mostRecent().args[0]();
         expect(Falcon.adapter.getTemplate).not.toHaveBeenCalled();
-        return expect(view.is_loaded()).toBe(true);
+        return expect(view.__falcon_view__is_loaded__()).toBe(true);
       });
     });
     describe("cacheTemplates", function() {
@@ -6328,10 +6329,10 @@
       });
       it("Should have removed and cached the templates", function() {
         var ret, templates;
-        templates = document.querySelectorAll("template");
+        templates = document.getElementsByTagName("template");
         expect(templates.length).toBe(2);
         ret = Falcon.View.cacheTemplates();
-        templates = document.querySelectorAll("template");
+        templates = document.getElementsByTagName("template");
         expect(templates.length).toBe(0);
         expect(Falcon.View.cacheTemplate.calls.count()).toBe(2);
         expect(Falcon.View.cacheTemplate.calls.argsFor(0)).toEqual(['#test_template_1', 'Hello World 1']);
@@ -6342,15 +6343,15 @@
         var ret, templates;
         document.body.removeChild(template);
         document.body.removeChild(template2);
-        templates = document.querySelectorAll("template");
+        templates = document.getElementsByTagName("template");
         expect(templates.length).toBe(0);
         ret = Falcon.View.cacheTemplates();
-        templates = document.querySelectorAll("template");
+        templates = document.getElementsByTagName("template");
         expect(templates.length).toBe(0);
         return expect(ret).toBe(Falcon.View);
       });
     });
-    describe("Testing the 'defaults' implementation", function() {
+    describe("Defaults", function() {
       it("Should create RawrView with defaults that have correct arguments", function() {
         var RawrView, hello_spy, rawr_class, _ref7;
         hello_spy = null;

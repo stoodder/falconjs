@@ -1084,14 +1084,25 @@
       if (!isString(template)) {
         template = "";
       }
-      identifier = trim(identifier);
+      if (isEmpty(identifier)) {
+        return Falcon.View;
+      }
       __falcon_view__template_cache__[identifier] = template;
       return Falcon.View;
     };
 
     View.cacheTemplates = function() {
       var identifier, template, templates, _i, _len, _ref1;
-      templates = Array.prototype.slice.call(document.getElementsByTagName("template"));
+      templates = (function() {
+        var _i, _len, _ref1, _results;
+        _ref1 = document.getElementsByTagName("template");
+        _results = [];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          template = _ref1[_i];
+          _results.push(template);
+        }
+        return _results;
+      })();
       for (_i = 0, _len = templates.length; _i < _len; _i++) {
         template = templates[_i];
         identifier = template.getAttribute("id");
@@ -1931,7 +1942,11 @@
     };
 
     Collection.prototype.slice = function(start, end) {
-      return this.models.slice(start, end);
+      if (end != null) {
+        return this.models.slice(start, end);
+      } else {
+        return this.models.slice(start);
+      }
     };
 
     Collection.prototype.chain = function() {

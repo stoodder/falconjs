@@ -21,7 +21,7 @@ class Falcon.View extends Falcon.Object
 		identifier = "" unless isString( identifier )
 		template = "" unless isString( template )
 
-		identifier = trim( identifier )
+		return Falcon.View if isEmpty( identifier )
 
 		__falcon_view__template_cache__[identifier] = template
 
@@ -36,7 +36,7 @@ class Falcon.View extends Falcon.Object
 	#	_(Falcon)_ - This Instance
 	#--------------------------------------------------------
 	@cacheTemplates = ->
-		templates = Array::slice.call( document.getElementsByTagName("template") )
+		templates = (template for template in document.getElementsByTagName("template"))
 		
 		for template in templates
 			identifier = template.getAttribute("id")
