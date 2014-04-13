@@ -6684,7 +6684,7 @@
           return expect(view.dispose.calls.count()).toBe(1);
         });
         return it("Teardown", function() {
-          return hello_world.removeFromDOM();
+          return Falcon.View.resetCache();
         });
       });
       describe("Basic Observable Usage", function() {
@@ -6694,7 +6694,6 @@
         view_a = view_b = null;
         it("Setup", function() {
           var foo_bar, hello_world;
-          Falcon.debug = true;
           hello_world = MockHelper.makeElement("template").setId("hello_world").html("Hello World").addToDOM();
           return foo_bar = MockHelper.makeElement("template").setId("foo_bar").html("Foo Bar").addToDOM();
         });
@@ -6746,9 +6745,7 @@
           return expect(view_b.dispose.calls.count()).toBe(1);
         });
         return it("Teardown", function() {
-          hello_world.removeFromDOM();
-          foo_bar.removeFromDOM();
-          return Falcon.debug = false;
+          return Falcon.View.resetCache();
         });
       });
       describe("Basic Comment Binding Usage", function() {
@@ -6781,7 +6778,7 @@
           return expect(view.dispose.calls.count()).toBe(1);
         });
         return it("Teardown", function() {
-          return hello_world.removeFromDOM();
+          return Falcon.View.resetCache();
         });
       });
       describe("Basic Observable Comment Binding Usage", function() {
@@ -6842,14 +6839,264 @@
           return expect(view_b.dispose.calls.count()).toBe(1);
         });
         return it("Teardown", function() {
-          hello_world.removeFromDOM();
-          return foo_bar.removeFromDOM();
+          return Falcon.View.resetCache();
         });
       });
-      describe("Basic Nested Usage", function() {});
-      describe("Basic Nested Observable Usage", function() {});
-      describe("Basic Nested Comment Usage", function() {});
-      return describe("Basic Nested Comment Observable Usage", function() {});
+      describe("Basic Nested Usage", function() {
+        var element, parent_view, view;
+        view = null;
+        parent_view = null;
+        element = null;
+        it("Setup", function() {
+          MockHelper.makeElement("template").setId("parent_template").html("<div data-bind='view: $view.child_view'></div>").addToDOM();
+          return MockHelper.makeElement("template").setId("hello_world").html("Hello World").addToDOM();
+        });
+        it("Should setup the view binding properly with a basic view", function() {
+          view = MockHelper.makeView("#hello_world").triggerReady();
+          parent_view = MockHelper.makeView("#parent_template").triggerReady();
+          parent_view.child_view = view;
+          element = MockHelper.makeElement().bindings("view: view").addToDOM().andApply({
+            view: parent_view
+          });
+          expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
+          expect(parent_view._render.calls.count()).toBe(1);
+          expect(parent_view.display.calls.count()).toBe(1);
+          expect(parent_view._unrender).not.toHaveBeenCalled();
+          expect(parent_view.dispose).not.toHaveBeenCalled();
+          expect(view._render.calls.count()).toBe(1);
+          expect(view.display.calls.count()).toBe(1);
+          expect(view._unrender).not.toHaveBeenCalled();
+          expect(view.dispose).not.toHaveBeenCalled();
+          parent_view.resetSpies();
+          return view.resetSpies();
+        });
+        it("Should unrender properly when removed from the DOM", function() {
+          element.removeFromDOM();
+          expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
+          expect(parent_view._render).not.toHaveBeenCalled();
+          expect(parent_view.display).not.toHaveBeenCalled();
+          expect(parent_view._unrender.calls.count()).toBe(1);
+          expect(parent_view.dispose.calls.count()).toBe(1);
+          expect(view._render).not.toHaveBeenCalled();
+          expect(view.display).not.toHaveBeenCalled();
+          expect(view._unrender.calls.count()).toBe(1);
+          return expect(view.dispose.calls.count()).toBe(1);
+        });
+        return it("Teardown", function() {
+          return Falcon.View.resetCache();
+        });
+      });
+      describe("Basic Nested Observable Usage", function() {
+        var element, obs, view_a, view_b;
+        obs = ko.observable();
+        element = null;
+        view_a = view_b = null;
+        it("Setup", function() {
+          MockHelper.makeElement("template").setId("parent_template").html("<div data-bind='view: $view.child_view'></div>").addToDOM();
+          MockHelper.makeElement("template").setId("hello_world").html("Hello World").addToDOM();
+          return MockHelper.makeElement("template").setId("foo_bar").html("Foo Bar").addToDOM();
+        });
+        it("Should apply blank observable properly", function() {
+          element = MockHelper.makeElement().bindings("view: obs").addToDOM().andApply({
+            obs: obs
+          });
+          expect(ko.virtualElements.emptyNode.calls.count()).toBe(1);
+          expect(ko.virtualElements.emptyNode).toHaveBeenCalledWith(element);
+          return expect(element.innerHTML).toBe("");
+        });
+        it("Should update the template when a valid view with template is given", function() {
+          view_a = MockHelper.makeView("#parent_template").triggerReady();
+          view_a.child_view = MockHelper.makeView("#hello_world").triggerReady();
+          obs(view_a);
+          expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
+          expect(view_a._render.calls.count()).toBe(1);
+          expect(view_a.display.calls.count()).toBe(1);
+          expect(view_a._unrender).not.toHaveBeenCalled();
+          expect(view_a.dispose).not.toHaveBeenCalled();
+          expect(view_a.child_view._render.calls.count()).toBe(1);
+          expect(view_a.child_view.display.calls.count()).toBe(1);
+          expect(view_a.child_view._unrender).not.toHaveBeenCalled();
+          expect(view_a.child_view.dispose).not.toHaveBeenCalled();
+          view_a.resetSpies();
+          return view_a.child_view.resetSpies();
+        });
+        it("Should swap views properly", function() {
+          view_b = MockHelper.makeView("#parent_template").triggerReady();
+          view_b.child_view = MockHelper.makeView("#hello_world").triggerReady();
+          obs(view_b);
+          expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
+          expect(view_a._render).not.toHaveBeenCalled();
+          expect(view_a.display).not.toHaveBeenCalled();
+          expect(view_a._unrender.calls.count()).toBe(1);
+          expect(view_a.dispose.calls.count()).toBe(1);
+          expect(view_a.child_view._render).not.toHaveBeenCalled();
+          expect(view_a.child_view.display).not.toHaveBeenCalled();
+          expect(view_a.child_view._unrender.calls.count()).toBe(1);
+          expect(view_a.child_view.dispose.calls.count()).toBe(1);
+          expect(view_b._render.calls.count()).toBe(1);
+          expect(view_b.display.calls.count()).toBe(1);
+          expect(view_b._unrender).not.toHaveBeenCalled();
+          expect(view_b.dispose).not.toHaveBeenCalled();
+          expect(view_b.child_view._render.calls.count()).toBe(1);
+          expect(view_b.child_view.display.calls.count()).toBe(1);
+          expect(view_b.child_view._unrender).not.toHaveBeenCalled();
+          expect(view_b.child_view.dispose).not.toHaveBeenCalled();
+          view_a.resetSpies();
+          view_a.child_view.resetSpies();
+          view_b.resetSpies();
+          return view_b.child_view.resetSpies();
+        });
+        it("Should unrender properly when removed from the DOM", function() {
+          element.removeFromDOM();
+          expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
+          expect(view_a._render).not.toHaveBeenCalled();
+          expect(view_a.display).not.toHaveBeenCalled();
+          expect(view_a._unrender).not.toHaveBeenCalled();
+          expect(view_a.dispose).not.toHaveBeenCalled();
+          expect(view_a.child_view._render).not.toHaveBeenCalled();
+          expect(view_a.child_view.display).not.toHaveBeenCalled();
+          expect(view_a.child_view._unrender).not.toHaveBeenCalled();
+          expect(view_a.child_view.dispose).not.toHaveBeenCalled();
+          expect(view_b._render).not.toHaveBeenCalled();
+          expect(view_b.display).not.toHaveBeenCalled();
+          expect(view_b._unrender.calls.count()).toBe(1);
+          expect(view_b.dispose.calls.count()).toBe(1);
+          expect(view_b.child_view._render).not.toHaveBeenCalled();
+          expect(view_b.child_view.display).not.toHaveBeenCalled();
+          expect(view_b.child_view._unrender.calls.count()).toBe(1);
+          return expect(view_b.child_view.dispose.calls.count()).toBe(1);
+        });
+        return it("Teardown", function() {
+          return Falcon.View.resetCache();
+        });
+      });
+      describe("Basic Nested Comment Usage", function() {
+        var comment, parent_view, view;
+        view = null;
+        parent_view = null;
+        comment = null;
+        it("Setup", function() {
+          MockHelper.makeElement("template").setId("parent_template").html("<div data-bind='view: $view.child_view'></div>").addToDOM();
+          return MockHelper.makeElement("template").setId("hello_world").html("Hello World").addToDOM();
+        });
+        it("Should setup the view binding properly with a basic view", function() {
+          view = MockHelper.makeView("#hello_world").triggerReady();
+          parent_view = MockHelper.makeView("#parent_template").triggerReady();
+          parent_view.child_view = view;
+          comment = MockHelper.makeCommentBinding("view: view").addToDOM().andApply({
+            view: parent_view
+          });
+          expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
+          expect(parent_view._render.calls.count()).toBe(1);
+          expect(parent_view.display.calls.count()).toBe(1);
+          expect(parent_view._unrender).not.toHaveBeenCalled();
+          expect(parent_view.dispose).not.toHaveBeenCalled();
+          expect(view._render.calls.count()).toBe(1);
+          expect(view.display.calls.count()).toBe(1);
+          expect(view._unrender).not.toHaveBeenCalled();
+          expect(view.dispose).not.toHaveBeenCalled();
+          parent_view.resetSpies();
+          return view.resetSpies();
+        });
+        it("Should unrender properly when removed from the DOM", function() {
+          comment.removeFromDOM();
+          expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
+          expect(parent_view._render).not.toHaveBeenCalled();
+          expect(parent_view.display).not.toHaveBeenCalled();
+          expect(parent_view._unrender.calls.count()).toBe(1);
+          expect(parent_view.dispose.calls.count()).toBe(1);
+          expect(view._render).not.toHaveBeenCalled();
+          expect(view.display).not.toHaveBeenCalled();
+          expect(view._unrender.calls.count()).toBe(1);
+          return expect(view.dispose.calls.count()).toBe(1);
+        });
+        return it("Teardown", function() {
+          return Falcon.View.resetCache();
+        });
+      });
+      return describe("Basic Nested Comment Observable Usage", function() {
+        var comment, obs, view_a, view_b;
+        obs = ko.observable();
+        comment = null;
+        view_a = view_b = null;
+        it("Setup", function() {
+          MockHelper.makeElement("template").setId("parent_template").html("<div data-bind='view: $view.child_view'></div>").addToDOM();
+          MockHelper.makeElement("template").setId("hello_world").html("Hello World").addToDOM();
+          return MockHelper.makeElement("template").setId("foo_bar").html("Foo Bar").addToDOM();
+        });
+        it("Should apply blank observable properly", function() {
+          comment = MockHelper.makeCommentBinding("view: obs").addToDOM().andApply({
+            obs: obs
+          });
+          expect(ko.virtualElements.emptyNode.calls.count()).toBe(1);
+          return expect(ko.virtualElements.emptyNode).toHaveBeenCalledWith(comment.start_comment);
+        });
+        it("Should update the template when a valid view with template is given", function() {
+          view_a = MockHelper.makeView("#parent_template").triggerReady();
+          view_a.child_view = MockHelper.makeView("#hello_world").triggerReady();
+          obs(view_a);
+          expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
+          expect(view_a._render.calls.count()).toBe(1);
+          expect(view_a.display.calls.count()).toBe(1);
+          expect(view_a._unrender).not.toHaveBeenCalled();
+          expect(view_a.dispose).not.toHaveBeenCalled();
+          expect(view_a.child_view._render.calls.count()).toBe(1);
+          expect(view_a.child_view.display.calls.count()).toBe(1);
+          expect(view_a.child_view._unrender).not.toHaveBeenCalled();
+          expect(view_a.child_view.dispose).not.toHaveBeenCalled();
+          view_a.resetSpies();
+          return view_a.child_view.resetSpies();
+        });
+        it("Should swap views properly", function() {
+          view_b = MockHelper.makeView("#parent_template").triggerReady();
+          view_b.child_view = MockHelper.makeView("#hello_world").triggerReady();
+          obs(view_b);
+          expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
+          expect(view_a._render).not.toHaveBeenCalled();
+          expect(view_a.display).not.toHaveBeenCalled();
+          expect(view_a._unrender.calls.count()).toBe(1);
+          expect(view_a.dispose.calls.count()).toBe(1);
+          expect(view_a.child_view._render).not.toHaveBeenCalled();
+          expect(view_a.child_view.display).not.toHaveBeenCalled();
+          expect(view_a.child_view._unrender.calls.count()).toBe(1);
+          expect(view_a.child_view.dispose.calls.count()).toBe(1);
+          expect(view_b._render.calls.count()).toBe(1);
+          expect(view_b.display.calls.count()).toBe(1);
+          expect(view_b._unrender).not.toHaveBeenCalled();
+          expect(view_b.dispose).not.toHaveBeenCalled();
+          expect(view_b.child_view._render.calls.count()).toBe(1);
+          expect(view_b.child_view.display.calls.count()).toBe(1);
+          expect(view_b.child_view._unrender).not.toHaveBeenCalled();
+          expect(view_b.child_view.dispose).not.toHaveBeenCalled();
+          view_a.resetSpies();
+          view_a.child_view.resetSpies();
+          view_b.resetSpies();
+          return view_b.child_view.resetSpies();
+        });
+        it("Should unrender properly when removed from the DOM", function() {
+          comment.removeFromDOM();
+          expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
+          expect(view_a._render).not.toHaveBeenCalled();
+          expect(view_a.display).not.toHaveBeenCalled();
+          expect(view_a._unrender).not.toHaveBeenCalled();
+          expect(view_a.dispose).not.toHaveBeenCalled();
+          expect(view_a.child_view._render).not.toHaveBeenCalled();
+          expect(view_a.child_view.display).not.toHaveBeenCalled();
+          expect(view_a.child_view._unrender).not.toHaveBeenCalled();
+          expect(view_a.child_view.dispose).not.toHaveBeenCalled();
+          expect(view_b._render).not.toHaveBeenCalled();
+          expect(view_b.display).not.toHaveBeenCalled();
+          expect(view_b._unrender.calls.count()).toBe(1);
+          expect(view_b.dispose.calls.count()).toBe(1);
+          expect(view_b.child_view._render).not.toHaveBeenCalled();
+          expect(view_b.child_view.display).not.toHaveBeenCalled();
+          expect(view_b.child_view._unrender.calls.count()).toBe(1);
+          return expect(view_b.child_view.dispose.calls.count()).toBe(1);
+        });
+        return it("Teardown", function() {
+          return Falcon.View.resetCache();
+        });
+      });
     });
   });
 

@@ -3,14 +3,17 @@
 
 ## Change Log
 ###v0.10.1
+**Breaking Changes**
+* The view binding now only accepts Falcon.View of ko.observable( Falcon.View ) as it's input. If anything else is given, the node's children will be emptied.
+
+**Enhancements**
+* Added Falcon.ready to allow for us to execute code when the DOM is loaded. (Same as jQuery's $.ready)
+
 **Bugs Fixed**
 * Prevented model mixin() method from overwritting currently defined values
 * When using Falcon.Collections create() method with a raw object, we assign the collection's parent as the newly created model's parent
-
-**TODO**
-* Cleanup/Redo binding tests
-* Pass fill options through recursive calls to the fill methods
-* Fix view binding attached to elements
+* Everything is now cross browser compatible with IE8+ and the latest version of Chrome, Mozilla, Safari, and Opera
+* Re-tested the view binding
 
 ###v0.10.0
 **Highlights**
@@ -25,8 +28,6 @@
 * You must now include the falcon.jquery_adapater.js to support ajax requests with jQuery as Falcon's dependency on jQuery has been completely removed in version 0.10.0.
 * Model and Collection constructors will now throw an error if the parent object isn't null/undefined or a model
 * Elements with the 'view' binding may now specifiy internal HTML which will override the lookup of a template from the 'url' attribute.  This may break existing apps that provide HTML inside of their view declarations before the binding is applied.
-
-**Breaking Changes**
 * Falcon.Collection#insert() has breaking changes. You must now pass in an 'options' object as the second parameteter instead of the insert index or model to insert after. In the options parameter, you'll be able to pass in an 'index' attribute for the index to insert the models after. A model attribute to specific which model to insert the models after. Or an iterator to truth test the collection (to find an insert index, based on first success) to insert the models after
 
 **Enhancements**
