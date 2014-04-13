@@ -27,49 +27,42 @@ ko.bindingHandlers['view'] =
 		#END if
 
 		container = document.createElement('div')
-		ko.utils.domData.set(element, "__falcon_view__container__", container)
-		new ko.templateSources.anonymousTemplate(element)['nodes'](container)
+
+		anonymous_template = new ko.templateSources.anonymousTemplate(element)
+		anonymous_template['nodes'](container)
+		anonymous_template['text']("")
+
+		ko.computed
+			disposeWhenNodeIsRemoved: element
+			read: ->
+				view = ko.unwrap( valueAccessor() )
+
+				return ko.virtualElements.emptyNode(element) unless Falcon.isView( view )
+				return ko.virtualElements.emptyNode(element) unless view.__falcon_view__is_loaded__()
+
+				template = ( view.template() ? "" ).toString()
+
+				return ko.virtualElements.emptyNode(element) if isEmpty( template )
+
+				#The method below is added to the viewModel upon creation due to the fact that proto 
+				#method are abstracted away during viewModel generation, it's used to notify a view 
+				#which views have been created within its context.  This is then used when destroying 
+				#the view to also ensure that we destroy child views.
+				context['__falcon_view__addChildView__']( view ) if context?['__falcon_view__addChildView__']?
+				
+				childContext = context.createChildContext(viewModel).extend( '$view': view.viewModel() )
+				
+				container.innerHTML = template
+				anonymous_template['text'](template)
+				
+				ko.renderTemplate(element, childContext, {}, element)
+
+				view._render()
+			#END read
+		#END computed
 
 		return { controlsDescendantBindings: true }
 	#END init
-
-	'update': (element, valueAccessor, allBindingsAccessor, viewModel, context) ->
-		view = ko.unwrap( valueAccessor() )
-
-		unless Falcon.isView( view )
-			ko.virtualElements.emptyNode(element)
-			return { controlsDescendantBindings: true }
-		#END unless
-
-		unless view.__falcon_view__is_loaded__()
-			ko.virtualElements.emptyNode(element)
-			return { controlsDescendantBindings: true }
-		#END unless
-
-		template = ( view.template() ? "" ).toString()
-
-		if isEmpty( template )
-			ko.virtualElements.emptyNode(element)
-			return { controlsDescendantBindings: true }
-		#ND if
-
-		#The method below is added to the viewModel upon creation due to the fact that proto 
-		#method are abstracted away during viewModel generation, it's used to notify a view 
-		#which views have been created within its context.  This is then used when destroying 
-		#the view to also ensure that we destroy child views.
-		context['__falcon_view__addChildView__']( view ) if context?['__falcon_view__addChildView__']?
-		
-		childContext = context.createChildContext(viewModel).extend( '$view': view.viewModel() )
-
-		container = ko.utils.domData.get(element, "__falcon_view__container__")
-		container.innerHTML = template
-
-		ko.renderTemplate(element, childContext, {}, element)
-
-		view._render()
-
-		return { controlsDescendantBindings: true }
-	#END update
 #END view binding handler
 
 
@@ -157,7 +150,6 @@ ko.bindingHandlers['options'] = do ->
 
 ko.bindingHandlers['log'] =
 	update: (element, valueAccessor) ->
-		console.log( ko.utils.unwrapObservable( valueAccessor() ) )
 	#END update
 #END log
 

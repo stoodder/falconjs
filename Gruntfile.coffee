@@ -99,6 +99,7 @@ module.exports = (grunt) ->
 			'test':
 				files:
 					"tests/lib/jasmine2.0.0-sinon.js": ["tests/coffee/jasmine2.0.0-sinon.coffee"]
+					"tests/scripts/test.helpers.js": ["tests/coffee/*.helper.coffee"]
 					"tests/scripts/falcon.tests.js": [
 						"tests/coffee/falcon.test.coffee"
 						"tests/coffee/falcon.object.test.coffee"
@@ -134,6 +135,8 @@ module.exports = (grunt) ->
 
 		'jasmine':
 			'dist':
+				display: 'short'
+				summary: true
 				src: [
 					'falcon.min.js'
 				]
@@ -142,6 +145,9 @@ module.exports = (grunt) ->
 						'tests/lib/sinon-1.7.3.js'
 						'tests/lib/jasmine2.0.0-sinon.js'
 						'tests/lib/knockout-3.1.0.min.js'
+					]
+					helpers: [
+						'tests/scripts/test.helpers.js'
 					]
 					specs: 'tests/scripts/falcon.tests.js'
 				#END options
@@ -152,12 +158,17 @@ module.exports = (grunt) ->
 					'falcon.conductor.min.js'
 				]
 				options:
+					display: 'short'
+					summary: true
 					vendor: [
 						'tests/lib/sinon-1.7.3.js'
 						'tests/lib/jasmine2.0.0-sinon.js'
 						'tests/lib/jquery-1.10.2.min.js'
 						'tests/lib/knockout-3.1.0.min.js'
 						'tests/scripts/falcon.min.js'
+					]
+					helpers: [
+						'tests/scripts/test.helpers.js'
 					]
 					specs: [
 						'tests/scripts/falcon.conductor.test.js'
@@ -170,12 +181,17 @@ module.exports = (grunt) ->
 					'adapters/falcon.jquery_adapter.min.js'
 				]
 				options:
+					display: 'short'
+					summary: true
 					vendor: [
 						'tests/lib/sinon-1.7.3.js'
 						'tests/lib/jasmine2.0.0-sinon.js'
 						'tests/lib/jquery-1.10.2.min.js'
 						'tests/lib/knockout-3.1.0.min.js'
 						'tests/scripts/falcon.min.js'
+					]
+					helpers: [
+						'tests/scripts/test.helpers.js'
 					]
 					specs: [
 						'tests/scripts/adapters/falcon.jquery_adapter.test.js'

@@ -6560,692 +6560,297 @@
 }).call(this);
 
 (function() {
-  var __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  xdescribe("Knockout Bindings", function() {
-    var application, application_index, applyApp, _childCount, _createApplication, _createTemplate;
-    application = null;
-    application_index = 0;
-    _createApplication = function() {
-      var elm;
-      application_index++;
-      elm = document.createElement("div");
-      elm.setAttribute("id", "application_" + application_index);
-      return elm;
-    };
-    _createTemplate = function(id, html) {
-      var elm;
-      elm = document.createElement("template");
-      elm.setAttribute("id", id);
-      elm.innerHTML = html;
-      return elm;
-    };
-    _childCount = function(elm) {
-      var child, count, _i, _len, _ref;
-      count = 0;
-      _ref = elm.childNodes;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        child = _ref[_i];
-        if (child.nodeType === 1) {
-          count++;
-        }
-      }
-      return count;
-    };
-    applyApp = function(view) {
-      if (application != null) {
-        document.body.removeChild(application);
-      }
-      document.body.appendChild(application = _createApplication());
-      Falcon.apply(view, "#application_" + application_index);
-      expect(Falcon.ready.calls.count()).toBe(1);
-      expect(Falcon.ready).toHaveBeenCalledWith(jasmine.any(Function));
-      return Falcon.ready.calls.mostRecent().args[0]();
-    };
-    beforeEach(function() {
-      return spyOn(Falcon, 'ready');
-    });
-    describe("'view' Binding", function() {
-      var ContentView, FooterView, LayoutView, content_template, footer_template, layout_template, view_binding, view_init_spy, view_update_spy, _ref, _ref1, _ref2;
-      layout_template = footer_template = content_template = null;
+  describe("Bindings", function() {
+    return describe("view", function() {
+      var view_binding;
       view_binding = Falcon.getBinding('view');
-      view_init_spy = sinon.spy(view_binding, 'init');
-      view_update_spy = sinon.spy(view_binding, 'update');
-      LayoutView = (function(_super) {
-        __extends(LayoutView, _super);
-
-        function LayoutView() {
-          _ref = LayoutView.__super__.constructor.apply(this, arguments);
-          return _ref;
-        }
-
-        LayoutView.prototype.url = '#layout-template';
-
-        LayoutView.prototype.observables = {
-          content_view: null,
-          footer_view: null
-        };
-
-        LayoutView.prototype.initialize = function() {
-          this.content_view(new ContentView);
-          return this.footer_view(new FooterView);
-        };
-
-        return LayoutView;
-
-      })(Falcon.View);
-      layout_template = _createTemplate("layout-template", "			<div data-bind='view: $view.content_view'></div>			<div data-bind='view: $view.footer_view'></div>		");
-      ContentView = (function(_super) {
-        __extends(ContentView, _super);
-
-        function ContentView() {
-          _ref1 = ContentView.__super__.constructor.apply(this, arguments);
-          return _ref1;
-        }
-
-        ContentView.prototype.url = '#content-template';
-
-        return ContentView;
-
-      })(Falcon.View);
-      content_template = _createTemplate("content-template", "The Content");
-      FooterView = (function(_super) {
-        __extends(FooterView, _super);
-
-        function FooterView() {
-          _ref2 = FooterView.__super__.constructor.apply(this, arguments);
-          return _ref2;
-        }
-
-        FooterView.prototype.url = '#footer-template';
-
-        return FooterView;
-
-      })(Falcon.View);
-      footer_template = _createTemplate("footer-template", "The Footer");
-      it("Setup", function() {
-        document.body.appendChild(layout_template);
-        document.body.appendChild(content_template);
-        return document.body.appendChild(footer_template);
-      });
-      it("Should call the view binding on initialization without an observable", function() {
-        var render_spy, unrender_spy, view;
-        view = new ContentView;
-        render_spy = sinon.spy(view, '_render');
-        unrender_spy = sinon.spy(view, '_unrender');
-        expect(view_init_spy).not.toHaveBeenCalled();
-        expect(view_update_spy).not.toHaveBeenCalled();
-        expect(render_spy).not.toHaveBeenCalled();
-        expect(unrender_spy).not.toHaveBeenCalled();
-        applyApp(view);
-        expect(view_init_spy).toHaveBeenCalledOnce();
-        expect(view_update_spy).toHaveBeenCalledOnce();
-        expect(render_spy).toHaveBeenCalledOnce();
-        return expect(unrender_spy).not.toHaveBeenCalled();
-      });
-      describe("Testing changes in views that are contained in observables", function() {
-        var content_display_spy, content_dispose_spy, content_render_spy, content_unrender_spy, content_view, display_spy, dispose_spy, footer_display_spy, footer_dispose_spy, footer_render_spy, footer_unrender_spy, footer_view, obs, render_spy, setup, unrender_spy, view;
-        view = content_view = footer_view = obs = null;
-        render_spy = unrender_spy = display_spy = dispose_spy = null;
-        content_render_spy = content_unrender_spy = content_display_spy = content_dispose_spy = null;
-        footer_render_spy = footer_unrender_spy = footer_display_spy = footer_dispose_spy = null;
-        setup = function() {
-          Falcon.View.resetCache();
-          view = new LayoutView;
-          content_view = view.content_view();
-          footer_view = view.footer_view();
-          obs = ko.observable(null);
-          render_spy = sinon.spy(view, '_render');
-          unrender_spy = sinon.spy(view, '_unrender');
-          display_spy = sinon.spy(view, 'display');
-          dispose_spy = sinon.spy(view, 'dispose');
-          content_render_spy = sinon.spy(content_view, '_render');
-          content_unrender_spy = sinon.spy(content_view, '_unrender');
-          content_display_spy = sinon.spy(content_view, 'display');
-          content_dispose_spy = sinon.spy(content_view, 'dispose');
-          footer_render_spy = sinon.spy(footer_view, '_render');
-          footer_unrender_spy = sinon.spy(footer_view, '_unrender');
-          footer_display_spy = sinon.spy(footer_view, 'display');
-          return footer_dispose_spy = sinon.spy(footer_view, 'dispose');
-        };
-        beforeEach(function() {
-          if (view == null) {
-            return;
-          }
-          view_init_spy.reset();
-          view_update_spy.reset();
-          render_spy.reset();
-          content_render_spy.reset();
-          footer_render_spy.reset();
-          display_spy.reset();
-          content_display_spy.reset();
-          footer_display_spy.reset();
-          unrender_spy.reset();
-          content_unrender_spy.reset();
-          footer_unrender_spy.reset();
-          dispose_spy.reset();
-          content_dispose_spy.reset();
-          return footer_dispose_spy.reset();
-        });
-        it("Setup", setup);
-        it("Should not call any render or unrender methods on unassigned observable", function() {
-          applyApp(obs);
-          expect(view_init_spy).toHaveBeenCalledOnce();
-          expect(view_update_spy).toHaveBeenCalledOnce();
-          expect(render_spy).not.toHaveBeenCalled();
-          expect(content_render_spy).not.toHaveBeenCalled();
-          expect(footer_render_spy).not.toHaveBeenCalled();
-          expect(display_spy).not.toHaveBeenCalled();
-          expect(content_display_spy).not.toHaveBeenCalled();
-          expect(footer_display_spy).not.toHaveBeenCalled();
-          expect(unrender_spy).not.toHaveBeenCalled();
-          expect(content_render_spy).not.toHaveBeenCalled();
-          expect(footer_unrender_spy).not.toHaveBeenCalled();
-          expect(dispose_spy).not.toHaveBeenCalled();
-          expect(content_dispose_spy).not.toHaveBeenCalled();
-          return expect(footer_dispose_spy).not.toHaveBeenCalled();
-        });
-        it("Should call init, update, and render the correct number of times", function() {
-          obs(view);
-          expect(view_init_spy).toHaveBeenCalledTwice();
-          expect(view_update_spy).toHaveBeenCalledThrice();
-          expect(render_spy).toHaveBeenCalledOnce();
-          expect(content_render_spy).toHaveBeenCalledOnce();
-          expect(footer_render_spy).toHaveBeenCalledOnce();
-          expect(display_spy).toHaveBeenCalledOnce();
-          expect(content_display_spy).toHaveBeenCalledOnce();
-          expect(footer_display_spy).toHaveBeenCalledOnce();
-          expect(unrender_spy).not.toHaveBeenCalled();
-          expect(content_unrender_spy).not.toHaveBeenCalled();
-          expect(footer_unrender_spy).not.toHaveBeenCalled();
-          expect(dispose_spy).not.toHaveBeenCalled();
-          expect(content_dispose_spy).not.toHaveBeenCalled();
-          return expect(footer_dispose_spy).not.toHaveBeenCalled();
-        });
-        it("Should react to a child view being updated", function() {
-          view.content_view(new ContentView);
-          expect(view_init_spy).not.toHaveBeenCalled();
-          expect(view_update_spy).toHaveBeenCalledOnce();
-          expect(render_spy).not.toHaveBeenCalled();
-          expect(content_render_spy).not.toHaveBeenCalled();
-          expect(footer_render_spy).not.toHaveBeenCalled();
-          expect(display_spy).not.toHaveBeenCalled();
-          expect(content_display_spy).not.toHaveBeenCalled();
-          expect(footer_display_spy).not.toHaveBeenCalled();
-          expect(unrender_spy).not.toHaveBeenCalled();
-          expect(content_unrender_spy).toHaveBeenCalledOnce();
-          expect(footer_unrender_spy).not.toHaveBeenCalled();
-          expect(dispose_spy).not.toHaveBeenCalled();
-          expect(content_dispose_spy).toHaveBeenCalledOnce();
-          return expect(footer_dispose_spy).not.toHaveBeenCalled();
-        });
-        return it("Should react to the entire, root, view being updated", function() {
-          obs(new ContentView);
-          expect(view_init_spy).toHaveBeenCalledTwice();
-          expect(view_update_spy).toHaveBeenCalledThrice();
-          expect(render_spy).not.toHaveBeenCalled();
-          expect(content_render_spy).not.toHaveBeenCalled();
-          expect(footer_render_spy).not.toHaveBeenCalled();
-          expect(display_spy).not.toHaveBeenCalled();
-          expect(content_display_spy).not.toHaveBeenCalled();
-          expect(footer_display_spy).not.toHaveBeenCalled();
-          expect(unrender_spy).toHaveBeenCalled();
-          expect(content_unrender_spy).not.toHaveBeenCalled();
-          expect(footer_unrender_spy).toHaveBeenCalledOnce();
-          expect(dispose_spy).toHaveBeenCalledOnce();
-          expect(content_dispose_spy).not.toHaveBeenCalled();
-          return expect(footer_dispose_spy).toHaveBeenCalledOnce();
-        });
-      });
-      return it("Teardown", function() {
-        Falcon.View.resetCache();
-        document.body.removeChild(layout_template);
-        document.body.removeChild(content_template);
-        return document.body.removeChild(footer_template);
-      });
-    });
-    describe("Test view binding with an observable array of views", function() {
-      var ContentView, LayoutView, content_template, layout_template, view_binding, _ref, _ref1;
-      view_binding = ko.bindingHandlers['view'];
-      LayoutView = (function(_super) {
-        __extends(LayoutView, _super);
-
-        function LayoutView() {
-          _ref = LayoutView.__super__.constructor.apply(this, arguments);
-          return _ref;
-        }
-
-        LayoutView.prototype.url = '#layout-template';
-
-        LayoutView.prototype.observables = {
-          views: []
-        };
-
-        return LayoutView;
-
-      })(Falcon.View);
-      layout_template = _createTemplate("layout-template", "			<!-- ko foreach: $view.views -->				<div data-bind='view: $data'></div>			<!-- /ko -->		");
-      ContentView = (function(_super) {
-        __extends(ContentView, _super);
-
-        function ContentView() {
-          _ref1 = ContentView.__super__.constructor.apply(this, arguments);
-          return _ref1;
-        }
-
-        ContentView.prototype.url = '#content-template2';
-
-        ContentView.prototype.observables = {
-          "_title": "",
-          "title": {
-            read: function() {
-              return this._title();
-            },
-            write: function(title) {
-              return this._title(title);
-            }
-          }
-        };
-
-        return ContentView;
-
-      })(Falcon.View);
-      content_template = _createTemplate("content-template2", "			<div data-bind='title: $view.title'></div>		");
       beforeEach(function() {
-        document.body.appendChild(layout_template);
-        return document.body.appendChild(content_template);
+        spyOn(ko.virtualElements, 'emptyNode').and.callThrough();
+        spyOn(Falcon.View.prototype, '_render').and.callThrough();
+        spyOn(Falcon.View.prototype, '_unrender').and.callThrough();
+        return spyOn(Falcon, 'ready');
       });
-      afterEach(function() {
-        document.body.removeChild(layout_template);
-        return document.body.removeChild(content_template);
+      describe("Basic Exception Cases", function() {
+        it("Should initialize correctly, but empty the node if a view isn't given", function() {
+          var element, test_view;
+          test_view = {};
+          element = MockHelper.makeElement().bindings("view: test_view").html("Hello World").andApply({
+            test_view: test_view
+          });
+          expect(ko.virtualElements.emptyNode.calls.count()).toBe(1);
+          expect(ko.virtualElements.emptyNode).toHaveBeenCalledWith(element);
+          expect(Falcon.View.prototype._render).not.toHaveBeenCalled();
+          expect(Falcon.View.prototype._unrender).not.toHaveBeenCalled();
+          return expect(element.innerHTML).toBe("");
+        });
+        it("Should initialize correctly, but empty the node if the view is already loaded", function() {
+          var element, test_view;
+          test_view = new Falcon.View();
+          test_view.__falcon_view__is_loaded__(false);
+          element = MockHelper.makeElement().bindings("view: test_view").html("Hello World").andApply({
+            test_view: test_view
+          });
+          expect(ko.virtualElements.emptyNode.calls.count()).toBe(1);
+          expect(ko.virtualElements.emptyNode).toHaveBeenCalledWith(element);
+          expect(Falcon.View.prototype._render).not.toHaveBeenCalled();
+          expect(Falcon.View.prototype._unrender).not.toHaveBeenCalled();
+          return expect(element.innerHTML).toBe("");
+        });
+        return it("Should initialize correctly, but empty the node if given an empty template", function() {
+          var element, test_view;
+          test_view = new Falcon.View();
+          test_view.__falcon_view__is_loaded__(true);
+          test_view.template = jasmine.createSpy("Template Spy").and.returnValue("");
+          element = MockHelper.makeElement().bindings("view: test_view").html("Hello World").andApply({
+            test_view: test_view
+          });
+          expect(test_view.template.calls.count()).toBe(1);
+          expect(ko.virtualElements.emptyNode.calls.count()).toBe(1);
+          expect(ko.virtualElements.emptyNode).toHaveBeenCalledWith(element);
+          expect(Falcon.View.prototype._render).not.toHaveBeenCalled();
+          expect(Falcon.View.prototype._unrender).not.toHaveBeenCalled();
+          return expect(element.innerHTML).toBe("");
+        });
       });
-      return it("Should call like observables with their own context and update individually", function() {
-        var first_content, first_spy, layout, second_content, second_spy;
-        layout = new LayoutView;
-        first_content = new ContentView;
-        second_content = new ContentView;
-        Falcon.the_layout = layout;
-        first_spy = sinon.spy(first_content, "title");
-        second_spy = sinon.spy(second_content, "title");
-        applyApp(layout);
-        expect(first_spy).not.toHaveBeenCalled();
-        expect(second_spy).not.toHaveBeenCalled();
-        layout.views.push(first_content);
-        expect(first_spy).not.toHaveBeenCalled();
-        expect(second_spy).not.toHaveBeenCalled();
-        first_spy.reset();
-        first_content.title("First Title");
-        expect(first_spy).toHaveBeenCalled();
-        expect(first_spy).toHaveBeenCalledOn(first_content);
-        expect(first_spy).toHaveBeenCalledWith("First Title");
-        expect(second_spy).not.toHaveBeenCalled();
-        first_spy.reset();
-        layout.views.push(second_content);
-        expect(first_spy).not.toHaveBeenCalled();
-        expect(second_spy).not.toHaveBeenCalled();
-        first_spy.reset();
-        second_spy.reset();
-        second_content.title("Second Title");
-        expect(first_spy).not.toHaveBeenCalled();
-        expect(second_spy).toHaveBeenCalled();
-        expect(second_spy).toHaveBeenCalledOn(second_content);
-        expect(second_spy).toHaveBeenCalledWith("Second Title");
-        second_spy.reset();
-        expect(first_content.title()).toEqual("First Title");
-        return expect(second_content.title()).toEqual("Second Title");
+      describe("Observable Exception Cases", function() {
+        it("Should initialize correctly with observable, but empty the node if a view isn't given", function() {
+          var element, test_view;
+          test_view = {};
+          element = MockHelper.makeElement().bindings("view: test_view").html("Hello World").andApply({
+            test_view: ko.observable(test_view)
+          });
+          expect(ko.virtualElements.emptyNode.calls.count()).toBe(1);
+          expect(ko.virtualElements.emptyNode).toHaveBeenCalledWith(element);
+          expect(Falcon.View.prototype._render).not.toHaveBeenCalled();
+          expect(Falcon.View.prototype._unrender).not.toHaveBeenCalled();
+          return expect(element.innerHTML).toBe("");
+        });
+        it("Should initialize correctly with observable, but empty the node if the view is already loaded", function() {
+          var element, test_view;
+          test_view = new Falcon.View();
+          test_view.__falcon_view__is_loaded__(false);
+          element = MockHelper.makeElement().bindings("view: test_view").html("Hello World").andApply({
+            test_view: ko.observable(test_view)
+          });
+          expect(ko.virtualElements.emptyNode.calls.count()).toBe(1);
+          expect(ko.virtualElements.emptyNode).toHaveBeenCalledWith(element);
+          expect(Falcon.View.prototype._render).not.toHaveBeenCalled();
+          expect(Falcon.View.prototype._unrender).not.toHaveBeenCalled();
+          return expect(element.innerHTML).toBe("");
+        });
+        return it("Should initialize correctly with observable, but empty the node if given an empty template", function() {
+          var element, test_view;
+          test_view = new Falcon.View();
+          test_view.__falcon_view__is_loaded__(true);
+          test_view.template = jasmine.createSpy("Template Spy").and.returnValue("");
+          element = MockHelper.makeElement().bindings("view: test_view").html("Hello World").andApply({
+            test_view: ko.observable(test_view)
+          });
+          expect(test_view.template.calls.count()).toBe(1);
+          expect(ko.virtualElements.emptyNode.calls.count()).toBe(1);
+          expect(ko.virtualElements.emptyNode).toHaveBeenCalledWith(element);
+          expect(Falcon.View.prototype._render).not.toHaveBeenCalled();
+          expect(Falcon.View.prototype._unrender).not.toHaveBeenCalled();
+          return expect(element.innerHTML).toBe("");
+        });
       });
-    });
-    describe("Test updated foreach binding", function() {
-      var CollectionA, ModelA, foreach_binding, foreach_init_spy, foreach_update_spy, _ref, _ref1;
-      foreach_binding = ko.bindingHandlers['foreach'];
-      foreach_init_spy = foreach_update_spy = null;
-      ModelA = (function(_super) {
-        __extends(ModelA, _super);
-
-        function ModelA() {
-          _ref = ModelA.__super__.constructor.apply(this, arguments);
-          return _ref;
-        }
-
-        ModelA.prototype.defaults = {
-          'hello': 'world'
-        };
-
-        ModelA.prototype.observables = {
-          'foo': 'bar'
-        };
-
-        return ModelA;
-
-      })(Falcon.Model);
-      CollectionA = (function(_super) {
-        __extends(CollectionA, _super);
-
-        function CollectionA() {
-          _ref1 = CollectionA.__super__.constructor.apply(this, arguments);
-          return _ref1;
-        }
-
-        CollectionA.prototype.model = ModelA;
-
-        return CollectionA;
-
-      })(Falcon.Collection);
-      describe("Test flat bindings against arrays and collections", function() {
-        var LayoutView, after_add_spy, array_list, array_list_options, before_remove_spy, collection_list, collection_list_options, layout_template, setup, teardown, view, view_observable, _ref2;
-        LayoutView = (function(_super) {
-          __extends(LayoutView, _super);
-
-          function LayoutView() {
-            _ref2 = LayoutView.__super__.constructor.apply(this, arguments);
-            return _ref2;
-          }
-
-          LayoutView.prototype.url = '#layout-template';
-
-          LayoutView.prototype.defaults = {
-            'collection_list': function() {
-              return new CollectionA;
-            },
-            'collection_list_options': function() {
-              return new CollectionA;
-            }
-          };
-
-          LayoutView.prototype.observables = {
-            'array_list': [],
-            'array_list_options': []
-          };
-
-          LayoutView.prototype.afterAdd = function() {};
-
-          LayoutView.prototype.beforeRemove = function(element) {
-            return element.parentNode.removeChild(element);
-          };
-
-          return LayoutView;
-
-        })(Falcon.View);
-        layout_template = _createTemplate('layout-template', "				<ul class='array_list' data-bind='foreach: $view.array_list'><li>An Item</li></ul>				<ul class='collection_list' data-bind='foreach: $view.collection_list'><li>An Item</li></ul>				<ul class='array_list_options' data-bind='foreach: {data: $view.array_list_options, afterAdd: $view.afterAdd, beforeRemove: $view.beforeRemove}'><li>An Item</li></ul>				<ul class='collection_list_options' data-bind='foreach: {data: $view.collection_list_options, afterAdd: $view.afterAdd, beforeRemove: $view.beforeRemove}'><li>An Item</li></ul>			");
+      describe("Basic Usage", function() {
+        var element, view;
         view = null;
-        view_observable = ko.observable();
-        array_list = collection_list = null;
-        array_list_options = collection_list_options = null;
-        after_add_spy = before_remove_spy = null;
-        setup = function() {
-          Falcon.View.resetCache();
-          document.body.appendChild(application);
-          document.body.appendChild(layout_template);
-          Falcon.View.cacheTemplates();
-          foreach_init_spy = sinon.spy(foreach_binding, 'init');
-          foreach_update_spy = sinon.spy(foreach_binding, 'update');
-          return applyApp(view_observable);
-        };
-        beforeEach(function() {
-          var prev_array_list;
-          view = new LayoutView;
-          view_observable(view);
-          after_add_spy = sinon.spy(view.viewModel(), 'afterAdd');
-          before_remove_spy = sinon.spy(view.viewModel(), 'beforeRemove');
-          prev_array_list = array_list;
-          array_list = document.querySelectorAll(".array_list")[0];
-          collection_list = document.querySelectorAll(".collection_list")[0];
-          array_list_options = document.querySelectorAll(".array_list_options")[0];
-          return collection_list_options = document.querySelectorAll(".collection_list_options")[0];
-        });
-        afterEach(function() {
-          application.innerHTML = "";
-          foreach_init_spy.reset();
-          foreach_update_spy.reset();
-          after_add_spy.restore();
-          return before_remove_spy.restore();
-        });
-        teardown = function() {
-          foreach_init_spy.restore();
-          return foreach_update_spy.restore();
-        };
-        it("Setup", setup);
-        it("Should properly list with an observable array", function() {
-          expect(foreach_init_spy).toHaveBeenCalled();
-          expect(foreach_update_spy).toHaveBeenCalled();
-          expect(after_add_spy).not.toHaveBeenCalled();
-          expect(before_remove_spy).not.toHaveBeenCalled();
-          expect(foreach_init_spy.callCount).toEqual(4);
-          expect(foreach_update_spy.callCount).toEqual(4);
-          expect(_childCount(array_list)).toEqual(0);
-          expect(_childCount(collection_list)).toEqual(0);
-          expect(_childCount(array_list_options)).toEqual(0);
-          expect(_childCount(collection_list_options)).toEqual(0);
-          foreach_init_spy.reset();
-          foreach_update_spy.reset();
-          view.array_list.push("Hello");
-          view.array_list.push("World", "Foo Bar");
-          expect(foreach_init_spy).not.toHaveBeenCalled();
-          expect(foreach_update_spy).toHaveBeenCalled();
-          expect(after_add_spy).not.toHaveBeenCalled();
-          expect(before_remove_spy).not.toHaveBeenCalled();
-          expect(foreach_update_spy.callCount).toEqual(2);
-          expect(_childCount(array_list)).toEqual(3);
-          expect(_childCount(collection_list)).toEqual(0);
-          expect(_childCount(array_list_options)).toEqual(0);
-          expect(_childCount(collection_list_options)).toEqual(0);
-          foreach_update_spy.reset();
-          view.array_list.pop();
-          expect(foreach_init_spy).not.toHaveBeenCalled();
-          expect(foreach_update_spy).toHaveBeenCalled();
-          expect(after_add_spy).not.toHaveBeenCalled();
-          expect(before_remove_spy).not.toHaveBeenCalled();
-          expect(foreach_update_spy.callCount).toEqual(1);
-          expect(_childCount(array_list)).toEqual(2);
-          expect(_childCount(collection_list)).toEqual(0);
-          expect(_childCount(array_list_options)).toEqual(0);
-          return expect(_childCount(collection_list_options)).toEqual(0);
-        });
-        it("Should properly list with a collection", function() {
-          expect(foreach_init_spy).toHaveBeenCalled();
-          expect(foreach_update_spy).toHaveBeenCalled();
-          expect(after_add_spy).not.toHaveBeenCalled();
-          expect(before_remove_spy).not.toHaveBeenCalled();
-          expect(foreach_init_spy.callCount).toEqual(4);
-          expect(foreach_update_spy.callCount).toEqual(4);
-          expect(_childCount(array_list)).toEqual(0);
-          expect(_childCount(collection_list)).toEqual(0);
-          expect(_childCount(array_list_options)).toEqual(0);
-          expect(_childCount(collection_list_options)).toEqual(0);
-          foreach_init_spy.reset();
-          foreach_update_spy.reset();
-          view.collection_list.push(new ModelA);
-          view.collection_list.push([new ModelA, new ModelA]);
-          expect(foreach_init_spy).not.toHaveBeenCalled();
-          expect(foreach_update_spy).toHaveBeenCalled();
-          expect(after_add_spy).not.toHaveBeenCalled();
-          expect(before_remove_spy).not.toHaveBeenCalled();
-          expect(foreach_update_spy.callCount).toEqual(2);
-          expect(_childCount(array_list)).toEqual(0);
-          expect(_childCount(collection_list)).toEqual(3);
-          expect(_childCount(array_list_options)).toEqual(0);
-          expect(_childCount(collection_list_options)).toEqual(0);
-          foreach_update_spy.reset();
-          view.collection_list.pop();
-          expect(foreach_init_spy).not.toHaveBeenCalled();
-          expect(foreach_update_spy).toHaveBeenCalled();
-          expect(after_add_spy).not.toHaveBeenCalled();
-          expect(before_remove_spy).not.toHaveBeenCalled();
-          expect(foreach_update_spy.callCount).toEqual(1);
-          expect(_childCount(array_list)).toEqual(0);
-          expect(_childCount(collection_list)).toEqual(2);
-          expect(_childCount(array_list_options)).toEqual(0);
-          return expect(_childCount(collection_list_options)).toEqual(0);
-        });
-        it("Should properly list with an observable array including options", function() {
-          expect(foreach_init_spy).toHaveBeenCalled();
-          expect(foreach_update_spy).toHaveBeenCalled();
-          expect(after_add_spy).not.toHaveBeenCalled();
-          expect(before_remove_spy).not.toHaveBeenCalled();
-          expect(foreach_init_spy.callCount).toEqual(4);
-          expect(foreach_update_spy.callCount).toEqual(4);
-          expect(_childCount(array_list)).toEqual(0);
-          expect(_childCount(collection_list)).toEqual(0);
-          expect(_childCount(array_list_options)).toEqual(0);
-          expect(_childCount(collection_list_options)).toEqual(0);
-          foreach_init_spy.reset();
-          foreach_update_spy.reset();
-          view.array_list_options.push("Hello2");
-          view.array_list_options.push("World2", "Foo Bar2");
-          expect(foreach_init_spy).not.toHaveBeenCalled();
-          expect(foreach_update_spy).toHaveBeenCalled();
-          expect(after_add_spy).toHaveBeenCalled();
-          expect(before_remove_spy).not.toHaveBeenCalled();
-          expect(foreach_update_spy.callCount).toEqual(2);
-          expect(after_add_spy.callCount).toEqual(3);
-          expect(_childCount(array_list)).toEqual(0);
-          expect(_childCount(collection_list)).toEqual(0);
-          expect(_childCount(array_list_options)).toEqual(3);
-          expect(_childCount(collection_list_options)).toEqual(0);
-          foreach_update_spy.reset();
-          after_add_spy.reset();
-          view.array_list_options.pop();
-          view.array_list_options.pop();
-          expect(foreach_init_spy).not.toHaveBeenCalled();
-          expect(foreach_update_spy).toHaveBeenCalled();
-          expect(after_add_spy).not.toHaveBeenCalled();
-          expect(before_remove_spy).toHaveBeenCalled();
-          expect(foreach_update_spy.callCount).toEqual(2);
-          expect(before_remove_spy.callCount).toEqual(2);
-          expect(_childCount(array_list)).toEqual(0);
-          expect(_childCount(collection_list)).toEqual(0);
-          expect(_childCount(array_list_options)).toEqual(1);
-          return expect(_childCount(collection_list_options)).toEqual(0);
-        });
-        it("Should properly list with a collection including options", function() {
-          expect(foreach_init_spy).toHaveBeenCalled();
-          expect(foreach_update_spy).toHaveBeenCalled();
-          expect(after_add_spy).not.toHaveBeenCalled();
-          expect(before_remove_spy).not.toHaveBeenCalled();
-          expect(foreach_init_spy.callCount).toEqual(4);
-          expect(foreach_update_spy.callCount).toEqual(4);
-          expect(_childCount(array_list)).toEqual(0);
-          expect(_childCount(collection_list)).toEqual(0);
-          expect(_childCount(array_list_options)).toEqual(0);
-          expect(_childCount(collection_list_options)).toEqual(0);
-          foreach_init_spy.reset();
-          foreach_update_spy.reset();
-          view.collection_list_options.push(new ModelA);
-          view.collection_list_options.push([new ModelA, new ModelA]);
-          expect(foreach_init_spy).not.toHaveBeenCalled();
-          expect(foreach_update_spy).toHaveBeenCalled();
-          expect(after_add_spy).toHaveBeenCalled();
-          expect(before_remove_spy).not.toHaveBeenCalled();
-          expect(foreach_update_spy.callCount).toEqual(2);
-          expect(after_add_spy.callCount).toEqual(3);
-          expect(_childCount(array_list)).toEqual(0);
-          expect(_childCount(collection_list)).toEqual(0);
-          expect(_childCount(array_list_options)).toEqual(0);
-          expect(_childCount(collection_list_options)).toEqual(3);
-          foreach_update_spy.reset();
-          after_add_spy.reset();
-          view.collection_list_options.pop();
-          view.collection_list_options.pop();
-          expect(foreach_init_spy).not.toHaveBeenCalled();
-          expect(foreach_update_spy).toHaveBeenCalled();
-          expect(after_add_spy).not.toHaveBeenCalled();
-          expect(before_remove_spy).toHaveBeenCalled();
-          expect(foreach_update_spy.callCount).toEqual(2);
-          expect(before_remove_spy.callCount).toEqual(2);
-          expect(_childCount(array_list)).toEqual(0);
-          expect(_childCount(collection_list)).toEqual(0);
-          expect(_childCount(array_list_options)).toEqual(0);
-          return expect(_childCount(collection_list_options)).toEqual(1);
-        });
-        return it("Teardown", teardown);
-      });
-      return describe("Test observable bindings against collections", function() {
-        var LayoutView, layout_template, _ref2;
-        LayoutView = (function(_super) {
-          __extends(LayoutView, _super);
-
-          function LayoutView() {
-            _ref2 = LayoutView.__super__.constructor.apply(this, arguments);
-            return _ref2;
-          }
-
-          LayoutView.prototype.url = '#layout-template';
-
-          LayoutView.prototype.defaults = {
-            'collection_a1': function() {
-              return new CollectionA;
-            },
-            'collection_a2': function() {
-              return new CollectionA;
-            }
-          };
-
-          LayoutView.prototype.observables = {
-            'selected_number': 1,
-            'selected_collection': function() {
-              return (this.selected_number() === 1 ? this.collection_a1 : this.collection_a2);
-            }
-          };
-
-          return LayoutView;
-
-        })(Falcon.View);
-        layout_template = _createTemplate('layout-template', "				<ul class='collection_list' data-bind='foreach: $view.selected_collection'><li>An Item</li></ul>			");
+        element = null;
         it("Setup", function() {
-          document.body.appendChild(layout_template);
-          return Falcon.View.cacheTemplates();
+          var hello_world;
+          return hello_world = MockHelper.makeElement("template").setId("hello_world").html("Hello World").addToDOM();
         });
-        it("Should properly update if collection is switched to another with same update count", function() {
-          var collection_list, view, view_observable;
-          view_observable = ko.observable();
-          foreach_init_spy = sinon.spy(foreach_binding, 'init');
-          foreach_update_spy = sinon.spy(foreach_binding, 'update');
-          applyApp(view_observable);
-          view = new LayoutView;
-          view_observable(view);
-          collection_list = document.querySelectorAll(".collection_list")[0];
-          expect(foreach_init_spy).toHaveBeenCalled();
-          expect(foreach_update_spy).toHaveBeenCalled();
-          expect(foreach_init_spy.callCount).toEqual(1);
-          expect(foreach_update_spy.callCount).toEqual(1);
-          foreach_init_spy.reset();
-          foreach_update_spy.reset();
-          view.collection_a1.fill([new ModelA, new ModelA]);
-          view.collection_a2.fill([new ModelA, new ModelA, new ModelA, new ModelA, new ModelA]);
-          expect(foreach_init_spy).not.toHaveBeenCalled();
-          expect(foreach_update_spy).toHaveBeenCalled();
-          expect(foreach_update_spy.callCount).toEqual(1);
-          expect(_childCount(collection_list)).toEqual(2);
-          foreach_init_spy.reset();
-          foreach_update_spy.reset();
-          view.selected_number(2);
-          expect(foreach_init_spy).not.toHaveBeenCalled();
-          expect(foreach_update_spy).toHaveBeenCalled();
-          expect(foreach_update_spy.callCount).toEqual(1);
-          expect(_childCount(collection_list)).toEqual(5);
-          foreach_init_spy.reset();
-          foreach_update_spy.reset();
-          view.selected_number(1);
-          expect(foreach_init_spy).not.toHaveBeenCalled();
-          expect(foreach_update_spy).toHaveBeenCalled();
-          expect(foreach_update_spy.callCount).toEqual(1);
-          expect(_childCount(collection_list)).toEqual(2);
-          foreach_init_spy.restore();
-          return foreach_update_spy.restore();
+        it("Should setup the view binding properly with a basic view", function() {
+          view = MockHelper.makeView("#hello_world").triggerReady();
+          element = MockHelper.makeElement().bindings("view: view").addToDOM().andApply({
+            view: view
+          });
+          expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
+          expect(view._render.calls.count()).toBe(1);
+          expect(view.display.calls.count()).toBe(1);
+          expect(view._unrender).not.toHaveBeenCalled();
+          expect(view.dispose).not.toHaveBeenCalled();
+          expect(element.innerHTML).toBe("Hello World");
+          return view.resetSpies();
+        });
+        it("Should unrender properly when removed from the DOM", function() {
+          element.removeFromDOM();
+          expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
+          expect(view._render).not.toHaveBeenCalled();
+          expect(view.display).not.toHaveBeenCalled();
+          expect(view._unrender.calls.count()).toBe(1);
+          return expect(view.dispose.calls.count()).toBe(1);
         });
         return it("Teardown", function() {
-          return Falcon.View.resetCache();
+          return hello_world.removeFromDOM();
         });
       });
+      describe("Basic Observable Usage", function() {
+        var element, obs, view_a, view_b;
+        obs = ko.observable();
+        element = null;
+        view_a = view_b = null;
+        it("Setup", function() {
+          var foo_bar, hello_world;
+          Falcon.debug = true;
+          hello_world = MockHelper.makeElement("template").setId("hello_world").html("Hello World").addToDOM();
+          return foo_bar = MockHelper.makeElement("template").setId("foo_bar").html("Foo Bar").addToDOM();
+        });
+        it("Should apply blank observable properly", function() {
+          element = MockHelper.makeElement().bindings("view: obs").addToDOM().andApply({
+            obs: obs
+          });
+          expect(ko.virtualElements.emptyNode.calls.count()).toBe(1);
+          expect(ko.virtualElements.emptyNode).toHaveBeenCalledWith(element);
+          return expect(element.innerHTML).toBe("");
+        });
+        it("Should update the template when a valid view with template is given", function() {
+          view_a = MockHelper.makeView("#hello_world").triggerReady();
+          obs(view_a);
+          expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
+          expect(view_a._render.calls.count()).toBe(1);
+          expect(view_a.display.calls.count()).toBe(1);
+          expect(view_a._unrender).not.toHaveBeenCalled();
+          expect(view_a.dispose).not.toHaveBeenCalled();
+          expect(element.innerHTML).toBe("Hello World");
+          return view_a.resetSpies();
+        });
+        it("Should swap views properly", function() {
+          view_b = MockHelper.makeView("#foo_bar").triggerReady();
+          obs(view_b);
+          expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
+          expect(view_a._render).not.toHaveBeenCalled();
+          expect(view_a.display).not.toHaveBeenCalled();
+          expect(view_a._unrender.calls.count()).toBe(1);
+          expect(view_a.dispose.calls.count()).toBe(1);
+          expect(view_b._render.calls.count()).toBe(1);
+          expect(view_b.display.calls.count()).toBe(1);
+          expect(view_b._unrender).not.toHaveBeenCalled();
+          expect(view_b.dispose).not.toHaveBeenCalled();
+          expect(element.innerHTML).toBe("Foo Bar");
+          view_a.resetSpies();
+          return view_b.resetSpies();
+        });
+        it("Should unrender properly when removed from the DOM", function() {
+          element.removeFromDOM();
+          expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
+          expect(view_a._render).not.toHaveBeenCalled();
+          expect(view_a.display).not.toHaveBeenCalled();
+          expect(view_a._unrender).not.toHaveBeenCalled();
+          expect(view_a.dispose).not.toHaveBeenCalled();
+          expect(view_b._render).not.toHaveBeenCalled();
+          expect(view_b.display).not.toHaveBeenCalled();
+          expect(view_b._unrender.calls.count()).toBe(1);
+          return expect(view_b.dispose.calls.count()).toBe(1);
+        });
+        return it("Teardown", function() {
+          hello_world.removeFromDOM();
+          foo_bar.removeFromDOM();
+          return Falcon.debug = false;
+        });
+      });
+      describe("Basic Comment Binding Usage", function() {
+        var comment, view;
+        comment = null;
+        view = null;
+        it("Setup", function() {
+          var hello_world;
+          return hello_world = MockHelper.makeElement("template").setId("hello_world").html("Hello World").addToDOM();
+        });
+        it("Should setup the view binding properly with basic view", function() {
+          view = MockHelper.makeView("hello_world").triggerReady();
+          comment = MockHelper.makeCommentBinding("view: view").addToDOM().andApply({
+            view: view
+          });
+          expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
+          expect(view._render.calls.count()).toBe(1);
+          expect(view.display.calls.count()).toBe(1);
+          expect(view._unrender).not.toHaveBeenCalled();
+          expect(view.dispose).not.toHaveBeenCalled();
+          expect(comment.getInnerHTML()).toBe("Hello World");
+          return view.resetSpies();
+        });
+        it("Should unrender properly when removed from the DOM", function() {
+          comment.removeFromDOM();
+          expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
+          expect(view._render).not.toHaveBeenCalled();
+          expect(view.display).not.toHaveBeenCalled();
+          expect(view._unrender.calls.count()).toBe(1);
+          return expect(view.dispose.calls.count()).toBe(1);
+        });
+        return it("Teardown", function() {
+          return hello_world.removeFromDOM();
+        });
+      });
+      describe("Basic Observable Comment Binding Usage", function() {
+        var comment, obs, view_a, view_b;
+        obs = ko.observable();
+        comment = null;
+        view_a = view_b = null;
+        it("Setup", function() {
+          var foo_bar, hello_world;
+          hello_world = MockHelper.makeElement("template").setId("hello_world").html("Hello World").addToDOM();
+          return foo_bar = MockHelper.makeElement("template").setId("foo_bar").html("Foo Bar").addToDOM();
+        });
+        it("Should apply blank observable properly", function() {
+          comment = MockHelper.makeCommentBinding("view: obs").addToDOM().andApply({
+            obs: obs
+          });
+          expect(ko.virtualElements.emptyNode.calls.count()).toBe(1);
+          expect(ko.virtualElements.emptyNode).toHaveBeenCalledWith(comment.start_comment);
+          return expect(comment.getInnerHTML()).toBe("");
+        });
+        it("Should update the template when a valid view with template is given", function() {
+          view_a = MockHelper.makeView("#hello_world").triggerReady();
+          obs(view_a);
+          expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
+          expect(view_a._render.calls.count()).toBe(1);
+          expect(view_a.display.calls.count()).toBe(1);
+          expect(view_a._unrender).not.toHaveBeenCalled();
+          expect(view_a.dispose).not.toHaveBeenCalled();
+          expect(comment.getInnerHTML()).toBe("Hello World");
+          return view_a.resetSpies();
+        });
+        it("Should swap views properly", function() {
+          view_b = MockHelper.makeView("#foo_bar").triggerReady();
+          obs(view_b);
+          expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
+          expect(view_a._render).not.toHaveBeenCalled();
+          expect(view_a.display).not.toHaveBeenCalled();
+          expect(view_a._unrender.calls.count()).toBe(1);
+          expect(view_a.dispose.calls.count()).toBe(1);
+          expect(view_b._render.calls.count()).toBe(1);
+          expect(view_b.display.calls.count()).toBe(1);
+          expect(view_b._unrender).not.toHaveBeenCalled();
+          expect(view_b.dispose).not.toHaveBeenCalled();
+          expect(comment.getInnerHTML()).toBe("Foo Bar");
+          view_a.resetSpies();
+          return view_b.resetSpies();
+        });
+        it("Should unrender properly when removed from the DOM", function() {
+          comment.removeFromDOM();
+          expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
+          expect(view_a._render).not.toHaveBeenCalled();
+          expect(view_a.display).not.toHaveBeenCalled();
+          expect(view_a._unrender).not.toHaveBeenCalled();
+          expect(view_a.dispose).not.toHaveBeenCalled();
+          expect(view_b._render).not.toHaveBeenCalled();
+          expect(view_b.display).not.toHaveBeenCalled();
+          expect(view_b._unrender.calls.count()).toBe(1);
+          return expect(view_b.dispose.calls.count()).toBe(1);
+        });
+        return it("Teardown", function() {
+          hello_world.removeFromDOM();
+          return foo_bar.removeFromDOM();
+        });
+      });
+      describe("Basic Nested Usage", function() {});
+      describe("Basic Nested Observable Usage", function() {});
+      describe("Basic Nested Comment Usage", function() {});
+      return describe("Basic Nested Comment Observable Usage", function() {});
     });
-    describe("Test updated options binding", function() {});
-    return describe("Test log binding", function() {});
-    /*
-    	view_init_spy.restore()
-    	view_update_spy.restore()
-    */
-
   });
 
 }).call(this);

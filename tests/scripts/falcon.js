@@ -2053,7 +2053,7 @@
 
   ko.bindingHandlers['view'] = {
     'init': function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
-      var container, oldViewModel, subscription, view;
+      var anonymous_template, container, oldViewModel, subscription, view;
       view = valueAccessor();
       if (ko.isSubscribable(view)) {
         oldViewModel = ko.utils.unwrapObservable(view);
@@ -2075,44 +2075,36 @@
         });
       }
       container = document.createElement('div');
-      ko.utils.domData.set(element, "__falcon_view__container__", container);
-      new ko.templateSources.anonymousTemplate(element)['nodes'](container);
-      return {
-        controlsDescendantBindings: true
-      };
-    },
-    'update': function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
-      var childContext, container, template, view, _ref2;
-      view = ko.unwrap(valueAccessor());
-      if (!Falcon.isView(view)) {
-        ko.virtualElements.emptyNode(element);
-        return {
-          controlsDescendantBindings: true
-        };
-      }
-      if (!view.__falcon_view__is_loaded__()) {
-        ko.virtualElements.emptyNode(element);
-        return {
-          controlsDescendantBindings: true
-        };
-      }
-      template = ((_ref2 = view.template()) != null ? _ref2 : "").toString();
-      if (isEmpty(template)) {
-        ko.virtualElements.emptyNode(element);
-        return {
-          controlsDescendantBindings: true
-        };
-      }
-      if ((context != null ? context['__falcon_view__addChildView__'] : void 0) != null) {
-        context['__falcon_view__addChildView__'](view);
-      }
-      childContext = context.createChildContext(viewModel).extend({
-        '$view': view.viewModel()
+      anonymous_template = new ko.templateSources.anonymousTemplate(element);
+      anonymous_template['nodes'](container);
+      anonymous_template['text']("");
+      ko.computed({
+        disposeWhenNodeIsRemoved: element,
+        read: function() {
+          var childContext, template, _ref2;
+          view = ko.unwrap(valueAccessor());
+          if (!Falcon.isView(view)) {
+            return ko.virtualElements.emptyNode(element);
+          }
+          if (!view.__falcon_view__is_loaded__()) {
+            return ko.virtualElements.emptyNode(element);
+          }
+          template = ((_ref2 = view.template()) != null ? _ref2 : "").toString();
+          if (isEmpty(template)) {
+            return ko.virtualElements.emptyNode(element);
+          }
+          if ((context != null ? context['__falcon_view__addChildView__'] : void 0) != null) {
+            context['__falcon_view__addChildView__'](view);
+          }
+          childContext = context.createChildContext(viewModel).extend({
+            '$view': view.viewModel()
+          });
+          container.innerHTML = template;
+          anonymous_template['text'](template);
+          ko.renderTemplate(element, childContext, {}, element);
+          return view._render();
+        }
       });
-      container = ko.utils.domData.get(element, "__falcon_view__container__");
-      container.innerHTML = template;
-      ko.renderTemplate(element, childContext, {}, element);
-      view._render();
       return {
         controlsDescendantBindings: true
       };
@@ -2208,9 +2200,7 @@
   })();
 
   ko.bindingHandlers['log'] = {
-    update: function(element, valueAccessor) {
-      return console.log(ko.utils.unwrapObservable(valueAccessor()));
-    }
+    update: function(element, valueAccessor) {}
   };
 
   ko.virtualElements.allowedBindings['view'] = true;
