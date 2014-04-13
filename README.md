@@ -3,16 +3,20 @@
 
 ## Change Log
 ###v0.10.1
+**Highlights**
+* Fully tested and cross browser compatiable with IE8+!
+
 **Breaking Changes**
 * The view binding now only accepts Falcon.View of ko.observable( Falcon.View ) as it's input. If anything else is given, the node's children will be emptied.
 
 **Enhancements**
 * Added Falcon.ready to allow for us to execute code when the DOM is loaded. (Same as jQuery's $.ready)
+* Re-wrote the binding tests, much cleaner
 
 **Bugs Fixed**
 * Prevented model mixin() method from overwritting currently defined values
 * When using Falcon.Collections create() method with a raw object, we assign the collection's parent as the newly created model's parent
-* Everything is now cross browser compatible with IE8+ and the latest version of Chrome, Mozilla, Safari, and Opera
+* Everything is now cross browser compatible with IE8+, Firefox 3.6+, Safari 4+, Chrome 14+, Opera 10.6+ on Windows XP+, OSX Lion+
 * Re-tested the view binding
 
 ###v0.10.0
