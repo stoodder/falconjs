@@ -204,7 +204,7 @@
     deferEvaluation: true,
     adapter: null,
     ready: (function() {
-      var handler, _domLoadedEvent, _ready, _ready_callbacks;
+      var handler, original_onreadystatechange, _domLoadedEvent, _ready, _ready_callbacks;
       _ready_callbacks = [];
       _ready = function(callback) {
         if (isFunction(callback)) {
@@ -229,15 +229,17 @@
           _domLoadedEvent();
           return document.removeEventListener("DOMContentLoaded", handler, false);
         }, false);
-      } else if (document.attachEvent) {
-        document.attachEvent("readystatechange", handler = function() {
-          console.log("State Changed " + document.readyState);
+      } else {
+        original_onreadystatechange = document.onreadystatechange;
+        document.onreadystatechange = function() {
           if (document.readyState === "complete") {
-            console.log("Completed");
             _domLoadedEvent();
-            return document.detachEvent("readystatechange", handler);
+            document.onreadystatechange = original_onreadystatechange;
           }
-        });
+          if (isFunction(original_onreadystatechange)) {
+            return original_onreadystatechange.apply(this, arguments);
+          }
+        };
       }
       document.createElement("template");
       _ready(function() {

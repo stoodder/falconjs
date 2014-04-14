@@ -78,15 +78,16 @@
 				_domLoadedEvent()
 				document.removeEventListener( "DOMContentLoaded", handler, false )
 			, false
-		else if document.attachEvent
-			document.attachEvent "readystatechange", handler = ->
-				console.log("State Changed #{document.readyState}")
+		else
+			original_onreadystatechange = document.onreadystatechange
+			document.onreadystatechange = ->
 				if document.readyState is "complete"
-					console.log("Completed")
 					_domLoadedEvent()
-					document.detachEvent( "readystatechange", handler )
+					document.onreadystatechange = original_onreadystatechange
 				#END if
-			#END on readystatechange
+
+				original_onreadystatechange.apply(this, arguments) if isFunction( original_onreadystatechange )
+			#END onreadystatechange
 		#END if
 
 		#We need to create a template element for IE to recognize the tag

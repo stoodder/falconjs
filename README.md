@@ -18,6 +18,7 @@
 * When using Falcon.Collections create() method with a raw object, we assign the collection's parent as the newly created model's parent
 * Everything is now cross browser compatible with IE8+, Firefox 3.6+, Safari 4+, Chrome 14+, Opera 10.6+ on Windows XP+, OSX Lion+
 * Re-tested the view binding
+* Fixed 'ready' for IE8
 
 ###v0.10.0
 **Highlights**
