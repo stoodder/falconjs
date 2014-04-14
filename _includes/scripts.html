@@ -1,4 +1,9 @@
 <script src="{{ site.baseurl }}/assets/scripts/jquery-1.10.2.min.js"></script>
 <script src="{{ site.baseurl }}/assets/scripts/knockout-3.1.0.min.js"></script>
+<script src="{{ site.baseurl }}/assets/scripts/joint.min.js"></script>
+<script src="{{ site.baseurl }}/assets/scripts/architecture.diagram.js"></script>
 <script src="{{ site.baseurl }}/assets/scripts/falcon.min.js"></script>
 <script src="{{ site.baseurl }}/assets/scripts/falcon.docs.min.js"></script>
+<script>
+	$(".architecture-diagram").each(function(index, element){ renderArchitectureDiagram(element); });
+</script>

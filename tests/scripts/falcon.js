@@ -2,7 +2,7 @@
 	Falcon.js
 	by Rick Allen (stoodder)
 
-	Version 0.10.0
+	Version 0.10.1
 	Full source at https://github.com/stoodder/falconjs
 	Copyright (c) 2013 Rick Allen, http://www.stoodder.com
 
@@ -11,7 +11,7 @@
 
 
 (function() {
-  var ChainedCollection, Falcon, arrayRemove, arrayUnique, clone, extend, findKey, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, startsWith, trim, value, _foreach, _getItems, _options, _ready, _ref, _ref1, _ref2, _ref3, _shouldUpdate,
+  var ChainedCollection, Falcon, arrayRemove, arrayUnique, clone, extend, findKey, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, startsWith, trim, value, _foreach, _getItems, _options, _ref, _ref1, _ref2, _ref3, _shouldUpdate,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -49,7 +49,9 @@
     var key, value;
     if (object == null) {
       return true;
-    } else if (isString(object) || isArray(object)) {
+    } else if (isString(object)) {
+      return trim(object).length === 0;
+    } else if (isArray(object)) {
       return object.length === 0;
     } else if (isObject(object)) {
       for (key in object) {
@@ -194,15 +196,57 @@
     return arr;
   };
 
-  _ready = null;
-
   this.Falcon = Falcon = {
-    version: "0.10.0",
+    version: "0.10.1",
     applicationElement: "body",
     baseApiUrl: "",
     baseTemplateUrl: "",
     deferEvaluation: true,
     adapter: null,
+    ready: (function() {
+      var handler, _domLoadedEvent, _ready, _ready_callbacks;
+      _ready_callbacks = [];
+      _ready = function(callback) {
+        if (isFunction(callback)) {
+          return _ready_callbacks.push(callback);
+        }
+      };
+      _domLoadedEvent = function() {
+        var callback, _i, _len;
+        _ready = function(callback) {
+          if (isFunction(callback)) {
+            return callback();
+          }
+        };
+        for (_i = 0, _len = _ready_callbacks.length; _i < _len; _i++) {
+          callback = _ready_callbacks[_i];
+          callback();
+        }
+        return _ready_callbacks = null;
+      };
+      if (document.addEventListener) {
+        document.addEventListener("DOMContentLoaded", handler = function() {
+          _domLoadedEvent();
+          return document.removeEventListener("DOMContentLoaded", handler, false);
+        }, false);
+      } else if (document.attachEvent) {
+        document.attachEvent("readystatechange", handler = function() {
+          console.log("State Changed " + document.readyState);
+          if (document.readyState === "complete") {
+            console.log("Completed");
+            _domLoadedEvent();
+            return document.detachEvent("readystatechange", handler);
+          }
+        });
+      }
+      document.createElement("template");
+      _ready(function() {
+        return Falcon.View.cacheTemplates();
+      });
+      return function() {
+        return _ready.apply(null, arguments);
+      };
+    })(),
     apply: function(root, element, callback) {
       var _ref, _ref1;
       if (isFunction(element)) {
@@ -214,7 +258,7 @@
       if (element == null) {
         element = Falcon.applicationElement;
       }
-      _ready(function() {
+      Falcon.ready(function() {
         var _ref2;
         if (!isElement(element)) {
           if (!isString(element)) {
@@ -276,46 +320,6 @@
       return ko.bindingHandlers[name];
     }
   };
-
-  (function() {
-    var handler, _domLoadedEvent, _ready_callbacks;
-    _ready_callbacks = [];
-    _ready = function(callback) {
-      if (isFunction(callback)) {
-        return _ready_callbacks.push(callback);
-      }
-    };
-    _domLoadedEvent = function() {
-      var callback, _i, _len;
-      _ready = function(callback) {
-        if (isFunction(callback)) {
-          return callback();
-        }
-      };
-      for (_i = 0, _len = _ready_callbacks.length; _i < _len; _i++) {
-        callback = _ready_callbacks[_i];
-        callback();
-      }
-      return _ready_callbacks = null;
-    };
-    if (document.addEventListener) {
-      document.addEventListener("DOMContentLoaded", handler = function() {
-        _domLoadedEvent();
-        return document.removeEventListener("DOMContentLoaded", handler, false);
-      }, false);
-    } else if (document.attachEvent) {
-      document.attachEvent("readystatechange", handler = function() {
-        if (document.readyState === "complete") {
-          _domLoadedEvent();
-          return document.detachEvent("readystatechange", handler);
-        }
-      });
-    }
-    document.createElement("template");
-    return _ready(function() {
-      return Falcon.View.cacheTemplates();
-    });
-  })();
 
   Falcon.Object = (function() {
     var __falcon_object__current_cid__;
@@ -1026,7 +1030,7 @@
           this[key].mixin(value);
         } else {
           if (ko.isObservable(value)) {
-            this[key] = ko.observable((_ref1 = this[key]) != null ? _ref1 : ko.unwrap(value));
+            this[key] = ko.observable((_ref1 = this.get(key)) != null ? _ref1 : ko.unwrap(value));
           } else if (isFunction(value)) {
             (function() {
               var _value;
@@ -1080,14 +1084,25 @@
       if (!isString(template)) {
         template = "";
       }
-      identifier = trim(identifier);
+      if (isEmpty(identifier)) {
+        return Falcon.View;
+      }
       __falcon_view__template_cache__[identifier] = template;
       return Falcon.View;
     };
 
     View.cacheTemplates = function() {
       var identifier, template, templates, _i, _len, _ref1;
-      templates = Array.prototype.slice.call(document.getElementsByTagName("template"));
+      templates = (function() {
+        var _i, _len, _ref1, _results;
+        _ref1 = document.getElementsByTagName("template");
+        _results = [];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          template = _ref1[_i];
+          _results.push(template);
+        }
+        return _results;
+      })();
       for (_i = 0, _len = templates.length; _i < _len; _i++) {
         template = templates[_i];
         identifier = template.getAttribute("id");
@@ -1110,7 +1125,7 @@
 
     View.prototype.url = null;
 
-    View.prototype.is_loaded = false;
+    View.prototype.__falcon_view__is_loaded__ = false;
 
     View.prototype.__falcon_view__is_rendered__ = false;
 
@@ -1123,19 +1138,21 @@
         _this = this;
       View.__super__.constructor.apply(this, arguments);
       url = this.makeUrl();
-      this.is_loaded = ko.observable(false);
+      this.__falcon_view__is_loaded__ = ko.observable(false);
       this.__falcon_view__is_rendered__ = false;
       this.__falcon_view__child_views__ = [];
       this.__falcon_view__loaded_url__ = url;
       this.initialize.apply(this, arguments);
-      if (isEmpty(url) || url in __falcon_view__template_cache__) {
-        this.is_loaded(true);
-      } else {
-        Falcon.adapter.getTemplate(url, function(template) {
-          Falcon.View.cacheTemplate(url, template);
-          return _this.is_loaded(true);
-        });
-      }
+      Falcon.ready(function() {
+        if (isEmpty(url) || (__falcon_view__template_cache__[url] != null)) {
+          return _this.__falcon_view__is_loaded__(true);
+        } else {
+          return Falcon.adapter.getTemplate(url, function(template) {
+            Falcon.View.cacheTemplate(url, template);
+            return _this.__falcon_view__is_loaded__(true);
+          });
+        }
+      });
     }
 
     View.prototype.makeUrl = function() {
@@ -1163,7 +1180,7 @@
 
     View.prototype.template = function() {
       var _ref1;
-      if (!ko.utils.unwrapObservable(this.is_loaded)) {
+      if (!ko.utils.unwrapObservable(this.__falcon_view__is_loaded__)) {
         return "";
       }
       return (_ref1 = __falcon_view__template_cache__[this.__falcon_view__loaded_url__]) != null ? _ref1 : "";
@@ -1434,7 +1451,7 @@
       if (!(isObject(data) || Falcon.isModel(data))) {
         data = {};
       }
-      model = Falcon.isModel(data) ? data : new this.model(data);
+      model = Falcon.isModel(data) ? data : new this.model(data, this.parent);
       if (context == null) {
         context = model;
       }
@@ -1925,7 +1942,11 @@
     };
 
     Collection.prototype.slice = function(start, end) {
-      return this.models.slice(start, end);
+      if (end != null) {
+        return this.models.slice(start, end);
+      } else {
+        return this.models.slice(start);
+      }
     };
 
     Collection.prototype.chain = function() {
@@ -2030,109 +2051,65 @@
 
   })(Falcon.Collection);
 
-  ko.bindingHandlers['view'] = (function() {
-    var getTemplate, getViewModel, makeTemplateValueAccessor, returnVal;
-    makeTemplateValueAccessor = function(viewModel) {
-      return function() {
-        return {
-          'data': viewModel,
-          'templateEngine': ko.nativeTemplateEngine.instance
-        };
-      };
-    };
-    getViewModel = function(value) {
-      var viewModel;
-      viewModel = {};
-      if (value == null) {
-        value = {};
-      }
-      if (value instanceof Falcon.View) {
-        viewModel = value.viewModel();
-      } else {
-        viewModel = ko.utils.unwrapObservable(value != null ? value : {});
-      }
-      return viewModel;
-    };
-    getTemplate = function(element, value) {
-      var template, _ref2;
-      template = "";
-      if (value == null) {
-        value = {};
-      }
-      if (element.nodeType === 1 && !isEmpty(trim(element.innerHTML))) {
-        return element.innerHTML;
-      } else if (value instanceof Falcon.View) {
-        template = value.template();
-      } else {
-        template = ko.utils.unwrapObservable((_ref2 = value.template) != null ? _ref2 : "");
-      }
-      return template;
-    };
-    returnVal = {
-      controlsDescendantBindings: true
-    };
-    return {
-      'init': function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
-        var container, oldViewModel, subscription, value;
-        value = valueAccessor();
-        if (ko.isSubscribable(value)) {
-          oldViewModel = ko.utils.unwrapObservable(value);
-          subscription = value.subscribe(function(newViewModel) {
-            if (Falcon.isView(oldViewModel)) {
-              oldViewModel._unrender();
-            }
-            return oldViewModel = newViewModel;
-          });
-          ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-            if (Falcon.isView(oldViewModel)) {
-              oldViewModel._unrender();
-            }
-            return subscription.dispose();
-          });
-        } else if (Falcon.isView(value)) {
-          ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-            return value._unrender();
-          });
-        }
-        container = document.createElement('div');
-        ko.utils.domData.set(element, "__falcon_view__container__", container);
-        new ko.templateSources.anonymousTemplate(element)['nodes'](container);
-        return returnVal;
-      },
-      'update': function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
-        var childContext, container, template, value;
-        value = valueAccessor();
-        if (ko.isObservable(value)) {
-          value = value();
-        }
-        viewModel = getViewModel(value);
-        template = getTemplate(element, value);
-        if (value == null) {
-          ko.virtualElements.emptyNode(element);
-        }
-        if (!isObject(value)) {
-          return returnVal;
-        }
-        if ((context != null ? context['__falcon_view__addChildView__'] : void 0) != null) {
-          context['__falcon_view__addChildView__'](value);
-        }
-        childContext = context.createChildContext(viewModel).extend({
-          '$view': viewModel
-        });
-        if (isEmpty(viewModel) || isEmpty(template)) {
-          ko.virtualElements.emptyNode(element);
-        } else if (!Falcon.isView(value) || ko.utils.unwrapObservable(value.is_loaded)) {
-          container = ko.utils.domData.get(element, "__falcon_view__container__");
-          container.innerHTML = template;
-          ko.renderTemplate(element, childContext, {}, element);
-          if (Falcon.isView(value)) {
-            value._render();
+  ko.bindingHandlers['view'] = {
+    'init': function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
+      var anonymous_template, container, oldViewModel, subscription, view;
+      view = valueAccessor();
+      if (ko.isSubscribable(view)) {
+        oldViewModel = ko.utils.unwrapObservable(view);
+        subscription = view.subscribe(function(newViewModel) {
+          if (Falcon.isView(oldViewModel)) {
+            oldViewModel._unrender();
           }
-        }
-        return returnVal;
+          return oldViewModel = newViewModel;
+        });
+        ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+          if (Falcon.isView(oldViewModel)) {
+            oldViewModel._unrender();
+          }
+          return subscription.dispose();
+        });
+      } else if (Falcon.isView(view)) {
+        ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+          return view._unrender();
+        });
       }
-    };
-  })();
+      container = document.createElement('div');
+      anonymous_template = new ko.templateSources.anonymousTemplate(element);
+      anonymous_template['nodes'](container);
+      anonymous_template['text']("");
+      ko.computed({
+        disposeWhenNodeIsRemoved: element,
+        read: function() {
+          var childContext, template, _ref2;
+          view = ko.unwrap(valueAccessor());
+          if (!Falcon.isView(view)) {
+            return ko.virtualElements.emptyNode(element);
+          }
+          if (!view.__falcon_view__is_loaded__()) {
+            return ko.virtualElements.emptyNode(element);
+          }
+          template = ((_ref2 = view.template()) != null ? _ref2 : "").toString();
+          if (isEmpty(template)) {
+            return ko.virtualElements.emptyNode(element);
+          }
+          if ((context != null ? context['__falcon_view__addChildView__'] : void 0) != null) {
+            context['__falcon_view__addChildView__'](view);
+          }
+          childContext = context.createChildContext(viewModel).extend({
+            '$view': view.viewModel()
+          });
+          container.innerHTML = template;
+          anonymous_template['text'](template);
+          ko.renderTemplate(element, childContext, {}, element);
+          return view._render();
+        }
+      });
+      return {
+        controlsDescendantBindings: true
+      };
+    }
+  };
 
   _getItems = function(value) {
     value = ko.utils.peekObservable(value);
@@ -2223,9 +2200,7 @@
   })();
 
   ko.bindingHandlers['log'] = {
-    update: function(element, valueAccessor) {
-      return console.log(ko.utils.unwrapObservable(valueAccessor()));
-    }
+    update: function(element, valueAccessor) {}
   };
 
   ko.virtualElements.allowedBindings['view'] = true;

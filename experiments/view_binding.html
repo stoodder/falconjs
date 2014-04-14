@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+	<head>
+		<script src="/falconjs/assets/scripts/knockout-3.1.0.min.js"></script>
+		<script src="/falconjs/assets/scripts/falcon.js"></script>
+		<script>
+			var ViewView = Falcon.View.extend({
+				url: '#view-tmpl',
+
+				defaults: {
+					'title': function(title) { return title; }
+				}
+			});
+
+			var LayoutView = Falcon.View.extend({
+				url: '#layout-tmpl',
+
+				observables: {
+					'view_view': null
+				},
+
+				initialize: function() {
+					this.view_view( new ViewView("Original View View") )
+				},
+
+				newViewView: function() {
+					this.view_view( new ViewView("New View View") )
+				},
+
+				anotherViewView: function() {
+					this.view_view( new ViewView("Another View View") )
+				}
+			});
+
+			Falcon.apply(new LayoutView);
+		</script>
+	</head>
+	<body></body>
+	<template id="layout-tmpl">
+		<h1>Hello World</h1>
+		<button data-bind="click: $view.newViewView">new ViewView</button>
+		<button data-bind="click: $view.anotherViewView">another ViewView</button>
+		<div data-bind="view: $view.view_view"></div>
+		<!-- ko view: $view.view_view --><!-- /ko -->
+	</template>
+	<template id="view-tmpl">
+		<h2 data-bind="text: $view.title"></h2>
+	</template>
+</html>

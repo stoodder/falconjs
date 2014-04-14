@@ -1522,9 +1522,11 @@ describe "Falcon.Collection", ->
 			collection.create(data, options, context)
 
 			expect( ModelA::initialize.calls.count() ).toBe( 1 )
-			expect( ModelA::initialize ).toHaveBeenCalledWith(data)
+			expect( ModelA::initialize ).toHaveBeenCalledWith(data, collection.parent)
 
 			model = ModelA::initialize.calls.mostRecent().object
+
+			expect( model.parent ).toBe( collection.parent )
 
 			expect( Falcon.adapter.standardizeOptions.calls.count() ).toBe( 1 )
 			expect( Falcon.adapter.standardizeOptions ).toHaveBeenCalledWith( model, 'POST', options, context )
@@ -2327,6 +2329,33 @@ describe "Falcon.Collection", ->
 			theCollection.append( theModel )
 			
 			expect( theModel.get("hello") ).toBe( "world" )
+		#END it
+
+		it "Should unwrap observables when exchanging lists", ->
+			class TheModel extends Falcon.Model
+			#END TheModel
+
+			class TheCollection extends Falcon.Collection
+				model: TheModel
+			#END TheCollection
+
+			the_first_collection = new TheCollection
+			the_next_collection = new TheCollection
+
+			the_first_collection.mixin('is_read': ko.observable(false))
+			the_next_collection.mixin('is_read': ko.observable(false))
+
+			the_model = new TheModel
+			expect( the_model.get('is_read') ).not.toBeDefined()
+			
+			the_first_collection.push(the_model)
+			expect( the_model.get('is_read') ).toBe( false )
+
+			the_first_collection.remove(the_model)
+			expect( the_model.get('is_read') ).toBe( false )
+
+			the_next_collection.push(the_model)
+			expect( the_model.get('is_read') ).toBe( false )
 		#END it
 	#END describe
 

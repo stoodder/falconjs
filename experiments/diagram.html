@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link href="/falconjs/assets/css/joint.min.css" rel="stylesheet" type="text/css" />
+
+		<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js" type="text/javascript"></script>
+		<script src="/falconjs/assets/scripts/joint.min.js" type="text/javascript"></script>
+		<script src="/falconjs/assets/scripts/architecture.diagram.js" type="text/javascript"></script>
+
+		<style>
+			.link .link-tools .tool-remove,
+			.link .marker-arrowheads
+			{
+				display: none
+			}
+
+			.connection-wrap, .connection {
+				pointer-events: none;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="falcon-diagram"></div>
+		<script>window.renderArchitectureDiagram(document.getElementById("falcon-diagram"))</script>
+	</body>
+</html>

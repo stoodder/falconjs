@@ -6,9 +6,10 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="description" content="Falcon.js is an MVVM framework that makes developing and mainting single-page web apps a breeze. Falcon uses the wonderful Kncokout.js to support data-binding between Javascript and the DOM.  Additionally, Falcon provides consuctructs for Models, Collections, Views, and Adapters to keep your app organized without forcing any specific structure in order for your app to work.  No backend is required, but with Falcon's Adapters, syncronizing with one is dead simple.">
 
-	<link href="/assets/css/normalize.css" rel="stylesheet" />
-	<link href="/assets/css/syntax.css" rel="stylesheet" />
-	<link href="/assets/css/falcon.docs.min.css" rel="stylesheet" />
+	<link href="/falconjs/assets/css/normalize.css" rel="stylesheet" />
+	<link href="/falconjs/assets/css/syntax.css" rel="stylesheet" />
+	<link href="/falconjs/assets/css/joint.min.css" rel="stylesheet" />
+	<link href="/falconjs/assets/css/falcon.docs.min.css" rel="stylesheet" />
 
 	<script>
 		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -25,34 +26,39 @@
 		<div id="content">
 			<div id="hero">
 				<div class="hero-links">
-					<a class="hero-link" href="/tutorial">Getting Started</a>
-					<a class="hero-link" href="/docs">Documentation</a>
-					<a class="hero-link" href="/tests/falcon.test.html" target="_blank">Tests</a>
+					<a class="hero-link" href="/falconjs/tutorial">Getting Started</a>
+					<a class="hero-link" href="/falconjs/docs">Documentation</a>
+					<a class="hero-link" href="/falconjs/tests/falcon.test.html" target="_blank">Tests</a>
 				</div>
 				<div class="hero-headline">
 					Falcon.js
 				</div>
 				<div class="hero-tagline">Build Stellar Javascript Applications</div>
 				<p class="hero-description">
-					Falcon.js is an MVVM framework that provides <a href="/docs/model"><strong>models</strong></a>, <a href="/docs/collection"><strong>collections</strong></a>, and <a href="/docs/view"><strong>views</strong></a> with Knockout.js' awesome data binding architecture to make developing, scaling, and maintaining javascript applications a breeze.
+					Falcon.js is an MVVM framework that provides <a href="/falconjs/docs/model"><strong>models</strong></a>, <a href="/falconjs/docs/collection"><strong>collections</strong></a>, and <a href="/falconjs/docs/view"><strong>views</strong></a> with Knockout.js' awesome data binding architecture to make developing, scaling, and maintaining javascript applications a breeze.
 				</p>
 				<div class="hero-actions">
-					<a class="btn btn-danger" href="/assets/scripts/falcon.min.js" target="_blank">
+					<a class="btn btn-danger" href="/falconjs/assets/scripts/falcon.min.js" target="_blank">
 						Download v0.10.0
 						<small>
 							Requires Knockout 3.X.X
 						</small>
 					</a>
-					<a class="btn btn-danger btn-lite btn-sm" href="/assets/scripts/falcon.js" target="_blank">
+					<a class="btn btn-danger btn-lite btn-sm" href="/falconjs/assets/scripts/falcon.js" target="_blank">
 						Download Development Version
 					</a>
 				</div>
 				</p>
 			</div>
 		</div>
-		<script src="/assets/scripts/jquery-1.10.2.min.js"></script>
-<script src="/assets/scripts/knockout-3.1.0.min.js"></script>
-<script src="/assets/scripts/falcon.min.js"></script>
-<script src="/assets/scripts/falcon.docs.min.js"></script>
+		<script src="/falconjs/assets/scripts/jquery-1.10.2.min.js"></script>
+<script src="/falconjs/assets/scripts/knockout-3.1.0.min.js"></script>
+<script src="/falconjs/assets/scripts/joint.min.js"></script>
+<script src="/falconjs/assets/scripts/architecture.diagram.js"></script>
+<script src="/falconjs/assets/scripts/falcon.min.js"></script>
+<script src="/falconjs/assets/scripts/falcon.docs.min.js"></script>
+<script>
+	$(".architecture-diagram").each(function(index, element){ renderArchitectureDiagram(element); });
+</script>
 	</body>
 </html>

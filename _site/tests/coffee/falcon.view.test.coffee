@@ -43,6 +43,7 @@ describe "Falcon.View", ->
 			spyOn( Falcon.View::, 'makeUrl' ).and.callThrough()
 			spyOn( Falcon.View, 'cacheTemplate' ).and.callThrough()
 			spyOn( Falcon.adapter, 'getTemplate').and.callThrough()
+			spyOn( Falcon, 'ready' )
 		#END beforeEach
 
 		it "Should call the correct methods by default", ->
@@ -53,21 +54,31 @@ describe "Falcon.View", ->
 			expect( view.initialize.calls.count() ).toBe( 1 )
 			expect( view.initialize ).toHaveBeenCalledWith()
 
+			expect( Falcon.adapter.getTemplate ).not.toHaveBeenCalled()
+			expect( Falcon.View.cacheTemplate ).not.toHaveBeenCalled()
+
+			expect( Falcon.ready.calls.count() ).toBe( 1 )
+			expect( Falcon.ready ).toHaveBeenCalledWith( jasmine.any(Function) )
+
+			Falcon.ready.calls.mostRecent().args[0]()
+
 			expect( Falcon.adapter.getTemplate.calls.count() ).toBe( 1 )
 			expect( Falcon.adapter.getTemplate ).toHaveBeenCalledWith( "#hello_world", jasmine.any(Function) )
 
 			expect( Falcon.View.cacheTemplate.calls.count() ).toBe( 1 )
 			expect( Falcon.View.cacheTemplate ).toHaveBeenCalledWith( "#hello_world", "" )
 
-			expect( view.is_loaded() ).toBe( true )
+			expect( view.__falcon_view__is_loaded__() ).toBe( true )
 		#END it
 
 		it "Should recognized cached templates", ->
 			view = new ( Falcon.View.extend(url: "#hello_world") )
+			Falcon.ready.calls.mostRecent().args[0]()
 			view.makeUrl.calls.reset()
 			view.initialize.calls.reset()
 			Falcon.adapter.getTemplate.calls.reset()
 			Falcon.View.cacheTemplate.calls.reset()
+			Falcon.ready.calls.reset()
 
 			view = new ( Falcon.View.extend(url: "#hello_world") )
 
@@ -79,7 +90,15 @@ describe "Falcon.View", ->
 			expect( Falcon.adapter.getTemplate ).not.toHaveBeenCalled()
 			expect( Falcon.View.cacheTemplate ).not.toHaveBeenCalled()
 
-			expect( view.is_loaded() ).toBe( true )
+			expect( Falcon.ready.calls.count() ).toBe( 1 )
+			expect( Falcon.ready ).toHaveBeenCalledWith( jasmine.any(Function) )
+
+			Falcon.ready.calls.mostRecent().args[0]()
+
+			expect( Falcon.adapter.getTemplate ).not.toHaveBeenCalled()
+			expect( Falcon.View.cacheTemplate ).not.toHaveBeenCalled()
+
+			expect( view.__falcon_view__is_loaded__() ).toBe( true )
 		#END it
 
 		it "Should not call the adapter on an empty template uri", ->
@@ -91,8 +110,16 @@ describe "Falcon.View", ->
 			expect( view.initialize ).toHaveBeenCalledWith()
 
 			expect( Falcon.adapter.getTemplate ).not.toHaveBeenCalled()
+			expect( Falcon.View.cacheTemplate ).not.toHaveBeenCalled()
 
-			expect( view.is_loaded() ).toBe( true )
+			expect( Falcon.ready.calls.count() ).toBe( 1 )
+			expect( Falcon.ready ).toHaveBeenCalledWith( jasmine.any(Function) )
+
+			Falcon.ready.calls.mostRecent().args[0]()
+
+			expect( Falcon.adapter.getTemplate ).not.toHaveBeenCalled()
+
+			expect( view.__falcon_view__is_loaded__() ).toBe( true )
 		#END it
 	#END describe
 
@@ -114,12 +141,12 @@ describe "Falcon.View", ->
 		#END beforeEach
 
 		it "Should have removed and cached the templates", ->
-			templates = document.querySelectorAll("template")
+			templates = document.getElementsByTagName("template")
 			expect( templates.length ).toBe( 2 )
 			
 			ret = Falcon.View.cacheTemplates()
 			
-			templates = document.querySelectorAll("template")
+			templates = document.getElementsByTagName("template")
 			expect( templates.length ).toBe( 0 )
 
 			expect( Falcon.View.cacheTemplate.calls.count() ).toBe( 2 )
@@ -140,12 +167,12 @@ describe "Falcon.View", ->
 			document.body.removeChild( template )
 			document.body.removeChild( template2 )
 			
-			templates = document.querySelectorAll("template")
+			templates = document.getElementsByTagName("template")
 			expect( templates.length ).toBe( 0 )
 			
 			ret = Falcon.View.cacheTemplates()
 			
-			templates = document.querySelectorAll("template")
+			templates = document.getElementsByTagName("template")
 			expect( templates.length ).toBe( 0 )
 
 			expect( ret ).toBe( Falcon.View )
@@ -157,7 +184,7 @@ describe "Falcon.View", ->
 	# Test the defaults initialization
 	#
 	#--------------------------------------------------------------
-	describe "Testing the 'defaults' implementation", ->
+	describe "Defaults", ->
 		it "Should create RawrView with defaults that have correct arguments", ->
 			hello_spy = null
 
