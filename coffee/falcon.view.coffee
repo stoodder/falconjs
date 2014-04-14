@@ -21,7 +21,7 @@ class Falcon.View extends Falcon.Object
 		identifier = "" unless isString( identifier )
 		template = "" unless isString( template )
 
-		identifier = trim( identifier )
+		return Falcon.View if isEmpty( identifier )
 
 		__falcon_view__template_cache__[identifier] = template
 
@@ -36,7 +36,7 @@ class Falcon.View extends Falcon.Object
 	#	_(Falcon)_ - This Instance
 	#--------------------------------------------------------
 	@cacheTemplates = ->
-		templates = Array::slice.call( document.getElementsByTagName("template") )
+		templates = (template for template in document.getElementsByTagName("template"))
 		
 		for template in templates
 			identifier = template.getAttribute("id")
@@ -79,7 +79,7 @@ class Falcon.View extends Falcon.Object
 	#	into the template cache. Making this an observable allows us to
 	#	bind against it and for the 'view' binding to update properly.
 	#--------------------------------------------------------
-	is_loaded: false
+	__falcon_view__is_loaded__: false
 
 	#--------------------------------------------------------
 	# Member: Falcon.View#__falcon_view__is_rendered__
@@ -117,7 +117,7 @@ class Falcon.View extends Falcon.Object
 		url = @makeUrl()
 
 		# Setup the is_loaded variable
-		@is_loaded = ko.observable( false )
+		@__falcon_view__is_loaded__ = ko.observable( false )
 		@__falcon_view__is_rendered__ = false
 		@__falcon_view__child_views__ = []
 		@__falcon_view__loaded_url__ = url
@@ -125,14 +125,16 @@ class Falcon.View extends Falcon.Object
 		@initialize.apply(this, arguments)
 
 		# Attempt to load the template from the server or cache
-		if isEmpty(url) or url of __falcon_view__template_cache__
-			@is_loaded( true )
-		else
-			Falcon.adapter.getTemplate(url, (template) =>
-				Falcon.View.cacheTemplate( url, template )
-				@is_loaded( true )
-			)#END getTemplate
-		#END if
+		Falcon.ready =>
+			if isEmpty(url) or __falcon_view__template_cache__[url]?
+				@__falcon_view__is_loaded__( true )
+			else
+				Falcon.adapter.getTemplate(url, (template) =>
+					Falcon.View.cacheTemplate( url, template )
+					@__falcon_view__is_loaded__( true )
+				)#END getTemplate
+			#END if
+		#END ready
 	#END constructor
 
 	#--------------------------------------------------------
@@ -173,7 +175,7 @@ class Falcon.View extends Falcon.Object
 	#	to get the template string.
 	#--------------------------------------------------------
 	template: () ->
-		return "" unless ko.utils.unwrapObservable( @is_loaded )
+		return "" unless ko.utils.unwrapObservable( @__falcon_view__is_loaded__ )
 		return ( __falcon_view__template_cache__[@__falcon_view__loaded_url__] ? "" )
 	#END template
 

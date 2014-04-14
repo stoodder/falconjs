@@ -352,7 +352,7 @@ class Falcon.Collection extends Falcon.Object
 		return null unless @model?
 		
 		data = {} unless isObject(data) or Falcon.isModel(data)
-		model = if Falcon.isModel(data) then data else new @model(data)
+		model = if Falcon.isModel(data) then data else new @model(data, @parent)
 		context ?= model
 
 		output_options = Falcon.adapter.standardizeOptions( model, 'POST', options, context )
@@ -1032,7 +1032,12 @@ class Falcon.Collection extends Falcon.Object
 	#	_(Array)_ - The sliced array of models from the underlying array in this collection
 	#--------------------------------------------------------
 	slice: (start, end) ->
-		return @models.slice( start, end )
+		# This if is needed for ie8
+		if end?
+			return @models.slice( start, end )
+		else
+			return @models.slice( start )
+		#END if 
 	#END slice
 
 	#--------------------------------------------------------

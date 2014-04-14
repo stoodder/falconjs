@@ -3,113 +3,66 @@
 #	Mehod used to handle view objects, fetching their html
 #	and binding them against their memebr objects
 #--------------------------------------------------------
-ko.bindingHandlers['view'] = do ->
-	makeTemplateValueAccessor = (viewModel) ->
-		return ->
-			return {
-				'data': viewModel
-				'templateEngine': ko.nativeTemplateEngine.instance
-			}
-		#END return
-	#END makeTemplateValueAccessor
-	
-	getViewModel = (value) -> 
-		viewModel = {}
-		value ?= {}
+ko.bindingHandlers['view'] = 
+	'init': (element, valueAccessor, allBindingsAccessor, viewModel, context) ->
+		view = valueAccessor()
 
-		if value instanceof Falcon.View
-			viewModel = value.viewModel()
-		else
-			viewModel = ko.utils.unwrapObservable( value ? {} )
+		if ko.isSubscribable( view )
+			oldViewModel = ko.utils.unwrapObservable( view )
+			subscription = view.subscribe (newViewModel) ->
+				oldViewModel._unrender() if Falcon.isView(oldViewModel)
+				oldViewModel = newViewModel
+			#END subscribe
+
+			ko.utils.domNodeDisposal.addDisposeCallback element, ->
+				oldViewModel._unrender() if Falcon.isView(oldViewModel)
+				subscription.dispose()
+			#END domDisposal
+		#END if subscribable
+
+		else if Falcon.isView( view )
+			ko.utils.domNodeDisposal.addDisposeCallback element, ->
+				view._unrender()
+			#END domDisposal
 		#END if
 
-		return viewModel
-	#END getViewModel
+		container = document.createElement('div')
 
-	getTemplate = (element, value) -> 
-		template = ""
-		value ?= {}
+		anonymous_template = new ko.templateSources.anonymousTemplate(element)
+		anonymous_template['nodes'](container)
+		anonymous_template['text']("")
 
-		if element.nodeType is 1 and not isEmpty(trim(element.innerHTML))
-			return element.innerHTML
-		else if value instanceof Falcon.View
-			template = value.template()
-		else
-			template = ko.utils.unwrapObservable( value.template ? "" )
-		#END if
+		ko.computed
+			disposeWhenNodeIsRemoved: element
+			read: ->
+				view = ko.unwrap( valueAccessor() )
 
-		return template
-	#END getTemplate
+				return ko.virtualElements.emptyNode(element) unless Falcon.isView( view )
+				return ko.virtualElements.emptyNode(element) unless view.__falcon_view__is_loaded__()
 
-	returnVal = { controlsDescendantBindings: true }
+				template = ( view.template() ? "" ).toString()
 
-	return {
-		'init': (element, valueAccessor, allBindingsAccessor, viewModel, context) ->
-			value = valueAccessor()
+				return ko.virtualElements.emptyNode(element) if isEmpty( template )
 
-			if ko.isSubscribable( value )
-				oldViewModel = ko.utils.unwrapObservable( value )
-				subscription = value.subscribe (newViewModel) ->
-					oldViewModel._unrender() if Falcon.isView(oldViewModel)
-					oldViewModel = newViewModel
-				#END subscribe
-
-				ko.utils.domNodeDisposal.addDisposeCallback element, ->
-					oldViewModel._unrender() if Falcon.isView(oldViewModel)
-					subscription.dispose()
-				#END domDisposal
-			#END if subscribable
-
-			else if Falcon.isView( value )
-				ko.utils.domNodeDisposal.addDisposeCallback element, ->
-					value._unrender()
-				#END domDisposal
-			#END if
-
-			#templateNodes = ko.virtualElements.childNodes(element)
-			#container = ko.utils.moveCleanedNodesToContainerElement(templateNodes)
-			container = document.createElement('div')
-			ko.utils.domData.set(element, "__falcon_view__container__", container)
-			new ko.templateSources.anonymousTemplate(element)['nodes'](container)
-
-			return returnVal
-		#END init
-
-		'update': (element, valueAccessor, allBindingsAccessor, viewModel, context) ->
-			value = valueAccessor()
-			value = value() if ko.isObservable( value )
-			viewModel = getViewModel(value)
-			template = getTemplate(element, value)
-
-			ko.virtualElements.emptyNode(element) unless value?
-
-			return returnVal unless isObject( value )
-
-			#The method below is added to the viewModel upon creation due to the fact that proto 
-			#method are abstracted away during viewModel generation, it's used to notify a view 
-			#which views have been created within its context.  This is then used when destroying 
-			#the view to also ensure that we destroy child views.
-			context['__falcon_view__addChildView__']( value ) if context?['__falcon_view__addChildView__']?
-
-			childContext = context.createChildContext(viewModel).extend('$view': viewModel)
-
-			if isEmpty( viewModel ) or isEmpty( template )
-				ko.virtualElements.emptyNode(element)
-			else if not Falcon.isView( value ) or ko.utils.unwrapObservable( value.is_loaded )
-
-				container = ko.utils.domData.get(element, "__falcon_view__container__")
+				#The method below is added to the viewModel upon creation due to the fact that proto 
+				#method are abstracted away during viewModel generation, it's used to notify a view 
+				#which views have been created within its context.  This is then used when destroying 
+				#the view to also ensure that we destroy child views.
+				context['__falcon_view__addChildView__']( view ) if context?['__falcon_view__addChildView__']?
+				
+				childContext = context.createChildContext(viewModel).extend( '$view': view.viewModel() )
+				
 				container.innerHTML = template
+				anonymous_template['text'](template)
+				
 				ko.renderTemplate(element, childContext, {}, element)
 
-				#TODO: Consider reverting back t using execScripts here
+				view._render()
+			#END read
+		#END computed
 
-				#Notify the view that it is being displayed
-				value._render() if Falcon.isView( value )
-			#END if not template?
-
-			return returnVal
-		#END update
-	} #END return
+		return { controlsDescendantBindings: true }
+	#END init
 #END view binding handler
 
 
@@ -197,7 +150,6 @@ ko.bindingHandlers['options'] = do ->
 
 ko.bindingHandlers['log'] =
 	update: (element, valueAccessor) ->
-		console.log( ko.utils.unwrapObservable( valueAccessor() ) )
 	#END update
 #END log
 

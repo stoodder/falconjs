@@ -520,9 +520,9 @@ class Falcon.Model extends Falcon.Object
 		for key, value of mapping
 			if Falcon.isDataObject( this[key] )
 				this[key].mixin(value)
-			else 
+			else
 				if ko.isObservable(value)
-					this[key] = ko.observable( this[key] ? ko.unwrap(value) )
+					this[key] = ko.observable( @get(key) ? ko.unwrap(value) )
 				else if isFunction(value)
 					do =>
 						_value = value
