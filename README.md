@@ -4,11 +4,12 @@
 ## Change Log
 ### v0.10.2
 **Highlights**
-* Full tested bindings and binding overrides
+* Fully tested bindings and binding overrides
 * The global Falcon object is now its own Falcon.Object which means you can utilize event listeners against it.
 
 **Enhancements**
 * Falcon is now its own Falcon.Object and may be utilized for global event handling
+
 **Bugs Fixed**
 * Fixed Options Binding
 
@@ -84,3 +85,4 @@
 * Add exec binding
 * Add change notifications to Falcon.Collection
 * Add disposeWhen, displayIf, afterDisplay, beforeDispose to view binding
+* Ensure that Falcon will work with require.js
