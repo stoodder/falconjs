@@ -1,4 +1,9 @@
-class Falcon.Object
+#==============================================================================================
+#
+# Class: Falcon.Object
+#
+#==============================================================================================
+class FalconObject
 	#--------------------------------------------------------
 	# Attribute: __falcon_object__current_cid__
 	#	Private variable that acts as a counter for all falcon objects

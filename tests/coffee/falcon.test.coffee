@@ -1,4 +1,8 @@
 describe "Falcon", ->
+	it "Should be a falcon object", ->
+		expect( Falcon instanceof Falcon.Object ).toBe( true )
+	#END it
+	
 	describe "apply", ->
 		view = null
 		

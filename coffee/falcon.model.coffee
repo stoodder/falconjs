@@ -3,12 +3,12 @@
 # Class: Falcon.Model
 #
 #==============================================================================================
-class Falcon.Model extends Falcon.Object
+class FalconModel extends FalconObject
 	#--------------------------------------------------------
 	# Method: Falcon.Model.extend()
 	#	Inherit the global extend method
 	#--------------------------------------------------------
-	@extend = Falcon.Object.extend
+	@extend = FalconObject.extend
 
 	#--------------------------------------------------------
 	# Member: Falcon.Model#id

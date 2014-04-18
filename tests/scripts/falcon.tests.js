@@ -1,5 +1,8 @@
 (function() {
   describe("Falcon", function() {
+    it("Should be a falcon object", function() {
+      return expect(Falcon instanceof Falcon.Object).toBe(true);
+    });
     describe("apply", function() {
       var view;
       view = null;

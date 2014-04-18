@@ -1,9 +1,9 @@
-class Falcon.Adapter extends Falcon.Object
+class FalconAdapter extends FalconObject
 	#------------------------------------------------------------------------
 	# Method: Falcon.Adapter.extend()
 	#	Inherit the global extend method
 	#------------------------------------------------------------------------
-	@extend = Falcon.Object.extend
+	@extend = FalconObject.extend
 
 	#------------------------------------------------------------------------
 	# Method: Falcon.Adapter#resolveRequestType( data_object, type, options, context )
@@ -366,5 +366,3 @@ class Falcon.Adapter extends Falcon.Object
 		return @
 	#END getTemplate
 #END class
-
-Falcon.adapter = new Falcon.Adapter

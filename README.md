@@ -8,6 +8,7 @@
 
 **Highlights**
 * Full tested bindings and binding overrides
+* The global Falcon object is now its own Falcon.Object which means you can utilize event listeners against it.
 
 **Bugs Fixed**
 * Fixed Options Binding

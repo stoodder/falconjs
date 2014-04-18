@@ -63,13 +63,14 @@ module.exports = (grunt) ->
 						"coffee/object.utility.coffee"
 						"coffee/array.utility.coffee"
 
-						"coffee/falcon.coffee"
 						"coffee/falcon.object.coffee"
 						"coffee/falcon.adapter.coffee"
 						"coffee/falcon.model.coffee"
 						"coffee/falcon.view.coffee"
 						"coffee/falcon.collection.coffee"
 						"coffee/falcon.ko.bindings.coffee"
+						
+						"coffee/falcon.coffee"
 					],
 
 					'falcon.conductor.js': [

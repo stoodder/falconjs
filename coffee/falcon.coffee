@@ -1,11 +1,17 @@
-@Falcon = Falcon =
+@Falcon = Falcon = new class extends FalconObject
+	'Object': FalconObject
+	'Model': FalconModel
+	'Collection': FalconCollection
+	'View': FalconView
+	'Adapter': FalconAdapter
+
 	#--------------------------------------------------------
 	# Attribute: Falcon.version
 	#	The current version of Falcon
 	#
 	# Type: _(String)_
 	#--------------------------------------------------------
-	version: "0.10.1"
+	version: "0.10.2"
 
 	#--------------------------------------------------------
 	# Attribute: Falcon.applicationElement
@@ -47,7 +53,7 @@
 	#
 	# Type: _(Falcon.Adapter)_
 	#--------------------------------------------------------
-	adapter: null
+	adapter: new FalconAdapter
 
 	#--------------------------------------------------------
 	# Method: Falcon.ready(callback)

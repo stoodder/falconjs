@@ -2,7 +2,7 @@
 # Class: Falcon.View
 #	Class that represents a view on the screen
 #--------------------------------------------------------
-class Falcon.View extends Falcon.Object
+class FalconView extends FalconObject
 	#--------------------------------------------------------
 	# The internal cache of each template identified by 
 	# their url or element id
@@ -61,7 +61,7 @@ class Falcon.View extends Falcon.Object
 	# Method: Falcon.View.extend()
 	#	Inherit the global extend method
 	#--------------------------------------------------------
-	@extend = Falcon.Object.extend
+	@extend = FalconObject.extend
 
 	#--------------------------------------------------------
 	# Member: Faclon.View#url

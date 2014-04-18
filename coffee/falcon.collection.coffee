@@ -3,12 +3,12 @@
 # Class: Falcon.Collection
 #
 #==============================================================================================
-class Falcon.Collection extends Falcon.Object
+class FalconCollection extends FalconObject
 	#--------------------------------------------------------
 	# Method: Falcon.Collection.extend()
 	#	Inherit the global extend method
 	#--------------------------------------------------------
-	@extend = Falcon.Object.extend
+	@extend = FalconObject.extend
 
 	#--------------------------------------------------------
 	# Method: _makeIterator
@@ -1141,7 +1141,7 @@ class Falcon.Collection extends Falcon.Object
 # Class: Falcon.Collection
 #
 #==============================================================================================
-class ChainedCollection extends Falcon.Collection
+class ChainedCollection extends FalconCollection
 	slice: ->
 		@models( super(arguments...) )
 		return this
