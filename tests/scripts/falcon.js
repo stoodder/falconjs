@@ -11,7 +11,7 @@
 
 
 (function() {
-  var ChainedCollection, Falcon, arrayRemove, arrayUnique, clone, extend, findKey, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, startsWith, trim, value, _foreach, _getItems, _options, _ref, _ref1, _ref2, _ref3, _shouldUpdate,
+  var ChainedCollection, Falcon, arrayRemove, arrayUnique, clone, extend, findKey, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, startsWith, trim, value, _foreach, _getForeachItems, _getOptionsItems, _options, _ref, _ref1, _ref2, _ref3, _shouldUpdate,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -2058,7 +2058,7 @@
       var anonymous_template, container, oldViewModel, subscription, view;
       view = valueAccessor();
       if (ko.isSubscribable(view)) {
-        oldViewModel = ko.utils.unwrapObservable(view);
+        oldViewModel = ko.unwrap(view);
         subscription = view.subscribe(function(newViewModel) {
           if (Falcon.isView(oldViewModel)) {
             oldViewModel._unrender();
@@ -2113,7 +2113,7 @@
     }
   };
 
-  _getItems = function(value) {
+  _getForeachItems = function(value) {
     value = ko.utils.peekObservable(value);
     if (Falcon.isCollection(value) || isArray(value)) {
       value = {
@@ -2123,7 +2123,7 @@
     if (!isObject(value)) {
       value = {};
     }
-    value.data = ko.utils.unwrapObservable(value.data);
+    value.data = ko.unwrap(value.data);
     if (Falcon.isCollection(value.data)) {
       value.data = value.data.models();
     }
@@ -2158,16 +2158,16 @@
     'init': function() {
       var args, element, value, valueAccessor;
       element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
-      value = ko.utils.unwrapObservable(valueAccessor());
+      value = ko.unwrap(valueAccessor());
       ko.utils.domData.set(element, '__falcon_collection___change_count__', -1);
-      return _foreach['init'].apply(_foreach, [element, _getItems(value)].concat(__slice.call(args)));
+      return _foreach['init'].apply(_foreach, [element, _getForeachItems(value)].concat(__slice.call(args)));
     },
     'update': function() {
       var args, element, value, valueAccessor;
       element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
-      value = ko.utils.unwrapObservable(valueAccessor());
+      value = ko.unwrap(valueAccessor());
       if (_shouldUpdate(element, value)) {
-        return _foreach['update'].apply(_foreach, [element, _getItems(value)].concat(__slice.call(args)));
+        return _foreach['update'].apply(_foreach, [element, _getForeachItems(value)].concat(__slice.call(args)));
       }
     }
   };
@@ -2179,6 +2179,16 @@
     }
   }
 
+  _getOptionsItems = function(value) {
+    value = ko.unwrap(value);
+    if (Falcon.isCollection(value)) {
+      value = value.models();
+    }
+    return (function() {
+      return value;
+    });
+  };
+
   _options = (_ref3 = ko.bindingHandlers['options']) != null ? _ref3 : (function() {});
 
   ko.bindingHandlers['options'] = (function() {
@@ -2186,23 +2196,25 @@
       'init': function() {
         var args, element, valueAccessor, _ref4;
         element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
-        value = ko.utils.unwrapObservable(valueAccessor());
+        value = ko.unwrap(valueAccessor());
         ko.utils.domData.set(element, '__falcon_collection___change_count__', -1);
-        return ((_ref4 = _options['init']) != null ? _ref4 : (function() {})).apply(null, [element, _getItems(value)].concat(__slice.call(args)));
+        return ((_ref4 = _options['init']) != null ? _ref4 : (function() {})).apply(null, [element, _getOptionsItems(value)].concat(__slice.call(args)));
       },
       'update': function() {
         var args, element, valueAccessor, _ref4;
         element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
-        value = ko.utils.unwrapObservable(valueAccessor());
+        value = ko.unwrap(valueAccessor());
         if (_shouldUpdate(element, value)) {
-          return ((_ref4 = _options['update']) != null ? _ref4 : (function() {})).apply(null, [element, _getItems(value)].concat(__slice.call(args)));
+          return ((_ref4 = _options['update']) != null ? _ref4 : (function() {})).apply(null, [element, _getOptionsItems(value)].concat(__slice.call(args)));
         }
       }
     };
   })();
 
   ko.bindingHandlers['log'] = {
-    update: function(element, valueAccessor) {}
+    update: function(element, valueAccessor) {
+      return console.log(ko.unwrap(valueAccessor()));
+    }
   };
 
   ko.virtualElements.allowedBindings['view'] = true;

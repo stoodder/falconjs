@@ -8,7 +8,7 @@ ko.bindingHandlers['view'] =
 		view = valueAccessor()
 
 		if ko.isSubscribable( view )
-			oldViewModel = ko.unwrap( view )
+			oldViewModel = ko.utils.unwrapObservable( view )
 			subscription = view.subscribe (newViewModel) ->
 				oldViewModel._unrender() if Falcon.isView(oldViewModel)
 				oldViewModel = newViewModel
@@ -72,17 +72,17 @@ ko.bindingHandlers['view'] =
 #	Falcon collection objects
 #--------------------------------------------------------
 #Interal method used to get a the expected models
-_getForeachItems = (value) ->
+_getItems = (value) ->
 	value = ko.utils.peekObservable( value )
 	value = {data: value} if Falcon.isCollection( value ) or isArray( value )
 	value = {} unless isObject( value )
 
-	value.data = ko.unwrap( value.data )
+	value.data = ko.utils.unwrapObservable( value.data )
 	value.data = value.data.models() if Falcon.isCollection( value.data )
 	value.data ?= []
 
 	return ( -> value )
-#END _getForeachItems
+#END _getItems
 
 #Checks to see (and keeps track) if a collection is actually updated
 _shouldUpdate = (element, value) ->
@@ -107,15 +107,15 @@ _foreach = ko.bindingHandlers['foreach'] ? {}
 
 ko.bindingHandlers['foreach'] = 
 	'init': (element, valueAccessor, args...) ->
-		value = ko.unwrap( valueAccessor() )
+		value = ko.utils.unwrapObservable( valueAccessor() )
 		ko.utils.domData.set(element, '__falcon_collection___change_count__', -1)
-		return _foreach['init'](element, _getForeachItems(value), args...)
+		return _foreach['init'](element, _getItems(value), args...)
 	#END init
 
 	'update': (element, valueAccessor, args...) ->
-		value = ko.unwrap( valueAccessor() )
+		value = ko.utils.unwrapObservable( valueAccessor() )
 		if _shouldUpdate(element, value)
-			return _foreach['update'](element, _getForeachItems(value), args...)
+			return _foreach['update'](element, _getItems(value), args...)
 		#END if
 		return
 	#END update
@@ -130,38 +130,26 @@ for key, value of _foreach when key not of ko.bindingHandlers['foreach']
 # Method: ko.bindingHandlers.options
 #	override the options binding to account for collections
 #--------------------------------------------------------
-_getOptionsItems = (value) ->
-	value = ko.unwrap( value )
-	value = value.models() if Falcon.isCollection( value )
-
-	return ( -> value )
-#END _getOptionsItems
-
 _options = ko.bindingHandlers['options'] ? (->)
 
 ko.bindingHandlers['options'] = do ->
 	'init': (element, valueAccessor, args...) ->
-		value = ko.unwrap( valueAccessor() )
+		value = ko.utils.unwrapObservable( valueAccessor() )
 		ko.utils.domData.set(element, '__falcon_collection___change_count__', -1)
-		return ( _options['init'] ? (->) )(element, _getOptionsItems(value), args...)
+		return ( _options['init'] ? (->) )(element, _getItems(value), args...)
 	#END init
 
 	'update': (element, valueAccessor, args...) ->
-		value = ko.unwrap( valueAccessor() )
+		value = ko.utils.unwrapObservable( valueAccessor() )
 		if _shouldUpdate(element, value)
-			return ( _options['update'] ? (->) )(element, _getOptionsItems(value), args...)
+			return ( _options['update'] ? (->) )(element, _getItems(value), args...)
 		#END if
 		return
 	#END update
 #END foreach override
 
-#--------------------------------------------------------
-# Method: ko.bindingHandlers.log
-#	Debug binding to log observable values
-#--------------------------------------------------------
 ko.bindingHandlers['log'] =
 	update: (element, valueAccessor) ->
-		console.log( ko.unwrap( valueAccessor() ) )
 	#END update
 #END log
 
