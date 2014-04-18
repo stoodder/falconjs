@@ -2,6 +2,13 @@
 [http://stoodder.github.io/falconjs/](http://stoodder.github.io/falconjs/)
 
 ## Change Log
+###v0.10.2
+**Highlights**
+* Full tested bindings and binding overrides
+
+**Bugs Fixed**
+* Fixed Options Binding
+
 ###v0.10.1
 **Highlights**
 * Fully tested and cross browser compatiable with IE8+!
