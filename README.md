@@ -3,6 +3,9 @@
 
 ## Change Log
 ###v0.10.2
+**Todo**
+* Add exec binding
+
 **Highlights**
 * Full tested bindings and binding overrides
 
@@ -75,8 +78,3 @@
 * Added Falcon.getBinding() method
 * Allowed Falcon.addBinding() to take just a key and function (as opposed to a key and an object). If a function is given, it's set as the new binding's 'update' key
 * Fixed bug in makeUrl when setting baseApiUrl and baseTemplateUrl to "/"
-
-## For The Future
-### 0.11.0
-* Add method support for 'obervables' and 'defaults' (rather than dictionary defintion)
-* Add exec binding
