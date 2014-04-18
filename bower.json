@@ -13,7 +13,8 @@
   "keywords": [
     "Knockout",
     "Javascript",
-    "MVC"
+    "MVC",
+    "MVVM"
   ],
   "license": "MIT",
   "private": false,
