@@ -2,10 +2,7 @@
 [http://stoodder.github.io/falconjs/](http://stoodder.github.io/falconjs/)
 
 ## Change Log
-###v0.10.2
-**Todo**
-* Add exec binding
-
+### v0.10.2
 **Highlights**
 * Full tested bindings and binding overrides
 * The global Falcon object is now its own Falcon.Object which means you can utilize event listeners against it.
@@ -15,7 +12,7 @@
 **Bugs Fixed**
 * Fixed Options Binding
 
-###v0.10.1
+### v0.10.1
 **Highlights**
 * Fully tested and cross browser compatiable with IE8+!
 
@@ -33,7 +30,7 @@
 * Re-tested the view binding
 * Fixed 'ready' for IE8
 
-###v0.10.0
+### v0.10.0
 **Highlights**
 * Added Falcon.Adapter for splitting out dependencies on how we transmit, respond to, and receive data form a backend data source.
 * Added Falcon.addConductor to create a 'conductor' which can define custom HTML tags that should bind and utilize the template of a specific view (or anonymous view). `Falcon.addConductor('my_custom_tag', MyViewDefinition)` For the time being, the conductor functionality will remain a separate plugin for Falcon until all of the edge-cases are ironed out. Indepth documentation on how to install and use it can be found in our main documentation.
@@ -75,9 +72,15 @@
 * Added support for arrays and collection in filter methods: first, last, all, any, filter, without
 
 
-###v0.8.0
+### v0.8.0
 * Separated Knockout source code from Falcon
 * Updated Falcon to work with Knockout 3
 * Added Falcon.getBinding() method
 * Allowed Falcon.addBinding() to take just a key and function (as opposed to a key and an object). If a function is given, it's set as the new binding's 'update' key
 * Fixed bug in makeUrl when setting baseApiUrl and baseTemplateUrl to "/"
+
+## For the Future
+### v0.11.0
+* Add exec binding
+* Add change notifications to Falcon.Collection
+* Add disposeWhen, displayIf, afterDisplay, beforeDispose to view binding
