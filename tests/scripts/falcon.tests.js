@@ -1,5 +1,8 @@
 (function() {
   describe("Falcon", function() {
+    it("Should be a falcon object", function() {
+      return expect(Falcon instanceof Falcon.Object).toBe(true);
+    });
     describe("apply", function() {
       var view;
       view = null;
@@ -6560,8 +6563,11 @@
 }).call(this);
 
 (function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
   describe("Bindings", function() {
-    return describe("view", function() {
+    describe("view", function() {
       var view_binding;
       view_binding = Falcon.getBinding('view');
       beforeEach(function() {
@@ -7095,6 +7101,491 @@
         });
         return it("Teardown", function() {
           return Falcon.View.resetCache();
+        });
+      });
+    });
+    describe("foreach", function() {
+      describe("Basic Array", function() {
+        var afterAdd, afterRender, beforeRemove, items, setupSpies;
+        items = null;
+        afterAdd = beforeRemove = afterRender = null;
+        setupSpies = function() {
+          afterAdd = jasmine.createSpy("afterAdd");
+          beforeRemove = jasmine.createSpy("beforeRemove").and.callFake(function(element) {
+            var _ref;
+            return (_ref = element.parentNode) != null ? _ref.removeChild(element) : void 0;
+          });
+          return afterRender = jasmine.createSpy("afterRender");
+        };
+        beforeEach(function() {
+          items = [
+            {
+              text: "Hello World"
+            }, {
+              text: "Foo Bar"
+            }, {
+              text: "Free Bird"
+            }
+          ];
+          if (afterAdd != null) {
+            afterAdd.calls.reset();
+          }
+          if (beforeRemove != null) {
+            beforeRemove.calls.reset();
+          }
+          return afterRender != null ? afterRender.calls.reset() : void 0;
+        });
+        it("Should bind properly against an array", function() {
+          var element;
+          element = MockHelper.makeElement("ul").bindings("foreach: items").html("<li data-bind='text: text'></li>").andApply({
+            items: items
+          });
+          expect(element.childNodes.length).toBe(3);
+          expect(element.childNodes[0].innerText).toBe("Hello World");
+          expect(element.childNodes[1].innerText).toBe("Foo Bar");
+          return expect(element.childNodes[2].innerText).toBe("Free Bird");
+        });
+        return it("Should bind properly against an array with an expanded binding defintiion", function() {
+          var element;
+          setupSpies();
+          element = MockHelper.makeElement("ul").bindings("foreach: {				                    	data: items,				                    	afterAdd: afterAdd,				                    	beforeRemove: beforeRemove,				                    	afterRender: afterRender				                    }").html("<li data-bind='text: text'></li>").andApply({
+            items: items,
+            afterAdd: afterAdd,
+            beforeRemove: beforeRemove,
+            afterRender: afterRender
+          });
+          expect(element.childNodes.length).toBe(3);
+          expect(element.childNodes[0].innerText).toBe("Hello World");
+          expect(element.childNodes[1].innerText).toBe("Foo Bar");
+          expect(element.childNodes[2].innerText).toBe("Free Bird");
+          expect(afterAdd).not.toHaveBeenCalled();
+          expect(afterRender.calls.count()).toBe(3);
+          return expect(beforeRemove).not.toHaveBeenCalled();
+        });
+      });
+      describe("Observable Array", function() {
+        var afterAdd, afterRender, beforeRemove, element, items, setupItems, setupSpies;
+        items = null;
+        element = null;
+        afterAdd = beforeRemove = afterRender = null;
+        setupItems = function() {
+          return items = ko.observableArray([
+            {
+              text: "Hello World"
+            }, {
+              text: "Foo Bar"
+            }, {
+              text: "Free Bird"
+            }
+          ]);
+        };
+        setupSpies = function() {
+          afterAdd = jasmine.createSpy("afterAdd");
+          beforeRemove = jasmine.createSpy("beforeRemove").and.callFake(function(element) {
+            var _ref;
+            return (_ref = element.parentNode) != null ? _ref.removeChild(element) : void 0;
+          });
+          return afterRender = jasmine.createSpy("afterRender");
+        };
+        beforeEach(function() {
+          if (afterAdd != null) {
+            afterAdd.calls.reset();
+          }
+          if (beforeRemove != null) {
+            beforeRemove.calls.reset();
+          }
+          return afterRender != null ? afterRender.calls.reset() : void 0;
+        });
+        it("Should bind properly against an array", function() {
+          setupItems();
+          element = MockHelper.makeElement("ul").bindings("foreach: items").html("<li data-bind='text: text'></li>").andApply({
+            items: items
+          });
+          expect(element.childNodes.length).toBe(3);
+          expect(element.childNodes[0].innerText).toBe("Hello World");
+          expect(element.childNodes[1].innerText).toBe("Foo Bar");
+          return expect(element.childNodes[2].innerText).toBe("Free Bird");
+        });
+        it("Should remove elements", function() {
+          items.pop();
+          items.pop();
+          expect(element.childNodes.length).toBe(1);
+          return expect(element.childNodes[0].innerText).toBe("Hello World");
+        });
+        it("Should add elements", function() {
+          items.push({
+            text: "Qux"
+          });
+          items.push({
+            text: "Quux"
+          });
+          expect(element.childNodes.length).toBe(3);
+          expect(element.childNodes[0].innerText).toBe("Hello World");
+          expect(element.childNodes[1].innerText).toBe("Qux");
+          return expect(element.childNodes[2].innerText).toBe("Quux");
+        });
+        it("Should bind properly against an array with an expanded binding defintiion", function() {
+          setupItems();
+          setupSpies();
+          element = MockHelper.makeElement("ul").bindings("foreach: {				                    	data: items,				                    	afterAdd: afterAdd,				                    	beforeRemove: beforeRemove,				                    	afterRender: afterRender				                    }").html("<li data-bind='text: text'></li>").andApply({
+            items: items,
+            afterAdd: afterAdd,
+            beforeRemove: beforeRemove,
+            afterRender: afterRender
+          });
+          expect(element.childNodes.length).toBe(3);
+          expect(element.childNodes[0].innerText).toBe("Hello World");
+          expect(element.childNodes[1].innerText).toBe("Foo Bar");
+          expect(element.childNodes[2].innerText).toBe("Free Bird");
+          expect(afterAdd).not.toHaveBeenCalled();
+          expect(afterRender.calls.count()).toBe(3);
+          return expect(beforeRemove).not.toHaveBeenCalled();
+        });
+        it("Should remove elements with expanded definition", function() {
+          items.pop();
+          items.pop();
+          expect(element.childNodes.length).toBe(1);
+          expect(element.childNodes[0].innerText).toBe("Hello World");
+          expect(afterAdd).not.toHaveBeenCalled();
+          expect(afterRender).not.toHaveBeenCalled();
+          return expect(beforeRemove.calls.count()).toBe(2);
+        });
+        return it("Should add elements with expanded definition", function() {
+          items.push({
+            text: "Qux"
+          });
+          items.push({
+            text: "Quux"
+          });
+          expect(element.childNodes.length).toBe(3);
+          expect(element.childNodes[0].innerText).toBe("Hello World");
+          expect(element.childNodes[1].innerText).toBe("Qux");
+          expect(element.childNodes[2].innerText).toBe("Quux");
+          expect(afterAdd.calls.count()).toBe(2);
+          expect(afterRender.calls.count()).toBe(2);
+          return expect(beforeRemove).not.toHaveBeenCalled();
+        });
+      });
+      return describe("Collection", function() {
+        var TestCollection, TestModel, afterAdd, afterRender, beforeRemove, element, items, setupItems, setupSpies, _ref, _ref1;
+        TestModel = (function(_super) {
+          __extends(TestModel, _super);
+
+          function TestModel() {
+            _ref = TestModel.__super__.constructor.apply(this, arguments);
+            return _ref;
+          }
+
+          return TestModel;
+
+        })(Falcon.Model);
+        TestCollection = (function(_super) {
+          __extends(TestCollection, _super);
+
+          function TestCollection() {
+            _ref1 = TestCollection.__super__.constructor.apply(this, arguments);
+            return _ref1;
+          }
+
+          TestCollection.prototype.model = TestModel;
+
+          return TestCollection;
+
+        })(Falcon.Collection);
+        items = null;
+        element = null;
+        afterAdd = beforeRemove = afterRender = null;
+        setupItems = function() {
+          return items = new TestCollection([
+            new TestModel({
+              text: "Hello World"
+            }), new TestModel({
+              text: "Foo Bar"
+            }), new TestModel({
+              text: "Free Bird"
+            })
+          ]);
+        };
+        setupSpies = function() {
+          afterAdd = jasmine.createSpy("afterAdd");
+          beforeRemove = jasmine.createSpy("beforeRemove").and.callFake(function(element) {
+            var _ref2;
+            return (_ref2 = element.parentNode) != null ? _ref2.removeChild(element) : void 0;
+          });
+          return afterRender = jasmine.createSpy("afterRender");
+        };
+        beforeEach(function() {
+          if (afterAdd != null) {
+            afterAdd.calls.reset();
+          }
+          if (beforeRemove != null) {
+            beforeRemove.calls.reset();
+          }
+          return afterRender != null ? afterRender.calls.reset() : void 0;
+        });
+        it("Should bind properly against an collection", function() {
+          setupItems();
+          element = MockHelper.makeElement("ul").bindings("foreach: items").html("<li data-bind='text: text'></li>").andApply({
+            items: items
+          });
+          expect(element.childNodes.length).toBe(3);
+          expect(element.childNodes[0].innerText).toBe("Hello World");
+          expect(element.childNodes[1].innerText).toBe("Foo Bar");
+          return expect(element.childNodes[2].innerText).toBe("Free Bird");
+        });
+        it("Should remove elements", function() {
+          items.pop();
+          items.pop();
+          expect(element.childNodes.length).toBe(1);
+          return expect(element.childNodes[0].innerText).toBe("Hello World");
+        });
+        it("Should add elements", function() {
+          items.push(new TestModel({
+            text: "Qux"
+          }));
+          items.push(new TestModel({
+            text: "Quux"
+          }));
+          expect(element.childNodes.length).toBe(3);
+          expect(element.childNodes[0].innerText).toBe("Hello World");
+          expect(element.childNodes[1].innerText).toBe("Qux");
+          return expect(element.childNodes[2].innerText).toBe("Quux");
+        });
+        it("Should bind properly against an collection with an expanded binding defintiion", function() {
+          setupItems();
+          setupSpies();
+          element = MockHelper.makeElement("ul").bindings("foreach: {				                    	data: items,				                    	afterAdd: afterAdd,				                    	beforeRemove: beforeRemove,				                    	afterRender: afterRender				                    }").html("<li data-bind='text: text'></li>").andApply({
+            items: items,
+            afterAdd: afterAdd,
+            beforeRemove: beforeRemove,
+            afterRender: afterRender
+          });
+          expect(element.childNodes.length).toBe(3);
+          expect(element.childNodes[0].innerText).toBe("Hello World");
+          expect(element.childNodes[1].innerText).toBe("Foo Bar");
+          expect(element.childNodes[2].innerText).toBe("Free Bird");
+          expect(afterAdd).not.toHaveBeenCalled();
+          expect(afterRender.calls.count()).toBe(3);
+          return expect(beforeRemove).not.toHaveBeenCalled();
+        });
+        it("Should remove elements with expanded definition", function() {
+          items.pop();
+          items.pop();
+          expect(element.childNodes.length).toBe(1);
+          expect(element.childNodes[0].innerText).toBe("Hello World");
+          expect(afterAdd).not.toHaveBeenCalled();
+          expect(afterRender).not.toHaveBeenCalled();
+          return expect(beforeRemove.calls.count()).toBe(2);
+        });
+        return it("Should add elements with expanded definition", function() {
+          items.push(new TestModel({
+            text: "Qux"
+          }));
+          items.push(new TestModel({
+            text: "Quux"
+          }));
+          expect(element.childNodes.length).toBe(3);
+          expect(element.childNodes[0].innerText).toBe("Hello World");
+          expect(element.childNodes[1].innerText).toBe("Qux");
+          expect(element.childNodes[2].innerText).toBe("Quux");
+          expect(afterAdd.calls.count()).toBe(2);
+          expect(afterRender.calls.count()).toBe(2);
+          return expect(beforeRemove).not.toHaveBeenCalled();
+        });
+      });
+    });
+    describe("options", function() {
+      describe("Basic Array", function() {
+        var items;
+        items = null;
+        beforeEach(function() {
+          return items = [
+            {
+              text: "Hello World"
+            }, {
+              text: "Foo Bar"
+            }, {
+              text: "Free Bird"
+            }
+          ];
+        });
+        return it("Should bind properly against an array", function() {
+          var element;
+          element = MockHelper.makeElement("select").bindings("options: items, optionsText: 'text'").andApply({
+            items: items
+          });
+          expect(element.childNodes.length).toBe(3);
+          expect(element.childNodes[0].innerText).toBe("Hello World");
+          expect(element.childNodes[1].innerText).toBe("Foo Bar");
+          return expect(element.childNodes[2].innerText).toBe("Free Bird");
+        });
+      });
+      describe("Observable Array", function() {
+        var element, items, setupItems;
+        items = null;
+        element = null;
+        setupItems = function() {
+          return items = ko.observableArray([
+            {
+              text: "Hello World"
+            }, {
+              text: "Foo Bar"
+            }, {
+              text: "Free Bird"
+            }
+          ]);
+        };
+        it("Should bind properly against an array", function() {
+          setupItems();
+          element = MockHelper.makeElement("select").bindings("options: items, optionsText: 'text'").andApply({
+            items: items
+          });
+          expect(element.childNodes.length).toBe(3);
+          expect(element.childNodes[0].innerText).toBe("Hello World");
+          expect(element.childNodes[1].innerText).toBe("Foo Bar");
+          return expect(element.childNodes[2].innerText).toBe("Free Bird");
+        });
+        it("Should remove elements", function() {
+          items.pop();
+          items.pop();
+          expect(element.childNodes.length).toBe(1);
+          return expect(element.childNodes[0].innerText).toBe("Hello World");
+        });
+        return it("Should add elements", function() {
+          items.push({
+            text: "Qux"
+          });
+          items.push({
+            text: "Quux"
+          });
+          expect(element.childNodes.length).toBe(3);
+          expect(element.childNodes[0].innerText).toBe("Hello World");
+          expect(element.childNodes[1].innerText).toBe("Qux");
+          return expect(element.childNodes[2].innerText).toBe("Quux");
+        });
+      });
+      return describe("Collection", function() {
+        var TestCollection, TestModel, element, items, setupItems, _ref, _ref1;
+        TestModel = (function(_super) {
+          __extends(TestModel, _super);
+
+          function TestModel() {
+            _ref = TestModel.__super__.constructor.apply(this, arguments);
+            return _ref;
+          }
+
+          return TestModel;
+
+        })(Falcon.Model);
+        TestCollection = (function(_super) {
+          __extends(TestCollection, _super);
+
+          function TestCollection() {
+            _ref1 = TestCollection.__super__.constructor.apply(this, arguments);
+            return _ref1;
+          }
+
+          TestCollection.prototype.model = TestModel;
+
+          return TestCollection;
+
+        })(Falcon.Collection);
+        items = null;
+        element = null;
+        setupItems = function() {
+          return items = new TestCollection([
+            new TestModel({
+              text: "Hello World"
+            }), new TestModel({
+              text: "Foo Bar"
+            }), new TestModel({
+              text: "Free Bird"
+            })
+          ]);
+        };
+        it("Should bind properly against an collection", function() {
+          setupItems();
+          element = MockHelper.makeElement("select").bindings("options: items, optionsText: 'text'").andApply({
+            items: items
+          });
+          expect(element.childNodes.length).toBe(3);
+          expect(element.childNodes[0].innerText).toBe("Hello World");
+          expect(element.childNodes[1].innerText).toBe("Foo Bar");
+          return expect(element.childNodes[2].innerText).toBe("Free Bird");
+        });
+        it("Should remove elements", function() {
+          items.pop();
+          items.pop();
+          expect(element.childNodes.length).toBe(1);
+          return expect(element.childNodes[0].innerText).toBe("Hello World");
+        });
+        return it("Should add elements", function() {
+          items.push(new TestModel({
+            text: "Qux"
+          }));
+          items.push(new TestModel({
+            text: "Quux"
+          }));
+          expect(element.childNodes.length).toBe(3);
+          expect(element.childNodes[0].innerText).toBe("Hello World");
+          expect(element.childNodes[1].innerText).toBe("Qux");
+          return expect(element.childNodes[2].innerText).toBe("Quux");
+        });
+      });
+    });
+    return describe("log", function() {
+      describe("Bound to Element", function() {
+        var element, obs;
+        element = null;
+        obs = ko.observable("Foo Bar");
+        beforeEach(function() {
+          return spyOn(console, 'log');
+        });
+        it("Should log properly with basic value", function() {
+          element = MockHelper.makeElement("div").bindings("log: value").andApply({
+            value: "Hello World"
+          });
+          expect(console.log.calls.count()).toBe(1);
+          return expect(console.log).toHaveBeenCalledWith("Hello World");
+        });
+        it("Should log properly with an observable value", function() {
+          element = MockHelper.makeElement("div").bindings("log: value").andApply({
+            value: obs
+          });
+          expect(console.log.calls.count()).toBe(1);
+          return expect(console.log).toHaveBeenCalledWith("Foo Bar");
+        });
+        return it("Should change value", function() {
+          obs("Free Bird");
+          expect(console.log.calls.count()).toBe(1);
+          return expect(console.log).toHaveBeenCalledWith("Free Bird");
+        });
+      });
+      return describe("Bound to Comment", function() {
+        var element, obs;
+        element = null;
+        obs = ko.observable("Foo Bar");
+        beforeEach(function() {
+          return spyOn(console, 'log');
+        });
+        it("Should log properly with basic value", function() {
+          element = MockHelper.makeCommentBinding("log: value").andApply({
+            value: "Hello World"
+          });
+          expect(console.log.calls.count()).toBe(1);
+          return expect(console.log).toHaveBeenCalledWith("Hello World");
+        });
+        it("Should log properly with an observable value", function() {
+          element = MockHelper.makeCommentBinding("log: value").andApply({
+            value: obs
+          });
+          expect(console.log.calls.count()).toBe(1);
+          return expect(console.log).toHaveBeenCalledWith("Foo Bar");
+        });
+        return it("Should change value", function() {
+          obs("Free Bird");
+          expect(console.log.calls.count()).toBe(1);
+          return expect(console.log).toHaveBeenCalledWith("Free Bird");
         });
       });
     });
