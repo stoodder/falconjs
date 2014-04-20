@@ -1059,7 +1059,7 @@
       it("Should present standard options if nothing is passed in", function() {
         var ret;
         ret = adapter.standardizeOptions(data_object, type, null, context);
-        expect(ret).toEqual;
+        expect(ret['id']).not.toBeDefined();
         expect(ret['success']).toEqual(jasmine.any(Function));
         expect(ret['complete']).toEqual(jasmine.any(Function));
         expect(ret['error']).toEqual(jasmine.any(Function));
@@ -1074,7 +1074,8 @@
         return expect(adapter.serializeData).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
       });
       it("Should maintain options that are passed in", function() {
-        var attributes, complete, data, error, fill_options, options, ret, success, url;
+        var attributes, complete, data, error, fill_options, id, options, ret, success, url;
+        id = 'hello_world';
         success = (function() {});
         complete = (function() {});
         error = (function() {});
@@ -1089,6 +1090,7 @@
           'method': 'append'
         };
         options = {
+          id: id,
           success: success,
           complete: complete,
           error: error,
@@ -1100,21 +1102,22 @@
           fill_options: fill_options
         };
         ret = adapter.standardizeOptions(data_object, type, options, context);
-        expect(ret).toEqual;
-        expect(ret['success']).toEqual(options.success);
-        expect(ret['complete']).toEqual(options.complete);
-        expect(ret['error']).toEqual(options.error);
-        expect(ret['parent']).toBeNull();
-        expect(ret['url']).toEqual(options.url);
-        expect(ret['data']).toEqual(options.data);
-        expect(ret['attributes']).toEqual(options.attributes);
-        expect(ret['fill_options']).toEqual(fill_options);
+        expect(ret['id']).toBe(options.id);
+        expect(ret['success']).toBe(options.success);
+        expect(ret['complete']).toBe(options.complete);
+        expect(ret['error']).toBe(options.error);
+        expect(ret['parent']).toBe(options.parent);
+        expect(ret['url']).toBe(options.url);
+        expect(ret['data']).toBe(options.data);
+        expect(ret['attributes']).toBe(options.attributes);
+        expect(ret['fill_options']).toBe(options.fill_options);
         expect(adapter.makeUrl.calls.count()).toBe(1);
         expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(adapter.serializeData.calls.count()).toBe(1);
         expect(adapter.serializeData).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(ret).not.toBe(options);
         return expect(options).toEqual({
+          id: id,
           success: success,
           complete: complete,
           error: error,
@@ -1130,6 +1133,7 @@
         var options, ret;
         options = (function() {});
         ret = adapter.standardizeOptions(data_object, type, options, context);
+        expect(ret['id']).not.toBeDefined();
         expect(ret['success']).toEqual(jasmine.any(Function));
         expect(ret['complete']).toEqual(options);
         expect(ret['error']).toEqual(jasmine.any(Function));
@@ -1147,6 +1151,7 @@
         var options, ret;
         options = "id,hello_world,title";
         ret = adapter.standardizeOptions(data_object, type, options, context);
+        expect(ret['id']).not.toBeDefined();
         expect(ret['success']).toEqual(jasmine.any(Function));
         expect(ret['complete']).toEqual(jasmine.any(Function));
         expect(ret['error']).toEqual(jasmine.any(Function));
@@ -1164,6 +1169,7 @@
         var options, ret;
         options = ['id', 'hello_world', 'title'];
         ret = adapter.standardizeOptions(data_object, type, options, context);
+        expect(ret['id']).not.toBeDefined();
         expect(ret['success']).toEqual(jasmine.any(Function));
         expect(ret['complete']).toEqual(jasmine.any(Function));
         expect(ret['error']).toEqual(jasmine.any(Function));
@@ -1189,7 +1195,7 @@
           attributes: attributes
         };
         ret = adapter.standardizeOptions(data_object, type, options, context);
-        expect(ret).toEqual;
+        expect(ret['id']).not.toBeDefined();
         expect(ret['success']).toEqual(jasmine.any(Function));
         expect(ret['complete']).toEqual(jasmine.any(Function));
         expect(ret['error']).toEqual(jasmine.any(Function));

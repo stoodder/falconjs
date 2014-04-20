@@ -69,7 +69,7 @@ describe "Falcon.Adapter", ->
 		it "Should present standard options if nothing is passed in", ->
 			ret = adapter.standardizeOptions(data_object, type, null, context)
 			
-			expect( ret ).toEqual
+			expect( ret['id'] ).not.toBeDefined()
 			expect( ret['success'] ).toEqual( jasmine.any(Function) )
 			expect( ret['complete'] ).toEqual( jasmine.any(Function) )
 			expect( ret['error'] ).toEqual( jasmine.any(Function) )
@@ -87,6 +87,7 @@ describe "Falcon.Adapter", ->
 		#END it
 
 		it "Should maintain options that are passed in", ->
+			id = 'hello_world'
 			success = (->)
 			complete = (->)
 			error = (->)
@@ -97,21 +98,19 @@ describe "Falcon.Adapter", ->
 			attributes = ['id', 'hello']
 			fill_options = {'method': 'append'}
 
-			options = {success, complete, error, parent, attributes, url, data, attributes, fill_options}
-			#END options
+			options = {id, success, complete, error, parent, attributes, url, data, attributes, fill_options}
 
 			ret = adapter.standardizeOptions(data_object, type, options, context)
 
-			expect( ret ).toEqual
-			expect( ret['success'] ).toEqual( options.success )
-			expect( ret['complete'] ).toEqual( options.complete )
-			expect( ret['error'] ).toEqual( options.error )
-			expect( ret['parent'] ).toBeNull()
-			expect( ret['url'] ).toEqual( options.url )
-			expect( ret['data'] ).toEqual( options.data )
-			expect( ret['attributes'] ).toEqual( options.attributes )
-			expect( ret['fill_options'] ).toEqual( fill_options )
-			#END toEqual
+			expect( ret['id'] ).toBe( options.id )
+			expect( ret['success'] ).toBe( options.success )
+			expect( ret['complete'] ).toBe( options.complete )
+			expect( ret['error'] ).toBe( options.error )
+			expect( ret['parent'] ).toBe( options.parent )
+			expect( ret['url'] ).toBe( options.url )
+			expect( ret['data'] ).toBe( options.data )
+			expect( ret['attributes'] ).toBe( options.attributes )
+			expect( ret['fill_options'] ).toBe( options.fill_options )
 
 			expect( adapter.makeUrl.calls.count() ).toBe( 1 )
 			expect( adapter.makeUrl ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
@@ -123,13 +122,15 @@ describe "Falcon.Adapter", ->
 			expect( ret ).not.toBe( options )
 
 			#Make sure the options haven't changed at all
-			expect( options ).toEqual({success, complete, error, parent, attributes, url, data, attributes, fill_options})
+			expect( options ).toEqual({id, success, complete, error, parent, attributes, url, data, attributes, fill_options})
 		#END it
 
 		it "Should assign a function to the complete attribute of the options", ->
 			options = (->)
 			
 			ret = adapter.standardizeOptions(data_object, type, options, context)
+
+			expect( ret['id'] ).not.toBeDefined()
 			expect( ret['success'] ).toEqual( jasmine.any(Function) )
 			expect( ret['complete'] ).toEqual( options )
 			expect( ret['error'] ).toEqual( jasmine.any(Function) )
@@ -150,6 +151,8 @@ describe "Falcon.Adapter", ->
 			options = "id,hello_world,title"
 			
 			ret = adapter.standardizeOptions(data_object, type, options, context)
+
+			expect( ret['id'] ).not.toBeDefined()
 			expect( ret['success'] ).toEqual( jasmine.any(Function) )
 			expect( ret['complete'] ).toEqual( jasmine.any(Function) )
 			expect( ret['error'] ).toEqual( jasmine.any(Function) )
@@ -170,6 +173,8 @@ describe "Falcon.Adapter", ->
 			options = ['id','hello_world','title']
 			
 			ret = adapter.standardizeOptions(data_object, type, options, context)
+
+			expect( ret['id'] ).not.toBeDefined()
 			expect( ret['success'] ).toEqual( jasmine.any(Function) )
 			expect( ret['complete'] ).toEqual( jasmine.any(Function) )
 			expect( ret['error'] ).toEqual( jasmine.any(Function) )
@@ -192,7 +197,7 @@ describe "Falcon.Adapter", ->
 
 			ret = adapter.standardizeOptions(data_object, type, options, context)
 
-			expect( ret ).toEqual
+			expect( ret['id'] ).not.toBeDefined()
 			expect( ret['success'] ).toEqual( jasmine.any(Function) )
 			expect( ret['complete'] ).toEqual( jasmine.any(Function) )
 			expect( ret['error'] ).toEqual( jasmine.any(Function) )
