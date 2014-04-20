@@ -6,7 +6,6 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 [http://stoodder.github.io/falconjs/](http://stoodder.github.io/falconjs/)
 
 ## Change Log
-<<<<<<< HEAD
 ### v1.0.0rc1
 **Enhancements**
 * Add makeBaseUrl method to Falcon.Adapter
