@@ -152,7 +152,18 @@ class FalconAdapter extends FalconObject
 	#------------------------------------------------------------------------
 	# Method: Falcon.Adapter#makeBaseUrl( data_object, type, options, context )
 	#   Makes the base URL piece for a Model or Collection's makeUrl() method
-	#   methods.
+	#   method. This will include the Falcon.baseApiUrl strig, if set and a string
+	#	of this data object's parent url pieces and their ids.
+	#
+	# Example:
+	#	Given:
+	#		Falcon.baseApiUrl = "http://www.falcon.js/"
+	#		my_model = new Falcon.Model({id: 'id1', url: 'my_model'})
+	#		my_model.parent = new Falcon.Model({id: 'pid2', url: 'my_model_parent'})
+	#		Falcon.adapter.makeBaseUrl(my_model, 'GET', {}, my_model)
+	#
+	#	Will Return:
+	#		http://www.falcon.js/my_model_parent/pid2
 	#
 	# Arguments:
 	#   **data_object** _(Model|Collection)_  - The data object in question
@@ -170,7 +181,7 @@ class FalconAdapter extends FalconObject
 		base_url_pieces = []
 		while Falcon.isModel( parent )
 			if isFunction(parent.url)
-				base_url_piece = parent.url()
+				base_url_piece = parent.url('GET', parent.parent)
 			else
 				base_url_piece = parent.url
 			#END if
@@ -211,10 +222,10 @@ class FalconAdapter extends FalconObject
 	#
 	# Returns:
 	#	_(Object)_ - {
-	#		base_url: 
-	#		url_piece:
-	#		id_piece:
-	#		extension:
+	#		base_url: The base url
+	#		url_piece: This data object's url piece with the extension removed
+	#		id_piece: The url-ified id of the model (if data object is a model) on GET, PUT, DELETE
+	#		extension: The extension of the url piece
 	#	}
 	#------------------------------------------------------------------------
 	makeUrlPieces: ( data_object, type, options, context ) ->
@@ -228,19 +239,11 @@ class FalconAdapter extends FalconObject
 		#----------------------------------------------------------
 		# Generate The url_piece
 		#----------------------------------------------------------
-		url_piece = if isFunction(data_object.url) then data_object.url() else data_object.url
+		url_piece = if isFunction(data_object.url) then data_object.url(type, options.parent) else data_object.url
 		url_piece = if isString(url_piece) then trimSlashes(url_piece) else ''
 
 		#----------------------------------------------------------
-		# Generate The id_piece
-		#----------------------------------------------------------
-		id_piece = ""
-		if Falcon.isModel( data_object ) and type in ['GET', 'PUT', 'DELETE']
-			id_piece = "/#{options?.id ? data_object.get('id')}"
-		#END if
-
-		#----------------------------------------------------------
-		# Generate the extension
+		# Generate and extract the extension
 		#----------------------------------------------------------
 		extension = ""
 		period_index = url_piece.lastIndexOf(".")
@@ -249,6 +252,14 @@ class FalconAdapter extends FalconObject
 		if period_index > -1
 			extension = url_piece.slice(period_index)
 			url_piece = url_piece.slice(0, period_index)
+		#END if
+
+		#----------------------------------------------------------
+		# Generate the id_piece
+		#----------------------------------------------------------
+		id_piece = ""
+		if Falcon.isModel( data_object ) and type in ['GET', 'PUT', 'DELETE']
+			id_piece = "/#{options.id ? data_object.get('id')}"
 		#END if
 
 		return {base_url, url_piece, id_piece, extension}

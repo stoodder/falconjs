@@ -306,7 +306,7 @@ class FalconModel extends FalconObject
 	#	**parent** _(Falcon.Model)_ - Optional override of the model's parent to generate 
 	#								  the url with. If parent is 'null' then this model will 
 	#								  act as the root node.
-	#	**id** _(String) - Optional override for the model's id
+	#	**id** _(String|Number) - Optional override for the model's id
 	#
 	# Returns:
 	#	_(String)_ - The generated URL

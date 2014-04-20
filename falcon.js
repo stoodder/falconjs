@@ -548,7 +548,7 @@
       base_url_pieces = [];
       while (Falcon.isModel(parent)) {
         if (isFunction(parent.url)) {
-          base_url_piece = parent.url();
+          base_url_piece = parent.url('GET', parent.parent);
         } else {
           base_url_piece = parent.url;
         }
@@ -574,17 +574,17 @@
       var base_url, extension, id_piece, period_index, url_piece, _ref1;
       type = this.resolveRequestType(data_object, type, options, context);
       base_url = this.makeBaseUrl(data_object, type, options, context);
-      url_piece = isFunction(data_object.url) ? data_object.url() : data_object.url;
+      url_piece = isFunction(data_object.url) ? data_object.url(type, options.parent) : data_object.url;
       url_piece = isString(url_piece) ? trimSlashes(url_piece) : '';
-      id_piece = "";
-      if (Falcon.isModel(data_object) && (type === 'GET' || type === 'PUT' || type === 'DELETE')) {
-        id_piece = "/" + ((_ref1 = options != null ? options.id : void 0) != null ? _ref1 : data_object.get('id'));
-      }
       extension = "";
       period_index = url_piece.lastIndexOf(".");
       if (period_index > -1) {
         extension = url_piece.slice(period_index);
         url_piece = url_piece.slice(0, period_index);
+      }
+      id_piece = "";
+      if (Falcon.isModel(data_object) && (type === 'GET' || type === 'PUT' || type === 'DELETE')) {
+        id_piece = "/" + ((_ref1 = options.id) != null ? _ref1 : data_object.get('id'));
       }
       return {
         base_url: base_url,
