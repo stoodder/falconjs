@@ -2,6 +2,16 @@
 [http://stoodder.github.io/falconjs/](http://stoodder.github.io/falconjs/)
 
 ## Change Log
+### v0.11.0
+**Enhancements**
+* Add makeBaseUrl method to Falcon.Adapter
+
+**TODO**
+* Add exec binding
+* Add change notifications to Falcon.Collection
+* Add disposeWhen, displayIf, afterDisplay, beforeDispose to view binding
+* Ensure that Falcon will work with require.js
+
 ### v0.10.2
 **Highlights**
 * Fully tested bindings and binding overrides
@@ -79,10 +89,3 @@
 * Added Falcon.getBinding() method
 * Allowed Falcon.addBinding() to take just a key and function (as opposed to a key and an object). If a function is given, it's set as the new binding's 'update' key
 * Fixed bug in makeUrl when setting baseApiUrl and baseTemplateUrl to "/"
-
-## For the Future
-### v0.11.0
-* Add exec binding
-* Add change notifications to Falcon.Collection
-* Add disposeWhen, displayIf, afterDisplay, beforeDispose to view binding
-* Ensure that Falcon will work with require.js
