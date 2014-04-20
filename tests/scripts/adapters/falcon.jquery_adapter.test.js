@@ -39,21 +39,20 @@
         expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(adapter.serializeData.calls.count()).toBe(1);
         expect(adapter.serializeData).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
-        return expect(ret).toEqual({
-          'success': jasmine.any(Function),
-          'error': jasmine.any(Function),
-          'complete': jasmine.any(Function),
-          'url': jasmine.any(String),
-          'attributes': null,
-          'parent': data_object.parent,
-          'fill_options': null,
-          'data': '',
-          'dataType': 'json',
-          'contentType': 'application/json',
-          'params': {},
-          'headers': {},
-          'cache': false
-        });
+        expect(ret).toEqual;
+        expect(ret['success']).toEqual(jasmine.any(Function));
+        expect(ret['error']).toEqual(jasmine.any(Function));
+        expect(ret['complete']).toEqual(jasmine.any(Function));
+        expect(ret['url']).toEqual(jasmine.any(String));
+        expect(ret['attributes']).toEqual(null);
+        expect(ret['parent']).toEqual(data_object.parent);
+        expect(ret['fill_options']).toEqual(null);
+        expect(ret['data']).toEqual('');
+        expect(ret['dataType']).toEqual('json');
+        expect(ret['contentType']).toEqual('application/json');
+        expect(ret['params']).toEqual({});
+        expect(ret['headers']).toEqual({});
+        return expect(ret['cache']).toEqual(false);
       });
       it("Should pass through options that are given", function() {
         var ret;
@@ -65,25 +64,24 @@
         expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(adapter.serializeData.calls.count()).toBe(1);
         expect(adapter.serializeData).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
-        expect(ret).toEqual({
-          'success': jasmine.any(Function),
-          'error': jasmine.any(Function),
-          'complete': jasmine.any(Function),
-          'url': jasmine.any(String),
-          'attributes': null,
-          'parent': data_object.parent,
-          'fill_options': null,
-          'data': '',
-          'dataType': 'new-json',
-          'contentType': 'application/new-json',
-          'params': {
-            'hello': 'world'
-          },
-          'headers': {
-            'foo': 'bar'
-          },
-          'cache': true
+        expect(ret).toEqual;
+        expect(ret['success']).toEqual(jasmine.any(Function));
+        expect(ret['error']).toEqual(jasmine.any(Function));
+        expect(ret['complete']).toEqual(jasmine.any(Function));
+        expect(ret['url']).toEqual(jasmine.any(String));
+        expect(ret['attributes']).toEqual(null);
+        expect(ret['parent']).toEqual(data_object.parent);
+        expect(ret['fill_options']).toEqual(null);
+        expect(ret['data']).toEqual('');
+        expect(ret['dataType']).toEqual('new-json');
+        expect(ret['contentType']).toEqual('application/new-json');
+        expect(ret['params']).toEqual({
+          'hello': 'world'
         });
+        expect(ret['headers']).toEqual({
+          'foo': 'bar'
+        });
+        expect(ret['cache']).toBe(true);
         return expect(ret).not.toBe(options);
       });
       return it("Should use the adapter's 'cache' value if on is not present in options", function() {
@@ -96,21 +94,20 @@
         expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(adapter.serializeData.calls.count()).toBe(1);
         expect(adapter.serializeData).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
-        return expect(ret).toEqual({
-          'success': jasmine.any(Function),
-          'error': jasmine.any(Function),
-          'complete': jasmine.any(Function),
-          'url': jasmine.any(String),
-          'attributes': null,
-          'parent': data_object.parent,
-          'fill_options': null,
-          'data': '',
-          'dataType': 'json',
-          'contentType': 'application/json',
-          'params': {},
-          'headers': {},
-          'cache': true
-        });
+        expect(ret).toEqual;
+        expect(ret['success']).toEqual(jasmine.any(Function));
+        expect(ret['error']).toEqual(jasmine.any(Function));
+        expect(ret['complete']).toEqual(jasmine.any(Function));
+        expect(ret['url']).toEqual(jasmine.any(String));
+        expect(ret['attributes']).toEqual(null);
+        expect(ret['parent']).toEqual(data_object.parent);
+        expect(ret['fill_options']).toEqual(null);
+        expect(ret['data']).toEqual('');
+        expect(ret['dataType']).toEqual('json');
+        expect(ret['contentType']).toEqual('application/json');
+        expect(ret['params']).toEqual({});
+        expect(ret['headers']).toEqual({});
+        return expect(ret['cache']).toBe(true);
       });
     });
     describe("makeUrl", function() {

@@ -1059,16 +1059,15 @@
       it("Should present standard options if nothing is passed in", function() {
         var ret;
         ret = adapter.standardizeOptions(data_object, type, null, context);
-        expect(ret).toEqual({
-          'success': jasmine.any(Function),
-          'complete': jasmine.any(Function),
-          'error': jasmine.any(Function),
-          'parent': data_object.parent,
-          'url': jasmine.any(String),
-          'data': void 0,
-          'attributes': null,
-          'fill_options': null
-        });
+        expect(ret).toEqual;
+        expect(ret['success']).toEqual(jasmine.any(Function));
+        expect(ret['complete']).toEqual(jasmine.any(Function));
+        expect(ret['error']).toEqual(jasmine.any(Function));
+        expect(ret['parent']).toEqual(data_object.parent);
+        expect(ret['url']).toEqual(jasmine.any(String));
+        expect(ret['data']).toBeNull();
+        expect(ret['attributes']).toBeNull();
+        expect(ret['fill_options']).toBeNull();
         expect(adapter.makeUrl.calls.count()).toBe(1);
         expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(adapter.serializeData.calls.count()).toBe(1);
@@ -1101,16 +1100,15 @@
           fill_options: fill_options
         };
         ret = adapter.standardizeOptions(data_object, type, options, context);
-        expect(ret).toEqual({
-          'success': options.success,
-          'complete': options.complete,
-          'error': options.error,
-          'parent': null,
-          'url': options.url,
-          'data': options.data,
-          'attributes': options.attributes,
-          'fill_options': fill_options
-        });
+        expect(ret).toEqual;
+        expect(ret['success']).toEqual(options.success);
+        expect(ret['complete']).toEqual(options.complete);
+        expect(ret['error']).toEqual(options.error);
+        expect(ret['parent']).toBeNull();
+        expect(ret['url']).toEqual(options.url);
+        expect(ret['data']).toEqual(options.data);
+        expect(ret['attributes']).toEqual(options.attributes);
+        expect(ret['fill_options']).toEqual(fill_options);
         expect(adapter.makeUrl.calls.count()).toBe(1);
         expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(adapter.serializeData.calls.count()).toBe(1);
@@ -1129,54 +1127,51 @@
         });
       });
       it("Should assign a function to the complete attribute of the options", function() {
-        var options;
+        var options, ret;
         options = (function() {});
-        expect(adapter.standardizeOptions(data_object, type, options, context)).toEqual({
-          'success': jasmine.any(Function),
-          'complete': options,
-          'error': jasmine.any(Function),
-          'parent': data_object.parent,
-          'attributes': null,
-          'url': jasmine.any(String),
-          'data': void 0,
-          'fill_options': null
-        });
+        ret = adapter.standardizeOptions(data_object, type, options, context);
+        expect(ret['success']).toEqual(jasmine.any(Function));
+        expect(ret['complete']).toEqual(options);
+        expect(ret['error']).toEqual(jasmine.any(Function));
+        expect(ret['parent']).toEqual(data_object.parent);
+        expect(ret['attributes']).toBeNull();
+        expect(ret['url']).toEqual(jasmine.any(String));
+        expect(ret['data']).toBeNull();
+        expect(ret['fill_options']).toBeNull();
         expect(adapter.makeUrl.calls.count()).toBe(1);
         expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(adapter.serializeData.calls.count()).toBe(1);
         return expect(adapter.serializeData).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
       });
       it("Should split a string into an array of attributes", function() {
-        var options;
+        var options, ret;
         options = "id,hello_world,title";
-        expect(adapter.standardizeOptions(data_object, type, options, context)).toEqual({
-          'success': jasmine.any(Function),
-          'complete': jasmine.any(Function),
-          'error': jasmine.any(Function),
-          'parent': data_object.parent,
-          'attributes': ['id', 'hello_world', 'title'],
-          'url': jasmine.any(String),
-          'data': void 0,
-          'fill_options': null
-        });
+        ret = adapter.standardizeOptions(data_object, type, options, context);
+        expect(ret['success']).toEqual(jasmine.any(Function));
+        expect(ret['complete']).toEqual(jasmine.any(Function));
+        expect(ret['error']).toEqual(jasmine.any(Function));
+        expect(ret['parent']).toEqual(data_object.parent);
+        expect(ret['attributes']).toEqual(['id', 'hello_world', 'title']);
+        expect(ret['url']).toEqual(jasmine.any(String));
+        expect(ret['data']).toBeNull();
+        expect(ret['fill_options']).toBeNull();
         expect(adapter.makeUrl.calls.count()).toBe(1);
         expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(adapter.serializeData.calls.count()).toBe(1);
         return expect(adapter.serializeData).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
       });
       it("Should pass through an array into the attrbutes attribute of the options", function() {
-        var options;
+        var options, ret;
         options = ['id', 'hello_world', 'title'];
-        expect(adapter.standardizeOptions(data_object, type, options, context)).toEqual({
-          'success': jasmine.any(Function),
-          'complete': jasmine.any(Function),
-          'error': jasmine.any(Function),
-          'parent': data_object.parent,
-          'attributes': options,
-          'url': jasmine.any(String),
-          'data': void 0,
-          'fill_options': null
-        });
+        ret = adapter.standardizeOptions(data_object, type, options, context);
+        expect(ret['success']).toEqual(jasmine.any(Function));
+        expect(ret['complete']).toEqual(jasmine.any(Function));
+        expect(ret['error']).toEqual(jasmine.any(Function));
+        expect(ret['parent']).toEqual(data_object.parent);
+        expect(ret['attributes']).toEqual(options);
+        expect(ret['url']).toEqual(jasmine.any(String));
+        expect(ret['data']).toBeNull();
+        expect(ret['fill_options']).toBeNull();
         expect(adapter.makeUrl.calls.count()).toBe(1);
         expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(adapter.serializeData.calls.count()).toBe(1);
@@ -1194,16 +1189,15 @@
           attributes: attributes
         };
         ret = adapter.standardizeOptions(data_object, type, options, context);
-        expect(ret).toEqual({
-          'success': jasmine.any(Function),
-          'complete': jasmine.any(Function),
-          'error': jasmine.any(Function),
-          'parent': data_object.parent,
-          'attributes': attributes,
-          'url': jasmine.any(String),
-          'data': void 0,
-          'fill_options': null
-        });
+        expect(ret).toEqual;
+        expect(ret['success']).toEqual(jasmine.any(Function));
+        expect(ret['complete']).toEqual(jasmine.any(Function));
+        expect(ret['error']).toEqual(jasmine.any(Function));
+        expect(ret['parent']).toEqual(data_object.parent);
+        expect(ret['attributes']).toEqual(attributes);
+        expect(ret['url']).toEqual(jasmine.any(String));
+        expect(ret['data']).toBeNull();
+        expect(ret['fill_options']).toBeNull();
         expect(adapter.makeUrl.calls.count()).toBe(1);
         expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(adapter.serializeData.calls.count()).toBe(1);

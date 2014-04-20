@@ -34,22 +34,21 @@ describe "jQueryAdapter", ->
 			expect( adapter.serializeData ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
 
 			expect( ret ).toEqual
-				'success': jasmine.any(Function)
-				'error': jasmine.any(Function)
-				'complete': jasmine.any(Function)
-				'url': jasmine.any(String)
-				'attributes': null
-				'parent': data_object.parent
-				'fill_options': null
+			expect( ret['success'] ).toEqual( jasmine.any(Function) )
+			expect( ret['error'] ).toEqual( jasmine.any(Function) )
+			expect( ret['complete'] ).toEqual( jasmine.any(Function) )
+			expect( ret['url'] ).toEqual( jasmine.any(String) )
+			expect( ret['attributes'] ).toEqual( null )
+			expect( ret['parent'] ).toEqual( data_object.parent )
+			expect( ret['fill_options'] ).toEqual( null )
 
-				#jQuery Adapter specific options
-				'data': ''
-				'dataType': 'json'
-				'contentType': 'application/json'
-				'params': {}
-				'headers': {}
-				'cache': false
-			#END toEqual
+			#jQuery Adapter specific options
+			expect( ret['data'] ).toEqual( '' )
+			expect( ret['dataType'] ).toEqual( 'json' )
+			expect( ret['contentType'] ).toEqual( 'application/json' )
+			expect( ret['params'] ).toEqual( {} )
+			expect( ret['headers'] ).toEqual( {} )
+			expect( ret['cache'] ).toEqual( false )
 		#END it
 
 		it "Should pass through options that are given", ->
@@ -67,22 +66,21 @@ describe "jQueryAdapter", ->
 			expect( adapter.serializeData ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
 
 			expect( ret ).toEqual
-				'success': jasmine.any(Function)
-				'error': jasmine.any(Function)
-				'complete': jasmine.any(Function)
-				'url': jasmine.any(String)
-				'attributes': null
-				'parent': data_object.parent
-				'fill_options': null
+			expect( ret['success'] ).toEqual( jasmine.any(Function) )
+			expect( ret['error'] ).toEqual( jasmine.any(Function) )
+			expect( ret['complete'] ).toEqual( jasmine.any(Function) )
+			expect( ret['url'] ).toEqual( jasmine.any(String) )
+			expect( ret['attributes'] ).toEqual( null )
+			expect( ret['parent'] ).toEqual( data_object.parent )
+			expect( ret['fill_options'] ).toEqual( null )
 
-				#jQuery Adapter specific options
-				'data': ''
-				'dataType': 'new-json'
-				'contentType': 'application/new-json'
-				'params': {'hello': 'world'}
-				'headers': {'foo': 'bar'}
-				'cache': true
-			#END toEqual
+			#jQuery Adapter specific options
+			expect( ret['data'] ).toEqual( '' )
+			expect( ret['dataType'] ).toEqual( 'new-json' )
+			expect( ret['contentType'] ).toEqual( 'application/new-json' )
+			expect( ret['params'] ).toEqual( {'hello': 'world'} )
+			expect( ret['headers'] ).toEqual( {'foo': 'bar'} )
+			expect( ret['cache'] ).toBe( true )
 
 			expect( ret ).not.toBe( options )
 		#END it
@@ -101,22 +99,21 @@ describe "jQueryAdapter", ->
 			expect( adapter.serializeData ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
 
 			expect( ret ).toEqual
-				'success': jasmine.any(Function)
-				'error': jasmine.any(Function)
-				'complete': jasmine.any(Function)
-				'url': jasmine.any(String)
-				'attributes': null
-				'parent': data_object.parent
-				'fill_options': null
+			expect( ret['success'] ).toEqual( jasmine.any(Function) )
+			expect( ret['error'] ).toEqual( jasmine.any(Function) )
+			expect( ret['complete'] ).toEqual( jasmine.any(Function) )
+			expect( ret['url'] ).toEqual( jasmine.any(String) )
+			expect( ret['attributes'] ).toEqual( null )
+			expect( ret['parent'] ).toEqual( data_object.parent )
+			expect( ret['fill_options'] ).toEqual( null )
 
-				#jQuery Adapter specific options
-				'data': ''
-				'dataType': 'json'
-				'contentType': 'application/json'
-				'params': {}
-				'headers': {}
-				'cache': true
-			#END toEqual
+			#jQuery Adapter specific options
+			expect( ret['data'] ).toEqual( '' )
+			expect( ret['dataType'] ).toEqual( 'json' )
+			expect( ret['contentType'] ).toEqual( 'application/json' )
+			expect( ret['params'] ).toEqual( {} )
+			expect( ret['headers'] ).toEqual( {} )
+			expect( ret['cache'] ).toBe( true )
 		#END it
 	#END describe
 	

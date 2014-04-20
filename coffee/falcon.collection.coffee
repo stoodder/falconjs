@@ -263,43 +263,8 @@ class FalconCollection extends FalconObject
 	# TODO: Finish Comments
 	#--------------------------------------------------------
 	makeUrl: (type, parent) ->
-		url = if isFunction(@url) then @url() else @url
-		url = "" unless isString(url)
-		url = trim(url)
-
-		type = "" unless isString(type)
-		type = type.toUpperCase()
-		type = 'GET' unless type in ['GET', 'PUT', 'POST', 'DELETE']
-
-		#Make sure the url is now formatted correctly
-		url = "/#{url}" unless startsWith(url, "/")
-
-		parent = if parent is undefined then @parent else parent
-
-		#Check if a parent model is present
-		if Falcon.isModel(parent)
-			parentUrl = parent.makeUrl()
-			parentPeriodIndex = parentUrl.lastIndexOf(".")
-			parentSlashIndex = parentUrl.lastIndexOf("/")
-
-			if parentSlashIndex < parentPeriodIndex
-				parentUrl = parentUrl.slice(0, parentPeriodIndex) if parentPeriodIndex > -1
-				parentUrl = trim(parentUrl)
-			#END if
-
-			url = "#{parentUrl}#{url}"
-
-		#Otherwise consider this the base
-		else if isString(Falcon.baseApiUrl)
-			url = "#{Falcon.baseApiUrl}#{url}"
-
-		#END if
-
-		#Replace any double slashes outside of the initial protocol
-		url = url.replace(/([^:])\/\/+/gi, "$1/").replace(/^\/\//gi, "/")
-
-		#Return the built url
-		return url
+		{base_url, url_piece, extension} = Falcon.adapter.makeUrlPieces( @, type, {parent}, @ )
+		return "#{base_url}#{url_piece}#{extension}"
 	#END makeUrl
 
 	#--------------------------------------------------------

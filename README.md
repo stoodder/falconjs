@@ -1,3 +1,7 @@
+## Installation
+Download Production: [falcon.min.js](http://stoodder.github.io/falconjs/assets/scripts/falcon.min.js)
+Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scripts/falcon.js)
+
 ## Documentation
 [http://stoodder.github.io/falconjs/](http://stoodder.github.io/falconjs/)
 
@@ -11,6 +15,7 @@
 * Add change notifications to Falcon.Collection
 * Add disposeWhen, displayIf, afterDisplay, beforeDispose to view binding
 * Ensure that Falcon will work with require.js
+* Add Falcon.Observable to wrap ko.observable in the case that we'd want to switch
 
 ### v0.10.2
 **Highlights**
