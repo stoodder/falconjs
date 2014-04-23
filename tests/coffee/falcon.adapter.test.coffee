@@ -68,16 +68,16 @@ describe "Falcon.Adapter", ->
 
 		it "Should present standard options if nothing is passed in", ->
 			ret = adapter.standardizeOptions(data_object, type, null, context)
-			expect( ret ).toEqual
-				'success': jasmine.any(Function)
-				'complete': jasmine.any(Function)
-				'error': jasmine.any(Function)
-				'parent': data_object.parent
-				'url': jasmine.any(String)
-				'data': undefined
-				'attributes': null
-				'fill_options': null
-			#END toEqual
+			
+			expect( ret['id'] ).not.toBeDefined()
+			expect( ret['success'] ).toEqual( jasmine.any(Function) )
+			expect( ret['complete'] ).toEqual( jasmine.any(Function) )
+			expect( ret['error'] ).toEqual( jasmine.any(Function) )
+			expect( ret['parent'] ).toEqual( data_object.parent )
+			expect( ret['url'] ).toEqual( jasmine.any(String) )
+			expect( ret['data'] ).toBeNull()
+			expect( ret['attributes'] ).toBeNull()
+			expect( ret['fill_options'] ).toBeNull()
 
 			expect( adapter.makeUrl.calls.count() ).toBe( 1 )
 			expect( adapter.makeUrl ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
@@ -87,6 +87,7 @@ describe "Falcon.Adapter", ->
 		#END it
 
 		it "Should maintain options that are passed in", ->
+			id = 'hello_world'
 			success = (->)
 			complete = (->)
 			error = (->)
@@ -97,21 +98,19 @@ describe "Falcon.Adapter", ->
 			attributes = ['id', 'hello']
 			fill_options = {'method': 'append'}
 
-			options = {success, complete, error, parent, attributes, url, data, attributes, fill_options}
-			#END options
+			options = {id, success, complete, error, parent, attributes, url, data, attributes, fill_options}
 
 			ret = adapter.standardizeOptions(data_object, type, options, context)
 
-			expect( ret ).toEqual
-				'success': options.success
-				'complete': options.complete
-				'error': options.error
-				'parent': null
-				'url': options.url
-				'data': options.data
-				'attributes': options.attributes
-				'fill_options': fill_options
-			#END toEqual
+			expect( ret['id'] ).toBe( options.id )
+			expect( ret['success'] ).toBe( options.success )
+			expect( ret['complete'] ).toBe( options.complete )
+			expect( ret['error'] ).toBe( options.error )
+			expect( ret['parent'] ).toBe( options.parent )
+			expect( ret['url'] ).toBe( options.url )
+			expect( ret['data'] ).toBe( options.data )
+			expect( ret['attributes'] ).toBe( options.attributes )
+			expect( ret['fill_options'] ).toBe( options.fill_options )
 
 			expect( adapter.makeUrl.calls.count() ).toBe( 1 )
 			expect( adapter.makeUrl ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
@@ -123,21 +122,23 @@ describe "Falcon.Adapter", ->
 			expect( ret ).not.toBe( options )
 
 			#Make sure the options haven't changed at all
-			expect( options ).toEqual({success, complete, error, parent, attributes, url, data, attributes, fill_options})
+			expect( options ).toEqual({id, success, complete, error, parent, attributes, url, data, attributes, fill_options})
 		#END it
 
 		it "Should assign a function to the complete attribute of the options", ->
 			options = (->)
-			expect( adapter.standardizeOptions(data_object, type, options, context) ).toEqual
-				'success': jasmine.any(Function)
-				'complete': options
-				'error': jasmine.any(Function)
-				'parent': data_object.parent
-				'attributes': null
-				'url': jasmine.any(String)
-				'data': undefined
-				'fill_options': null
-			#END expect
+			
+			ret = adapter.standardizeOptions(data_object, type, options, context)
+
+			expect( ret['id'] ).not.toBeDefined()
+			expect( ret['success'] ).toEqual( jasmine.any(Function) )
+			expect( ret['complete'] ).toEqual( options )
+			expect( ret['error'] ).toEqual( jasmine.any(Function) )
+			expect( ret['parent'] ).toEqual( data_object.parent )
+			expect( ret['attributes'] ).toBeNull()
+			expect( ret['url'] ).toEqual( jasmine.any(String) )
+			expect( ret['data'] ).toBeNull()
+			expect( ret['fill_options'] ).toBeNull()
 
 			expect( adapter.makeUrl.calls.count() ).toBe( 1 )
 			expect( adapter.makeUrl ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
@@ -148,16 +149,18 @@ describe "Falcon.Adapter", ->
 
 		it "Should split a string into an array of attributes", ->
 			options = "id,hello_world,title"
-			expect( adapter.standardizeOptions(data_object, type, options, context) ).toEqual
-				'success': jasmine.any(Function)
-				'complete': jasmine.any(Function)
-				'error': jasmine.any(Function)
-				'parent': data_object.parent
-				'attributes': ['id','hello_world','title']
-				'url': jasmine.any(String)
-				'data': undefined
-				'fill_options': null
-			#END expect
+			
+			ret = adapter.standardizeOptions(data_object, type, options, context)
+
+			expect( ret['id'] ).not.toBeDefined()
+			expect( ret['success'] ).toEqual( jasmine.any(Function) )
+			expect( ret['complete'] ).toEqual( jasmine.any(Function) )
+			expect( ret['error'] ).toEqual( jasmine.any(Function) )
+			expect( ret['parent'] ).toEqual( data_object.parent )
+			expect( ret['attributes'] ).toEqual( ['id','hello_world','title'] )
+			expect( ret['url'] ).toEqual( jasmine.any(String) )
+			expect( ret['data'] ).toBeNull()
+			expect( ret['fill_options'] ).toBeNull()
 
 			expect( adapter.makeUrl.calls.count() ).toBe( 1 )
 			expect( adapter.makeUrl ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
@@ -168,16 +171,18 @@ describe "Falcon.Adapter", ->
 
 		it "Should pass through an array into the attrbutes attribute of the options", ->
 			options = ['id','hello_world','title']
-			expect( adapter.standardizeOptions(data_object, type, options, context) ).toEqual
-				'success': jasmine.any(Function)
-				'complete': jasmine.any(Function)
-				'error': jasmine.any(Function)
-				'parent': data_object.parent
-				'attributes': options
-				'url': jasmine.any(String)
-				'data': undefined
-				'fill_options': null
-			#END expect
+			
+			ret = adapter.standardizeOptions(data_object, type, options, context)
+
+			expect( ret['id'] ).not.toBeDefined()
+			expect( ret['success'] ).toEqual( jasmine.any(Function) )
+			expect( ret['complete'] ).toEqual( jasmine.any(Function) )
+			expect( ret['error'] ).toEqual( jasmine.any(Function) )
+			expect( ret['parent'] ).toEqual( data_object.parent )
+			expect( ret['attributes'] ).toEqual( options )
+			expect( ret['url'] ).toEqual( jasmine.any(String) )
+			expect( ret['data'] ).toBeNull()
+			expect( ret['fill_options'] ).toBeNull()
 
 			expect( adapter.makeUrl.calls.count() ).toBe( 1 )
 			expect( adapter.makeUrl ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
@@ -192,16 +197,15 @@ describe "Falcon.Adapter", ->
 
 			ret = adapter.standardizeOptions(data_object, type, options, context)
 
-			expect( ret ).toEqual
-				'success': jasmine.any(Function)
-				'complete': jasmine.any(Function)
-				'error': jasmine.any(Function)
-				'parent': data_object.parent
-				'attributes': attributes
-				'url': jasmine.any(String)
-				'data': undefined
-				'fill_options': null
-			#END toEqual
+			expect( ret['id'] ).not.toBeDefined()
+			expect( ret['success'] ).toEqual( jasmine.any(Function) )
+			expect( ret['complete'] ).toEqual( jasmine.any(Function) )
+			expect( ret['error'] ).toEqual( jasmine.any(Function) )
+			expect( ret['parent'] ).toEqual( data_object.parent )
+			expect( ret['attributes'] ).toEqual( attributes )
+			expect( ret['url'] ).toEqual( jasmine.any(String) )
+			expect( ret['data'] ).toBeNull()
+			expect( ret['fill_options'] ).toBeNull()
 
 			expect( adapter.makeUrl.calls.count() ).toBe( 1 )
 			expect( adapter.makeUrl ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )

@@ -1,3 +1,7 @@
+## Installation
+Download Production: [falcon.min.js](http://stoodder.github.io/falconjs/assets/scripts/falcon.min.js)
+Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scripts/falcon.js)
+
 ## Documentation
 [http://stoodder.github.io/falconjs/](http://stoodder.github.io/falconjs/)
 
@@ -91,10 +95,3 @@
 * Added Falcon.getBinding() method
 * Allowed Falcon.addBinding() to take just a key and function (as opposed to a key and an object). If a function is given, it's set as the new binding's 'update' key
 * Fixed bug in makeUrl when setting baseApiUrl and baseTemplateUrl to "/"
-
-## For the Future
-### v0.11.0
-* Add exec binding
-* Add change notifications to Falcon.Collection
-* Add disposeWhen, displayIf, afterDisplay, beforeDispose to view binding
-* Ensure that Falcon will work with require.js

@@ -82,36 +82,47 @@ class FalconAdapter extends FalconObject
 	#	method. which will always have the first four related
 	#	arguments regardless if they're used or not.
 	#------------------------------------------------------------------------
-	standardizeOptions: ( data_object, type, options, context ) ->
-		#Shallow clone the options so as to not disturb the original object
-		if isObject( options )
-			output_options = {}
-			output_options[key] = value for key, value of options
-		
-		else if isFunction(options)
-			output_options = {complete: options}
-		
-		else if isString(options)
-			output_options = {attributes: trim( options ).split(",")}
-		
-		else if isArray( options )
-			output_options = {attributes: options}
-		
-		else
-			output_options = {}
-		#END if
+	standardizeOptions: do ->
+		class _standardizedOptionsObject
+			constructor: (options) ->
+				if isObject( options )
+					@[key] = value for key, value of options
+				
+				else if isFunction(options)
+					@complete = options
+				
+				else if isString(options)
+					@attributes = trim( options ).split(",")
+				
+				else if isArray( options )
+					@attributes = options
 
-		output_options.success = (->) unless isFunction(output_options.success)
-		output_options.complete = (->) unless isFunction(output_options.complete)
-		output_options.error = (->) unless isFunction(output_options.error)
-		output_options.parent = data_object.parent unless Falcon.isModel( output_options.parent ) or output_options.parent is null
-		output_options.attributes = null unless isArray( output_options.attributes ) or isObject( output_options.attributes )
-		output_options.fill_options = null unless isObject( output_options.fill_options )
+				#END if
+			#END constructor
 
-		output_options.url = @makeUrl( data_object, type, output_options, context )
-		output_options.data = @serializeData( data_object, type, output_options, context )
+			success: (->)
+			complete: (->)
+			error: (->)
 
-		return output_options
+			attributes: null
+			fill_options: null
+
+			id: undefined
+			url: null
+			data: null
+			parent: undefined
+		#END class
+		return ( data_object, type, options, context ) ->
+			return options if options instanceof _standardizedOptionsObject
+
+			#Shallow clone the options so as to not disturb the original object
+			options = new _standardizedOptionsObject(options)
+			options.parent = data_object.parent unless Falcon.isModel( options.parent ) or options.parent is null
+			options.url = @makeUrl( data_object, type, options, context )
+			options.data = @serializeData( data_object, type, options, context )
+
+			return options
+		#END do
 	#END standardizeOptions
 
 	#------------------------------------------------------------------------
@@ -137,6 +148,122 @@ class FalconAdapter extends FalconObject
 	makeUrl: ( data_object, type, options, context ) ->
 		return ( options.url ? data_object.makeUrl(type, options.parent) )
 	#END makeUrl
+
+	#------------------------------------------------------------------------
+	# Method: Falcon.Adapter#makeBaseUrl( data_object, type, options, context )
+	#   Makes the base URL piece for a Model or Collection's makeUrl() method
+	#   method. This will include the Falcon.baseApiUrl strig, if set and a string
+	#	of this data object's parent url pieces and their ids.
+	#
+	# Example:
+	#	Given:
+	#		Falcon.baseApiUrl = "http://www.falcon.js/"
+	#		my_model = new Falcon.Model({id: 'id1', url: 'my_model'})
+	#		my_model.parent = new Falcon.Model({id: 'pid2', url: 'my_model_parent'})
+	#		Falcon.adapter.makeBaseUrl(my_model, 'GET', {}, my_model)
+	#
+	#	Will Return:
+	#		http://www.falcon.js/my_model_parent/pid2
+	#
+	# Arguments:
+	#   **data_object** _(Model|Collection)_  - The data object in question
+	#	**type** _(String)_ - The resolved request type
+	#	**options** _(Object)_ - Non-standardized options. Expects at least the 'parent' 
+	#                            property to be defined to override the usage of the 
+	#                            data_model's parent
+	#	**context** _(mixed)_ - The context to call the response handers on
+	#
+	# Returns:
+	#	_(String)_ - The base url url
+	#------------------------------------------------------------------------
+	makeBaseUrl: ( data_object, type, options, context ) ->
+		parent = if options.parent is undefined then data_object.parent else options.parent
+		base_url_pieces = []
+		while Falcon.isModel( parent )
+			if isFunction(parent.url)
+				base_url_piece = parent.url('GET', parent.parent)
+			else
+				base_url_piece = parent.url
+			#END if
+
+			base_url_piece = "" unless isString( base_url_piece )
+
+			period_index = base_url_piece.lastIndexOf(".")
+			base_url_piece = base_url_piece.slice(0, period_index) if period_index > -1
+			base_url_pieces.push( trimSlashes(base_url_piece) )
+			base_url_pieces.push( parent.get('id') )
+
+			parent = parent.parent
+		#END while
+
+		#Join the peices to generate a full url without a base, yet
+		base_url = "/" + base_url_pieces.join("/") + "/"
+
+		#Prepend the base
+		base_url = "#{Falcon.baseApiUrl}#{base_url}" if isString( Falcon.baseApiUrl )
+
+		#Remove any double slashes outside of the initial protocol
+		base_url = base_url.replace(/([^:])\/\/+/gi, "$1/").replace(/^\/\//gi, "/")
+	#END makeBaseUrl
+	
+	#------------------------------------------------------------------------
+	# Method: Falcon.Adapter#makeUrlPieces( data_object, type, options, context )
+	#   Standardizes the 'url' attribute on a Model or Collection and returns an
+	#	object of the standardized url piece stripped of its extension and the resultant
+	#	object has a key for the extension including the '.'
+	#
+	# Arguments:
+	#   **data_object** _(Model|Collection)_  - The data object in question
+	#	**type** _(String)_ - The resolved request type
+	#	**options** _(Object)_ - Non-standardized options. Expects at least the 'parent' 
+	#                            property to be defined to override the usage of the 
+	#                            data_model's parent
+	#	**context** _(mixed)_ - The context to call the response handers on
+	#
+	# Returns:
+	#	_(Object)_ - {
+	#		base_url: The base url
+	#		url_piece: This data object's url piece with the extension removed
+	#		id_piece: The url-ified id of the model (if data object is a model) on GET, PUT, DELETE
+	#		extension: The extension of the url piece
+	#	}
+	#------------------------------------------------------------------------
+	makeUrlPieces: ( data_object, type, options, context ) ->
+		type = @resolveRequestType( data_object, type, options, context )
+
+		#----------------------------------------------------------
+		# Generate The base_url
+		#----------------------------------------------------------
+		base_url = @makeBaseUrl( data_object, type, options, context )
+		
+		#----------------------------------------------------------
+		# Generate The url_piece
+		#----------------------------------------------------------
+		url_piece = if isFunction(data_object.url) then data_object.url(type, options.parent) else data_object.url
+		url_piece = if isString(url_piece) then trimSlashes(url_piece) else ''
+
+		#----------------------------------------------------------
+		# Generate and extract the extension
+		#----------------------------------------------------------
+		extension = ""
+		period_index = url_piece.lastIndexOf(".")
+
+		# Split on the extension if it exists
+		if period_index > -1
+			extension = url_piece.slice(period_index)
+			url_piece = url_piece.slice(0, period_index)
+		#END if
+
+		#----------------------------------------------------------
+		# Generate the id_piece
+		#----------------------------------------------------------
+		id_piece = ""
+		if Falcon.isModel( data_object ) and type in ['GET', 'PUT', 'DELETE']
+			id_piece = "/#{options.id ? data_object.get('id')}"
+		#END if
+
+		return {base_url, url_piece, id_piece, extension}
+	#END makeUrlPieces
 
 	#------------------------------------------------------------------------
 	# Method: Falcon.Adapter#serializeData( data_object, type, options, context )

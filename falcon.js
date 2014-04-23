@@ -11,7 +11,7 @@
 
 
 (function() {
-  var ChainedCollection, Falcon, FalconAdapter, FalconCollection, FalconModel, FalconObject, FalconView, arrayRemove, arrayUnique, clone, extend, findKey, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, startsWith, trim, value, _foreach, _getForeachItems, _getOptionsItems, _options, _ref, _ref1, _ref2, _ref3, _ref4, _shouldUpdate,
+  var ChainedCollection, Falcon, FalconAdapter, FalconCollection, FalconModel, FalconObject, FalconView, arrayRemove, arrayUnique, clone, endsWith, extend, findKey, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, startsWith, trim, trimSlashes, value, _foreach, _getForeachItems, _getOptionsItems, _options, _ref, _ref1, _ref2, _ref3, _ref4, _shouldUpdate,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -83,8 +83,16 @@
     };
   }
 
+  trimSlashes = function(str) {
+    return str.replace(/^[\\/\s]+/, '').replace(/[\\/\s]+$/, '');
+  };
+
   startsWith = function(haystack, needle) {
     return haystack.indexOf(needle) === 0;
+  };
+
+  endsWith = function(haystack, needle) {
+    return haystack.lastIndexOf(needle) === haystack.length - 1;
   };
 
   objectKeys = function(obj) {
@@ -475,55 +483,115 @@
       return (_ref1 = context != null ? context : options.context) != null ? _ref1 : data_object;
     };
 
-    FalconAdapter.prototype.standardizeOptions = function(data_object, type, options, context) {
-      var key, output_options, value;
-      if (isObject(options)) {
-        output_options = {};
-        for (key in options) {
-          value = options[key];
-          output_options[key] = value;
+    FalconAdapter.prototype.standardizeOptions = (function() {
+      var _standardizedOptionsObject;
+      _standardizedOptionsObject = (function() {
+        function _standardizedOptionsObject(options) {
+          var key, value;
+          if (isObject(options)) {
+            for (key in options) {
+              value = options[key];
+              this[key] = value;
+            }
+          } else if (isFunction(options)) {
+            this.complete = options;
+          } else if (isString(options)) {
+            this.attributes = trim(options).split(",");
+          } else if (isArray(options)) {
+            this.attributes = options;
+          }
         }
-      } else if (isFunction(options)) {
-        output_options = {
-          complete: options
-        };
-      } else if (isString(options)) {
-        output_options = {
-          attributes: trim(options).split(",")
-        };
-      } else if (isArray(options)) {
-        output_options = {
-          attributes: options
-        };
-      } else {
-        output_options = {};
-      }
-      if (!isFunction(output_options.success)) {
-        output_options.success = (function() {});
-      }
-      if (!isFunction(output_options.complete)) {
-        output_options.complete = (function() {});
-      }
-      if (!isFunction(output_options.error)) {
-        output_options.error = (function() {});
-      }
-      if (!(Falcon.isModel(output_options.parent) || output_options.parent === null)) {
-        output_options.parent = data_object.parent;
-      }
-      if (!(isArray(output_options.attributes) || isObject(output_options.attributes))) {
-        output_options.attributes = null;
-      }
-      if (!isObject(output_options.fill_options)) {
-        output_options.fill_options = null;
-      }
-      output_options.url = this.makeUrl(data_object, type, output_options, context);
-      output_options.data = this.serializeData(data_object, type, output_options, context);
-      return output_options;
-    };
+
+        _standardizedOptionsObject.prototype.success = (function() {});
+
+        _standardizedOptionsObject.prototype.complete = (function() {});
+
+        _standardizedOptionsObject.prototype.error = (function() {});
+
+        _standardizedOptionsObject.prototype.attributes = null;
+
+        _standardizedOptionsObject.prototype.fill_options = null;
+
+        _standardizedOptionsObject.prototype.id = void 0;
+
+        _standardizedOptionsObject.prototype.url = null;
+
+        _standardizedOptionsObject.prototype.data = null;
+
+        _standardizedOptionsObject.prototype.parent = void 0;
+
+        return _standardizedOptionsObject;
+
+      })();
+      return function(data_object, type, options, context) {
+        if (options instanceof _standardizedOptionsObject) {
+          return options;
+        }
+        options = new _standardizedOptionsObject(options);
+        if (!(Falcon.isModel(options.parent) || options.parent === null)) {
+          options.parent = data_object.parent;
+        }
+        options.url = this.makeUrl(data_object, type, options, context);
+        options.data = this.serializeData(data_object, type, options, context);
+        return options;
+      };
+    })();
 
     FalconAdapter.prototype.makeUrl = function(data_object, type, options, context) {
       var _ref1;
       return (_ref1 = options.url) != null ? _ref1 : data_object.makeUrl(type, options.parent);
+    };
+
+    FalconAdapter.prototype.makeBaseUrl = function(data_object, type, options, context) {
+      var base_url, base_url_piece, base_url_pieces, parent, period_index;
+      parent = options.parent === void 0 ? data_object.parent : options.parent;
+      base_url_pieces = [];
+      while (Falcon.isModel(parent)) {
+        if (isFunction(parent.url)) {
+          base_url_piece = parent.url('GET', parent.parent);
+        } else {
+          base_url_piece = parent.url;
+        }
+        if (!isString(base_url_piece)) {
+          base_url_piece = "";
+        }
+        period_index = base_url_piece.lastIndexOf(".");
+        if (period_index > -1) {
+          base_url_piece = base_url_piece.slice(0, period_index);
+        }
+        base_url_pieces.push(trimSlashes(base_url_piece));
+        base_url_pieces.push(parent.get('id'));
+        parent = parent.parent;
+      }
+      base_url = "/" + base_url_pieces.join("/") + "/";
+      if (isString(Falcon.baseApiUrl)) {
+        base_url = "" + Falcon.baseApiUrl + base_url;
+      }
+      return base_url = base_url.replace(/([^:])\/\/+/gi, "$1/").replace(/^\/\//gi, "/");
+    };
+
+    FalconAdapter.prototype.makeUrlPieces = function(data_object, type, options, context) {
+      var base_url, extension, id_piece, period_index, url_piece, _ref1;
+      type = this.resolveRequestType(data_object, type, options, context);
+      base_url = this.makeBaseUrl(data_object, type, options, context);
+      url_piece = isFunction(data_object.url) ? data_object.url(type, options.parent) : data_object.url;
+      url_piece = isString(url_piece) ? trimSlashes(url_piece) : '';
+      extension = "";
+      period_index = url_piece.lastIndexOf(".");
+      if (period_index > -1) {
+        extension = url_piece.slice(period_index);
+        url_piece = url_piece.slice(0, period_index);
+      }
+      id_piece = "";
+      if (Falcon.isModel(data_object) && (type === 'GET' || type === 'PUT' || type === 'DELETE')) {
+        id_piece = "/" + ((_ref1 = options.id) != null ? _ref1 : data_object.get('id'));
+      }
+      return {
+        base_url: base_url,
+        url_piece: url_piece,
+        id_piece: id_piece,
+        extension: extension
+      };
     };
 
     FalconAdapter.prototype.serializeData = function(data_object, type, options, context) {
@@ -801,54 +869,15 @@
     };
 
     FalconModel.prototype.makeUrl = function(type, parent, id) {
-      var ext, parentPeriodIndex, parentSlashIndex, parentUrl, periodIndex, url, _ref1;
-      url = isFunction(this.url) ? this.url() : this.url;
-      if (!isString(url)) {
-        url = "";
-      }
-      url = trim(url);
-      if (!isString(type)) {
-        type = "";
-      }
-      type = type.toUpperCase();
-      if (type !== 'GET' && type !== 'PUT' && type !== 'POST' && type !== 'DELETE') {
-        type = 'GET';
-      }
+      var base_url, extension, id_piece, url_piece, _ref1, _ref2;
       if (id === void 0 && (isString(parent) || isNumber(parent))) {
         _ref1 = [id, parent], parent = _ref1[0], id = _ref1[1];
       }
-      parent = parent !== void 0 ? parent : this.parent;
-      ext = "";
-      periodIndex = url.lastIndexOf(".");
-      if (periodIndex > -1) {
-        ext = url.slice(periodIndex);
-        url = url.slice(0, periodIndex);
-      }
-      if (!startsWith(url, "/")) {
-        url = "/" + url;
-      }
-      if (Falcon.isModel(parent)) {
-        parentUrl = parent.makeUrl();
-        parentPeriodIndex = parentUrl.lastIndexOf(".");
-        parentSlashIndex = parentUrl.lastIndexOf("/");
-        if (parentSlashIndex < parentPeriodIndex) {
-          if (parentPeriodIndex > -1) {
-            parentUrl = parentUrl.slice(0, parentPeriodIndex);
-          }
-          parentUrl = trim(parentUrl);
-        }
-        url = "" + parentUrl + url;
-      } else if (isString(Falcon.baseApiUrl)) {
-        url = "" + Falcon.baseApiUrl + url;
-      }
-      if (type === "GET" || type === "PUT" || type === "DELETE") {
-        if (url.slice(-1) !== "/") {
-          url += "/";
-        }
-        url += id != null ? id : this.get('id');
-      }
-      url = url.replace(/([^:])\/\/+/gi, "$1/").replace(/^\/\//gi, "/");
-      return "" + url + ext;
+      _ref2 = Falcon.adapter.makeUrlPieces(this, type, {
+        parent: parent,
+        id: id
+      }, this), base_url = _ref2.base_url, url_piece = _ref2.url_piece, id_piece = _ref2.id_piece, extension = _ref2.extension;
+      return "" + base_url + url_piece + id_piece + extension;
     };
 
     FalconModel.prototype.validate = function(options) {
@@ -1253,39 +1282,11 @@
     };
 
     FalconCollection.prototype.makeUrl = function(type, parent) {
-      var parentPeriodIndex, parentSlashIndex, parentUrl, url;
-      url = isFunction(this.url) ? this.url() : this.url;
-      if (!isString(url)) {
-        url = "";
-      }
-      url = trim(url);
-      if (!isString(type)) {
-        type = "";
-      }
-      type = type.toUpperCase();
-      if (type !== 'GET' && type !== 'PUT' && type !== 'POST' && type !== 'DELETE') {
-        type = 'GET';
-      }
-      if (!startsWith(url, "/")) {
-        url = "/" + url;
-      }
-      parent = parent === void 0 ? this.parent : parent;
-      if (Falcon.isModel(parent)) {
-        parentUrl = parent.makeUrl();
-        parentPeriodIndex = parentUrl.lastIndexOf(".");
-        parentSlashIndex = parentUrl.lastIndexOf("/");
-        if (parentSlashIndex < parentPeriodIndex) {
-          if (parentPeriodIndex > -1) {
-            parentUrl = parentUrl.slice(0, parentPeriodIndex);
-          }
-          parentUrl = trim(parentUrl);
-        }
-        url = "" + parentUrl + url;
-      } else if (isString(Falcon.baseApiUrl)) {
-        url = "" + Falcon.baseApiUrl + url;
-      }
-      url = url.replace(/([^:])\/\/+/gi, "$1/").replace(/^\/\//gi, "/");
-      return url;
+      var base_url, extension, url_piece, _ref1;
+      _ref1 = Falcon.adapter.makeUrlPieces(this, type, {
+        parent: parent
+      }, this), base_url = _ref1.base_url, url_piece = _ref1.url_piece, extension = _ref1.extension;
+      return "" + base_url + url_piece + extension;
     };
 
     FalconCollection.prototype.sync = function(type, options, context) {

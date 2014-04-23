@@ -11,7 +11,7 @@
 
 
 (function() {
-  var isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, startsWith, trim,
+  var endsWith, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, startsWith, trim, trimSlashes,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   isObject = function(object) {
@@ -80,8 +80,16 @@
     };
   }
 
+  trimSlashes = function(str) {
+    return str.replace(/^[\\/\s]+/, '').replace(/[\\/\s]+$/, '');
+  };
+
   startsWith = function(haystack, needle) {
     return haystack.indexOf(needle) === 0;
+  };
+
+  endsWith = function(haystack, needle) {
+    return haystack.lastIndexOf(needle) === haystack.length - 1;
   };
 
   Falcon.addConductor = (function() {
