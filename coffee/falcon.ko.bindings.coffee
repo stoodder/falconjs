@@ -55,7 +55,8 @@ ko.bindingHandlers['view'] = do ->
 				beforeDispose = ko.utils.peekObservable( options['beforeDispose'] )
 				
 				view = ko.unwrap( options.data )
-				is_loaded = Falcon.isView( view ) and ko.unwrap( view.__falcon_view__is_loaded__ )
+				is_view = Falcon.isView( view )
+				is_loaded = is_view and ko.unwrap( view.__falcon_view__is_loaded__ )
 				should_display = is_loaded and ko.unwrap( options['displayIf'] )
 				template = ( if should_display then (view.template() ? "") else "" ).toString()
 				should_display = not isEmpty( template )
@@ -66,7 +67,10 @@ ko.bindingHandlers['view'] = do ->
 					is_displayed = false
 
 					unless should_display
-						view._unrender() if Falcon.isView( view ) and view.__falcon_view__is_rendered__
+						if is_view and view.__falcon_view__is_rendered__
+							view._unrender()
+						#END if
+
 						return ko.virtualElements.emptyNode(element)
 					#END unless
 					
@@ -89,7 +93,6 @@ ko.bindingHandlers['view'] = do ->
 				return if is_disposing
 
 				if is_displayed and isFunction(beforeDispose)
-					console.log( beforeDispose.__falcon_bind__length__ )
 					if ( beforeDispose.__falcon_bind__length__ ? beforeDispose.length ) is 2
 						is_disposing = true
 						beforeDispose ko.virtualElements.childNodes(element), ->
