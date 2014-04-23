@@ -16,36 +16,22 @@ ko.bindingHandlers['view'] = do ->
 	#END _standardizeOptions
 
 	'init': (element, valueAccessor, allBindingsAccessor, viewModel, context) ->
-		options = _standardizeOptions(valueAccessor)
-		view = options.data
+		view = null
+		oldView = null
 		is_displayed = false
 		is_disposing = false
 		continuation = (->)
-
-		if ko.isSubscribable( view )
-			oldViewModel = ko.unwrap( view )
-			subscription = view.subscribe (newViewModel) ->
-				oldViewModel._unrender() if Falcon.isView(oldViewModel)
-				oldViewModel = newViewModel
-			#END subscribe
-
-			ko.utils.domNodeDisposal.addDisposeCallback element, ->
-				oldViewModel._unrender() if Falcon.isView(oldViewModel)
-				subscription.dispose()
-			#END domDisposal
-		#END if subscribable
-
-		else if Falcon.isView( view )
-			ko.utils.domNodeDisposal.addDisposeCallback element, ->
-				view._unrender()
-			#END domDisposal
-		#END if
 
 		container = document.createElement('div')
 
 		anonymous_template = new ko.templateSources.anonymousTemplate(element)
 		anonymous_template['nodes'](container)
 		anonymous_template['text']("")
+
+		ko.utils.domNodeDisposal.addDisposeCallback element, ->
+			_view = ko.unwrap( view )
+			_view._unrender() if Falcon.isView( _view )
+		#END domDisposal
 
 		ko.computed
 			disposeWhenNodeIsRemoved: element
@@ -55,8 +41,7 @@ ko.bindingHandlers['view'] = do ->
 				beforeDispose = ko.utils.peekObservable( options['beforeDispose'] )
 				
 				view = ko.unwrap( options.data )
-				is_view = Falcon.isView( view )
-				is_loaded = is_view and ko.unwrap( view.__falcon_view__is_loaded__ )
+				is_loaded = Falcon.isView( view ) and ko.unwrap( view.__falcon_view__is_loaded__ )
 				should_display = is_loaded and ko.unwrap( options['displayIf'] )
 				template = ( if should_display then (view.template() ? "") else "" ).toString()
 				should_display = not isEmpty( template )
@@ -66,8 +51,16 @@ ko.bindingHandlers['view'] = do ->
 					is_disposing = false
 					is_displayed = false
 
+					if view isnt oldView
+						if Falcon.isView( oldView ) and oldView.__falcon_view__is_rendered__
+							oldView._unrender()
+						#END if
+
+						oldView = view
+					#END if
+
 					unless should_display
-						if is_view and view.__falcon_view__is_rendered__
+						if Falcon.isView( view ) and view.__falcon_view__is_rendered__
 							view._unrender()
 						#END if
 
