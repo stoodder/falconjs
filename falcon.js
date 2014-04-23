@@ -1967,12 +1967,13 @@
         ko.computed({
           disposeWhenNodeIsRemoved: element,
           read: function() {
-            var afterDisplay, beforeDispose, is_loaded, should_display, template, _ref2, _ref3;
+            var afterDisplay, beforeDispose, is_loaded, is_view, should_display, template, _ref2, _ref3;
             options = _standardizeOptions(valueAccessor);
             afterDisplay = ko.utils.peekObservable(options['afterDisplay']);
             beforeDispose = ko.utils.peekObservable(options['beforeDispose']);
             view = ko.unwrap(options.data);
-            is_loaded = Falcon.isView(view) && ko.unwrap(view.__falcon_view__is_loaded__);
+            is_view = Falcon.isView(view);
+            is_loaded = is_view && ko.unwrap(view.__falcon_view__is_loaded__);
             should_display = is_loaded && ko.unwrap(options['displayIf']);
             template = (should_display ? (_ref2 = view.template()) != null ? _ref2 : "" : "").toString();
             should_display = !isEmpty(template);
@@ -1982,7 +1983,7 @@
               is_disposing = false;
               is_displayed = false;
               if (!should_display) {
-                if (Falcon.isView(view) && view.__falcon_view__is_rendered__) {
+                if (is_view && view.__falcon_view__is_rendered__) {
                   view._unrender();
                 }
                 return ko.virtualElements.emptyNode(element);
@@ -2003,7 +2004,6 @@
               return;
             }
             if (is_displayed && isFunction(beforeDispose)) {
-              console.log(beforeDispose.__falcon_bind__length__);
               if (((_ref3 = beforeDispose.__falcon_bind__length__) != null ? _ref3 : beforeDispose.length) === 2) {
                 is_disposing = true;
                 return beforeDispose(ko.virtualElements.childNodes(element), function() {
