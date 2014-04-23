@@ -3,9 +3,24 @@
 #	Mehod used to handle view objects, fetching their html
 #	and binding them against their memebr objects
 #--------------------------------------------------------
-ko.bindingHandlers['view'] = 
+ko.bindingHandlers['view'] = do ->
+	_standardizeOptions = (valueAccessor) ->
+		options = valueAccessor()
+		options = {data: options} if Falcon.isView( options ) or ko.isObservable( options )
+		options = {} unless isObject(options)
+		options['data'] ?= null
+		options['displayIf'] ?= true
+		options['afterDisplay'] ?= null
+		options['beforeDispose'] ?= null
+		return options
+	#END _standardizeOptions
+
 	'init': (element, valueAccessor, allBindingsAccessor, viewModel, context) ->
-		view = valueAccessor()
+		options = _standardizeOptions(valueAccessor)
+		view = options.data
+		is_displayed = false
+		is_disposing = false
+		continuation = (->)
 
 		if ko.isSubscribable( view )
 			oldViewModel = ko.unwrap( view )
@@ -35,29 +50,58 @@ ko.bindingHandlers['view'] =
 		ko.computed
 			disposeWhenNodeIsRemoved: element
 			read: ->
-				view = ko.unwrap( valueAccessor() )
-
-				return ko.virtualElements.emptyNode(element) unless Falcon.isView( view )
-				return ko.virtualElements.emptyNode(element) unless view.__falcon_view__is_loaded__()
-
-				template = ( view.template() ? "" ).toString()
-
-				return ko.virtualElements.emptyNode(element) if isEmpty( template )
-
-				#The method below is added to the viewModel upon creation due to the fact that proto 
-				#method are abstracted away during viewModel generation, it's used to notify a view 
-				#which views have been created within its context.  This is then used when destroying 
-				#the view to also ensure that we destroy child views.
-				context['__falcon_view__addChildView__']( view ) if context?['__falcon_view__addChildView__']?
+				options = _standardizeOptions(valueAccessor)
+				afterDisplay = ko.utils.peekObservable( options['afterDisplay'] )
+				beforeDispose = ko.utils.peekObservable( options['beforeDispose'] )
 				
-				childContext = context.createChildContext(viewModel).extend( '$view': view.viewModel() )
-				
-				container.innerHTML = template
-				anonymous_template['text'](template)
-				
-				ko.renderTemplate(element, childContext, {}, element)
+				view = ko.unwrap( options.data )
+				is_loaded = Falcon.isView( view ) and ko.unwrap( view.__falcon_view__is_loaded__ )
+				should_display = is_loaded and ko.unwrap( options['displayIf'] )
+				template = ( if should_display then (view.template() ? "") else "" ).toString()
+				should_display = not isEmpty( template )
 
-				view._render()
+				continuation = ->
+					continuation = (->)
+					is_disposing = false
+					is_displayed = false
+
+					unless should_display
+						view._unrender() if Falcon.isView( view ) and view.__falcon_view__is_rendered__
+						return ko.virtualElements.emptyNode(element)
+					#END unless
+					
+					childContext = context.createChildContext(viewModel).extend( '$view': view.viewModel() )
+							
+					container.innerHTML = template
+					anonymous_template['text'](template)
+					
+					ko.renderTemplate(element, childContext, {}, element)
+
+					is_displayed = true
+
+					view._render()
+
+					if isFunction(afterDisplay)
+						afterDisplay( ko.virtualElements.childNodes(element) )
+					#END if
+				#END continuation
+
+				return if is_disposing
+
+				if is_displayed and isFunction(beforeDispose)
+					console.log( beforeDispose.__falcon_bind__length__ )
+					if ( beforeDispose.__falcon_bind__length__ ? beforeDispose.length ) is 2
+						is_disposing = true
+						beforeDispose ko.virtualElements.childNodes(element), ->
+							continuation()
+						#END beforeDispose
+					else
+						beforeDispose( ko.virtualElements.childNodes(element) )
+						continuation()
+					#END if
+				else
+					continuation()
+				#END if
 			#END read
 		#END computed
 

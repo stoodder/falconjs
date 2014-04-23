@@ -5,11 +5,11 @@
 ### v1.0.0rc1
 **Enhancements**
 * Add makeBaseUrl method to Falcon.Adapter
+* Add displayIf, afterDisplay, beforeDispose to view binding
 
 **TODO**
 * Add exec binding
 * Add change notifications to Falcon.Collection
-* Add disposeWhen, displayIf, afterDisplay, beforeDispose to view binding
 * Ensure that Falcon will work with require.js
 * Add Falcon.Observable to wrap ko.observable in the case that we'd want to switch
 * Change 'url' to 'uri' on Falcon.View
