@@ -23,11 +23,11 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Falcon.Collection#sort now returns 'this' collection rather than the list of sorted models
 * Renamed 'url' to 'endpoint' throughout Falcon.
 * Falcon.Adapter has been split in to two separate classes Falcon.DataAdapter and Falcon.TemplateAdapter.  The Falcon.adapter instance has also been replaced with Falcon.data_adapater and Falcon.template_adapter
+* Add displayIf, afterDisplay, beforeDispose to view binding
 
 **TODO**
 * Add exec binding
 * Add change notifications to Falcon.Collection
-* Add disposeWhen, displayIf, afterDisplay, beforeDispose to view binding
 * Ensure that Falcon will work with require.js
 * Add Falcon.Observable to wrap ko.observable in the case that we'd want to switch
 * Make constants
