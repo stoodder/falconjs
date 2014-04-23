@@ -16,30 +16,11 @@ ko.bindingHandlers['view'] = do ->
 	#END _standardizeOptions
 
 	'init': (element, valueAccessor, allBindingsAccessor, viewModel, context) ->
-		options = _standardizeOptions(valueAccessor)
-		view = options.data
+		view = null
+		oldView = null
 		is_displayed = false
 		is_disposing = false
 		continuation = (->)
-
-		if ko.isSubscribable( view )
-			oldViewModel = ko.unwrap( view )
-			subscription = view.subscribe (newViewModel) ->
-				oldViewModel._unrender() if Falcon.isView(oldViewModel)
-				oldViewModel = newViewModel
-			#END subscribe
-
-			ko.utils.domNodeDisposal.addDisposeCallback element, ->
-				oldViewModel._unrender() if Falcon.isView(oldViewModel)
-				subscription.dispose()
-			#END domDisposal
-		#END if subscribable
-
-		else if Falcon.isView( view )
-			ko.utils.domNodeDisposal.addDisposeCallback element, ->
-				view._unrender()
-			#END domDisposal
-		#END if
 
 		container = document.createElement('div')
 
@@ -47,12 +28,16 @@ ko.bindingHandlers['view'] = do ->
 		anonymous_template['nodes'](container)
 		anonymous_template['text']("")
 
+		ko.utils.domNodeDisposal.addDisposeCallback element, ->
+			_view = ko.unwrap( view )
+			_view._unrender() if Falcon.isView( _view )
+		#END domDisposal
+
 		ko.computed
 			disposeWhenNodeIsRemoved: element
 			read: ->
 				options = _standardizeOptions(valueAccessor)
 				view = ko.unwrap( options.data )
-				is_view = Falcon.isView( view )
 
 				template = if Falcon.isView( view ) then ko.unwrap(view.__falcon_view__loaded_template__) else "" 
 				template = "" unless isString(template)
@@ -68,8 +53,16 @@ ko.bindingHandlers['view'] = do ->
 					is_disposing = false
 					is_displayed = false
 
+					if view isnt oldView
+						if Falcon.isView( oldView ) and oldView.__falcon_view__is_rendered__
+							oldView._unrender()
+						#END if
+
+						oldView = view
+					#END if
+
 					unless should_display
-						view._unrender() if is_view
+						view._unrender() if Falcon.isView( view )
 						return ko.virtualElements.emptyNode(element)
 					#END unless
 					

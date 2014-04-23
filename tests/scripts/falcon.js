@@ -2012,42 +2012,29 @@
     };
     return {
       'init': function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
-        var anonymous_template, container, continuation, is_displayed, is_disposing, oldViewModel, options, subscription, view;
-        options = _standardizeOptions(valueAccessor);
-        view = options.data;
+        var anonymous_template, container, continuation, is_displayed, is_disposing, oldView, view;
+        view = null;
+        oldView = null;
         is_displayed = false;
         is_disposing = false;
         continuation = (function() {});
-        if (ko.isSubscribable(view)) {
-          oldViewModel = ko.unwrap(view);
-          subscription = view.subscribe(function(newViewModel) {
-            if (Falcon.isView(oldViewModel)) {
-              oldViewModel._unrender();
-            }
-            return oldViewModel = newViewModel;
-          });
-          ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-            if (Falcon.isView(oldViewModel)) {
-              oldViewModel._unrender();
-            }
-            return subscription.dispose();
-          });
-        } else if (Falcon.isView(view)) {
-          ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-            return view._unrender();
-          });
-        }
         container = document.createElement('div');
         anonymous_template = new ko.templateSources.anonymousTemplate(element);
         anonymous_template['nodes'](container);
         anonymous_template['text']("");
+        ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+          var _view;
+          _view = ko.unwrap(view);
+          if (Falcon.isView(_view)) {
+            return _view._unrender();
+          }
+        });
         ko.computed({
           disposeWhenNodeIsRemoved: element,
           read: function() {
-            var afterDisplay, beforeDispose, is_view, should_display, template, _ref2;
+            var afterDisplay, beforeDispose, options, should_display, template, _ref2;
             options = _standardizeOptions(valueAccessor);
             view = ko.unwrap(options.data);
-            is_view = Falcon.isView(view);
             template = Falcon.isView(view) ? ko.unwrap(view.__falcon_view__loaded_template__) : "";
             if (!isString(template)) {
               template = "";
@@ -2061,8 +2048,14 @@
               continuation = (function() {});
               is_disposing = false;
               is_displayed = false;
+              if (view !== oldView) {
+                if (Falcon.isView(oldView) && oldView.__falcon_view__is_rendered__) {
+                  oldView._unrender();
+                }
+                oldView = view;
+              }
               if (!should_display) {
-                if (is_view) {
+                if (Falcon.isView(view)) {
                   view._unrender();
                 }
                 return ko.virtualElements.emptyNode(element);
