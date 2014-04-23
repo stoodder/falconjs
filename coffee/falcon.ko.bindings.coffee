@@ -52,6 +52,7 @@ ko.bindingHandlers['view'] = do ->
 			read: ->
 				options = _standardizeOptions(valueAccessor)
 				view = ko.unwrap( options.data )
+				is_view = Falcon.isView( view )
 
 				template = if Falcon.isView( view ) then ko.unwrap(view.__falcon_view__loaded_template__) else "" 
 				template = "" unless isString(template)
@@ -60,7 +61,7 @@ ko.bindingHandlers['view'] = do ->
 				beforeDispose = ko.utils.peekObservable( options['beforeDispose'] )
 				
 				should_display = ko.unwrap( options['displayIf'] ) isnt false
-				should_display = should_display and not isEmpty( template ) 
+				should_display = should_display and not isEmpty( template )
 
 				continuation = ->
 					continuation = (->)
@@ -68,7 +69,7 @@ ko.bindingHandlers['view'] = do ->
 					is_displayed = false
 
 					unless should_display
-						view._unrender() if Falcon.isView( view )
+						view._unrender() if is_view
 						return ko.virtualElements.emptyNode(element)
 					#END unless
 					

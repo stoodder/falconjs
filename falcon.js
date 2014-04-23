@@ -2044,9 +2044,10 @@
         ko.computed({
           disposeWhenNodeIsRemoved: element,
           read: function() {
-            var afterDisplay, beforeDispose, should_display, template, _ref2;
+            var afterDisplay, beforeDispose, is_view, should_display, template, _ref2;
             options = _standardizeOptions(valueAccessor);
             view = ko.unwrap(options.data);
+            is_view = Falcon.isView(view);
             template = Falcon.isView(view) ? ko.unwrap(view.__falcon_view__loaded_template__) : "";
             if (!isString(template)) {
               template = "";
@@ -2061,7 +2062,7 @@
               is_disposing = false;
               is_displayed = false;
               if (!should_display) {
-                if (Falcon.isView(view)) {
+                if (is_view) {
                   view._unrender();
                 }
                 return ko.virtualElements.emptyNode(element);
