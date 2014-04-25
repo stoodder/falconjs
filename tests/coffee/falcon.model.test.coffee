@@ -1130,6 +1130,24 @@ describe "Falcon.Model", ->
 			expect( ko.isObservable(the_model.is_read) ).toBe( true )
 			expect( the_model.get('is_read') ).toBe( true )
 		#END it
+
+		it "Should not lose reference to existing observables", ->
+			class TheModel extends Falcon.Model
+				observables:
+					'hello': 'world'
+				#END observables
+			#END TheModel
+
+			the_model = new TheModel
+			expect( the_model.hello() ).toBe( 'world' )
+			original_observable = the_model.hello
+
+			the_model.mixin
+				'hello': ko.observable('foo bar')
+			#END mixin
+			expect( original_observable ).toBe( the_model.hello )
+			expect( the_model.hello() ).toBe( 'world' )
+		#END it
 	#END describe
 
 	#--------------------------------------------------------------

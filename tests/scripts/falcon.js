@@ -904,7 +904,9 @@
           this[key].mixin(value);
         } else {
           if (ko.isObservable(value)) {
-            this[key] = ko.observable((_ref1 = this.get(key)) != null ? _ref1 : ko.unwrap(value));
+            if (!ko.isObservable(this[key])) {
+              this[key] = ko.observable((_ref1 = this.get(key)) != null ? _ref1 : ko.unwrap(value));
+            }
           } else if (isFunction(value)) {
             this[key] = bindFunction(value, this);
           } else {

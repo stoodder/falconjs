@@ -522,8 +522,9 @@ class FalconModel extends FalconObject
 				this[key].mixin(value)
 			else
 				if ko.isObservable(value)
-					#unless ko.isObservable( this[key] )
-					this[key] = ko.observable( @get(key) ? ko.unwrap(value) )
+					unless ko.isObservable( this[key] )
+						this[key] = ko.observable( @get(key) ? ko.unwrap(value) )
+					#END unless
 				else if isFunction(value)
 					this[key] = bindFunction(value, this)
 				else

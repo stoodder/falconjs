@@ -3129,7 +3129,7 @@
         expect(model_a.get("foo")).toBe("bar");
         return expect(ko.isObservable(model_a.hello)).toBe(true);
       });
-      return it("Should not overwrite existing values", function() {
+      it("Should not overwrite existing values", function() {
         var TheModel, the_model, _ref;
         TheModel = (function(_super) {
           __extends(TheModel, _super);
@@ -3154,6 +3154,32 @@
         });
         expect(ko.isObservable(the_model.is_read)).toBe(true);
         return expect(the_model.get('is_read')).toBe(true);
+      });
+      return it("Should not lose reference to existing observables", function() {
+        var TheModel, original_observable, the_model, _ref;
+        TheModel = (function(_super) {
+          __extends(TheModel, _super);
+
+          function TheModel() {
+            _ref = TheModel.__super__.constructor.apply(this, arguments);
+            return _ref;
+          }
+
+          TheModel.prototype.observables = {
+            'hello': 'world'
+          };
+
+          return TheModel;
+
+        })(Falcon.Model);
+        the_model = new TheModel;
+        expect(the_model.hello()).toBe('world');
+        original_observable = the_model.hello;
+        the_model.mixin({
+          'hello': ko.observable('foo bar')
+        });
+        expect(original_observable).toBe(the_model.hello);
+        return expect(the_model.hello()).toBe('world');
       });
     });
     describe("Testing clone() method", function() {
