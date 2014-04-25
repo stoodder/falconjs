@@ -1418,7 +1418,7 @@ describe "Falcon.Collection", ->
 	# Test the sort() method
 	#
 	#--------------------------------------------------------------
-	describe "Test the sort method", ->
+	describe "sort", ->
 		collectionA = null
 		model_a1 = model_a2 = model_a3 = null
 
@@ -1430,7 +1430,7 @@ describe "Falcon.Collection", ->
 
 			expect( collectionA.models() ).toEqual([ model_a2, model_a1, model_a3 ])
 
-			collectionA.sort (a, b) ->
+			ret = collectionA.sort (a, b) ->
 				a_id = a.get("id")
 				b_id = b.get("id")
 
@@ -1440,6 +1440,30 @@ describe "Falcon.Collection", ->
 			#END sort
 
 			expect( collectionA.models() ).toEqual([ model_a1, model_a2, model_a3 ])
+			expect( ret ).toBe( collectionA )
+		#END it
+
+		it "Should use the built-in comparator if none is given", ->
+			model_a1 = new ModelA(id: 1)
+			model_a2 = new ModelA(id: 2)
+			model_a3 = new ModelA(id: 3)
+			collectionA = new CollectionA([model_a2, model_a1, model_a3])
+
+			expect( collectionA.models() ).toEqual([ model_a2, model_a1, model_a3 ])
+
+			collectionA.comparator = (a, b) ->
+				a_id = a.get("id")
+				b_id = b.get("id")
+
+				return 1 if a_id > b_id
+				return -1 if a_id < b_id
+				return 0
+			#END sort
+
+			ret = collectionA.sort()
+
+			expect( collectionA.models() ).toEqual([ model_a1, model_a2, model_a3 ])
+			expect( ret ).toBe( collectionA )
 		#END it
 	#END describe
 
