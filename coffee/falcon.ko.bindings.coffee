@@ -84,40 +84,17 @@ _getForeachItems = (value) ->
 	return ( -> value )
 #END _getForeachItems
 
-#Checks to see (and keeps track) if a collection is actually updated
-_shouldUpdate = (element, value) ->
-	return true unless Falcon.isCollection(value)
-
-	lastCId = ko.utils.domData.get(element, "__falcon_object__cid__")
-	CId = value.__falcon_object__cid__
-
-	changeCount = value.__falcon_collection__change_count__
-	lastChangeCount = ko.utils.domData.get(element, "__falcon_collection___change_count__")
-
-	return false if lastChangeCount is changeCount and lastCId is CId
-
-	ko.utils.domData.set(element, '__falcon_object__cid__', CId)
-	ko.utils.domData.set(element, '__falcon_collection___change_count__', changeCount)
-
-	return true
-#END _shouldUpdate
-
 #Store a copy of the old foreach
 Falcon.__binding__original_foreach__ = ko.bindingHandlers['foreach'] ? {}
-
 ko.bindingHandlers['foreach'] = 
 	'init': (element, valueAccessor, args...) ->
 		value = ko.unwrap( valueAccessor() )
-		ko.utils.domData.set(element, '__falcon_collection___change_count__', -1)
 		return Falcon.__binding__original_foreach__['init'](element, _getForeachItems(value), args...)
 	#END init
 
 	'update': (element, valueAccessor, args...) ->
 		value = ko.unwrap( valueAccessor() )
-		if _shouldUpdate(element, value)
-			return Falcon.__binding__original_foreach__['update'](element, _getForeachItems(value), args...)
-		#END if
-		return
+		return Falcon.__binding__original_foreach__['update'](element, _getForeachItems(value), args...)
 	#END update
 #END foreach override
 
@@ -138,22 +115,22 @@ _getOptionsItems = (value) ->
 #END _getOptionsItems
 
 Falcon.__binding__original_options__ = ko.bindingHandlers['options'] ? (->)
-
 ko.bindingHandlers['options'] = do ->
 	'init': (element, valueAccessor, args...) ->
 		value = ko.unwrap( valueAccessor() )
-		ko.utils.domData.set(element, '__falcon_collection___change_count__', -1)
 		return ( Falcon.__binding__original_options__['init'] ? (->) )(element, _getOptionsItems(value), args...)
 	#END init
 
 	'update': (element, valueAccessor, args...) ->
 		value = ko.unwrap( valueAccessor() )
-		if _shouldUpdate(element, value)
-			return ( Falcon.__binding__original_options__['update'] ? (->) )(element, _getOptionsItems(value), args...)
-		#END if
-		return
+		return ( Falcon.__binding__original_options__['update'] ? (->) )(element, _getOptionsItems(value), args...)
 	#END update
-#END foreach override
+#END options override
+
+#Map the rest of the values from the original binding
+for key, value of Falcon.__binding__original_options__ when key not of ko.bindingHandlers['options']
+	ko.bindingHandlers['options'][key] = value
+#END for
 
 #--------------------------------------------------------
 # Method: ko.bindingHandlers.log

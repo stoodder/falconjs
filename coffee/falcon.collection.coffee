@@ -68,15 +68,6 @@ class FalconCollection extends FalconObject
 	__falcon_collection__mixins__: null
 
 	#--------------------------------------------------------
-	# Member: Falcon.Collection#__falcon_collection__change_count__
-	#	Private variable that tracks the change counts of this collection, used to
-	#	make sure we don't re-render elements when not necessary
-	#
-	# Type: _(Number)_
-	#--------------------------------------------------------
-	__falcon_collection__change_count__: 0
-
-	#--------------------------------------------------------
 	# Member: Falcon.Collection#models
 	#	The internal observable array of models
 	#
@@ -417,7 +408,6 @@ class FalconCollection extends FalconObject
 	remove: (items) ->
 		items = ko.unwrap( items )
 		items = items.models() if Falcon.isCollection( items )
-		@__falcon_collection__change_count__++
 
 		removedItems = if isArray(items) then @models.removeAll(items) else @models.remove(_makeIterator(items))
 
@@ -475,7 +465,6 @@ class FalconCollection extends FalconObject
 	_fill_updateModels = (collection, new_models_list, options) ->
 		new_models_list.sort( options.comparator ) if isFunction( options.comparator )
 
-		collection.__falcon_collection__change_count__++
 		collection.models( new_models_list )
 	#END _fill_updateModels
 
@@ -756,7 +745,6 @@ class FalconCollection extends FalconObject
 	#	_(Falcon.Model)_ - The last model on the list, may be null
 	#--------------------------------------------------------
 	pop: ->
-		@__falcon_collection__change_count__++
 		item = @models.pop()
 		return item
 	#END pop
@@ -1126,7 +1114,6 @@ class FalconCollection extends FalconObject
 	#	_(Falcon.Collection)_ - This instance
 	#--------------------------------------------------------
 	reset: () -> 
-		@__falcon_collection__change_count__++
 		if @models?
 			@models([])
 		else

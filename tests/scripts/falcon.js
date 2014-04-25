@@ -11,7 +11,7 @@
 
 
 (function() {
-  var ChainedCollection, Falcon, FalconAdapter, FalconCollection, FalconModel, FalconObject, FalconView, arrayRemove, arrayUnique, clone, extend, findKey, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, startsWith, trim, value, _getForeachItems, _getOptionsItems, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _shouldUpdate,
+  var ChainedCollection, Falcon, FalconAdapter, FalconCollection, FalconModel, FalconObject, FalconView, arrayRemove, arrayUnique, clone, extend, findKey, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, startsWith, trim, value, _getForeachItems, _getOptionsItems, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -1186,8 +1186,6 @@
 
     FalconCollection.prototype.__falcon_collection__mixins__ = null;
 
-    FalconCollection.prototype.__falcon_collection__change_count__ = 0;
-
     FalconCollection.prototype.models = null;
 
     FalconCollection.prototype.model = null;
@@ -1372,7 +1370,6 @@
       if (Falcon.isCollection(items)) {
         items = items.models();
       }
-      this.__falcon_collection__change_count__++;
       removedItems = isArray(items) ? this.models.removeAll(items) : this.models.remove(_makeIterator(items));
       return this;
     };
@@ -1451,7 +1448,6 @@
       if (isFunction(options.comparator)) {
         new_models_list.sort(options.comparator);
       }
-      collection.__falcon_collection__change_count__++;
       return collection.models(new_models_list);
     };
 
@@ -1609,7 +1605,6 @@
 
     FalconCollection.prototype.pop = function() {
       var item;
-      this.__falcon_collection__change_count__++;
       item = this.models.pop();
       return item;
     };
@@ -1879,7 +1874,6 @@
     };
 
     FalconCollection.prototype.reset = function() {
-      this.__falcon_collection__change_count__++;
       if (this.models != null) {
         this.models([]);
       } else {
@@ -2168,23 +2162,6 @@
     });
   };
 
-  _shouldUpdate = function(element, value) {
-    var CId, changeCount, lastCId, lastChangeCount;
-    if (!Falcon.isCollection(value)) {
-      return true;
-    }
-    lastCId = ko.utils.domData.get(element, "__falcon_object__cid__");
-    CId = value.__falcon_object__cid__;
-    changeCount = value.__falcon_collection__change_count__;
-    lastChangeCount = ko.utils.domData.get(element, "__falcon_collection___change_count__");
-    if (lastChangeCount === changeCount && lastCId === CId) {
-      return false;
-    }
-    ko.utils.domData.set(element, '__falcon_object__cid__', CId);
-    ko.utils.domData.set(element, '__falcon_collection___change_count__', changeCount);
-    return true;
-  };
-
   Falcon.__binding__original_foreach__ = (_ref3 = ko.bindingHandlers['foreach']) != null ? _ref3 : {};
 
   ko.bindingHandlers['foreach'] = {
@@ -2192,16 +2169,13 @@
       var args, element, value, valueAccessor, _ref4;
       element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
       value = ko.unwrap(valueAccessor());
-      ko.utils.domData.set(element, '__falcon_collection___change_count__', -1);
       return (_ref4 = Falcon.__binding__original_foreach__)['init'].apply(_ref4, [element, _getForeachItems(value)].concat(__slice.call(args)));
     },
     'update': function() {
       var args, element, value, valueAccessor, _ref4;
       element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
       value = ko.unwrap(valueAccessor());
-      if (_shouldUpdate(element, value)) {
-        return (_ref4 = Falcon.__binding__original_foreach__)['update'].apply(_ref4, [element, _getForeachItems(value)].concat(__slice.call(args)));
-      }
+      return (_ref4 = Falcon.__binding__original_foreach__)['update'].apply(_ref4, [element, _getForeachItems(value)].concat(__slice.call(args)));
     }
   };
 
@@ -2231,19 +2205,24 @@
         var args, element, valueAccessor, _ref6;
         element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
         value = ko.unwrap(valueAccessor());
-        ko.utils.domData.set(element, '__falcon_collection___change_count__', -1);
         return ((_ref6 = Falcon.__binding__original_options__['init']) != null ? _ref6 : (function() {})).apply(null, [element, _getOptionsItems(value)].concat(__slice.call(args)));
       },
       'update': function() {
         var args, element, valueAccessor, _ref6;
         element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
         value = ko.unwrap(valueAccessor());
-        if (_shouldUpdate(element, value)) {
-          return ((_ref6 = Falcon.__binding__original_options__['update']) != null ? _ref6 : (function() {})).apply(null, [element, _getOptionsItems(value)].concat(__slice.call(args)));
-        }
+        return ((_ref6 = Falcon.__binding__original_options__['update']) != null ? _ref6 : (function() {})).apply(null, [element, _getOptionsItems(value)].concat(__slice.call(args)));
       }
     };
   })();
+
+  _ref6 = Falcon.__binding__original_options__;
+  for (key in _ref6) {
+    value = _ref6[key];
+    if (!(key in ko.bindingHandlers['options'])) {
+      ko.bindingHandlers['options'][key] = value;
+    }
+  }
 
   ko.bindingHandlers['log'] = {
     update: function(element, valueAccessor) {
