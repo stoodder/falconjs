@@ -149,7 +149,7 @@ class FalconCollection extends FalconObject
 		@parent = parent
 
 		@__falcon_collection__mixins__ = []
-		@reset()
+		@models = ko.observableArray([])
 		@initialize.apply(this, arguments)
 		@fill(models) unless isEmpty( models )
 
@@ -1114,11 +1114,7 @@ class FalconCollection extends FalconObject
 	#	_(Falcon.Collection)_ - This instance
 	#--------------------------------------------------------
 	reset: () -> 
-		if @models?
-			@models([])
-		else
-			@models = ko.observableArray([])
-		#END unless
+		@models([])
 		return this
 	#END reset
 #END Falcon.Collection

@@ -1219,7 +1219,7 @@
       });
       this.parent = parent;
       this.__falcon_collection__mixins__ = [];
-      this.reset();
+      this.models = ko.observableArray([]);
       this.initialize.apply(this, arguments);
       if (!isEmpty(models)) {
         this.fill(models);
@@ -1867,11 +1867,7 @@
     };
 
     FalconCollection.prototype.reset = function() {
-      if (this.models != null) {
-        this.models([]);
-      } else {
-        this.models = ko.observableArray([]);
-      }
+      this.models([]);
       return this;
     };
 
