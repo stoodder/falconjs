@@ -5,6 +5,7 @@
 ### v1.0.0rc1
 **Enhancements**
 * Add makeBaseUrl method to Falcon.Adapter
+* Optimizing fill related methods
 
 **Bug Fixes**
 * Removed change counter on collections, it was redundant checking and not needed anymore

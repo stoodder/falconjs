@@ -529,11 +529,7 @@ class FalconCollection extends FalconObject
 		items = _fill_standardizeItems( @, items )
 		items = _fill_createModels( @, items ) 
 		_fill_addMixins( @, items, options )
-
-		new_models_list = @models()
-		new_models_list = new_models_list.concat( items )
-
-		_fill_updateModels( @, new_models_list, options )
+		_fill_updateModels( @, @models().concat(items), options )
 
 		return items
 	#END append
@@ -556,18 +552,8 @@ class FalconCollection extends FalconObject
 		options = _fill_standardizeOptions( @, options )
 		items = _fill_standardizeItems( @, items )
 		items = _fill_createModels( @, items )
-
-		#Create new models where needed
-		#for item, i in items when isObject(item) and not Falcon.isModel(item)
-		#	items[i] = new @model(item, @parent)
-		#END for
-
-		_length = items.length-1
-		new_models_list = @models()
-		new_models_list.unshift( items[_length-i] ) for item, i in items
-
 		_fill_addMixins( @, items, options )
-		_fill_updateModels( @, new_models_list, options )
+		_fill_updateModels( @, items.concat(@models()), options )
 
 		return items
 	#END prepend
@@ -598,6 +584,7 @@ class FalconCollection extends FalconObject
 
 		items = _fill_standardizeItems( @, items )
 		items = _fill_createModels( @, items )
+		_fill_addMixins( @, items, options )
 		
 		insert_index = options.index ? @indexOf( _makeIterator( options.iterator ? options.model ) )
 		new_models_list = @models()
@@ -610,7 +597,6 @@ class FalconCollection extends FalconObject
 			new_models_list = head.concat( items, tail )
 		#END if
 
-		_fill_addMixins( @, items, options )
 		_fill_updateModels( @, new_models_list, options )
 
 		return items

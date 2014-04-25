@@ -1456,7 +1456,6 @@
     };
 
     FalconCollection.prototype.append = function(items, options) {
-      var new_models_list;
       if (this.model == null) {
         return [];
       }
@@ -1464,34 +1463,19 @@
       items = _fill_standardizeItems(this, items);
       items = _fill_createModels(this, items);
       _fill_addMixins(this, items, options);
-      new_models_list = this.models();
-      new_models_list = new_models_list.concat(items);
-      _fill_updateModels(this, new_models_list, options);
+      _fill_updateModels(this, this.models().concat(items), options);
       return items;
     };
 
     FalconCollection.prototype.prepend = function(items, options) {
-      var i, item, new_models_list, _i, _j, _len, _len1, _length;
       if (this.model == null) {
         return [];
       }
       options = _fill_standardizeOptions(this, options);
       items = _fill_standardizeItems(this, items);
       items = _fill_createModels(this, items);
-      for (i = _i = 0, _len = items.length; _i < _len; i = ++_i) {
-        item = items[i];
-        if (isObject(item) && !Falcon.isModel(item)) {
-          items[i] = new this.model(item, this.parent);
-        }
-      }
-      _length = items.length - 1;
-      new_models_list = this.models();
-      for (i = _j = 0, _len1 = items.length; _j < _len1; i = ++_j) {
-        item = items[i];
-        new_models_list.unshift(items[_length - i]);
-      }
       _fill_addMixins(this, items, options);
-      _fill_updateModels(this, new_models_list, options);
+      _fill_updateModels(this, items.concat(this.models()), options);
       return items;
     };
 
@@ -1508,6 +1492,7 @@
         };
       }
       options = _fill_standardizeOptions(this, options);
+      _fill_addMixins(this, items, options);
       items = _fill_standardizeItems(this, items);
       items = _fill_createModels(this, items);
       insert_index = (_ref1 = options.index) != null ? _ref1 : this.indexOf(_makeIterator((_ref2 = options.iterator) != null ? _ref2 : options.model));
@@ -1519,7 +1504,6 @@
         tail = new_models_list.slice(insert_index);
         new_models_list = head.concat(items, tail);
       }
-      _fill_addMixins(this, items, options);
       _fill_updateModels(this, new_models_list, options);
       return items;
     };
