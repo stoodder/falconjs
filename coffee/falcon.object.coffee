@@ -5,13 +5,6 @@
 #==============================================================================================
 class FalconObject
 	#--------------------------------------------------------
-	# Attribute: __falcon_object__current_cid__
-	#	Private variable that acts as a counter for all falcon objects
-	#	so that they have a unique client id.
-	#--------------------------------------------------------
-	__falcon_object__current_cid__ = 0
-
-	#--------------------------------------------------------
 	# Attribute: Falcon.Object#observables
 	#	This is a list of the default observables and values for
 	#	this view on each instantiation. If the value is a function
@@ -92,17 +85,10 @@ class FalconObject
 	__falcon_object__listeners__: null
 
 	#--------------------------------------------------------
-	# The unique client id of this falcon object
-	#--------------------------------------------------------
-	__falcon_object__cid__: null
-
-	#--------------------------------------------------------
 	# Method: Falcon.Object()
 	#	The constructor method
 	#--------------------------------------------------------
 	constructor: ->
-		@__falcon_object__cid__ = __falcon_object__current_cid__++
-
 		#Setup the other defaults
 		if isObject( @defaults )
 			for attr, value of @defaults

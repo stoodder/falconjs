@@ -68,15 +68,6 @@ class FalconCollection extends FalconObject
 	__falcon_collection__mixins__: null
 
 	#--------------------------------------------------------
-	# Member: Falcon.Collection#__falcon_collection__change_count__
-	#	Private variable that tracks the change counts of this collection, used to
-	#	make sure we don't re-render elements when not necessary
-	#
-	# Type: _(Number)_
-	#--------------------------------------------------------
-	__falcon_collection__change_count__: 0
-
-	#--------------------------------------------------------
 	# Member: Falcon.Collection#models
 	#	The internal observable array of models
 	#
@@ -158,9 +149,9 @@ class FalconCollection extends FalconObject
 		@parent = parent
 
 		@__falcon_collection__mixins__ = []
-		@reset()
+		@models = ko.observableArray([])
 		@initialize.apply(this, arguments)
-		@fill(models) unless isEmpty( models )
+		@replace(models) unless isEmpty( models )
 
 		return this
 	#END constructor
@@ -417,7 +408,6 @@ class FalconCollection extends FalconObject
 	remove: (items) ->
 		items = ko.unwrap( items )
 		items = items.models() if Falcon.isCollection( items )
-		@__falcon_collection__change_count__++
 
 		removedItems = if isArray(items) then @models.removeAll(items) else @models.remove(_makeIterator(items))
 
@@ -454,6 +444,8 @@ class FalconCollection extends FalconObject
 		for added_model in added_models
 			added_model.mixin(mapping) for mapping in collection.__falcon_collection__mixins__
 		#END for
+
+		return added_models
 	#END _fill_addMixins
 
 	_fill_standardizeOptions = (collection, options) ->
@@ -475,7 +467,6 @@ class FalconCollection extends FalconObject
 	_fill_updateModels = (collection, new_models_list, options) ->
 		new_models_list.sort( options.comparator ) if isFunction( options.comparator )
 
-		collection.__falcon_collection__change_count__++
 		collection.models( new_models_list )
 	#END _fill_updateModels
 
@@ -537,12 +528,8 @@ class FalconCollection extends FalconObject
 		options = _fill_standardizeOptions( @, options )
 		items = _fill_standardizeItems( @, items )
 		items = _fill_createModels( @, items ) 
-
-		new_models_list = @models()
-		new_models_list = new_models_list.concat( items )
-
 		_fill_addMixins( @, items, options )
-		_fill_updateModels( @, new_models_list, options )
+		_fill_updateModels( @, @models().concat(items), options )
 
 		return items
 	#END append
@@ -565,18 +552,8 @@ class FalconCollection extends FalconObject
 		options = _fill_standardizeOptions( @, options )
 		items = _fill_standardizeItems( @, items )
 		items = _fill_createModels( @, items )
-
-		#Create new models where needed
-		for item, i in items when isObject(item) and not Falcon.isModel(item)
-			items[i] = new @model(item, @parent)
-		#END for
-
-		_length = items.length-1
-		new_models_list = @models()
-		new_models_list.unshift( items[_length-i] ) for item, i in items
-
 		_fill_addMixins( @, items, options )
-		_fill_updateModels( @, new_models_list, options )
+		_fill_updateModels( @, items.concat(@models()), options )
 
 		return items
 	#END prepend
@@ -607,6 +584,7 @@ class FalconCollection extends FalconObject
 
 		items = _fill_standardizeItems( @, items )
 		items = _fill_createModels( @, items )
+		_fill_addMixins( @, items, options )
 		
 		insert_index = options.index ? @indexOf( _makeIterator( options.iterator ? options.model ) )
 		new_models_list = @models()
@@ -619,7 +597,6 @@ class FalconCollection extends FalconObject
 			new_models_list = head.concat( items, tail )
 		#END if
 
-		_fill_addMixins( @, items, options )
 		_fill_updateModels( @, new_models_list, options )
 
 		return items
@@ -756,7 +733,6 @@ class FalconCollection extends FalconObject
 	#	_(Falcon.Model)_ - The last model on the list, may be null
 	#--------------------------------------------------------
 	pop: ->
-		@__falcon_collection__change_count__++
 		item = @models.pop()
 		return item
 	#END pop
@@ -1073,27 +1049,10 @@ class FalconCollection extends FalconObject
 	#	Account for knockout observable extensions
 	#--------------------------------------------------------
 	mixin: (mapping) ->
-		mapping = {} unless isObject(mapping)
-		_mapping = {}
+		return this unless isObject(mapping)
 
-		for key, value of mapping
-			if ko.isObservable(value)
-				_mapping[key] = ko.observable( ko.unwrap(value) )
-			else if isFunction(value)
-				do =>
-					_value = value
-					_mapping[key] = (args...) => _value.apply( args[0], [args[0], this].concat(args[1..]) )  
-					_mapping[key].length = _value.length
-				#END do
-			else
-				_mapping[key] = value
-			#END if
-		#END for
-
-		models = @models()
-		model.mixin(_mapping) for model in models when Falcon.isDataObject( model )
-			
-		@__falcon_collection__mixins__.push(_mapping)
+		model.mixin(mapping) for model in @models() when Falcon.isDataObject( model )
+		@__falcon_collection__mixins__.push(mapping)
 			
 		return this
 	#END mixin
@@ -1126,12 +1085,7 @@ class FalconCollection extends FalconObject
 	#	_(Falcon.Collection)_ - This instance
 	#--------------------------------------------------------
 	reset: () -> 
-		@__falcon_collection__change_count__++
-		if @models?
-			@models([])
-		else
-			@models = ko.observableArray([])
-		#END unless
+		@models([])
 		return this
 	#END reset
 #END Falcon.Collection

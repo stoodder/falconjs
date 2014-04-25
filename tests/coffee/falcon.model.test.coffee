@@ -1059,7 +1059,7 @@ describe "Falcon.Model", ->
 	# Test the mixin() method
 	#
 	#--------------------------------------------------------------
-	describe "Testing the mixin method", ->
+	describe "mixin", ->
 		it "Should implement mixins properly", ->
 			class ModelA extends Falcon.Model
 				initialize: -> @model_b = new ModelB
@@ -1074,13 +1074,13 @@ describe "Falcon.Model", ->
 			expect( modelA.foo ).not.toBeDefined()
 			expect( modelA.model_b.test ).not.toBeDefined()
 
-			modelA.mixin {
+			modelA.mixin({
 				"hello": ( mixin_spy = sinon.spy() )
 				"foo": ko.observable( "bar" )
 				"model_b": {
 					"test": "123"
 				}
-			}
+			})
 
 			expect( modelA.hello ).toBeDefined()
 			expect( modelA.hello ).toEqual(jasmine.any(Function))
@@ -1092,8 +1092,7 @@ describe "Falcon.Model", ->
 			modelA.hello('world')
 			expect( mixin_spy ).toHaveBeenCalledOnce()
 			expect( mixin_spy ).toHaveBeenCalledOn( modelA )
-			expect( mixin_spy.firstCall.args[0] ).toBe( modelA )
-			expect( mixin_spy.firstCall.args[1] ).toBe( 'world' )
+			expect( mixin_spy.firstCall.args[0] ).toBe( 'world' )
 		#END it
 
 		it "Should preserve existing values in the model", ->
@@ -1130,6 +1129,24 @@ describe "Falcon.Model", ->
 			the_model.mixin(is_read: ko.observable(false))
 			expect( ko.isObservable(the_model.is_read) ).toBe( true )
 			expect( the_model.get('is_read') ).toBe( true )
+		#END it
+
+		it "Should not lose reference to existing observables", ->
+			class TheModel extends Falcon.Model
+				observables:
+					'hello': 'world'
+				#END observables
+			#END TheModel
+
+			the_model = new TheModel
+			expect( the_model.hello() ).toBe( 'world' )
+			original_observable = the_model.hello
+
+			the_model.mixin
+				'hello': ko.observable('foo bar')
+			#END mixin
+			expect( original_observable ).toBe( the_model.hello )
+			expect( the_model.hello() ).toBe( 'world' )
 		#END it
 	#END describe
 
