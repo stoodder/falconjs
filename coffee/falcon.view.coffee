@@ -252,28 +252,19 @@ class FalconView extends FalconObject
 	#	the context of this instance.
 	#--------------------------------------------------------
 	@__falcon_view__viewModel__: null
-	viewModel: do ->
-		#Custom bind to work with ie8
-		_bind = (value, self) ->
-			func = -> value.apply(self, arguments)
-			func.__falcon_bind__length__ = value.length
-			return func
-		#END _bind
+	viewModel: ->
+		return @__falcon_view__viewModel__ if @__falcon_view__viewModel__?
 
-		return ->
-			return @__falcon_view__viewModel__ if @__falcon_view__viewModel__?
+		viewModel = {}
 
-			viewModel = {}
+		for key, value of this when not ( key of Falcon.View.prototype )
+			if isFunction(value) and not ko.isObservable(value)
+				value = bindFunction(value, this)
+			#END if
+			
+			viewModel[key] = value
+		#END for
 
-			for key, value of this when not ( key of Falcon.View.prototype )
-				if isFunction(value) and not ko.isObservable(value)
-					value = _bind(value, this)
-				#END if
-				
-				viewModel[key] = value
-			#END for
-
-			return (@__falcon_view__viewModel__ = viewModel)
-		#END return
+		return (@__falcon_view__viewModel__ = viewModel)
 	#END viewModel
 #END Falcon.View
