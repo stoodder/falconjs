@@ -2,7 +2,7 @@
 	Falcon.js
 	by Rick Allen (stoodder)
 
-	Version 0.10.2
+	Version 1.0.0rc1
 	Full source at https://github.com/stoodder/falconjs
 	Copyright (c) 2013 Rick Allen, http://www.stoodder.com
 
@@ -1492,9 +1492,9 @@
         };
       }
       options = _fill_standardizeOptions(this, options);
-      _fill_addMixins(this, items, options);
       items = _fill_standardizeItems(this, items);
       items = _fill_createModels(this, items);
+      _fill_addMixins(this, items, options);
       insert_index = (_ref1 = options.index) != null ? _ref1 : this.indexOf(_makeIterator((_ref2 = options.iterator) != null ? _ref2 : options.model));
       new_models_list = this.models();
       if (insert_index < 0 || insert_index >= new_models_list.length) {
@@ -1882,7 +1882,7 @@
 
     _Class.prototype['Adapter'] = FalconAdapter;
 
-    _Class.prototype.version = "0.10.2";
+    _Class.prototype.version = "1.0.0rc1";
 
     _Class.prototype.applicationElement = "body";
 
