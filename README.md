@@ -6,6 +6,10 @@
 **Enhancements**
 * Add makeBaseUrl method to Falcon.Adapter
 
+**Bug Fixxes**
+* Removed change counter on collections, it was redundant checking and not needed anymore
+* Fixed refernece loss issue with Falcon.Collection#mixin
+
 **TODO**
 * Add exec binding
 * Add change notifications to Falcon.Collection

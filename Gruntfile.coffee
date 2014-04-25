@@ -68,9 +68,10 @@ module.exports = (grunt) ->
 						"coffee/falcon.model.coffee"
 						"coffee/falcon.view.coffee"
 						"coffee/falcon.collection.coffee"
-						"coffee/falcon.ko.bindings.coffee"
 						
 						"coffee/falcon.coffee"
+						"coffee/falcon.ko.bindings.coffee"
+						
 					],
 
 					'falcon.conductor.js': [
@@ -136,12 +137,9 @@ module.exports = (grunt) ->
 
 		'jasmine':
 			'dist':
-				display: 'short'
-				summary: true
-				src: [
-					'falcon.min.js'
-				]
+				src: 'falcon.min.js'
 				options:
+					summary: true
 					vendor: [
 						'tests/lib/sinon-1.7.3.js'
 						'tests/lib/jasmine2.0.0-sinon.js'
@@ -155,11 +153,8 @@ module.exports = (grunt) ->
 			#END jasmine:dist
 
 			'conductor':
-				src: [
-					'falcon.conductor.min.js'
-				]
+				src: 'falcon.conductor.min.js'
 				options:
-					display: 'short'
 					summary: true
 					vendor: [
 						'tests/lib/sinon-1.7.3.js'
@@ -178,11 +173,8 @@ module.exports = (grunt) ->
 			#END conductor
 
 			'adapters':
-				src: [
-					'adapters/falcon.jquery_adapter.min.js'
-				]
+				src: 'adapters/falcon.jquery_adapter.min.js'
 				options:
-					display: 'short'
 					summary: true
 					vendor: [
 						'tests/lib/sinon-1.7.3.js'
