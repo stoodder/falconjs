@@ -1584,10 +1584,14 @@
     };
 
     FalconCollection.prototype.sort = function(comparator) {
-      if (!isFunction(comparator)) {
-        return models;
+      if (comparator == null) {
+        comparator = this.comparator;
       }
-      return this.models.sort(comparator);
+      if (!isFunction(comparator)) {
+        return this;
+      }
+      this.models.sort(comparator);
+      return this;
     };
 
     FalconCollection.prototype.at = function(index) {
@@ -1845,11 +1849,6 @@
 
     ChainedCollection.prototype.slice = function() {
       this.models(ChainedCollection.__super__.slice.apply(this, arguments));
-      return this;
-    };
-
-    ChainedCollection.prototype.sort = function() {
-      this.models(ChainedCollection.__super__.sort.apply(this, arguments));
       return this;
     };
 
