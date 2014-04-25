@@ -17,6 +17,7 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Ensure that Falcon will work with require.js
 * Add Falcon.Observable to wrap ko.observable in the case that we'd want to switch
 * Change 'url' to 'uri' on Falcon.View
+* Fallback to local comparator if one isn't given in sort()
 
 ### v0.10.2
 **Highlights**
