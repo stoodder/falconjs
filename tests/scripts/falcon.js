@@ -11,7 +11,7 @@
 
 
 (function() {
-  var ChainedCollection, Falcon, FalconAdapter, FalconCollection, FalconModel, FalconObject, FalconView, arrayRemove, arrayUnique, clone, extend, findKey, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, startsWith, trim, value, _getForeachItems, _getOptionsItems, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6,
+  var ChainedCollection, Falcon, FalconAdapter, FalconCollection, FalconModel, FalconObject, FalconView, arrayRemove, arrayUnique, bindFunction, clone, extend, findKey, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, startsWith, trim, value, _getForeachItems, _getOptionsItems, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -194,6 +194,15 @@
       })();
     }
     return arr;
+  };
+
+  bindFunction = function(func, self) {
+    var ret;
+    ret = function() {
+      return func.apply(self, arguments);
+    };
+    ret.__falcon_bind__length__ = func.length;
+    return ret;
   };
 
   FalconObject = (function() {
@@ -885,8 +894,7 @@
     };
 
     FalconModel.prototype.mixin = function(mapping) {
-      var key, value, _ref1,
-        _this = this;
+      var key, value, _ref1;
       if (!isObject(mapping)) {
         mapping = {};
       }
@@ -898,15 +906,7 @@
           if (ko.isObservable(value)) {
             this[key] = ko.observable((_ref1 = this.get(key)) != null ? _ref1 : ko.unwrap(value));
           } else if (isFunction(value)) {
-            (function() {
-              var _value;
-              _value = value;
-              return _this[key] = function() {
-                var args;
-                args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-                return _value.call.apply(_value, [_this, _this].concat(__slice.call(args)));
-              };
-            })();
+            this[key] = bindFunction(value, this);
           } else {
             if (this[key] == null) {
               this[key] = value;
@@ -1222,7 +1222,7 @@
       this.models = ko.observableArray([]);
       this.initialize.apply(this, arguments);
       if (!isEmpty(models)) {
-        this.fill(models);
+        this.replace(models);
       }
       return this;
     }
@@ -1819,39 +1819,18 @@
     };
 
     FalconCollection.prototype.mixin = function(mapping) {
-      var key, model, models, value, _i, _len, _mapping,
-        _this = this;
+      var model, models, _i, _len;
       if (!isObject(mapping)) {
         mapping = {};
-      }
-      _mapping = {};
-      for (key in mapping) {
-        value = mapping[key];
-        if (ko.isObservable(value)) {
-          _mapping[key] = ko.observable(ko.unwrap(value));
-        } else if (isFunction(value)) {
-          (function() {
-            var _value;
-            _value = value;
-            _mapping[key] = function() {
-              var args;
-              args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-              return _value.apply(args[0], [args[0], _this].concat(args.slice(1)));
-            };
-            return _mapping[key].length = _value.length;
-          })();
-        } else {
-          _mapping[key] = value;
-        }
       }
       models = this.models();
       for (_i = 0, _len = models.length; _i < _len; _i++) {
         model = models[_i];
         if (Falcon.isDataObject(model)) {
-          model.mixin(_mapping);
+          model.mixin(mapping);
         }
       }
-      this.__falcon_collection__mixins__.push(_mapping);
+      this.__falcon_collection__mixins__.push(mapping);
       return this;
     };
 

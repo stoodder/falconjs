@@ -3050,7 +3050,7 @@
       expect(modelA_null_1.equals(modelA_null_2)).toBe(false);
       return expect(modelA_null_1.equals(modelA_null_1)).toBe(true);
     });
-    describe("Testing the mixin method", function() {
+    describe("mixin", function() {
       it("Should implement mixins properly", function() {
         var ModelA, ModelB, mixin_spy, modelA, _ref, _ref1;
         ModelA = (function(_super) {
@@ -3099,8 +3099,7 @@
         modelA.hello('world');
         expect(mixin_spy).toHaveBeenCalledOnce();
         expect(mixin_spy).toHaveBeenCalledOn(modelA);
-        expect(mixin_spy.firstCall.args[0]).toBe(modelA);
-        return expect(mixin_spy.firstCall.args[1]).toBe('world');
+        return expect(mixin_spy.firstCall.args[0]).toBe('world');
       });
       it("Should preserve existing values in the model", function() {
         var ModelA, model_a, _ref;
@@ -5810,7 +5809,7 @@
         return expect(collectionE.slice(-1)).toEqual([model_e3]);
       });
     });
-    describe("Testing the mixin() method", function() {
+    describe("mixin", function() {
       it("Should implement mixins properly", function() {
         var collectionA, mixin_spy, modelA, modelB;
         modelB = new ModelB;
@@ -5834,9 +5833,7 @@
         modelA.hello('world');
         expect(mixin_spy).toHaveBeenCalledOnce();
         expect(mixin_spy).toHaveBeenCalledOn(modelA);
-        expect(mixin_spy.firstCall.args[0]).toBe(modelA);
-        expect(mixin_spy.firstCall.args[1]).toBe(collectionA);
-        return expect(mixin_spy.firstCall.args[2]).toBe('world');
+        return expect(mixin_spy.firstCall.args[0]).toBe('world');
       });
       it("Should allow for models with values to be added post mixin", function() {
         var TheCollection, TheModel, theCollection, theModel, _ref12, _ref13;
@@ -7112,11 +7109,7 @@
           foreach_binding = Falcon.__binding__original_foreach__;
         }
         spyOn(foreach_binding, 'init').and.callThrough();
-        spyOn(foreach_binding, 'update').and.callThrough();
-        return Falcon.debug = true;
-      });
-      afterEach(function() {
-        return Falcon.debug = false;
+        return spyOn(foreach_binding, 'update').and.callThrough();
       });
       describe("Basic Array", function() {
         var afterAdd, afterRender, beforeRemove, items, setupSpies;

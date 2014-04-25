@@ -151,7 +151,7 @@ class FalconCollection extends FalconObject
 		@__falcon_collection__mixins__ = []
 		@models = ko.observableArray([])
 		@initialize.apply(this, arguments)
-		@fill(models) unless isEmpty( models )
+		@replace(models) unless isEmpty( models )
 
 		return this
 	#END constructor
@@ -1062,26 +1062,11 @@ class FalconCollection extends FalconObject
 	#--------------------------------------------------------
 	mixin: (mapping) ->
 		mapping = {} unless isObject(mapping)
-		_mapping = {}
-
-		for key, value of mapping
-			if ko.isObservable(value)
-				_mapping[key] = ko.observable( ko.unwrap(value) )
-			else if isFunction(value)
-				do =>
-					_value = value
-					_mapping[key] = (args...) => _value.apply( args[0], [args[0], this].concat(args[1..]) )  
-					_mapping[key].length = _value.length
-				#END do
-			else
-				_mapping[key] = value
-			#END if
-		#END for
 
 		models = @models()
-		model.mixin(_mapping) for model in models when Falcon.isDataObject( model )
+		model.mixin(mapping) for model in models when Falcon.isDataObject( model )
 			
-		@__falcon_collection__mixins__.push(_mapping)
+		@__falcon_collection__mixins__.push(mapping)
 			
 		return this
 	#END mixin

@@ -6,9 +6,12 @@
 **Enhancements**
 * Add makeBaseUrl method to Falcon.Adapter
 
-**Bug Fixxes**
+**Bug Fixes**
 * Removed change counter on collections, it was redundant checking and not needed anymore
 * Fixed refernece loss issue with Falcon.Collection#mixin
+
+**Breaking Changes**
+* When using 'mixin' to add a function to a model or a collection, the function will simply be bound against the model and each argument is verbatim to each call. In the preivous version we would pass in the model or model, collection as the first arguments.
 
 **TODO**
 * Add exec binding

@@ -788,13 +788,7 @@ describe "Bindings", ->
 
 			spyOn( foreach_binding, 'init' ).and.callThrough()
 			spyOn( foreach_binding, 'update' ).and.callThrough()
-
-			Falcon.debug = true
 		#END beforeEach
-
-		afterEach ->
-			Falcon.debug = false
-		#END afterEach
 
 		describe "Basic Array", ->
 			items = null

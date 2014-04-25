@@ -62,6 +62,7 @@ module.exports = (grunt) ->
 						"coffee/string.utility.coffee"
 						"coffee/object.utility.coffee"
 						"coffee/array.utility.coffee"
+						"coffee/function.utility.coffee"
 
 						"coffee/falcon.object.coffee"
 						"coffee/falcon.adapter.coffee"

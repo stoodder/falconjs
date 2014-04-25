@@ -2273,7 +2273,7 @@ describe "Falcon.Collection", ->
 	# Test the mixin() method
 	#
 	#--------------------------------------------------------------
-	describe "Testing the mixin() method", ->
+	describe "mixin", ->
 		it "Should implement mixins properly", ->
 			modelB = new ModelB
 			modelA = new ModelA
@@ -2300,9 +2300,7 @@ describe "Falcon.Collection", ->
 			modelA.hello('world')
 			expect( mixin_spy ).toHaveBeenCalledOnce()
 			expect( mixin_spy ).toHaveBeenCalledOn( modelA )
-			expect( mixin_spy.firstCall.args[0] ).toBe( modelA )
-			expect( mixin_spy.firstCall.args[1] ).toBe( collectionA )
-			expect( mixin_spy.firstCall.args[2] ).toBe( 'world' )
+			expect( mixin_spy.firstCall.args[0] ).toBe( 'world' )
 		#END it
 
 		it "Should allow for models with values to be added post mixin", ->
