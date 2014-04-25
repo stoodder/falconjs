@@ -197,10 +197,6 @@
   };
 
   FalconObject = (function() {
-    var __falcon_object__current_cid__;
-
-    __falcon_object__current_cid__ = 0;
-
     FalconObject.prototype.observables = null;
 
     FalconObject.prototype.defaults = null;
@@ -240,11 +236,8 @@
 
     FalconObject.prototype.__falcon_object__listeners__ = null;
 
-    FalconObject.prototype.__falcon_object__cid__ = null;
-
     function FalconObject() {
       var attr, value, _ref, _ref1, _ref2, _ref3, _ref4;
-      this.__falcon_object__cid__ = __falcon_object__current_cid__++;
       if (isObject(this.defaults)) {
         _ref = this.defaults;
         for (attr in _ref) {
