@@ -444,6 +444,8 @@ class FalconCollection extends FalconObject
 		for added_model in added_models
 			added_model.mixin(mapping) for mapping in collection.__falcon_collection__mixins__
 		#END for
+
+		return added_models
 	#END _fill_addMixins
 
 	_fill_standardizeOptions = (collection, options) ->
@@ -526,11 +528,11 @@ class FalconCollection extends FalconObject
 		options = _fill_standardizeOptions( @, options )
 		items = _fill_standardizeItems( @, items )
 		items = _fill_createModels( @, items ) 
+		_fill_addMixins( @, items, options )
 
 		new_models_list = @models()
 		new_models_list = new_models_list.concat( items )
 
-		_fill_addMixins( @, items, options )
 		_fill_updateModels( @, new_models_list, options )
 
 		return items
@@ -556,8 +558,8 @@ class FalconCollection extends FalconObject
 		items = _fill_createModels( @, items )
 
 		#Create new models where needed
-		for item, i in items when isObject(item) and not Falcon.isModel(item)
-			items[i] = new @model(item, @parent)
+		#for item, i in items when isObject(item) and not Falcon.isModel(item)
+		#	items[i] = new @model(item, @parent)
 		#END for
 
 		_length = items.length-1
@@ -1061,11 +1063,9 @@ class FalconCollection extends FalconObject
 	#	Account for knockout observable extensions
 	#--------------------------------------------------------
 	mixin: (mapping) ->
-		mapping = {} unless isObject(mapping)
+		return this unless isObject(mapping)
 
-		models = @models()
-		model.mixin(mapping) for model in models when Falcon.isDataObject( model )
-			
+		model.mixin(mapping) for model in @models() when Falcon.isDataObject( model )
 		@__falcon_collection__mixins__.push(mapping)
 			
 		return this

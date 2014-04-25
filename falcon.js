@@ -1396,22 +1396,16 @@
     };
 
     _fill_addMixins = function(collection, added_models) {
-      var added_model, mapping, _i, _len, _results;
-      _results = [];
+      var added_model, mapping, _i, _j, _len, _len1, _ref1;
       for (_i = 0, _len = added_models.length; _i < _len; _i++) {
         added_model = added_models[_i];
-        _results.push((function() {
-          var _j, _len1, _ref1, _results1;
-          _ref1 = collection.__falcon_collection__mixins__;
-          _results1 = [];
-          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-            mapping = _ref1[_j];
-            _results1.push(added_model.mixin(mapping));
-          }
-          return _results1;
-        })());
+        _ref1 = collection.__falcon_collection__mixins__;
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          mapping = _ref1[_j];
+          added_model.mixin(mapping);
+        }
       }
-      return _results;
+      return added_models;
     };
 
     _fill_standardizeOptions = function(collection, options) {
@@ -1469,30 +1463,24 @@
       options = _fill_standardizeOptions(this, options);
       items = _fill_standardizeItems(this, items);
       items = _fill_createModels(this, items);
+      _fill_addMixins(this, items, options);
       new_models_list = this.models();
       new_models_list = new_models_list.concat(items);
-      _fill_addMixins(this, items, options);
       _fill_updateModels(this, new_models_list, options);
       return items;
     };
 
     FalconCollection.prototype.prepend = function(items, options) {
-      var i, item, new_models_list, _i, _j, _len, _len1, _length;
+      var i, item, new_models_list, _i, _len, _length;
       if (this.model == null) {
         return [];
       }
       options = _fill_standardizeOptions(this, options);
       items = _fill_standardizeItems(this, items);
       items = _fill_createModels(this, items);
-      for (i = _i = 0, _len = items.length; _i < _len; i = ++_i) {
-        item = items[i];
-        if (isObject(item) && !Falcon.isModel(item)) {
-          items[i] = new this.model(item, this.parent);
-        }
-      }
       _length = items.length - 1;
       new_models_list = this.models();
-      for (i = _j = 0, _len1 = items.length; _j < _len1; i = ++_j) {
+      for (i = _i = 0, _len = items.length; _i < _len; i = ++_i) {
         item = items[i];
         new_models_list.unshift(items[_length - i]);
       }
@@ -1819,13 +1807,13 @@
     };
 
     FalconCollection.prototype.mixin = function(mapping) {
-      var model, models, _i, _len;
+      var model, _i, _len, _ref1;
       if (!isObject(mapping)) {
-        mapping = {};
+        return this;
       }
-      models = this.models();
-      for (_i = 0, _len = models.length; _i < _len; _i++) {
-        model = models[_i];
+      _ref1 = this.models();
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        model = _ref1[_i];
         if (Falcon.isDataObject(model)) {
           model.mixin(mapping);
         }
