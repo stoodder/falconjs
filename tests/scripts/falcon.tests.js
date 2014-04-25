@@ -3050,7 +3050,7 @@
       expect(modelA_null_1.equals(modelA_null_2)).toBe(false);
       return expect(modelA_null_1.equals(modelA_null_1)).toBe(true);
     });
-    describe("Testing the mixin method", function() {
+    describe("mixin", function() {
       it("Should implement mixins properly", function() {
         var ModelA, ModelB, mixin_spy, modelA, _ref, _ref1;
         ModelA = (function(_super) {
@@ -3099,8 +3099,7 @@
         modelA.hello('world');
         expect(mixin_spy).toHaveBeenCalledOnce();
         expect(mixin_spy).toHaveBeenCalledOn(modelA);
-        expect(mixin_spy.firstCall.args[0]).toBe(modelA);
-        return expect(mixin_spy.firstCall.args[1]).toBe('world');
+        return expect(mixin_spy.firstCall.args[0]).toBe('world');
       });
       it("Should preserve existing values in the model", function() {
         var ModelA, model_a, _ref;
@@ -3130,7 +3129,7 @@
         expect(model_a.get("foo")).toBe("bar");
         return expect(ko.isObservable(model_a.hello)).toBe(true);
       });
-      return it("Should not overwrite existing values", function() {
+      it("Should not overwrite existing values", function() {
         var TheModel, the_model, _ref;
         TheModel = (function(_super) {
           __extends(TheModel, _super);
@@ -3155,6 +3154,32 @@
         });
         expect(ko.isObservable(the_model.is_read)).toBe(true);
         return expect(the_model.get('is_read')).toBe(true);
+      });
+      return it("Should not lose reference to existing observables", function() {
+        var TheModel, original_observable, the_model, _ref;
+        TheModel = (function(_super) {
+          __extends(TheModel, _super);
+
+          function TheModel() {
+            _ref = TheModel.__super__.constructor.apply(this, arguments);
+            return _ref;
+          }
+
+          TheModel.prototype.observables = {
+            'hello': 'world'
+          };
+
+          return TheModel;
+
+        })(Falcon.Model);
+        the_model = new TheModel;
+        expect(the_model.hello()).toBe('world');
+        original_observable = the_model.hello;
+        the_model.mixin({
+          'hello': ko.observable('foo bar')
+        });
+        expect(original_observable).toBe(the_model.hello);
+        return expect(the_model.hello()).toBe('world');
       });
     });
     describe("Testing clone() method", function() {
@@ -5810,7 +5835,7 @@
         return expect(collectionE.slice(-1)).toEqual([model_e3]);
       });
     });
-    describe("Testing the mixin() method", function() {
+    describe("mixin", function() {
       it("Should implement mixins properly", function() {
         var collectionA, mixin_spy, modelA, modelB;
         modelB = new ModelB;
@@ -5834,9 +5859,7 @@
         modelA.hello('world');
         expect(mixin_spy).toHaveBeenCalledOnce();
         expect(mixin_spy).toHaveBeenCalledOn(modelA);
-        expect(mixin_spy.firstCall.args[0]).toBe(modelA);
-        expect(mixin_spy.firstCall.args[1]).toBe(collectionA);
-        return expect(mixin_spy.firstCall.args[2]).toBe('world');
+        return expect(mixin_spy.firstCall.args[0]).toBe('world');
       });
       it("Should allow for models with values to be added post mixin", function() {
         var TheCollection, TheModel, theCollection, theModel, _ref12, _ref13;
@@ -7105,6 +7128,15 @@
       });
     });
     describe("foreach", function() {
+      var foreach_binding;
+      foreach_binding = null;
+      beforeEach(function() {
+        if (foreach_binding == null) {
+          foreach_binding = Falcon.__binding__original_foreach__;
+        }
+        spyOn(foreach_binding, 'init').and.callThrough();
+        return spyOn(foreach_binding, 'update').and.callThrough();
+      });
       describe("Basic Array", function() {
         var afterAdd, afterRender, beforeRemove, items, setupSpies;
         items = null;
@@ -7143,7 +7175,9 @@
           expect(element.childNodes.length).toBe(3);
           expect(element.childNodes[0].innerText).toBe("Hello World");
           expect(element.childNodes[1].innerText).toBe("Foo Bar");
-          return expect(element.childNodes[2].innerText).toBe("Free Bird");
+          expect(element.childNodes[2].innerText).toBe("Free Bird");
+          expect(foreach_binding.init.calls.count()).toBe(1);
+          return expect(foreach_binding.update.calls.count()).toBe(1);
         });
         return it("Should bind properly against an array with an expanded binding defintiion", function() {
           var element;
@@ -7160,7 +7194,9 @@
           expect(element.childNodes[2].innerText).toBe("Free Bird");
           expect(afterAdd).not.toHaveBeenCalled();
           expect(afterRender.calls.count()).toBe(3);
-          return expect(beforeRemove).not.toHaveBeenCalled();
+          expect(beforeRemove).not.toHaveBeenCalled();
+          expect(foreach_binding.init.calls.count()).toBe(1);
+          return expect(foreach_binding.update.calls.count()).toBe(1);
         });
       });
       describe("Observable Array", function() {
@@ -7204,13 +7240,17 @@
           expect(element.childNodes.length).toBe(3);
           expect(element.childNodes[0].innerText).toBe("Hello World");
           expect(element.childNodes[1].innerText).toBe("Foo Bar");
-          return expect(element.childNodes[2].innerText).toBe("Free Bird");
+          expect(element.childNodes[2].innerText).toBe("Free Bird");
+          expect(foreach_binding.init.calls.count()).toBe(1);
+          return expect(foreach_binding.update.calls.count()).toBe(1);
         });
         it("Should remove elements", function() {
           items.pop();
           items.pop();
           expect(element.childNodes.length).toBe(1);
-          return expect(element.childNodes[0].innerText).toBe("Hello World");
+          expect(element.childNodes[0].innerText).toBe("Hello World");
+          expect(foreach_binding.init.calls.count()).toBe(0);
+          return expect(foreach_binding.update.calls.count()).toBe(2);
         });
         it("Should add elements", function() {
           items.push({
@@ -7222,7 +7262,9 @@
           expect(element.childNodes.length).toBe(3);
           expect(element.childNodes[0].innerText).toBe("Hello World");
           expect(element.childNodes[1].innerText).toBe("Qux");
-          return expect(element.childNodes[2].innerText).toBe("Quux");
+          expect(element.childNodes[2].innerText).toBe("Quux");
+          expect(foreach_binding.init.calls.count()).toBe(0);
+          return expect(foreach_binding.update.calls.count()).toBe(2);
         });
         it("Should bind properly against an array with an expanded binding defintiion", function() {
           setupItems();
@@ -7239,7 +7281,9 @@
           expect(element.childNodes[2].innerText).toBe("Free Bird");
           expect(afterAdd).not.toHaveBeenCalled();
           expect(afterRender.calls.count()).toBe(3);
-          return expect(beforeRemove).not.toHaveBeenCalled();
+          expect(beforeRemove).not.toHaveBeenCalled();
+          expect(foreach_binding.init.calls.count()).toBe(1);
+          return expect(foreach_binding.update.calls.count()).toBe(1);
         });
         it("Should remove elements with expanded definition", function() {
           items.pop();
@@ -7248,7 +7292,9 @@
           expect(element.childNodes[0].innerText).toBe("Hello World");
           expect(afterAdd).not.toHaveBeenCalled();
           expect(afterRender).not.toHaveBeenCalled();
-          return expect(beforeRemove.calls.count()).toBe(2);
+          expect(beforeRemove.calls.count()).toBe(2);
+          expect(foreach_binding.init.calls.count()).toBe(0);
+          return expect(foreach_binding.update.calls.count()).toBe(2);
         });
         return it("Should add elements with expanded definition", function() {
           items.push({
@@ -7263,7 +7309,9 @@
           expect(element.childNodes[2].innerText).toBe("Quux");
           expect(afterAdd.calls.count()).toBe(2);
           expect(afterRender.calls.count()).toBe(2);
-          return expect(beforeRemove).not.toHaveBeenCalled();
+          expect(beforeRemove).not.toHaveBeenCalled();
+          expect(foreach_binding.init.calls.count()).toBe(0);
+          return expect(foreach_binding.update.calls.count()).toBe(2);
         });
       });
       return describe("Collection", function() {
@@ -7331,13 +7379,17 @@
           expect(element.childNodes.length).toBe(3);
           expect(element.childNodes[0].innerText).toBe("Hello World");
           expect(element.childNodes[1].innerText).toBe("Foo Bar");
-          return expect(element.childNodes[2].innerText).toBe("Free Bird");
+          expect(element.childNodes[2].innerText).toBe("Free Bird");
+          expect(foreach_binding.init.calls.count()).toBe(1);
+          return expect(foreach_binding.update.calls.count()).toBe(1);
         });
         it("Should remove elements", function() {
           items.pop();
           items.pop();
           expect(element.childNodes.length).toBe(1);
-          return expect(element.childNodes[0].innerText).toBe("Hello World");
+          expect(element.childNodes[0].innerText).toBe("Hello World");
+          expect(foreach_binding.init.calls.count()).toBe(0);
+          return expect(foreach_binding.update.calls.count()).toBe(2);
         });
         it("Should add elements", function() {
           items.push(new TestModel({
@@ -7349,7 +7401,9 @@
           expect(element.childNodes.length).toBe(3);
           expect(element.childNodes[0].innerText).toBe("Hello World");
           expect(element.childNodes[1].innerText).toBe("Qux");
-          return expect(element.childNodes[2].innerText).toBe("Quux");
+          expect(element.childNodes[2].innerText).toBe("Quux");
+          expect(foreach_binding.init.calls.count()).toBe(0);
+          return expect(foreach_binding.update.calls.count()).toBe(2);
         });
         it("Should bind properly against an collection with an expanded binding defintiion", function() {
           setupItems();
@@ -7366,7 +7420,9 @@
           expect(element.childNodes[2].innerText).toBe("Free Bird");
           expect(afterAdd).not.toHaveBeenCalled();
           expect(afterRender.calls.count()).toBe(3);
-          return expect(beforeRemove).not.toHaveBeenCalled();
+          expect(beforeRemove).not.toHaveBeenCalled();
+          expect(foreach_binding.init.calls.count()).toBe(1);
+          return expect(foreach_binding.update.calls.count()).toBe(1);
         });
         it("Should remove elements with expanded definition", function() {
           items.pop();
@@ -7375,7 +7431,9 @@
           expect(element.childNodes[0].innerText).toBe("Hello World");
           expect(afterAdd).not.toHaveBeenCalled();
           expect(afterRender).not.toHaveBeenCalled();
-          return expect(beforeRemove.calls.count()).toBe(2);
+          expect(beforeRemove.calls.count()).toBe(2);
+          expect(foreach_binding.init.calls.count()).toBe(0);
+          return expect(foreach_binding.update.calls.count()).toBe(2);
         });
         return it("Should add elements with expanded definition", function() {
           items.push(new TestModel({
@@ -7390,11 +7448,22 @@
           expect(element.childNodes[2].innerText).toBe("Quux");
           expect(afterAdd.calls.count()).toBe(2);
           expect(afterRender.calls.count()).toBe(2);
-          return expect(beforeRemove).not.toHaveBeenCalled();
+          expect(beforeRemove).not.toHaveBeenCalled();
+          expect(foreach_binding.init.calls.count()).toBe(0);
+          return expect(foreach_binding.update.calls.count()).toBe(2);
         });
       });
     });
     describe("options", function() {
+      var options_binding;
+      options_binding = null;
+      beforeEach(function() {
+        if (options_binding == null) {
+          options_binding = Falcon.__binding__original_options__;
+        }
+        spyOn(options_binding, 'init').and.callThrough();
+        return spyOn(options_binding, 'update').and.callThrough();
+      });
       describe("Basic Array", function() {
         var items;
         items = null;
@@ -7417,7 +7486,9 @@
           expect(element.childNodes.length).toBe(3);
           expect(element.childNodes[0].innerText).toBe("Hello World");
           expect(element.childNodes[1].innerText).toBe("Foo Bar");
-          return expect(element.childNodes[2].innerText).toBe("Free Bird");
+          expect(element.childNodes[2].innerText).toBe("Free Bird");
+          expect(options_binding.init.calls.count()).toBe(1);
+          return expect(options_binding.update.calls.count()).toBe(1);
         });
       });
       describe("Observable Array", function() {
@@ -7443,13 +7514,17 @@
           expect(element.childNodes.length).toBe(3);
           expect(element.childNodes[0].innerText).toBe("Hello World");
           expect(element.childNodes[1].innerText).toBe("Foo Bar");
-          return expect(element.childNodes[2].innerText).toBe("Free Bird");
+          expect(element.childNodes[2].innerText).toBe("Free Bird");
+          expect(options_binding.init.calls.count()).toBe(1);
+          return expect(options_binding.update.calls.count()).toBe(1);
         });
         it("Should remove elements", function() {
           items.pop();
           items.pop();
           expect(element.childNodes.length).toBe(1);
-          return expect(element.childNodes[0].innerText).toBe("Hello World");
+          expect(element.childNodes[0].innerText).toBe("Hello World");
+          expect(options_binding.init.calls.count()).toBe(0);
+          return expect(options_binding.update.calls.count()).toBe(2);
         });
         return it("Should add elements", function() {
           items.push({
@@ -7461,7 +7536,9 @@
           expect(element.childNodes.length).toBe(3);
           expect(element.childNodes[0].innerText).toBe("Hello World");
           expect(element.childNodes[1].innerText).toBe("Qux");
-          return expect(element.childNodes[2].innerText).toBe("Quux");
+          expect(element.childNodes[2].innerText).toBe("Quux");
+          expect(options_binding.init.calls.count()).toBe(0);
+          return expect(options_binding.update.calls.count()).toBe(2);
         });
       });
       return describe("Collection", function() {
@@ -7511,13 +7588,17 @@
           expect(element.childNodes.length).toBe(3);
           expect(element.childNodes[0].innerText).toBe("Hello World");
           expect(element.childNodes[1].innerText).toBe("Foo Bar");
-          return expect(element.childNodes[2].innerText).toBe("Free Bird");
+          expect(element.childNodes[2].innerText).toBe("Free Bird");
+          expect(options_binding.init.calls.count()).toBe(1);
+          return expect(options_binding.update.calls.count()).toBe(1);
         });
         it("Should remove elements", function() {
           items.pop();
           items.pop();
           expect(element.childNodes.length).toBe(1);
-          return expect(element.childNodes[0].innerText).toBe("Hello World");
+          expect(element.childNodes[0].innerText).toBe("Hello World");
+          expect(options_binding.init.calls.count()).toBe(0);
+          return expect(options_binding.update.calls.count()).toBe(2);
         });
         return it("Should add elements", function() {
           items.push(new TestModel({
@@ -7529,7 +7610,9 @@
           expect(element.childNodes.length).toBe(3);
           expect(element.childNodes[0].innerText).toBe("Hello World");
           expect(element.childNodes[1].innerText).toBe("Qux");
-          return expect(element.childNodes[2].innerText).toBe("Quux");
+          expect(element.childNodes[2].innerText).toBe("Quux");
+          expect(options_binding.init.calls.count()).toBe(0);
+          return expect(options_binding.update.calls.count()).toBe(2);
         });
       });
     });
