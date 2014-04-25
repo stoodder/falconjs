@@ -9,9 +9,7 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 ### v1.0.0rc1
 **Enhancements**
 * Add makeBaseUrl method to Falcon.Adapter
-<<<<<<< HEAD
 * Add displayIf, afterDisplay, beforeDispose to view binding
-=======
 * Optimizing fill related methods
 
 **Bug Fixes**
@@ -20,7 +18,6 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 
 **Breaking Changes**
 * When using 'mixin' to add a function to a model or a collection, the function will simply be bound against the model and each argument is verbatim to each call. In the preivous version we would pass in the model or model, collection as the first arguments.
->>>>>>> makeBaseUrl
 
 **TODO**
 * Add exec binding

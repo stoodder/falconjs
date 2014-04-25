@@ -1104,35 +1104,24 @@
 
     FalconView.__falcon_view__viewModel__ = null;
 
-    FalconView.prototype.viewModel = (function() {
-      var _bind;
-      _bind = function(value, self) {
-        var func;
-        func = function() {
-          return value.apply(self, arguments);
-        };
-        func.__falcon_bind__length__ = value.length;
-        return func;
-      };
-      return function() {
-        var key, value, viewModel;
-        if (this.__falcon_view__viewModel__ != null) {
-          return this.__falcon_view__viewModel__;
+    FalconView.prototype.viewModel = function() {
+      var key, value, viewModel;
+      if (this.__falcon_view__viewModel__ != null) {
+        return this.__falcon_view__viewModel__;
+      }
+      viewModel = {};
+      for (key in this) {
+        value = this[key];
+        if (!(!(key in Falcon.View.prototype))) {
+          continue;
         }
-        viewModel = {};
-        for (key in this) {
-          value = this[key];
-          if (!(!(key in Falcon.View.prototype))) {
-            continue;
-          }
-          if (isFunction(value) && !ko.isObservable(value)) {
-            value = _bind(value, this);
-          }
-          viewModel[key] = value;
+        if (isFunction(value) && !ko.isObservable(value)) {
+          value = bindFunction(value, this);
         }
-        return (this.__falcon_view__viewModel__ = viewModel);
-      };
-    })();
+        viewModel[key] = value;
+      }
+      return (this.__falcon_view__viewModel__ = viewModel);
+    };
 
     return FalconView;
 
