@@ -904,7 +904,6 @@ describe "Bindings", ->
 			#END it
 
 			it "Should remove elements", ->
-				console.log("Before Update")
 				items.pop()
 				items.pop()
 
@@ -914,7 +913,6 @@ describe "Bindings", ->
 
 				expect( foreach_binding.init.calls.count() ).toBe( 0 )
 				expect( foreach_binding.update.calls.count() ).toBe( 2 )
-				console.log("After Update")
 			#END it
 
 			it "Should add elements", ->

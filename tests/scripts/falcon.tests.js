@@ -7219,14 +7219,12 @@
           return expect(foreach_binding.update.calls.count()).toBe(1);
         });
         it("Should remove elements", function() {
-          console.log("Before Update");
           items.pop();
           items.pop();
           expect(element.childNodes.length).toBe(1);
           expect(element.childNodes[0].innerText).toBe("Hello World");
           expect(foreach_binding.init.calls.count()).toBe(0);
-          expect(foreach_binding.update.calls.count()).toBe(2);
-          return console.log("After Update");
+          return expect(foreach_binding.update.calls.count()).toBe(2);
         });
         it("Should add elements", function() {
           items.push({
