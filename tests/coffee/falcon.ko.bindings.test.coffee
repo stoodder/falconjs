@@ -781,6 +781,15 @@ describe "Bindings", ->
 	#END describe
 
 	describe "foreach", ->
+		foreach_binding = null
+
+		beforeEach ->
+			foreach_binding ?= Falcon.__binding__original_foreach__
+
+			spyOn( foreach_binding, 'init' ).and.callThrough()
+			spyOn( foreach_binding, 'update' ).and.callThrough()
+		#END beforeEach
+
 		describe "Basic Array", ->
 			items = null
 			afterAdd = beforeRemove = afterRender = null
@@ -816,6 +825,9 @@ describe "Bindings", ->
 				expect( element.childNodes[0].innerText ).toBe("Hello World")
 				expect( element.childNodes[1].innerText ).toBe("Foo Bar")
 				expect( element.childNodes[2].innerText ).toBe("Free Bird")
+
+				expect( foreach_binding.init.calls.count() ).toBe( 1 )
+				expect( foreach_binding.update.calls.count() ).toBe( 1 )
 			#END it
 
 			it "Should bind properly against an array with an expanded binding defintiion", ->
@@ -840,6 +852,9 @@ describe "Bindings", ->
 				expect( afterAdd ).not.toHaveBeenCalled()
 				expect( afterRender.calls.count() ).toBe( 3 )
 				expect( beforeRemove ).not.toHaveBeenCalled()
+
+				expect( foreach_binding.init.calls.count() ).toBe( 1 )
+				expect( foreach_binding.update.calls.count() ).toBe( 1 )
 			#END it
 		#END describe
 
@@ -883,6 +898,9 @@ describe "Bindings", ->
 				expect( element.childNodes[0].innerText ).toBe("Hello World")
 				expect( element.childNodes[1].innerText ).toBe("Foo Bar")
 				expect( element.childNodes[2].innerText ).toBe("Free Bird")
+
+				expect( foreach_binding.init.calls.count() ).toBe( 1 )
+				expect( foreach_binding.update.calls.count() ).toBe( 1 )
 			#END it
 
 			it "Should remove elements", ->
@@ -892,6 +910,9 @@ describe "Bindings", ->
 				expect( element.childNodes.length ).toBe( 1 )
 
 				expect( element.childNodes[0].innerText ).toBe("Hello World")
+
+				expect( foreach_binding.init.calls.count() ).toBe( 0 )
+				expect( foreach_binding.update.calls.count() ).toBe( 2 )
 			#END it
 
 			it "Should add elements", ->
@@ -903,6 +924,9 @@ describe "Bindings", ->
 				expect( element.childNodes[0].innerText ).toBe("Hello World")
 				expect( element.childNodes[1].innerText ).toBe("Qux")
 				expect( element.childNodes[2].innerText ).toBe("Quux")
+
+				expect( foreach_binding.init.calls.count() ).toBe( 0 )
+				expect( foreach_binding.update.calls.count() ).toBe( 2 )
 			#END it
 
 			it "Should bind properly against an array with an expanded binding defintiion", ->
@@ -928,6 +952,9 @@ describe "Bindings", ->
 				expect( afterAdd ).not.toHaveBeenCalled()
 				expect( afterRender.calls.count() ).toBe( 3 )
 				expect( beforeRemove ).not.toHaveBeenCalled()
+
+				expect( foreach_binding.init.calls.count() ).toBe( 1 )
+				expect( foreach_binding.update.calls.count() ).toBe( 1 )
 			#END it
 
 			it "Should remove elements with expanded definition", ->
@@ -941,6 +968,9 @@ describe "Bindings", ->
 				expect( afterAdd ).not.toHaveBeenCalled()
 				expect( afterRender ).not.toHaveBeenCalled()
 				expect( beforeRemove.calls.count() ).toBe( 2 )
+
+				expect( foreach_binding.init.calls.count() ).toBe( 0 )
+				expect( foreach_binding.update.calls.count() ).toBe( 2 )
 			#END it
 
 			it "Should add elements with expanded definition", ->
@@ -956,6 +986,9 @@ describe "Bindings", ->
 				expect( afterAdd.calls.count() ).toBe( 2 )
 				expect( afterRender.calls.count() ).toBe( 2 )
 				expect( beforeRemove ).not.toHaveBeenCalled()
+
+				expect( foreach_binding.init.calls.count() ).toBe( 0 )
+				expect( foreach_binding.update.calls.count() ).toBe( 2 )
 			#END it
 		#END describe
 
@@ -1004,6 +1037,9 @@ describe "Bindings", ->
 				expect( element.childNodes[0].innerText ).toBe("Hello World")
 				expect( element.childNodes[1].innerText ).toBe("Foo Bar")
 				expect( element.childNodes[2].innerText ).toBe("Free Bird")
+
+				expect( foreach_binding.init.calls.count() ).toBe( 1 )
+				expect( foreach_binding.update.calls.count() ).toBe( 1 )
 			#END it
 
 			it "Should remove elements", ->
@@ -1013,6 +1049,9 @@ describe "Bindings", ->
 				expect( element.childNodes.length ).toBe( 1 )
 
 				expect( element.childNodes[0].innerText ).toBe("Hello World")
+
+				expect( foreach_binding.init.calls.count() ).toBe( 0 )
+				expect( foreach_binding.update.calls.count() ).toBe( 2 )
 			#END it
 
 			it "Should add elements", ->
@@ -1024,6 +1063,9 @@ describe "Bindings", ->
 				expect( element.childNodes[0].innerText ).toBe("Hello World")
 				expect( element.childNodes[1].innerText ).toBe("Qux")
 				expect( element.childNodes[2].innerText ).toBe("Quux")
+
+				expect( foreach_binding.init.calls.count() ).toBe( 0 )
+				expect( foreach_binding.update.calls.count() ).toBe( 2 )
 			#END it
 
 			it "Should bind properly against an collection with an expanded binding defintiion", ->
@@ -1049,6 +1091,9 @@ describe "Bindings", ->
 				expect( afterAdd ).not.toHaveBeenCalled()
 				expect( afterRender.calls.count() ).toBe( 3 )
 				expect( beforeRemove ).not.toHaveBeenCalled()
+
+				expect( foreach_binding.init.calls.count() ).toBe( 1 )
+				expect( foreach_binding.update.calls.count() ).toBe( 1 )
 			#END it
 
 			it "Should remove elements with expanded definition", ->
@@ -1062,6 +1107,9 @@ describe "Bindings", ->
 				expect( afterAdd ).not.toHaveBeenCalled()
 				expect( afterRender ).not.toHaveBeenCalled()
 				expect( beforeRemove.calls.count() ).toBe( 2 )
+
+				expect( foreach_binding.init.calls.count() ).toBe( 0 )
+				expect( foreach_binding.update.calls.count() ).toBe( 2 )
 			#END it
 
 			it "Should add elements with expanded definition", ->
@@ -1077,11 +1125,23 @@ describe "Bindings", ->
 				expect( afterAdd.calls.count() ).toBe( 2 )
 				expect( afterRender.calls.count() ).toBe( 2 )
 				expect( beforeRemove ).not.toHaveBeenCalled()
+
+				expect( foreach_binding.init.calls.count() ).toBe( 0 )
+				expect( foreach_binding.update.calls.count() ).toBe( 2 )
 			#END it
 		#END it
 	#END describe
 
 	describe "options", ->
+		options_binding = null
+
+		beforeEach ->
+			options_binding ?= Falcon.__binding__original_options__
+
+			spyOn( options_binding, 'init').and.callThrough()
+			spyOn( options_binding, 'update').and.callThrough()
+		#END beforeEach
+
 		describe "Basic Array", ->
 			items = null
 
@@ -1103,6 +1163,9 @@ describe "Bindings", ->
 				expect( element.childNodes[0].innerText ).toBe("Hello World")
 				expect( element.childNodes[1].innerText ).toBe("Foo Bar")
 				expect( element.childNodes[2].innerText ).toBe("Free Bird")
+
+				expect( options_binding.init.calls.count() ).toBe( 1 )
+				expect( options_binding.update.calls.count() ).toBe( 1 )
 			#END it
 		#END describe
 
@@ -1130,6 +1193,9 @@ describe "Bindings", ->
 				expect( element.childNodes[0].innerText ).toBe("Hello World")
 				expect( element.childNodes[1].innerText ).toBe("Foo Bar")
 				expect( element.childNodes[2].innerText ).toBe("Free Bird")
+
+				expect( options_binding.init.calls.count() ).toBe( 1 )
+				expect( options_binding.update.calls.count() ).toBe( 1 )
 			#END it
 
 			it "Should remove elements", ->
@@ -1139,6 +1205,9 @@ describe "Bindings", ->
 				expect( element.childNodes.length ).toBe( 1 )
 
 				expect( element.childNodes[0].innerText ).toBe("Hello World")
+
+				expect( options_binding.init.calls.count() ).toBe( 0 )
+				expect( options_binding.update.calls.count() ).toBe( 2 )
 			#END it
 
 			it "Should add elements", ->
@@ -1150,6 +1219,9 @@ describe "Bindings", ->
 				expect( element.childNodes[0].innerText ).toBe("Hello World")
 				expect( element.childNodes[1].innerText ).toBe("Qux")
 				expect( element.childNodes[2].innerText ).toBe("Quux")
+
+				expect( options_binding.init.calls.count() ).toBe( 0 )
+				expect( options_binding.update.calls.count() ).toBe( 2 )
 			#END it
 		#END describe
 
@@ -1182,6 +1254,9 @@ describe "Bindings", ->
 				expect( element.childNodes[0].innerText ).toBe("Hello World")
 				expect( element.childNodes[1].innerText ).toBe("Foo Bar")
 				expect( element.childNodes[2].innerText ).toBe("Free Bird")
+
+				expect( options_binding.init.calls.count() ).toBe( 1 )
+				expect( options_binding.update.calls.count() ).toBe( 1 )
 			#END it
 
 			it "Should remove elements", ->
@@ -1191,6 +1266,9 @@ describe "Bindings", ->
 				expect( element.childNodes.length ).toBe( 1 )
 
 				expect( element.childNodes[0].innerText ).toBe("Hello World")
+
+				expect( options_binding.init.calls.count() ).toBe( 0 )
+				expect( options_binding.update.calls.count() ).toBe( 2 )
 			#END it
 
 			it "Should add elements", ->
@@ -1202,6 +1280,9 @@ describe "Bindings", ->
 				expect( element.childNodes[0].innerText ).toBe("Hello World")
 				expect( element.childNodes[1].innerText ).toBe("Qux")
 				expect( element.childNodes[2].innerText ).toBe("Quux")
+
+				expect( options_binding.init.calls.count() ).toBe( 0 )
+				expect( options_binding.update.calls.count() ).toBe( 2 )
 			#END it
 		#END it
 	#END describe
