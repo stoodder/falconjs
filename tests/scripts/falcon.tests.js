@@ -5020,11 +5020,12 @@
         return expect(collectionA.length()).toBe(2);
       });
     });
-    describe("Test the sort method", function() {
+    describe("sort", function() {
       var collectionA, model_a1, model_a2, model_a3;
       collectionA = null;
       model_a1 = model_a2 = model_a3 = null;
-      return it("Should sort properly", function() {
+      it("Should sort properly", function() {
+        var ret;
         model_a1 = new ModelA({
           id: 1
         });
@@ -5036,7 +5037,7 @@
         });
         collectionA = new CollectionA([model_a2, model_a1, model_a3]);
         expect(collectionA.models()).toEqual([model_a2, model_a1, model_a3]);
-        collectionA.sort(function(a, b) {
+        ret = collectionA.sort(function(a, b) {
           var a_id, b_id;
           a_id = a.get("id");
           b_id = b.get("id");
@@ -5048,7 +5049,37 @@
           }
           return 0;
         });
-        return expect(collectionA.models()).toEqual([model_a1, model_a2, model_a3]);
+        expect(collectionA.models()).toEqual([model_a1, model_a2, model_a3]);
+        return expect(ret).toBe(collectionA);
+      });
+      return it("Should use the built-in comparator if none is given", function() {
+        var ret;
+        model_a1 = new ModelA({
+          id: 1
+        });
+        model_a2 = new ModelA({
+          id: 2
+        });
+        model_a3 = new ModelA({
+          id: 3
+        });
+        collectionA = new CollectionA([model_a2, model_a1, model_a3]);
+        expect(collectionA.models()).toEqual([model_a2, model_a1, model_a3]);
+        collectionA.comparator = function(a, b) {
+          var a_id, b_id;
+          a_id = a.get("id");
+          b_id = b.get("id");
+          if (a_id > b_id) {
+            return 1;
+          }
+          if (a_id < b_id) {
+            return -1;
+          }
+          return 0;
+        };
+        ret = collectionA.sort();
+        expect(collectionA.models()).toEqual([model_a1, model_a2, model_a3]);
+        return expect(ret).toBe(collectionA);
       });
     });
     describe("create", function() {

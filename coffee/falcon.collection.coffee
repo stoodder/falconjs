@@ -713,8 +713,10 @@ class FalconCollection extends FalconObject
 	#	_(Array)_ - The sorted array
 	#--------------------------------------------------------
 	sort: (comparator) ->
-		return models unless isFunction( comparator )
-		return @models.sort( comparator )
+		comparator ?= @comparator
+		return @ unless isFunction( comparator )
+		@models.sort( comparator )
+		return @
 	#END sort
 
 	#--------------------------------------------------------
@@ -1065,11 +1067,6 @@ class ChainedCollection extends FalconCollection
 		@models( super(arguments...) )
 		return this
 	#END slice
-
-	sort: ->
-		@models( super(arguments...) )
-		return this
-	#END sort
 
 	filter: ->
 		@models( super(arguments...) )

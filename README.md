@@ -11,6 +11,7 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Add makeBaseUrl method to Falcon.Adapter
 * Add displayIf, afterDisplay, beforeDispose to view binding
 * Optimizing fill related methods
+* Falcon.Collection#sort will now default its comparator to the collections comparator unless one is given
 
 **Bug Fixes**
 * Removed change counter on collections, it was redundant checking and not needed anymore
@@ -18,6 +19,7 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 
 **Breaking Changes**
 * When using 'mixin' to add a function to a model or a collection, the function will simply be bound against the model and each argument is verbatim to each call. In the preivous version we would pass in the model or model, collection as the first arguments.
+* Falcon.Collection#sort now returns 'this' collection rather than the list of sorted models
 
 **TODO**
 * Add exec binding
