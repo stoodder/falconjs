@@ -7074,7 +7074,7 @@
           return Falcon.View.resetCache();
         });
       });
-      return describe("Basic Nested Comment Observable Usage", function() {
+      describe("Basic Nested Comment Observable Usage", function() {
         var comment, obs, view_a, view_b;
         obs = ko.observable();
         comment = null;
@@ -7154,6 +7154,68 @@
           return expect(view_b.child_view.dispose.calls.count()).toBe(1);
         });
         return it("Teardown", function() {
+          return Falcon.View.resetCache();
+        });
+      });
+      return describe("Nest Views in Observable Arrays with Element Bindings", function() {
+        var child_view, element, obsArr, parent_view;
+        element = null;
+        obsArr = ko.observableArray([]);
+        parent_view = null;
+        child_view = null;
+        beforeEach(function() {
+          if (parent_view != null) {
+            parent_view.resetSpies();
+          }
+          return child_view != null ? child_view.resetSpies() : void 0;
+        });
+        it("Should set up properly", function() {
+          MockHelper.makeElement("template").setId("parent_template").html("<div data-bind='view: $view.child_view'></div>").addToDOM();
+          MockHelper.makeElement("template").setId("hello_world").html("Hello World").addToDOM();
+          element = MockHelper.makeElement().bindings("foreach: obsArr").html("<div data-bind='view: $data'></div>").addToDOM().andApply({
+            obsArr: obsArr
+          });
+          parent_view = MockHelper.makeView("#parent_template", {
+            defaults: {
+              'child_view': function() {
+                child_view = MockHelper.makeView("#hello_world").triggerReady();
+                return child_view;
+              }
+            }
+          }).triggerReady();
+          expect(parent_view._render).not.toHaveBeenCalled();
+          expect(parent_view.display).not.toHaveBeenCalled();
+          expect(parent_view._unrender).not.toHaveBeenCalled();
+          expect(parent_view.dispose).not.toHaveBeenCalled();
+          expect(child_view._render).not.toHaveBeenCalled();
+          expect(child_view.display).not.toHaveBeenCalled();
+          expect(child_view._unrender).not.toHaveBeenCalled();
+          return expect(child_view.dispose).not.toHaveBeenCalled();
+        });
+        it("Should call the correct display and dispose methods of sub views", function() {
+          obsArr.push(parent_view);
+          expect(parent_view._render.calls.count()).toBe(1);
+          expect(parent_view.display.calls.count()).toBe(1);
+          expect(parent_view._unrender).not.toHaveBeenCalled();
+          expect(parent_view.dispose).not.toHaveBeenCalled();
+          expect(child_view._render.calls.count()).toBe(1);
+          expect(child_view.display.calls.count()).toBe(1);
+          expect(child_view._unrender).not.toHaveBeenCalled();
+          return expect(child_view.dispose).not.toHaveBeenCalled();
+        });
+        it("Should call the correct display and dispose methods of the sub views when removed", function() {
+          obsArr([]);
+          expect(parent_view._render).not.toHaveBeenCalled();
+          expect(parent_view.display).not.toHaveBeenCalled();
+          expect(parent_view._unrender.calls.count()).toBe(1);
+          expect(parent_view.dispose.calls.count()).toBe(1);
+          expect(child_view._render).not.toHaveBeenCalled();
+          expect(child_view.display).not.toHaveBeenCalled();
+          expect(child_view._unrender.calls.count()).toBe(1);
+          return expect(child_view.dispose.calls.count()).toBe(1);
+        });
+        return it("Teardown", function() {
+          element.removeFromDOM();
           return Falcon.View.resetCache();
         });
       });

@@ -37,11 +37,14 @@
       return element;
     };
 
-    _MockHelper.prototype.makeView = function(url) {
-      var view;
-      view = new (Falcon.View.extend({
-        url: url
-      }));
+    _MockHelper.prototype.makeView = function(url, definition) {
+      var ready_call, view;
+      if (definition == null) {
+        definition = {};
+      }
+      definition.url = url;
+      view = new (Falcon.View.extend(definition));
+      ready_call = Falcon.ready.calls.mostRecent();
       view._render = jasmine.createSpy("Render Spy").and.callFake(view._render);
       view.display = jasmine.createSpy("Display Spy").and.callFake(view.display);
       view._unrender = jasmine.createSpy("Unrender Spy").and.callFake(view._unrender);
@@ -54,7 +57,7 @@
         return view;
       };
       view.triggerReady = function() {
-        Falcon.ready.calls.mostRecent().args[0]();
+        ready_call.args[0]();
         return view;
       };
       return view;
