@@ -33,6 +33,7 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Make constants
 * Document makeBaseUrl, makeUrlComponents, resovleUrl, and makeUrl on adapter
 * Add 'endpoint' override option to adapter options
+* use querySelector instead of querySelectorAll where possible
 
 ### v0.10.2
 **Highlights**
