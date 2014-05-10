@@ -23,6 +23,7 @@
 * Ensure that Falcon will work with require.js
 * Add Falcon.Observable to wrap ko.observable in the case that we'd want to switch
 * Change 'url' to 'uri' on Falcon.View
+* use querySelector instead of querySelectorAll where possible
 
 ### v0.10.2
 **Highlights**
