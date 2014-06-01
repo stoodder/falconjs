@@ -34,6 +34,7 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Document makeBaseUrl, makeUrlComponents, resovleUrl, and makeUrl on adapter
 * Add 'endpoint' override option to adapter options
 * use querySelector instead of querySelectorAll where possible
+* add once and listenToOnce
 
 ### v0.10.2
 **Highlights**

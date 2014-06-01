@@ -750,6 +750,120 @@ describe "Bindings", ->
 				Falcon.templateAdapter.resetCache()
 			#END it
 		#END describe
+
+		describe "Observable updates in display", ->
+			view = null
+			element = null
+
+			it "Setup", ->
+				hello_world = MockHelper.makeElement("template")
+				                        .setId("hello_world")
+				                        .html("Hello World")
+				                        .addToDOM()
+			#END setup
+
+			it "Should setup the view binding properly with a basic view", ->
+				view = MockHelper.makeView("#hello_world", {
+					observables:
+						'is_visible': false
+					#END observables
+
+					display: ->
+						return @ if @is_visible()
+					#END display
+				}).triggerReady()
+
+				element = MockHelper.makeElement()
+				                    .bindings("view: view")
+				                    .addToDOM()
+				                    .andApply({view})
+
+				expect( ko.virtualElements.emptyNode ).not.toHaveBeenCalled()
+
+				expect( view._render.calls.count() ).toBe( 1 )
+				expect( view.display.calls.count() ).toBe( 1 )
+
+				expect( view._unrender ).not.toHaveBeenCalled()
+				expect( view.dispose ).not.toHaveBeenCalled()
+
+				expect( element.innerHTML ).toBe("Hello World")
+
+				view.resetSpies()
+			#END it
+
+			it "Should not re-execute when an observable that's in the display method is updated", ->
+				view.is_visible(true)
+
+				expect( ko.virtualElements.emptyNode ).not.toHaveBeenCalled()
+
+				expect( view._render ).not.toHaveBeenCalled()
+				expect( view.display ).not.toHaveBeenCalled()
+				expect( view._unrender ).not.toHaveBeenCalled()
+				expect( view.dispose ).not.toHaveBeenCalled()
+
+				expect( element.innerHTML ).toBe("Hello World")
+
+				view.resetSpies()
+			#END it
+
+			it "Teardown", -> Falcon.View.resetCache()
+		#END describe
+
+		describe "Observable updates in dispose", ->
+			view = null
+			obs = null
+			element = null
+
+			it "Setup", ->
+				hello_world = MockHelper.makeElement("template")
+				                        .setId("hello_world")
+				                        .html("Hello World")
+				                        .addToDOM()
+
+				view = MockHelper.makeView("#hello_world", {
+					observables:
+						'is_disposed': false
+					#END observables
+
+					dispose: ->
+						return @ if @is_disposed()
+					#END dispose
+				}).triggerReady()
+				
+				obs = ko.observable(view)
+
+				element = MockHelper.makeElement()
+				                    .bindings("view: obs")
+				                    .addToDOM()
+				                    .andApply({obs})
+
+				view.resetSpies()
+			#END setup
+
+			it "Should setup the view binding properly with a basic view", ->
+				obs(null)
+
+				expect( view._render ).not.toHaveBeenCalled()
+				expect( view.display ).not.toHaveBeenCalled()
+				expect( view._unrender.calls.count() ).toBe( 1 )
+				expect( view.dispose.calls.count() ).toBe( 1 )
+
+				view.resetSpies()
+			#END it
+
+			it "Should not re-execute when an observable that's in the display method is updated", ->
+				view.is_disposed(true)
+
+				expect( view._render ).not.toHaveBeenCalled()
+				expect( view.display ).not.toHaveBeenCalled()
+				expect( view._unrender ).not.toHaveBeenCalled()
+				expect( view.dispose ).not.toHaveBeenCalled()
+
+				view.resetSpies()
+			#END it
+
+			it "Teardown", -> Falcon.View.resetCache()
+		#END describe
 	#END describe
 
 	describe "foreach", ->
