@@ -778,6 +778,201 @@ describe "Bindings", ->
 
 			it "Teardown", -> Falcon.View.resetCache()
 		#END describe
+
+		describe "Nest Views in Observable Arrays with Element Bindings", ->
+			element = null
+			obsArr = ko.observableArray([])
+			parent_view = null
+			child_view = null
+
+			beforeEach ->
+				parent_view?.resetSpies()
+				child_view?.resetSpies()
+			#END beforeEach
+
+			it "Should set up properly", ->
+				MockHelper.makeElement("template")
+				          .setId("parent_template")
+				          .html("<div data-bind='view: $view.child_view'></div>")
+				          .addToDOM()
+
+				MockHelper.makeElement("template")
+				          .setId("hello_world")
+				          .html("Hello World")
+				          .addToDOM()
+
+				element = MockHelper.makeElement()
+				                    .bindings("foreach: obsArr")
+				                    .html("<div data-bind='view: $data'></div>")
+				                    .addToDOM()
+				                    .andApply({obsArr})
+				
+				parent_view = MockHelper.makeView("#parent_template", {
+					defaults:
+						'child_view': ->
+							child_view = MockHelper.makeView("#hello_world").triggerReady()
+							return child_view
+					#END defaults
+				}).triggerReady()
+
+				expect( parent_view._render ).not.toHaveBeenCalled()
+				expect( parent_view.display ).not.toHaveBeenCalled()
+				expect( parent_view._unrender ).not.toHaveBeenCalled()
+				expect( parent_view.dispose ).not.toHaveBeenCalled()
+
+				expect( child_view._render ).not.toHaveBeenCalled()
+				expect( child_view.display ).not.toHaveBeenCalled()
+				expect( child_view._unrender ).not.toHaveBeenCalled()
+				expect( child_view.dispose ).not.toHaveBeenCalled()
+			#END it
+
+			it "Should call the correct display and dispose methods of sub views", ->
+				obsArr.push( parent_view )
+
+				expect( parent_view._render.calls.count() ).toBe( 1 )
+				expect( parent_view.display.calls.count() ).toBe( 1 )
+				expect( parent_view._unrender ).not.toHaveBeenCalled()
+				expect( parent_view.dispose ).not.toHaveBeenCalled()
+
+				expect( child_view._render.calls.count() ).toBe( 1 )
+				expect( child_view.display.calls.count() ).toBe( 1 )
+				expect( child_view._unrender ).not.toHaveBeenCalled()
+				expect( child_view.dispose ).not.toHaveBeenCalled()
+			#END it
+
+			it "Should call the correct display and dispose methods of the sub views when removed", ->
+				obsArr([])
+
+				expect( parent_view._render ).not.toHaveBeenCalled()
+				expect( parent_view.display ).not.toHaveBeenCalled()
+				expect( parent_view._unrender.calls.count() ).toBe( 1 )
+				expect( parent_view.dispose.calls.count() ).toBe( 1 )
+
+				expect( child_view._render ).not.toHaveBeenCalled()
+				expect( child_view.display ).not.toHaveBeenCalled()
+				expect( child_view._unrender.calls.count() ).toBe( 1 )
+				expect( child_view.dispose.calls.count() ).toBe( 1 )
+			#END it
+
+			it "Teardown", ->
+				element.removeFromDOM()
+				Falcon.View.resetCache()
+			#END it
+		#END describe
+
+		describe "Observable updates in display", ->
+			view = null
+			element = null
+
+			it "Setup", ->
+				hello_world = MockHelper.makeElement("template")
+				                        .setId("hello_world")
+				                        .html("Hello World")
+				                        .addToDOM()
+			#END setup
+
+			it "Should setup the view binding properly with a basic view", ->
+				view = MockHelper.makeView("#hello_world", {
+					observables:
+						'is_visible': false
+					#END observables
+
+					display: ->
+						return @ if @is_visible()
+					#END display
+				}).triggerReady()
+
+				element = MockHelper.makeElement()
+				                    .bindings("view: view")
+				                    .addToDOM()
+				                    .andApply({view})
+
+				expect( ko.virtualElements.emptyNode ).not.toHaveBeenCalled()
+
+				expect( view._render.calls.count() ).toBe( 1 )
+				expect( view.display.calls.count() ).toBe( 1 )
+
+				expect( view._unrender ).not.toHaveBeenCalled()
+				expect( view.dispose ).not.toHaveBeenCalled()
+
+				expect( element.innerHTML ).toBe("Hello World")
+
+				view.resetSpies()
+			#END it
+
+			it "Should not re-execute when an observable that's in the display method is updated", ->
+				view.is_visible(true)
+
+				expect( ko.virtualElements.emptyNode ).not.toHaveBeenCalled()
+
+				expect( view._render ).not.toHaveBeenCalled()
+				expect( view.display ).not.toHaveBeenCalled()
+				expect( view._unrender ).not.toHaveBeenCalled()
+				expect( view.dispose ).not.toHaveBeenCalled()
+
+				expect( element.innerHTML ).toBe("Hello World")
+
+				view.resetSpies()
+			#END it
+
+			it "Teardown", -> Falcon.View.resetCache()
+		#END describe
+
+		describe "Observable updates in dispose", ->
+			view = null
+			obs = null
+			element = null
+
+			it "Setup", ->
+				hello_world = MockHelper.makeElement("template")
+				                        .setId("hello_world")
+				                        .html("Hello World")
+				                        .addToDOM()
+
+				view = MockHelper.makeView("#hello_world", {
+					observables:
+						'is_disposed': false
+					#END observables
+
+					dispose: ->
+						return @ if @is_disposed()
+					#END dispose
+				}).triggerReady()
+				
+				obs = ko.observable(view)
+
+				element = MockHelper.makeElement()
+				                    .bindings("view: obs")
+				                    .addToDOM()
+				                    .andApply({obs})
+
+				view.resetSpies()
+			#END setup
+
+			it "Should setup the view binding properly with a basic view", ->
+				obs(null)
+
+				expect( view._render ).not.toHaveBeenCalled()
+				expect( view.display ).not.toHaveBeenCalled()
+				expect( view._unrender.calls.count() ).toBe( 1 )
+				expect( view.dispose.calls.count() ).toBe( 1 )
+
+				view.resetSpies()
+			#END it
+
+			it "Should not re-execute when an observable that's in the display method is updated", ->
+				view.is_disposed(true)
+
+				expect( view._render ).not.toHaveBeenCalled()
+				expect( view.display ).not.toHaveBeenCalled()
+				expect( view._unrender ).not.toHaveBeenCalled()
+				expect( view.dispose ).not.toHaveBeenCalled()
+
+				view.resetSpies()
+			#END it
+
+			it "Teardown", -> Falcon.View.resetCache()
+		#END describe
 	#END describe
 
 	describe "foreach", ->

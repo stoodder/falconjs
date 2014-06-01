@@ -16,6 +16,7 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 **Bug Fixes**
 * Removed change counter on collections, it was redundant checking and not needed anymore
 * Fixed refernece loss issue with Falcon.Collection#mixin
+* Fixed view binding to not listen to observable updates in the display and dispose methods
 
 **Breaking Changes**
 * When using 'mixin' to add a function to a model or a collection, the function will simply be bound against the model and each argument is verbatim to each call. In the preivous version we would pass in the model or model, collection as the first arguments.
@@ -30,6 +31,8 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Fallback to local comparator if one isn't given in sort()
 * Add 'subscribe' method to collections
 * Allow for 'true' in attributes filtering
+* use querySelector instead of querySelectorAll where possible
+* add once and listenToOnce
 
 ### v0.10.2
 **Highlights**
