@@ -2077,7 +2077,7 @@
               is_displayed = true;
               _runUnobserved(view._render, view);
               if (isFunction(afterDisplay)) {
-                return afterDisplay(ko.virtualElements.childNodes(element));
+                return afterDisplay(ko.virtualElements.childNodes(element), view);
               }
             };
             if (is_disposing) {

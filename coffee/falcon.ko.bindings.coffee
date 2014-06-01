@@ -84,7 +84,7 @@ ko.bindingHandlers['view'] = do ->
 					_runUnobserved(view._render, view)
 
 					if isFunction(afterDisplay)
-						afterDisplay( ko.virtualElements.childNodes(element) )
+						afterDisplay( ko.virtualElements.childNodes(element), view )
 					#END if
 				#END continuation
 
