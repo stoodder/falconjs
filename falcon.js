@@ -1998,7 +1998,7 @@
   })(FalconObject));
 
   ko.bindingHandlers['view'] = (function() {
-    var _standardizeOptions;
+    var _runUnobserved, _standardizeOptions;
     _standardizeOptions = function(valueAccessor) {
       var options;
       options = valueAccessor();
@@ -2023,6 +2023,14 @@
         options['beforeDispose'] = null;
       }
       return options;
+    };
+    _runUnobserved = function(callback, context) {
+      var computed;
+      computed = ko.computed(function() {
+        return callback.call(context != null ? context : this);
+      });
+      computed.peek();
+      return computed.dispose();
     };
     return {
       'init': function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
@@ -2062,13 +2070,13 @@
               is_displayed = false;
               if (view !== oldView) {
                 if (Falcon.isView(oldView) && oldView.__falcon_view__is_rendered__) {
-                  oldView._unrender();
+                  _runUnobserved(oldView._unrender, oldView);
                 }
                 oldView = view;
               }
               if (!should_display) {
                 if (Falcon.isView(view) && view.__falcon_view__is_rendered__) {
-                  view._unrender();
+                  _runUnobserved(view._unrender, view);
                 }
                 return ko.virtualElements.emptyNode(element);
               }
@@ -2079,7 +2087,7 @@
               anonymous_template['text'](template);
               ko.renderTemplate(element, childContext, {}, element);
               is_displayed = true;
-              view._render();
+              _runUnobserved(view._render, view);
               if (isFunction(afterDisplay)) {
                 return afterDisplay(ko.virtualElements.childNodes(element));
               }
@@ -2088,13 +2096,13 @@
               return;
             }
             if (is_displayed && isFunction(beforeDispose)) {
-              if (((_ref4 = beforeDispose.__falcon_bind__length__) != null ? _ref4 : beforeDispose.length) === 2) {
+              if (((_ref4 = beforeDispose.__falcon_bind__length__) != null ? _ref4 : beforeDispose.length) === 3) {
                 is_disposing = true;
-                return beforeDispose(ko.virtualElements.childNodes(element), function() {
+                return beforeDispose(ko.virtualElements.childNodes(element), view, function() {
                   return continuation();
                 });
               } else {
-                beforeDispose(ko.virtualElements.childNodes(element));
+                beforeDispose(ko.virtualElements.childNodes(element), view);
                 return continuation();
               }
             } else {

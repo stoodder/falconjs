@@ -24,6 +24,7 @@
 * Add Falcon.Observable to wrap ko.observable in the case that we'd want to switch
 * Change 'url' to 'uri' on Falcon.View
 * use querySelector instead of querySelectorAll where possible
+* add once and listenToOnce
 
 ### v0.10.2
 **Highlights**

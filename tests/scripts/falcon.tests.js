@@ -7157,7 +7157,7 @@
           return Falcon.View.resetCache();
         });
       });
-      return describe("Nest Views in Observable Arrays with Element Bindings", function() {
+      describe("Nest Views in Observable Arrays with Element Bindings", function() {
         var child_view, element, obsArr, parent_view;
         element = null;
         obsArr = ko.observableArray([]);
@@ -7216,6 +7216,94 @@
         });
         return it("Teardown", function() {
           element.removeFromDOM();
+          return Falcon.View.resetCache();
+        });
+      });
+      describe("Observable updates in display", function() {
+        var element, view;
+        view = null;
+        element = null;
+        it("Setup", function() {
+          var hello_world;
+          return hello_world = MockHelper.makeElement("template").setId("hello_world").html("Hello World").addToDOM();
+        });
+        it("Should setup the view binding properly with a basic view", function() {
+          view = MockHelper.makeView("#hello_world", {
+            observables: {
+              'is_visible': false
+            },
+            display: function() {
+              if (this.is_visible()) {
+                return this;
+              }
+            }
+          }).triggerReady();
+          element = MockHelper.makeElement().bindings("view: view").addToDOM().andApply({
+            view: view
+          });
+          expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
+          expect(view._render.calls.count()).toBe(1);
+          expect(view.display.calls.count()).toBe(1);
+          expect(view._unrender).not.toHaveBeenCalled();
+          expect(view.dispose).not.toHaveBeenCalled();
+          expect(element.innerHTML).toBe("Hello World");
+          return view.resetSpies();
+        });
+        it("Should not re-execute when an observable that's in the display method is updated", function() {
+          view.is_visible(true);
+          expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
+          expect(view._render).not.toHaveBeenCalled();
+          expect(view.display).not.toHaveBeenCalled();
+          expect(view._unrender).not.toHaveBeenCalled();
+          expect(view.dispose).not.toHaveBeenCalled();
+          expect(element.innerHTML).toBe("Hello World");
+          return view.resetSpies();
+        });
+        return it("Teardown", function() {
+          return Falcon.View.resetCache();
+        });
+      });
+      return describe("Observable updates in dispose", function() {
+        var element, obs, view;
+        view = null;
+        obs = null;
+        element = null;
+        it("Setup", function() {
+          var hello_world;
+          hello_world = MockHelper.makeElement("template").setId("hello_world").html("Hello World").addToDOM();
+          view = MockHelper.makeView("#hello_world", {
+            observables: {
+              'is_disposed': false
+            },
+            dispose: function() {
+              if (this.is_disposed()) {
+                return this;
+              }
+            }
+          }).triggerReady();
+          obs = ko.observable(view);
+          element = MockHelper.makeElement().bindings("view: obs").addToDOM().andApply({
+            obs: obs
+          });
+          return view.resetSpies();
+        });
+        it("Should setup the view binding properly with a basic view", function() {
+          obs(null);
+          expect(view._render).not.toHaveBeenCalled();
+          expect(view.display).not.toHaveBeenCalled();
+          expect(view._unrender.calls.count()).toBe(1);
+          expect(view.dispose.calls.count()).toBe(1);
+          return view.resetSpies();
+        });
+        it("Should not re-execute when an observable that's in the display method is updated", function() {
+          view.is_disposed(true);
+          expect(view._render).not.toHaveBeenCalled();
+          expect(view.display).not.toHaveBeenCalled();
+          expect(view._unrender).not.toHaveBeenCalled();
+          expect(view.dispose).not.toHaveBeenCalled();
+          return view.resetSpies();
+        });
+        return it("Teardown", function() {
           return Falcon.View.resetCache();
         });
       });

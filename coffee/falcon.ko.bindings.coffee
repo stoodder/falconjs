@@ -15,6 +15,12 @@ ko.bindingHandlers['view'] = do ->
 		return options
 	#END _standardizeOptions
 
+	_runUnobserved = (callback, context) ->
+		computed = ko.computed -> callback.call(context ? this)
+		computed.peek()
+		computed.dispose()
+	#END _runUnobserved
+
 	'init': (element, valueAccessor, allBindingsAccessor, viewModel, context) ->
 		view = null
 		oldView = null
@@ -53,7 +59,7 @@ ko.bindingHandlers['view'] = do ->
 
 					if view isnt oldView
 						if Falcon.isView( oldView ) and oldView.__falcon_view__is_rendered__
-							oldView._unrender()
+							_runUnobserved(oldView._unrender, oldView)
 						#END if
 
 						oldView = view
@@ -61,7 +67,7 @@ ko.bindingHandlers['view'] = do ->
 
 					unless should_display
 						if Falcon.isView( view ) and view.__falcon_view__is_rendered__
-							view._unrender()
+							_runUnobserved(view._unrender, view)
 						#END if
 
 						return ko.virtualElements.emptyNode(element)
@@ -76,7 +82,7 @@ ko.bindingHandlers['view'] = do ->
 
 					is_displayed = true
 
-					view._render()
+					_runUnobserved(view._render, view)
 
 					if isFunction(afterDisplay)
 						afterDisplay( ko.virtualElements.childNodes(element) )
@@ -86,13 +92,13 @@ ko.bindingHandlers['view'] = do ->
 				return if is_disposing
 
 				if is_displayed and isFunction(beforeDispose)
-					if ( beforeDispose.__falcon_bind__length__ ? beforeDispose.length ) is 2
+					if ( beforeDispose.__falcon_bind__length__ ? beforeDispose.length ) is 3
 						is_disposing = true
-						beforeDispose ko.virtualElements.childNodes(element), ->
+						beforeDispose ko.virtualElements.childNodes(element), view, ->
 							continuation()
 						#END beforeDispose
 					else
-						beforeDispose( ko.virtualElements.childNodes(element) )
+						beforeDispose( ko.virtualElements.childNodes(element), view )
 						continuation()
 					#END if
 				else
