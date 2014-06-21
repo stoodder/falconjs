@@ -58,10 +58,7 @@ class FalconModel extends FalconObject
 
 		@parent = parent
 		@initialize.apply(this, arguments)
-		unless isEmpty( data )
-			@fill(data)
-			@url = data.url if data.url?
-		#END unless
+		@fill(data) unless isEmpty( data )
 
 		return this
 	#END constructor
@@ -227,6 +224,8 @@ class FalconModel extends FalconObject
 				this[attr](value)
 			
 			else unless isFunction(this[attr])
+				this[attr] = value
+			else if attr is 'url'
 				this[attr] = value
 			#END if
 		#END for
