@@ -17,6 +17,7 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Removed change counter on collections, it was redundant checking and not needed anymore
 * Fixed refernece loss issue with Falcon.Collection#mixin
 * Fixed view binding to not listen to observable updates in the display and dispose methods
+* Fixed fill() method when writting to read-only computed observables or other function. Values should not overwrite unless specifically the 'url' property
 
 **Breaking Changes**
 * When using 'mixin' to add a function to a model or a collection, the function will simply be bound against the model and each argument is verbatim to each call. In the preivous version we would pass in the model or model, collection as the first arguments.
@@ -34,7 +35,6 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * use querySelector instead of querySelectorAll where possible
 * add once and listenToOnce
 * Add setup method to adapter base class
-* Fix fill() method when writting to read-only computed observables. Values should not overwrite
 
 ### v0.10.2
 **Highlights**
