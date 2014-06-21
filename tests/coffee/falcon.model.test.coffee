@@ -224,13 +224,16 @@ describe "Falcon.Model", ->
 		class ModelA extends Falcon.Model
 			url: "model_a"
 
-			initialize: ->
-				@_client = ko.observable()
-				@model_b = modelB = new ModelB
-				@model_b2 = modelB2 = new ModelB
-				@collection_c = collectionC = new CollectionC
-				@model_b3 = new ModelB
-			#END initialize
+			observables:
+				'_client': null
+			#END observables
+
+			defaults:
+				'model_b': -> modelB = new ModelB
+				'model_b2': -> modelB2 = new ModelB
+				'collection_c': -> collectionC = new CollectionC
+				'model_b3': -> new ModelB
+			#END defaults
 		#END class
 
 		class ModelB extends Falcon.Model
@@ -261,6 +264,12 @@ describe "Falcon.Model", ->
 				'bar': true
 			#END observables
 		#END ModelE
+
+		class ModelF extends Falcon.Model
+			observables:
+				'free': -> 'bird'
+			#END obsrvables
+		#END ModelF
 
 		data = {
 			"id": 33
@@ -348,6 +357,16 @@ describe "Falcon.Model", ->
 			expect( model_d.foo ).toBe( foo_obs )
 			expect( model_d.model_e.free ).toBe( free_obs )
 			expect( model_d.model_e.bar ).toBe( bar_obs )
+		#END it
+
+		it "Should not overwrite computed observables", ->
+			modelF = new ModelF
+
+			obs = modelF.free
+			modelF.fill('free': 'hello world')
+
+			expect( modelF.free ).toBe( obs )
+			expect( modelF.get('free') ).toBe( 'bird' )
 		#END it
 
 		it "Should serialize properly", ->
@@ -848,15 +867,33 @@ describe "Falcon.Model", ->
 		#END it
 
 		it "Should be able to use override the url, no parent", ->
-			modelE = new ModelE(id: "e", url: "model_e2")
+			modelD = new ModelD(id: "d", url: "model_d2")
 
-			expect( modelE.makeUrl("GET") ).toBe( "/model_e2/e" )
-			expect( modelE.makeUrl("POST") ).toBe( "/model_e2" )
-			expect( modelE.makeUrl("PUT") ).toBe( "/model_e2/e" )
-			expect( modelE.makeUrl("DELETE") ).toBe( "/model_e2/e" )
+			expect( modelD.makeUrl("GET") ).toBe( "/model_d2/d" )
+			expect( modelD.makeUrl("POST") ).toBe( "/model_d2" )
+			expect( modelD.makeUrl("PUT") ).toBe( "/model_d2/d" )
+			expect( modelD.makeUrl("DELETE") ).toBe( "/model_d2/d" )
 		#END it
 
 		it "Should be able to use override the url,with parent", ->
+			modelD = new ModelD({id: "d", url: "model_d3"}, new ModelB(id: "b") )
+
+			expect( modelD.makeUrl("GET") ).toBe( "/model_b/b/model_d3/d" )
+			expect( modelD.makeUrl("POST") ).toBe( "/model_b/b/model_d3" )
+			expect( modelD.makeUrl("PUT") ).toBe( "/model_b/b/model_d3/d" )
+			expect( modelD.makeUrl("DELETE") ).toBe( "/model_b/b/model_d3/d" )
+		#END it
+
+		it "Should be able to use override the function url, no parent", ->
+			modelE = new ModelD(id: "d", url: "model_d2")
+
+			expect( modelE.makeUrl("GET") ).toBe( "/model_d2/d" )
+			expect( modelE.makeUrl("POST") ).toBe( "/model_d2" )
+			expect( modelE.makeUrl("PUT") ).toBe( "/model_d2/d" )
+			expect( modelE.makeUrl("DELETE") ).toBe( "/model_d2/d" )
+		#END it
+
+		it "Should be able to use override the function url,with parent", ->
 			modelE = new ModelE({id: "e", url: "model_e3"}, new ModelB(id: "b") )
 
 			expect( modelE.makeUrl("GET") ).toBe( "/model_b/b/model_e3/e" )

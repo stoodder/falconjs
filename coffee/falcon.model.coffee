@@ -223,7 +223,9 @@ class FalconModel extends FalconObject
 			else if ko.isWriteableObservable(this[attr])
 				this[attr](value)
 			
-			else
+			else unless isFunction(this[attr])
+				this[attr] = value
+			else if attr is 'url'
 				this[attr] = value
 			#END if
 		#END for

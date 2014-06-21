@@ -2026,7 +2026,7 @@
       return expect(model_a.get('second')).toBe(2);
     });
     describe("serialize and fill", function() {
-      var CollectionC, ModelA, ModelB, ModelC, ModelD, ModelE, collectionC, data, modelA, modelB, modelB2, original_model_b3, _ref, _ref1, _ref2, _ref3, _ref4, _ref5;
+      var CollectionC, ModelA, ModelB, ModelC, ModelD, ModelE, ModelF, collectionC, data, modelA, modelB, modelB2, original_model_b3, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6;
       modelB = null;
       modelB2 = null;
       collectionC = null;
@@ -2040,12 +2040,23 @@
 
         ModelA.prototype.url = "model_a";
 
-        ModelA.prototype.initialize = function() {
-          this._client = ko.observable();
-          this.model_b = modelB = new ModelB;
-          this.model_b2 = modelB2 = new ModelB;
-          this.collection_c = collectionC = new CollectionC;
-          return this.model_b3 = new ModelB;
+        ModelA.prototype.observables = {
+          '_client': null
+        };
+
+        ModelA.prototype.defaults = {
+          'model_b': function() {
+            return modelB = new ModelB;
+          },
+          'model_b2': function() {
+            return modelB2 = new ModelB;
+          },
+          'collection_c': function() {
+            return collectionC = new CollectionC;
+          },
+          'model_b3': function() {
+            return new ModelB;
+          }
         };
 
         return ModelA;
@@ -2126,6 +2137,23 @@
         return ModelE;
 
       })(Falcon.Model);
+      ModelF = (function(_super) {
+        __extends(ModelF, _super);
+
+        function ModelF() {
+          _ref6 = ModelF.__super__.constructor.apply(this, arguments);
+          return _ref6;
+        }
+
+        ModelF.prototype.observables = {
+          'free': function() {
+            return 'bird';
+          }
+        };
+
+        return ModelF;
+
+      })(Falcon.Model);
       data = {
         "id": 33,
         "foo": "bar",
@@ -2203,6 +2231,16 @@
         expect(model_d.foo).toBe(foo_obs);
         expect(model_d.model_e.free).toBe(free_obs);
         return expect(model_d.model_e.bar).toBe(bar_obs);
+      });
+      it("Should not overwrite computed observables", function() {
+        var modelF, obs;
+        modelF = new ModelF;
+        obs = modelF.free;
+        modelF.fill({
+          'free': 'hello world'
+        });
+        expect(modelF.free).toBe(obs);
+        return expect(modelF.get('free')).toBe('bird');
       });
       it("Should serialize properly", function() {
         var serialized;
@@ -2831,17 +2869,41 @@
         return expect(modelE.makeUrl("DELETE")).toBe("/model_b/b/model_e/e");
       });
       it("Should be able to use override the url, no parent", function() {
-        var modelE;
-        modelE = new ModelE({
-          id: "e",
-          url: "model_e2"
+        var modelD;
+        modelD = new ModelD({
+          id: "d",
+          url: "model_d2"
         });
-        expect(modelE.makeUrl("GET")).toBe("/model_e2/e");
-        expect(modelE.makeUrl("POST")).toBe("/model_e2");
-        expect(modelE.makeUrl("PUT")).toBe("/model_e2/e");
-        return expect(modelE.makeUrl("DELETE")).toBe("/model_e2/e");
+        expect(modelD.makeUrl("GET")).toBe("/model_d2/d");
+        expect(modelD.makeUrl("POST")).toBe("/model_d2");
+        expect(modelD.makeUrl("PUT")).toBe("/model_d2/d");
+        return expect(modelD.makeUrl("DELETE")).toBe("/model_d2/d");
       });
       it("Should be able to use override the url,with parent", function() {
+        var modelD;
+        modelD = new ModelD({
+          id: "d",
+          url: "model_d3"
+        }, new ModelB({
+          id: "b"
+        }));
+        expect(modelD.makeUrl("GET")).toBe("/model_b/b/model_d3/d");
+        expect(modelD.makeUrl("POST")).toBe("/model_b/b/model_d3");
+        expect(modelD.makeUrl("PUT")).toBe("/model_b/b/model_d3/d");
+        return expect(modelD.makeUrl("DELETE")).toBe("/model_b/b/model_d3/d");
+      });
+      it("Should be able to use override the function url, no parent", function() {
+        var modelE;
+        modelE = new ModelD({
+          id: "d",
+          url: "model_d2"
+        });
+        expect(modelE.makeUrl("GET")).toBe("/model_d2/d");
+        expect(modelE.makeUrl("POST")).toBe("/model_d2");
+        expect(modelE.makeUrl("PUT")).toBe("/model_d2/d");
+        return expect(modelE.makeUrl("DELETE")).toBe("/model_d2/d");
+      });
+      it("Should be able to use override the function url,with parent", function() {
         var modelE;
         modelE = new ModelE({
           id: "e",

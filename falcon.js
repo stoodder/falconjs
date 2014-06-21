@@ -809,7 +809,9 @@
           }
         } else if (ko.isWriteableObservable(this[attr])) {
           this[attr](value);
-        } else {
+        } else if (!isFunction(this[attr])) {
+          this[attr] = value;
+        } else if (attr === 'url') {
           this[attr] = value;
         }
       }
