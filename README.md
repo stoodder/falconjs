@@ -33,6 +33,8 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Allow for 'true' in attributes filtering
 * use querySelector instead of querySelectorAll where possible
 * add once and listenToOnce
+* Add setup method to adapter base class
+* Fix fill() method when writting to read-only computed observables. Values should not overwrite
 
 ### v0.10.2
 **Highlights**
