@@ -649,6 +649,9 @@
       this.initialize.apply(this, arguments);
       if (!isEmpty(data)) {
         this.fill(data);
+        if (data.url != null) {
+          this.url = data.url;
+        }
       }
       return this;
     }
@@ -741,7 +744,7 @@
           }
         } else if (ko.isWriteableObservable(this[attr])) {
           this[attr](value);
-        } else {
+        } else if (!isFunction(this[attr])) {
           this[attr] = value;
         }
       }

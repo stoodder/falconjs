@@ -58,7 +58,10 @@ class FalconModel extends FalconObject
 
 		@parent = parent
 		@initialize.apply(this, arguments)
-		@fill(data) unless isEmpty( data )
+		unless isEmpty( data )
+			@fill(data)
+			@url = data.url if data.url?
+		#END unless
 
 		return this
 	#END constructor
@@ -223,7 +226,7 @@ class FalconModel extends FalconObject
 			else if ko.isWriteableObservable(this[attr])
 				this[attr](value)
 			
-			else
+			else unless isFunction(this[attr])
 				this[attr] = value
 			#END if
 		#END for
