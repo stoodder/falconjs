@@ -164,24 +164,36 @@ class FalconObject
 	# Arguments:
 	#	**event** _(string)_ - The event to remove from
 	#	**callback** _(function)_ - The event handler to remove
+	#	**context** _(mixed)_ - The context that the callback should have been called on
 	#
 	# Returns:
 	#	_(Falcon.Model)_ - This instance
 	#--------------------------------------------------------
-	off: (event, callback) ->
-		return this unless isString(event)
+	off: (event, callback, context) ->
+		return this unless isObject(@__falcon_object__events__)
 
-		event = trim(event).toLowerCase()
+		[callback, context, event] = [event, callback, null] unless isString(event)
+		[context, callback] = [callback, null] unless isFunction(callback)
 
-		return this if isEmpty(event) or not @__falcon_object__events__[event]?
+		event = trim(event).toLowerCase() if isString(event)
 
-		@__falcon_object__events__ ?= {}
+		should_keep_event = (event_object) =>
+			return true if callback? and event_object.callback isnt callback
+			return true if context?  and event_object.context  isnt context
+			return false
+		#END should_keep_event
 
-		if isFunction( callback )
-			@__falcon_object__events__[event] = ( evt for evt in @__falcon_object__events__[event] when evt.callback isnt callback )
-			@__falcon_object__events__[event] = null if @__falcon_object__events__[event].length <= 0
+		update_events_for = (event) =>
+			evts = @__falcon_object__events__[event]
+			return unless isArray(evts)
+			evts = ( evt for evt in evts when should_keep_event(evt) )
+			@__falcon_object__events__[event] = if evts.length <= 0 then null else evts
+		#DND update_events_for
+
+		if isString(event)
+			update_events_for(event)
 		else
-			@__falcon_object__events__[event] = null
+			update_events_for(event) for event of @__falcon_object__events__
 		#END if
 
 		return this
@@ -304,7 +316,7 @@ class FalconObject
 			else if _callback? and callback isnt _callback
 				new_listeners.push( listener )
 			else
-				object.off(event, callback)
+				object.off(event, callback, this)
 			#END if
 		#END for
 
