@@ -16,7 +16,7 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 
 **Bug Fixes**
 * Removed change counter on collections, it was redundant checking and not needed anymore
-* Fixed refernece loss issue with Falcon.Collection#mixin
+* Fixed refernece loss issue with Falcon.Collection#mixing
 * Fixed view binding to not listen to observable updates in the display and dispose methods
 * Fixed fill() method when writting to read-only computed observables or other function. Values should not overwrite unless specifically the 'url' property
 * Made it possible to remove callback methods only based on context since create new instances still result in equivalent method calls, just different contexts
