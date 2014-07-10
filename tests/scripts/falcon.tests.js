@@ -357,13 +357,81 @@
         expect(click_two).not.toHaveBeenCalled();
         return expect(mouseover_one).not.toHaveBeenCalled();
       });
-      return it("Should be able to remove an event properly", function() {
+      it("Should be able to remove an event properly", function() {
         obj.off("click", click_one);
         obj.trigger("click", 4, 5, 6);
         expect(click_one).not.toHaveBeenCalled();
         expect(click_two).toHaveBeenCalledOnce();
         expect(click_two).toHaveBeenCalledWith(4, 5, 6);
         return expect(mouseover_one).not.toHaveBeenCalled();
+      });
+      it("Should be able to remove all events", function() {
+        obj.off();
+        obj.trigger("click", [4, 5, 6]);
+        obj.trigger("mouseover", []);
+        expect(click_one).not.toHaveBeenCalled();
+        expect(click_two).not.toHaveBeenCalled();
+        return expect(mouseover_one).not.toHaveBeenCalled();
+      });
+      it("Should remove an event even if the callback is part of two different object instances", function() {
+        var MiscObj, callback_spy, obj1, obj2, other_obj, _ref;
+        callback_spy = sinon.spy();
+        MiscObj = (function(_super) {
+          __extends(MiscObj, _super);
+
+          function MiscObj() {
+            _ref = MiscObj.__super__.constructor.apply(this, arguments);
+            return _ref;
+          }
+
+          MiscObj.prototype.callback = function() {
+            return callback_spy();
+          };
+
+          return MiscObj;
+
+        })(Falcon.Object);
+        obj1 = new MiscObj;
+        obj2 = new MiscObj;
+        other_obj = new MiscObj;
+        other_obj.on("click", obj1.callback);
+        other_obj.on("click", obj2.callback);
+        other_obj.trigger("click");
+        expect(callback_spy).toHaveBeenCalledTwice();
+        callback_spy.reset();
+        other_obj.off("click", obj1.callback);
+        other_obj.trigger("click");
+        return expect(callback_spy).not.toHaveBeenCalled();
+      });
+      return it("Should remove an event utilizing the proper context", function() {
+        var MiscObj, callback_spy, obj1, obj2, other_obj, _ref;
+        callback_spy = sinon.spy();
+        MiscObj = (function(_super) {
+          __extends(MiscObj, _super);
+
+          function MiscObj() {
+            _ref = MiscObj.__super__.constructor.apply(this, arguments);
+            return _ref;
+          }
+
+          MiscObj.prototype.callback = function() {
+            return callback_spy();
+          };
+
+          return MiscObj;
+
+        })(Falcon.Object);
+        obj1 = new MiscObj;
+        obj2 = new MiscObj;
+        other_obj = new MiscObj;
+        other_obj.on("click", obj1.callback, obj1);
+        other_obj.on("click", obj2.callback, obj2);
+        other_obj.trigger("click");
+        expect(callback_spy).toHaveBeenCalledTwice();
+        callback_spy.reset();
+        other_obj.off("click", obj1.callback, obj1);
+        other_obj.trigger("click");
+        return expect(callback_spy).toHaveBeenCalledOnce();
       });
     });
     describe("listenTo", function() {
@@ -607,7 +675,7 @@
         callback_one.reset();
         return expect(ret).toBe(object);
       });
-      return it("Should not remove any events if nothing matches", function() {
+      it("Should not remove any events if nothing matches", function() {
         var invalid_callback;
         invalid_callback = sinon.spy();
         expect(object.stopListening(new Falcon.Collection)).toBe(object);
@@ -641,6 +709,36 @@
         expect(callback_one).toHaveBeenCalledOn(object);
         expect(callback_two).not.toHaveBeenCalled();
         return callback_one.reset();
+      });
+      return it("Should only remove an individual's instance callback", function() {
+        var MiscObj, callback_spy, obj1, obj2, other_obj, _ref;
+        callback_spy = sinon.spy();
+        MiscObj = (function(_super) {
+          __extends(MiscObj, _super);
+
+          function MiscObj() {
+            _ref = MiscObj.__super__.constructor.apply(this, arguments);
+            return _ref;
+          }
+
+          MiscObj.prototype.callback = function() {
+            return callback_spy();
+          };
+
+          return MiscObj;
+
+        })(Falcon.Object);
+        obj1 = new MiscObj;
+        obj2 = new MiscObj;
+        other_obj = new MiscObj;
+        obj1.listenTo(other_obj, "click", obj1.callback);
+        obj2.listenTo(other_obj, "click", obj2.callback);
+        other_obj.trigger("click");
+        expect(callback_spy).toHaveBeenCalledTwice();
+        callback_spy.reset();
+        obj1.stopListening();
+        other_obj.trigger("click");
+        return expect(callback_spy).toHaveBeenCalledOnce();
       });
     });
     describe("Test #observables and #defaults", function() {

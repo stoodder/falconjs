@@ -320,36 +320,55 @@
       return this;
     };
 
-    FalconObject.prototype.off = function(event, callback) {
-      var evt;
+    FalconObject.prototype.off = function(event, callback, context) {
+      var should_keep_event, update_events_for, _ref, _ref1,
+        _this = this;
+      if (!isObject(this.__falcon_object__events__)) {
+        return this;
+      }
       if (!isString(event)) {
-        return this;
+        _ref = [event, callback, null], callback = _ref[0], context = _ref[1], event = _ref[2];
       }
-      event = trim(event).toLowerCase();
-      if (isEmpty(event) || (this.__falcon_object__events__[event] == null)) {
-        return this;
+      if (!isFunction(callback)) {
+        _ref1 = [callback, null], context = _ref1[0], callback = _ref1[1];
       }
-      if (this.__falcon_object__events__ == null) {
-        this.__falcon_object__events__ = {};
+      if (isString(event)) {
+        event = trim(event).toLowerCase();
       }
-      if (isFunction(callback)) {
-        this.__falcon_object__events__[event] = (function() {
-          var _i, _len, _ref, _results;
-          _ref = this.__falcon_object__events__[event];
+      should_keep_event = function(event_object) {
+        if ((callback != null) && event_object.callback !== callback) {
+          return true;
+        }
+        if ((context != null) && event_object.context !== context) {
+          return true;
+        }
+        return false;
+      };
+      update_events_for = function(event) {
+        var evt, evts;
+        evts = _this.__falcon_object__events__[event];
+        if (!isArray(evts)) {
+          return;
+        }
+        evts = (function() {
+          var _i, _len, _results;
           _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            evt = _ref[_i];
-            if (evt.callback !== callback) {
+          for (_i = 0, _len = evts.length; _i < _len; _i++) {
+            evt = evts[_i];
+            if (should_keep_event(evt)) {
               _results.push(evt);
             }
           }
           return _results;
-        }).call(this);
-        if (this.__falcon_object__events__[event].length <= 0) {
-          this.__falcon_object__events__[event] = null;
-        }
+        })();
+        return _this.__falcon_object__events__[event] = evts.length <= 0 ? null : evts;
+      };
+      if (isString(event)) {
+        update_events_for(event);
       } else {
-        this.__falcon_object__events__[event] = null;
+        for (event in this.__falcon_object__events__) {
+          update_events_for(event);
+        }
       }
       return this;
     };
@@ -448,7 +467,7 @@
         } else if ((_callback != null) && callback !== _callback) {
           new_listeners.push(listener);
         } else {
-          object.off(event, callback);
+          object.off(event, callback, this);
         }
       }
       this.__falcon_object__listeners__ = new_listeners;

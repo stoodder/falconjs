@@ -12,12 +12,14 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Add displayIf, afterDisplay, beforeDispose to view binding
 * Optimizing fill related methods
 * Falcon.Collection#sort will now default its comparator to the collections comparator unless one is given
+* Added additional context argument to the off() method
 
 **Bug Fixes**
 * Removed change counter on collections, it was redundant checking and not needed anymore
 * Fixed refernece loss issue with Falcon.Collection#mixin
 * Fixed view binding to not listen to observable updates in the display and dispose methods
 * Fixed fill() method when writting to read-only computed observables or other function. Values should not overwrite unless specifically the 'url' property
+* Made it possible to remove callback methods only based on context since create new instances still result in equivalent method calls, just different contexts
 
 **Breaking Changes**
 * When using 'mixin' to add a function to a model or a collection, the function will simply be bound against the model and each argument is verbatim to each call. In the preivous version we would pass in the model or model, collection as the first arguments.

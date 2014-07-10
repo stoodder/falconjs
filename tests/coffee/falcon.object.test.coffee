@@ -73,6 +73,64 @@ describe "Falcon.Object", ->
 
 			expect( mouseover_one ).not.toHaveBeenCalled()
 		#END it
+
+		it "Should be able to remove all events", ->
+			obj.off()
+			obj.trigger "click", [4,5,6]
+			obj.trigger "mouseover", []
+
+			expect( click_one ).not.toHaveBeenCalled()
+			expect( click_two ).not.toHaveBeenCalled()
+			expect( mouseover_one ).not.toHaveBeenCalled()
+		#END it
+
+		it "Should remove an event even if the callback is part of two different object instances", ->
+			callback_spy = sinon.spy()
+			class MiscObj extends Falcon.Object
+				callback: -> callback_spy()
+			#END MiscObj
+
+			obj1 = new MiscObj
+			obj2 = new MiscObj
+			other_obj = new MiscObj
+
+			other_obj.on("click", obj1.callback)
+			other_obj.on("click", obj2.callback)
+			
+			other_obj.trigger("click")
+
+			expect( callback_spy ).toHaveBeenCalledTwice()
+			callback_spy.reset()
+
+			other_obj.off("click", obj1.callback)
+			other_obj.trigger("click")
+
+			expect( callback_spy ).not.toHaveBeenCalled()
+		#END it
+
+		it "Should remove an event utilizing the proper context", ->
+			callback_spy = sinon.spy()
+			class MiscObj extends Falcon.Object
+				callback: -> callback_spy()
+			#END MiscObj
+
+			obj1 = new MiscObj
+			obj2 = new MiscObj
+			other_obj = new MiscObj
+
+			other_obj.on("click", obj1.callback, obj1)
+			other_obj.on("click", obj2.callback, obj2)
+			
+			other_obj.trigger("click")
+
+			expect( callback_spy ).toHaveBeenCalledTwice()
+			callback_spy.reset()
+
+			other_obj.off("click", obj1.callback, obj1)
+			other_obj.trigger("click")
+
+			expect( callback_spy ).toHaveBeenCalledOnce()
+		#END if
 	#END describe
 
 	describe "listenTo", ->
@@ -408,6 +466,30 @@ describe "Falcon.Object", ->
 			expect( callback_two ).not.toHaveBeenCalled()
 			callback_one.reset()
 		#END it
+
+		it "Should only remove an individual's instance callback", ->
+			callback_spy = sinon.spy()
+			class MiscObj extends Falcon.Object
+				callback: -> callback_spy()
+			#END MiscObj
+
+			obj1 = new MiscObj
+			obj2 = new MiscObj
+			other_obj = new MiscObj
+
+			obj1.listenTo(other_obj, "click", obj1.callback)
+			obj2.listenTo(other_obj, "click", obj2.callback)
+			
+			other_obj.trigger("click")
+
+			expect( callback_spy ).toHaveBeenCalledTwice()
+			callback_spy.reset()
+
+			obj1.stopListening()
+			other_obj.trigger("click")
+
+			expect( callback_spy ).toHaveBeenCalledOnce()
+		#END if
 	#END describe
 
 	describe "Test #observables and #defaults", ->
