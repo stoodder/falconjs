@@ -37,6 +37,10 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * use querySelector instead of querySelectorAll where possible
 * add once and listenToOnce
 * Add setup method to adapter base class
+* Add Falcon.onDipose for node disposal (perhaps rename)
+* Bug: Should check the unwrapped value when serializing
+* Add Collection#insertAt(index)
+* Bug: Include url in model and collection clone
 
 ### v0.10.2
 **Highlights**
