@@ -995,23 +995,23 @@
       options = {};
       context = null;
       it("Should return GET if type isn't a string", function() {
-        expect(adapter.resolveRequestType(data_object, null, options, context)).toBe("GET");
-        return expect(adapter.resolveRequestType(data_object, 123, options, context)).toBe("GET");
+        expect(adapter.resolveRequestType(data_object, null, options, context)).toBe(Falcon.Adapter.GET);
+        return expect(adapter.resolveRequestType(data_object, 123, options, context)).toBe(Falcon.Adapter.GET);
       });
       it("Should return GET is type isn't GET, PUT, POST, DELETE", function() {
-        return expect(adapter.resolveRequestType(data_object, "HELLO WORLD", options, context)).toBe("GET");
+        return expect(adapter.resolveRequestType(data_object, "HELLO WORLD", options, context)).toBe(Falcon.Adapter.GET);
       });
       it("Should cast get, put, post, delete (lower case) to their proper forms", function() {
-        expect(adapter.resolveRequestType(data_object, "get", options, context)).toBe("GET");
-        expect(adapter.resolveRequestType(data_object, "put", options, context)).toBe("PUT");
-        expect(adapter.resolveRequestType(data_object, "post", options, context)).toBe("POST");
-        return expect(adapter.resolveRequestType(data_object, "delete", options, context)).toBe("DELETE");
+        expect(adapter.resolveRequestType(data_object, "get", options, context)).toBe(Falcon.Adapter.GET);
+        expect(adapter.resolveRequestType(data_object, "put", options, context)).toBe(Falcon.Adapter.PUT);
+        expect(adapter.resolveRequestType(data_object, "post", options, context)).toBe(Falcon.Adapter.POST);
+        return expect(adapter.resolveRequestType(data_object, "delete", options, context)).toBe(Falcon.Adapter.DELETE);
       });
       return it("Should ignore whitespace", function() {
-        expect(adapter.resolveRequestType(data_object, "  GET  ", options, context)).toBe("GET");
-        expect(adapter.resolveRequestType(data_object, "  PUT  ", options, context)).toBe("PUT");
-        expect(adapter.resolveRequestType(data_object, "  POST  ", options, context)).toBe("POST");
-        return expect(adapter.resolveRequestType(data_object, "  DELETE  ", options, context)).toBe("DELETE");
+        expect(adapter.resolveRequestType(data_object, "  GET  ", options, context)).toBe(Falcon.Adapter.GET);
+        expect(adapter.resolveRequestType(data_object, "  PUT  ", options, context)).toBe(Falcon.Adapter.PUT);
+        expect(adapter.resolveRequestType(data_object, "  POST  ", options, context)).toBe(Falcon.Adapter.POST);
+        return expect(adapter.resolveRequestType(data_object, "  DELETE  ", options, context)).toBe(Falcon.Adapter.DELETE);
       });
     });
     describe("resovleContext", function() {
@@ -1020,7 +1020,7 @@
       data_object = new Falcon.Model({
         id: 1
       });
-      type = "GET";
+      type = Falcon.Adapter.GET;
       options = {
         context: {
           id: 2
@@ -1048,12 +1048,12 @@
       data_object = new Falcon.Model({
         id: 1
       }, parent);
-      type = "GET";
+      type = Falcon.Adapter.GET;
       context = {
         id: 3
       };
       beforeEach(function() {
-        spyOn(adapter, 'makeUrl').and.callThrough();
+        spyOn(adapter, 'resolveUrl').and.callThrough();
         return spyOn(adapter, 'serializeData').and.callThrough();
       });
       it("Should present standard options if nothing is passed in", function() {
@@ -1068,8 +1068,8 @@
         expect(ret['data']).toBeNull();
         expect(ret['attributes']).toBeNull();
         expect(ret['fill_options']).toBeNull();
-        expect(adapter.makeUrl.calls.count()).toBe(1);
-        expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+        expect(adapter.resolveUrl.calls.count()).toBe(1);
+        expect(adapter.resolveUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(adapter.serializeData.calls.count()).toBe(1);
         return expect(adapter.serializeData).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
       });
@@ -1111,8 +1111,8 @@
         expect(ret['data']).toBe(options.data);
         expect(ret['attributes']).toBe(options.attributes);
         expect(ret['fill_options']).toBe(options.fill_options);
-        expect(adapter.makeUrl.calls.count()).toBe(1);
-        expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+        expect(adapter.resolveUrl.calls.count()).toBe(1);
+        expect(adapter.resolveUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(adapter.serializeData.calls.count()).toBe(1);
         expect(adapter.serializeData).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(ret).not.toBe(options);
@@ -1142,8 +1142,8 @@
         expect(ret['url']).toEqual(jasmine.any(String));
         expect(ret['data']).toBeNull();
         expect(ret['fill_options']).toBeNull();
-        expect(adapter.makeUrl.calls.count()).toBe(1);
-        expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+        expect(adapter.resolveUrl.calls.count()).toBe(1);
+        expect(adapter.resolveUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(adapter.serializeData.calls.count()).toBe(1);
         return expect(adapter.serializeData).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
       });
@@ -1160,8 +1160,8 @@
         expect(ret['url']).toEqual(jasmine.any(String));
         expect(ret['data']).toBeNull();
         expect(ret['fill_options']).toBeNull();
-        expect(adapter.makeUrl.calls.count()).toBe(1);
-        expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+        expect(adapter.resolveUrl.calls.count()).toBe(1);
+        expect(adapter.resolveUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(adapter.serializeData.calls.count()).toBe(1);
         return expect(adapter.serializeData).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
       });
@@ -1178,8 +1178,8 @@
         expect(ret['url']).toEqual(jasmine.any(String));
         expect(ret['data']).toBeNull();
         expect(ret['fill_options']).toBeNull();
-        expect(adapter.makeUrl.calls.count()).toBe(1);
-        expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+        expect(adapter.resolveUrl.calls.count()).toBe(1);
+        expect(adapter.resolveUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(adapter.serializeData.calls.count()).toBe(1);
         return expect(adapter.serializeData).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
       });
@@ -1204,8 +1204,8 @@
         expect(ret['url']).toEqual(jasmine.any(String));
         expect(ret['data']).toBeNull();
         expect(ret['fill_options']).toBeNull();
-        expect(adapter.makeUrl.calls.count()).toBe(1);
-        expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+        expect(adapter.resolveUrl.calls.count()).toBe(1);
+        expect(adapter.resolveUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(adapter.serializeData.calls.count()).toBe(1);
         expect(adapter.serializeData).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(ret).not.toBe(options);
@@ -1214,13 +1214,12 @@
         });
       });
     });
-    describe("makeUrl", function() {
-      var adapter, context, data_object, options, parent;
+    describe("resolveUrl", function() {
+      var adapter, context, data_object, options;
       adapter = new Falcon.Adapter;
-      parent = new Falcon.Model;
       data_object = new Falcon.Model({
         id: 1
-      }, parent);
+      });
       context = {
         id: 3
       };
@@ -1230,22 +1229,331 @@
       beforeEach(function() {
         return spyOn(data_object, 'makeUrl').and.returnValue("http://www.falconjs.com");
       });
-      it("Should return the url of the options if one is present", function() {
+      it("Should call the data objects resolveUrl method", function() {
         var ret;
-        ret = adapter.makeUrl(data_object, "GET", {
-          url: 'http://www.google.com'
-        }, null);
-        expect(data_object.makeUrl).not.toHaveBeenCalled();
-        return expect(ret).toBe('http://www.google.com');
-      });
-      return it("Should call the makeUrl method on the data object properly", function() {
-        var ret;
-        ret = adapter.makeUrl(data_object, "PUT", options, null);
+        ret = adapter.resolveUrl(data_object, Falcon.Adapter.GET, options, context);
         expect(data_object.makeUrl.calls.count()).toBe(1);
-        expect(data_object.makeUrl).toHaveBeenCalledWith("PUT", options.parent);
-        return expect(ret).toBe('http://www.falconjs.com');
+        return expect(ret).toBe("http://www.falconjs.com");
+      });
+      return it("Should use the options' url if one is available", function() {
+        var ret;
+        options.url = "http://www.google.com";
+        ret = adapter.resolveUrl(data_object, Falcon.Adapter.GET, options, context);
+        expect(data_object.makeUrl).not.toHaveBeenCalled();
+        return expect(ret).toBe("http://www.google.com");
       });
     });
+    describe("makeBaseUrl", function() {
+      var adapter, baseApiUrl, context, data_object, options;
+      adapter = new Falcon.Adapter;
+      data_object = new Falcon.Model({
+        id: 1,
+        url: "a"
+      });
+      context = data_object;
+      options = null;
+      baseApiUrl = null;
+      beforeEach(function() {
+        baseApiUrl = Falcon.baseApiUrl;
+        Falcon.baseApiUrl = null;
+        return options = {};
+      });
+      afterEach(function() {
+        return Falcon.baseApiUrl = baseApiUrl;
+      });
+      it("Should generate a base url properly without a parent with GET", function() {
+        var ret;
+        ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.GET, options, context);
+        return expect(ret).toBe("/");
+      });
+      it("Should generate a base url properly without a parent with POST", function() {
+        var ret;
+        ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.POST, options, context);
+        return expect(ret).toBe("/");
+      });
+      it("Should generate a base url properly without a parent with PUT", function() {
+        var ret;
+        ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.PUT, options, context);
+        return expect(ret).toBe("/");
+      });
+      it("Should generate a base url properly without a parent with DELETE", function() {
+        var ret;
+        ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.DELETE, options, context);
+        return expect(ret).toBe("/");
+      });
+      it("Should generate a base url properly with a single parent with GET", function() {
+        var ret;
+        data_object.parent = new Falcon.Model({
+          id: 2,
+          url: "b"
+        });
+        ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.GET, options, context);
+        return expect(ret).toBe("/b/2/");
+      });
+      it("Should generate a base url properly with a single parent with POST", function() {
+        var ret;
+        data_object.parent = new Falcon.Model({
+          id: 2,
+          url: "b"
+        });
+        ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.POST, options, context);
+        return expect(ret).toBe("/b/2/");
+      });
+      it("Should generate a base url properly with a single parent with PUT", function() {
+        var ret;
+        data_object.parent = new Falcon.Model({
+          id: 2,
+          url: "b"
+        });
+        ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.PUT, options, context);
+        return expect(ret).toBe("/b/2/");
+      });
+      it("Should generate a base url properly with a single parent with DELETE", function() {
+        var ret;
+        data_object.parent = new Falcon.Model({
+          id: 2,
+          url: "b"
+        });
+        ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.DELETE, options, context);
+        return expect(ret).toBe("/b/2/");
+      });
+      it("Should generate a url properly with more than one parent with GET", function() {
+        var parent_model, ret;
+        parent_model = new Falcon.Model({
+          id: 3,
+          url: "c"
+        });
+        data_object.parent = new Falcon.Model({
+          id: 2,
+          url: "b"
+        }, parent_model);
+        ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.GET, options, context);
+        return expect(ret).toBe("/c/3/b/2/");
+      });
+      it("Should generate a url properly with more than one parent with POSt", function() {
+        var parent_model, ret;
+        parent_model = new Falcon.Model({
+          id: 3,
+          url: "c"
+        });
+        data_object.parent = new Falcon.Model({
+          id: 2,
+          url: "b"
+        }, parent_model);
+        ret = adapter.makeBaseUrl(data_object, "POSt", options, context);
+        return expect(ret).toBe("/c/3/b/2/");
+      });
+      it("Should generate a url properly with more than one parent with PUT", function() {
+        var parent_model, ret;
+        parent_model = new Falcon.Model({
+          id: 3,
+          url: "c"
+        });
+        data_object.parent = new Falcon.Model({
+          id: 2,
+          url: "b"
+        }, parent_model);
+        ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.PUT, options, context);
+        return expect(ret).toBe("/c/3/b/2/");
+      });
+      it("Should generate a url properly with more than one parent with DELETE", function() {
+        var parent_model, ret;
+        parent_model = new Falcon.Model({
+          id: 3,
+          url: "c"
+        });
+        data_object.parent = new Falcon.Model({
+          id: 2,
+          url: "b"
+        }, parent_model);
+        ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.DELETE, options, context);
+        return expect(ret).toBe("/c/3/b/2/");
+      });
+      it("Should generate a url properly using the parent from within options with GET", function() {
+        var parent_model, ret;
+        options.parent = new Falcon.Model({
+          id: 4,
+          url: "d"
+        });
+        parent_model = new Falcon.Model({
+          id: 3,
+          url: "c"
+        });
+        data_object.parent = new Falcon.Model({
+          id: 2,
+          url: "b"
+        }, parent_model);
+        ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.GET, options, context);
+        return expect(ret).toBe("/d/4/");
+      });
+      it("Should generate a url properly using the parent from within options with POST", function() {
+        var parent_model, ret;
+        options.parent = new Falcon.Model({
+          id: 4,
+          url: "d"
+        });
+        parent_model = new Falcon.Model({
+          id: 3,
+          url: "c"
+        });
+        data_object.parent = new Falcon.Model({
+          id: 2,
+          url: "b"
+        }, parent_model);
+        ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.POST, options, context);
+        return expect(ret).toBe("/d/4/");
+      });
+      it("Should generate a url properly using the parent from within options with PUT", function() {
+        var parent_model, ret;
+        options.parent = new Falcon.Model({
+          id: 4,
+          url: "d"
+        });
+        parent_model = new Falcon.Model({
+          id: 3,
+          url: "c"
+        });
+        data_object.parent = new Falcon.Model({
+          id: 2,
+          url: "b"
+        }, parent_model);
+        ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.PUT, options, context);
+        return expect(ret).toBe("/d/4/");
+      });
+      it("Should generate a url properly using the parent from within options with DELETE", function() {
+        var parent_model, ret;
+        options.parent = new Falcon.Model({
+          id: 4,
+          url: "d"
+        });
+        parent_model = new Falcon.Model({
+          id: 3,
+          url: "c"
+        });
+        data_object.parent = new Falcon.Model({
+          id: 2,
+          url: "b"
+        }, parent_model);
+        ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.DELETE, options, context);
+        return expect(ret).toBe("/d/4/");
+      });
+      it("Should include the base api url with regular parent", function() {
+        var parent_model, ret;
+        Falcon.baseApiUrl = "http://www.falconjs.com";
+        parent_model = new Falcon.Model({
+          id: 3,
+          url: "c"
+        });
+        data_object.parent = new Falcon.Model({
+          id: 2,
+          url: "b"
+        }, parent_model);
+        ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.GET, options, context);
+        return expect(ret).toBe("http://www.falconjs.com/c/3/b/2/");
+      });
+      it("Should include the base api url with regular parent and a trailing slash", function() {
+        var parent_model, ret;
+        Falcon.baseApiUrl = "http://www.falconjs.com/";
+        parent_model = new Falcon.Model({
+          id: 3,
+          url: "c"
+        });
+        data_object.parent = new Falcon.Model({
+          id: 2,
+          url: "b"
+        }, parent_model);
+        ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.GET, options, context);
+        return expect(ret).toBe("http://www.falconjs.com/c/3/b/2/");
+      });
+      it("Should include the base api url with an options parent", function() {
+        var parent_model, ret;
+        Falcon.baseApiUrl = "http://www.falconjs.com";
+        options.parent = new Falcon.Model({
+          id: 4,
+          url: "d"
+        });
+        parent_model = new Falcon.Model({
+          id: 3,
+          url: "c"
+        });
+        data_object.parent = new Falcon.Model({
+          id: 2,
+          url: "b"
+        }, parent_model);
+        ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.GET, options, context);
+        return expect(ret).toBe("http://www.falconjs.com/d/4/");
+      });
+      it("Should include the base api url with an options parent and a trailing slash", function() {
+        var parent_model, ret;
+        Falcon.baseApiUrl = "http://www.falconjs.com/";
+        options.parent = new Falcon.Model({
+          id: 4,
+          url: "d"
+        });
+        parent_model = new Falcon.Model({
+          id: 3,
+          url: "c"
+        });
+        data_object.parent = new Falcon.Model({
+          id: 2,
+          url: "b"
+        }, parent_model);
+        ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.GET, options, context);
+        return expect(ret).toBe("http://www.falconjs.com/d/4/");
+      });
+      it("Should include the base api url without a parent", function() {
+        var ret;
+        Falcon.baseApiUrl = "http://www.falconjs.com";
+        data_object.parent = null;
+        ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.GET, options, context);
+        return expect(ret).toBe("http://www.falconjs.com/");
+      });
+      it("Should include the base api url without a parent and a trailing slash", function() {
+        var ret;
+        Falcon.baseApiUrl = "http://www.falconjs.com/";
+        data_object.parent = null;
+        ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.GET, options, context);
+        return expect(ret).toBe("http://www.falconjs.com/");
+      });
+      it("Should include the base api url with an empty base url", function() {
+        var ret;
+        Falcon.baseApiUrl = "";
+        data_object.parent = null;
+        ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.GET, options, context);
+        return expect(ret).toBe("/");
+      });
+      it("Should include the base api url with the root basse url", function() {
+        var ret;
+        Falcon.baseApiUrl = "/";
+        data_object.parent = null;
+        ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.GET, options, context);
+        return expect(ret).toBe("/");
+      });
+      return it("Should include the base api url with the root base url and a trailing slash", function() {
+        var ret;
+        Falcon.baseApiUrl = "//";
+        data_object.parent = null;
+        ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.GET, options, context);
+        return expect(ret).toBe("/");
+      });
+    });
+    describe("makeUrlComponents", function() {
+      var adapter, base_api_url;
+      adapter = null;
+      base_api_url = null;
+      beforeEach(function() {
+        base_api_url = Falcon.baseApiUrl;
+        Falcon.baseApiUrl = null;
+        adapter = new Falcon.Adapter;
+        spyOn(adapter, "resolveRequestType").and.callThrough();
+        return spyOn(adapter, "makeBaseUrl").and.callThrough();
+      });
+      afterEach(function() {
+        return Falcon.baseApiUrl = base_api_url;
+      });
+      return it("");
+    });
+    describe("makeUrl", function() {});
     describe("serializeData", function() {
       var adapter, attributes, context, data_object, options, parent, serialized_data;
       adapter = new Falcon.Adapter;
@@ -1269,15 +1577,15 @@
         return spyOn(data_object, 'serialize').and.returnValue(serialized_data);
       });
       it("Should use the data attribute of options if one is present", function() {
-        expect(adapter.serializeData(data_object, "GET", options, context)).toBe(options.data);
-        expect(adapter.serializeData(data_object, "POST", options, context)).toBe(options.data);
-        expect(adapter.serializeData(data_object, "PUT", options, context)).toBe(options.data);
-        expect(adapter.serializeData(data_object, "DELETE", options, context)).toBe(options.data);
+        expect(adapter.serializeData(data_object, Falcon.Adapter.GET, options, context)).toBe(options.data);
+        expect(adapter.serializeData(data_object, Falcon.Adapter.POST, options, context)).toBe(options.data);
+        expect(adapter.serializeData(data_object, Falcon.Adapter.PUT, options, context)).toBe(options.data);
+        expect(adapter.serializeData(data_object, Falcon.Adapter.DELETE, options, context)).toBe(options.data);
         return expect(data_object.serialize).not.toHaveBeenCalled();
       });
       it("Should call the serialize method on the data object if the request type is POST", function() {
         var ret;
-        ret = adapter.serializeData(data_object, "POST", {
+        ret = adapter.serializeData(data_object, Falcon.Adapter.POST, {
           attributes: attributes
         }, context);
         expect(data_object.serialize.calls.count()).toBe(1);
@@ -1286,7 +1594,7 @@
       });
       it("Should call the serialize method on the data object if the request type is PUT", function() {
         var ret;
-        ret = adapter.serializeData(data_object, "PUT", {
+        ret = adapter.serializeData(data_object, Falcon.Adapter.PUT, {
           attributes: attributes
         }, context);
         expect(data_object.serialize.calls.count()).toBe(1);
@@ -1295,10 +1603,10 @@
       });
       return it("Should not call serialzie on GET or DELETE", function() {
         var ret;
-        ret = adapter.serializeData(data_object, "GET", {
+        ret = adapter.serializeData(data_object, Falcon.Adapter.GET, {
           attributes: attributes
         }, context);
-        ret = adapter.serializeData(data_object, "DELETE", {
+        ret = adapter.serializeData(data_object, Falcon.Adapter.DELETE, {
           attributes: attributes
         }, context);
         expect(data_object.serialize).not.toHaveBeenCalled();
@@ -1312,7 +1620,7 @@
       data_object = new Falcon.Model({
         id: 1
       }, parent);
-      type = "GET";
+      type = Falcon.Adapter.GET;
       context = {
         id: 3
       };
@@ -1334,7 +1642,7 @@
       context = new Falcon.Model({
         id: 2
       }, parent);
-      type = "GET";
+      type = Falcon.Adapter.GET;
       success = sinon.spy();
       error = sinon.spy();
       complete = sinon.spy();
@@ -1366,7 +1674,7 @@
         return complete.reset();
       });
       it("Should call the correct methods on GET", function() {
-        type = "GET";
+        type = Falcon.Adapter.GET;
         adapter.successResponseHandler(data_object, type, options, context, response_args);
         expect(adapter.parseRawResponseData.calls.count()).toBe(1);
         expect(adapter.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, response_args);
@@ -1383,7 +1691,7 @@
         return expect(complete).not.toHaveBeenCalled();
       });
       it("Should call the correct methods on POST", function() {
-        type = "POST";
+        type = Falcon.Adapter.POST;
         adapter.successResponseHandler(data_object, type, options, context, response_args);
         expect(adapter.parseRawResponseData.calls.count()).toBe(1);
         expect(adapter.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, response_args);
@@ -1400,7 +1708,7 @@
         return expect(complete).not.toHaveBeenCalled();
       });
       it("Should call the correct methods on PUT", function() {
-        type = "PUT";
+        type = Falcon.Adapter.PUT;
         adapter.successResponseHandler(data_object, type, options, context, response_args);
         expect(adapter.parseRawResponseData.calls.count()).toBe(1);
         expect(adapter.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, response_args);
@@ -1417,7 +1725,7 @@
         return expect(complete).not.toHaveBeenCalled();
       });
       return it("Should call the correct methods on DELETE", function() {
-        type = "DELETE";
+        type = Falcon.Adapter.DELETE;
         adapter.successResponseHandler(data_object, type, options, context, response_args);
         expect(adapter.parseRawResponseData.calls.count()).toBe(1);
         expect(adapter.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, response_args);
@@ -1444,7 +1752,7 @@
       context = new Falcon.Model({
         id: 2
       }, parent);
-      type = "GET";
+      type = Falcon.Adapter.GET;
       success = sinon.spy();
       error = sinon.spy();
       complete = sinon.spy();
@@ -1489,7 +1797,7 @@
       context = new Falcon.Model({
         id: 2
       }, parent);
-      type = "GET";
+      type = Falcon.Adapter.GET;
       success = sinon.spy();
       error = sinon.spy();
       complete = sinon.spy();
@@ -1534,7 +1842,7 @@
       context = new Falcon.Model({
         id: 2
       }, parent);
-      type = "GET";
+      type = Falcon.Adapter.GET;
       options = {};
       beforeEach(function() {
         sinonSpyOn(adapter, 'resolveRequestType');
@@ -1559,7 +1867,7 @@
       });
       it("Should return properly on GET", function() {
         var ret;
-        type = "GET";
+        type = Falcon.Adapter.GET;
         ret = adapter.sync(data_object, type, options, context);
         expect(adapter.resolveRequestType).toHaveBeenCalledOnce();
         expect(adapter.resolveRequestType).toHaveBeenCalledWith(data_object, type, options, context);
@@ -1572,7 +1880,7 @@
         expect(data_object.validate).not.toHaveBeenCalled();
         return expect(ret).toEqual({
           data_object: data_object,
-          type: "GET",
+          type: Falcon.Adapter.GET,
           options: jasmine.any(Object),
           context: context,
           is_valid: true
@@ -1580,7 +1888,7 @@
       });
       it("Should return properly on POST", function() {
         var ret;
-        type = "POST";
+        type = Falcon.Adapter.POST;
         ret = adapter.sync(data_object, type, options, context);
         expect(adapter.resolveRequestType).toHaveBeenCalledOnce();
         expect(adapter.resolveRequestType).toHaveBeenCalledWith(data_object, type, options, context);
@@ -1595,7 +1903,7 @@
         expect(data_object.validate).toHaveBeenCalledAfter(adapter.resolveContext);
         return expect(ret).toEqual({
           data_object: data_object,
-          type: "POST",
+          type: Falcon.Adapter.POST,
           options: jasmine.any(Object),
           context: context,
           is_valid: true
@@ -1603,7 +1911,7 @@
       });
       it("Should return properly on PUT", function() {
         var ret;
-        type = "PUT";
+        type = Falcon.Adapter.PUT;
         ret = adapter.sync(data_object, type, options, context);
         expect(adapter.resolveRequestType).toHaveBeenCalledOnce();
         expect(adapter.resolveRequestType).toHaveBeenCalledWith(data_object, type, options, context);
@@ -1618,7 +1926,7 @@
         expect(data_object.validate).toHaveBeenCalledAfter(adapter.resolveContext);
         return expect(ret).toEqual({
           data_object: data_object,
-          type: "PUT",
+          type: Falcon.Adapter.PUT,
           options: jasmine.any(Object),
           context: context,
           is_valid: true
@@ -1626,7 +1934,7 @@
       });
       it("Should return properly on DELETE", function() {
         var ret;
-        type = "DELETE";
+        type = Falcon.Adapter.DELETE;
         ret = adapter.sync(data_object, type, options, context);
         expect(adapter.resolveRequestType).toHaveBeenCalledOnce();
         expect(adapter.resolveRequestType).toHaveBeenCalledWith(data_object, type, options, context);
@@ -1639,7 +1947,7 @@
         expect(data_object.validate).not.toHaveBeenCalled();
         return expect(ret).toEqual({
           data_object: data_object,
-          type: "DELETE",
+          type: Falcon.Adapter.DELETE,
           options: jasmine.any(Object),
           context: context,
           is_valid: true
@@ -1647,7 +1955,7 @@
       });
       it("Should return properly with a failed POST validation", function() {
         var ret;
-        type = "POST";
+        type = Falcon.Adapter.POST;
         data_object.validate = sinon.spy(function() {
           return false;
         });
@@ -1665,7 +1973,7 @@
         expect(data_object.validate).toHaveBeenCalledAfter(adapter.resolveContext);
         return expect(ret).toEqual({
           data_object: data_object,
-          type: "POST",
+          type: Falcon.Adapter.POST,
           options: jasmine.any(Object),
           context: context,
           is_valid: false
@@ -1673,7 +1981,7 @@
       });
       it("Should return properly with a failed PUT validation", function() {
         var ret;
-        type = "PUT";
+        type = Falcon.Adapter.PUT;
         data_object.validate = sinon.spy(function() {
           return false;
         });
@@ -1691,7 +1999,7 @@
         expect(data_object.validate).toHaveBeenCalledAfter(adapter.resolveContext);
         return expect(ret).toEqual({
           data_object: data_object,
-          type: "PUT",
+          type: Falcon.Adapter.PUT,
           options: jasmine.any(Object),
           context: context,
           is_valid: false
@@ -1699,7 +2007,7 @@
       });
       return it("Should not call validate on a collection", function() {
         var ret;
-        type = "POST";
+        type = Falcon.Adapter.POST;
         data_object = new Falcon.Collection;
         data_object.validate = sinon.spy(function() {
           return false;
@@ -1716,7 +2024,7 @@
         expect(data_object.validate).not.toHaveBeenCalled();
         return expect(ret).toEqual({
           data_object: data_object,
-          type: "POST",
+          type: Falcon.Adapter.POST,
           options: jasmine.any(Object),
           context: context,
           is_valid: true
@@ -4578,38 +4886,38 @@
       it("Tests the basic makeUrl method", function() {
         var collectionA;
         collectionA = new CollectionA();
-        expect(collectionA.makeUrl("GET")).toBe("/model_a");
-        expect(collectionA.makeUrl("POST")).toBe("/model_a");
-        expect(collectionA.makeUrl("PUT")).toBe("/model_a");
-        return expect(collectionA.makeUrl("DELETE")).toBe("/model_a");
+        expect(collectionA.makeUrl(Falcon.Adapter.GET)).toBe("/model_a");
+        expect(collectionA.makeUrl(Falcon.Adapter.POST)).toBe("/model_a");
+        expect(collectionA.makeUrl(Falcon.Adapter.PUT)).toBe("/model_a");
+        return expect(collectionA.makeUrl(Falcon.Adapter.DELETE)).toBe("/model_a");
       });
       it("Tests the basic makeUrl method, base API url", function() {
         var collectionA;
         collectionA = new CollectionA();
         Falcon.baseApiUrl = "http://www.falconjs.com";
-        expect(collectionA.makeUrl("GET")).toBe("http://www.falconjs.com/model_a");
-        expect(collectionA.makeUrl("POST")).toBe("http://www.falconjs.com/model_a");
-        expect(collectionA.makeUrl("PUT")).toBe("http://www.falconjs.com/model_a");
-        return expect(collectionA.makeUrl("DELETE")).toBe("http://www.falconjs.com/model_a");
+        expect(collectionA.makeUrl(Falcon.Adapter.GET)).toBe("http://www.falconjs.com/model_a");
+        expect(collectionA.makeUrl(Falcon.Adapter.POST)).toBe("http://www.falconjs.com/model_a");
+        expect(collectionA.makeUrl(Falcon.Adapter.PUT)).toBe("http://www.falconjs.com/model_a");
+        return expect(collectionA.makeUrl(Falcon.Adapter.DELETE)).toBe("http://www.falconjs.com/model_a");
       });
       it("Tests the basic makeUrl method, base API url ending with a '/'", function() {
         var collectionA;
         collectionA = new CollectionA();
         Falcon.baseApiUrl = "http://www.falconjs.com/";
-        expect(collectionA.makeUrl("GET")).toBe("http://www.falconjs.com/model_a");
-        expect(collectionA.makeUrl("POST")).toBe("http://www.falconjs.com/model_a");
-        expect(collectionA.makeUrl("PUT")).toBe("http://www.falconjs.com/model_a");
-        return expect(collectionA.makeUrl("DELETE")).toBe("http://www.falconjs.com/model_a");
+        expect(collectionA.makeUrl(Falcon.Adapter.GET)).toBe("http://www.falconjs.com/model_a");
+        expect(collectionA.makeUrl(Falcon.Adapter.POST)).toBe("http://www.falconjs.com/model_a");
+        expect(collectionA.makeUrl(Falcon.Adapter.PUT)).toBe("http://www.falconjs.com/model_a");
+        return expect(collectionA.makeUrl(Falcon.Adapter.DELETE)).toBe("http://www.falconjs.com/model_a");
       });
       it("Tests the basic makeUrl method, with parent", function() {
         var collectionA;
         collectionA = new CollectionA(new ModelB({
           id: '1b'
         }));
-        expect(collectionA.makeUrl("GET")).toBe("/model_b/1b/model_a");
-        expect(collectionA.makeUrl("POST")).toBe("/model_b/1b/model_a");
-        expect(collectionA.makeUrl("PUT")).toBe("/model_b/1b/model_a");
-        return expect(collectionA.makeUrl("DELETE")).toBe("/model_b/1b/model_a");
+        expect(collectionA.makeUrl(Falcon.Adapter.GET)).toBe("/model_b/1b/model_a");
+        expect(collectionA.makeUrl(Falcon.Adapter.POST)).toBe("/model_b/1b/model_a");
+        expect(collectionA.makeUrl(Falcon.Adapter.PUT)).toBe("/model_b/1b/model_a");
+        return expect(collectionA.makeUrl(Falcon.Adapter.DELETE)).toBe("/model_b/1b/model_a");
       });
       it("Tests the basic makeUrl method, base API url, with parent", function() {
         var collectionA;
@@ -4617,10 +4925,10 @@
           id: '2b'
         }));
         Falcon.baseApiUrl = "http://www.falconjs.com";
-        expect(collectionA.makeUrl("GET")).toBe("http://www.falconjs.com/model_b/2b/model_a");
-        expect(collectionA.makeUrl("POST")).toBe("http://www.falconjs.com/model_b/2b/model_a");
-        expect(collectionA.makeUrl("PUT")).toBe("http://www.falconjs.com/model_b/2b/model_a");
-        return expect(collectionA.makeUrl("DELETE")).toBe("http://www.falconjs.com/model_b/2b/model_a");
+        expect(collectionA.makeUrl(Falcon.Adapter.GET)).toBe("http://www.falconjs.com/model_b/2b/model_a");
+        expect(collectionA.makeUrl(Falcon.Adapter.POST)).toBe("http://www.falconjs.com/model_b/2b/model_a");
+        expect(collectionA.makeUrl(Falcon.Adapter.PUT)).toBe("http://www.falconjs.com/model_b/2b/model_a");
+        return expect(collectionA.makeUrl(Falcon.Adapter.DELETE)).toBe("http://www.falconjs.com/model_b/2b/model_a");
       });
       it("Tests the basic makeUrl method, base API url ending with a '/', with parent", function() {
         var collectionA;
@@ -4628,46 +4936,46 @@
           id: '3b'
         }));
         Falcon.baseApiUrl = "http://www.falconjs.com/";
-        expect(collectionA.makeUrl("GET")).toBe("http://www.falconjs.com/model_b/3b/model_a");
-        expect(collectionA.makeUrl("POST")).toBe("http://www.falconjs.com/model_b/3b/model_a");
-        expect(collectionA.makeUrl("PUT")).toBe("http://www.falconjs.com/model_b/3b/model_a");
-        return expect(collectionA.makeUrl("DELETE")).toBe("http://www.falconjs.com/model_b/3b/model_a");
+        expect(collectionA.makeUrl(Falcon.Adapter.GET)).toBe("http://www.falconjs.com/model_b/3b/model_a");
+        expect(collectionA.makeUrl(Falcon.Adapter.POST)).toBe("http://www.falconjs.com/model_b/3b/model_a");
+        expect(collectionA.makeUrl(Falcon.Adapter.PUT)).toBe("http://www.falconjs.com/model_b/3b/model_a");
+        return expect(collectionA.makeUrl(Falcon.Adapter.DELETE)).toBe("http://www.falconjs.com/model_b/3b/model_a");
       });
       it("Tests the basic makeUrl method, model url is a function", function() {
         var collectionD;
         collectionD = new CollectionD();
-        expect(collectionD.makeUrl("GET")).toBe("/model_d");
-        expect(collectionD.makeUrl("POST")).toBe("/model_d");
-        expect(collectionD.makeUrl("PUT")).toBe("/model_d");
-        return expect(collectionD.makeUrl("DELETE")).toBe("/model_d");
+        expect(collectionD.makeUrl(Falcon.Adapter.GET)).toBe("/model_d");
+        expect(collectionD.makeUrl(Falcon.Adapter.POST)).toBe("/model_d");
+        expect(collectionD.makeUrl(Falcon.Adapter.PUT)).toBe("/model_d");
+        return expect(collectionD.makeUrl(Falcon.Adapter.DELETE)).toBe("/model_d");
       });
       it("Tests the basic makeUrl method, model url is a function, base API url", function() {
         var collectionD;
         collectionD = new CollectionD();
         Falcon.baseApiUrl = "http://www.falconjs.com";
-        expect(collectionD.makeUrl("GET")).toBe("http://www.falconjs.com/model_d");
-        expect(collectionD.makeUrl("POST")).toBe("http://www.falconjs.com/model_d");
-        expect(collectionD.makeUrl("PUT")).toBe("http://www.falconjs.com/model_d");
-        return expect(collectionD.makeUrl("DELETE")).toBe("http://www.falconjs.com/model_d");
+        expect(collectionD.makeUrl(Falcon.Adapter.GET)).toBe("http://www.falconjs.com/model_d");
+        expect(collectionD.makeUrl(Falcon.Adapter.POST)).toBe("http://www.falconjs.com/model_d");
+        expect(collectionD.makeUrl(Falcon.Adapter.PUT)).toBe("http://www.falconjs.com/model_d");
+        return expect(collectionD.makeUrl(Falcon.Adapter.DELETE)).toBe("http://www.falconjs.com/model_d");
       });
       it("Tests the basic makeUrl method, model url is a function, base API url ending with a '/'", function() {
         var collectionD;
         collectionD = new CollectionD();
         Falcon.baseApiUrl = "http://www.falconjs.com/";
-        expect(collectionD.makeUrl("GET")).toBe("http://www.falconjs.com/model_d");
-        expect(collectionD.makeUrl("POST")).toBe("http://www.falconjs.com/model_d");
-        expect(collectionD.makeUrl("PUT")).toBe("http://www.falconjs.com/model_d");
-        return expect(collectionD.makeUrl("DELETE")).toBe("http://www.falconjs.com/model_d");
+        expect(collectionD.makeUrl(Falcon.Adapter.GET)).toBe("http://www.falconjs.com/model_d");
+        expect(collectionD.makeUrl(Falcon.Adapter.POST)).toBe("http://www.falconjs.com/model_d");
+        expect(collectionD.makeUrl(Falcon.Adapter.PUT)).toBe("http://www.falconjs.com/model_d");
+        return expect(collectionD.makeUrl(Falcon.Adapter.DELETE)).toBe("http://www.falconjs.com/model_d");
       });
       it("Tests the basic makeUrl method, model url is a function, with parent", function() {
         var collectionD;
         collectionD = new CollectionD(new ModelB({
           id: '1b'
         }));
-        expect(collectionD.makeUrl("GET")).toBe("/model_b/1b/model_d");
-        expect(collectionD.makeUrl("POST")).toBe("/model_b/1b/model_d");
-        expect(collectionD.makeUrl("PUT")).toBe("/model_b/1b/model_d");
-        return expect(collectionD.makeUrl("DELETE")).toBe("/model_b/1b/model_d");
+        expect(collectionD.makeUrl(Falcon.Adapter.GET)).toBe("/model_b/1b/model_d");
+        expect(collectionD.makeUrl(Falcon.Adapter.POST)).toBe("/model_b/1b/model_d");
+        expect(collectionD.makeUrl(Falcon.Adapter.PUT)).toBe("/model_b/1b/model_d");
+        return expect(collectionD.makeUrl(Falcon.Adapter.DELETE)).toBe("/model_b/1b/model_d");
       });
       it("Tests the basic makeUrl method, model url is a function, with parent, base API url", function() {
         var collectionD;
@@ -4675,10 +4983,10 @@
           id: '2b'
         }));
         Falcon.baseApiUrl = "http://www.falconjs.com";
-        expect(collectionD.makeUrl("GET")).toBe("http://www.falconjs.com/model_b/2b/model_d");
-        expect(collectionD.makeUrl("POST")).toBe("http://www.falconjs.com/model_b/2b/model_d");
-        expect(collectionD.makeUrl("PUT")).toBe("http://www.falconjs.com/model_b/2b/model_d");
-        return expect(collectionD.makeUrl("DELETE")).toBe("http://www.falconjs.com/model_b/2b/model_d");
+        expect(collectionD.makeUrl(Falcon.Adapter.GET)).toBe("http://www.falconjs.com/model_b/2b/model_d");
+        expect(collectionD.makeUrl(Falcon.Adapter.POST)).toBe("http://www.falconjs.com/model_b/2b/model_d");
+        expect(collectionD.makeUrl(Falcon.Adapter.PUT)).toBe("http://www.falconjs.com/model_b/2b/model_d");
+        return expect(collectionD.makeUrl(Falcon.Adapter.DELETE)).toBe("http://www.falconjs.com/model_b/2b/model_d");
       });
       it("Tests the basic makeUrl method, model url is a function, with parent, base API url ending with a '/'", function() {
         var collectionD;
@@ -4686,46 +4994,46 @@
           id: '3b'
         }));
         Falcon.baseApiUrl = "http://www.falconjs.com/";
-        expect(collectionD.makeUrl("GET")).toBe("http://www.falconjs.com/model_b/3b/model_d");
-        expect(collectionD.makeUrl("POST")).toBe("http://www.falconjs.com/model_b/3b/model_d");
-        expect(collectionD.makeUrl("PUT")).toBe("http://www.falconjs.com/model_b/3b/model_d");
-        return expect(collectionD.makeUrl("DELETE")).toBe("http://www.falconjs.com/model_b/3b/model_d");
+        expect(collectionD.makeUrl(Falcon.Adapter.GET)).toBe("http://www.falconjs.com/model_b/3b/model_d");
+        expect(collectionD.makeUrl(Falcon.Adapter.POST)).toBe("http://www.falconjs.com/model_b/3b/model_d");
+        expect(collectionD.makeUrl(Falcon.Adapter.PUT)).toBe("http://www.falconjs.com/model_b/3b/model_d");
+        return expect(collectionD.makeUrl(Falcon.Adapter.DELETE)).toBe("http://www.falconjs.com/model_b/3b/model_d");
       });
       it("Tests the basic makeUrl method, defined url string", function() {
         var collectionD2;
         collectionD2 = new CollectionD2();
-        expect(collectionD2.makeUrl("GET")).toBe("/collection_d2");
-        expect(collectionD2.makeUrl("POST")).toBe("/collection_d2");
-        expect(collectionD2.makeUrl("PUT")).toBe("/collection_d2");
-        return expect(collectionD2.makeUrl("DELETE")).toBe("/collection_d2");
+        expect(collectionD2.makeUrl(Falcon.Adapter.GET)).toBe("/collection_d2");
+        expect(collectionD2.makeUrl(Falcon.Adapter.POST)).toBe("/collection_d2");
+        expect(collectionD2.makeUrl(Falcon.Adapter.PUT)).toBe("/collection_d2");
+        return expect(collectionD2.makeUrl(Falcon.Adapter.DELETE)).toBe("/collection_d2");
       });
       it("Tests the basic makeUrl method, defined url string, base API url", function() {
         var collectionD2;
         collectionD2 = new CollectionD2();
         Falcon.baseApiUrl = "http://www.falconjs.com";
-        expect(collectionD2.makeUrl("GET")).toBe("http://www.falconjs.com/collection_d2");
-        expect(collectionD2.makeUrl("POST")).toBe("http://www.falconjs.com/collection_d2");
-        expect(collectionD2.makeUrl("PUT")).toBe("http://www.falconjs.com/collection_d2");
-        return expect(collectionD2.makeUrl("DELETE")).toBe("http://www.falconjs.com/collection_d2");
+        expect(collectionD2.makeUrl(Falcon.Adapter.GET)).toBe("http://www.falconjs.com/collection_d2");
+        expect(collectionD2.makeUrl(Falcon.Adapter.POST)).toBe("http://www.falconjs.com/collection_d2");
+        expect(collectionD2.makeUrl(Falcon.Adapter.PUT)).toBe("http://www.falconjs.com/collection_d2");
+        return expect(collectionD2.makeUrl(Falcon.Adapter.DELETE)).toBe("http://www.falconjs.com/collection_d2");
       });
       it("Tests the basic makeUrl method, defined url string, base API url ending with a '/'", function() {
         var collectionD2;
         collectionD2 = new CollectionD2();
         Falcon.baseApiUrl = "http://www.falconjs.com/";
-        expect(collectionD2.makeUrl("GET")).toBe("http://www.falconjs.com/collection_d2");
-        expect(collectionD2.makeUrl("POST")).toBe("http://www.falconjs.com/collection_d2");
-        expect(collectionD2.makeUrl("PUT")).toBe("http://www.falconjs.com/collection_d2");
-        return expect(collectionD2.makeUrl("DELETE")).toBe("http://www.falconjs.com/collection_d2");
+        expect(collectionD2.makeUrl(Falcon.Adapter.GET)).toBe("http://www.falconjs.com/collection_d2");
+        expect(collectionD2.makeUrl(Falcon.Adapter.POST)).toBe("http://www.falconjs.com/collection_d2");
+        expect(collectionD2.makeUrl(Falcon.Adapter.PUT)).toBe("http://www.falconjs.com/collection_d2");
+        return expect(collectionD2.makeUrl(Falcon.Adapter.DELETE)).toBe("http://www.falconjs.com/collection_d2");
       });
       it("Tests the basic makeUrl method, defined url string, with parent", function() {
         var collectionD2;
         collectionD2 = new CollectionD2(new ModelB({
           id: '1b'
         }));
-        expect(collectionD2.makeUrl("GET")).toBe("/model_b/1b/collection_d2");
-        expect(collectionD2.makeUrl("POST")).toBe("/model_b/1b/collection_d2");
-        expect(collectionD2.makeUrl("PUT")).toBe("/model_b/1b/collection_d2");
-        return expect(collectionD2.makeUrl("DELETE")).toBe("/model_b/1b/collection_d2");
+        expect(collectionD2.makeUrl(Falcon.Adapter.GET)).toBe("/model_b/1b/collection_d2");
+        expect(collectionD2.makeUrl(Falcon.Adapter.POST)).toBe("/model_b/1b/collection_d2");
+        expect(collectionD2.makeUrl(Falcon.Adapter.PUT)).toBe("/model_b/1b/collection_d2");
+        return expect(collectionD2.makeUrl(Falcon.Adapter.DELETE)).toBe("/model_b/1b/collection_d2");
       });
       it("Tests the basic makeUrl method, defined url string, with parent, base API url", function() {
         var collectionD2;
@@ -4733,10 +5041,10 @@
           id: '2b'
         }));
         Falcon.baseApiUrl = "http://www.falconjs.com";
-        expect(collectionD2.makeUrl("GET")).toBe("http://www.falconjs.com/model_b/2b/collection_d2");
-        expect(collectionD2.makeUrl("POST")).toBe("http://www.falconjs.com/model_b/2b/collection_d2");
-        expect(collectionD2.makeUrl("PUT")).toBe("http://www.falconjs.com/model_b/2b/collection_d2");
-        return expect(collectionD2.makeUrl("DELETE")).toBe("http://www.falconjs.com/model_b/2b/collection_d2");
+        expect(collectionD2.makeUrl(Falcon.Adapter.GET)).toBe("http://www.falconjs.com/model_b/2b/collection_d2");
+        expect(collectionD2.makeUrl(Falcon.Adapter.POST)).toBe("http://www.falconjs.com/model_b/2b/collection_d2");
+        expect(collectionD2.makeUrl(Falcon.Adapter.PUT)).toBe("http://www.falconjs.com/model_b/2b/collection_d2");
+        return expect(collectionD2.makeUrl(Falcon.Adapter.DELETE)).toBe("http://www.falconjs.com/model_b/2b/collection_d2");
       });
       it("Tests the basic makeUrl method, defined url string, with parent, base API url ending with a '/'", function() {
         var collectionD2;
@@ -4744,46 +5052,46 @@
           id: '3b'
         }));
         Falcon.baseApiUrl = "http://www.falconjs.com/";
-        expect(collectionD2.makeUrl("GET")).toBe("http://www.falconjs.com/model_b/3b/collection_d2");
-        expect(collectionD2.makeUrl("POST")).toBe("http://www.falconjs.com/model_b/3b/collection_d2");
-        expect(collectionD2.makeUrl("PUT")).toBe("http://www.falconjs.com/model_b/3b/collection_d2");
-        return expect(collectionD2.makeUrl("DELETE")).toBe("http://www.falconjs.com/model_b/3b/collection_d2");
+        expect(collectionD2.makeUrl(Falcon.Adapter.GET)).toBe("http://www.falconjs.com/model_b/3b/collection_d2");
+        expect(collectionD2.makeUrl(Falcon.Adapter.POST)).toBe("http://www.falconjs.com/model_b/3b/collection_d2");
+        expect(collectionD2.makeUrl(Falcon.Adapter.PUT)).toBe("http://www.falconjs.com/model_b/3b/collection_d2");
+        return expect(collectionD2.makeUrl(Falcon.Adapter.DELETE)).toBe("http://www.falconjs.com/model_b/3b/collection_d2");
       });
       it("Tests the basic makeUrl method, defined url function", function() {
         var collectionD3;
         collectionD3 = new CollectionD3();
-        expect(collectionD3.makeUrl("GET")).toBe("/collection_d3");
-        expect(collectionD3.makeUrl("POST")).toBe("/collection_d3");
-        expect(collectionD3.makeUrl("PUT")).toBe("/collection_d3");
-        return expect(collectionD3.makeUrl("DELETE")).toBe("/collection_d3");
+        expect(collectionD3.makeUrl(Falcon.Adapter.GET)).toBe("/collection_d3");
+        expect(collectionD3.makeUrl(Falcon.Adapter.POST)).toBe("/collection_d3");
+        expect(collectionD3.makeUrl(Falcon.Adapter.PUT)).toBe("/collection_d3");
+        return expect(collectionD3.makeUrl(Falcon.Adapter.DELETE)).toBe("/collection_d3");
       });
       it("Tests the basic makeUrl method, defined url function, base API url", function() {
         var collectionD3;
         collectionD3 = new CollectionD3();
         Falcon.baseApiUrl = "http://www.falconjs.com";
-        expect(collectionD3.makeUrl("GET")).toBe("http://www.falconjs.com/collection_d3");
-        expect(collectionD3.makeUrl("POST")).toBe("http://www.falconjs.com/collection_d3");
-        expect(collectionD3.makeUrl("PUT")).toBe("http://www.falconjs.com/collection_d3");
-        return expect(collectionD3.makeUrl("DELETE")).toBe("http://www.falconjs.com/collection_d3");
+        expect(collectionD3.makeUrl(Falcon.Adapter.GET)).toBe("http://www.falconjs.com/collection_d3");
+        expect(collectionD3.makeUrl(Falcon.Adapter.POST)).toBe("http://www.falconjs.com/collection_d3");
+        expect(collectionD3.makeUrl(Falcon.Adapter.PUT)).toBe("http://www.falconjs.com/collection_d3");
+        return expect(collectionD3.makeUrl(Falcon.Adapter.DELETE)).toBe("http://www.falconjs.com/collection_d3");
       });
       it("Tests the basic makeUrl method, defined url function, base API url ending with a '/'", function() {
         var collectionD3;
         collectionD3 = new CollectionD3();
         Falcon.baseApiUrl = "http://www.falconjs.com/";
-        expect(collectionD3.makeUrl("GET")).toBe("http://www.falconjs.com/collection_d3");
-        expect(collectionD3.makeUrl("POST")).toBe("http://www.falconjs.com/collection_d3");
-        expect(collectionD3.makeUrl("PUT")).toBe("http://www.falconjs.com/collection_d3");
-        return expect(collectionD3.makeUrl("DELETE")).toBe("http://www.falconjs.com/collection_d3");
+        expect(collectionD3.makeUrl(Falcon.Adapter.GET)).toBe("http://www.falconjs.com/collection_d3");
+        expect(collectionD3.makeUrl(Falcon.Adapter.POST)).toBe("http://www.falconjs.com/collection_d3");
+        expect(collectionD3.makeUrl(Falcon.Adapter.PUT)).toBe("http://www.falconjs.com/collection_d3");
+        return expect(collectionD3.makeUrl(Falcon.Adapter.DELETE)).toBe("http://www.falconjs.com/collection_d3");
       });
       it("Tests the basic makeUrl method, defined url function, with parent", function() {
         var collectionD3;
         collectionD3 = new CollectionD3(new ModelB({
           id: '1b'
         }));
-        expect(collectionD3.makeUrl("GET")).toBe("/model_b/1b/collection_d3");
-        expect(collectionD3.makeUrl("POST")).toBe("/model_b/1b/collection_d3");
-        expect(collectionD3.makeUrl("PUT")).toBe("/model_b/1b/collection_d3");
-        return expect(collectionD3.makeUrl("DELETE")).toBe("/model_b/1b/collection_d3");
+        expect(collectionD3.makeUrl(Falcon.Adapter.GET)).toBe("/model_b/1b/collection_d3");
+        expect(collectionD3.makeUrl(Falcon.Adapter.POST)).toBe("/model_b/1b/collection_d3");
+        expect(collectionD3.makeUrl(Falcon.Adapter.PUT)).toBe("/model_b/1b/collection_d3");
+        return expect(collectionD3.makeUrl(Falcon.Adapter.DELETE)).toBe("/model_b/1b/collection_d3");
       });
       it("Tests the basic makeUrl method, defined url function, with parent, base API url", function() {
         var collectionD3;
@@ -4791,10 +5099,10 @@
           id: '2b'
         }));
         Falcon.baseApiUrl = "http://www.falconjs.com";
-        expect(collectionD3.makeUrl("GET")).toBe("http://www.falconjs.com/model_b/2b/collection_d3");
-        expect(collectionD3.makeUrl("POST")).toBe("http://www.falconjs.com/model_b/2b/collection_d3");
-        expect(collectionD3.makeUrl("PUT")).toBe("http://www.falconjs.com/model_b/2b/collection_d3");
-        return expect(collectionD3.makeUrl("DELETE")).toBe("http://www.falconjs.com/model_b/2b/collection_d3");
+        expect(collectionD3.makeUrl(Falcon.Adapter.GET)).toBe("http://www.falconjs.com/model_b/2b/collection_d3");
+        expect(collectionD3.makeUrl(Falcon.Adapter.POST)).toBe("http://www.falconjs.com/model_b/2b/collection_d3");
+        expect(collectionD3.makeUrl(Falcon.Adapter.PUT)).toBe("http://www.falconjs.com/model_b/2b/collection_d3");
+        return expect(collectionD3.makeUrl(Falcon.Adapter.DELETE)).toBe("http://www.falconjs.com/model_b/2b/collection_d3");
       });
       it("Tests the basic makeUrl method, defined url function, with parent, base API url ending with a '/'", function() {
         var collectionD3;
@@ -4802,10 +5110,10 @@
           id: '3b'
         }));
         Falcon.baseApiUrl = "http://www.falconjs.com/";
-        expect(collectionD3.makeUrl("GET")).toBe("http://www.falconjs.com/model_b/3b/collection_d3");
-        expect(collectionD3.makeUrl("POST")).toBe("http://www.falconjs.com/model_b/3b/collection_d3");
-        expect(collectionD3.makeUrl("PUT")).toBe("http://www.falconjs.com/model_b/3b/collection_d3");
-        return expect(collectionD3.makeUrl("DELETE")).toBe("http://www.falconjs.com/model_b/3b/collection_d3");
+        expect(collectionD3.makeUrl(Falcon.Adapter.GET)).toBe("http://www.falconjs.com/model_b/3b/collection_d3");
+        expect(collectionD3.makeUrl(Falcon.Adapter.POST)).toBe("http://www.falconjs.com/model_b/3b/collection_d3");
+        expect(collectionD3.makeUrl(Falcon.Adapter.PUT)).toBe("http://www.falconjs.com/model_b/3b/collection_d3");
+        return expect(collectionD3.makeUrl(Falcon.Adapter.DELETE)).toBe("http://www.falconjs.com/model_b/3b/collection_d3");
       });
       return it("Should be able to make a url with just a / baseApiUrl", function() {
         var MyCollection, MyModel, my_collection, _ref12, _ref13;
@@ -4837,7 +5145,7 @@
         })(Falcon.Collection);
         Falcon.baseApiUrl = "/";
         my_collection = new MyCollection;
-        return expect(my_collection.makeUrl("GET")).toBe("/my_models");
+        return expect(my_collection.makeUrl(Falcon.Adapter.GET)).toBe("/my_models");
       });
     });
     describe("Tesing collection sync methods", function() {
@@ -4855,7 +5163,7 @@
           });
           expect(sync_stub).toHaveBeenCalledOnce();
           expect(sync_stub).toHaveBeenCalledOn(collectionA);
-          return expect(sync_stub).toHaveBeenCalledWith('GET', {
+          return expect(sync_stub).toHaveBeenCalledWith(Falcon.Adapter.GET, {
             'hello': 'world'
           });
         });

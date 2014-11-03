@@ -3,7 +3,7 @@ describe "jQueryAdapter", ->
 		adapter = new jQueryAdapter
 		parent = new Falcon.Model(id: 0)
 		data_object = new Falcon.Model({id: 1}, parent)
-		type = "GET"
+		type = Falcon.Adapter.GET
 		options =
 			dataType: 'new-json'
 			contentType: 'application/new-json'
@@ -15,7 +15,7 @@ describe "jQueryAdapter", ->
 
 		beforeEach ->
 			spyOn( Falcon.Adapter::, 'standardizeOptions' ).and.callThrough()
-			spyOn( adapter, 'makeUrl' ).and.callThrough()
+			spyOn( adapter, 'resolveUrl' ).and.callThrough()
 			spyOn( adapter, 'serializeData' ).and.callThrough()
 		#END beforeEach
 
@@ -27,8 +27,8 @@ describe "jQueryAdapter", ->
 			expect( Falcon.Adapter::standardizeOptions.calls.count() ).toBe( 1 )
 			expect( Falcon.Adapter::standardizeOptions ).toHaveBeenCalledWith( data_object, type, null, context )
 
-			expect( adapter.makeUrl.calls.count() ).toBe( 1 )
-			expect( adapter.makeUrl ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
+			expect( adapter.resolveUrl.calls.count() ).toBe( 1 )
+			expect( adapter.resolveUrl ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
 
 			expect( adapter.serializeData.calls.count() ).toBe( 1 )
 			expect( adapter.serializeData ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
@@ -59,8 +59,8 @@ describe "jQueryAdapter", ->
 			expect( Falcon.Adapter::standardizeOptions.calls.count() ).toBe( 1 )
 			expect( Falcon.Adapter::standardizeOptions ).toHaveBeenCalledWith( data_object, type, options, context )
 
-			expect( adapter.makeUrl.calls.count() ).toBe( 1 )
-			expect( adapter.makeUrl ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
+			expect( adapter.resolveUrl.calls.count() ).toBe( 1 )
+			expect( adapter.resolveUrl ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
 
 			expect( adapter.serializeData.calls.count() ).toBe( 1 )
 			expect( adapter.serializeData ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
@@ -92,13 +92,12 @@ describe "jQueryAdapter", ->
 			expect( Falcon.Adapter::standardizeOptions.calls.count() ).toBe( 1 )
 			expect( Falcon.Adapter::standardizeOptions ).toHaveBeenCalledWith( data_object, type, null, context )
 
-			expect( adapter.makeUrl.calls.count() ).toBe( 1 )
-			expect( adapter.makeUrl ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
+			expect( adapter.resolveUrl.calls.count() ).toBe( 1 )
+			expect( adapter.resolveUrl ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
 
 			expect( adapter.serializeData.calls.count() ).toBe( 1 )
 			expect( adapter.serializeData ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
 
-			expect( ret ).toEqual
 			expect( ret['success'] ).toEqual( jasmine.any(Function) )
 			expect( ret['error'] ).toEqual( jasmine.any(Function) )
 			expect( ret['complete'] ).toEqual( jasmine.any(Function) )
@@ -117,43 +116,43 @@ describe "jQueryAdapter", ->
 		#END it
 	#END describe
 	
-	describe "makeUrl", ->
+	describe "resolveUrl", ->
 		adapter = new jQueryAdapter
 		data_object = new Falcon.Model(id: 1)
-		type = "GET"
+		type = Falcon.Adapter.GET
 		options = {url: "http://www.google.com"}
 		params = {'hello': 'world', 'foo': 'bar'}
 		context = new Falcon.Model(id: 2)
 
 		beforeEach ->
-			spyOn( Falcon.Adapter::, 'makeUrl' ).and.callThrough()
+			spyOn( Falcon.Adapter::, 'resolveUrl' ).and.callThrough()
 		#END beforeEach
 
 		it "Should not have any query string parameters if no params present", ->
-			ret = adapter.makeUrl( data_object, type, options, context )
+			ret = adapter.resolveUrl( data_object, type, options, context )
 
-			expect( Falcon.Adapter::makeUrl.calls.count() ).toBe( 1 )
-			expect( Falcon.Adapter::makeUrl ).toHaveBeenCalledWith( data_object, type, options, context )
+			expect( Falcon.Adapter::resolveUrl.calls.count() ).toBe( 1 )
+			expect( Falcon.Adapter::resolveUrl ).toHaveBeenCalledWith( data_object, type, options, context )
 			
 			expect( ret ).toBe( "http://www.google.com")
 		#END it
 
 		it "Should append query string parameters properly", ->
 			options.params = params
-			ret = adapter.makeUrl( data_object, type, options, context )
+			ret = adapter.resolveUrl( data_object, type, options, context )
 
-			expect( Falcon.Adapter::makeUrl.calls.count() ).toBe( 1 )
-			expect( Falcon.Adapter::makeUrl ).toHaveBeenCalledWith( data_object, type, options, context )
+			expect( Falcon.Adapter::resolveUrl.calls.count() ).toBe( 1 )
+			expect( Falcon.Adapter::resolveUrl ).toHaveBeenCalledWith( data_object, type, options, context )
 
 			expect( ret ).toBe( "http://www.google.com?hello=world&foo=bar")
 		#END it
 
 		it "Should append paramters to existing paramters", ->
 			options.url = "http://www.google.com?free=bird"
-			ret = adapter.makeUrl( data_object, type, options, context )
+			ret = adapter.resolveUrl( data_object, type, options, context )
 
-			expect( Falcon.Adapter::makeUrl.calls.count() ).toBe( 1 )
-			expect( Falcon.Adapter::makeUrl ).toHaveBeenCalledWith( data_object, type, options, context )
+			expect( Falcon.Adapter::resolveUrl.calls.count() ).toBe( 1 )
+			expect( Falcon.Adapter::resolveUrl ).toHaveBeenCalledWith( data_object, type, options, context )
 
 			expect( ret ).toBe( "http://www.google.com?free=bird&hello=world&foo=bar")
 		#END it
@@ -162,7 +161,7 @@ describe "jQueryAdapter", ->
 	describe "serializeData", ->
 		adapter = new jQueryAdapter
 		data_object = new Falcon.Model(id: 1)
-		type = "GET"
+		type = Falcon.Adapter.GET
 		options = {
 			data: {'hello': 'world'}
 		}
@@ -173,29 +172,29 @@ describe "jQueryAdapter", ->
 		#END beforeEach
 
 		it "Should return an empty string by default", ->
-			ret = adapter.serializeData( data_object, "GET", {}, context )
+			ret = adapter.serializeData( data_object, Falcon.Adapter.GET, {}, context )
 
 			expect( Falcon.Adapter::serializeData.calls.count() ).toBe( 1 )
-			expect( Falcon.Adapter::serializeData ).toHaveBeenCalledWith( data_object, "GET", jasmine.any(Object), context )
+			expect( Falcon.Adapter::serializeData ).toHaveBeenCalledWith( data_object, Falcon.Adapter.GET, jasmine.any(Object), context )
 
 			expect( ret ).toBe( "" )
 		#END it
 
 		it "Should stringify the data properly", ->
-			ret = adapter.serializeData( data_object, "GET", options, context )
+			ret = adapter.serializeData( data_object, Falcon.Adapter.GET, options, context )
 
 			expect( Falcon.Adapter::serializeData.calls.count() ).toBe( 1 )
-			expect( Falcon.Adapter::serializeData ).toHaveBeenCalledWith( data_object, "GET", options, context )
+			expect( Falcon.Adapter::serializeData ).toHaveBeenCalledWith( data_object, Falcon.Adapter.GET, options, context )
 
 			expect( ret ).toBe( JSON.stringify(options.data) )
 		#END it
 
 		it "Should return early if the data is already a string", ->
 			options.data = JSON.stringify(options.data)
-			ret = adapter.serializeData( data_object, "GET", options, context )
+			ret = adapter.serializeData( data_object, Falcon.Adapter.GET, options, context )
 
 			expect( Falcon.Adapter::serializeData.calls.count() ).toBe( 1 )
-			expect( Falcon.Adapter::serializeData ).toHaveBeenCalledWith( data_object, "GET", options, context )
+			expect( Falcon.Adapter::serializeData ).toHaveBeenCalledWith( data_object, Falcon.Adapter.GET, options, context )
 
 			expect( ret ).toBe( options.data )
 		#END it
@@ -204,7 +203,7 @@ describe "jQueryAdapter", ->
 	describe "parseRawResponseData", ->
 		adapter = new jQueryAdapter
 		data_object = new Falcon.Model(id: 1)
-		type = "GET"
+		type = Falcon.Adapter.GET
 		options = {}
 		context = new Falcon.Model(id: 2)
 		data = JSON.stringify({"hello": "world"})
@@ -265,7 +264,7 @@ describe "jQueryAdapter", ->
 	describe "sync", ->
 		adapter = new jQueryAdapter
 		data_object = new Falcon.Model(id: 1)
-		type = "GET"
+		type = Falcon.Adapter.GET
 		options = {
 			url: "http://www.google.com"
 			data: {"hello": "world"}
@@ -287,14 +286,14 @@ describe "jQueryAdapter", ->
 		#END beforeEach
 
 		it "Should set up the ajax request properly", ->
-			ret = adapter.sync( data_object, "GET", options, context )
+			ret = adapter.sync( data_object, Falcon.Adapter.GET, options, context )
 
 			expect( Falcon.Adapter::sync.calls.count() ).toBe( 1 )
-			expect( Falcon.Adapter::sync ).toHaveBeenCalledWith( data_object, "GET", options, context )
+			expect( Falcon.Adapter::sync ).toHaveBeenCalledWith( data_object, Falcon.Adapter.GET, options, context )
 
 			expect( $.ajax.calls.count() ).toBe( 1 )
 			expect( $.ajax ).toHaveBeenCalledWith
-				'type': "GET"
+				'type': Falcon.Adapter.GET
 				'url': "http://www.google.com"
 				'data': JSON.stringify({"hello": "world"})
 				'dataType': 'json'
@@ -325,7 +324,7 @@ describe "jQueryAdapter", ->
 			expect( adapter.completeResponseHandler ).not.toHaveBeenCalled()
 
 			expect( adapter.successResponseHandler.calls.count() ).toBe( 1 )
-			expect( adapter.successResponseHandler ).toHaveBeenCalledWith( data_object, "GET", jasmine.any(Object), context, {
+			expect( adapter.successResponseHandler ).toHaveBeenCalledWith( data_object, Falcon.Adapter.GET, jasmine.any(Object), context, {
 				data: response_data
 				status: response_status
 				xhr: response_xhr
@@ -341,7 +340,7 @@ describe "jQueryAdapter", ->
 			expect( adapter.completeResponseHandler ).not.toHaveBeenCalled()
 
 			expect( adapter.errorResponseHandler.calls.count() ).toBe( 1 )
-			expect( adapter.errorResponseHandler ).toHaveBeenCalledWith( data_object, "GET", jasmine.any(Object), context, {
+			expect( adapter.errorResponseHandler ).toHaveBeenCalledWith( data_object, Falcon.Adapter.GET, jasmine.any(Object), context, {
 				xhr: response_xhr
 			})
 		#END it
@@ -355,7 +354,7 @@ describe "jQueryAdapter", ->
 			expect( adapter.errorResponseHandler ).not.toHaveBeenCalled()
 
 			expect( adapter.completeResponseHandler.calls.count() ).toBe( 1 )
-			expect( adapter.completeResponseHandler ).toHaveBeenCalledWith( data_object, "GET", jasmine.any(Object), context, {
+			expect( adapter.completeResponseHandler ).toHaveBeenCalledWith( data_object, Falcon.Adapter.GET, jasmine.any(Object), context, {
 				status: response_status
 				xhr: response_xhr
 			})
@@ -363,10 +362,10 @@ describe "jQueryAdapter", ->
 
 		it "Should not call the ajax method if we could not validate the model", ->
 			data_object.validate = ( -> false )
-			ret = adapter.sync( data_object, "POST", options, context )
+			ret = adapter.sync( data_object, Falcon.Adapter.POST, options, context )
 
 			expect( Falcon.Adapter::sync.calls.count() ).toBe( 1 )
-			expect( Falcon.Adapter::sync ).toHaveBeenCalledWith( data_object, "POST", options, context )
+			expect( Falcon.Adapter::sync ).toHaveBeenCalledWith( data_object, Falcon.Adapter.POST, options, context )
 
 			expect( $.ajax ).not.toHaveBeenCalled()
 			expect( adapter.successResponseHandler ).not.toHaveBeenCalled()
@@ -430,7 +429,7 @@ describe "jQueryAdapter", ->
 			expect( $.ajax.calls.count() ).toBe( 1 )
 			expect( $.ajax ).toHaveBeenCalledWith
 				url: "http://www.google.com"
-				type: "GET"
+				type: Falcon.Adapter.GET
 				cache: false
 				error: jasmine.any(Function)
 				success: jasmine.any(Function)

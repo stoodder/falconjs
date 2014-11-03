@@ -26,7 +26,8 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Add disposeWhen, displayIf, afterDisplay, beforeDispose to view binding
 * Ensure that Falcon will work with require.js
 * Add Falcon.Observable to wrap ko.observable in the case that we'd want to switch
-* Change 'url' to 'uri' on Falcon.View
+* Change 'url' to 'endpoint'
+* Make constants
 
 ### v0.10.2
 **Highlights**
