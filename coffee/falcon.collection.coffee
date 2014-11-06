@@ -396,7 +396,7 @@ class FalconCollection extends FalconObject
 		output_options = Falcon.adapter.standardizeOptions( model, 'DELETE', options, context )
 		output_options.success = (model) =>
 			@remove(model)
-			options.success.apply(context, arguments) if isFunction( options.success )
+			options.success.apply(context, arguments) if options? and isFunction( options.success )
 		#END success
 
 		return model.destroy(output_options, context)
