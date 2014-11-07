@@ -118,6 +118,24 @@ describe "jQueryAdapter", ->
 				'cache': true
 			#END toEqual
 		#END it
+
+		it "Should use the adapters config.dataTypeMap to determine dataType, defaulting to 'json'", ->
+			adapter.config = {
+				dataTypeMap: {
+					'GET': 'html'
+					'DELETE': 'text'
+				}
+			}
+
+			ret = adapter.standardizeOptions( data_object, 'GET', null, context )
+			expect( ret.dataType ).toEqual 'html'
+
+			ret = adapter.standardizeOptions( data_object, 'DELETE', null, context )
+			expect( ret.dataType ).toEqual 'text'
+
+			ret = adapter.standardizeOptions( data_object, 'POST', null, context )
+			expect( ret.dataType ).toEqual 'json'
+		#END it
 	#END describe
 	
 	describe "makeUrl", ->

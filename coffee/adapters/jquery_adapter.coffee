@@ -1,5 +1,6 @@
 class @jQueryAdapter extends Falcon.Adapter
 	cache: false
+	config: { dataTypeMap: {} }
 
 	#------------------------------------------------------------------------
 	# Method: jQueryAdapter#standardizeOptions( data_object, type, options, context )
@@ -26,7 +27,12 @@ class @jQueryAdapter extends Falcon.Adapter
 	standardizeOptions: ( data_object, type, options, context ) ->
 		output_options = super( data_object, type, options, context )
 
-		output_options.dataType = "json" unless isString(output_options.dataType)
+		if @config.dataTypeMap.hasOwnProperty(type)
+			output_options.dataType = @config.dataTypeMap[type]
+		else
+			output_options.dataType = "json" unless isString(output_options.dataType)
+		#END if
+
 		output_options.contentType = "application/json" unless isString(output_options.contentType)
 		output_options.params = {} unless isObject( output_options.params )
 		output_options.headers = {} unless isObject( output_options.headers )
