@@ -31,6 +31,7 @@ class @jQueryAdapter extends Falcon.Adapter
 			output_options.dataType = @config.dataTypeMap[type]
 		else
 			output_options.dataType = "json" unless isString(output_options.dataType)
+		#END if
 
 		output_options.contentType = "application/json" unless isString(output_options.contentType)
 		output_options.params = {} unless isObject( output_options.params )

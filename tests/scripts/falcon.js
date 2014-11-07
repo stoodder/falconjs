@@ -1359,7 +1359,7 @@
       output_options = Falcon.adapter.standardizeOptions(model, 'DELETE', options, context);
       output_options.success = function(model) {
         _this.remove(model);
-        if (isFunction(options.success)) {
+        if ((options != null) && isFunction(options.success)) {
           return options.success.apply(context, arguments);
         }
       };

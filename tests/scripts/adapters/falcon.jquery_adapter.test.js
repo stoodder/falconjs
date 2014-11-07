@@ -86,7 +86,7 @@
         });
         return expect(ret).not.toBe(options);
       });
-      return it("Should use the adapter's 'cache' value if on is not present in options", function() {
+      it("Should use the adapter's 'cache' value if on is not present in options", function() {
         var ret;
         adapter.cache = true;
         ret = adapter.standardizeOptions(data_object, type, null, context);
@@ -111,6 +111,21 @@
           'headers': {},
           'cache': true
         });
+      });
+      return it("Should use the adapters config.dataTypeMap to determine dataType, defaulting to 'json'", function() {
+        var ret;
+        adapter.config = {
+          dataTypeMap: {
+            'GET': 'html',
+            'DELETE': 'text'
+          }
+        };
+        ret = adapter.standardizeOptions(data_object, 'GET', null, context);
+        expect(ret.dataType).toEqual('html');
+        ret = adapter.standardizeOptions(data_object, 'DELETE', null, context);
+        expect(ret.dataType).toEqual('text');
+        ret = adapter.standardizeOptions(data_object, 'POST', null, context);
+        return expect(ret.dataType).toEqual('json');
       });
     });
     describe("makeUrl", function() {
