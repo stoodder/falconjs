@@ -252,7 +252,7 @@ describe "Falcon.Adapter", ->
 
 	describe "makeBaseUrl", ->
 		adapter = new Falcon.Adapter
-		data_object = new Falcon.Model({id: 1, url: "a"})
+		data_object = new Falcon.Model({id: 1, endpoint: "a"})
 		context = data_object
 		options = null
 		baseApiUrl = null
@@ -289,87 +289,87 @@ describe "Falcon.Adapter", ->
 
 
 		it "Should generate a base url properly with a single parent with GET", ->
-			data_object.parent = new Falcon.Model({id: 2, url: "b"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"})
 			ret = adapter.makeBaseUrl( data_object, Falcon.Adapter.GET, options, context)
 			expect( ret ).toBe("/b/2/")
 		#END it
 
 		it "Should generate a base url properly with a single parent with POST", ->
-			data_object.parent = new Falcon.Model({id: 2, url: "b"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"})
 			ret = adapter.makeBaseUrl( data_object, Falcon.Adapter.POST, options, context)
 			expect( ret ).toBe("/b/2/")
 		#END it
 
 		it "Should generate a base url properly with a single parent with PUT", ->
-			data_object.parent = new Falcon.Model({id: 2, url: "b"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"})
 			ret = adapter.makeBaseUrl( data_object, Falcon.Adapter.PUT, options, context)
 			expect( ret ).toBe("/b/2/")
 		#END it
 
 		it "Should generate a base url properly with a single parent with DELETE", ->
-			data_object.parent = new Falcon.Model({id: 2, url: "b"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"})
 			ret = adapter.makeBaseUrl( data_object, Falcon.Adapter.DELETE, options, context)
 			expect( ret ).toBe("/b/2/")
 		#END it
 
 
 		it "Should generate a url properly with more than one parent with GET", ->
-			parent_model = new Falcon.Model({id: 3, url: "c"})
-			data_object.parent = new Falcon.Model({id: 2, url: "b"}, parent_model)
+			parent_model = new Falcon.Model({id: 3, endpoint: "c"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"}, parent_model)
 			ret = adapter.makeBaseUrl( data_object, Falcon.Adapter.GET, options, context)
 			expect( ret ).toBe("/c/3/b/2/")
 		#END it
 
 		it "Should generate a url properly with more than one parent with POSt", ->
-			parent_model = new Falcon.Model({id: 3, url: "c"})
-			data_object.parent = new Falcon.Model({id: 2, url: "b"}, parent_model)
+			parent_model = new Falcon.Model({id: 3, endpoint: "c"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"}, parent_model)
 			ret = adapter.makeBaseUrl( data_object, "POSt", options, context)
 			expect( ret ).toBe("/c/3/b/2/")
 		#END it
 
 		it "Should generate a url properly with more than one parent with PUT", ->
-			parent_model = new Falcon.Model({id: 3, url: "c"})
-			data_object.parent = new Falcon.Model({id: 2, url: "b"}, parent_model)
+			parent_model = new Falcon.Model({id: 3, endpoint: "c"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"}, parent_model)
 			ret = adapter.makeBaseUrl( data_object, Falcon.Adapter.PUT, options, context)
 			expect( ret ).toBe("/c/3/b/2/")
 		#END it
 
 		it "Should generate a url properly with more than one parent with DELETE", ->
-			parent_model = new Falcon.Model({id: 3, url: "c"})
-			data_object.parent = new Falcon.Model({id: 2, url: "b"}, parent_model)
+			parent_model = new Falcon.Model({id: 3, endpoint: "c"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"}, parent_model)
 			ret = adapter.makeBaseUrl( data_object, Falcon.Adapter.DELETE, options, context)
 			expect( ret ).toBe("/c/3/b/2/")
 		#END it
 
 
 		it "Should generate a url properly using the parent from within options with GET", ->
-			options.parent = new Falcon.Model({id: 4, url: "d"})
-			parent_model = new Falcon.Model({id: 3, url: "c"})
-			data_object.parent = new Falcon.Model({id: 2, url: "b"}, parent_model)
+			options.parent = new Falcon.Model({id: 4, endpoint: "d"})
+			parent_model = new Falcon.Model({id: 3, endpoint: "c"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"}, parent_model)
 			ret = adapter.makeBaseUrl( data_object, Falcon.Adapter.GET, options, context)
 			expect( ret ).toBe("/d/4/")
 		#END it
 
 		it "Should generate a url properly using the parent from within options with POST", ->
-			options.parent = new Falcon.Model({id: 4, url: "d"})
-			parent_model = new Falcon.Model({id: 3, url: "c"})
-			data_object.parent = new Falcon.Model({id: 2, url: "b"}, parent_model)
+			options.parent = new Falcon.Model({id: 4, endpoint: "d"})
+			parent_model = new Falcon.Model({id: 3, endpoint: "c"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"}, parent_model)
 			ret = adapter.makeBaseUrl( data_object, Falcon.Adapter.POST, options, context)
 			expect( ret ).toBe("/d/4/")
 		#END it
 
 		it "Should generate a url properly using the parent from within options with PUT", ->
-			options.parent = new Falcon.Model({id: 4, url: "d"})
-			parent_model = new Falcon.Model({id: 3, url: "c"})
-			data_object.parent = new Falcon.Model({id: 2, url: "b"}, parent_model)
+			options.parent = new Falcon.Model({id: 4, endpoint: "d"})
+			parent_model = new Falcon.Model({id: 3, endpoint: "c"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"}, parent_model)
 			ret = adapter.makeBaseUrl( data_object, Falcon.Adapter.PUT, options, context)
 			expect( ret ).toBe("/d/4/")
 		#END it
 
 		it "Should generate a url properly using the parent from within options with DELETE", ->
-			options.parent = new Falcon.Model({id: 4, url: "d"})
-			parent_model = new Falcon.Model({id: 3, url: "c"})
-			data_object.parent = new Falcon.Model({id: 2, url: "b"}, parent_model)
+			options.parent = new Falcon.Model({id: 4, endpoint: "d"})
+			parent_model = new Falcon.Model({id: 3, endpoint: "c"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"}, parent_model)
 			ret = adapter.makeBaseUrl( data_object, Falcon.Adapter.DELETE, options, context)
 			expect( ret ).toBe("/d/4/")
 		#END it
@@ -377,16 +377,16 @@ describe "Falcon.Adapter", ->
 
 		it "Should include the base api url with regular parent", ->
 			Falcon.baseApiUrl = "http://www.falconjs.com"
-			parent_model = new Falcon.Model({id: 3, url: "c"})
-			data_object.parent = new Falcon.Model({id: 2, url: "b"}, parent_model)
+			parent_model = new Falcon.Model({id: 3, endpoint: "c"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"}, parent_model)
 			ret = adapter.makeBaseUrl( data_object, Falcon.Adapter.GET, options, context)
 			expect( ret ).toBe("http://www.falconjs.com/c/3/b/2/")
 		#END it
 
 		it "Should include the base api url with regular parent and a trailing slash", ->
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
-			parent_model = new Falcon.Model({id: 3, url: "c"})
-			data_object.parent = new Falcon.Model({id: 2, url: "b"}, parent_model)
+			parent_model = new Falcon.Model({id: 3, endpoint: "c"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"}, parent_model)
 			ret = adapter.makeBaseUrl( data_object, Falcon.Adapter.GET, options, context)
 			expect( ret ).toBe("http://www.falconjs.com/c/3/b/2/")
 		#END it
@@ -394,18 +394,18 @@ describe "Falcon.Adapter", ->
 
 		it "Should include the base api url with an options parent", ->
 			Falcon.baseApiUrl = "http://www.falconjs.com"
-			options.parent = new Falcon.Model({id: 4, url: "d"})
-			parent_model = new Falcon.Model({id: 3, url: "c"})
-			data_object.parent = new Falcon.Model({id: 2, url: "b"}, parent_model)
+			options.parent = new Falcon.Model({id: 4, endpoint: "d"})
+			parent_model = new Falcon.Model({id: 3, endpoint: "c"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"}, parent_model)
 			ret = adapter.makeBaseUrl( data_object, Falcon.Adapter.GET, options, context)
 			expect( ret ).toBe("http://www.falconjs.com/d/4/")
 		#END it
 
 		it "Should include the base api url with an options parent and a trailing slash", ->
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
-			options.parent = new Falcon.Model({id: 4, url: "d"})
-			parent_model = new Falcon.Model({id: 3, url: "c"})
-			data_object.parent = new Falcon.Model({id: 2, url: "b"}, parent_model)
+			options.parent = new Falcon.Model({id: 4, endpoint: "d"})
+			parent_model = new Falcon.Model({id: 3, endpoint: "c"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"}, parent_model)
 			ret = adapter.makeBaseUrl( data_object, Falcon.Adapter.GET, options, context)
 			expect( ret ).toBe("http://www.falconjs.com/d/4/")
 		#END it
@@ -463,7 +463,7 @@ describe "Falcon.Adapter", ->
 			spyOn( adapter, "resolveRequestType" ).and.callThrough()
 			spyOn( adapter, "makeBaseUrl" ).and.callThrough()
 
-			data_object = new Falcon.Model({id: 1, url: "a"})
+			data_object = new Falcon.Model({id: 1, endpoint: "a"})
 			options = {}
 			context = data_object
 		#END beforeEach
@@ -541,7 +541,7 @@ describe "Falcon.Adapter", ->
 		#END it
 
 		it "Should get the correct endpoint wiht a url method definition on the data object", ->
-			data_object.url = -> "b"
+			data_object.endpoint = -> "b"
 
 			ret = adapter.makeUrlComponents( data_object, Falcon.Adapter.DELETE, options, context )
 
@@ -560,7 +560,7 @@ describe "Falcon.Adapter", ->
 		#END it
 
 		it "Should remove slashes from the endpoint", ->
-			data_object.url = "/c//"
+			data_object.endpoint = "/c//"
 
 			ret = adapter.makeUrlComponents( data_object, Falcon.Adapter.DELETE, options, context )
 
@@ -579,7 +579,7 @@ describe "Falcon.Adapter", ->
 		#END it
 
 		it "Should be able to handle extensions properly", ->
-			data_object.url = "d.json"
+			data_object.endpoint = "d.json"
 
 			ret = adapter.makeUrlComponents( data_object, Falcon.Adapter.DELETE, options, context )
 
@@ -598,7 +598,7 @@ describe "Falcon.Adapter", ->
 		#END it
 
 		it "Should be able to handle extensions properly only after the last slash", ->
-			data_object.url = "d.json/hello"
+			data_object.endpoint = "d.json/hello"
 
 			ret = adapter.makeUrlComponents( data_object, Falcon.Adapter.DELETE, options, context )
 
@@ -617,7 +617,7 @@ describe "Falcon.Adapter", ->
 		#END it
 
 		it "Should handle collections properly", ->
-			ModelE = Falcon.Model.extend({url: 'e'})
+			ModelE = Falcon.Model.extend({endpoint: 'e'})
 			CollectionE = Falcon.Collection.extend({model: ModelE})
 			data_object = new CollectionE
 
@@ -638,7 +638,7 @@ describe "Falcon.Adapter", ->
 		#END it
 
 		it "Should handle collections with extensions properly", ->
-			ModelE = Falcon.Model.extend({url: 'e.json'})
+			ModelE = Falcon.Model.extend({endpoint: 'e.json'})
 			CollectionE = Falcon.Collection.extend({model: ModelE})
 			data_object = new CollectionE
 
@@ -671,8 +671,8 @@ describe "Falcon.Adapter", ->
 			base_api_url = Falcon.baseApiUrl
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			parent_object = new Falcon.Model({id: 2, url: "b"})
-			data_object = new Falcon.Model({id: 1, url: "a.json"}, parent_object)
+			parent_object = new Falcon.Model({id: 2, endpoint: "b"})
+			data_object = new Falcon.Model({id: 1, endpoint: "a.json"}, parent_object)
 			options = {}
 			context = data_object
 
@@ -721,7 +721,7 @@ describe "Falcon.Adapter", ->
 		#END it
 
 		it "Should return the correct url on GET with a collection", ->
-			ModelE = Falcon.Model.extend({url: 'e.json'})
+			ModelE = Falcon.Model.extend({endpoint: 'e.json'})
 			CollectionE = Falcon.Collection.extend({model: ModelE})
 			data_object = new CollectionE
 

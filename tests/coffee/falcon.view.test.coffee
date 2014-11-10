@@ -1,26 +1,26 @@
 describe "Falcon.View", ->
 	class ViewA extends Falcon.View
-		url: 'view_a'
+		endpoint: 'view_a'
 	#END class
 
 	class ViewB extends Falcon.View
-		url: -> 'view_b'
+		endpoint: -> 'view_b'
 	#END class
 
 	class ViewC extends Falcon.View
-		url: '#view_c'
+		endpoint: '#view_c'
 	#END class
 
 	class ViewD extends Falcon.View
-		url: -> '#view_d'
+		endpoint: -> '#view_d'
 	#END class
 
 	class ViewE extends Falcon.View
-		url: '/view_e'
+		endpoint: '/view_e'
 	#END class
 
 	class ViewF extends Falcon.View
-		url: -> '/view_f'
+		endpoint: -> '/view_f'
 	#END class
 
 	class ViewG extends Falcon.View
@@ -47,7 +47,7 @@ describe "Falcon.View", ->
 		#END beforeEach
 
 		it "Should call the correct methods by default", ->
-			view = new ( Falcon.View.extend(url: "#hello_world") )
+			view = new ( Falcon.View.extend(endpoint: "#hello_world") )
 
 			expect( view.makeUrl.calls.count() ).toBe( 1 )
 
@@ -72,7 +72,7 @@ describe "Falcon.View", ->
 		#END it
 
 		it "Should recognized cached templates", ->
-			view = new ( Falcon.View.extend(url: "#hello_world") )
+			view = new ( Falcon.View.extend(endpoint: "#hello_world") )
 			Falcon.ready.calls.mostRecent().args[0]()
 			view.makeUrl.calls.reset()
 			view.initialize.calls.reset()
@@ -80,7 +80,7 @@ describe "Falcon.View", ->
 			Falcon.View.cacheTemplate.calls.reset()
 			Falcon.ready.calls.reset()
 
-			view = new ( Falcon.View.extend(url: "#hello_world") )
+			view = new ( Falcon.View.extend(endpoint: "#hello_world") )
 
 			expect( view.makeUrl.calls.count() ).toBe( 1 )
 
@@ -102,7 +102,7 @@ describe "Falcon.View", ->
 		#END it
 
 		it "Should not call the adapter on an empty template uri", ->
-			view = new ( Falcon.View.extend(url: null) )
+			view = new ( Falcon.View.extend(endpoint: null) )
 
 			expect( view.makeUrl.calls.count() ).toBe( 1 )
 
@@ -339,7 +339,7 @@ describe "Falcon.View", ->
 	#--------------------------------------------------------------
 	describe "Test the viewModel() method", ->
 		class FullView extends Falcon.View
-			url: 'full_view'
+			endpoint: 'full_view'
 
 			observables:
 				'hello': 'world'

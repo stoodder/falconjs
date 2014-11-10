@@ -37,12 +37,12 @@
       return element;
     };
 
-    _MockHelper.prototype.makeView = function(url, definition) {
+    _MockHelper.prototype.makeView = function(endpoint, definition) {
       var ready_call, view;
       if (definition == null) {
         definition = {};
       }
-      definition.url = url;
+      definition.endpoint = endpoint;
       view = new (Falcon.View.extend(definition));
       ready_call = Falcon.ready.calls.mostRecent();
       view._render = jasmine.createSpy("Render Spy").and.callFake(view._render);

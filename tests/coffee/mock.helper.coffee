@@ -36,9 +36,9 @@
 		return element
 	#END makeElement
 
-	makeView: (url, definition) ->
+	makeView: (endpoint, definition) ->
 		definition ?= {}
-		definition.url = url
+		definition.endpoint = endpoint
 		view = new (Falcon.View.extend(definition))
 		ready_call = Falcon.ready.calls.mostRecent()
 

@@ -1346,7 +1346,7 @@
       adapter = new Falcon.Adapter;
       data_object = new Falcon.Model({
         id: 1,
-        url: "a"
+        endpoint: "a"
       });
       context = data_object;
       options = null;
@@ -1383,7 +1383,7 @@
         var ret;
         data_object.parent = new Falcon.Model({
           id: 2,
-          url: "b"
+          endpoint: "b"
         });
         ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.GET, options, context);
         return expect(ret).toBe("/b/2/");
@@ -1392,7 +1392,7 @@
         var ret;
         data_object.parent = new Falcon.Model({
           id: 2,
-          url: "b"
+          endpoint: "b"
         });
         ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.POST, options, context);
         return expect(ret).toBe("/b/2/");
@@ -1401,7 +1401,7 @@
         var ret;
         data_object.parent = new Falcon.Model({
           id: 2,
-          url: "b"
+          endpoint: "b"
         });
         ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.PUT, options, context);
         return expect(ret).toBe("/b/2/");
@@ -1410,7 +1410,7 @@
         var ret;
         data_object.parent = new Falcon.Model({
           id: 2,
-          url: "b"
+          endpoint: "b"
         });
         ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.DELETE, options, context);
         return expect(ret).toBe("/b/2/");
@@ -1419,11 +1419,11 @@
         var parent_model, ret;
         parent_model = new Falcon.Model({
           id: 3,
-          url: "c"
+          endpoint: "c"
         });
         data_object.parent = new Falcon.Model({
           id: 2,
-          url: "b"
+          endpoint: "b"
         }, parent_model);
         ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.GET, options, context);
         return expect(ret).toBe("/c/3/b/2/");
@@ -1432,11 +1432,11 @@
         var parent_model, ret;
         parent_model = new Falcon.Model({
           id: 3,
-          url: "c"
+          endpoint: "c"
         });
         data_object.parent = new Falcon.Model({
           id: 2,
-          url: "b"
+          endpoint: "b"
         }, parent_model);
         ret = adapter.makeBaseUrl(data_object, "POSt", options, context);
         return expect(ret).toBe("/c/3/b/2/");
@@ -1445,11 +1445,11 @@
         var parent_model, ret;
         parent_model = new Falcon.Model({
           id: 3,
-          url: "c"
+          endpoint: "c"
         });
         data_object.parent = new Falcon.Model({
           id: 2,
-          url: "b"
+          endpoint: "b"
         }, parent_model);
         ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.PUT, options, context);
         return expect(ret).toBe("/c/3/b/2/");
@@ -1458,11 +1458,11 @@
         var parent_model, ret;
         parent_model = new Falcon.Model({
           id: 3,
-          url: "c"
+          endpoint: "c"
         });
         data_object.parent = new Falcon.Model({
           id: 2,
-          url: "b"
+          endpoint: "b"
         }, parent_model);
         ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.DELETE, options, context);
         return expect(ret).toBe("/c/3/b/2/");
@@ -1471,15 +1471,15 @@
         var parent_model, ret;
         options.parent = new Falcon.Model({
           id: 4,
-          url: "d"
+          endpoint: "d"
         });
         parent_model = new Falcon.Model({
           id: 3,
-          url: "c"
+          endpoint: "c"
         });
         data_object.parent = new Falcon.Model({
           id: 2,
-          url: "b"
+          endpoint: "b"
         }, parent_model);
         ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.GET, options, context);
         return expect(ret).toBe("/d/4/");
@@ -1488,15 +1488,15 @@
         var parent_model, ret;
         options.parent = new Falcon.Model({
           id: 4,
-          url: "d"
+          endpoint: "d"
         });
         parent_model = new Falcon.Model({
           id: 3,
-          url: "c"
+          endpoint: "c"
         });
         data_object.parent = new Falcon.Model({
           id: 2,
-          url: "b"
+          endpoint: "b"
         }, parent_model);
         ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.POST, options, context);
         return expect(ret).toBe("/d/4/");
@@ -1505,15 +1505,15 @@
         var parent_model, ret;
         options.parent = new Falcon.Model({
           id: 4,
-          url: "d"
+          endpoint: "d"
         });
         parent_model = new Falcon.Model({
           id: 3,
-          url: "c"
+          endpoint: "c"
         });
         data_object.parent = new Falcon.Model({
           id: 2,
-          url: "b"
+          endpoint: "b"
         }, parent_model);
         ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.PUT, options, context);
         return expect(ret).toBe("/d/4/");
@@ -1522,15 +1522,15 @@
         var parent_model, ret;
         options.parent = new Falcon.Model({
           id: 4,
-          url: "d"
+          endpoint: "d"
         });
         parent_model = new Falcon.Model({
           id: 3,
-          url: "c"
+          endpoint: "c"
         });
         data_object.parent = new Falcon.Model({
           id: 2,
-          url: "b"
+          endpoint: "b"
         }, parent_model);
         ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.DELETE, options, context);
         return expect(ret).toBe("/d/4/");
@@ -1540,11 +1540,11 @@
         Falcon.baseApiUrl = "http://www.falconjs.com";
         parent_model = new Falcon.Model({
           id: 3,
-          url: "c"
+          endpoint: "c"
         });
         data_object.parent = new Falcon.Model({
           id: 2,
-          url: "b"
+          endpoint: "b"
         }, parent_model);
         ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.GET, options, context);
         return expect(ret).toBe("http://www.falconjs.com/c/3/b/2/");
@@ -1554,11 +1554,11 @@
         Falcon.baseApiUrl = "http://www.falconjs.com/";
         parent_model = new Falcon.Model({
           id: 3,
-          url: "c"
+          endpoint: "c"
         });
         data_object.parent = new Falcon.Model({
           id: 2,
-          url: "b"
+          endpoint: "b"
         }, parent_model);
         ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.GET, options, context);
         return expect(ret).toBe("http://www.falconjs.com/c/3/b/2/");
@@ -1568,15 +1568,15 @@
         Falcon.baseApiUrl = "http://www.falconjs.com";
         options.parent = new Falcon.Model({
           id: 4,
-          url: "d"
+          endpoint: "d"
         });
         parent_model = new Falcon.Model({
           id: 3,
-          url: "c"
+          endpoint: "c"
         });
         data_object.parent = new Falcon.Model({
           id: 2,
-          url: "b"
+          endpoint: "b"
         }, parent_model);
         ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.GET, options, context);
         return expect(ret).toBe("http://www.falconjs.com/d/4/");
@@ -1586,15 +1586,15 @@
         Falcon.baseApiUrl = "http://www.falconjs.com/";
         options.parent = new Falcon.Model({
           id: 4,
-          url: "d"
+          endpoint: "d"
         });
         parent_model = new Falcon.Model({
           id: 3,
-          url: "c"
+          endpoint: "c"
         });
         data_object.parent = new Falcon.Model({
           id: 2,
-          url: "b"
+          endpoint: "b"
         }, parent_model);
         ret = adapter.makeBaseUrl(data_object, Falcon.Adapter.GET, options, context);
         return expect(ret).toBe("http://www.falconjs.com/d/4/");
@@ -1650,7 +1650,7 @@
         spyOn(adapter, "makeBaseUrl").and.callThrough();
         data_object = new Falcon.Model({
           id: 1,
-          url: "a"
+          endpoint: "a"
         });
         options = {};
         return context = data_object;
@@ -1716,7 +1716,7 @@
       });
       it("Should get the correct endpoint wiht a url method definition on the data object", function() {
         var ret;
-        data_object.url = function() {
+        data_object.endpoint = function() {
           return "b";
         };
         ret = adapter.makeUrlComponents(data_object, Falcon.Adapter.DELETE, options, context);
@@ -1733,7 +1733,7 @@
       });
       it("Should remove slashes from the endpoint", function() {
         var ret;
-        data_object.url = "/c//";
+        data_object.endpoint = "/c//";
         ret = adapter.makeUrlComponents(data_object, Falcon.Adapter.DELETE, options, context);
         expect(adapter.resolveRequestType.calls.count()).toBe(1);
         expect(adapter.resolveRequestType).toHaveBeenCalledWith(data_object, Falcon.Adapter.DELETE, options, context);
@@ -1748,7 +1748,7 @@
       });
       it("Should be able to handle extensions properly", function() {
         var ret;
-        data_object.url = "d.json";
+        data_object.endpoint = "d.json";
         ret = adapter.makeUrlComponents(data_object, Falcon.Adapter.DELETE, options, context);
         expect(adapter.resolveRequestType.calls.count()).toBe(1);
         expect(adapter.resolveRequestType).toHaveBeenCalledWith(data_object, Falcon.Adapter.DELETE, options, context);
@@ -1763,7 +1763,7 @@
       });
       it("Should be able to handle extensions properly only after the last slash", function() {
         var ret;
-        data_object.url = "d.json/hello";
+        data_object.endpoint = "d.json/hello";
         ret = adapter.makeUrlComponents(data_object, Falcon.Adapter.DELETE, options, context);
         expect(adapter.resolveRequestType.calls.count()).toBe(1);
         expect(adapter.resolveRequestType).toHaveBeenCalledWith(data_object, Falcon.Adapter.DELETE, options, context);
@@ -1779,7 +1779,7 @@
       it("Should handle collections properly", function() {
         var CollectionE, ModelE, ret;
         ModelE = Falcon.Model.extend({
-          url: 'e'
+          endpoint: 'e'
         });
         CollectionE = Falcon.Collection.extend({
           model: ModelE
@@ -1800,7 +1800,7 @@
       return it("Should handle collections with extensions properly", function() {
         var CollectionE, ModelE, ret;
         ModelE = Falcon.Model.extend({
-          url: 'e.json'
+          endpoint: 'e.json'
         });
         CollectionE = Falcon.Collection.extend({
           model: ModelE
@@ -1832,11 +1832,11 @@
         Falcon.baseApiUrl = "http://www.falconjs.com/";
         parent_object = new Falcon.Model({
           id: 2,
-          url: "b"
+          endpoint: "b"
         });
         data_object = new Falcon.Model({
           id: 1,
-          url: "a.json"
+          endpoint: "a.json"
         }, parent_object);
         options = {};
         context = data_object;
@@ -1877,7 +1877,7 @@
       return it("Should return the correct url on GET with a collection", function() {
         var CollectionE, ModelE, ret;
         ModelE = Falcon.Model.extend({
-          url: 'e.json'
+          endpoint: 'e.json'
         });
         CollectionE = Falcon.Collection.extend({
           model: ModelE
@@ -2681,7 +2681,7 @@
           return _ref;
         }
 
-        ModelA.prototype.url = "model_a";
+        ModelA.prototype.endpoint = "model_a";
 
         ModelA.prototype.observables = {
           '_client': null
@@ -2713,7 +2713,7 @@
           return _ref1;
         }
 
-        ModelB.prototype.url = "model_b";
+        ModelB.prototype.endpoint = "model_b";
 
         return ModelB;
 
@@ -2800,14 +2800,14 @@
       data = {
         "id": 33,
         "foo": "bar",
-        "url": "MODEL_A2",
+        "endpoint": "MODEL_A2",
         "model_b": {
           "b_foo": "B BAR"
         },
         "model_b2": {
           "id": "test",
           "b_foo": "B BAR 2",
-          "url": "model_b2"
+          "endpoint": "model_b2"
         },
         "model_b3": new ModelB,
         "collection_c": [
@@ -2826,14 +2826,14 @@
       it("Should fill properly", function() {
         expect(modelA.get("id")).toBe(33);
         expect(modelA.get("foo")).toBe("bar");
-        expect(modelA.get("url")).toBe("MODEL_A2");
+        expect(modelA.get("endpoint")).toBe("MODEL_A2");
         expect(modelA.get("model_b")).toBe(modelB);
         expect(modelA.get("model_b").get("b_foo")).toBe("B BAR");
-        expect(modelA.get("model_b").get("url")).toBe("model_b");
+        expect(modelA.get("model_b").get("endpoint")).toBe("model_b");
         expect(modelA.get("model_b2")).toBe(modelB2);
         expect(modelA.get("model_b2").get("id")).toBe("test");
         expect(modelA.get("model_b2").get("b_foo")).toBe("B BAR 2");
-        expect(modelA.get("model_b2").get("url")).toBe("model_b2");
+        expect(modelA.get("model_b2").get("endpoint")).toBe("model_b2");
         expect(original_model_b3).toEqual(jasmine.any(ModelB));
         expect(data.model_b3).toEqual(jasmine.any(ModelB));
         expect(data.model_b3).not.toBe(original_model_b3);
@@ -2927,7 +2927,7 @@
           "id": null,
           "model_b2": {
             "b_foo": null,
-            "url": null
+            "endpoint": null
           }
         });
         expect(serialized['id']).toBe(33);
@@ -3044,7 +3044,7 @@
       expect(unwrapped['collection_c'][1]['hello']).toBe("world2");
       expect(unwrapped['id']).toBeNull();
       expect(unwrapped['parent']).not.toBeDefined();
-      return expect(unwrapped['url']).not.toBeDefined();
+      return expect(unwrapped['endpoint']).not.toBeDefined();
     });
     describe("Testing makeUrl combinations", function() {
       var ModelA, ModelB, ModelC, ModelD, ModelE, _ref, _ref1, _ref2, _ref3, _ref4;
@@ -3056,7 +3056,7 @@
           return _ref;
         }
 
-        ModelA.prototype.url = "model_a";
+        ModelA.prototype.endpoint = "model_a";
 
         return ModelA;
 
@@ -3069,7 +3069,7 @@
           return _ref1;
         }
 
-        ModelB.prototype.url = "/model_b";
+        ModelB.prototype.endpoint = "/model_b";
 
         return ModelB;
 
@@ -3082,7 +3082,7 @@
           return _ref2;
         }
 
-        ModelC.prototype.url = "model_c.json";
+        ModelC.prototype.endpoint = "model_c.json";
 
         return ModelC;
 
@@ -3095,7 +3095,7 @@
           return _ref3;
         }
 
-        ModelD.prototype.url = "model_d.json";
+        ModelD.prototype.endpoint = "model_d.json";
 
         return ModelD;
 
@@ -3108,7 +3108,7 @@
           return _ref4;
         }
 
-        ModelE.prototype.url = function() {
+        ModelE.prototype.endpoint = function() {
           return "model_e";
         };
 
@@ -3489,7 +3489,7 @@
         expect(modelC.makeUrl("PUT", modelD)).toBe("http://www.falconjs.com/model_d/d/model_c/3.json");
         return expect(modelC.makeUrl("DELETE", modelD)).toBe("http://www.falconjs.com/model_d/d/model_c/3.json");
       });
-      it("Should be able to use url as a function, no parent", function() {
+      it("Should be able to use endpoint as a function, no parent", function() {
         var modelE;
         modelE = new ModelE({
           id: "e"
@@ -3499,7 +3499,7 @@
         expect(modelE.makeUrl("PUT")).toBe("/model_e/e");
         return expect(modelE.makeUrl("DELETE")).toBe("/model_e/e");
       });
-      it("Should be able to use url as a function, with parent", function() {
+      it("Should be able to use endpoint as a function, with parent", function() {
         var modelE;
         modelE = new ModelE({
           id: "e"
@@ -3511,22 +3511,22 @@
         expect(modelE.makeUrl("PUT")).toBe("/model_b/b/model_e/e");
         return expect(modelE.makeUrl("DELETE")).toBe("/model_b/b/model_e/e");
       });
-      it("Should be able to use override the url, no parent", function() {
+      it("Should be able to use override the endpoint, no parent", function() {
         var modelD;
         modelD = new ModelD({
           id: "d",
-          url: "model_d2"
+          endpoint: "model_d2"
         });
         expect(modelD.makeUrl("GET")).toBe("/model_d2/d");
         expect(modelD.makeUrl("POST")).toBe("/model_d2");
         expect(modelD.makeUrl("PUT")).toBe("/model_d2/d");
         return expect(modelD.makeUrl("DELETE")).toBe("/model_d2/d");
       });
-      it("Should be able to use override the url,with parent", function() {
+      it("Should be able to use override the endpoint,with parent", function() {
         var modelD;
         modelD = new ModelD({
           id: "d",
-          url: "model_d3"
+          endpoint: "model_d3"
         }, new ModelB({
           id: "b"
         }));
@@ -3535,22 +3535,22 @@
         expect(modelD.makeUrl("PUT")).toBe("/model_b/b/model_d3/d");
         return expect(modelD.makeUrl("DELETE")).toBe("/model_b/b/model_d3/d");
       });
-      it("Should be able to use override the function url, no parent", function() {
+      it("Should be able to use override the function endpoint, no parent", function() {
         var modelE;
         modelE = new ModelD({
           id: "d",
-          url: "model_d2"
+          endpoint: "model_d2"
         });
         expect(modelE.makeUrl("GET")).toBe("/model_d2/d");
         expect(modelE.makeUrl("POST")).toBe("/model_d2");
         expect(modelE.makeUrl("PUT")).toBe("/model_d2/d");
         return expect(modelE.makeUrl("DELETE")).toBe("/model_d2/d");
       });
-      it("Should be able to use override the function url,with parent", function() {
+      it("Should be able to use override the function endpoint,with parent", function() {
         var modelE;
         modelE = new ModelE({
           id: "e",
-          url: "model_e3"
+          endpoint: "model_e3"
         }, new ModelB({
           id: "b"
         }));
@@ -3642,7 +3642,7 @@
             return _ref;
           }
 
-          ModelA.prototype.url = "model_a";
+          ModelA.prototype.endpoint = "model_a";
 
           return ModelA;
 
@@ -4093,7 +4093,7 @@
         return _ref;
       }
 
-      ModelA.prototype.url = 'model_a';
+      ModelA.prototype.endpoint = 'model_a';
 
       return ModelA;
 
@@ -4106,7 +4106,7 @@
         return _ref1;
       }
 
-      ModelB.prototype.url = 'model_b';
+      ModelB.prototype.endpoint = 'model_b';
 
       return ModelB;
 
@@ -4119,7 +4119,7 @@
         return _ref2;
       }
 
-      ModelC.prototype.url = 'model_c';
+      ModelC.prototype.endpoint = 'model_c';
 
       return ModelC;
 
@@ -4132,7 +4132,7 @@
         return _ref3;
       }
 
-      ModelD.prototype.url = function() {
+      ModelD.prototype.endpoint = function() {
         return 'model_d';
       };
 
@@ -4201,7 +4201,7 @@
 
       CollectionD2.prototype.model = ModelD;
 
-      CollectionD2.prototype.url = 'collection_d2';
+      CollectionD2.prototype.endpoint = 'collection_d2';
 
       return CollectionD2;
 
@@ -4216,7 +4216,7 @@
 
       CollectionD3.prototype.model = ModelD;
 
-      CollectionD3.prototype.url = function() {
+      CollectionD3.prototype.endpoint = function() {
         return 'collection_d3';
       };
 
@@ -4231,7 +4231,7 @@
         return _ref10;
       }
 
-      ModelE.prototype.url = 'model_e';
+      ModelE.prototype.endpoint = 'model_e';
 
       ModelE.prototype.initialize = function() {
         return this.title = ko.observable();
@@ -5522,7 +5522,7 @@
             return _ref12;
           }
 
-          MyModel.prototype.url = 'my_models';
+          MyModel.prototype.endpoint = 'my_models';
 
           return MyModel;
 
@@ -6914,7 +6914,7 @@
         return _ref;
       }
 
-      ViewA.prototype.url = 'view_a';
+      ViewA.prototype.endpoint = 'view_a';
 
       return ViewA;
 
@@ -6927,7 +6927,7 @@
         return _ref1;
       }
 
-      ViewB.prototype.url = function() {
+      ViewB.prototype.endpoint = function() {
         return 'view_b';
       };
 
@@ -6942,7 +6942,7 @@
         return _ref2;
       }
 
-      ViewC.prototype.url = '#view_c';
+      ViewC.prototype.endpoint = '#view_c';
 
       return ViewC;
 
@@ -6955,7 +6955,7 @@
         return _ref3;
       }
 
-      ViewD.prototype.url = function() {
+      ViewD.prototype.endpoint = function() {
         return '#view_d';
       };
 
@@ -6970,7 +6970,7 @@
         return _ref4;
       }
 
-      ViewE.prototype.url = '/view_e';
+      ViewE.prototype.endpoint = '/view_e';
 
       return ViewE;
 
@@ -6983,7 +6983,7 @@
         return _ref5;
       }
 
-      ViewF.prototype.url = function() {
+      ViewF.prototype.endpoint = function() {
         return '/view_f';
       };
 
@@ -7017,7 +7017,7 @@
       it("Should call the correct methods by default", function() {
         var view;
         view = new (Falcon.View.extend({
-          url: "#hello_world"
+          endpoint: "#hello_world"
         }));
         expect(view.makeUrl.calls.count()).toBe(1);
         expect(view.initialize.calls.count()).toBe(1);
@@ -7036,7 +7036,7 @@
       it("Should recognized cached templates", function() {
         var view;
         view = new (Falcon.View.extend({
-          url: "#hello_world"
+          endpoint: "#hello_world"
         }));
         Falcon.ready.calls.mostRecent().args[0]();
         view.makeUrl.calls.reset();
@@ -7045,7 +7045,7 @@
         Falcon.View.cacheTemplate.calls.reset();
         Falcon.ready.calls.reset();
         view = new (Falcon.View.extend({
-          url: "#hello_world"
+          endpoint: "#hello_world"
         }));
         expect(view.makeUrl.calls.count()).toBe(1);
         expect(view.initialize.calls.count()).toBe(1);
@@ -7062,7 +7062,7 @@
       return it("Should not call the adapter on an empty template uri", function() {
         var view;
         view = new (Falcon.View.extend({
-          url: null
+          endpoint: null
         }));
         expect(view.makeUrl.calls.count()).toBe(1);
         expect(view.initialize.calls.count()).toBe(1);
@@ -7250,7 +7250,7 @@
           return _ref7;
         }
 
-        FullView.prototype.url = 'full_view';
+        FullView.prototype.endpoint = 'full_view';
 
         FullView.prototype.observables = {
           'hello': 'world',

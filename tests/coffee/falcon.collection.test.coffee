@@ -1,18 +1,18 @@
 describe "Falcon.Collection", ->
 	class ModelA extends Falcon.Model
-		url: 'model_a'
+		endpoint: 'model_a'
 	#END ModelA
 
 	class ModelB extends Falcon.Model
-		url: 'model_b'
+		endpoint: 'model_b'
 	#END ModelB
 
 	class ModelC extends Falcon.Model
-		url: 'model_c'
+		endpoint: 'model_c'
 	#END ModelC
 
 	class ModelD extends Falcon.Model
-		url:  -> 'model_d'
+		endpoint:  -> 'model_d'
 	#END ModelA
 
 	class CollectionA extends Falcon.Collection
@@ -34,17 +34,17 @@ describe "Falcon.Collection", ->
 	class CollectionD2 extends Falcon.Collection
 		model: ModelD
 
-		url: 'collection_d2'
+		endpoint: 'collection_d2'
 	#END class
 
 	class CollectionD3 extends Falcon.Collection
 		model: ModelD
 
-		url: -> 'collection_d3'
+		endpoint: -> 'collection_d3'
 	#END class
 
 	class ModelE extends Falcon.Model
-		url: 'model_e'
+		endpoint: 'model_e'
 		initialize: ->
 			@title = ko.observable()
 		#END initialize
@@ -1195,7 +1195,7 @@ describe "Falcon.Collection", ->
 
 		it "Should be able to make a url with just a / baseApiUrl", ->
 			class MyModel extends Falcon.Model
-				url: 'my_models'
+				endpoint: 'my_models'
 			#END MYModel
 
 			class MyCollection extends Falcon.Collection
