@@ -932,30 +932,30 @@ describe "Falcon.Collection", ->
 		it "Tests the basic makeUrl method", ->
 			collectionA = new CollectionA()
 
-			expect( collectionA.makeUrl("GET") ).toBe( "/model_a" )
-			expect( collectionA.makeUrl("POST") ).toBe( "/model_a" )
-			expect( collectionA.makeUrl("PUT") ).toBe( "/model_a" )
-			expect( collectionA.makeUrl("DELETE") ).toBe( "/model_a" )
+			expect( collectionA.makeUrl(Falcon.Adapter.GET) ).toBe( "/model_a" )
+			expect( collectionA.makeUrl(Falcon.Adapter.POST) ).toBe( "/model_a" )
+			expect( collectionA.makeUrl(Falcon.Adapter.PUT) ).toBe( "/model_a" )
+			expect( collectionA.makeUrl(Falcon.Adapter.DELETE) ).toBe( "/model_a" )
 		#END it
 
 		it "Tests the basic makeUrl method, base API url", ->
 			collectionA = new CollectionA()
 			Falcon.baseApiUrl = "http://www.falconjs.com"
 
-			expect( collectionA.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_a" )
-			expect( collectionA.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_a" )
-			expect( collectionA.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_a" )
-			expect( collectionA.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_a" )
+			expect( collectionA.makeUrl(Falcon.Adapter.GET) ).toBe( "http://www.falconjs.com/model_a" )
+			expect( collectionA.makeUrl(Falcon.Adapter.POST) ).toBe( "http://www.falconjs.com/model_a" )
+			expect( collectionA.makeUrl(Falcon.Adapter.PUT) ).toBe( "http://www.falconjs.com/model_a" )
+			expect( collectionA.makeUrl(Falcon.Adapter.DELETE) ).toBe( "http://www.falconjs.com/model_a" )
 		#END it
 
 		it "Tests the basic makeUrl method, base API url ending with a '/'", ->
 			collectionA = new CollectionA()
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			expect( collectionA.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_a" )
-			expect( collectionA.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_a" )
-			expect( collectionA.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_a" )
-			expect( collectionA.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_a" )
+			expect( collectionA.makeUrl(Falcon.Adapter.GET) ).toBe( "http://www.falconjs.com/model_a" )
+			expect( collectionA.makeUrl(Falcon.Adapter.POST) ).toBe( "http://www.falconjs.com/model_a" )
+			expect( collectionA.makeUrl(Falcon.Adapter.PUT) ).toBe( "http://www.falconjs.com/model_a" )
+			expect( collectionA.makeUrl(Falcon.Adapter.DELETE) ).toBe( "http://www.falconjs.com/model_a" )
 		#END it
 
 
@@ -963,30 +963,30 @@ describe "Falcon.Collection", ->
 		it "Tests the basic makeUrl method, with parent", ->
 			collectionA = new CollectionA( new ModelB(id: '1b') )
 
-			expect( collectionA.makeUrl("GET") ).toBe( "/model_b/1b/model_a" )
-			expect( collectionA.makeUrl("POST") ).toBe( "/model_b/1b/model_a" )
-			expect( collectionA.makeUrl("PUT") ).toBe( "/model_b/1b/model_a" )
-			expect( collectionA.makeUrl("DELETE") ).toBe( "/model_b/1b/model_a" )
+			expect( collectionA.makeUrl(Falcon.Adapter.GET) ).toBe( "/model_b/1b/model_a" )
+			expect( collectionA.makeUrl(Falcon.Adapter.POST) ).toBe( "/model_b/1b/model_a" )
+			expect( collectionA.makeUrl(Falcon.Adapter.PUT) ).toBe( "/model_b/1b/model_a" )
+			expect( collectionA.makeUrl(Falcon.Adapter.DELETE) ).toBe( "/model_b/1b/model_a" )
 		#END it
 
 		it "Tests the basic makeUrl method, base API url, with parent", ->
 			collectionA = new CollectionA( new ModelB(id: '2b') )
 			Falcon.baseApiUrl = "http://www.falconjs.com"
 
-			expect( collectionA.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_b/2b/model_a" )
-			expect( collectionA.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_b/2b/model_a" )
-			expect( collectionA.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_b/2b/model_a" )
-			expect( collectionA.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_b/2b/model_a" )
+			expect( collectionA.makeUrl(Falcon.Adapter.GET) ).toBe( "http://www.falconjs.com/model_b/2b/model_a" )
+			expect( collectionA.makeUrl(Falcon.Adapter.POST) ).toBe( "http://www.falconjs.com/model_b/2b/model_a" )
+			expect( collectionA.makeUrl(Falcon.Adapter.PUT) ).toBe( "http://www.falconjs.com/model_b/2b/model_a" )
+			expect( collectionA.makeUrl(Falcon.Adapter.DELETE) ).toBe( "http://www.falconjs.com/model_b/2b/model_a" )
 		#END it
 
 		it "Tests the basic makeUrl method, base API url ending with a '/', with parent", ->
 			collectionA = new CollectionA( new ModelB(id: '3b') )
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			expect( collectionA.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_b/3b/model_a" )
-			expect( collectionA.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_b/3b/model_a" )
-			expect( collectionA.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_b/3b/model_a" )
-			expect( collectionA.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_b/3b/model_a" )
+			expect( collectionA.makeUrl(Falcon.Adapter.GET) ).toBe( "http://www.falconjs.com/model_b/3b/model_a" )
+			expect( collectionA.makeUrl(Falcon.Adapter.POST) ).toBe( "http://www.falconjs.com/model_b/3b/model_a" )
+			expect( collectionA.makeUrl(Falcon.Adapter.PUT) ).toBe( "http://www.falconjs.com/model_b/3b/model_a" )
+			expect( collectionA.makeUrl(Falcon.Adapter.DELETE) ).toBe( "http://www.falconjs.com/model_b/3b/model_a" )
 		#END it
 
 
@@ -1000,30 +1000,30 @@ describe "Falcon.Collection", ->
 		it "Tests the basic makeUrl method, model url is a function", ->
 			collectionD = new CollectionD()
 
-			expect( collectionD.makeUrl("GET") ).toBe( "/model_d" )
-			expect( collectionD.makeUrl("POST") ).toBe( "/model_d" )
-			expect( collectionD.makeUrl("PUT") ).toBe( "/model_d" )
-			expect( collectionD.makeUrl("DELETE") ).toBe( "/model_d" )
+			expect( collectionD.makeUrl(Falcon.Adapter.GET) ).toBe( "/model_d" )
+			expect( collectionD.makeUrl(Falcon.Adapter.POST) ).toBe( "/model_d" )
+			expect( collectionD.makeUrl(Falcon.Adapter.PUT) ).toBe( "/model_d" )
+			expect( collectionD.makeUrl(Falcon.Adapter.DELETE) ).toBe( "/model_d" )
 		#END it
 
 		it "Tests the basic makeUrl method, model url is a function, base API url", ->
 			collectionD = new CollectionD()
 			Falcon.baseApiUrl = "http://www.falconjs.com"
 
-			expect( collectionD.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_d" )
-			expect( collectionD.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_d" )
-			expect( collectionD.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_d" )
-			expect( collectionD.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_d" )
+			expect( collectionD.makeUrl(Falcon.Adapter.GET) ).toBe( "http://www.falconjs.com/model_d" )
+			expect( collectionD.makeUrl(Falcon.Adapter.POST) ).toBe( "http://www.falconjs.com/model_d" )
+			expect( collectionD.makeUrl(Falcon.Adapter.PUT) ).toBe( "http://www.falconjs.com/model_d" )
+			expect( collectionD.makeUrl(Falcon.Adapter.DELETE) ).toBe( "http://www.falconjs.com/model_d" )
 		#END it
 
 		it "Tests the basic makeUrl method, model url is a function, base API url ending with a '/'", ->
 			collectionD = new CollectionD()
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			expect( collectionD.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_d" )
-			expect( collectionD.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_d" )
-			expect( collectionD.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_d" )
-			expect( collectionD.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_d" )
+			expect( collectionD.makeUrl(Falcon.Adapter.GET) ).toBe( "http://www.falconjs.com/model_d" )
+			expect( collectionD.makeUrl(Falcon.Adapter.POST) ).toBe( "http://www.falconjs.com/model_d" )
+			expect( collectionD.makeUrl(Falcon.Adapter.PUT) ).toBe( "http://www.falconjs.com/model_d" )
+			expect( collectionD.makeUrl(Falcon.Adapter.DELETE) ).toBe( "http://www.falconjs.com/model_d" )
 		#END it
 
 
@@ -1031,30 +1031,30 @@ describe "Falcon.Collection", ->
 		it "Tests the basic makeUrl method, model url is a function, with parent", ->
 			collectionD = new CollectionD( new ModelB(id: '1b') )
 
-			expect( collectionD.makeUrl("GET") ).toBe( "/model_b/1b/model_d" )
-			expect( collectionD.makeUrl("POST") ).toBe( "/model_b/1b/model_d" )
-			expect( collectionD.makeUrl("PUT") ).toBe( "/model_b/1b/model_d" )
-			expect( collectionD.makeUrl("DELETE") ).toBe( "/model_b/1b/model_d" )
+			expect( collectionD.makeUrl(Falcon.Adapter.GET) ).toBe( "/model_b/1b/model_d" )
+			expect( collectionD.makeUrl(Falcon.Adapter.POST) ).toBe( "/model_b/1b/model_d" )
+			expect( collectionD.makeUrl(Falcon.Adapter.PUT) ).toBe( "/model_b/1b/model_d" )
+			expect( collectionD.makeUrl(Falcon.Adapter.DELETE) ).toBe( "/model_b/1b/model_d" )
 		#END it
 
 		it "Tests the basic makeUrl method, model url is a function, with parent, base API url", ->
 			collectionD = new CollectionD( new ModelB(id: '2b') )
 			Falcon.baseApiUrl = "http://www.falconjs.com"
 
-			expect( collectionD.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_b/2b/model_d" )
-			expect( collectionD.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_b/2b/model_d" )
-			expect( collectionD.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_b/2b/model_d" )
-			expect( collectionD.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_b/2b/model_d" )
+			expect( collectionD.makeUrl(Falcon.Adapter.GET) ).toBe( "http://www.falconjs.com/model_b/2b/model_d" )
+			expect( collectionD.makeUrl(Falcon.Adapter.POST) ).toBe( "http://www.falconjs.com/model_b/2b/model_d" )
+			expect( collectionD.makeUrl(Falcon.Adapter.PUT) ).toBe( "http://www.falconjs.com/model_b/2b/model_d" )
+			expect( collectionD.makeUrl(Falcon.Adapter.DELETE) ).toBe( "http://www.falconjs.com/model_b/2b/model_d" )
 		#END it
 
 		it "Tests the basic makeUrl method, model url is a function, with parent, base API url ending with a '/'", ->
 			collectionD = new CollectionD( new ModelB(id: '3b') )
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			expect( collectionD.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_b/3b/model_d" )
-			expect( collectionD.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_b/3b/model_d" )
-			expect( collectionD.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_b/3b/model_d" )
-			expect( collectionD.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_b/3b/model_d" )
+			expect( collectionD.makeUrl(Falcon.Adapter.GET) ).toBe( "http://www.falconjs.com/model_b/3b/model_d" )
+			expect( collectionD.makeUrl(Falcon.Adapter.POST) ).toBe( "http://www.falconjs.com/model_b/3b/model_d" )
+			expect( collectionD.makeUrl(Falcon.Adapter.PUT) ).toBe( "http://www.falconjs.com/model_b/3b/model_d" )
+			expect( collectionD.makeUrl(Falcon.Adapter.DELETE) ).toBe( "http://www.falconjs.com/model_b/3b/model_d" )
 		#END it
 
 
@@ -1068,30 +1068,30 @@ describe "Falcon.Collection", ->
 		it "Tests the basic makeUrl method, defined url string", ->
 			collectionD2 = new CollectionD2()
 
-			expect( collectionD2.makeUrl("GET") ).toBe( "/collection_d2" )
-			expect( collectionD2.makeUrl("POST") ).toBe( "/collection_d2" )
-			expect( collectionD2.makeUrl("PUT") ).toBe( "/collection_d2" )
-			expect( collectionD2.makeUrl("DELETE") ).toBe( "/collection_d2" )
+			expect( collectionD2.makeUrl(Falcon.Adapter.GET) ).toBe( "/collection_d2" )
+			expect( collectionD2.makeUrl(Falcon.Adapter.POST) ).toBe( "/collection_d2" )
+			expect( collectionD2.makeUrl(Falcon.Adapter.PUT) ).toBe( "/collection_d2" )
+			expect( collectionD2.makeUrl(Falcon.Adapter.DELETE) ).toBe( "/collection_d2" )
 		#END it
 
 		it "Tests the basic makeUrl method, defined url string, base API url", ->
 			collectionD2 = new CollectionD2()
 			Falcon.baseApiUrl = "http://www.falconjs.com"
 
-			expect( collectionD2.makeUrl("GET") ).toBe( "http://www.falconjs.com/collection_d2" )
-			expect( collectionD2.makeUrl("POST") ).toBe( "http://www.falconjs.com/collection_d2" )
-			expect( collectionD2.makeUrl("PUT") ).toBe( "http://www.falconjs.com/collection_d2" )
-			expect( collectionD2.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/collection_d2" )
+			expect( collectionD2.makeUrl(Falcon.Adapter.GET) ).toBe( "http://www.falconjs.com/collection_d2" )
+			expect( collectionD2.makeUrl(Falcon.Adapter.POST) ).toBe( "http://www.falconjs.com/collection_d2" )
+			expect( collectionD2.makeUrl(Falcon.Adapter.PUT) ).toBe( "http://www.falconjs.com/collection_d2" )
+			expect( collectionD2.makeUrl(Falcon.Adapter.DELETE) ).toBe( "http://www.falconjs.com/collection_d2" )
 		#END it
 
 		it "Tests the basic makeUrl method, defined url string, base API url ending with a '/'", ->
 			collectionD2 = new CollectionD2()
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			expect( collectionD2.makeUrl("GET") ).toBe( "http://www.falconjs.com/collection_d2" )
-			expect( collectionD2.makeUrl("POST") ).toBe( "http://www.falconjs.com/collection_d2" )
-			expect( collectionD2.makeUrl("PUT") ).toBe( "http://www.falconjs.com/collection_d2" )
-			expect( collectionD2.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/collection_d2" )
+			expect( collectionD2.makeUrl(Falcon.Adapter.GET) ).toBe( "http://www.falconjs.com/collection_d2" )
+			expect( collectionD2.makeUrl(Falcon.Adapter.POST) ).toBe( "http://www.falconjs.com/collection_d2" )
+			expect( collectionD2.makeUrl(Falcon.Adapter.PUT) ).toBe( "http://www.falconjs.com/collection_d2" )
+			expect( collectionD2.makeUrl(Falcon.Adapter.DELETE) ).toBe( "http://www.falconjs.com/collection_d2" )
 		#END it
 
 
@@ -1099,30 +1099,30 @@ describe "Falcon.Collection", ->
 		it "Tests the basic makeUrl method, defined url string, with parent", ->
 			collectionD2 = new CollectionD2( new ModelB(id: '1b') )
 
-			expect( collectionD2.makeUrl("GET") ).toBe( "/model_b/1b/collection_d2" )
-			expect( collectionD2.makeUrl("POST") ).toBe( "/model_b/1b/collection_d2" )
-			expect( collectionD2.makeUrl("PUT") ).toBe( "/model_b/1b/collection_d2" )
-			expect( collectionD2.makeUrl("DELETE") ).toBe( "/model_b/1b/collection_d2" )
+			expect( collectionD2.makeUrl(Falcon.Adapter.GET) ).toBe( "/model_b/1b/collection_d2" )
+			expect( collectionD2.makeUrl(Falcon.Adapter.POST) ).toBe( "/model_b/1b/collection_d2" )
+			expect( collectionD2.makeUrl(Falcon.Adapter.PUT) ).toBe( "/model_b/1b/collection_d2" )
+			expect( collectionD2.makeUrl(Falcon.Adapter.DELETE) ).toBe( "/model_b/1b/collection_d2" )
 		#END it
 
 		it "Tests the basic makeUrl method, defined url string, with parent, base API url", ->
 			collectionD2 = new CollectionD2( new ModelB(id: '2b') )
 			Falcon.baseApiUrl = "http://www.falconjs.com"
 
-			expect( collectionD2.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_b/2b/collection_d2" )
-			expect( collectionD2.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_b/2b/collection_d2" )
-			expect( collectionD2.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_b/2b/collection_d2" )
-			expect( collectionD2.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_b/2b/collection_d2" )
+			expect( collectionD2.makeUrl(Falcon.Adapter.GET) ).toBe( "http://www.falconjs.com/model_b/2b/collection_d2" )
+			expect( collectionD2.makeUrl(Falcon.Adapter.POST) ).toBe( "http://www.falconjs.com/model_b/2b/collection_d2" )
+			expect( collectionD2.makeUrl(Falcon.Adapter.PUT) ).toBe( "http://www.falconjs.com/model_b/2b/collection_d2" )
+			expect( collectionD2.makeUrl(Falcon.Adapter.DELETE) ).toBe( "http://www.falconjs.com/model_b/2b/collection_d2" )
 		#END it
 
 		it "Tests the basic makeUrl method, defined url string, with parent, base API url ending with a '/'", ->
 			collectionD2 = new CollectionD2( new ModelB(id: '3b') )
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			expect( collectionD2.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_b/3b/collection_d2" )
-			expect( collectionD2.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_b/3b/collection_d2" )
-			expect( collectionD2.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_b/3b/collection_d2" )
-			expect( collectionD2.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_b/3b/collection_d2" )
+			expect( collectionD2.makeUrl(Falcon.Adapter.GET) ).toBe( "http://www.falconjs.com/model_b/3b/collection_d2" )
+			expect( collectionD2.makeUrl(Falcon.Adapter.POST) ).toBe( "http://www.falconjs.com/model_b/3b/collection_d2" )
+			expect( collectionD2.makeUrl(Falcon.Adapter.PUT) ).toBe( "http://www.falconjs.com/model_b/3b/collection_d2" )
+			expect( collectionD2.makeUrl(Falcon.Adapter.DELETE) ).toBe( "http://www.falconjs.com/model_b/3b/collection_d2" )
 		#END it
 
 
@@ -1136,30 +1136,30 @@ describe "Falcon.Collection", ->
 		it "Tests the basic makeUrl method, defined url function", ->
 			collectionD3 = new CollectionD3()
 
-			expect( collectionD3.makeUrl("GET") ).toBe( "/collection_d3" )
-			expect( collectionD3.makeUrl("POST") ).toBe( "/collection_d3" )
-			expect( collectionD3.makeUrl("PUT") ).toBe( "/collection_d3" )
-			expect( collectionD3.makeUrl("DELETE") ).toBe( "/collection_d3" )
+			expect( collectionD3.makeUrl(Falcon.Adapter.GET) ).toBe( "/collection_d3" )
+			expect( collectionD3.makeUrl(Falcon.Adapter.POST) ).toBe( "/collection_d3" )
+			expect( collectionD3.makeUrl(Falcon.Adapter.PUT) ).toBe( "/collection_d3" )
+			expect( collectionD3.makeUrl(Falcon.Adapter.DELETE) ).toBe( "/collection_d3" )
 		#END it
 
 		it "Tests the basic makeUrl method, defined url function, base API url", ->
 			collectionD3 = new CollectionD3()
 			Falcon.baseApiUrl = "http://www.falconjs.com"
 
-			expect( collectionD3.makeUrl("GET") ).toBe( "http://www.falconjs.com/collection_d3" )
-			expect( collectionD3.makeUrl("POST") ).toBe( "http://www.falconjs.com/collection_d3" )
-			expect( collectionD3.makeUrl("PUT") ).toBe( "http://www.falconjs.com/collection_d3" )
-			expect( collectionD3.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/collection_d3" )
+			expect( collectionD3.makeUrl(Falcon.Adapter.GET) ).toBe( "http://www.falconjs.com/collection_d3" )
+			expect( collectionD3.makeUrl(Falcon.Adapter.POST) ).toBe( "http://www.falconjs.com/collection_d3" )
+			expect( collectionD3.makeUrl(Falcon.Adapter.PUT) ).toBe( "http://www.falconjs.com/collection_d3" )
+			expect( collectionD3.makeUrl(Falcon.Adapter.DELETE) ).toBe( "http://www.falconjs.com/collection_d3" )
 		#END it
 
 		it "Tests the basic makeUrl method, defined url function, base API url ending with a '/'", ->
 			collectionD3 = new CollectionD3()
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			expect( collectionD3.makeUrl("GET") ).toBe( "http://www.falconjs.com/collection_d3" )
-			expect( collectionD3.makeUrl("POST") ).toBe( "http://www.falconjs.com/collection_d3" )
-			expect( collectionD3.makeUrl("PUT") ).toBe( "http://www.falconjs.com/collection_d3" )
-			expect( collectionD3.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/collection_d3" )
+			expect( collectionD3.makeUrl(Falcon.Adapter.GET) ).toBe( "http://www.falconjs.com/collection_d3" )
+			expect( collectionD3.makeUrl(Falcon.Adapter.POST) ).toBe( "http://www.falconjs.com/collection_d3" )
+			expect( collectionD3.makeUrl(Falcon.Adapter.PUT) ).toBe( "http://www.falconjs.com/collection_d3" )
+			expect( collectionD3.makeUrl(Falcon.Adapter.DELETE) ).toBe( "http://www.falconjs.com/collection_d3" )
 		#END it
 
 
@@ -1167,30 +1167,30 @@ describe "Falcon.Collection", ->
 		it "Tests the basic makeUrl method, defined url function, with parent", ->
 			collectionD3 = new CollectionD3( new ModelB(id: '1b') )
 
-			expect( collectionD3.makeUrl("GET") ).toBe( "/model_b/1b/collection_d3" )
-			expect( collectionD3.makeUrl("POST") ).toBe( "/model_b/1b/collection_d3" )
-			expect( collectionD3.makeUrl("PUT") ).toBe( "/model_b/1b/collection_d3" )
-			expect( collectionD3.makeUrl("DELETE") ).toBe( "/model_b/1b/collection_d3" )
+			expect( collectionD3.makeUrl(Falcon.Adapter.GET) ).toBe( "/model_b/1b/collection_d3" )
+			expect( collectionD3.makeUrl(Falcon.Adapter.POST) ).toBe( "/model_b/1b/collection_d3" )
+			expect( collectionD3.makeUrl(Falcon.Adapter.PUT) ).toBe( "/model_b/1b/collection_d3" )
+			expect( collectionD3.makeUrl(Falcon.Adapter.DELETE) ).toBe( "/model_b/1b/collection_d3" )
 		#END it
 
 		it "Tests the basic makeUrl method, defined url function, with parent, base API url", ->
 			collectionD3 = new CollectionD3( new ModelB(id: '2b') )
 			Falcon.baseApiUrl = "http://www.falconjs.com"
 
-			expect( collectionD3.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_b/2b/collection_d3" )
-			expect( collectionD3.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_b/2b/collection_d3" )
-			expect( collectionD3.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_b/2b/collection_d3" )
-			expect( collectionD3.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_b/2b/collection_d3" )
+			expect( collectionD3.makeUrl(Falcon.Adapter.GET) ).toBe( "http://www.falconjs.com/model_b/2b/collection_d3" )
+			expect( collectionD3.makeUrl(Falcon.Adapter.POST) ).toBe( "http://www.falconjs.com/model_b/2b/collection_d3" )
+			expect( collectionD3.makeUrl(Falcon.Adapter.PUT) ).toBe( "http://www.falconjs.com/model_b/2b/collection_d3" )
+			expect( collectionD3.makeUrl(Falcon.Adapter.DELETE) ).toBe( "http://www.falconjs.com/model_b/2b/collection_d3" )
 		#END it
 
 		it "Tests the basic makeUrl method, defined url function, with parent, base API url ending with a '/'", ->
 			collectionD3 = new CollectionD3( new ModelB(id: '3b') )
 			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
-			expect( collectionD3.makeUrl("GET") ).toBe( "http://www.falconjs.com/model_b/3b/collection_d3" )
-			expect( collectionD3.makeUrl("POST") ).toBe( "http://www.falconjs.com/model_b/3b/collection_d3" )
-			expect( collectionD3.makeUrl("PUT") ).toBe( "http://www.falconjs.com/model_b/3b/collection_d3" )
-			expect( collectionD3.makeUrl("DELETE") ).toBe( "http://www.falconjs.com/model_b/3b/collection_d3" )
+			expect( collectionD3.makeUrl(Falcon.Adapter.GET) ).toBe( "http://www.falconjs.com/model_b/3b/collection_d3" )
+			expect( collectionD3.makeUrl(Falcon.Adapter.POST) ).toBe( "http://www.falconjs.com/model_b/3b/collection_d3" )
+			expect( collectionD3.makeUrl(Falcon.Adapter.PUT) ).toBe( "http://www.falconjs.com/model_b/3b/collection_d3" )
+			expect( collectionD3.makeUrl(Falcon.Adapter.DELETE) ).toBe( "http://www.falconjs.com/model_b/3b/collection_d3" )
 		#END it
 
 		it "Should be able to make a url with just a / baseApiUrl", ->
@@ -1205,7 +1205,7 @@ describe "Falcon.Collection", ->
 			Falcon.baseApiUrl = "/"
 
 			my_collection = new MyCollection
-			expect( my_collection.makeUrl("GET") ).toBe( "/my_models" )
+			expect( my_collection.makeUrl(Falcon.Adapter.GET) ).toBe( "/my_models" )
 		#END it
 	#END describe
 
@@ -1230,7 +1230,7 @@ describe "Falcon.Collection", ->
 
 				expect( sync_stub ).toHaveBeenCalledOnce()
 				expect( sync_stub ).toHaveBeenCalledOn( collectionA )
-				expect( sync_stub ).toHaveBeenCalledWith 'GET', {'hello': 'world'}
+				expect( sync_stub ).toHaveBeenCalledWith Falcon.Adapter.GET, {'hello': 'world'}
 			#END it
 		#END describe
 

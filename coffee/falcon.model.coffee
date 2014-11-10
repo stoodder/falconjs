@@ -308,65 +308,15 @@ class FalconModel extends FalconObject
 	#	**parent** _(Falcon.Model)_ - Optional override of the model's parent to generate 
 	#								  the url with. If parent is 'null' then this model will 
 	#								  act as the root node.
-	#	**id** _(String) - Optional override for the model's id
+	#	**id** _(String|Number) - Optional override for the model's id
 	#
 	# Returns:
 	#	_(String)_ - The generated URL
 	#--------------------------------------------------------
 	makeUrl: (type, parent, id) ->
-		url = if isFunction(@url) then @url() else @url
-		url = "" unless isString(url)
-		url = trim(url)
-
-		type = "" unless isString(type)
-		type = type.toUpperCase()
-		type = 'GET' unless type in ['GET', 'PUT', 'POST', 'DELETE']
-
+		#Ensure the inputs are set up correctly
 		[parent, id] = [id, parent] if id is undefined and (isString( parent ) or isNumber( parent ))
-		parent = if parent isnt undefined then parent else @parent
-
-		ext = ""
-		periodIndex = url.lastIndexOf(".")
-
-		#Split on the extension if it exists
-		if periodIndex > -1
-			ext = url.slice(periodIndex)
-			url = url.slice(0, periodIndex)
-		#END if
-
-		#Make sure the url is now formatted correctly
-		url = "/#{url}" unless startsWith(url, "/")
-
-		#Check if a parent model is present
-		if Falcon.isModel(parent)
-			parentUrl = parent.makeUrl()
-			parentPeriodIndex = parentUrl.lastIndexOf(".")
-			parentSlashIndex = parentUrl.lastIndexOf("/")
-
-			if parentSlashIndex < parentPeriodIndex
-				parentUrl = parentUrl.slice(0, parentPeriodIndex) if parentPeriodIndex > -1
-				parentUrl = trim(parentUrl)
-			#END if
-
-			url = "#{parentUrl}#{url}"
-
-		#Otherwise consider this the base
-		else if isString(Falcon.baseApiUrl)
-			url = "#{Falcon.baseApiUrl}#{url}"
-
-		#END if
-
-		#Append the id if it exists
-		if type in ["GET", "PUT", "DELETE"]
-			url += "/" unless url.slice(-1) is "/"
-			url += id ? @get('id')
-		#END if
-
-		#Replace any double slashes outside of the initial protocol
-		url = url.replace(/([^:])\/\/+/gi, "$1/").replace(/^\/\//gi, "/")
-
-		#Return the built url
-		return "#{url}#{ext}"
+		return Falcon.adapter.makeUrl( @, type, {parent, id}, @ )
 	#END makeUrl
 
 	#--------------------------------------------------------
@@ -417,7 +367,7 @@ class FalconModel extends FalconObject
 	#	_(mixed)_ - Whatever the response from the adapter's sync method is
 	#--------------------------------------------------------
 	fetch: (options, context) -> 
-		return @sync('GET', options, context)
+		return @sync(Falcon.Adapter.GET, options, context)
 	#END fetch
 
 	#--------------------------------------------------------
@@ -433,7 +383,7 @@ class FalconModel extends FalconObject
 	#	_(mixed)_ - Whatever the response from the adapter's sync method is
 	#--------------------------------------------------------
 	create: (options, context) -> 
-		return @sync('POST', options, context)
+		return @sync(Falcon.Adapter.POST, options, context)
 	#END create
 
 	#--------------------------------------------------------
@@ -450,7 +400,7 @@ class FalconModel extends FalconObject
 	#	_(mixed)_ - Whatever the response from the adapter's sync method is
 	#--------------------------------------------------------
 	save: (options, context) -> 
-		return ( if @isNew() then @create(options, context) else @sync('PUT', options, context) )
+		return ( if @isNew() then @create(options, context) else @sync(Falcon.Adapter.PUT, options, context) )
 	#END save
 
 	#--------------------------------------------------------
@@ -466,7 +416,7 @@ class FalconModel extends FalconObject
 	#	_(mixed)_ - Whatever the response from the adapter's sync method is
 	#--------------------------------------------------------
 	destroy: (options, context) -> 
-		return @sync('DELETE', options, context)
+		return @sync(Falcon.Adapter.DELETE, options, context)
 	#END destroy
 
 	#--------------------------------------------------------

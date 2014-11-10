@@ -36,7 +36,7 @@ class @jQueryAdapter extends Falcon.Adapter
 	#END standardizeOptions
 
 	#------------------------------------------------------------------------
-	# Method: jQueryAdapter#makeUrl( data_object, type, options, context )
+	# Method: jQueryAdapter#resolveUrl( data_object, type, options, context )
 	#	Used to make the request url and appends any params in the options onto
 	#	the url's query parameters.
 	#
@@ -49,7 +49,7 @@ class @jQueryAdapter extends Falcon.Adapter
 	# Returns:
 	#	_(String)_ - The full url
 	#------------------------------------------------------------------------
-	makeUrl: ( data_object, type, options, context ) ->
+	resolveUrl: ( data_object, type, options, context ) ->
 		url = super( data_object, type, options, context )
 
 		unless isEmpty( options.params )
@@ -58,7 +58,7 @@ class @jQueryAdapter extends Falcon.Adapter
 		#END unless
 
 		return url
-	#END makeUrl
+	#END resolveUrl
 
 	#------------------------------------------------------------------------
 	# Method: jQueryAdapter#serializeData( data_object, type, options, context )
@@ -192,7 +192,7 @@ class @jQueryAdapter extends Falcon.Adapter
 
 		$.ajax
 			url: uri
-			type: "GET"
+			type: Falcon.Adapter.GET
 			cache: @cache
 			error: => callback("")
 			success: (html) => callback(html)
