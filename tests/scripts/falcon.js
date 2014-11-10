@@ -476,7 +476,7 @@
         return Falcon.Adapter.GET;
       }
       type = trim(type).toUpperCase();
-      if (__indexOf.call(FalconAdapter.REQUEST_TYPES, type) < 0) {
+      if (__indexOf.call(Falcon.Adapter.REQUEST_TYPES, type) < 0) {
         return Falcon.Adapter.GET;
       }
       return type;

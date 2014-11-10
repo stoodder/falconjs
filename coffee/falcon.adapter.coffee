@@ -33,7 +33,7 @@ class FalconAdapter extends FalconObject
 	resolveRequestType: ( data_object, type, options, context ) ->
 		return Falcon.Adapter.GET unless isString( type )
 		type = trim( type ).toUpperCase()
-		return Falcon.Adapter.GET unless type in FalconAdapter.REQUEST_TYPES
+		return Falcon.Adapter.GET unless type in Falcon.Adapter.REQUEST_TYPES
 		return type
 	#END resolveRequestType
 
