@@ -30,6 +30,7 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Add Falcon.Observable to wrap ko.observable in the case that we'd want to switch
 * Change 'url' to 'endpoint'
 * Make constants
+* Document makeBaseUrl, makeUrlComponents, resovleUrl, and makeUrl on adapter
 
 ### v0.10.2
 **Highlights**
