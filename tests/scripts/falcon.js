@@ -11,7 +11,7 @@
 
 
 (function() {
-  var ChainedCollection, Falcon, FalconAdapter, FalconCollection, FalconModel, FalconObject, FalconView, arrayRemove, arrayUnique, bindFunction, clone, extend, findKey, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, startsWith, trim, value, _getForeachItems, _getOptionsItems, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6,
+  var ChainedCollection, Falcon, FalconAdapter, FalconCollection, FalconModel, FalconObject, FalconView, arrayRemove, arrayUnique, bindFunction, clone, endsWith, extend, findKey, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, startsWith, trim, trimSlashes, value, _getForeachItems, _getOptionsItems, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -83,8 +83,16 @@
     };
   }
 
+  trimSlashes = function(str) {
+    return str.replace(/^[\\/\s]+/, '').replace(/[\\/\s]+$/, '');
+  };
+
   startsWith = function(haystack, needle) {
     return haystack.indexOf(needle) === 0;
+  };
+
+  endsWith = function(haystack, needle) {
+    return haystack.lastIndexOf(needle) === haystack.length - 1;
   };
 
   objectKeys = function(obj) {
@@ -459,15 +467,17 @@
       return _ref;
     }
 
+    FalconAdapter.REQUEST_TYPES = [FalconAdapter.GET = 'GET', FalconAdapter.POST = 'POST', FalconAdapter.PUT = 'PUT', FalconAdapter.DELETE = 'DELETE'];
+
     FalconAdapter.extend = FalconObject.extend;
 
     FalconAdapter.prototype.resolveRequestType = function(data_object, type, options, context) {
       if (!isString(type)) {
-        return "GET";
+        return Falcon.Adapter.GET;
       }
       type = trim(type).toUpperCase();
-      if (type !== "GET" && type !== "PUT" && type !== "POST" && type !== "DELETE") {
-        return "GET";
+      if (__indexOf.call(Falcon.Adapter.REQUEST_TYPES, type) < 0) {
+        return Falcon.Adapter.GET;
       }
       return type;
     };
@@ -477,59 +487,134 @@
       return (_ref1 = context != null ? context : options.context) != null ? _ref1 : data_object;
     };
 
-    FalconAdapter.prototype.standardizeOptions = function(data_object, type, options, context) {
-      var key, output_options, value;
-      if (isObject(options)) {
-        output_options = {};
-        for (key in options) {
-          value = options[key];
-          output_options[key] = value;
+    FalconAdapter.prototype.standardizeOptions = (function() {
+      var _standardizedOptionsObject;
+      _standardizedOptionsObject = (function() {
+        function _standardizedOptionsObject(options) {
+          var key, value;
+          if (isObject(options)) {
+            for (key in options) {
+              value = options[key];
+              this[key] = value;
+            }
+          } else if (isFunction(options)) {
+            this.complete = options;
+          } else if (isString(options)) {
+            this.attributes = trim(options).split(",");
+          } else if (isArray(options)) {
+            this.attributes = options;
+          }
         }
-      } else if (isFunction(options)) {
-        output_options = {
-          complete: options
-        };
-      } else if (isString(options)) {
-        output_options = {
-          attributes: trim(options).split(",")
-        };
-      } else if (isArray(options)) {
-        output_options = {
-          attributes: options
-        };
-      } else {
-        output_options = {};
-      }
-      if (!isFunction(output_options.success)) {
-        output_options.success = (function() {});
-      }
-      if (!isFunction(output_options.complete)) {
-        output_options.complete = (function() {});
-      }
-      if (!isFunction(output_options.error)) {
-        output_options.error = (function() {});
-      }
-      if (!(Falcon.isModel(output_options.parent) || output_options.parent === null)) {
-        output_options.parent = data_object.parent;
-      }
-      if (!(isArray(output_options.attributes) || isObject(output_options.attributes))) {
-        output_options.attributes = null;
-      }
-      if (!isObject(output_options.fill_options)) {
-        output_options.fill_options = null;
-      }
-      output_options.url = this.makeUrl(data_object, type, output_options, context);
-      output_options.data = this.serializeData(data_object, type, output_options, context);
-      return output_options;
-    };
 
-    FalconAdapter.prototype.makeUrl = function(data_object, type, options, context) {
+        _standardizedOptionsObject.prototype.success = (function() {});
+
+        _standardizedOptionsObject.prototype.complete = (function() {});
+
+        _standardizedOptionsObject.prototype.error = (function() {});
+
+        _standardizedOptionsObject.prototype.attributes = null;
+
+        _standardizedOptionsObject.prototype.fill_options = null;
+
+        _standardizedOptionsObject.prototype.id = void 0;
+
+        _standardizedOptionsObject.prototype.url = null;
+
+        _standardizedOptionsObject.prototype.data = null;
+
+        _standardizedOptionsObject.prototype.parent = void 0;
+
+        return _standardizedOptionsObject;
+
+      })();
+      return function(data_object, type, options, context) {
+        if (options instanceof _standardizedOptionsObject) {
+          return options;
+        }
+        options = new _standardizedOptionsObject(options);
+        if (!(Falcon.isModel(options.parent) || options.parent === null)) {
+          options.parent = data_object.parent;
+        }
+        options.url = this.resolveUrl(data_object, type, options, context);
+        options.data = this.serializeData(data_object, type, options, context);
+        return options;
+      };
+    })();
+
+    FalconAdapter.prototype.resolveUrl = function(data_object, type, options, context) {
       var _ref1;
       return (_ref1 = options.url) != null ? _ref1 : data_object.makeUrl(type, options.parent);
     };
 
+    FalconAdapter.prototype.makeBaseUrl = function(data_object, type, options, context) {
+      var base_endpoint, base_endpoints, base_url, parent, period_index;
+      parent = options.parent === void 0 ? data_object.parent : options.parent;
+      base_endpoints = [];
+      while (Falcon.isModel(parent)) {
+        if (isFunction(parent.url)) {
+          base_endpoint = parent.url(Falcon.Adapter.GET, parent.parent);
+        } else {
+          base_endpoint = parent.url;
+        }
+        if (!isString(base_endpoint)) {
+          base_endpoint = "";
+        }
+        period_index = base_endpoint.lastIndexOf(".");
+        if (period_index > -1) {
+          base_endpoint = base_endpoint.slice(0, period_index);
+        }
+        base_endpoints.unshift(trimSlashes(base_endpoint) + "/" + parent.get('id'));
+        parent = parent.parent;
+      }
+      base_url = "/" + base_endpoints.join("/") + "/";
+      if (isString(Falcon.baseApiUrl)) {
+        base_url = "" + Falcon.baseApiUrl + base_url;
+      }
+      return base_url.replace(/([^:])\/\/+/gi, "$1/").replace(/^\/\//gi, "/");
+    };
+
+    FalconAdapter.prototype.makeUrlComponents = function(data_object, type, options, context) {
+      var base_url, endpoint, extension, id, period_index, slash_index, _ref1;
+      type = this.resolveRequestType(data_object, type, options, context);
+      base_url = this.makeBaseUrl(data_object, type, options, context);
+      endpoint = isFunction(data_object.url) ? data_object.url(type, options.parent) : data_object.url;
+      endpoint = isString(endpoint) ? trimSlashes(endpoint) : "";
+      extension = "";
+      period_index = endpoint.lastIndexOf(".");
+      slash_index = endpoint.lastIndexOf("/");
+      if (period_index > slash_index) {
+        extension = endpoint.slice(period_index);
+        endpoint = endpoint.slice(0, period_index);
+      }
+      if (Falcon.isModel(data_object)) {
+        id = "" + ((_ref1 = options.id) != null ? _ref1 : data_object.get('id'));
+      } else {
+        id = null;
+      }
+      return {
+        base_url: base_url,
+        endpoint: endpoint,
+        id: id,
+        extension: extension
+      };
+    };
+
+    FalconAdapter.prototype.makeUrl = function(data_object, type, options, context) {
+      var base_url, endpoint, extension, id, _ref1;
+      _ref1 = this.makeUrlComponents(data_object, type, options, context), base_url = _ref1.base_url, endpoint = _ref1.endpoint, id = _ref1.id, extension = _ref1.extension;
+      if (Falcon.isModel(data_object)) {
+        if (type === Falcon.Adapter.POST) {
+          return "" + base_url + endpoint + extension;
+        } else {
+          return "" + base_url + endpoint + "/" + id + extension;
+        }
+      } else {
+        return "" + base_url + endpoint + extension;
+      }
+    };
+
     FalconAdapter.prototype.serializeData = function(data_object, type, options, context) {
-      if ((options.data == null) && (type === "POST" || type === "PUT")) {
+      if ((options.data == null) && (type === Falcon.Adapter.POST || type === Falcon.Adapter.PUT)) {
         return data_object.serialize(options.attributes);
       } else {
         return options.data;
@@ -546,16 +631,16 @@
       parsed_data = data_object.parse(raw_response_data, options);
       data_object.fill(parsed_data, options.fill_options);
       switch (type) {
-        case "GET":
+        case Falcon.Adapter.GET:
           data_object.trigger("fetch", parsed_data);
           break;
-        case "POST":
+        case Falcon.Adapter.POST:
           data_object.trigger("create", parsed_data);
           break;
-        case "PUT":
+        case Falcon.Adapter.PUT:
           data_object.trigger("save", parsed_data);
           break;
-        case "DELETE":
+        case Falcon.Adapter.DELETE:
           data_object.trigger("destroy", parsed_data);
       }
       return options.success.call(context, data_object, raw_response_data, options, response_args);
@@ -583,7 +668,7 @@
       options = this.standardizeOptions(data_object, type, options, context);
       context = this.resolveContext(data_object, type, options, context);
       if (Falcon.isModel(data_object)) {
-        if ((type === "PUT" || type === "POST") && (!data_object.validate(options))) {
+        if ((type === Falcon.Adapter.POST || type === Falcon.Adapter.PUT) && (!data_object.validate(options))) {
           return {
             data_object: data_object,
             type: type,
@@ -803,54 +888,14 @@
     };
 
     FalconModel.prototype.makeUrl = function(type, parent, id) {
-      var ext, parentPeriodIndex, parentSlashIndex, parentUrl, periodIndex, url, _ref1;
-      url = isFunction(this.url) ? this.url() : this.url;
-      if (!isString(url)) {
-        url = "";
-      }
-      url = trim(url);
-      if (!isString(type)) {
-        type = "";
-      }
-      type = type.toUpperCase();
-      if (type !== 'GET' && type !== 'PUT' && type !== 'POST' && type !== 'DELETE') {
-        type = 'GET';
-      }
+      var _ref1;
       if (id === void 0 && (isString(parent) || isNumber(parent))) {
         _ref1 = [id, parent], parent = _ref1[0], id = _ref1[1];
       }
-      parent = parent !== void 0 ? parent : this.parent;
-      ext = "";
-      periodIndex = url.lastIndexOf(".");
-      if (periodIndex > -1) {
-        ext = url.slice(periodIndex);
-        url = url.slice(0, periodIndex);
-      }
-      if (!startsWith(url, "/")) {
-        url = "/" + url;
-      }
-      if (Falcon.isModel(parent)) {
-        parentUrl = parent.makeUrl();
-        parentPeriodIndex = parentUrl.lastIndexOf(".");
-        parentSlashIndex = parentUrl.lastIndexOf("/");
-        if (parentSlashIndex < parentPeriodIndex) {
-          if (parentPeriodIndex > -1) {
-            parentUrl = parentUrl.slice(0, parentPeriodIndex);
-          }
-          parentUrl = trim(parentUrl);
-        }
-        url = "" + parentUrl + url;
-      } else if (isString(Falcon.baseApiUrl)) {
-        url = "" + Falcon.baseApiUrl + url;
-      }
-      if (type === "GET" || type === "PUT" || type === "DELETE") {
-        if (url.slice(-1) !== "/") {
-          url += "/";
-        }
-        url += id != null ? id : this.get('id');
-      }
-      url = url.replace(/([^:])\/\/+/gi, "$1/").replace(/^\/\//gi, "/");
-      return "" + url + ext;
+      return Falcon.adapter.makeUrl(this, type, {
+        parent: parent,
+        id: id
+      }, this);
     };
 
     FalconModel.prototype.validate = function(options) {
@@ -862,19 +907,19 @@
     };
 
     FalconModel.prototype.fetch = function(options, context) {
-      return this.sync('GET', options, context);
+      return this.sync(Falcon.Adapter.GET, options, context);
     };
 
     FalconModel.prototype.create = function(options, context) {
-      return this.sync('POST', options, context);
+      return this.sync(Falcon.Adapter.POST, options, context);
     };
 
     FalconModel.prototype.save = function(options, context) {
-      return (this.isNew() ? this.create(options, context) : this.sync('PUT', options, context));
+      return (this.isNew() ? this.create(options, context) : this.sync(Falcon.Adapter.PUT, options, context));
     };
 
     FalconModel.prototype.destroy = function(options, context) {
-      return this.sync('DELETE', options, context);
+      return this.sync(Falcon.Adapter.DELETE, options, context);
     };
 
     FalconModel.prototype.equals = function(model) {
@@ -1265,39 +1310,9 @@
     };
 
     FalconCollection.prototype.makeUrl = function(type, parent) {
-      var parentPeriodIndex, parentSlashIndex, parentUrl, url;
-      url = isFunction(this.url) ? this.url() : this.url;
-      if (!isString(url)) {
-        url = "";
-      }
-      url = trim(url);
-      if (!isString(type)) {
-        type = "";
-      }
-      type = type.toUpperCase();
-      if (type !== 'GET' && type !== 'PUT' && type !== 'POST' && type !== 'DELETE') {
-        type = 'GET';
-      }
-      if (!startsWith(url, "/")) {
-        url = "/" + url;
-      }
-      parent = parent === void 0 ? this.parent : parent;
-      if (Falcon.isModel(parent)) {
-        parentUrl = parent.makeUrl();
-        parentPeriodIndex = parentUrl.lastIndexOf(".");
-        parentSlashIndex = parentUrl.lastIndexOf("/");
-        if (parentSlashIndex < parentPeriodIndex) {
-          if (parentPeriodIndex > -1) {
-            parentUrl = parentUrl.slice(0, parentPeriodIndex);
-          }
-          parentUrl = trim(parentUrl);
-        }
-        url = "" + parentUrl + url;
-      } else if (isString(Falcon.baseApiUrl)) {
-        url = "" + Falcon.baseApiUrl + url;
-      }
-      url = url.replace(/([^:])\/\/+/gi, "$1/").replace(/^\/\//gi, "/");
-      return url;
+      return Falcon.adapter.makeUrl(this, type, {
+        parent: parent
+      }, this);
     };
 
     FalconCollection.prototype.sync = function(type, options, context) {
@@ -1305,7 +1320,7 @@
     };
 
     FalconCollection.prototype.fetch = function(options, context) {
-      return this.sync('GET', options, context);
+      return this.sync(Falcon.Adapter.GET, options, context);
     };
 
     FalconCollection.prototype.create = function(data, options, context) {
@@ -1321,7 +1336,7 @@
       if (context == null) {
         context = model;
       }
-      output_options = Falcon.adapter.standardizeOptions(model, 'POST', options, context);
+      output_options = Falcon.adapter.standardizeOptions(model, Falcon.Adapter.POST, options, context);
       if (output_options.fill_options == null) {
         output_options.fill_options = {
           method: 'append'
@@ -1349,7 +1364,7 @@
       if (context == null) {
         context = model;
       }
-      output_options = Falcon.adapter.standardizeOptions(model, 'DELETE', options, context);
+      output_options = Falcon.adapter.standardizeOptions(model, Falcon.Adapter.DELETE, options, context);
       output_options.success = function(model) {
         _this.remove(model);
         if (isFunction(options.success)) {

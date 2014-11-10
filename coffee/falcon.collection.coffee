@@ -249,49 +249,8 @@ class FalconCollection extends FalconObject
 	#
 	# Arguments:
 	#	**type**
-	#
-	# TODO: Add Patch handling
-	# TODO: Finish Comments
 	#--------------------------------------------------------
-	makeUrl: (type, parent) ->
-		url = if isFunction(@url) then @url() else @url
-		url = "" unless isString(url)
-		url = trim(url)
-
-		type = "" unless isString(type)
-		type = type.toUpperCase()
-		type = 'GET' unless type in ['GET', 'PUT', 'POST', 'DELETE']
-
-		#Make sure the url is now formatted correctly
-		url = "/#{url}" unless startsWith(url, "/")
-
-		parent = if parent is undefined then @parent else parent
-
-		#Check if a parent model is present
-		if Falcon.isModel(parent)
-			parentUrl = parent.makeUrl()
-			parentPeriodIndex = parentUrl.lastIndexOf(".")
-			parentSlashIndex = parentUrl.lastIndexOf("/")
-
-			if parentSlashIndex < parentPeriodIndex
-				parentUrl = parentUrl.slice(0, parentPeriodIndex) if parentPeriodIndex > -1
-				parentUrl = trim(parentUrl)
-			#END if
-
-			url = "#{parentUrl}#{url}"
-
-		#Otherwise consider this the base
-		else if isString(Falcon.baseApiUrl)
-			url = "#{Falcon.baseApiUrl}#{url}"
-
-		#END if
-
-		#Replace any double slashes outside of the initial protocol
-		url = url.replace(/([^:])\/\/+/gi, "$1/").replace(/^\/\//gi, "/")
-
-		#Return the built url
-		return url
-	#END makeUrl
+	makeUrl: (type, parent) -> Falcon.adapter.makeUrl( @, type, {parent}, @ )
 
 	#--------------------------------------------------------
 	# Method: Falcon.Collection#sync()
@@ -323,7 +282,7 @@ class FalconCollection extends FalconObject
 	#	_(mixed)_ - Whatever the response from the adapter's sync method is
 	#--------------------------------------------------------
 	fetch: (options, context) -> 
-		return @sync('GET', options, context)
+		return @sync(Falcon.Adapter.GET, options, context)
 	#END fetch
 
 	#--------------------------------------------------------
@@ -346,7 +305,7 @@ class FalconCollection extends FalconObject
 		model = if Falcon.isModel(data) then data else new @model(data, @parent)
 		context ?= model
 
-		output_options = Falcon.adapter.standardizeOptions( model, 'POST', options, context )
+		output_options = Falcon.adapter.standardizeOptions( model, Falcon.Adapter.POST, options, context )
 		output_options.fill_options ?= {method: 'append'}
 		output_options.success = (model) =>
 			@fill(model, output_options.fill_options)
@@ -384,7 +343,7 @@ class FalconCollection extends FalconObject
 		return null unless Falcon.isModel( model )
 
 		context ?= model
-		output_options = Falcon.adapter.standardizeOptions( model, 'DELETE', options, context )
+		output_options = Falcon.adapter.standardizeOptions( model, Falcon.Adapter.DELETE, options, context )
 		output_options.success = (model) =>
 			@remove(model)
 			options.success.apply(context, arguments) if isFunction( options.success )

@@ -88,9 +88,9 @@
       return output_options;
     };
 
-    jQueryAdapter.prototype.makeUrl = function(data_object, type, options, context) {
+    jQueryAdapter.prototype.resolveUrl = function(data_object, type, options, context) {
       var key, url, value;
-      url = jQueryAdapter.__super__.makeUrl.call(this, data_object, type, options, context);
+      url = jQueryAdapter.__super__.resolveUrl.call(this, data_object, type, options, context);
       if (!isEmpty(options.params)) {
         url += url.indexOf("?") > -1 ? "&" : "?";
         url += ((function() {
@@ -191,7 +191,7 @@
       }
       $.ajax({
         url: uri,
-        type: "GET",
+        type: Falcon.Adapter.GET,
         cache: this.cache,
         error: function() {
           return callback("");
