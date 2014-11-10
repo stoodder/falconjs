@@ -31,9 +31,9 @@ class FalconAdapter extends FalconObject
 	#	arguments regardless if they're used or not.
 	#------------------------------------------------------------------------
 	resolveRequestType: ( data_object, type, options, context ) ->
-		return FalconAdapter.GET unless isString( type )
+		return Falcon.Adapter.GET unless isString( type )
 		type = trim( type ).toUpperCase()
-		return FalconAdapter.GET unless type in FalconAdapter.REQUEST_TYPES
+		return Falcon.Adapter.GET unless type in FalconAdapter.REQUEST_TYPES
 		return type
 	#END resolveRequestType
 
@@ -187,7 +187,7 @@ class FalconAdapter extends FalconObject
 		base_endpoints = []
 		while Falcon.isModel( parent )
 			if isFunction(parent.url)
-				base_endpoint = parent.url(FalconAdapter.GET, parent.parent)
+				base_endpoint = parent.url(Falcon.Adapter.GET, parent.parent)
 			else
 				base_endpoint = parent.url
 			#END if
@@ -323,7 +323,7 @@ class FalconAdapter extends FalconObject
 	#	arguments regardless if they're used or not.
 	#------------------------------------------------------------------------
 	serializeData: ( data_object, type, options, context ) ->
-		if not options.data? and type in [FalconAdapter.POST, FalconAdapter.PUT]
+		if not options.data? and type in [Falcon.Adapter.POST, Falcon.Adapter.PUT]
 			return data_object.serialize( options.attributes )
 		else
 			return options.data
@@ -392,10 +392,10 @@ class FalconAdapter extends FalconObject
 		data_object.fill(parsed_data, options.fill_options)
 
 		switch type
-			when FalconAdapter.GET then data_object.trigger("fetch", parsed_data)
-			when FalconAdapter.POST then data_object.trigger("create", parsed_data)
-			when FalconAdapter.PUT then data_object.trigger("save", parsed_data)
-			when FalconAdapter.DELETE then data_object.trigger("destroy", parsed_data)
+			when Falcon.Adapter.GET then data_object.trigger("fetch", parsed_data)
+			when Falcon.Adapter.POST then data_object.trigger("create", parsed_data)
+			when Falcon.Adapter.PUT then data_object.trigger("save", parsed_data)
+			when Falcon.Adapter.DELETE then data_object.trigger("destroy", parsed_data)
 		#END switch
 
 		options.success.call(context, data_object, raw_response_data, options, response_args)
@@ -491,7 +491,7 @@ class FalconAdapter extends FalconObject
 
 		#Validate any models that are trying to be created or saved
 		if Falcon.isModel( data_object )
-			return {data_object, type, options, context, is_valid} if (type in [FalconAdapter.POST, FalconAdapter.PUT]) and (not data_object.validate(options))
+			return {data_object, type, options, context, is_valid} if (type in [Falcon.Adapter.POST, Falcon.Adapter.PUT]) and (not data_object.validate(options))
 		#END if
 
 		is_valid = true

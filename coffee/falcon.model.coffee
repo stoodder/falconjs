@@ -365,7 +365,7 @@ class FalconModel extends FalconObject
 	#	_(mixed)_ - Whatever the response from the adapter's sync method is
 	#--------------------------------------------------------
 	fetch: (options, context) -> 
-		return @sync(FalconAdapter.GET, options, context)
+		return @sync(Falcon.Adapter.GET, options, context)
 	#END fetch
 
 	#--------------------------------------------------------
@@ -381,7 +381,7 @@ class FalconModel extends FalconObject
 	#	_(mixed)_ - Whatever the response from the adapter's sync method is
 	#--------------------------------------------------------
 	create: (options, context) -> 
-		return @sync(FalconAdapter.POST, options, context)
+		return @sync(Falcon.Adapter.POST, options, context)
 	#END create
 
 	#--------------------------------------------------------
@@ -398,7 +398,7 @@ class FalconModel extends FalconObject
 	#	_(mixed)_ - Whatever the response from the adapter's sync method is
 	#--------------------------------------------------------
 	save: (options, context) -> 
-		return ( if @isNew() then @create(options, context) else @sync(FalconAdapter.PUT, options, context) )
+		return ( if @isNew() then @create(options, context) else @sync(Falcon.Adapter.PUT, options, context) )
 	#END save
 
 	#--------------------------------------------------------
@@ -414,7 +414,7 @@ class FalconModel extends FalconObject
 	#	_(mixed)_ - Whatever the response from the adapter's sync method is
 	#--------------------------------------------------------
 	destroy: (options, context) -> 
-		return @sync(FalconAdapter.DELETE, options, context)
+		return @sync(Falcon.Adapter.DELETE, options, context)
 	#END destroy
 
 	#--------------------------------------------------------

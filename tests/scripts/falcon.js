@@ -473,11 +473,11 @@
 
     FalconAdapter.prototype.resolveRequestType = function(data_object, type, options, context) {
       if (!isString(type)) {
-        return FalconAdapter.GET;
+        return Falcon.Adapter.GET;
       }
       type = trim(type).toUpperCase();
       if (__indexOf.call(FalconAdapter.REQUEST_TYPES, type) < 0) {
-        return FalconAdapter.GET;
+        return Falcon.Adapter.GET;
       }
       return type;
     };
@@ -552,7 +552,7 @@
       base_endpoints = [];
       while (Falcon.isModel(parent)) {
         if (isFunction(parent.url)) {
-          base_endpoint = parent.url(FalconAdapter.GET, parent.parent);
+          base_endpoint = parent.url(Falcon.Adapter.GET, parent.parent);
         } else {
           base_endpoint = parent.url;
         }
@@ -614,7 +614,7 @@
     };
 
     FalconAdapter.prototype.serializeData = function(data_object, type, options, context) {
-      if ((options.data == null) && (type === FalconAdapter.POST || type === FalconAdapter.PUT)) {
+      if ((options.data == null) && (type === Falcon.Adapter.POST || type === Falcon.Adapter.PUT)) {
         return data_object.serialize(options.attributes);
       } else {
         return options.data;
@@ -631,16 +631,16 @@
       parsed_data = data_object.parse(raw_response_data, options);
       data_object.fill(parsed_data, options.fill_options);
       switch (type) {
-        case FalconAdapter.GET:
+        case Falcon.Adapter.GET:
           data_object.trigger("fetch", parsed_data);
           break;
-        case FalconAdapter.POST:
+        case Falcon.Adapter.POST:
           data_object.trigger("create", parsed_data);
           break;
-        case FalconAdapter.PUT:
+        case Falcon.Adapter.PUT:
           data_object.trigger("save", parsed_data);
           break;
-        case FalconAdapter.DELETE:
+        case Falcon.Adapter.DELETE:
           data_object.trigger("destroy", parsed_data);
       }
       return options.success.call(context, data_object, raw_response_data, options, response_args);
@@ -668,7 +668,7 @@
       options = this.standardizeOptions(data_object, type, options, context);
       context = this.resolveContext(data_object, type, options, context);
       if (Falcon.isModel(data_object)) {
-        if ((type === FalconAdapter.POST || type === FalconAdapter.PUT) && (!data_object.validate(options))) {
+        if ((type === Falcon.Adapter.POST || type === Falcon.Adapter.PUT) && (!data_object.validate(options))) {
           return {
             data_object: data_object,
             type: type,
@@ -907,19 +907,19 @@
     };
 
     FalconModel.prototype.fetch = function(options, context) {
-      return this.sync(FalconAdapter.GET, options, context);
+      return this.sync(Falcon.Adapter.GET, options, context);
     };
 
     FalconModel.prototype.create = function(options, context) {
-      return this.sync(FalconAdapter.POST, options, context);
+      return this.sync(Falcon.Adapter.POST, options, context);
     };
 
     FalconModel.prototype.save = function(options, context) {
-      return (this.isNew() ? this.create(options, context) : this.sync(FalconAdapter.PUT, options, context));
+      return (this.isNew() ? this.create(options, context) : this.sync(Falcon.Adapter.PUT, options, context));
     };
 
     FalconModel.prototype.destroy = function(options, context) {
-      return this.sync(FalconAdapter.DELETE, options, context);
+      return this.sync(Falcon.Adapter.DELETE, options, context);
     };
 
     FalconModel.prototype.equals = function(model) {
@@ -1320,7 +1320,7 @@
     };
 
     FalconCollection.prototype.fetch = function(options, context) {
-      return this.sync(FalconAdapter.GET, options, context);
+      return this.sync(Falcon.Adapter.GET, options, context);
     };
 
     FalconCollection.prototype.create = function(data, options, context) {
@@ -1336,7 +1336,7 @@
       if (context == null) {
         context = model;
       }
-      output_options = Falcon.adapter.standardizeOptions(model, FalconAdapter.POST, options, context);
+      output_options = Falcon.adapter.standardizeOptions(model, Falcon.Adapter.POST, options, context);
       if (output_options.fill_options == null) {
         output_options.fill_options = {
           method: 'append'
@@ -1364,7 +1364,7 @@
       if (context == null) {
         context = model;
       }
-      output_options = Falcon.adapter.standardizeOptions(model, FalconAdapter.DELETE, options, context);
+      output_options = Falcon.adapter.standardizeOptions(model, Falcon.Adapter.DELETE, options, context);
       output_options.success = function(model) {
         _this.remove(model);
         if (isFunction(options.success)) {
