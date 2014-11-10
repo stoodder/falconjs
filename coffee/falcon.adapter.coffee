@@ -252,9 +252,10 @@ class FalconAdapter extends FalconObject
 		#----------------------------------------------------------
 		extension = ""
 		period_index = endpoint.lastIndexOf(".")
+		slash_index = endpoint.lastIndexOf("/")
 
 		# Split on the extension if it exists
-		if period_index > -1
+		if period_index > slash_index
 			extension = endpoint.slice(period_index)
 			endpoint = endpoint.slice(0, period_index)
 		#END if
@@ -262,9 +263,10 @@ class FalconAdapter extends FalconObject
 		#----------------------------------------------------------
 		# Generate the id
 		#----------------------------------------------------------
-		id = null
-		if Falcon.isModel( data_object ) and type in [FalconAdapter.GET, FalconAdapter.PUT, FalconAdapter.DELETE]
+		if Falcon.isModel( data_object )
 			id = "#{options.id ? data_object.get('id')}"
+		else
+			id = null
 		#END if
 
 		return {base_url, endpoint, id, extension}
@@ -287,14 +289,15 @@ class FalconAdapter extends FalconObject
 	#	_(String)_ - The generated URL
 	#------------------------------------------------------------------------
 	makeUrl: ( data_object, type, options, context ) ->
-		{base_url, endpoint, id, extension} = Falcon.adapter.makeUrlComponents( data_object, type, options, context )
+		{base_url, endpoint, id, extension} = @makeUrlComponents( data_object, type, options, context )
 
 		#Generate the url
 		if Falcon.isModel(data_object)
-			if id?
-				return "#{base_url}#{endpoint}/#{id}#{extension}"
-			else
+			if type is Falcon.Adapter.POST
 				return "#{base_url}#{endpoint}#{extension}"
+			else
+				return "#{base_url}#{endpoint}/#{id}#{extension}"
+			#END if
 		else
 			return "#{base_url}#{endpoint}#{extension}"
 		#END if

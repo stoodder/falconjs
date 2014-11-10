@@ -467,7 +467,7 @@
       return _ref;
     }
 
-    FalconAdapter.REQUEST_TYPES = [FalconAdapter.GET = "GET", FalconAdapter.POST = 'POST', FalconAdapter.PUT = 'PUT', FalconAdapter.DELETE = 'DELETE'];
+    FalconAdapter.REQUEST_TYPES = [FalconAdapter.GET = 'GET', FalconAdapter.POST = 'POST', FalconAdapter.PUT = 'PUT', FalconAdapter.DELETE = 'DELETE'];
 
     FalconAdapter.extend = FalconObject.extend;
 
@@ -574,20 +574,22 @@
     };
 
     FalconAdapter.prototype.makeUrlComponents = function(data_object, type, options, context) {
-      var base_url, endpoint, extension, id, period_index, _ref1;
+      var base_url, endpoint, extension, id, period_index, slash_index, _ref1;
       type = this.resolveRequestType(data_object, type, options, context);
       base_url = this.makeBaseUrl(data_object, type, options, context);
       endpoint = isFunction(data_object.url) ? data_object.url(type, options.parent) : data_object.url;
       endpoint = isString(endpoint) ? trimSlashes(endpoint) : "";
       extension = "";
       period_index = endpoint.lastIndexOf(".");
-      if (period_index > -1) {
+      slash_index = endpoint.lastIndexOf("/");
+      if (period_index > slash_index) {
         extension = endpoint.slice(period_index);
         endpoint = endpoint.slice(0, period_index);
       }
-      id = null;
-      if (Falcon.isModel(data_object) && (type === FalconAdapter.GET || type === FalconAdapter.PUT || type === FalconAdapter.DELETE)) {
+      if (Falcon.isModel(data_object)) {
         id = "" + ((_ref1 = options.id) != null ? _ref1 : data_object.get('id'));
+      } else {
+        id = null;
       }
       return {
         base_url: base_url,
@@ -599,12 +601,12 @@
 
     FalconAdapter.prototype.makeUrl = function(data_object, type, options, context) {
       var base_url, endpoint, extension, id, _ref1;
-      _ref1 = Falcon.adapter.makeUrlComponents(data_object, type, options, context), base_url = _ref1.base_url, endpoint = _ref1.endpoint, id = _ref1.id, extension = _ref1.extension;
+      _ref1 = this.makeUrlComponents(data_object, type, options, context), base_url = _ref1.base_url, endpoint = _ref1.endpoint, id = _ref1.id, extension = _ref1.extension;
       if (Falcon.isModel(data_object)) {
-        if (id != null) {
-          return "" + base_url + endpoint + "/" + id + extension;
-        } else {
+        if (type === Falcon.Adapter.POST) {
           return "" + base_url + endpoint + extension;
+        } else {
+          return "" + base_url + endpoint + "/" + id + extension;
         }
       } else {
         return "" + base_url + endpoint + extension;

@@ -451,24 +451,287 @@ describe "Falcon.Adapter", ->
 	describe "makeUrlComponents", ->
 		adapter = null
 		base_api_url = null
+		data_object = null
+		options = null
+		context = null
 
 		beforeEach ->
 			base_api_url = Falcon.baseApiUrl
-			Falcon.baseApiUrl = null
+			Falcon.baseApiUrl = "http://www.falconjs.com/"
 
 			adapter = new Falcon.Adapter
 			spyOn( adapter, "resolveRequestType" ).and.callThrough()
 			spyOn( adapter, "makeBaseUrl" ).and.callThrough()
+
+			data_object = new Falcon.Model({id: 1, url: "a"})
+			options = {}
+			context = data_object
 		#END beforeEach
 
 		afterEach ->
 			Falcon.baseApiUrl = base_api_url
 		#END afterEach
 
-		it ""
+		it "Should return the url components properly with GET", ->
+			ret = adapter.makeUrlComponents( data_object, Falcon.Adapter.GET, options, context )
+
+			expect( adapter.resolveRequestType.calls.count() ).toBe( 1 )
+			expect( adapter.resolveRequestType ).toHaveBeenCalledWith( data_object, Falcon.Adapter.GET, options, context )
+
+			expect( adapter.makeBaseUrl.calls.count() ).toBe( 1 )
+			expect( adapter.makeBaseUrl ).toHaveBeenCalledWith( data_object, Falcon.Adapter.GET, options, context )
+
+			expect( ret ).toEqual({
+				'base_url': "http://www.falconjs.com/"
+				'endpoint': "a"
+				'id': "1"
+				'extension': ""
+			})
+		#END it
+
+		it "Should return the url components properly with POST", ->
+			ret = adapter.makeUrlComponents( data_object, Falcon.Adapter.POST, options, context )
+
+			expect( adapter.resolveRequestType.calls.count() ).toBe( 1 )
+			expect( adapter.resolveRequestType ).toHaveBeenCalledWith( data_object, Falcon.Adapter.POST, options, context )
+
+			expect( adapter.makeBaseUrl.calls.count() ).toBe( 1 )
+			expect( adapter.makeBaseUrl ).toHaveBeenCalledWith( data_object, Falcon.Adapter.POST, options, context )
+
+			expect( ret ).toEqual({
+				'base_url': "http://www.falconjs.com/"
+				'endpoint': "a"
+				'id': "1"
+				'extension': ""
+			})
+		#END it
+
+		it "Should return the url components properly with PUT", ->
+			ret = adapter.makeUrlComponents( data_object, Falcon.Adapter.PUT, options, context )
+
+			expect( adapter.resolveRequestType.calls.count() ).toBe( 1 )
+			expect( adapter.resolveRequestType ).toHaveBeenCalledWith( data_object, Falcon.Adapter.PUT, options, context )
+
+			expect( adapter.makeBaseUrl.calls.count() ).toBe( 1 )
+			expect( adapter.makeBaseUrl ).toHaveBeenCalledWith( data_object, Falcon.Adapter.PUT, options, context )
+
+			expect( ret ).toEqual({
+				'base_url': "http://www.falconjs.com/"
+				'endpoint': "a"
+				'id': "1"
+				'extension': ""
+			})
+		#END it
+
+		it "Should return the url components properly with DELETE", ->
+			ret = adapter.makeUrlComponents( data_object, Falcon.Adapter.DELETE, options, context )
+
+			expect( adapter.resolveRequestType.calls.count() ).toBe( 1 )
+			expect( adapter.resolveRequestType ).toHaveBeenCalledWith( data_object, Falcon.Adapter.DELETE, options, context )
+
+			expect( adapter.makeBaseUrl.calls.count() ).toBe( 1 )
+			expect( adapter.makeBaseUrl ).toHaveBeenCalledWith( data_object, Falcon.Adapter.DELETE, options, context )
+
+			expect( ret ).toEqual({
+				'base_url': "http://www.falconjs.com/"
+				'endpoint': "a"
+				'id': "1"
+				'extension': ""
+			})
+		#END it
+
+		it "Should get the correct endpoint wiht a url method definition on the data object", ->
+			data_object.url = -> "b"
+
+			ret = adapter.makeUrlComponents( data_object, Falcon.Adapter.DELETE, options, context )
+
+			expect( adapter.resolveRequestType.calls.count() ).toBe( 1 )
+			expect( adapter.resolveRequestType ).toHaveBeenCalledWith( data_object, Falcon.Adapter.DELETE, options, context )
+
+			expect( adapter.makeBaseUrl.calls.count() ).toBe( 1 )
+			expect( adapter.makeBaseUrl ).toHaveBeenCalledWith( data_object, Falcon.Adapter.DELETE, options, context )
+
+			expect( ret ).toEqual({
+				'base_url': "http://www.falconjs.com/"
+				'endpoint': "b"
+				'id': "1"
+				'extension': ""
+			})
+		#END it
+
+		it "Should remove slashes from the endpoint", ->
+			data_object.url = "/c//"
+
+			ret = adapter.makeUrlComponents( data_object, Falcon.Adapter.DELETE, options, context )
+
+			expect( adapter.resolveRequestType.calls.count() ).toBe( 1 )
+			expect( adapter.resolveRequestType ).toHaveBeenCalledWith( data_object, Falcon.Adapter.DELETE, options, context )
+
+			expect( adapter.makeBaseUrl.calls.count() ).toBe( 1 )
+			expect( adapter.makeBaseUrl ).toHaveBeenCalledWith( data_object, Falcon.Adapter.DELETE, options, context )
+
+			expect( ret ).toEqual({
+				'base_url': "http://www.falconjs.com/"
+				'endpoint': "c"
+				'id': "1"
+				'extension': ""
+			})
+		#END it
+
+		it "Should be able to handle extensions properly", ->
+			data_object.url = "d.json"
+
+			ret = adapter.makeUrlComponents( data_object, Falcon.Adapter.DELETE, options, context )
+
+			expect( adapter.resolveRequestType.calls.count() ).toBe( 1 )
+			expect( adapter.resolveRequestType ).toHaveBeenCalledWith( data_object, Falcon.Adapter.DELETE, options, context )
+
+			expect( adapter.makeBaseUrl.calls.count() ).toBe( 1 )
+			expect( adapter.makeBaseUrl ).toHaveBeenCalledWith( data_object, Falcon.Adapter.DELETE, options, context )
+
+			expect( ret ).toEqual({
+				'base_url': "http://www.falconjs.com/"
+				'endpoint': "d"
+				'id': "1"
+				'extension': ".json"
+			})
+		#END it
+
+		it "Should be able to handle extensions properly only after the last slash", ->
+			data_object.url = "d.json/hello"
+
+			ret = adapter.makeUrlComponents( data_object, Falcon.Adapter.DELETE, options, context )
+
+			expect( adapter.resolveRequestType.calls.count() ).toBe( 1 )
+			expect( adapter.resolveRequestType ).toHaveBeenCalledWith( data_object, Falcon.Adapter.DELETE, options, context )
+
+			expect( adapter.makeBaseUrl.calls.count() ).toBe( 1 )
+			expect( adapter.makeBaseUrl ).toHaveBeenCalledWith( data_object, Falcon.Adapter.DELETE, options, context )
+
+			expect( ret ).toEqual({
+				'base_url': "http://www.falconjs.com/"
+				'endpoint': "d.json/hello"
+				'id': "1"
+				'extension': ""
+			})
+		#END it
+
+		it "Should handle collections properly", ->
+			ModelE = Falcon.Model.extend({url: 'e'})
+			CollectionE = Falcon.Collection.extend({model: ModelE})
+			data_object = new CollectionE
+
+			ret = adapter.makeUrlComponents( data_object, Falcon.Adapter.DELETE, options, context )
+
+			expect( adapter.resolveRequestType.calls.count() ).toBe( 1 )
+			expect( adapter.resolveRequestType ).toHaveBeenCalledWith( data_object, Falcon.Adapter.DELETE, options, context )
+
+			expect( adapter.makeBaseUrl.calls.count() ).toBe( 1 )
+			expect( adapter.makeBaseUrl ).toHaveBeenCalledWith( data_object, Falcon.Adapter.DELETE, options, context )
+
+			expect( ret ).toEqual({
+				'base_url': "http://www.falconjs.com/"
+				'endpoint': "e"
+				'id': null
+				'extension': ""
+			})
+		#END it
+
+		it "Should handle collections with extensions properly", ->
+			ModelE = Falcon.Model.extend({url: 'e.json'})
+			CollectionE = Falcon.Collection.extend({model: ModelE})
+			data_object = new CollectionE
+
+			ret = adapter.makeUrlComponents( data_object, Falcon.Adapter.DELETE, options, context )
+
+			expect( adapter.resolveRequestType.calls.count() ).toBe( 1 )
+			expect( adapter.resolveRequestType ).toHaveBeenCalledWith( data_object, Falcon.Adapter.DELETE, options, context )
+
+			expect( adapter.makeBaseUrl.calls.count() ).toBe( 1 )
+			expect( adapter.makeBaseUrl ).toHaveBeenCalledWith( data_object, Falcon.Adapter.DELETE, options, context )
+
+			expect( ret ).toEqual({
+				'base_url': "http://www.falconjs.com/"
+				'endpoint': "e"
+				'id': null
+				'extension': ".json"
+			})
+		#END it
 	#END describe
 
 	describe "makeUrl", ->
+		adapter = null
+		base_api_url = null
+		data_object = null
+		parent_object = null
+		options = null
+		context = null
+
+		beforeEach ->
+			base_api_url = Falcon.baseApiUrl
+			Falcon.baseApiUrl = "http://www.falconjs.com/"
+
+			parent_object = new Falcon.Model({id: 2, url: "b"})
+			data_object = new Falcon.Model({id: 1, url: "a.json"}, parent_object)
+			options = {}
+			context = data_object
+
+			adapter = new Falcon.Adapter
+			spyOn( adapter, "makeUrlComponents" ).and.callThrough()
+		#END beforeEach
+
+		afterEach ->
+			Falcon.baseApiUrl = base_api_url
+		#END afterEach
+
+		it "Should return the correct url on GET", ->
+			ret = adapter.makeUrl( data_object, Falcon.Adapter.GET, options, context )
+
+			expect( adapter.makeUrlComponents.calls.count() ).toBe( 1 )
+			expect( adapter.makeUrlComponents ).toHaveBeenCalledWith( data_object, Falcon.Adapter.GET, options, context )
+
+			expect( ret ).toBe( "http://www.falconjs.com/b/2/a/1.json" )
+		#END it
+
+		it "Should return the correct url on POST", ->
+			ret = adapter.makeUrl( data_object, Falcon.Adapter.POST, options, context )
+
+			expect( adapter.makeUrlComponents.calls.count() ).toBe( 1 )
+			expect( adapter.makeUrlComponents ).toHaveBeenCalledWith( data_object, Falcon.Adapter.POST, options, context )
+
+			expect( ret ).toBe( "http://www.falconjs.com/b/2/a.json" )
+		#END it
+
+		it "Should return the correct url on PUT", ->
+			ret = adapter.makeUrl( data_object, Falcon.Adapter.PUT, options, context )
+
+			expect( adapter.makeUrlComponents.calls.count() ).toBe( 1 )
+			expect( adapter.makeUrlComponents ).toHaveBeenCalledWith( data_object, Falcon.Adapter.PUT, options, context )
+
+			expect( ret ).toBe( "http://www.falconjs.com/b/2/a/1.json" )
+		#END it
+
+		it "Should return the correct url on DELETE", ->
+			ret = adapter.makeUrl( data_object, Falcon.Adapter.DELETE, options, context )
+
+			expect( adapter.makeUrlComponents.calls.count() ).toBe( 1 )
+			expect( adapter.makeUrlComponents ).toHaveBeenCalledWith( data_object, Falcon.Adapter.DELETE, options, context )
+
+			expect( ret ).toBe( "http://www.falconjs.com/b/2/a/1.json" )
+		#END it
+
+		it "Should return the correct url on GET with a collection", ->
+			ModelE = Falcon.Model.extend({url: 'e.json'})
+			CollectionE = Falcon.Collection.extend({model: ModelE})
+			data_object = new CollectionE
+
+			ret = adapter.makeUrl( data_object, Falcon.Adapter.GET, options, context )
+
+			expect( adapter.makeUrlComponents.calls.count() ).toBe( 1 )
+			expect( adapter.makeUrlComponents ).toHaveBeenCalledWith( data_object, Falcon.Adapter.GET, options, context )
+
+			expect( ret ).toBe( "http://www.falconjs.com/e.json" )
+		#END it
 	#END describe
 
 	describe "serializeData", ->

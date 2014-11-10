@@ -1538,22 +1538,259 @@
       });
     });
     describe("makeUrlComponents", function() {
-      var adapter, base_api_url;
+      var adapter, base_api_url, context, data_object, options;
       adapter = null;
       base_api_url = null;
+      data_object = null;
+      options = null;
+      context = null;
       beforeEach(function() {
         base_api_url = Falcon.baseApiUrl;
-        Falcon.baseApiUrl = null;
+        Falcon.baseApiUrl = "http://www.falconjs.com/";
         adapter = new Falcon.Adapter;
         spyOn(adapter, "resolveRequestType").and.callThrough();
-        return spyOn(adapter, "makeBaseUrl").and.callThrough();
+        spyOn(adapter, "makeBaseUrl").and.callThrough();
+        data_object = new Falcon.Model({
+          id: 1,
+          url: "a"
+        });
+        options = {};
+        return context = data_object;
       });
       afterEach(function() {
         return Falcon.baseApiUrl = base_api_url;
       });
-      return it("");
+      it("Should return the url components properly with GET", function() {
+        var ret;
+        ret = adapter.makeUrlComponents(data_object, Falcon.Adapter.GET, options, context);
+        expect(adapter.resolveRequestType.calls.count()).toBe(1);
+        expect(adapter.resolveRequestType).toHaveBeenCalledWith(data_object, Falcon.Adapter.GET, options, context);
+        expect(adapter.makeBaseUrl.calls.count()).toBe(1);
+        expect(adapter.makeBaseUrl).toHaveBeenCalledWith(data_object, Falcon.Adapter.GET, options, context);
+        return expect(ret).toEqual({
+          'base_url': "http://www.falconjs.com/",
+          'endpoint': "a",
+          'id': "1",
+          'extension': ""
+        });
+      });
+      it("Should return the url components properly with POST", function() {
+        var ret;
+        ret = adapter.makeUrlComponents(data_object, Falcon.Adapter.POST, options, context);
+        expect(adapter.resolveRequestType.calls.count()).toBe(1);
+        expect(adapter.resolveRequestType).toHaveBeenCalledWith(data_object, Falcon.Adapter.POST, options, context);
+        expect(adapter.makeBaseUrl.calls.count()).toBe(1);
+        expect(adapter.makeBaseUrl).toHaveBeenCalledWith(data_object, Falcon.Adapter.POST, options, context);
+        return expect(ret).toEqual({
+          'base_url': "http://www.falconjs.com/",
+          'endpoint': "a",
+          'id': "1",
+          'extension': ""
+        });
+      });
+      it("Should return the url components properly with PUT", function() {
+        var ret;
+        ret = adapter.makeUrlComponents(data_object, Falcon.Adapter.PUT, options, context);
+        expect(adapter.resolveRequestType.calls.count()).toBe(1);
+        expect(adapter.resolveRequestType).toHaveBeenCalledWith(data_object, Falcon.Adapter.PUT, options, context);
+        expect(adapter.makeBaseUrl.calls.count()).toBe(1);
+        expect(adapter.makeBaseUrl).toHaveBeenCalledWith(data_object, Falcon.Adapter.PUT, options, context);
+        return expect(ret).toEqual({
+          'base_url': "http://www.falconjs.com/",
+          'endpoint': "a",
+          'id': "1",
+          'extension': ""
+        });
+      });
+      it("Should return the url components properly with DELETE", function() {
+        var ret;
+        ret = adapter.makeUrlComponents(data_object, Falcon.Adapter.DELETE, options, context);
+        expect(adapter.resolveRequestType.calls.count()).toBe(1);
+        expect(adapter.resolveRequestType).toHaveBeenCalledWith(data_object, Falcon.Adapter.DELETE, options, context);
+        expect(adapter.makeBaseUrl.calls.count()).toBe(1);
+        expect(adapter.makeBaseUrl).toHaveBeenCalledWith(data_object, Falcon.Adapter.DELETE, options, context);
+        return expect(ret).toEqual({
+          'base_url': "http://www.falconjs.com/",
+          'endpoint': "a",
+          'id': "1",
+          'extension': ""
+        });
+      });
+      it("Should get the correct endpoint wiht a url method definition on the data object", function() {
+        var ret;
+        data_object.url = function() {
+          return "b";
+        };
+        ret = adapter.makeUrlComponents(data_object, Falcon.Adapter.DELETE, options, context);
+        expect(adapter.resolveRequestType.calls.count()).toBe(1);
+        expect(adapter.resolveRequestType).toHaveBeenCalledWith(data_object, Falcon.Adapter.DELETE, options, context);
+        expect(adapter.makeBaseUrl.calls.count()).toBe(1);
+        expect(adapter.makeBaseUrl).toHaveBeenCalledWith(data_object, Falcon.Adapter.DELETE, options, context);
+        return expect(ret).toEqual({
+          'base_url': "http://www.falconjs.com/",
+          'endpoint': "b",
+          'id': "1",
+          'extension': ""
+        });
+      });
+      it("Should remove slashes from the endpoint", function() {
+        var ret;
+        data_object.url = "/c//";
+        ret = adapter.makeUrlComponents(data_object, Falcon.Adapter.DELETE, options, context);
+        expect(adapter.resolveRequestType.calls.count()).toBe(1);
+        expect(adapter.resolveRequestType).toHaveBeenCalledWith(data_object, Falcon.Adapter.DELETE, options, context);
+        expect(adapter.makeBaseUrl.calls.count()).toBe(1);
+        expect(adapter.makeBaseUrl).toHaveBeenCalledWith(data_object, Falcon.Adapter.DELETE, options, context);
+        return expect(ret).toEqual({
+          'base_url': "http://www.falconjs.com/",
+          'endpoint': "c",
+          'id': "1",
+          'extension': ""
+        });
+      });
+      it("Should be able to handle extensions properly", function() {
+        var ret;
+        data_object.url = "d.json";
+        ret = adapter.makeUrlComponents(data_object, Falcon.Adapter.DELETE, options, context);
+        expect(adapter.resolveRequestType.calls.count()).toBe(1);
+        expect(adapter.resolveRequestType).toHaveBeenCalledWith(data_object, Falcon.Adapter.DELETE, options, context);
+        expect(adapter.makeBaseUrl.calls.count()).toBe(1);
+        expect(adapter.makeBaseUrl).toHaveBeenCalledWith(data_object, Falcon.Adapter.DELETE, options, context);
+        return expect(ret).toEqual({
+          'base_url': "http://www.falconjs.com/",
+          'endpoint': "d",
+          'id': "1",
+          'extension': ".json"
+        });
+      });
+      it("Should be able to handle extensions properly only after the last slash", function() {
+        var ret;
+        data_object.url = "d.json/hello";
+        ret = adapter.makeUrlComponents(data_object, Falcon.Adapter.DELETE, options, context);
+        expect(adapter.resolveRequestType.calls.count()).toBe(1);
+        expect(adapter.resolveRequestType).toHaveBeenCalledWith(data_object, Falcon.Adapter.DELETE, options, context);
+        expect(adapter.makeBaseUrl.calls.count()).toBe(1);
+        expect(adapter.makeBaseUrl).toHaveBeenCalledWith(data_object, Falcon.Adapter.DELETE, options, context);
+        return expect(ret).toEqual({
+          'base_url': "http://www.falconjs.com/",
+          'endpoint': "d.json/hello",
+          'id': "1",
+          'extension': ""
+        });
+      });
+      it("Should handle collections properly", function() {
+        var CollectionE, ModelE, ret;
+        ModelE = Falcon.Model.extend({
+          url: 'e'
+        });
+        CollectionE = Falcon.Collection.extend({
+          model: ModelE
+        });
+        data_object = new CollectionE;
+        ret = adapter.makeUrlComponents(data_object, Falcon.Adapter.DELETE, options, context);
+        expect(adapter.resolveRequestType.calls.count()).toBe(1);
+        expect(adapter.resolveRequestType).toHaveBeenCalledWith(data_object, Falcon.Adapter.DELETE, options, context);
+        expect(adapter.makeBaseUrl.calls.count()).toBe(1);
+        expect(adapter.makeBaseUrl).toHaveBeenCalledWith(data_object, Falcon.Adapter.DELETE, options, context);
+        return expect(ret).toEqual({
+          'base_url': "http://www.falconjs.com/",
+          'endpoint': "e",
+          'id': null,
+          'extension': ""
+        });
+      });
+      return it("Should handle collections with extensions properly", function() {
+        var CollectionE, ModelE, ret;
+        ModelE = Falcon.Model.extend({
+          url: 'e.json'
+        });
+        CollectionE = Falcon.Collection.extend({
+          model: ModelE
+        });
+        data_object = new CollectionE;
+        ret = adapter.makeUrlComponents(data_object, Falcon.Adapter.DELETE, options, context);
+        expect(adapter.resolveRequestType.calls.count()).toBe(1);
+        expect(adapter.resolveRequestType).toHaveBeenCalledWith(data_object, Falcon.Adapter.DELETE, options, context);
+        expect(adapter.makeBaseUrl.calls.count()).toBe(1);
+        expect(adapter.makeBaseUrl).toHaveBeenCalledWith(data_object, Falcon.Adapter.DELETE, options, context);
+        return expect(ret).toEqual({
+          'base_url': "http://www.falconjs.com/",
+          'endpoint': "e",
+          'id': null,
+          'extension': ".json"
+        });
+      });
     });
-    describe("makeUrl", function() {});
+    describe("makeUrl", function() {
+      var adapter, base_api_url, context, data_object, options, parent_object;
+      adapter = null;
+      base_api_url = null;
+      data_object = null;
+      parent_object = null;
+      options = null;
+      context = null;
+      beforeEach(function() {
+        base_api_url = Falcon.baseApiUrl;
+        Falcon.baseApiUrl = "http://www.falconjs.com/";
+        parent_object = new Falcon.Model({
+          id: 2,
+          url: "b"
+        });
+        data_object = new Falcon.Model({
+          id: 1,
+          url: "a.json"
+        }, parent_object);
+        options = {};
+        context = data_object;
+        adapter = new Falcon.Adapter;
+        return spyOn(adapter, "makeUrlComponents").and.callThrough();
+      });
+      afterEach(function() {
+        return Falcon.baseApiUrl = base_api_url;
+      });
+      it("Should return the correct url on GET", function() {
+        var ret;
+        ret = adapter.makeUrl(data_object, Falcon.Adapter.GET, options, context);
+        expect(adapter.makeUrlComponents.calls.count()).toBe(1);
+        expect(adapter.makeUrlComponents).toHaveBeenCalledWith(data_object, Falcon.Adapter.GET, options, context);
+        return expect(ret).toBe("http://www.falconjs.com/b/2/a/1.json");
+      });
+      it("Should return the correct url on POST", function() {
+        var ret;
+        ret = adapter.makeUrl(data_object, Falcon.Adapter.POST, options, context);
+        expect(adapter.makeUrlComponents.calls.count()).toBe(1);
+        expect(adapter.makeUrlComponents).toHaveBeenCalledWith(data_object, Falcon.Adapter.POST, options, context);
+        return expect(ret).toBe("http://www.falconjs.com/b/2/a.json");
+      });
+      it("Should return the correct url on PUT", function() {
+        var ret;
+        ret = adapter.makeUrl(data_object, Falcon.Adapter.PUT, options, context);
+        expect(adapter.makeUrlComponents.calls.count()).toBe(1);
+        expect(adapter.makeUrlComponents).toHaveBeenCalledWith(data_object, Falcon.Adapter.PUT, options, context);
+        return expect(ret).toBe("http://www.falconjs.com/b/2/a/1.json");
+      });
+      it("Should return the correct url on DELETE", function() {
+        var ret;
+        ret = adapter.makeUrl(data_object, Falcon.Adapter.DELETE, options, context);
+        expect(adapter.makeUrlComponents.calls.count()).toBe(1);
+        expect(adapter.makeUrlComponents).toHaveBeenCalledWith(data_object, Falcon.Adapter.DELETE, options, context);
+        return expect(ret).toBe("http://www.falconjs.com/b/2/a/1.json");
+      });
+      return it("Should return the correct url on GET with a collection", function() {
+        var CollectionE, ModelE, ret;
+        ModelE = Falcon.Model.extend({
+          url: 'e.json'
+        });
+        CollectionE = Falcon.Collection.extend({
+          model: ModelE
+        });
+        data_object = new CollectionE;
+        ret = adapter.makeUrl(data_object, Falcon.Adapter.GET, options, context);
+        expect(adapter.makeUrlComponents.calls.count()).toBe(1);
+        expect(adapter.makeUrlComponents).toHaveBeenCalledWith(data_object, Falcon.Adapter.GET, options, context);
+        return expect(ret).toBe("http://www.falconjs.com/e.json");
+      });
+    });
     describe("serializeData", function() {
       var adapter, attributes, context, data_object, options, parent, serialized_data;
       adapter = new Falcon.Adapter;
