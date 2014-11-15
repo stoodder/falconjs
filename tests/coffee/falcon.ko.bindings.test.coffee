@@ -32,9 +32,9 @@ describe "Bindings", ->
 				expect( element.innerHTML ).toBe("")
 			#END it
 
-			it "Should initialize correctly, but empty the node if the view is already loaded", ->
+			it "Should initialize correctly, but empty the node if the view doesn't have a template", ->
 				test_view = new Falcon.View()
-				test_view.__falcon_view__is_loaded__(false)
+				test_view.__falcon_view__loaded_template__(undefined)
 
 				element = MockHelper.makeElement()
 				                    .bindings("view: test_view")
@@ -42,29 +42,6 @@ describe "Bindings", ->
 				                    .andApply({
 				                    	test_view: test_view
 				                    })
-
-				expect( ko.virtualElements.emptyNode.calls.count() ).toBe( 1 )
-				expect( ko.virtualElements.emptyNode ).toHaveBeenCalledWith( element )
-
-				expect( Falcon.View::_render ).not.toHaveBeenCalled()
-				expect( Falcon.View::_unrender ).not.toHaveBeenCalled()
-
-				expect( element.innerHTML ).toBe("")
-			#END it
-
-			it "Should initialize correctly, but empty the node if given an empty template", ->
-				test_view = new Falcon.View()
-				test_view.__falcon_view__is_loaded__(true)
-				test_view.template = jasmine.createSpy("Template Spy").and.returnValue("")
-
-				element = MockHelper.makeElement()
-				                    .bindings("view: test_view")
-				                    .html("Hello World")
-				                    .andApply({
-				                    	test_view: test_view
-				                    })
-
-				expect( test_view.template.calls.count() ).toBe( 1 )
 
 				expect( ko.virtualElements.emptyNode.calls.count() ).toBe( 1 )
 				expect( ko.virtualElements.emptyNode ).toHaveBeenCalledWith( element )
@@ -96,9 +73,9 @@ describe "Bindings", ->
 				expect( element.innerHTML ).toBe("")
 			#END it
 
-			it "Should initialize correctly with observable, but empty the node if the view is already loaded", ->
+			it "Should initialize correctly with observable, but empty the node if the view doesn't have a template", ->
 				test_view = new Falcon.View()
-				test_view.__falcon_view__is_loaded__(false)
+				test_view.__falcon_view__loaded_template__(undefined)
 
 				element = MockHelper.makeElement()
 				                    .bindings("view: test_view")
@@ -106,29 +83,6 @@ describe "Bindings", ->
 				                    .andApply({
 				                    	test_view: ko.observable(test_view)
 				                    })
-
-				expect( ko.virtualElements.emptyNode.calls.count() ).toBe( 1 )
-				expect( ko.virtualElements.emptyNode ).toHaveBeenCalledWith( element )
-
-				expect( Falcon.View::_render ).not.toHaveBeenCalled()
-				expect( Falcon.View::_unrender ).not.toHaveBeenCalled()
-
-				expect( element.innerHTML ).toBe("")
-			#END it
-
-			it "Should initialize correctly with observable, but empty the node if given an empty template", ->
-				test_view = new Falcon.View()
-				test_view.__falcon_view__is_loaded__(true)
-				test_view.template = jasmine.createSpy("Template Spy").and.returnValue("")
-
-				element = MockHelper.makeElement()
-				                    .bindings("view: test_view")
-				                    .html("Hello World")
-				                    .andApply({
-				                    	test_view: ko.observable(test_view)
-				                    })
-
-				expect( test_view.template.calls.count() ).toBe( 1 )
 
 				expect( ko.virtualElements.emptyNode.calls.count() ).toBe( 1 )
 				expect( ko.virtualElements.emptyNode ).toHaveBeenCalledWith( element )
@@ -183,7 +137,7 @@ describe "Bindings", ->
 				expect( view.dispose.calls.count() ).toBe( 1 )
 			#END it
 
-			it "Teardown", -> Falcon.View.resetCache()
+			it "Teardown", -> Falcon.templateAdapter.resetCache()
 		#END describe
 
 		describe "Basic Observable Usage", ->
@@ -276,23 +230,15 @@ describe "Bindings", ->
 				expect( view_b.dispose.calls.count() ).toBe( 1 )
 			#END it
 
-			it "Teardown", -> Falcon.View.resetCache()
+			it "Teardown", -> Falcon.templateAdapter.resetCache()
 		#END describe
 
 		describe "Basic Comment Binding Usage", ->
 			comment = null
 			view = null
 
-			it "Setup", ->
-				hello_world = MockHelper.makeElement("template")
-				                        .setId("hello_world")
-				                        .html("Hello World")
-				                        .addToDOM()
-			#END setup
-
 			it "Should setup the view binding properly with basic view", ->
-				view = MockHelper.makeView("hello_world")
-				                 .triggerReady()
+				view = MockHelper.makeView("hello_world", {template: "Hello World"})
 
 				comment = MockHelper.makeCommentBinding("view: view")
 									.addToDOM()
@@ -322,25 +268,13 @@ describe "Bindings", ->
 				expect( view.dispose.calls.count() ).toBe( 1 )
 			#END it
 
-			it "Teardown", -> Falcon.View.resetCache()
+			it "Teardown", -> Falcon.templateAdapter.resetCache()
 		#END describe
 
 		describe "Basic Observable Comment Binding Usage", ->
 			obs = ko.observable()
 			comment = null
 			view_a = view_b = null
-
-			it "Setup", ->
-				hello_world = MockHelper.makeElement("template")
-				                        .setId("hello_world")
-				                        .html("Hello World")
-				                        .addToDOM()
-
-				foo_bar = MockHelper.makeElement("template")
-				                    .setId("foo_bar")
-				                    .html("Foo Bar")
-				                    .addToDOM()
-			#END setup
 
 			it "Should apply blank observable properly", ->
 				comment = MockHelper.makeCommentBinding("view: obs")
@@ -354,8 +288,7 @@ describe "Bindings", ->
 			#END it
 
 			it "Should update the template when a valid view with template is given", ->
-				view_a = MockHelper.makeView("#hello_world")
-				                   .triggerReady()
+				view_a = MockHelper.makeView("#hello_world", {template: "Hello World"})
 
 				obs( view_a )
 
@@ -373,8 +306,7 @@ describe "Bindings", ->
 			#END it
 
 			it "Should swap views properly", ->
-				view_b = MockHelper.makeView("#foo_bar")
-				                   .triggerReady()
+				view_b = MockHelper.makeView("#foo_bar", {template: "Foo Bar"})
 
 				obs( view_b )
 
@@ -414,7 +346,7 @@ describe "Bindings", ->
 				expect( view_b.dispose.calls.count() ).toBe( 1 )
 			#END it
 
-			it "Teardown", -> Falcon.View.resetCache()
+			it "Teardown", -> Falcon.templateAdapter.resetCache()
 		#END describe
 
 		describe "Basic Nested Usage", ->
@@ -422,11 +354,10 @@ describe "Bindings", ->
 			parent_view = null
 			element = null
 
+			hello_world_template = "Hello World"
+			parent_template = "<div data-bind='view: $view.child_view'></div>"
+
 			it "Setup", ->
-				MockHelper.makeElement("template")
-				          .setId("parent_template")
-				          .html("<div data-bind='view: $view.child_view'></div>")
-				          .addToDOM()
 
 				MockHelper.makeElement("template")
 				          .setId("hello_world")
@@ -435,8 +366,8 @@ describe "Bindings", ->
 			#END setup
 
 			it "Should setup the view binding properly with a basic view", ->
-				view = MockHelper.makeView("#hello_world").triggerReady()
-				parent_view = MockHelper.makeView("#parent_template").triggerReady()
+				view = MockHelper.makeView("#hello_world", {template: hello_world_template})
+				parent_view = MockHelper.makeView("#parent_template", {template: parent_template})
 				parent_view.child_view = view
 
 				element = MockHelper.makeElement()
@@ -478,7 +409,7 @@ describe "Bindings", ->
 				expect( view.dispose.calls.count() ).toBe( 1 )
 			#END it
 
-			it "Teardown", -> Falcon.View.resetCache()
+			it "Teardown", -> Falcon.templateAdapter.resetCache()
 		#END describe
 
 		describe "Basic Nested Observable Usage", ->
@@ -486,22 +417,9 @@ describe "Bindings", ->
 			element = null
 			view_a = view_b = null
 
-			it "Setup", ->
-				MockHelper.makeElement("template")
-				          .setId("parent_template")
-				          .html("<div data-bind='view: $view.child_view'></div>")
-				          .addToDOM()
-
-				MockHelper.makeElement("template")
-				          .setId("hello_world")
-				          .html("Hello World")
-				          .addToDOM()
-
-				MockHelper.makeElement("template")
-				          .setId("foo_bar")
-				          .html("Foo Bar")
-				          .addToDOM()
-			#END setup
+			hello_world_template = "Hello World"
+			foo_bar_template = "Foo Bar"
+			parent_template = "<div data-bind='view: $view.child_view'></div>"
 
 			it "Should apply blank observable properly", ->
 				element = MockHelper.makeElement()
@@ -516,8 +434,8 @@ describe "Bindings", ->
 			#END it
 
 			it "Should update the template when a valid view with template is given", ->
-				view_a = MockHelper.makeView("#parent_template").triggerReady()
-				view_a.child_view = MockHelper.makeView("#hello_world").triggerReady()
+				view_a = MockHelper.makeView("#parent_template", {template: parent_template})
+				view_a.child_view = MockHelper.makeView("#hello_world", {template: hello_world_template})
 
 				obs( view_a )
 
@@ -538,8 +456,8 @@ describe "Bindings", ->
 			#END it
 
 			it "Should swap views properly", ->
-				view_b = MockHelper.makeView("#parent_template").triggerReady()
-				view_b.child_view = MockHelper.makeView("#hello_world").triggerReady()
+				view_b = MockHelper.makeView("#parent_template", {template: parent_template})
+				view_b.child_view = MockHelper.makeView("#foo_bar", {template: foo_bar_template})
 
 				obs( view_b )
 
@@ -597,7 +515,7 @@ describe "Bindings", ->
 				expect( view_b.child_view.dispose.calls.count() ).toBe( 1 )
 			#END it
 
-			it "Teardown", -> Falcon.View.resetCache()
+			it "Teardown", -> Falcon.templateAdapter.resetCache()
 		#END describe
 
 		describe "Basic Nested Comment Usage", ->
@@ -660,7 +578,7 @@ describe "Bindings", ->
 				expect( view.dispose.calls.count() ).toBe( 1 )
 			#END it
 
-			it "Teardown", -> Falcon.View.resetCache()
+			it "Teardown", -> Falcon.templateAdapter.resetCache()
 		#END describe
 
 		describe "Basic Nested Comment Observable Usage", ->
@@ -668,22 +586,9 @@ describe "Bindings", ->
 			comment = null
 			view_a = view_b = null
 
-			it "Setup", ->
-				MockHelper.makeElement("template")
-				          .setId("parent_template")
-				          .html("<div data-bind='view: $view.child_view'></div>")
-				          .addToDOM()
-
-				MockHelper.makeElement("template")
-				          .setId("hello_world")
-				          .html("Hello World")
-				          .addToDOM()
-
-				MockHelper.makeElement("template")
-				          .setId("foo_bar")
-				          .html("Foo Bar")
-				          .addToDOM()
-			#END setup
+			parent_template = "<div data-bind='view: $view.child_view'></div>"
+			hello_world_template = "Hello World"
+			foo_bar_template = "Foo Bar"
 
 			it "Should apply blank observable properly", ->
 				comment = MockHelper.makeCommentBinding("view: obs")
@@ -695,8 +600,8 @@ describe "Bindings", ->
 			#END it
 
 			it "Should update the template when a valid view with template is given", ->
-				view_a = MockHelper.makeView("#parent_template").triggerReady()
-				view_a.child_view = MockHelper.makeView("#hello_world").triggerReady()
+				view_a = MockHelper.makeView("#parent_template", {template: parent_template})
+				view_a.child_view = MockHelper.makeView("#hello_world", {template: hello_world_template})
 
 				obs( view_a )
 
@@ -717,8 +622,8 @@ describe "Bindings", ->
 			#END it
 
 			it "Should swap views properly", ->
-				view_b = MockHelper.makeView("#parent_template").triggerReady()
-				view_b.child_view = MockHelper.makeView("#hello_world").triggerReady()
+				view_b = MockHelper.makeView("#parent_template", {template: parent_template})
+				view_b.child_view = MockHelper.makeView("#foo_bar", {template: foo_bar_template})
 
 				obs( view_b )
 
@@ -776,7 +681,7 @@ describe "Bindings", ->
 				expect( view_b.child_view.dispose.calls.count() ).toBe( 1 )
 			#END it
 
-			it "Teardown", -> Falcon.View.resetCache()
+			it "Teardown", -> Falcon.templateAdapter.resetCache()
 		#END describe
 
 		describe "Nest Views in Observable Arrays with Element Bindings", ->
@@ -785,22 +690,15 @@ describe "Bindings", ->
 			parent_view = null
 			child_view = null
 
+			parent_template = "<div data-bind='view: $view.child_view'></div>"
+			hello_world_template = "Hello World"
+
 			beforeEach ->
 				parent_view?.resetSpies()
 				child_view?.resetSpies()
 			#END beforeEach
 
 			it "Should set up properly", ->
-				MockHelper.makeElement("template")
-				          .setId("parent_template")
-				          .html("<div data-bind='view: $view.child_view'></div>")
-				          .addToDOM()
-
-				MockHelper.makeElement("template")
-				          .setId("hello_world")
-				          .html("Hello World")
-				          .addToDOM()
-
 				element = MockHelper.makeElement()
 				                    .bindings("foreach: obsArr")
 				                    .html("<div data-bind='view: $data'></div>")
@@ -808,12 +706,16 @@ describe "Bindings", ->
 				                    .andApply({obsArr})
 				
 				parent_view = MockHelper.makeView("#parent_template", {
+					template: parent_template
 					defaults:
 						'child_view': ->
-							child_view = MockHelper.makeView("#hello_world").triggerReady()
+							child_view = MockHelper.makeView("#hello_world", {
+								template: hello_world_template
+							})
 							return child_view
+						#END child_view
 					#END defaults
-				}).triggerReady()
+				})
 
 				expect( parent_view._render ).not.toHaveBeenCalled()
 				expect( parent_view.display ).not.toHaveBeenCalled()
@@ -856,7 +758,7 @@ describe "Bindings", ->
 
 			it "Teardown", ->
 				element.removeFromDOM()
-				Falcon.View.resetCache()
+				Falcon.templateAdapter.resetCache()
 			#END it
 		#END describe
 	#END describe

@@ -7179,28 +7179,13 @@
           expect(Falcon.View.prototype._unrender).not.toHaveBeenCalled();
           return expect(element.innerHTML).toBe("");
         });
-        it("Should initialize correctly, but empty the node if the view is already loaded", function() {
+        return it("Should initialize correctly, but empty the node if the view doesn't have a template", function() {
           var element, test_view;
           test_view = new Falcon.View();
-          test_view.__falcon_view__is_loaded__(false);
+          test_view.__falcon_view__loaded_template__(void 0);
           element = MockHelper.makeElement().bindings("view: test_view").html("Hello World").andApply({
             test_view: test_view
           });
-          expect(ko.virtualElements.emptyNode.calls.count()).toBe(1);
-          expect(ko.virtualElements.emptyNode).toHaveBeenCalledWith(element);
-          expect(Falcon.View.prototype._render).not.toHaveBeenCalled();
-          expect(Falcon.View.prototype._unrender).not.toHaveBeenCalled();
-          return expect(element.innerHTML).toBe("");
-        });
-        return it("Should initialize correctly, but empty the node if given an empty template", function() {
-          var element, test_view;
-          test_view = new Falcon.View();
-          test_view.__falcon_view__is_loaded__(true);
-          test_view.template = jasmine.createSpy("Template Spy").and.returnValue("");
-          element = MockHelper.makeElement().bindings("view: test_view").html("Hello World").andApply({
-            test_view: test_view
-          });
-          expect(test_view.template.calls.count()).toBe(1);
           expect(ko.virtualElements.emptyNode.calls.count()).toBe(1);
           expect(ko.virtualElements.emptyNode).toHaveBeenCalledWith(element);
           expect(Falcon.View.prototype._render).not.toHaveBeenCalled();
@@ -7221,28 +7206,13 @@
           expect(Falcon.View.prototype._unrender).not.toHaveBeenCalled();
           return expect(element.innerHTML).toBe("");
         });
-        it("Should initialize correctly with observable, but empty the node if the view is already loaded", function() {
+        return it("Should initialize correctly with observable, but empty the node if the view doesn't have a template", function() {
           var element, test_view;
           test_view = new Falcon.View();
-          test_view.__falcon_view__is_loaded__(false);
+          test_view.__falcon_view__loaded_template__(void 0);
           element = MockHelper.makeElement().bindings("view: test_view").html("Hello World").andApply({
             test_view: ko.observable(test_view)
           });
-          expect(ko.virtualElements.emptyNode.calls.count()).toBe(1);
-          expect(ko.virtualElements.emptyNode).toHaveBeenCalledWith(element);
-          expect(Falcon.View.prototype._render).not.toHaveBeenCalled();
-          expect(Falcon.View.prototype._unrender).not.toHaveBeenCalled();
-          return expect(element.innerHTML).toBe("");
-        });
-        return it("Should initialize correctly with observable, but empty the node if given an empty template", function() {
-          var element, test_view;
-          test_view = new Falcon.View();
-          test_view.__falcon_view__is_loaded__(true);
-          test_view.template = jasmine.createSpy("Template Spy").and.returnValue("");
-          element = MockHelper.makeElement().bindings("view: test_view").html("Hello World").andApply({
-            test_view: ko.observable(test_view)
-          });
-          expect(test_view.template.calls.count()).toBe(1);
           expect(ko.virtualElements.emptyNode.calls.count()).toBe(1);
           expect(ko.virtualElements.emptyNode).toHaveBeenCalledWith(element);
           expect(Falcon.View.prototype._render).not.toHaveBeenCalled();
@@ -7280,7 +7250,7 @@
           return expect(view.dispose.calls.count()).toBe(1);
         });
         return it("Teardown", function() {
-          return Falcon.View.resetCache();
+          return Falcon.templateAdapter.resetCache();
         });
       });
       describe("Basic Observable Usage", function() {
@@ -7341,19 +7311,17 @@
           return expect(view_b.dispose.calls.count()).toBe(1);
         });
         return it("Teardown", function() {
-          return Falcon.View.resetCache();
+          return Falcon.templateAdapter.resetCache();
         });
       });
       describe("Basic Comment Binding Usage", function() {
         var comment, view;
         comment = null;
         view = null;
-        it("Setup", function() {
-          var hello_world;
-          return hello_world = MockHelper.makeElement("template").setId("hello_world").html("Hello World").addToDOM();
-        });
         it("Should setup the view binding properly with basic view", function() {
-          view = MockHelper.makeView("hello_world").triggerReady();
+          view = MockHelper.makeView("hello_world", {
+            template: "Hello World"
+          });
           comment = MockHelper.makeCommentBinding("view: view").addToDOM().andApply({
             view: view
           });
@@ -7374,7 +7342,7 @@
           return expect(view.dispose.calls.count()).toBe(1);
         });
         return it("Teardown", function() {
-          return Falcon.View.resetCache();
+          return Falcon.templateAdapter.resetCache();
         });
       });
       describe("Basic Observable Comment Binding Usage", function() {
@@ -7382,11 +7350,6 @@
         obs = ko.observable();
         comment = null;
         view_a = view_b = null;
-        it("Setup", function() {
-          var foo_bar, hello_world;
-          hello_world = MockHelper.makeElement("template").setId("hello_world").html("Hello World").addToDOM();
-          return foo_bar = MockHelper.makeElement("template").setId("foo_bar").html("Foo Bar").addToDOM();
-        });
         it("Should apply blank observable properly", function() {
           comment = MockHelper.makeCommentBinding("view: obs").addToDOM().andApply({
             obs: obs
@@ -7396,7 +7359,9 @@
           return expect(comment.getInnerHTML()).toBe("");
         });
         it("Should update the template when a valid view with template is given", function() {
-          view_a = MockHelper.makeView("#hello_world").triggerReady();
+          view_a = MockHelper.makeView("#hello_world", {
+            template: "Hello World"
+          });
           obs(view_a);
           expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
           expect(view_a._render.calls.count()).toBe(1);
@@ -7407,7 +7372,9 @@
           return view_a.resetSpies();
         });
         it("Should swap views properly", function() {
-          view_b = MockHelper.makeView("#foo_bar").triggerReady();
+          view_b = MockHelper.makeView("#foo_bar", {
+            template: "Foo Bar"
+          });
           obs(view_b);
           expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
           expect(view_a._render).not.toHaveBeenCalled();
@@ -7435,21 +7402,26 @@
           return expect(view_b.dispose.calls.count()).toBe(1);
         });
         return it("Teardown", function() {
-          return Falcon.View.resetCache();
+          return Falcon.templateAdapter.resetCache();
         });
       });
       describe("Basic Nested Usage", function() {
-        var element, parent_view, view;
+        var element, hello_world_template, parent_template, parent_view, view;
         view = null;
         parent_view = null;
         element = null;
+        hello_world_template = "Hello World";
+        parent_template = "<div data-bind='view: $view.child_view'></div>";
         it("Setup", function() {
-          MockHelper.makeElement("template").setId("parent_template").html("<div data-bind='view: $view.child_view'></div>").addToDOM();
           return MockHelper.makeElement("template").setId("hello_world").html("Hello World").addToDOM();
         });
         it("Should setup the view binding properly with a basic view", function() {
-          view = MockHelper.makeView("#hello_world").triggerReady();
-          parent_view = MockHelper.makeView("#parent_template").triggerReady();
+          view = MockHelper.makeView("#hello_world", {
+            template: hello_world_template
+          });
+          parent_view = MockHelper.makeView("#parent_template", {
+            template: parent_template
+          });
           parent_view.child_view = view;
           element = MockHelper.makeElement().bindings("view: view").addToDOM().andApply({
             view: parent_view
@@ -7479,19 +7451,17 @@
           return expect(view.dispose.calls.count()).toBe(1);
         });
         return it("Teardown", function() {
-          return Falcon.View.resetCache();
+          return Falcon.templateAdapter.resetCache();
         });
       });
       describe("Basic Nested Observable Usage", function() {
-        var element, obs, view_a, view_b;
+        var element, foo_bar_template, hello_world_template, obs, parent_template, view_a, view_b;
         obs = ko.observable();
         element = null;
         view_a = view_b = null;
-        it("Setup", function() {
-          MockHelper.makeElement("template").setId("parent_template").html("<div data-bind='view: $view.child_view'></div>").addToDOM();
-          MockHelper.makeElement("template").setId("hello_world").html("Hello World").addToDOM();
-          return MockHelper.makeElement("template").setId("foo_bar").html("Foo Bar").addToDOM();
-        });
+        hello_world_template = "Hello World";
+        foo_bar_template = "Foo Bar";
+        parent_template = "<div data-bind='view: $view.child_view'></div>";
         it("Should apply blank observable properly", function() {
           element = MockHelper.makeElement().bindings("view: obs").addToDOM().andApply({
             obs: obs
@@ -7501,8 +7471,12 @@
           return expect(element.innerHTML).toBe("");
         });
         it("Should update the template when a valid view with template is given", function() {
-          view_a = MockHelper.makeView("#parent_template").triggerReady();
-          view_a.child_view = MockHelper.makeView("#hello_world").triggerReady();
+          view_a = MockHelper.makeView("#parent_template", {
+            template: parent_template
+          });
+          view_a.child_view = MockHelper.makeView("#hello_world", {
+            template: hello_world_template
+          });
           obs(view_a);
           expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
           expect(view_a._render.calls.count()).toBe(1);
@@ -7517,8 +7491,12 @@
           return view_a.child_view.resetSpies();
         });
         it("Should swap views properly", function() {
-          view_b = MockHelper.makeView("#parent_template").triggerReady();
-          view_b.child_view = MockHelper.makeView("#hello_world").triggerReady();
+          view_b = MockHelper.makeView("#parent_template", {
+            template: parent_template
+          });
+          view_b.child_view = MockHelper.makeView("#foo_bar", {
+            template: foo_bar_template
+          });
           obs(view_b);
           expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
           expect(view_a._render).not.toHaveBeenCalled();
@@ -7563,7 +7541,7 @@
           return expect(view_b.child_view.dispose.calls.count()).toBe(1);
         });
         return it("Teardown", function() {
-          return Falcon.View.resetCache();
+          return Falcon.templateAdapter.resetCache();
         });
       });
       describe("Basic Nested Comment Usage", function() {
@@ -7607,19 +7585,17 @@
           return expect(view.dispose.calls.count()).toBe(1);
         });
         return it("Teardown", function() {
-          return Falcon.View.resetCache();
+          return Falcon.templateAdapter.resetCache();
         });
       });
       describe("Basic Nested Comment Observable Usage", function() {
-        var comment, obs, view_a, view_b;
+        var comment, foo_bar_template, hello_world_template, obs, parent_template, view_a, view_b;
         obs = ko.observable();
         comment = null;
         view_a = view_b = null;
-        it("Setup", function() {
-          MockHelper.makeElement("template").setId("parent_template").html("<div data-bind='view: $view.child_view'></div>").addToDOM();
-          MockHelper.makeElement("template").setId("hello_world").html("Hello World").addToDOM();
-          return MockHelper.makeElement("template").setId("foo_bar").html("Foo Bar").addToDOM();
-        });
+        parent_template = "<div data-bind='view: $view.child_view'></div>";
+        hello_world_template = "Hello World";
+        foo_bar_template = "Foo Bar";
         it("Should apply blank observable properly", function() {
           comment = MockHelper.makeCommentBinding("view: obs").addToDOM().andApply({
             obs: obs
@@ -7628,8 +7604,12 @@
           return expect(ko.virtualElements.emptyNode).toHaveBeenCalledWith(comment.start_comment);
         });
         it("Should update the template when a valid view with template is given", function() {
-          view_a = MockHelper.makeView("#parent_template").triggerReady();
-          view_a.child_view = MockHelper.makeView("#hello_world").triggerReady();
+          view_a = MockHelper.makeView("#parent_template", {
+            template: parent_template
+          });
+          view_a.child_view = MockHelper.makeView("#hello_world", {
+            template: hello_world_template
+          });
           obs(view_a);
           expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
           expect(view_a._render.calls.count()).toBe(1);
@@ -7644,8 +7624,12 @@
           return view_a.child_view.resetSpies();
         });
         it("Should swap views properly", function() {
-          view_b = MockHelper.makeView("#parent_template").triggerReady();
-          view_b.child_view = MockHelper.makeView("#hello_world").triggerReady();
+          view_b = MockHelper.makeView("#parent_template", {
+            template: parent_template
+          });
+          view_b.child_view = MockHelper.makeView("#foo_bar", {
+            template: foo_bar_template
+          });
           obs(view_b);
           expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
           expect(view_a._render).not.toHaveBeenCalled();
@@ -7690,15 +7674,17 @@
           return expect(view_b.child_view.dispose.calls.count()).toBe(1);
         });
         return it("Teardown", function() {
-          return Falcon.View.resetCache();
+          return Falcon.templateAdapter.resetCache();
         });
       });
       return describe("Nest Views in Observable Arrays with Element Bindings", function() {
-        var child_view, element, obsArr, parent_view;
+        var child_view, element, hello_world_template, obsArr, parent_template, parent_view;
         element = null;
         obsArr = ko.observableArray([]);
         parent_view = null;
         child_view = null;
+        parent_template = "<div data-bind='view: $view.child_view'></div>";
+        hello_world_template = "Hello World";
         beforeEach(function() {
           if (parent_view != null) {
             parent_view.resetSpies();
@@ -7706,19 +7692,20 @@
           return child_view != null ? child_view.resetSpies() : void 0;
         });
         it("Should set up properly", function() {
-          MockHelper.makeElement("template").setId("parent_template").html("<div data-bind='view: $view.child_view'></div>").addToDOM();
-          MockHelper.makeElement("template").setId("hello_world").html("Hello World").addToDOM();
           element = MockHelper.makeElement().bindings("foreach: obsArr").html("<div data-bind='view: $data'></div>").addToDOM().andApply({
             obsArr: obsArr
           });
           parent_view = MockHelper.makeView("#parent_template", {
+            template: parent_template,
             defaults: {
               'child_view': function() {
-                child_view = MockHelper.makeView("#hello_world").triggerReady();
+                child_view = MockHelper.makeView("#hello_world", {
+                  template: hello_world_template
+                });
                 return child_view;
               }
             }
-          }).triggerReady();
+          });
           expect(parent_view._render).not.toHaveBeenCalled();
           expect(parent_view.display).not.toHaveBeenCalled();
           expect(parent_view._unrender).not.toHaveBeenCalled();
@@ -7752,7 +7739,7 @@
         });
         return it("Teardown", function() {
           element.removeFromDOM();
-          return Falcon.View.resetCache();
+          return Falcon.templateAdapter.resetCache();
         });
       });
     });
