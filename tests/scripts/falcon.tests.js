@@ -2372,7 +2372,7 @@
 
 (function() {
   xdescribe("Falcon.TemplateAdapter", function() {
-    return describe("resolveTemplate", function() {
+    describe("resolveTemplate", function() {
       var adapter, callback, elm, elm_id, template, uri;
       adapter = new Falcon.TemplateAdapter;
       elm_id = "my-template";
@@ -2424,6 +2424,116 @@
         expect(callback.calls.count()).toBe(1);
         expect(callback).toHaveBeenCalledWith("");
         return expect(ret).toBe(adapter);
+      });
+    });
+    describe("cacheTemplates", function() {
+      var template, template2;
+      template = document.createElement("template");
+      template.setAttribute("id", "test_template_1");
+      template.innerHTML = "Hello World 1";
+      template2 = document.createElement("template");
+      template2.setAttribute("id", "test_template_2");
+      template2.innerHTML = "Hello World 2";
+      beforeEach(function() {
+        document.body.appendChild(template);
+        document.body.appendChild(template2);
+        return spyOn(Falcon.View, 'cacheTemplate');
+      });
+      it("Should have removed and cached the templates", function() {
+        var ret, templates;
+        templates = document.getElementsByTagName("template");
+        expect(templates.length).toBe(2);
+        ret = Falcon.View.cacheTemplates();
+        templates = document.getElementsByTagName("template");
+        expect(templates.length).toBe(0);
+        expect(Falcon.View.cacheTemplate.calls.count()).toBe(2);
+        expect(Falcon.View.cacheTemplate.calls.argsFor(0)).toEqual(['#test_template_1', 'Hello World 1']);
+        expect(Falcon.View.cacheTemplate.calls.argsFor(1)).toEqual(['#test_template_2', 'Hello World 2']);
+        return expect(ret).toBe(Falcon.View);
+      });
+      return it("Should work properly if no templates exist", function() {
+        var ret, templates;
+        document.body.removeChild(template);
+        document.body.removeChild(template2);
+        templates = document.getElementsByTagName("template");
+        expect(templates.length).toBe(0);
+        ret = Falcon.View.cacheTemplates();
+        templates = document.getElementsByTagName("template");
+        expect(templates.length).toBe(0);
+        return expect(ret).toBe(Falcon.View);
+      });
+    });
+    return describe("makeUrl", function() {
+      it("Should generate the correct relative url from string", function() {
+        return expect(new ViewA().makeUrl()).toEqual("/view_a");
+      });
+      it("Should generate the correct relative url from function", function() {
+        return expect(new ViewB().makeUrl()).toEqual("/view_b");
+      });
+      it("Should generate the correct element id from string", function() {
+        return expect(new ViewC().makeUrl()).toEqual("#view_c");
+      });
+      it("Should generate the correct element id from function", function() {
+        return expect(new ViewD().makeUrl()).toEqual("#view_d");
+      });
+      it("Should generate the correct relative url from string beginning with '/'", function() {
+        return expect(new ViewE().makeUrl()).toEqual("/view_e");
+      });
+      it("Should generate the correct relative url from function beginning with '/'", function() {
+        return expect(new ViewF().makeUrl()).toEqual("/view_f");
+      });
+      it("Should generate the correct relative url from string with baseTemplateUrl", function() {
+        Falcon.baseTemplateUrl = "http://www.falconjs.com";
+        return expect(new ViewA().makeUrl()).toEqual("http://www.falconjs.com/view_a");
+      });
+      it("Should generate the correct relative url from function with baseTemplateUrl", function() {
+        Falcon.baseTemplateUrl = "http://www.falconjs.com";
+        return expect(new ViewB().makeUrl()).toEqual("http://www.falconjs.com/view_b");
+      });
+      it("Should generate the correct element id from string with baseTemplateUrl", function() {
+        Falcon.baseTemplateUrl = "http://www.falconjs.com";
+        return expect(new ViewC().makeUrl()).toEqual("#view_c");
+      });
+      it("Should generate the correct element id from function with baseTemplateUrl", function() {
+        Falcon.baseTemplateUrl = "http://www.falconjs.com";
+        return expect(new ViewD().makeUrl()).toEqual("#view_d");
+      });
+      it("Should generate the correct relative url from string beginning with '/' with baseTemplateUrl", function() {
+        Falcon.baseTemplateUrl = "http://www.falconjs.com";
+        return expect(new ViewE().makeUrl()).toEqual("http://www.falconjs.com/view_e");
+      });
+      it("Should generate the correct relative url from function beginning with '/' with baseTemplateUrl", function() {
+        Falcon.baseTemplateUrl = "http://www.falconjs.com";
+        return expect(new ViewF().makeUrl()).toEqual("http://www.falconjs.com/view_f");
+      });
+      it("Should generate the correct relative url from string with baseTemplateUrl ending in '/'", function() {
+        Falcon.baseTemplateUrl = "http://www.falconjs.com/";
+        return expect(new ViewA().makeUrl()).toEqual("http://www.falconjs.com/view_a");
+      });
+      it("Should generate the correct relative url from function with baseTemplateUrl ending in '/'", function() {
+        Falcon.baseTemplateUrl = "http://www.falconjs.com/";
+        return expect(new ViewB().makeUrl()).toEqual("http://www.falconjs.com/view_b");
+      });
+      it("Should generate the correct element id from string with baseTemplateUrl ending in '/'", function() {
+        Falcon.baseTemplateUrl = "http://www.falconjs.com/";
+        return expect(new ViewC().makeUrl()).toEqual("#view_c");
+      });
+      it("Should generate the correct element id from function with baseTemplateUrl ending in '/'", function() {
+        Falcon.baseTemplateUrl = "http://www.falconjs.com/";
+        return expect(new ViewD().makeUrl()).toEqual("#view_d");
+      });
+      it("Should generate the correct relative url from string beginning with '/' with baseTemplateUrl ending in '/'", function() {
+        Falcon.baseTemplateUrl = "http://www.falconjs.com/";
+        return expect(new ViewE().makeUrl()).toEqual("http://www.falconjs.com/view_e");
+      });
+      it("Should generate the correct relative url from function beginning with '/' with baseTemplateUrl ending in '/'", function() {
+        Falcon.baseTemplateUrl = "http://www.falconjs.com/";
+        return expect(new ViewF().makeUrl()).toEqual("http://www.falconjs.com/view_f");
+      });
+      return it("Should return an empty string if no url is defined", function() {
+        expect(new ViewG().makeUrl()).toEqual("");
+        Falcon.baseTemplateUrl = "http://www.falconjs.com/";
+        return expect(new ViewG().makeUrl()).toEqual("");
       });
     });
   });
@@ -6911,349 +7021,64 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   describe("Falcon.View", function() {
-    var ViewA, ViewB, ViewC, ViewD, ViewE, ViewF, ViewG, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6;
-    ViewA = (function(_super) {
-      __extends(ViewA, _super);
-
-      function ViewA() {
-        _ref = ViewA.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      ViewA.prototype.endpoint = 'view_a';
-
-      return ViewA;
-
-    })(Falcon.View);
-    ViewB = (function(_super) {
-      __extends(ViewB, _super);
-
-      function ViewB() {
-        _ref1 = ViewB.__super__.constructor.apply(this, arguments);
-        return _ref1;
-      }
-
-      ViewB.prototype.endpoint = function() {
-        return 'view_b';
-      };
-
-      return ViewB;
-
-    })(Falcon.View);
-    ViewC = (function(_super) {
-      __extends(ViewC, _super);
-
-      function ViewC() {
-        _ref2 = ViewC.__super__.constructor.apply(this, arguments);
-        return _ref2;
-      }
-
-      ViewC.prototype.endpoint = '#view_c';
-
-      return ViewC;
-
-    })(Falcon.View);
-    ViewD = (function(_super) {
-      __extends(ViewD, _super);
-
-      function ViewD() {
-        _ref3 = ViewD.__super__.constructor.apply(this, arguments);
-        return _ref3;
-      }
-
-      ViewD.prototype.endpoint = function() {
-        return '#view_d';
-      };
-
-      return ViewD;
-
-    })(Falcon.View);
-    ViewE = (function(_super) {
-      __extends(ViewE, _super);
-
-      function ViewE() {
-        _ref4 = ViewE.__super__.constructor.apply(this, arguments);
-        return _ref4;
-      }
-
-      ViewE.prototype.endpoint = '/view_e';
-
-      return ViewE;
-
-    })(Falcon.View);
-    ViewF = (function(_super) {
-      __extends(ViewF, _super);
-
-      function ViewF() {
-        _ref5 = ViewF.__super__.constructor.apply(this, arguments);
-        return _ref5;
-      }
-
-      ViewF.prototype.endpoint = function() {
-        return '/view_f';
-      };
-
-      return ViewF;
-
-    })(Falcon.View);
-    ViewG = (function(_super) {
-      __extends(ViewG, _super);
-
-      function ViewG() {
-        _ref6 = ViewG.__super__.constructor.apply(this, arguments);
-        return _ref6;
-      }
-
-      return ViewG;
-
-    })(Falcon.View);
     beforeEach(function() {
       Falcon.baseTemplateUrl = "";
-      Falcon.cache = false;
-      return Falcon.View.resetCache();
+      return Falcon.templateAdapter.resetCache();
     });
     describe("constructor", function() {
       beforeEach(function() {
-        spyOn(Falcon.View.prototype, 'initialize').and.callThrough();
-        spyOn(Falcon.View.prototype, 'makeUrl').and.callThrough();
-        spyOn(Falcon.View, 'cacheTemplate').and.callThrough();
-        spyOn(Falcon.dataAdapter, 'resolveTemplate').and.callThrough();
-        return spyOn(Falcon, 'ready');
+        spyOn(Falcon.View.prototype, 'initialize');
+        return spyOn(Falcon.templateAdapter, 'resolveTemplate');
       });
       it("Should call the correct methods by default", function() {
-        var view;
+        var callback, view;
         view = new (Falcon.View.extend({
           endpoint: "#hello_world"
         }));
-        expect(view.makeUrl.calls.count()).toBe(1);
-        expect(view.initialize.calls.count()).toBe(1);
-        expect(view.initialize).toHaveBeenCalledWith();
-        expect(Falcon.dataAdapter.resolveTemplate).not.toHaveBeenCalled();
-        expect(Falcon.View.cacheTemplate).not.toHaveBeenCalled();
-        expect(Falcon.ready.calls.count()).toBe(1);
-        expect(Falcon.ready).toHaveBeenCalledWith(jasmine.any(Function));
-        Falcon.ready.calls.mostRecent().args[0]();
-        expect(Falcon.dataAdapter.resolveTemplate.calls.count()).toBe(1);
-        expect(Falcon.dataAdapter.resolveTemplate).toHaveBeenCalledWith("#hello_world", jasmine.any(Function));
-        expect(Falcon.View.cacheTemplate.calls.count()).toBe(1);
-        expect(Falcon.View.cacheTemplate).toHaveBeenCalledWith("#hello_world", "");
-        return expect(view.__falcon_view__is_loaded__()).toBe(true);
+        expect(Falcon.View.prototype.initialize.calls.count()).toBe(1);
+        expect(Falcon.View.prototype.initialize).toHaveBeenCalledWith();
+        expect(Falcon.templateAdapter.resolveTemplate.calls.count()).toBe(1);
+        expect(Falcon.templateAdapter.resolveTemplate).toHaveBeenCalledWith(view, jasmine.any(Function));
+        callback = Falcon.templateAdapter.resolveTemplate.calls.argsFor(0)[1];
+        callback("Some Template");
+        return expect(view.__falcon_view__loaded_template__()).toBe("Some Template");
       });
-      it("Should recognized cached templates", function() {
+      return it("Should recognize pre-defined templates", function() {
         var view;
         view = new (Falcon.View.extend({
-          endpoint: "#hello_world"
+          endpoint: "#hello_world",
+          template: "Hello Template"
         }));
-        Falcon.ready.calls.mostRecent().args[0]();
-        view.makeUrl.calls.reset();
-        view.initialize.calls.reset();
-        Falcon.dataAdapter.resolveTemplate.calls.reset();
-        Falcon.View.cacheTemplate.calls.reset();
-        Falcon.ready.calls.reset();
-        view = new (Falcon.View.extend({
-          endpoint: "#hello_world"
-        }));
-        expect(view.makeUrl.calls.count()).toBe(1);
-        expect(view.initialize.calls.count()).toBe(1);
-        expect(view.initialize).toHaveBeenCalledWith();
-        expect(Falcon.dataAdapter.resolveTemplate).not.toHaveBeenCalled();
-        expect(Falcon.View.cacheTemplate).not.toHaveBeenCalled();
-        expect(Falcon.ready.calls.count()).toBe(1);
-        expect(Falcon.ready).toHaveBeenCalledWith(jasmine.any(Function));
-        Falcon.ready.calls.mostRecent().args[0]();
-        expect(Falcon.dataAdapter.resolveTemplate).not.toHaveBeenCalled();
-        expect(Falcon.View.cacheTemplate).not.toHaveBeenCalled();
-        return expect(view.__falcon_view__is_loaded__()).toBe(true);
-      });
-      return it("Should not call the adapter on an empty template uri", function() {
-        var view;
-        view = new (Falcon.View.extend({
-          endpoint: null
-        }));
-        expect(view.makeUrl.calls.count()).toBe(1);
-        expect(view.initialize.calls.count()).toBe(1);
-        expect(view.initialize).toHaveBeenCalledWith();
-        expect(Falcon.dataAdapter.resolveTemplate).not.toHaveBeenCalled();
-        expect(Falcon.View.cacheTemplate).not.toHaveBeenCalled();
-        expect(Falcon.ready.calls.count()).toBe(1);
-        expect(Falcon.ready).toHaveBeenCalledWith(jasmine.any(Function));
-        Falcon.ready.calls.mostRecent().args[0]();
-        expect(Falcon.dataAdapter.resolveTemplate).not.toHaveBeenCalled();
-        return expect(view.__falcon_view__is_loaded__()).toBe(true);
-      });
-    });
-    describe("cacheTemplates", function() {
-      var template, template2;
-      template = document.createElement("template");
-      template.setAttribute("id", "test_template_1");
-      template.innerHTML = "Hello World 1";
-      template2 = document.createElement("template");
-      template2.setAttribute("id", "test_template_2");
-      template2.innerHTML = "Hello World 2";
-      beforeEach(function() {
-        document.body.appendChild(template);
-        document.body.appendChild(template2);
-        return spyOn(Falcon.View, 'cacheTemplate');
-      });
-      it("Should have removed and cached the templates", function() {
-        var ret, templates;
-        templates = document.getElementsByTagName("template");
-        expect(templates.length).toBe(2);
-        ret = Falcon.View.cacheTemplates();
-        templates = document.getElementsByTagName("template");
-        expect(templates.length).toBe(0);
-        expect(Falcon.View.cacheTemplate.calls.count()).toBe(2);
-        expect(Falcon.View.cacheTemplate.calls.argsFor(0)).toEqual(['#test_template_1', 'Hello World 1']);
-        expect(Falcon.View.cacheTemplate.calls.argsFor(1)).toEqual(['#test_template_2', 'Hello World 2']);
-        return expect(ret).toBe(Falcon.View);
-      });
-      return it("Should work properly if no templates exist", function() {
-        var ret, templates;
-        document.body.removeChild(template);
-        document.body.removeChild(template2);
-        templates = document.getElementsByTagName("template");
-        expect(templates.length).toBe(0);
-        ret = Falcon.View.cacheTemplates();
-        templates = document.getElementsByTagName("template");
-        expect(templates.length).toBe(0);
-        return expect(ret).toBe(Falcon.View);
-      });
-    });
-    describe("Defaults", function() {
-      it("Should create RawrView with defaults that have correct arguments", function() {
-        var RawrView, hello_spy, rawr_class, _ref7;
-        hello_spy = null;
-        RawrView = (function(_super) {
-          __extends(RawrView, _super);
-
-          function RawrView() {
-            _ref7 = RawrView.__super__.constructor.apply(this, arguments);
-            return _ref7;
-          }
-
-          RawrView.prototype.defaults = {
-            'hello': (hello_spy = sinon.spy())
-          };
-
-          return RawrView;
-
-        })(Falcon.View);
-        expect(hello_spy).not.toHaveBeenCalled();
-        rawr_class = new RawrView("one", "two", "three");
-        expect(hello_spy).toHaveBeenCalled();
-        expect(hello_spy.callCount).toEqual(1);
-        expect(hello_spy.firstCall.args.length).toEqual(3);
-        expect(hello_spy.firstCall.args[0]).toEqual("one");
-        expect(hello_spy.firstCall.args[1]).toEqual("two");
-        return expect(hello_spy.firstCall.args[2]).toEqual("three");
-      });
-      return it("Should create RawrVIew with defaults that are numbers", function() {
-        var RawrView, hello_spy, rawr_class, _ref7;
-        hello_spy = null;
-        RawrView = (function(_super) {
-          __extends(RawrView, _super);
-
-          function RawrView() {
-            _ref7 = RawrView.__super__.constructor.apply(this, arguments);
-            return _ref7;
-          }
-
-          RawrView.prototype.defaults = {
-            'hello': (hello_spy = sinon.spy())
-          };
-
-          return RawrView;
-
-        })(Falcon.View);
-        expect(hello_spy).not.toHaveBeenCalled();
-        rawr_class = new RawrView(1234);
-        expect(hello_spy).toHaveBeenCalled();
-        expect(hello_spy.callCount).toEqual(1);
-        expect(hello_spy.firstCall.args.length).toEqual(1);
-        return expect(hello_spy.firstCall.args[0]).toEqual(1234);
+        expect(Falcon.View.prototype.initialize.calls.count()).toBe(1);
+        expect(Falcon.View.prototype.initialize).toHaveBeenCalledWith();
+        expect(Falcon.templateAdapter.resolveTemplate).not.toHaveBeenCalled();
+        return expect(view.__falcon_view__loaded_template__()).toBe("Hello Template");
       });
     });
     describe("makeUrl", function() {
-      it("Should generate the correct relative url from string", function() {
-        return expect(new ViewA().makeUrl()).toEqual("/view_a");
+      var view;
+      view = null;
+      beforeEach(function() {
+        spyOn(Falcon.templateAdapter, 'resolveTemplate');
+        spyOn(Falcon.templateAdapter, 'makeUrl').and.returnValue("http://www.falconjs.com/hello_world.tmpl");
+        return view = new Falcon.View;
       });
-      it("Should generate the correct relative url from function", function() {
-        return expect(new ViewB().makeUrl()).toEqual("/view_b");
-      });
-      it("Should generate the correct element id from string", function() {
-        return expect(new ViewC().makeUrl()).toEqual("#view_c");
-      });
-      it("Should generate the correct element id from function", function() {
-        return expect(new ViewD().makeUrl()).toEqual("#view_d");
-      });
-      it("Should generate the correct relative url from string beginning with '/'", function() {
-        return expect(new ViewE().makeUrl()).toEqual("/view_e");
-      });
-      it("Should generate the correct relative url from function beginning with '/'", function() {
-        return expect(new ViewF().makeUrl()).toEqual("/view_f");
-      });
-      it("Should generate the correct relative url from string with baseTemplateUrl", function() {
-        Falcon.baseTemplateUrl = "http://www.falconjs.com";
-        return expect(new ViewA().makeUrl()).toEqual("http://www.falconjs.com/view_a");
-      });
-      it("Should generate the correct relative url from function with baseTemplateUrl", function() {
-        Falcon.baseTemplateUrl = "http://www.falconjs.com";
-        return expect(new ViewB().makeUrl()).toEqual("http://www.falconjs.com/view_b");
-      });
-      it("Should generate the correct element id from string with baseTemplateUrl", function() {
-        Falcon.baseTemplateUrl = "http://www.falconjs.com";
-        return expect(new ViewC().makeUrl()).toEqual("#view_c");
-      });
-      it("Should generate the correct element id from function with baseTemplateUrl", function() {
-        Falcon.baseTemplateUrl = "http://www.falconjs.com";
-        return expect(new ViewD().makeUrl()).toEqual("#view_d");
-      });
-      it("Should generate the correct relative url from string beginning with '/' with baseTemplateUrl", function() {
-        Falcon.baseTemplateUrl = "http://www.falconjs.com";
-        return expect(new ViewE().makeUrl()).toEqual("http://www.falconjs.com/view_e");
-      });
-      it("Should generate the correct relative url from function beginning with '/' with baseTemplateUrl", function() {
-        Falcon.baseTemplateUrl = "http://www.falconjs.com";
-        return expect(new ViewF().makeUrl()).toEqual("http://www.falconjs.com/view_f");
-      });
-      it("Should generate the correct relative url from string with baseTemplateUrl ending in '/'", function() {
-        Falcon.baseTemplateUrl = "http://www.falconjs.com/";
-        return expect(new ViewA().makeUrl()).toEqual("http://www.falconjs.com/view_a");
-      });
-      it("Should generate the correct relative url from function with baseTemplateUrl ending in '/'", function() {
-        Falcon.baseTemplateUrl = "http://www.falconjs.com/";
-        return expect(new ViewB().makeUrl()).toEqual("http://www.falconjs.com/view_b");
-      });
-      it("Should generate the correct element id from string with baseTemplateUrl ending in '/'", function() {
-        Falcon.baseTemplateUrl = "http://www.falconjs.com/";
-        return expect(new ViewC().makeUrl()).toEqual("#view_c");
-      });
-      it("Should generate the correct element id from function with baseTemplateUrl ending in '/'", function() {
-        Falcon.baseTemplateUrl = "http://www.falconjs.com/";
-        return expect(new ViewD().makeUrl()).toEqual("#view_d");
-      });
-      it("Should generate the correct relative url from string beginning with '/' with baseTemplateUrl ending in '/'", function() {
-        Falcon.baseTemplateUrl = "http://www.falconjs.com/";
-        return expect(new ViewE().makeUrl()).toEqual("http://www.falconjs.com/view_e");
-      });
-      it("Should generate the correct relative url from function beginning with '/' with baseTemplateUrl ending in '/'", function() {
-        Falcon.baseTemplateUrl = "http://www.falconjs.com/";
-        return expect(new ViewF().makeUrl()).toEqual("http://www.falconjs.com/view_f");
-      });
-      return it("Should return an empty string if no url is defined", function() {
-        expect(new ViewG().makeUrl()).toEqual("");
-        Falcon.baseTemplateUrl = "http://www.falconjs.com/";
-        return expect(new ViewG().makeUrl()).toEqual("");
+      return it("Should call the makeUrl method on the template adapter", function() {
+        var ret;
+        ret = view.makeUrl();
+        expect(Falcon.templateAdapter.makeUrl.calls.count()).toBe(1);
+        expect(Falcon.templateAdapter.makeUrl).toHaveBeenCalledWith(view);
+        return expect(ret).toBe("http://www.falconjs.com/hello_world.tmpl");
       });
     });
-    return describe("Test the viewModel() method", function() {
-      var FullView, _ref7;
+    return describe("createViewModel", function() {
+      var FullView, _ref;
       FullView = (function(_super) {
         __extends(FullView, _super);
 
         function FullView() {
-          _ref7 = FullView.__super__.constructor.apply(this, arguments);
-          return _ref7;
+          _ref = FullView.__super__.constructor.apply(this, arguments);
+          return _ref;
         }
 
         FullView.prototype.endpoint = 'full_view';
@@ -7292,7 +7117,7 @@
         expect(view.small()).toBe('world bar');
         expect(view.test).toEqual(jasmine.any(Function));
         expect(view.another).toEqual(jasmine.any(Function));
-        viewModel = view.viewModel();
+        viewModel = view.createViewModel();
         expect(ko.isObservable(viewModel.hello)).toBe(true);
         expect(viewModel.hello()).toBe('world');
         expect(ko.isComputed(viewModel.foo)).toBe(true);
@@ -7318,8 +7143,8 @@
       return it("Should create equal viewModels after the first has been generated", function() {
         var model1, model2, view;
         view = new FullView;
-        model1 = view.viewModel();
-        model2 = view.viewModel();
+        model1 = view.createViewModel();
+        model2 = view.createViewModel();
         return expect(model1).toEqual(model2);
       });
     });

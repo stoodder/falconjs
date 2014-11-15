@@ -75,6 +75,13 @@ class FalconView extends FalconObject
 	#END constructor
 
 	#--------------------------------------------------------
+	# Method: Falcon.View#initialize
+	#	The psuedo consructor method that sholdbe overriden
+	#	instead of the actual constuctor.
+	#--------------------------------------------------------
+	initialize: ( -> )
+
+	#--------------------------------------------------------
 	# Method: Falcon.View#makeUrl
 	#	Method used to intelligently make a url to point to the 
 	#	remote version of this template

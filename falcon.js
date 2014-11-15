@@ -672,16 +672,22 @@
       } else if ((template = this.getCachedTemplate(url))) {
         callback(template);
       } else {
-        this.loadTemplate(url);
+        this.loadTemplate(url, callback);
       }
       return this;
     };
 
-    FalconTemplateAdapter.prototype.loadTemplate = function(uri, callback) {
+    FalconTemplateAdapter.prototype.loadTemplate = function(url, callback) {
       var _this = this;
+      if (!isString(url)) {
+        throw new Error("url must be a String");
+      }
+      if (!isFunction(callback)) {
+        throw new Error("callback must be a function");
+      }
       Falcon.ready(function() {
         var element, template;
-        element = document.getElementById(uri.slice(1));
+        element = document.getElementById(url.slice(1));
         template = element != null ? element.innerHTML : "";
         _this.cacheTemplate(url, template);
         return callback(template);
@@ -696,7 +702,7 @@
       }
       endpoint = ko.unwrap(view.endpoint);
       if (isFunction(endpoint)) {
-        endpoint = endpoint();
+        endpoint = endpoint.call(view);
       }
       endpoint = isString(endpoint) ? trim(endpoint) : "";
       if (isEmpty(endpoint)) {
@@ -705,7 +711,7 @@
       if (endpoint.charAt(0) === '#') {
         return endpoint;
       }
-      if (url.charAt(0) !== '/') {
+      if (endpoint.charAt(0) !== '/') {
         url = "/" + url;
       }
       if (isString(Falcon.baseTemplateUrl)) {
@@ -1041,6 +1047,8 @@
         });
       }
     }
+
+    FalconView.prototype.initialize = (function() {});
 
     FalconView.prototype.makeUrl = function() {
       return Falcon.templateAdapter.makeUrl(this);

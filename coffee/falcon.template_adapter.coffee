@@ -86,7 +86,7 @@ class FalconTemplateAdapter extends FalconObject
 	#	looking for an Element in the DOM
 	#
 	# Arguments:
-	#	**uri** _(String)_ - The uri to lookup the template with
+	#	**view** _(Falcon.View)_ - The view who's template needs to be loaded
 	#	**callback** _(Function)_  - Method to call when the template has been loaded. 
 	#								 This is here to provide adapters that use asynchronous 
 	#								 loading of templates with a way to respond to a 
@@ -111,15 +111,23 @@ class FalconTemplateAdapter extends FalconObject
 		else if (template = @getCachedTemplate(url))
 			callback(template)
 		else
-			@loadTemplate(url)
+			@loadTemplate(url, callback)
 		#END if
 
 		return @
 	#END resolveTemplate
 
-	loadTemplate: (uri, callback) ->
+	loadTemplate: (url, callback) ->
+		unless isString(url)
+			throw new Error("url must be a String")
+		#END unless
+
+		unless isFunction(callback)
+			throw new Error("callback must be a function")
+		#END unless
+
 		Falcon.ready =>
-			element = document.getElementById(uri.slice(1))
+			element = document.getElementById(url.slice(1))
 			template = if element? then element.innerHTML else ""
 			@cacheTemplate( url, template )
 			callback( template )
@@ -134,14 +142,14 @@ class FalconTemplateAdapter extends FalconObject
 		#END unless
 
 		endpoint = ko.unwrap( view.endpoint )
-		endpoint = endpoint() if isFunction( endpoint )
+		endpoint = endpoint.call(view) if isFunction( endpoint )
 		endpoint = if isString(endpoint) then trim(endpoint) else ""
 
 		return endpoint if isEmpty( endpoint )
 		return endpoint if endpoint.charAt(0) is '#'
 
 		#Make sure the url is now formatted correctly
-		url = "/#{url}" unless url.charAt(0) is '/'
+		url = "/#{url}" unless endpoint.charAt(0) is '/'
 
 		#Attempt to add on the base url if its set and the url is a uri (not an element ID)
 		url = "#{Falcon.baseTemplateUrl}#{url}" if isString(Falcon.baseTemplateUrl)
