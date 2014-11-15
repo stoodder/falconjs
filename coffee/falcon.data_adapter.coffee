@@ -115,7 +115,7 @@ class FalconDataAdapter extends FalconObject
 		return options if options instanceof FalconDataAdapterOptions
 
 		#Shallow clone the options so as to not disturb the original object
-		options = new FalconDataAdapterStandardiptions)
+		options = new FalconDataAdapterOptions
 		options.parent = data_object.parent unless Falcon.isModel( options.parent ) or options.parent is null
 		options.url = @resolveUrl( data_object, type, options, context )
 		options.data = @serializeData( data_object, type, options, context )
@@ -291,7 +291,6 @@ class FalconDataAdapter extends FalconObject
 			#END if
 		else if Falcon.isCollection(data_object)
 			return "#{base_url}#{endpoint}#{extension}"
-		else if Falcon.isView(data_object)
 		#END if
 	#END makeUrl
 

@@ -65,8 +65,8 @@ module.exports = (grunt) ->
 						"coffee/function.utility.coffee"
 
 						"coffee/falcon.object.coffee"
-						"coffee/falcon.adapter.coffee"
-						"coffee/falcon.template_loader.coffee"
+						"coffee/falcon.data_adapter.coffee"
+						"coffee/falcon.template_adapter.coffee"
 						"coffee/falcon.model.coffee"
 						"coffee/falcon.view.coffee"
 						"coffee/falcon.collection.coffee"

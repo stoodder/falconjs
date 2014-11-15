@@ -109,7 +109,7 @@
 					document.onreadystatechange = original_onreadystatechange
 				#END if
 
-				original_onreadystatechange.apply(this, arguments) if isFunction( original_onreadystatechange )
+				original_onreadystatechange.apply(@, arguments) if isFunction( original_onreadystatechange )
 			#END onreadystatechange
 		#END if
 
