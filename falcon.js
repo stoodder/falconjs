@@ -602,12 +602,8 @@
     FalconTemplateAdapter.extend = FalconObject.extend;
 
     function FalconTemplateAdapter() {
-      var _this = this;
       FalconTemplateAdapter.__super__.constructor.apply(this, arguments);
       document.createElement("template");
-      Falcon.ready(function() {
-        return _this.cacheAllTemplates();
-      });
     }
 
     FalconTemplateAdapter.prototype.cacheTemplate = function(identifier, template) {
@@ -667,7 +663,7 @@
       if (!Falcon.isView(view)) {
         throw new Error("view must be a Falcon.View");
       }
-      if (!_.isFunction(callback)) {
+      if (!isFunction(callback)) {
         throw new Error("callback must be a function");
       }
       url = view.makeUrl();
@@ -1871,13 +1867,9 @@
 
     _Class.prototype.deferEvaluation = true;
 
-    _Class.prototype.dataAdapter = null;
+    _Class.prototype.dataAdapter = new FalconDataAdapter;
 
-    _Class.prototype.dataAdapterDefinition = FalconDataAdapter;
-
-    _Class.prototype.templateAdapter = null;
-
-    _Class.prototype.templateAdapterDefinition = FalconTemplateAdapter;
+    _Class.prototype.templateAdapter = new FalconTemplateAdapter;
 
     _Class.prototype.ready = (function() {
       var original_onreadystatechange, _DOMContentLoaded, _domLoadedEvent, _ready, _ready_callbacks;
@@ -1933,10 +1925,9 @@
       if (element == null) {
         element = Falcon.applicationElement;
       }
-      Falcon.dataAdapter = new Falcon.dataAdapterDefinition;
-      Falcon.templateAdapter = new Falcon.templateAdapterDefinition;
       Falcon.ready(function() {
         var _ref4;
+        Falcon.templateAdapter.cacheAllTemplates();
         if (!isElement(element)) {
           if (!isString(element)) {
             element = "";

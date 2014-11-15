@@ -60,8 +60,7 @@
 	#
 	# Type: _(Falcon.DataAdapter)_
 	#--------------------------------------------------------
-	dataAdapter: null
-	dataAdapterDefinition: FalconDataAdapter
+	dataAdapter: new FalconDataAdapter
 
 	#--------------------------------------------------------
 	# Attribute: Falcon.templateAdapter
@@ -69,8 +68,7 @@
 	#
 	# Type: _(Falcon.TemplateLoader)_
 	#--------------------------------------------------------
-	templateAdapter: null
-	templateAdapterDefinition: FalconTemplateAdapter
+	templateAdapter: new FalconTemplateAdapter
 
 	#--------------------------------------------------------
 	# Method: Falcon.ready(callback)
@@ -134,10 +132,10 @@
 		[callback, root] = [root, null] if isFunction( root ) and not ko.isObservable(root) and not isFunction( callback )
 
 		element ?= Falcon.applicationElement
-		Falcon.dataAdapter = new Falcon.dataAdapterDefinition
-		Falcon.templateAdapter = new Falcon.templateAdapterDefinition
 
 		Falcon.ready ->
+			Falcon.templateAdapter.cacheAllTemplates()
+			
 			unless isElement( element )
 				element = "" unless isString( element )
 				element = if isEmpty( element ) then "body" else trim( element )

@@ -1,4 +1,4 @@
-Falcon.dataAdapterDefinition = class @jQueryRestDataAdapter extends Falcon.DataAdapter
+class @jQueryRestDataAdapter extends Falcon.DataAdapter
 	cache: false
 
 	#------------------------------------------------------------------------
@@ -164,7 +164,7 @@ Falcon.dataAdapterDefinition = class @jQueryRestDataAdapter extends Falcon.DataA
 	#END sync
 #END class
 
-Falcon.templateAdapaterDefinition = class @jQueryTemplateAdapter extends Falcon.TemplateAdapter
+class @jQueryTemplateAdapter extends Falcon.TemplateAdapter
 	#------------------------------------------------------------------------
 	# Method: jQueryAdapter#resolveTemplate( uri, callback )
 	#	Used to retrieve a template from the server using ajax unless the uri
@@ -198,3 +198,6 @@ Falcon.templateAdapaterDefinition = class @jQueryTemplateAdapter extends Falcon.
 		return @
 	#END loadTemplate
 #END jQueryTemplateAdapter
+
+Falcon.dataAdapter = new jQueryRestDataAdapter
+Falcon.templateAdapter = new jQueryTemplateAdapter

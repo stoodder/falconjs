@@ -59,7 +59,7 @@
     };
   }
 
-  Falcon.dataAdapterDefinition = this.jQueryRestDataAdapter = (function(_super) {
+  this.jQueryRestDataAdapter = (function(_super) {
     __extends(jQueryRestDataAdapter, _super);
 
     function jQueryRestDataAdapter() {
@@ -182,7 +182,7 @@
 
   })(Falcon.DataAdapter);
 
-  Falcon.templateAdapaterDefinition = this.jQueryTemplateAdapter = (function(_super) {
+  this.jQueryTemplateAdapter = (function(_super) {
     __extends(jQueryTemplateAdapter, _super);
 
     function jQueryTemplateAdapter() {
@@ -213,5 +213,9 @@
     return jQueryTemplateAdapter;
 
   })(Falcon.TemplateAdapter);
+
+  Falcon.dataAdapter = new jQueryRestDataAdapter;
+
+  Falcon.templateAdapter = new jQueryTemplateAdapter;
 
 }).call(this);

@@ -20,9 +20,6 @@ class FalconTemplateAdapter extends FalconObject
 
 		# We must create a template element to force support for older browsers
 		document.createElement("template")
-		
-		#Cache of the the <template> elements when the DOM has loaded
-		Falcon.ready => @cacheAllTemplates()
 	#END constructor
 
 	#--------------------------------------------------------
@@ -103,7 +100,7 @@ class FalconTemplateAdapter extends FalconObject
 			throw new Error("view must be a Falcon.View")
 		#END unless
 
-		unless _.isFunction(callback)
+		unless isFunction(callback)
 			throw new Error("callback must be a function")
 		#END unless
 
