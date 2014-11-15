@@ -2167,7 +2167,7 @@
         return expect(error).not.toHaveBeenCalled();
       });
     });
-    describe("sync", function() {
+    return describe("sync", function() {
       var adapter, context, data_object, options, parent, type;
       adapter = new Falcon.DataAdapter;
       parent = new Falcon.Model;
@@ -2366,9 +2366,15 @@
         });
       });
     });
+  });
+
+}).call(this);
+
+(function() {
+  describe("Falcon.TemplateAdapter", function() {
     return describe("resolveTemplate", function() {
       var adapter, callback, elm, elm_id, template, uri;
-      adapter = new Falcon.DataAdapter;
+      adapter = new Falcon.TemplateAdapter;
       elm_id = "my-template";
       uri = "#" + elm_id;
       callback = null;

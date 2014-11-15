@@ -115,7 +115,7 @@ class FalconDataAdapter extends FalconObject
 		return options if options instanceof FalconDataAdapterOptions
 
 		#Shallow clone the options so as to not disturb the original object
-		options = new FalconDataAdapterOptions
+		options = new FalconDataAdapterOptions(options)
 		options.parent = data_object.parent unless Falcon.isModel( options.parent ) or options.parent is null
 		options.url = @resolveUrl( data_object, type, options, context )
 		options.data = @serializeData( data_object, type, options, context )
@@ -170,17 +170,17 @@ class FalconDataAdapter extends FalconObject
 	#	**context** _(mixed)_ - The context to call the response handers on
 	#
 	# Returns:
-	#	_(String)_ - The base url url
+	#	_(String)_ - The base url
 	#------------------------------------------------------------------------
 	makeBaseUrl: ( data_object, type, options, context ) ->
 		parent = if options.parent is undefined then data_object.parent else options.parent
 		base_endpoints = []
 		
 		while Falcon.isModel( parent )
-			if isFunction(parent.url)
-				base_endpoint = parent.url(Falcon.GET, parent.parent)
+			if isFunction(parent.endpoint)
+				base_endpoint = parent.endpoint(Falcon.GET, parent.parent)
 			else
-				base_endpoint = parent.url
+				base_endpoint = parent.endpoint
 			#END if
 
 			base_endpoint = "" unless isString( base_endpoint )
@@ -235,7 +235,7 @@ class FalconDataAdapter extends FalconObject
 		#----------------------------------------------------------
 		# Generate The endpoint
 		#----------------------------------------------------------
-		endpoint = if isFunction(data_object.url) then data_object.url(type, options.parent) else data_object.url
+		endpoint = if isFunction(data_object.endpoint) then data_object.endpoint(type, options.parent) else data_object.endpoint
 		endpoint = if isString(endpoint) then trimSlashes(endpoint) else ""
 
 		#----------------------------------------------------------

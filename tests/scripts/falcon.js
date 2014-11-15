@@ -432,7 +432,7 @@
       if (options instanceof FalconDataAdapterOptions) {
         return options;
       }
-      options = new FalconDataAdapterOptions;
+      options = new FalconDataAdapterOptions(options);
       if (!(Falcon.isModel(options.parent) || options.parent === null)) {
         options.parent = data_object.parent;
       }
@@ -451,10 +451,10 @@
       parent = options.parent === void 0 ? data_object.parent : options.parent;
       base_endpoints = [];
       while (Falcon.isModel(parent)) {
-        if (isFunction(parent.url)) {
-          base_endpoint = parent.url(Falcon.GET, parent.parent);
+        if (isFunction(parent.endpoint)) {
+          base_endpoint = parent.endpoint(Falcon.GET, parent.parent);
         } else {
-          base_endpoint = parent.url;
+          base_endpoint = parent.endpoint;
         }
         if (!isString(base_endpoint)) {
           base_endpoint = "";
@@ -477,7 +477,7 @@
       var base_url, endpoint, extension, id, period_index, slash_index, _ref1;
       type = this.resolveRequestType(data_object, type, options, context);
       base_url = this.makeBaseUrl(data_object, type, options, context);
-      endpoint = isFunction(data_object.url) ? data_object.url(type, options.parent) : data_object.url;
+      endpoint = isFunction(data_object.endpoint) ? data_object.endpoint(type, options.parent) : data_object.endpoint;
       endpoint = isString(endpoint) ? trimSlashes(endpoint) : "";
       extension = "";
       period_index = endpoint.lastIndexOf(".");
