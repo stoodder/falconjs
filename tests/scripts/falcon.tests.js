@@ -2371,7 +2371,7 @@
 }).call(this);
 
 (function() {
-  describe("Falcon.TemplateAdapter", function() {
+  xdescribe("Falcon.TemplateAdapter", function() {
     return describe("resolveTemplate", function() {
       var adapter, callback, elm, elm_id, template, uri;
       adapter = new Falcon.TemplateAdapter;

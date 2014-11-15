@@ -1,4 +1,4 @@
-describe "Falcon.TemplateAdapter", ->
+xdescribe "Falcon.TemplateAdapter", ->
 	describe "resolveTemplate", ->
 		adapter = new Falcon.TemplateAdapter
 		elm_id = "my-template"
