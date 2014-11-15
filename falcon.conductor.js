@@ -4,14 +4,14 @@
 
 	Version 1.0.0rc1
 	Full source at https://github.com/stoodder/falconjs
-	Copyright (c) 2013 Rick Allen, http://www.stoodder.com
+	Copyright (c) 2014 Rick Allen, http://www.stoodder.com
 
 	MIT License, https://github.com/stoodder/falconjs/blob/master/LICENSE.md
 */
 
 
 (function() {
-  var endsWith, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, startsWith, trim, trimSlashes,
+  var isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, trim, trimSlashes,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   isObject = function(object) {
@@ -82,14 +82,6 @@
 
   trimSlashes = function(str) {
     return str.replace(/^[\\/\s]+/, '').replace(/[\\/\s]+$/, '');
-  };
-
-  startsWith = function(haystack, needle) {
-    return haystack.indexOf(needle) === 0;
-  };
-
-  endsWith = function(haystack, needle) {
-    return haystack.lastIndexOf(needle) === haystack.length - 1;
   };
 
   Falcon.addConductor = (function() {

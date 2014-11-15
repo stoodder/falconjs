@@ -42,7 +42,7 @@ describe "Falcon.View", ->
 			spyOn( Falcon.View::, 'initialize' ).and.callThrough()
 			spyOn( Falcon.View::, 'makeUrl' ).and.callThrough()
 			spyOn( Falcon.View, 'cacheTemplate' ).and.callThrough()
-			spyOn( Falcon.adapter, 'getTemplate').and.callThrough()
+			spyOn( Falcon.dataAdapter, 'resolveTemplate').and.callThrough()
 			spyOn( Falcon, 'ready' )
 		#END beforeEach
 
@@ -54,7 +54,7 @@ describe "Falcon.View", ->
 			expect( view.initialize.calls.count() ).toBe( 1 )
 			expect( view.initialize ).toHaveBeenCalledWith()
 
-			expect( Falcon.adapter.getTemplate ).not.toHaveBeenCalled()
+			expect( Falcon.dataAdapter.resolveTemplate ).not.toHaveBeenCalled()
 			expect( Falcon.View.cacheTemplate ).not.toHaveBeenCalled()
 
 			expect( Falcon.ready.calls.count() ).toBe( 1 )
@@ -62,8 +62,8 @@ describe "Falcon.View", ->
 
 			Falcon.ready.calls.mostRecent().args[0]()
 
-			expect( Falcon.adapter.getTemplate.calls.count() ).toBe( 1 )
-			expect( Falcon.adapter.getTemplate ).toHaveBeenCalledWith( "#hello_world", jasmine.any(Function) )
+			expect( Falcon.dataAdapter.resolveTemplate.calls.count() ).toBe( 1 )
+			expect( Falcon.dataAdapter.resolveTemplate ).toHaveBeenCalledWith( "#hello_world", jasmine.any(Function) )
 
 			expect( Falcon.View.cacheTemplate.calls.count() ).toBe( 1 )
 			expect( Falcon.View.cacheTemplate ).toHaveBeenCalledWith( "#hello_world", "" )
@@ -76,7 +76,7 @@ describe "Falcon.View", ->
 			Falcon.ready.calls.mostRecent().args[0]()
 			view.makeUrl.calls.reset()
 			view.initialize.calls.reset()
-			Falcon.adapter.getTemplate.calls.reset()
+			Falcon.dataAdapter.resolveTemplate.calls.reset()
 			Falcon.View.cacheTemplate.calls.reset()
 			Falcon.ready.calls.reset()
 
@@ -87,7 +87,7 @@ describe "Falcon.View", ->
 			expect( view.initialize.calls.count() ).toBe( 1 )
 			expect( view.initialize ).toHaveBeenCalledWith()
 
-			expect( Falcon.adapter.getTemplate ).not.toHaveBeenCalled()
+			expect( Falcon.dataAdapter.resolveTemplate ).not.toHaveBeenCalled()
 			expect( Falcon.View.cacheTemplate ).not.toHaveBeenCalled()
 
 			expect( Falcon.ready.calls.count() ).toBe( 1 )
@@ -95,7 +95,7 @@ describe "Falcon.View", ->
 
 			Falcon.ready.calls.mostRecent().args[0]()
 
-			expect( Falcon.adapter.getTemplate ).not.toHaveBeenCalled()
+			expect( Falcon.dataAdapter.resolveTemplate ).not.toHaveBeenCalled()
 			expect( Falcon.View.cacheTemplate ).not.toHaveBeenCalled()
 
 			expect( view.__falcon_view__is_loaded__() ).toBe( true )
@@ -109,7 +109,7 @@ describe "Falcon.View", ->
 			expect( view.initialize.calls.count() ).toBe( 1 )
 			expect( view.initialize ).toHaveBeenCalledWith()
 
-			expect( Falcon.adapter.getTemplate ).not.toHaveBeenCalled()
+			expect( Falcon.dataAdapter.resolveTemplate ).not.toHaveBeenCalled()
 			expect( Falcon.View.cacheTemplate ).not.toHaveBeenCalled()
 
 			expect( Falcon.ready.calls.count() ).toBe( 1 )
@@ -117,7 +117,7 @@ describe "Falcon.View", ->
 
 			Falcon.ready.calls.mostRecent().args[0]()
 
-			expect( Falcon.adapter.getTemplate ).not.toHaveBeenCalled()
+			expect( Falcon.dataAdapter.resolveTemplate ).not.toHaveBeenCalled()
 
 			expect( view.__falcon_view__is_loaded__() ).toBe( true )
 		#END it

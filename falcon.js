@@ -4,14 +4,14 @@
 
 	Version 1.0.0rc1
 	Full source at https://github.com/stoodder/falconjs
-	Copyright (c) 2013 Rick Allen, http://www.stoodder.com
+	Copyright (c) 2014 Rick Allen, http://www.stoodder.com
 
 	MIT License, https://github.com/stoodder/falconjs/blob/master/LICENSE.md
 */
 
 
 (function() {
-  var ChainedCollection, Falcon, FalconAdapter, FalconCollection, FalconModel, FalconObject, FalconView, arrayRemove, arrayUnique, bindFunction, clone, endsWith, extend, findKey, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, objectKeys, startsWith, trim, trimSlashes, value, _getForeachItems, _getOptionsItems, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6,
+  var Falcon, FalconCollection, FalconModel, FalconObject, FalconView, bindFunction, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, trim, trimSlashes, value, _getForeachItems, _getOptionsItems, _ref, _ref1, _ref2, _ref3, _ref4,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -87,123 +87,6 @@
     return str.replace(/^[\\/\s]+/, '').replace(/[\\/\s]+$/, '');
   };
 
-  startsWith = function(haystack, needle) {
-    return haystack.indexOf(needle) === 0;
-  };
-
-  endsWith = function(haystack, needle) {
-    return haystack.lastIndexOf(needle) === haystack.length - 1;
-  };
-
-  objectKeys = function(obj) {
-    var key, _results;
-    _results = [];
-    for (key in obj) {
-      _results.push(key);
-    }
-    return _results;
-  };
-
-  extend = function(obj, extender) {
-    var key, value;
-    if (obj == null) {
-      obj = {};
-    }
-    if (!isObject(extender)) {
-      extender = {};
-    }
-    for (key in extender) {
-      value = extender[key];
-      obj[key] = value;
-    }
-    return obj;
-  };
-
-  findKey = function(obj, value) {
-    var k, v;
-    for (k in obj) {
-      v = obj[k];
-      if (v === value) {
-        return k;
-      }
-    }
-    return void 0;
-  };
-
-  clone = function(object) {
-    var flags, key, newInstance;
-    if (!isObject(object)) {
-      return object;
-    }
-    if (object instanceof Date) {
-      return new Date(object.getTime());
-    }
-    if (object instanceof RegExp) {
-      flags = '';
-      if (object.global != null) {
-        flags += 'g';
-      }
-      if (object.ignoreCase != null) {
-        flags += 'i';
-      }
-      if (object.multiline != null) {
-        flags += 'm';
-      }
-      if (object.sticky != null) {
-        flags += 'y';
-      }
-      return new RegExp(object.source, flags);
-    }
-    newInstance = new object.constructor();
-    for (key in object) {
-      newInstance[key] = clone(object[key]);
-    }
-    return newInstance;
-  };
-
-  arrayUnique = function(arr) {
-    var key, obj, value, _i, _len;
-    obj = {};
-    for (_i = 0, _len = arr.length; _i < _len; _i++) {
-      key = arr[_i];
-      obj[key] = true;
-    }
-    return (function() {
-      var _results;
-      _results = [];
-      for (key in obj) {
-        value = obj[key];
-        _results.push(key);
-      }
-      return _results;
-    })();
-  };
-
-  arrayRemove = function(arr, items) {
-    var item, _i, _item, _len;
-    if (!isArray(arr)) {
-      return [];
-    }
-    if (!isArray(items)) {
-      items = [items];
-    }
-    for (_i = 0, _len = items.length; _i < _len; _i++) {
-      item = items[_i];
-      arr = (function() {
-        var _j, _len1, _results;
-        _results = [];
-        for (_j = 0, _len1 = arr.length; _j < _len1; _j++) {
-          _item = arr[_j];
-          if (_item !== item) {
-            _results.push(_item);
-          }
-        }
-        return _results;
-      })();
-    }
-    return arr;
-  };
-
   bindFunction = function(func, self) {
     var ret;
     ret = function() {
@@ -254,7 +137,7 @@
     FalconObject.prototype.__falcon_object__listeners__ = null;
 
     function FalconObject() {
-      var attr, value, _ref, _ref1, _ref2, _ref3, _ref4;
+      var attr, value, _ref, _ref1, _ref2, _ref3, _ref4, _ref5;
       if (isObject(this.defaults)) {
         _ref = this.defaults;
         for (attr in _ref) {
@@ -285,7 +168,7 @@
               'read': value.read,
               'write': value.write,
               'owner': (_ref3 = value.owner) != null ? _ref3 : this,
-              'deferEvaluation': (_ref4 = Falcon.deferEvaluation) != null ? _ref4 : true,
+              'deferEvaluation': (_ref4 = (_ref5 = value.deferEvaluation) != null ? _ref5 : Falcon.deferEvaluation) != null ? _ref4 : true,
               'disposeWhen': value.disposeWhen,
               'disposeWhenNodeIsRemoved': value.disposeWhenNodeIsRemoved
             });
@@ -478,252 +361,6 @@
 
   })();
 
-  FalconAdapter = (function(_super) {
-    __extends(FalconAdapter, _super);
-
-    function FalconAdapter() {
-      _ref = FalconAdapter.__super__.constructor.apply(this, arguments);
-      return _ref;
-    }
-
-    FalconAdapter.REQUEST_TYPES = [FalconAdapter.GET = 'GET', FalconAdapter.POST = 'POST', FalconAdapter.PUT = 'PUT', FalconAdapter.DELETE = 'DELETE'];
-
-    FalconAdapter.extend = FalconObject.extend;
-
-    FalconAdapter.prototype.resolveRequestType = function(data_object, type, options, context) {
-      if (!isString(type)) {
-        return Falcon.Adapter.GET;
-      }
-      type = trim(type).toUpperCase();
-      if (__indexOf.call(Falcon.Adapter.REQUEST_TYPES, type) < 0) {
-        return Falcon.Adapter.GET;
-      }
-      return type;
-    };
-
-    FalconAdapter.prototype.resolveContext = function(data_object, type, options, context) {
-      var _ref1;
-      return (_ref1 = context != null ? context : options.context) != null ? _ref1 : data_object;
-    };
-
-    FalconAdapter.prototype.standardizeOptions = (function() {
-      var _standardizedOptionsObject;
-      _standardizedOptionsObject = (function() {
-        function _standardizedOptionsObject(options) {
-          var key, value;
-          if (isObject(options)) {
-            for (key in options) {
-              value = options[key];
-              this[key] = value;
-            }
-          } else if (isFunction(options)) {
-            this.complete = options;
-          } else if (isString(options)) {
-            this.attributes = trim(options).split(",");
-          } else if (isArray(options)) {
-            this.attributes = options;
-          }
-        }
-
-        _standardizedOptionsObject.prototype.success = (function() {});
-
-        _standardizedOptionsObject.prototype.complete = (function() {});
-
-        _standardizedOptionsObject.prototype.error = (function() {});
-
-        _standardizedOptionsObject.prototype.attributes = null;
-
-        _standardizedOptionsObject.prototype.fill_options = null;
-
-        _standardizedOptionsObject.prototype.id = void 0;
-
-        _standardizedOptionsObject.prototype.url = null;
-
-        _standardizedOptionsObject.prototype.data = null;
-
-        _standardizedOptionsObject.prototype.parent = void 0;
-
-        return _standardizedOptionsObject;
-
-      })();
-      return function(data_object, type, options, context) {
-        if (options instanceof _standardizedOptionsObject) {
-          return options;
-        }
-        options = new _standardizedOptionsObject(options);
-        if (!(Falcon.isModel(options.parent) || options.parent === null)) {
-          options.parent = data_object.parent;
-        }
-        options.url = this.resolveUrl(data_object, type, options, context);
-        options.data = this.serializeData(data_object, type, options, context);
-        return options;
-      };
-    })();
-
-    FalconAdapter.prototype.resolveUrl = function(data_object, type, options, context) {
-      var _ref1;
-      return (_ref1 = options.url) != null ? _ref1 : data_object.makeUrl(type, options.parent);
-    };
-
-    FalconAdapter.prototype.makeBaseUrl = function(data_object, type, options, context) {
-      var base_endpoint, base_endpoints, base_url, parent, period_index;
-      parent = options.parent === void 0 ? data_object.parent : options.parent;
-      base_endpoints = [];
-      while (Falcon.isModel(parent)) {
-        if (isFunction(parent.url)) {
-          base_endpoint = parent.url(Falcon.Adapter.GET, parent.parent);
-        } else {
-          base_endpoint = parent.url;
-        }
-        if (!isString(base_endpoint)) {
-          base_endpoint = "";
-        }
-        period_index = base_endpoint.lastIndexOf(".");
-        if (period_index > -1) {
-          base_endpoint = base_endpoint.slice(0, period_index);
-        }
-        base_endpoints.unshift(trimSlashes(base_endpoint) + "/" + parent.get('id'));
-        parent = parent.parent;
-      }
-      base_url = "/" + base_endpoints.join("/") + "/";
-      if (isString(Falcon.baseApiUrl)) {
-        base_url = "" + Falcon.baseApiUrl + base_url;
-      }
-      return base_url.replace(/([^:])\/\/+/gi, "$1/").replace(/^\/\//gi, "/");
-    };
-
-    FalconAdapter.prototype.makeUrlComponents = function(data_object, type, options, context) {
-      var base_url, endpoint, extension, id, period_index, slash_index, _ref1;
-      type = this.resolveRequestType(data_object, type, options, context);
-      base_url = this.makeBaseUrl(data_object, type, options, context);
-      endpoint = isFunction(data_object.url) ? data_object.url(type, options.parent) : data_object.url;
-      endpoint = isString(endpoint) ? trimSlashes(endpoint) : "";
-      extension = "";
-      period_index = endpoint.lastIndexOf(".");
-      slash_index = endpoint.lastIndexOf("/");
-      if (period_index > slash_index) {
-        extension = endpoint.slice(period_index);
-        endpoint = endpoint.slice(0, period_index);
-      }
-      if (Falcon.isModel(data_object)) {
-        id = "" + ((_ref1 = options.id) != null ? _ref1 : data_object.get('id'));
-      } else {
-        id = null;
-      }
-      return {
-        base_url: base_url,
-        endpoint: endpoint,
-        id: id,
-        extension: extension
-      };
-    };
-
-    FalconAdapter.prototype.makeUrl = function(data_object, type, options, context) {
-      var base_url, endpoint, extension, id, _ref1;
-      _ref1 = this.makeUrlComponents(data_object, type, options, context), base_url = _ref1.base_url, endpoint = _ref1.endpoint, id = _ref1.id, extension = _ref1.extension;
-      if (Falcon.isModel(data_object)) {
-        if (type === Falcon.Adapter.POST) {
-          return "" + base_url + endpoint + extension;
-        } else {
-          return "" + base_url + endpoint + "/" + id + extension;
-        }
-      } else {
-        return "" + base_url + endpoint + extension;
-      }
-    };
-
-    FalconAdapter.prototype.serializeData = function(data_object, type, options, context) {
-      if ((options.data == null) && (type === Falcon.Adapter.POST || type === Falcon.Adapter.PUT)) {
-        return data_object.serialize(options.attributes);
-      } else {
-        return options.data;
-      }
-    };
-
-    FalconAdapter.prototype.parseRawResponseData = function(data_object, type, options, context, response_args) {
-      return response_args;
-    };
-
-    FalconAdapter.prototype.successResponseHandler = function(data_object, type, options, context, response_args) {
-      var parsed_data, raw_response_data;
-      raw_response_data = this.parseRawResponseData(data_object, type, options, context, response_args);
-      parsed_data = data_object.parse(raw_response_data, options);
-      data_object.fill(parsed_data, options.fill_options);
-      switch (type) {
-        case Falcon.Adapter.GET:
-          data_object.trigger("fetch", parsed_data);
-          break;
-        case Falcon.Adapter.POST:
-          data_object.trigger("create", parsed_data);
-          break;
-        case Falcon.Adapter.PUT:
-          data_object.trigger("save", parsed_data);
-          break;
-        case Falcon.Adapter.DELETE:
-          data_object.trigger("destroy", parsed_data);
-      }
-      return options.success.call(context, data_object, raw_response_data, options, response_args);
-    };
-
-    FalconAdapter.prototype.errorResponseHandler = function(data_object, type, options, context, response_args) {
-      var raw_response_data;
-      raw_response_data = this.parseRawResponseData(data_object, type, options, context, response_args);
-      return options.error.call(context, data_object, raw_response_data, options, response_args);
-    };
-
-    FalconAdapter.prototype.completeResponseHandler = function(data_object, type, options, context, response_args) {
-      var raw_response_data;
-      raw_response_data = this.parseRawResponseData(data_object, type, options, context, response_args);
-      return options.complete.call(context, data_object, raw_response_data, options, response_args);
-    };
-
-    FalconAdapter.prototype.sync = function(data_object, type, options, context) {
-      var is_valid;
-      if (!Falcon.isDataObject(data_object)) {
-        throw new Error("Expected data_object to be a Model or Collection");
-      }
-      is_valid = false;
-      type = this.resolveRequestType(data_object, type, options, context);
-      options = this.standardizeOptions(data_object, type, options, context);
-      context = this.resolveContext(data_object, type, options, context);
-      if (Falcon.isModel(data_object)) {
-        if ((type === Falcon.Adapter.POST || type === Falcon.Adapter.PUT) && (!data_object.validate(options))) {
-          return {
-            data_object: data_object,
-            type: type,
-            options: options,
-            context: context,
-            is_valid: is_valid
-          };
-        }
-      }
-      is_valid = true;
-      return {
-        data_object: data_object,
-        type: type,
-        options: options,
-        context: context,
-        is_valid: is_valid
-      };
-    };
-
-    FalconAdapter.prototype.getTemplate = function(uri, callback) {
-      var element;
-      if (!isString(uri)) {
-        throw new Error("uri must be a String");
-      }
-      if (!isFunction(callback)) {
-        throw new Error("callback must be a Function");
-      }
-      element = document.getElementById(uri.slice(1));
-      callback(element != null ? element.innerHTML : "");
-      return this;
-    };
-
-    return FalconAdapter;
-
-  })(FalconObject);
-
   FalconModel = (function(_super) {
     __extends(FalconModel, _super);
 
@@ -731,24 +368,27 @@
 
     FalconModel.prototype.id = null;
 
-    FalconModel.prototype.url = null;
+    FalconModel.prototype.endpoint = null;
 
     FalconModel.prototype.parent = null;
 
+    FalconModel.prototype.__falcon_model__is_null__ = false;
+
     function FalconModel(data, parent) {
-      var _ref1, _ref2;
+      var _ref, _ref1;
       FalconModel.__super__.constructor.apply(this, arguments);
       data = ko.unwrap(data);
       parent = ko.unwrap(parent);
       if ((parent != null) && !Falcon.isModel(parent) && Falcon.isModel(data)) {
-        _ref1 = [data, parent], parent = _ref1[0], data = _ref1[1];
+        _ref = [data, parent], parent = _ref[0], data = _ref[1];
       }
       if ((parent == null) && Falcon.isModel(data)) {
-        _ref2 = [data, parent], parent = _ref2[0], data = _ref2[1];
+        _ref1 = [data, parent], parent = _ref1[0], data = _ref1[1];
       }
       if (!((parent == null) || Falcon.isModel(parent))) {
         throw new Error("parent must be null or a Falcon.Model");
       }
+      this.__falcon_model__is_null__ = ko.observable(false);
       this.parent = parent;
       this.initialize.apply(this, arguments);
       if (!isEmpty(data)) {
@@ -757,11 +397,11 @@
       return this;
     }
 
-    FalconModel.prototype.initialize = function(data) {};
+    FalconModel.prototype.initialize = (function(data) {});
 
     FalconModel.prototype.get = function(attribute) {
       if (!isString(attribute)) {
-        return thisundefined;
+        return void 0;
       }
       return ko.unwrap(this[attribute]);
     };
@@ -800,12 +440,13 @@
       return this;
     };
 
-    FalconModel.prototype.parse = function(data, options, xhr) {
+    FalconModel.prototype.parse = function(data, options) {
       return data;
     };
 
     FalconModel.prototype.fill = function(data) {
-      var attr, rejectedAttributes, value, _ref1;
+      var attr, rejectedAttributes, value, _ref;
+      this.__falcon_model__is_null__(data === null);
       if (isNumber(data) || isString(data)) {
         data = {
           'id': data
@@ -818,10 +459,10 @@
         return this;
       }
       rejectedAttributes = {};
-      _ref1 = Falcon.Model.prototype;
-      for (attr in _ref1) {
-        value = _ref1[attr];
-        if (attr !== "id" && attr !== "url") {
+      _ref = Falcon.Model.prototype;
+      for (attr in _ref) {
+        value = _ref[attr];
+        if (attr !== "id" && attr !== "endpoint") {
           rejectedAttributes[attr] = true;
         }
       }
@@ -847,7 +488,7 @@
           this[attr](value);
         } else if (!isFunction(this[attr])) {
           this[attr] = value;
-        } else if (attr === 'url') {
+        } else if (attr === 'endpoint') {
           this[attr] = value;
         }
       }
@@ -909,11 +550,11 @@
     };
 
     FalconModel.prototype.makeUrl = function(type, parent, id) {
-      var _ref1;
+      var _ref;
       if (id === void 0 && (isString(parent) || isNumber(parent))) {
-        _ref1 = [id, parent], parent = _ref1[0], id = _ref1[1];
+        _ref = [id, parent], parent = _ref[0], id = _ref[1];
       }
-      return Falcon.adapter.makeUrl(this, type, {
+      return Falcon.dataAdapter.makeUrl(this, type, {
         parent: parent,
         id: id
       }, this);
@@ -924,23 +565,27 @@
     };
 
     FalconModel.prototype.sync = function(type, options, context) {
-      return Falcon.adapter.sync(this, type, options, context);
+      return Falcon.dataAdapter.sync(this, type, options, context);
     };
 
     FalconModel.prototype.fetch = function(options, context) {
-      return this.sync(Falcon.Adapter.GET, options, context);
+      return this.sync(Falcon.GET, options, context);
     };
 
     FalconModel.prototype.create = function(options, context) {
-      return this.sync(Falcon.Adapter.POST, options, context);
+      return this.sync(Falcon.POST, options, context);
     };
 
     FalconModel.prototype.save = function(options, context) {
-      return (this.isNew() ? this.create(options, context) : this.sync(Falcon.Adapter.PUT, options, context));
+      if (this.isNew()) {
+        return this.create(options, context);
+      } else {
+        return this.sync(Falcon.PUT, options, context);
+      }
     };
 
     FalconModel.prototype.destroy = function(options, context) {
-      return this.sync(Falcon.Adapter.DELETE, options, context);
+      return this.sync(Falcon.DELETE, options, context);
     };
 
     FalconModel.prototype.equals = function(model) {
@@ -960,7 +605,7 @@
     };
 
     FalconModel.prototype.mixin = function(mapping) {
-      var key, value, _ref1;
+      var key, value, _ref;
       if (!isObject(mapping)) {
         mapping = {};
       }
@@ -971,7 +616,7 @@
         } else {
           if (ko.isObservable(value)) {
             if (!ko.isObservable(this[key])) {
-              this[key] = ko.observable((_ref1 = this.get(key)) != null ? _ref1 : ko.unwrap(value));
+              this[key] = ko.observable((_ref = this.get(key)) != null ? _ref : ko.unwrap(value));
             }
           } else if (isFunction(value)) {
             this[key] = bindFunction(value, this);
@@ -986,9 +631,9 @@
     };
 
     FalconModel.prototype.clone = function(attributes, parent) {
-      var _ref1;
+      var _ref;
       if (attributes === null || Falcon.isModel(attributes)) {
-        _ref1 = [void 0, attributes], attributes = _ref1[0], parent = _ref1[1];
+        _ref = [void 0, attributes], attributes = _ref[0], parent = _ref[1];
       }
       if (!(parent === null || Falcon.isModel(parent))) {
         parent = this.parent;
@@ -1000,124 +645,47 @@
       return this.get("id") == null;
     };
 
+    FalconModel.prototype.isNull = function() {
+      return this.__falcon_model__is_null__();
+    };
+
     return FalconModel;
 
   })(FalconObject);
 
   FalconView = (function(_super) {
-    var __falcon_view__template_cache__;
-
     __extends(FalconView, _super);
-
-    __falcon_view__template_cache__ = {};
-
-    FalconView.cacheTemplate = function(identifier, template) {
-      if (!isString(identifier)) {
-        identifier = "";
-      }
-      if (!isString(template)) {
-        template = "";
-      }
-      if (isEmpty(identifier)) {
-        return Falcon.View;
-      }
-      __falcon_view__template_cache__[identifier] = template;
-      return Falcon.View;
-    };
-
-    FalconView.cacheTemplates = function() {
-      var identifier, template, templates, _i, _len, _ref1;
-      templates = (function() {
-        var _i, _len, _ref1, _results;
-        _ref1 = document.getElementsByTagName("template");
-        _results = [];
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          template = _ref1[_i];
-          _results.push(template);
-        }
-        return _results;
-      })();
-      for (_i = 0, _len = templates.length; _i < _len; _i++) {
-        template = templates[_i];
-        identifier = template.getAttribute("id");
-        if (identifier != null) {
-          Falcon.View.cacheTemplate("#" + identifier, template.innerHTML);
-        }
-        if ((_ref1 = template.parentNode) != null) {
-          _ref1.removeChild(template);
-        }
-      }
-      return Falcon.View;
-    };
-
-    FalconView.resetCache = function() {
-      __falcon_view__template_cache__ = {};
-      return Falcon.View;
-    };
 
     FalconView.extend = FalconObject.extend;
 
-    FalconView.prototype.url = null;
+    FalconView.prototype.endpoint = null;
 
-    FalconView.prototype.__falcon_view__is_loaded__ = false;
+    FalconView.prototype.template = null;
+
+    FalconView.prototype.__falcon_view__loaded_template__ = false;
 
     FalconView.prototype.__falcon_view__is_rendered__ = false;
 
     FalconView.prototype.__falcon_view__child_views__ = null;
 
-    FalconView.prototype.__falcon_view__loaded_url__ = null;
-
     function FalconView() {
-      var url,
-        _this = this;
+      var _this = this;
       FalconView.__super__.constructor.apply(this, arguments);
-      url = this.makeUrl();
-      this.__falcon_view__is_loaded__ = ko.observable(false);
+      this.__falcon_view__loaded_template__ = ko.observable();
       this.__falcon_view__is_rendered__ = false;
       this.__falcon_view__child_views__ = [];
-      this.__falcon_view__loaded_url__ = url;
       this.initialize.apply(this, arguments);
-      Falcon.ready(function() {
-        if (isEmpty(url) || (__falcon_view__template_cache__[url] != null)) {
-          return _this.__falcon_view__is_loaded__(true);
-        } else {
-          return Falcon.adapter.getTemplate(url, function(template) {
-            Falcon.View.cacheTemplate(url, template);
-            return _this.__falcon_view__is_loaded__(true);
-          });
-        }
-      });
+      if (isString(this.template)) {
+        this.__falcon_view__loaded_template__(this.template);
+      } else {
+        Falcon.templateAdapter.resolveTemplate(this, function(template) {
+          return _this.__falcon_view__loaded_template__(template);
+        });
+      }
     }
 
     FalconView.prototype.makeUrl = function() {
-      var url;
-      url = ko.utils.unwrapObservable(this.url);
-      if (isFunction(url)) {
-        url = url();
-      }
-      if (!isString(url)) {
-        url = "";
-      }
-      url = trim(url);
-      if (isEmpty(url) || url.charAt(0) === '#') {
-        return url;
-      }
-      if (url.charAt(0) !== '/') {
-        url = "/" + url;
-      }
-      if (isString(Falcon.baseTemplateUrl)) {
-        url = "" + Falcon.baseTemplateUrl + url;
-      }
-      url = url.replace(/([^:])\/\/+/gi, "$1/");
-      return url;
-    };
-
-    FalconView.prototype.template = function() {
-      var _ref1;
-      if (!ko.utils.unwrapObservable(this.__falcon_view__is_loaded__)) {
-        return "";
-      }
-      return (_ref1 = __falcon_view__template_cache__[this.__falcon_view__loaded_url__]) != null ? _ref1 : "";
+      return Falcon.templateAdapter.makeUrl(this);
     };
 
     FalconView.prototype._render = function() {
@@ -1129,13 +697,13 @@
     };
 
     FalconView.prototype._unrender = function() {
-      var child_view, _i, _len, _ref1;
+      var child_view, _i, _len, _ref;
       if (!this.__falcon_view__is_rendered__) {
         return;
       }
-      _ref1 = this.__falcon_view__child_views__;
-      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-        child_view = _ref1[_i];
+      _ref = this.__falcon_view__child_views__;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        child_view = _ref[_i];
         child_view._unrender();
       }
       this.__falcon_view__child_views__ = [];
@@ -1156,13 +724,13 @@
 
     FalconView.prototype.dispose = (function() {});
 
-    FalconView.__falcon_view__viewModel__ = null;
+    FalconView.prototype.__falcon_view__cachedViewModel__ = null;
 
-    FalconView.prototype.viewModel = function() {
+    FalconView.prototype.createViewModel = function() {
       var key, value, viewModel,
         _this = this;
-      if (this.__falcon_view__viewModel__ != null) {
-        return this.__falcon_view__viewModel__;
+      if (this.__falcon_view__cachedViewModel__ != null) {
+        return this.__falcon_view__cachedViewModel__;
       }
       viewModel = {
         "__falcon_view__addChildView__": function(view) {
@@ -1187,7 +755,7 @@
         }
         viewModel[key] = value;
       }
-      return (this.__falcon_view__viewModel__ = viewModel);
+      return (this.__falcon_view__cachedViewModel__ = viewModel);
     };
 
     return FalconView;
@@ -1195,7 +763,7 @@
   })(FalconObject);
 
   FalconCollection = (function(_super) {
-    var _fill_addMixins, _fill_createModels, _fill_standardizeItems, _fill_standardizeOptions, _fill_updateModels, _makeIterator;
+    var FalconChainedCollection, _fill_addMixins, _fill_createModels, _fill_standardizeItems, _fill_standardizeOptions, _fill_updateModels, _makeIterator, _ref;
 
     __extends(FalconCollection, _super);
 
@@ -1251,7 +819,7 @@
 
     FalconCollection.prototype.model = null;
 
-    FalconCollection.prototype.url = null;
+    FalconCollection.prototype.endpoint = null;
 
     FalconCollection.prototype.length = 0;
 
@@ -1260,27 +828,27 @@
     FalconCollection.prototype.comparator = null;
 
     function FalconCollection(models, parent) {
-      var _ref1, _ref2,
+      var _ref, _ref1,
         _this = this;
       FalconCollection.__super__.constructor.apply(this, arguments);
       models = ko.unwrap(models);
       parent = ko.unwrap(parent);
       if ((parent == null) && Falcon.isModel(models)) {
-        _ref1 = [models, parent], parent = _ref1[0], models = _ref1[1];
+        _ref = [models, parent], parent = _ref[0], models = _ref[1];
       }
       if (Falcon.isModel(models) && isArray(parent)) {
-        _ref2 = [models, parent], parent = _ref2[0], models = _ref2[1];
+        _ref1 = [models, parent], parent = _ref1[0], models = _ref1[1];
       }
       if (!((parent == null) || Falcon.isModel(parent))) {
         throw new Error("parent must be null or a Falcon.Model");
       }
       if (this.model != null) {
-        if (this.url == null) {
-          this.url = this.model.prototype.url;
+        if (this.endpoint == null) {
+          this.endpoint = this.model.prototype.endpoint;
         }
       }
       this.length = ko.computed({
-        deferEvaluation: true,
+        deferEvaluation: Falcon.deferEvaluation,
         read: function() {
           return _this.models().length;
         }
@@ -1304,44 +872,44 @@
       return this;
     };
 
-    FalconCollection.prototype.parse = function(data, options, xhr) {
+    FalconCollection.prototype.parse = function(data, options) {
       return data;
     };
 
     FalconCollection.prototype.unwrap = function() {
-      var i, raw, value, _ref1;
+      var i, raw, value, _ref;
       raw = [];
-      _ref1 = this.models();
-      for (i in _ref1) {
-        value = _ref1[i];
+      _ref = this.models();
+      for (i in _ref) {
+        value = _ref[i];
         raw[i] = Falcon.isDataObject(value) ? value.unwrap() : value;
       }
       return raw;
     };
 
     FalconCollection.prototype.serialize = function(attributes) {
-      var i, serialized, value, _ref1;
+      var i, serialized, value, _ref;
       serialized = [];
-      _ref1 = this.models();
-      for (i in _ref1) {
-        value = _ref1[i];
+      _ref = this.models();
+      for (i in _ref) {
+        value = _ref[i];
         serialized[i] = Falcon.isDataObject(value) ? value.serialize(attributes) : value;
       }
       return serialized;
     };
 
     FalconCollection.prototype.makeUrl = function(type, parent) {
-      return Falcon.adapter.makeUrl(this, type, {
+      return Falcon.dataAdapter.makeUrl(this, type, {
         parent: parent
       }, this);
     };
 
     FalconCollection.prototype.sync = function(type, options, context) {
-      return Falcon.adapter.sync(this, type, options, context);
+      return Falcon.dataAdapter.sync(this, type, options, context);
     };
 
     FalconCollection.prototype.fetch = function(options, context) {
-      return this.sync(Falcon.Adapter.GET, options, context);
+      return this.sync(Falcon.GET, options, context);
     };
 
     FalconCollection.prototype.create = function(data, options, context) {
@@ -1357,7 +925,7 @@
       if (context == null) {
         context = model;
       }
-      output_options = Falcon.adapter.standardizeOptions(model, Falcon.Adapter.POST, options, context);
+      output_options = Falcon.dataAdapter.standardizeOptions(model, Falcon.POST, options, context);
       if (output_options.fill_options == null) {
         output_options.fill_options = {
           method: 'append'
@@ -1385,7 +953,7 @@
       if (context == null) {
         context = model;
       }
-      output_options = Falcon.adapter.standardizeOptions(model, Falcon.Adapter.DELETE, options, context);
+      output_options = Falcon.dataAdapter.standardizeOptions(model, Falcon.DELETE, options, context);
       output_options.success = function(model) {
         _this.remove(model);
         if (isFunction(options.success)) {
@@ -1434,12 +1002,12 @@
     };
 
     _fill_addMixins = function(collection, added_models) {
-      var added_model, mapping, _i, _j, _len, _len1, _ref1;
+      var added_model, mapping, _i, _j, _len, _len1, _ref;
       for (_i = 0, _len = added_models.length; _i < _len; _i++) {
         added_model = added_models[_i];
-        _ref1 = collection.__falcon_collection__mixins__;
-        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          mapping = _ref1[_j];
+        _ref = collection.__falcon_collection__mixins__;
+        for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+          mapping = _ref[_j];
           added_model.mixin(mapping);
         }
       }
@@ -1447,7 +1015,7 @@
     };
 
     _fill_standardizeOptions = function(collection, options) {
-      var key, output_options, value, _ref1;
+      var key, output_options, value, _ref;
       if (!isObject(options)) {
         options = {};
       }
@@ -1463,7 +1031,7 @@
         output_options.method = 'replace';
       }
       output_options.method = trim(output_options.method.toLowerCase());
-      if ((_ref1 = output_options.method) !== 'replace' && _ref1 !== 'append' && _ref1 !== 'prepend' && _ref1 !== 'insert' && _ref1 !== 'merge') {
+      if ((_ref = output_options.method) !== 'replace' && _ref !== 'append' && _ref !== 'prepend' && _ref !== 'insert' && _ref !== 'merge') {
         output_options.method = 'replace';
       }
       return output_options;
@@ -1518,7 +1086,7 @@
     };
 
     FalconCollection.prototype.insert = function(items, options) {
-      var head, insert_index, new_models_list, tail, _ref1, _ref2;
+      var head, insert_index, new_models_list, tail, _ref, _ref1;
       if (isFunction(options)) {
         options = {
           iterator: options
@@ -1533,7 +1101,7 @@
       items = _fill_standardizeItems(this, items);
       items = _fill_createModels(this, items);
       _fill_addMixins(this, items, options);
-      insert_index = (_ref1 = options.index) != null ? _ref1 : this.indexOf(_makeIterator((_ref2 = options.iterator) != null ? _ref2 : options.model));
+      insert_index = (_ref = options.index) != null ? _ref : this.indexOf(_makeIterator((_ref1 = options.iterator) != null ? _ref1 : options.model));
       new_models_list = this.models();
       if (insert_index < 0 || insert_index >= new_models_list.length) {
         new_models_list = new_models_list.concat(items);
@@ -1643,7 +1211,7 @@
     };
 
     FalconCollection.prototype.indexOf = function(model) {
-      var index, iterator, _i, _len, _ref1;
+      var index, iterator, _i, _len, _ref;
       if (Falcon.isModel(model)) {
         return this.models.indexOf(model);
       }
@@ -1651,9 +1219,9 @@
       if (!isFunction(iterator)) {
         return -1;
       }
-      _ref1 = this.models();
-      for (index = _i = 0, _len = _ref1.length; _i < _len; index = ++_i) {
-        model = _ref1[index];
+      _ref = this.models();
+      for (index = _i = 0, _len = _ref.length; _i < _len; index = ++_i) {
+        model = _ref[index];
         if (iterator(model)) {
           return index;
         }
@@ -1680,7 +1248,7 @@
     };
 
     FalconCollection.prototype.each = function(iterator, context) {
-      var index, item, _i, _j, _len, _len1, _ref1, _ref2;
+      var index, item, _i, _j, _len, _len1, _ref, _ref1;
       if (!isFunction(iterator)) {
         return this;
       }
@@ -1688,15 +1256,15 @@
         context = this;
       }
       if (iterator.length === 1) {
-        _ref1 = this.models();
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          item = _ref1[_i];
+        _ref = this.models();
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          item = _ref[_i];
           iterator.call(context, item);
         }
       } else {
-        _ref2 = this.models();
-        for (index = _j = 0, _len1 = _ref2.length; _j < _len1; index = ++_j) {
-          item = _ref2[index];
+        _ref1 = this.models();
+        for (index = _j = 0, _len1 = _ref1.length; _j < _len1; index = ++_j) {
+          item = _ref1[index];
           iterator.call(context, index, item);
         }
       }
@@ -1704,16 +1272,16 @@
     };
 
     FalconCollection.prototype.first = function(iterator) {
-      var item, _i, _len, _ref1;
+      var item, _i, _len, _ref;
       iterator = _makeIterator(iterator);
       if (!isFunction(iterator)) {
         iterator = (function() {
           return true;
         });
       }
-      _ref1 = this.models();
-      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-        item = _ref1[_i];
+      _ref = this.models();
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        item = _ref[_i];
         if (iterator(item)) {
           return item;
         }
@@ -1752,11 +1320,11 @@
         return this.models();
       }
       return (function() {
-        var _i, _len, _ref1, _results;
-        _ref1 = this.models();
+        var _i, _len, _ref, _results;
+        _ref = this.models();
         _results = [];
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          item = _ref1[_i];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          item = _ref[_i];
           if (iterator(item)) {
             _results.push(item);
           }
@@ -1766,14 +1334,14 @@
     };
 
     FalconCollection.prototype.any = function(iterator) {
-      var item, _i, _len, _ref1;
+      var item, _i, _len, _ref;
       iterator = _makeIterator(iterator);
       if (!isFunction(iterator)) {
         return false;
       }
-      _ref1 = this.models();
-      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-        item = _ref1[_i];
+      _ref = this.models();
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        item = _ref[_i];
         if (iterator(item)) {
           return true;
         }
@@ -1788,11 +1356,11 @@
         return this.models();
       }
       return (function() {
-        var _i, _len, _ref1, _results;
-        _ref1 = this.models();
+        var _i, _len, _ref, _results;
+        _ref = this.models();
         _results = [];
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          item = _ref1[_i];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          item = _ref[_i];
           if (!iterator(item)) {
             _results.push(item);
           }
@@ -1830,9 +1398,36 @@
       }
     };
 
+    FalconChainedCollection = (function(_super1) {
+      __extends(FalconChainedCollection, _super1);
+
+      function FalconChainedCollection() {
+        _ref = FalconChainedCollection.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      FalconChainedCollection.prototype.slice = function() {
+        this.models(FalconChainedCollection.__super__.slice.apply(this, arguments));
+        return this;
+      };
+
+      FalconChainedCollection.prototype.filter = function() {
+        this.models(FalconChainedCollection.__super__.filter.apply(this, arguments));
+        return this;
+      };
+
+      FalconChainedCollection.prototype.without = function() {
+        this.models(FalconChainedCollection.__super__.without.apply(this, arguments));
+        return this;
+      };
+
+      return FalconChainedCollection;
+
+    })(FalconCollection);
+
     FalconCollection.prototype.chain = function() {
       var chainedCollection;
-      chainedCollection = new ChainedCollection();
+      chainedCollection = new FalconChainedCollection();
       chainedCollection.model = this.model;
       chainedCollection.fill(this.models());
       return chainedCollection;
@@ -1874,40 +1469,23 @@
 
   })(FalconObject);
 
-  ChainedCollection = (function(_super) {
-    __extends(ChainedCollection, _super);
-
-    function ChainedCollection() {
-      _ref1 = ChainedCollection.__super__.constructor.apply(this, arguments);
-      return _ref1;
-    }
-
-    ChainedCollection.prototype.slice = function() {
-      this.models(ChainedCollection.__super__.slice.apply(this, arguments));
-      return this;
-    };
-
-    ChainedCollection.prototype.filter = function() {
-      this.models(ChainedCollection.__super__.filter.apply(this, arguments));
-      return this;
-    };
-
-    ChainedCollection.prototype.without = function() {
-      this.models(ChainedCollection.__super__.without.apply(this, arguments));
-      return this;
-    };
-
-    return ChainedCollection;
-
-  })(FalconCollection);
-
   this.Falcon = Falcon = new ((function(_super) {
     __extends(_Class, _super);
 
     function _Class() {
-      _ref2 = _Class.__super__.constructor.apply(this, arguments);
-      return _ref2;
+      _ref = _Class.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
+
+    _Class.prototype.GET = 'GET';
+
+    _Class.prototype.POST = 'POST';
+
+    _Class.prototype.PUT = 'PUT';
+
+    _Class.prototype.DELETE = 'DELETE';
+
+    _Class.prototype.REQUEST_TYPES = ['GET', 'POST', 'PUT', 'DELETE'];
 
     _Class.prototype['Object'] = FalconObject;
 
@@ -1917,7 +1495,9 @@
 
     _Class.prototype['View'] = FalconView;
 
-    _Class.prototype['Adapter'] = FalconAdapter;
+    _Class.prototype['DataAdapter'] = FalconDataAdapter;
+
+    _Class.prototype['TemplateDatapter'] = FalconTemplateAdapter;
 
     _Class.prototype.version = "1.0.0rc1";
 
@@ -1929,10 +1509,16 @@
 
     _Class.prototype.deferEvaluation = true;
 
-    _Class.prototype.adapter = new FalconAdapter;
+    _Class.prototype.dataAdapter = null;
+
+    _Class.prototype.dataAdapterDefinition = FalconDataAdapter;
+
+    _Class.prototype.templateAdapter = null;
+
+    _Class.prototype.templateAdapterDefinition = FalconTemplateAdapter;
 
     _Class.prototype.ready = (function() {
-      var handler, original_onreadystatechange, _domLoadedEvent, _ready, _ready_callbacks;
+      var original_onreadystatechange, _DOMContentLoaded, _domLoadedEvent, _ready, _ready_callbacks;
       _ready_callbacks = [];
       _ready = function(callback) {
         if (isFunction(callback)) {
@@ -1953,10 +1539,10 @@
         return _ready_callbacks = null;
       };
       if (document.addEventListener) {
-        document.addEventListener("DOMContentLoaded", handler = function() {
+        document.addEventListener("DOMContentLoaded", _DOMContentLoaded = function() {
           _domLoadedEvent();
-          return document.removeEventListener("DOMContentLoaded", handler, false);
-        }, false);
+          return document.removeEventListener("DOMContentLoaded", _DOMContentLoaded);
+        });
       } else {
         original_onreadystatechange = document.onreadystatechange;
         document.onreadystatechange = function() {
@@ -1969,34 +1555,32 @@
           }
         };
       }
-      document.createElement("template");
-      _ready(function() {
-        return Falcon.View.cacheTemplates();
-      });
       return function() {
         return _ready.apply(null, arguments);
       };
     })();
 
     _Class.prototype.apply = function(root, element, callback) {
-      var _ref3, _ref4;
+      var _ref1, _ref2;
       if (isFunction(element)) {
-        _ref3 = [element, null], callback = _ref3[0], element = _ref3[1];
+        _ref1 = [element, null], callback = _ref1[0], element = _ref1[1];
       }
       if (isFunction(root) && !ko.isObservable(root) && !isFunction(callback)) {
-        _ref4 = [root, null], callback = _ref4[0], root = _ref4[1];
+        _ref2 = [root, null], callback = _ref2[0], root = _ref2[1];
       }
       if (element == null) {
         element = Falcon.applicationElement;
       }
+      Falcon.dataAdapter = new Falcon.dataAdapterDefinition;
+      Falcon.templateAdapter = new Falcon.templateAdapterDefinition;
       Falcon.ready(function() {
-        var _ref5;
+        var _ref3;
         if (!isElement(element)) {
           if (!isString(element)) {
             element = "";
           }
           element = isEmpty(element) ? "body" : trim(element);
-          element = (_ref5 = document.querySelectorAll(element)[0]) != null ? _ref5 : document.body;
+          element = (_ref3 = document.querySelectorAll(element)[0]) != null ? _ref3 : document.body;
         }
         if (root != null) {
           ko.applyBindingAccessorsToNode(element, {
@@ -2031,7 +1615,7 @@
     };
 
     _Class.prototype.isAdapter = function(object) {
-      return (object != null) && object instanceof Falcon.Adapter;
+      return (object != null) && object instanceof Falcon.DataAdapter;
     };
 
     _Class.prototype.isFalconObject = function(object) {
@@ -2039,9 +1623,9 @@
     };
 
     _Class.prototype.addBinding = function(name, definition, allowVirtual) {
-      var _ref3;
+      var _ref1;
       if (isBoolean(definition)) {
-        _ref3 = [allowVirtual, definition], definition = _ref3[0], allowVirtual = _ref3[1];
+        _ref1 = [allowVirtual, definition], definition = _ref1[0], allowVirtual = _ref1[1];
       }
       if (isFunction(definition)) {
         definition = {
@@ -2093,15 +1677,15 @@
       ko.computed({
         disposeWhenNodeIsRemoved: element,
         read: function() {
-          var childContext, template, _ref3;
+          var childContext, template;
           view = ko.unwrap(valueAccessor());
           if (!Falcon.isView(view)) {
             return ko.virtualElements.emptyNode(element);
           }
-          if (!view.__falcon_view__is_loaded__()) {
-            return ko.virtualElements.emptyNode(element);
+          template = ko.unwrap(view.__falcon_view__loaded_template__);
+          if (!isString(template)) {
+            template = "";
           }
-          template = ((_ref3 = view.template()) != null ? _ref3 : "").toString();
           if (isEmpty(template)) {
             return ko.virtualElements.emptyNode(element);
           }
@@ -2109,7 +1693,7 @@
             context['__falcon_view__addChildView__'](view);
           }
           childContext = context.createChildContext(viewModel).extend({
-            '$view': view.viewModel()
+            '$view': view.createViewModel()
           });
           container.innerHTML = template;
           anonymous_template['text'](template);
@@ -2145,26 +1729,26 @@
     });
   };
 
-  Falcon.__binding__original_foreach__ = (_ref3 = ko.bindingHandlers['foreach']) != null ? _ref3 : {};
+  Falcon.__binding__original_foreach__ = (_ref1 = ko.bindingHandlers['foreach']) != null ? _ref1 : {};
 
   ko.bindingHandlers['foreach'] = {
     'init': function() {
-      var args, element, value, valueAccessor, _ref4;
+      var args, element, value, valueAccessor, _ref2;
       element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
       value = ko.unwrap(valueAccessor());
-      return (_ref4 = Falcon.__binding__original_foreach__)['init'].apply(_ref4, [element, _getForeachItems(value)].concat(__slice.call(args)));
+      return (_ref2 = Falcon.__binding__original_foreach__)['init'].apply(_ref2, [element, _getForeachItems(value)].concat(__slice.call(args)));
     },
     'update': function() {
-      var args, element, value, valueAccessor, _ref4;
+      var args, element, value, valueAccessor, _ref2;
       element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
       value = ko.unwrap(valueAccessor());
-      return (_ref4 = Falcon.__binding__original_foreach__)['update'].apply(_ref4, [element, _getForeachItems(value)].concat(__slice.call(args)));
+      return (_ref2 = Falcon.__binding__original_foreach__)['update'].apply(_ref2, [element, _getForeachItems(value)].concat(__slice.call(args)));
     }
   };
 
-  _ref4 = Falcon.__binding__original_foreach__;
-  for (key in _ref4) {
-    value = _ref4[key];
+  _ref2 = Falcon.__binding__original_foreach__;
+  for (key in _ref2) {
+    value = _ref2[key];
     if (!(key in ko.bindingHandlers['foreach'])) {
       ko.bindingHandlers['foreach'][key] = value;
     }
@@ -2180,28 +1764,28 @@
     });
   };
 
-  Falcon.__binding__original_options__ = (_ref5 = ko.bindingHandlers['options']) != null ? _ref5 : (function() {});
+  Falcon.__binding__original_options__ = (_ref3 = ko.bindingHandlers['options']) != null ? _ref3 : (function() {});
 
   ko.bindingHandlers['options'] = (function() {
     return {
       'init': function() {
-        var args, element, valueAccessor, _ref6;
+        var args, element, valueAccessor, _ref4;
         element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
         value = ko.unwrap(valueAccessor());
-        return ((_ref6 = Falcon.__binding__original_options__['init']) != null ? _ref6 : (function() {})).apply(null, [element, _getOptionsItems(value)].concat(__slice.call(args)));
+        return ((_ref4 = Falcon.__binding__original_options__['init']) != null ? _ref4 : (function() {})).apply(null, [element, _getOptionsItems(value)].concat(__slice.call(args)));
       },
       'update': function() {
-        var args, element, valueAccessor, _ref6;
+        var args, element, valueAccessor, _ref4;
         element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
         value = ko.unwrap(valueAccessor());
-        return ((_ref6 = Falcon.__binding__original_options__['update']) != null ? _ref6 : (function() {})).apply(null, [element, _getOptionsItems(value)].concat(__slice.call(args)));
+        return ((_ref4 = Falcon.__binding__original_options__['update']) != null ? _ref4 : (function() {})).apply(null, [element, _getOptionsItems(value)].concat(__slice.call(args)));
       }
     };
   })();
 
-  _ref6 = Falcon.__binding__original_options__;
-  for (key in _ref6) {
-    value = _ref6[key];
+  _ref4 = Falcon.__binding__original_options__;
+  for (key in _ref4) {
+    value = _ref4[key];
     if (!(key in ko.bindingHandlers['options'])) {
       ko.bindingHandlers['options'][key] = value;
     }

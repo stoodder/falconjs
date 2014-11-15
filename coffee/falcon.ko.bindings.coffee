@@ -38,9 +38,9 @@ ko.bindingHandlers['view'] =
 				view = ko.unwrap( valueAccessor() )
 
 				return ko.virtualElements.emptyNode(element) unless Falcon.isView( view )
-				return ko.virtualElements.emptyNode(element) unless view.__falcon_view__is_loaded__()
 
-				template = ( view.template() ? "" ).toString()
+				template = ko.unwrap(view.__falcon_view__loaded_template__)
+				template = "" unless isString(template)
 
 				return ko.virtualElements.emptyNode(element) if isEmpty( template )
 
@@ -48,9 +48,10 @@ ko.bindingHandlers['view'] =
 				#method are abstracted away during viewModel generation, it's used to notify a view 
 				#which views have been created within its context.  This is then used when destroying 
 				#the view to also ensure that we destroy child views.
+				#TODO: Try and remove this, using the __falcon_view__addChildView__
 				context['__falcon_view__addChildView__']( view ) if context?['__falcon_view__addChildView__']?
 				
-				childContext = context.createChildContext(viewModel).extend( '$view': view.viewModel() )
+				childContext = context.createChildContext(viewModel).extend( '$view': view.createViewModel() )
 				
 				container.innerHTML = template
 				anonymous_template['text'](template)

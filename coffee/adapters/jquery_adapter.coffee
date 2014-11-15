@@ -1,4 +1,4 @@
-class @jQueryAdapter extends Falcon.Adapter
+Falcon.dataAdapterDefinition = class @jQueryRestDataAdapter extends Falcon.DataAdapter
 	cache: false
 
 	#------------------------------------------------------------------------
@@ -110,7 +110,7 @@ class @jQueryAdapter extends Falcon.Adapter
 	#END parseRawResponseData
 
 	#------------------------------------------------------------------------
-	# Method: Falcon.Adapter#sync( data_object, type, options, context )
+	# Method: Falcon.DataAdapter#sync( data_object, type, options, context )
 	#	Created a jQuery ajax request to communicate model and collection data
 	#	with the backend server. 'null' is returned if the validations failed.
 	#
@@ -162,9 +162,11 @@ class @jQueryAdapter extends Falcon.Adapter
 			#END complete
 		#END $.ajax
 	#END sync
+#END class
 
+Falcon.templateAdapaterDefinition = class @jQueryTemplateAdapter extends Falcon.TemplateAdapter
 	#------------------------------------------------------------------------
-	# Method: jQueryAdapter#getTemplate( uri, callback )
+	# Method: jQueryAdapter#resolveTemplate( uri, callback )
 	#	Used to retrieve a template from the server using ajax unless the uri
 	#	is set to request a local template using the identifier syntax (starting)
 	#	with a '#'
@@ -177,29 +179,22 @@ class @jQueryAdapter extends Falcon.Adapter
 	#										completed request.
 	#
 	# Returns:
-	#	_(Falcon.Adapter)_ - This instance
+	#	_(Falcon.DataAdapter)_ - This instance
 	#------------------------------------------------------------------------
-	getTemplate: (uri, callback) ->
-		unless isString( uri )
-			throw new Error("uri must be a String")
-		#END unless
-		
-		unless isFunction( callback )
-			throw new Error("callback must be a Function")
-		#END unless
-		
+	loadTemplate: (uri, callback) ->
 		return super(uri, callback) if uri.charAt(0) is "#"
 
 		$.ajax
 			url: uri
-			type: Falcon.Adapter.GET
+			type: Falcon.GET
 			cache: @cache
 			error: => callback("")
-			success: (html) => callback(html)
+			success: (template) =>
+				@cacheTemplate( uri, template )
+				callback(template)
+			#END success
 		#END ajax
 
 		return @
-	#END getTemplate
-#END class
-
-Falcon.adapter = new jQueryAdapter
+	#END loadTemplate
+#END jQueryTemplateAdapter

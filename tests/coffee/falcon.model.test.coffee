@@ -1045,7 +1045,7 @@ describe "Falcon.Model", ->
 			model = new Falcon.Model
 
 			beforeEach ->
-				spyOn( Falcon.adapter, 'sync' )
+				spyOn( Falcon.dataAdapter, 'sync' )
 			#END beforeEach
 
 			it "Should call the falcon adapter", ->
@@ -1054,8 +1054,8 @@ describe "Falcon.Model", ->
 				context = new Falcon.Model
 				model.sync(type, options, context)
 
-				expect( Falcon.adapter.sync.calls.count() ).toBe( 1 )
-				expect( Falcon.adapter.sync ).toHaveBeenCalledWith(model, type, options, context)
+				expect( Falcon.dataAdapter.sync.calls.count() ).toBe( 1 )
+				expect( Falcon.dataAdapter.sync ).toHaveBeenCalledWith(model, type, options, context)
 			#END it
 		#END describe
 	#END describe

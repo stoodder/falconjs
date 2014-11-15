@@ -7,11 +7,11 @@ class FalconObject
 	#--------------------------------------------------------
 	# Attribute: Falcon.Object#observables
 	#	This is a list of the default observables and values for
-	#	this view on each instantiation. If the value is a function
+	#	this object on each instantiation. If the value is a function
 	#	a computed is created. If the value is an object with the keys
 	#	'read' and/or 'write' a computed is created with those object
 	#	keys as the defining variables. All computeds are created with
-	#	this view's instance bound to its callback methods
+	#	this object's instance bound to its callback methods
 	#--------------------------------------------------------
 	observables: null
 
@@ -48,7 +48,7 @@ class FalconObject
 		if( protoProps and protoProps.hasOwnProperty('constructor') )
 			child = protoProps.constructor
 		else
-			child = -> parent.apply(this, arguments)
+			child = -> parent.apply(@, arguments)
 		#END if
 
 		child[key] = value for key, value of parent
@@ -118,7 +118,7 @@ class FalconObject
 						'read': value.read
 						'write': value.write
 						'owner': value.owner ? @
-						'deferEvaluation': Falcon.deferEvaluation ? true
+						'deferEvaluation': value.deferEvaluation ? Falcon.deferEvaluation ? true
 						'disposeWhen': value.disposeWhen
 						'disposeWhenNodeIsRemoved': value.disposeWhenNodeIsRemoved
 					#END computed
@@ -144,17 +144,17 @@ class FalconObject
 	#	_(Falcon.Object)_ - This instance
 	#--------------------------------------------------------
 	on: (event, callback, context) ->
-		return this unless isString(event) and isFunction(callback)
+		return @ unless isString(event) and isFunction(callback)
 
-		context ?= this
+		context ?= @
 		event = trim(event).toLowerCase()
 
-		return this if isEmpty(event)
+		return @ if isEmpty(event)
 
 		@__falcon_object__events__ ?= {}
 		( @__falcon_object__events__[event] ?= [] ).push({callback, context})
 
-		return this
+		return @
 	#END on
 
 	#--------------------------------------------------------
@@ -170,7 +170,7 @@ class FalconObject
 	#	_(Falcon.Model)_ - This instance
 	#--------------------------------------------------------
 	off: (event, callback, context) ->
-		return this unless isObject(@__falcon_object__events__)
+		return @ unless isObject(@__falcon_object__events__)
 
 		[callback, context, event] = [event, callback, null] unless isString(event)
 		[context, callback] = [callback, null] unless isFunction(callback)
@@ -196,7 +196,7 @@ class FalconObject
 			update_events_for(event) for event of @__falcon_object__events__
 		#END if
 
-		return this
+		return @
 	#END off
 
 	#--------------------------------------------------------
@@ -238,22 +238,22 @@ class FalconObject
 	#	_(Falcon.Model)_ - This instance
 	#--------------------------------------------------------
 	trigger: (event, args...) ->
-		return this unless isString(event)
+		return @ unless isString(event)
 		event = trim(event).toLowerCase()
 
 		@__falcon_object__events__ ?= {}
 
-		return this if isEmpty(event) or not @__falcon_object__events__[event]?
+		return @ if isEmpty(event) or not @__falcon_object__events__[event]?
 
 		evt.callback.apply(evt.context, args) for evt in @__falcon_object__events__[event]
 
-		return this
+		return @
 	#END trigger
 
 	#--------------------------------------------------------
 	# Method: Falcon.Model#listenTo(object, event, callback)
 	# 	This is the same as 'on' except that all of the callbacks
-	#	will be called in the context of 'this' object.  Additionally
+	#	will be called in the context of this object.  Additionally
 	#	events assigned using the listenTo method can easily be removed
 	#	using the stopListening method without having to hold on to
 	#	an instance of the callback method
@@ -262,21 +262,21 @@ class FalconObject
 	#	**object** - _(Falcon.Object)_ - The object to listen for events on
 	#	**event** - _(String)_ - The event to respond to
 	#	**callback** - _(Function)_ - The callback to run when said event is triggered.
-	#								  Will be called in context of 'this'
+	#								  Will be called in context of this
 	#
 	# Returns:
 	#	_(Falcon.Model)_ - This instance
 	#--------------------------------------------------------
 	listenTo: (object, event, callback) ->
-		return this unless Falcon.isFalconObject( object )
-		return this unless isString(event) and isFunction(callback)
+		return @ unless Falcon.isFalconObject( object )
+		return @ unless isString(event) and isFunction(callback)
 
 		object.on(event, callback, @)
 
 		@__falcon_object__listeners__ ?= []
 		@__falcon_object__listeners__.push({object, event, callback})
 
-		return this
+		return @
 	#END listenTo
 
 	#--------------------------------------------------------
@@ -289,7 +289,7 @@ class FalconObject
 	#	**object** - _(Falcon.Object)_ - The object to listen for events on
 	#	**event** - _(String)_ - The event to respond to
 	#	**callback** - _(Function)_ - The callback to run when said event is triggered.
-	#								  Will be called in context of 'this'
+	#								  Will be called in context of this
 	#
 	# Returns:
 	#	_(Falcon.Model)_ - This instance
@@ -316,12 +316,12 @@ class FalconObject
 			else if _callback? and callback isnt _callback
 				new_listeners.push( listener )
 			else
-				object.off(event, callback, this)
+				object.off(event, callback, @)
 			#END if
 		#END for
 
 		@__falcon_object__listeners__ = new_listeners
 		
-		return this
+		return @
 	#END stopListening
 #END Falcon.Object
