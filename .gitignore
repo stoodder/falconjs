@@ -5,3 +5,5 @@ TODO.txt
 node_modules
 ./**/.sass-cache
 /**/.DS_Store
+.grunt
+_SpecRunner.html

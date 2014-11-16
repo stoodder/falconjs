@@ -1017,117 +1017,6 @@
 
   })(FalconObject);
 
-  FalconView = (function(_super) {
-    __extends(FalconView, _super);
-
-    FalconView.extend = FalconObject.extend;
-
-    FalconView.prototype.endpoint = null;
-
-    FalconView.prototype.template = null;
-
-    FalconView.prototype.__falcon_view__loaded_template__ = false;
-
-    FalconView.prototype.__falcon_view__is_rendered__ = false;
-
-    FalconView.prototype.__falcon_view__child_views__ = null;
-
-    function FalconView() {
-      var _this = this;
-      FalconView.__super__.constructor.apply(this, arguments);
-      this.__falcon_view__loaded_template__ = ko.observable();
-      this.__falcon_view__is_rendered__ = false;
-      this.__falcon_view__child_views__ = [];
-      this.initialize.apply(this, arguments);
-      if (isString(this.template)) {
-        this.__falcon_view__loaded_template__(this.template);
-      } else {
-        Falcon.templateAdapter.resolveTemplate(this, function(template) {
-          return _this.__falcon_view__loaded_template__(template);
-        });
-      }
-    }
-
-    FalconView.prototype.initialize = (function() {});
-
-    FalconView.prototype.makeUrl = function() {
-      return Falcon.templateAdapter.makeUrl(this);
-    };
-
-    FalconView.prototype._render = function() {
-      if (this.__falcon_view__is_rendered__) {
-        return;
-      }
-      this.display.apply(this, arguments);
-      this.__falcon_view__is_rendered__ = true;
-    };
-
-    FalconView.prototype._unrender = function() {
-      var child_view, _i, _len, _ref1;
-      if (!this.__falcon_view__is_rendered__) {
-        return;
-      }
-      _ref1 = this.__falcon_view__child_views__;
-      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-        child_view = _ref1[_i];
-        child_view._unrender();
-      }
-      this.__falcon_view__child_views__ = [];
-      this.dispose.apply(this, arguments);
-      this.__falcon_view__is_rendered__ = false;
-    };
-
-    FalconView.prototype._addChildView = function(view) {
-      if (!Falcon.isView(view)) {
-        return;
-      }
-      return this.__falcon_view__child_views__.push(view);
-    };
-
-    FalconView.prototype.initialize = (function() {});
-
-    FalconView.prototype.display = (function() {});
-
-    FalconView.prototype.dispose = (function() {});
-
-    FalconView.prototype.__falcon_view__cachedViewModel__ = null;
-
-    FalconView.prototype.createViewModel = function() {
-      var key, value, viewModel,
-        _this = this;
-      if (this.__falcon_view__cachedViewModel__ != null) {
-        return this.__falcon_view__cachedViewModel__;
-      }
-      viewModel = {
-        "__falcon_view__addChildView__": function(view) {
-          return _this._addChildView(view);
-        }
-      };
-      for (key in this) {
-        value = this[key];
-        if (!(!(key in Falcon.View.prototype))) {
-          continue;
-        }
-        if (isFunction(value) && !ko.isObservable(value)) {
-          value = (function() {
-            var _value;
-            _value = value;
-            return function() {
-              var args;
-              args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-              return _value.call.apply(_value, [_this].concat(__slice.call(args)));
-            };
-          })();
-        }
-        viewModel[key] = value;
-      }
-      return (this.__falcon_view__cachedViewModel__ = viewModel);
-    };
-
-    return FalconView;
-
-  })(FalconObject);
-
   FalconCollection = (function(_super) {
     var FalconChainedCollection, _fill_addMixins, _fill_createModels, _fill_standardizeItems, _fill_standardizeOptions, _fill_updateModels, _makeIterator, _ref1;
 
@@ -1835,6 +1724,117 @@
 
   })(FalconObject);
 
+  FalconView = (function(_super) {
+    __extends(FalconView, _super);
+
+    FalconView.extend = FalconObject.extend;
+
+    FalconView.prototype.endpoint = null;
+
+    FalconView.prototype.template = null;
+
+    FalconView.prototype.__falcon_view__loaded_template__ = false;
+
+    FalconView.prototype.__falcon_view__is_rendered__ = false;
+
+    FalconView.prototype.__falcon_view__child_views__ = null;
+
+    function FalconView() {
+      var _this = this;
+      FalconView.__super__.constructor.apply(this, arguments);
+      this.__falcon_view__loaded_template__ = ko.observable();
+      this.__falcon_view__is_rendered__ = false;
+      this.__falcon_view__child_views__ = [];
+      this.initialize.apply(this, arguments);
+      if (isString(this.template)) {
+        this.__falcon_view__loaded_template__(this.template);
+      } else {
+        Falcon.templateAdapter.resolveTemplate(this, function(template) {
+          return _this.__falcon_view__loaded_template__(template);
+        });
+      }
+    }
+
+    FalconView.prototype.initialize = (function() {});
+
+    FalconView.prototype.makeUrl = function() {
+      return Falcon.templateAdapter.makeUrl(this);
+    };
+
+    FalconView.prototype._render = function() {
+      if (this.__falcon_view__is_rendered__) {
+        return;
+      }
+      this.display.apply(this, arguments);
+      this.__falcon_view__is_rendered__ = true;
+    };
+
+    FalconView.prototype._unrender = function() {
+      var child_view, _i, _len, _ref1;
+      if (!this.__falcon_view__is_rendered__) {
+        return;
+      }
+      _ref1 = this.__falcon_view__child_views__;
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        child_view = _ref1[_i];
+        child_view._unrender();
+      }
+      this.__falcon_view__child_views__ = [];
+      this.dispose.apply(this, arguments);
+      this.__falcon_view__is_rendered__ = false;
+    };
+
+    FalconView.prototype._addChildView = function(view) {
+      if (!Falcon.isView(view)) {
+        return;
+      }
+      return this.__falcon_view__child_views__.push(view);
+    };
+
+    FalconView.prototype.initialize = (function() {});
+
+    FalconView.prototype.display = (function() {});
+
+    FalconView.prototype.dispose = (function() {});
+
+    FalconView.prototype.__falcon_view__cachedViewModel__ = null;
+
+    FalconView.prototype.createViewModel = function() {
+      var key, value, viewModel,
+        _this = this;
+      if (this.__falcon_view__cachedViewModel__ != null) {
+        return this.__falcon_view__cachedViewModel__;
+      }
+      viewModel = {
+        "__falcon_view__addChildView__": function(view) {
+          return _this._addChildView(view);
+        }
+      };
+      for (key in this) {
+        value = this[key];
+        if (!(!(key in Falcon.View.prototype))) {
+          continue;
+        }
+        if (isFunction(value) && !ko.isObservable(value)) {
+          value = (function() {
+            var _value;
+            _value = value;
+            return function() {
+              var args;
+              args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+              return _value.call.apply(_value, [_this].concat(__slice.call(args)));
+            };
+          })();
+        }
+        viewModel[key] = value;
+      }
+      return (this.__falcon_view__cachedViewModel__ = viewModel);
+    };
+
+    return FalconView;
+
+  })(FalconObject);
+
   this.Falcon = Falcon = new ((function(_super) {
     __extends(_Class, _super);
 
@@ -1863,7 +1863,7 @@
 
     _Class.prototype['DataAdapter'] = FalconDataAdapter;
 
-    _Class.prototype['TemplateDatapter'] = FalconTemplateAdapter;
+    _Class.prototype['TemplateAdapter'] = FalconTemplateAdapter;
 
     _Class.prototype.version = "1.0.0rc1";
 

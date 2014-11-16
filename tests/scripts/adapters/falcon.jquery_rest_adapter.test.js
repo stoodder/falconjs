@@ -1,8 +1,8 @@
 (function() {
-  describe("jQueryAdapter", function() {
+  describe("jQueryRestDataAdapter", function() {
     describe("standardizeOptions", function() {
       var adapter, context, data_object, options, parent, type;
-      adapter = new jQueryAdapter;
+      adapter = new jQueryRestDataAdapter;
       parent = new Falcon.Model({
         id: 0
       });
@@ -111,7 +111,7 @@
     });
     describe("resolveUrl", function() {
       var adapter, context, data_object, options, params, type;
-      adapter = new jQueryAdapter;
+      adapter = new jQueryRestDataAdapter;
       data_object = new Falcon.Model({
         id: 1
       });
@@ -155,7 +155,7 @@
     });
     describe("serializeData", function() {
       var adapter, context, data_object, options, type;
-      adapter = new jQueryAdapter;
+      adapter = new jQueryRestDataAdapter;
       data_object = new Falcon.Model({
         id: 1
       });
@@ -196,7 +196,7 @@
     });
     describe("parseRawResponseData", function() {
       var adapter, context, data, data_object, options, type, xhr;
-      adapter = new jQueryAdapter;
+      adapter = new jQueryRestDataAdapter;
       data_object = new Falcon.Model({
         id: 1
       });
@@ -272,9 +272,9 @@
         return expect(ret).toEqual({});
       });
     });
-    describe("sync", function() {
+    return describe("sync", function() {
       var adapter, complete, context, data_object, error, options, response_data, response_status, response_xhr, success, type, xhr_return;
-      adapter = new jQueryAdapter;
+      adapter = new jQueryRestDataAdapter;
       data_object = new Falcon.Model({
         id: 1
       });
@@ -381,14 +381,17 @@
         return expect(ret).toBeNull();
       });
     });
-    return describe("resolveTemplate", function() {
+  });
+
+  describe("jQueryTemplateAdapter", function() {
+    return describe("loadTemplate", function() {
       var adapter, callback, elm, error, success;
-      adapter = new jQueryAdapter;
+      adapter = new jQueryTemplateAdapter;
       callback = jasmine.createSpy("Loaded Callback");
       elm = null;
       success = error = null;
       beforeEach(function() {
-        spyOn(Falcon.DataAdapter.prototype, 'resolveTemplate').and.callThrough();
+        spyOn(Falcon.TemplateAdapter.prototype, 'loadTemplate').and.callThrough();
         spyOn($, 'ajax');
         callback.calls.reset();
         elm = document.createElement("div");
@@ -401,33 +404,33 @@
       });
       it("Should throw if an invalid uri is given", function() {
         expect(function() {
-          return adapter.resolveTemplate();
+          return adapter.loadTemplate();
         }).toThrow();
         return expect(function() {
-          return adapter.resolveTemplate(123);
+          return adapter.loadTemplate(123);
         }).toThrow();
       });
       it("Should throw if an invalid callback is given", function() {
         expect(function() {
-          return adapter.resolveTemplate(uri);
+          return adapter.loadTemplate(uri);
         }).toThrow();
         return expect(function() {
-          return adapter.resolveTemplate(uri, 123);
+          return adapter.loadTemplate(uri, 123);
         }).toThrow();
       });
-      it("Should fall back to the original resolveTemplate method if an identifier is passed in", function() {
+      it("Should fall back to the original loadTemplate method if an identifier is passed in", function() {
         var ret;
-        ret = adapter.resolveTemplate("#hello_world", callback);
-        expect(Falcon.DataAdapter.prototype.resolveTemplate.calls.count()).toBe(1);
-        expect(Falcon.DataAdapter.prototype.resolveTemplate).toHaveBeenCalledWith("#hello_world", callback);
+        ret = adapter.loadTemplate("#hello_world", callback);
+        expect(Falcon.TemplateAdapter.prototype.loadTemplate.calls.count()).toBe(1);
+        expect(Falcon.TemplateAdapter.prototype.loadTemplate).toHaveBeenCalledWith("#hello_world", callback);
         expect(callback.calls.count()).toBe(1);
         expect($.ajax).not.toHaveBeenCalled();
         return expect(ret).toBe(adapter);
       });
       it("Should call the ajax method if a url is passed in", function() {
         var ret, _ref;
-        ret = adapter.resolveTemplate("http://www.google.com", callback);
-        expect(Falcon.DataAdapter.prototype.resolveTemplate).not.toHaveBeenCalled();
+        ret = adapter.loadTemplate("http://www.google.com", callback);
+        expect(Falcon.TemplateAdapter.prototype.loadTemplate).not.toHaveBeenCalled();
         expect(callback).not.toHaveBeenCalled();
         expect($.ajax.calls.count()).toBe(1);
         expect($.ajax).toHaveBeenCalledWith({
@@ -442,14 +445,14 @@
       });
       it("Should call the success routine properly", function() {
         success("Template HTML");
-        expect(Falcon.DataAdapter.prototype.resolveTemplate).not.toHaveBeenCalled();
+        expect(Falcon.TemplateAdapter.prototype.loadTemplate).not.toHaveBeenCalled();
         expect($.ajax).not.toHaveBeenCalled();
         expect(callback.calls.count()).toBe(1);
         return expect(callback).toHaveBeenCalledWith("Template HTML");
       });
       return it("Should call the error routine properly", function() {
         error();
-        expect(Falcon.DataAdapter.prototype.resolveTemplate).not.toHaveBeenCalled();
+        expect(Falcon.TemplateAdapter.prototype.loadTemplate).not.toHaveBeenCalled();
         expect($.ajax).not.toHaveBeenCalled();
         expect(callback.calls.count()).toBe(1);
         return expect(callback).toHaveBeenCalledWith("");

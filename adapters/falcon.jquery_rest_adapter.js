@@ -190,6 +190,8 @@
       return _ref1;
     }
 
+    jQueryTemplateAdapter.prototype.cache = false;
+
     jQueryTemplateAdapter.prototype.loadTemplate = function(uri, callback) {
       var _this = this;
       if (uri.charAt(0) === "#") {

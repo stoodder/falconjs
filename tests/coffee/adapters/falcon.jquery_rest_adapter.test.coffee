@@ -1,6 +1,6 @@
-describe "jQueryAdapter", ->
+describe "jQueryRestDataAdapter", ->
 	describe "standardizeOptions", ->
-		adapter = new jQueryAdapter
+		adapter = new jQueryRestDataAdapter
 		parent = new Falcon.Model(id: 0)
 		data_object = new Falcon.Model({id: 1}, parent)
 		type = Falcon.GET
@@ -117,7 +117,7 @@ describe "jQueryAdapter", ->
 	#END describe
 	
 	describe "resolveUrl", ->
-		adapter = new jQueryAdapter
+		adapter = new jQueryRestDataAdapter
 		data_object = new Falcon.Model(id: 1)
 		type = Falcon.GET
 		options = {url: "http://www.google.com"}
@@ -159,7 +159,7 @@ describe "jQueryAdapter", ->
 	#END describe
 	
 	describe "serializeData", ->
-		adapter = new jQueryAdapter
+		adapter = new jQueryRestDataAdapter
 		data_object = new Falcon.Model(id: 1)
 		type = Falcon.GET
 		options = {
@@ -201,7 +201,7 @@ describe "jQueryAdapter", ->
 	#END describe
 	
 	describe "parseRawResponseData", ->
-		adapter = new jQueryAdapter
+		adapter = new jQueryRestDataAdapter
 		data_object = new Falcon.Model(id: 1)
 		type = Falcon.GET
 		options = {}
@@ -262,7 +262,7 @@ describe "jQueryAdapter", ->
 	#END describe
 	
 	describe "sync", ->
-		adapter = new jQueryAdapter
+		adapter = new jQueryRestDataAdapter
 		data_object = new Falcon.Model(id: 1)
 		type = Falcon.GET
 		options = {
@@ -375,15 +375,17 @@ describe "jQueryAdapter", ->
 			expect( ret ).toBeNull()
 		#END it
 	#END describe
-	
-	describe "resolveTemplate", ->
-		adapter = new jQueryAdapter
+#END describe
+
+describe "jQueryTemplateAdapter", ->
+	describe "loadTemplate", ->
+		adapter = new jQueryTemplateAdapter
 		callback = jasmine.createSpy("Loaded Callback")
 		elm = null
 		success = error = null
 
 		beforeEach ->
-			spyOn( Falcon.DataAdapter::, 'resolveTemplate' ).and.callThrough()
+			spyOn( Falcon.TemplateAdapter::, 'loadTemplate' ).and.callThrough()
 			spyOn( $, 'ajax' )
 			callback.calls.reset()
 
@@ -398,20 +400,20 @@ describe "jQueryAdapter", ->
 		#END afterEach
 
 		it "Should throw if an invalid uri is given", ->
-			expect( -> adapter.resolveTemplate() ).toThrow()
-			expect( -> adapter.resolveTemplate(123) ).toThrow()
+			expect( -> adapter.loadTemplate() ).toThrow()
+			expect( -> adapter.loadTemplate(123) ).toThrow()
 		#END it
 
 		it "Should throw if an invalid callback is given", ->
-			expect( -> adapter.resolveTemplate(uri) ).toThrow()
-			expect( -> adapter.resolveTemplate(uri, 123) ).toThrow()
+			expect( -> adapter.loadTemplate(uri) ).toThrow()
+			expect( -> adapter.loadTemplate(uri, 123) ).toThrow()
 		#END it
 
-		it "Should fall back to the original resolveTemplate method if an identifier is passed in", ->
-			ret = adapter.resolveTemplate("#hello_world", callback)
+		it "Should fall back to the original loadTemplate method if an identifier is passed in", ->
+			ret = adapter.loadTemplate("#hello_world", callback)
 
-			expect( Falcon.DataAdapter::resolveTemplate.calls.count() ).toBe( 1 )
-			expect( Falcon.DataAdapter::resolveTemplate ).toHaveBeenCalledWith("#hello_world", callback)
+			expect( Falcon.TemplateAdapter::loadTemplate.calls.count() ).toBe( 1 )
+			expect( Falcon.TemplateAdapter::loadTemplate ).toHaveBeenCalledWith("#hello_world", callback)
 
 			expect( callback.calls.count() ).toBe( 1 )
 
@@ -421,9 +423,9 @@ describe "jQueryAdapter", ->
 		#END it
 
 		it "Should call the ajax method if a url is passed in", ->
-			ret = adapter.resolveTemplate("http://www.google.com", callback)
+			ret = adapter.loadTemplate("http://www.google.com", callback)
 
-			expect( Falcon.DataAdapter::resolveTemplate ).not.toHaveBeenCalled()
+			expect( Falcon.TemplateAdapter::loadTemplate ).not.toHaveBeenCalled()
 			expect( callback ).not.toHaveBeenCalled()
 
 			expect( $.ajax.calls.count() ).toBe( 1 )
@@ -443,7 +445,7 @@ describe "jQueryAdapter", ->
 		it "Should call the success routine properly", ->
 			success("Template HTML")
 
-			expect( Falcon.DataAdapter::resolveTemplate ).not.toHaveBeenCalled()
+			expect( Falcon.TemplateAdapter::loadTemplate ).not.toHaveBeenCalled()
 			expect( $.ajax ).not.toHaveBeenCalled()
 			
 			expect( callback.calls.count() ).toBe( 1 )
@@ -453,7 +455,7 @@ describe "jQueryAdapter", ->
 		it "Should call the error routine properly", ->
 			error()
 
-			expect( Falcon.DataAdapter::resolveTemplate ).not.toHaveBeenCalled()
+			expect( Falcon.TemplateAdapter::loadTemplate ).not.toHaveBeenCalled()
 			expect( $.ajax ).not.toHaveBeenCalled()
 
 			expect( callback.calls.count() ).toBe( 1 )

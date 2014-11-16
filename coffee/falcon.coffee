@@ -10,7 +10,7 @@
 	'Collection': FalconCollection
 	'View': FalconView
 	'DataAdapter': FalconDataAdapter
-	'TemplateDatapter': FalconTemplateAdapter
+	'TemplateAdapter': FalconTemplateAdapter
 
 	#--------------------------------------------------------
 	# Attribute: Falcon.version

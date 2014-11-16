@@ -1,6 +1,6 @@
 class @jQueryRestDataAdapter extends Falcon.DataAdapter
 	cache: false
-
+	
 	#------------------------------------------------------------------------
 	# Method: jQueryAdapter#standardizeOptions( data_object, type, options, context )
 	#	Extends the standard standardize options routine with jQuery specific defaults:
@@ -165,6 +165,8 @@ class @jQueryRestDataAdapter extends Falcon.DataAdapter
 #END class
 
 class @jQueryTemplateAdapter extends Falcon.TemplateAdapter
+	cache: false
+
 	#------------------------------------------------------------------------
 	# Method: jQueryAdapter#resolveTemplate( uri, callback )
 	#	Used to retrieve a template from the server using ajax unless the uri

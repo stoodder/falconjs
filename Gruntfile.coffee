@@ -60,17 +60,14 @@ module.exports = (grunt) ->
 
 						"coffee/checking.utility.coffee"
 						"coffee/string.utility.coffee"
-						"coffee/object.utility.coffee"
-						"coffee/array.utility.coffee"
 						"coffee/function.utility.coffee"
 
 						"coffee/falcon.object.coffee"
 						"coffee/falcon.data_adapter.coffee"
 						"coffee/falcon.template_adapter.coffee"
 						"coffee/falcon.model.coffee"
-						"coffee/falcon.view.coffee"
 						"coffee/falcon.collection.coffee"
-						
+						"coffee/falcon.view.coffee"
 						"coffee/falcon.coffee"
 						"coffee/falcon.ko.bindings.coffee"
 						
@@ -93,18 +90,24 @@ module.exports = (grunt) ->
 				#END options
 
 				files:
-					'adapters/falcon.jquery_adapter.js': [
+					'adapters/falcon.jquery_rest_adapter.js': [
 						"coffee/checking.utility.coffee"
-						"coffee/adapters/jquery_adapter.coffee"
+						"coffee/adapters/jquery_rest_adapter.coffee"
 					]
 				#END files
 			#END coffee:dist
 
 			'test':
 				files:
-					"tests/lib/jasmine2.0.0-sinon.js": ["tests/coffee/jasmine2.0.0-sinon.coffee"]
-					"tests/scripts/test.helpers.js": ["tests/coffee/*.helper.coffee"]
-					"tests/scripts/falcon.tests.js": [
+					"tests/lib/jasmine2.0.0-sinon.js": [
+						"tests/coffee/jasmine2.0.0-sinon.coffee"
+					]
+
+					"tests/scripts/test.helpers.js": [
+						"tests/coffee/*.helper.coffee"
+					]
+
+					"tests/scripts/falcon.test.js": [
 						"tests/coffee/falcon.test.coffee"
 						"tests/coffee/falcon.object.test.coffee"
 						"tests/coffee/falcon.data_adapter.test.coffee"
@@ -114,8 +117,14 @@ module.exports = (grunt) ->
 						"tests/coffee/falcon.view.test.coffee"
 						"tests/coffee/falcon.ko.bindings.test.coffee"
 					]
-					"tests/scripts/falcon.conductor.test.js": ["tests/coffee/falcon.conductor.test.coffee"]
-					"tests/scripts/adapters/falcon.jquery_adapter.test.js": ["tests/coffee/adapters/falcon.jquery_adapter.test.coffee"]
+
+					"tests/scripts/falcon.conductor.test.js": [
+						"tests/coffee/falcon.conductor.test.coffee"
+					]
+
+					"tests/scripts/adapters/falcon.jquery_rest_adapter.test.js": [
+						"tests/coffee/adapters/falcon.jquery_rest_adapter.test.coffee"
+					]
 				#END files
 			#END coffee:test
 		#END coffee
@@ -133,7 +142,7 @@ module.exports = (grunt) ->
 
 			'adapters':
 				files:
-					'adapters/falcon.jquery_adapter.min.js': 'adapters/falcon.jquery_adapter.js'
+					'adapters/falcon.jquery_rest_adapter.min.js': 'adapters/falcon.jquery_rest_adapter.js'
 				#END files
 			#END uglify:adapters
 		#END uglify
@@ -151,7 +160,7 @@ module.exports = (grunt) ->
 					helpers: [
 						'tests/scripts/test.helpers.js'
 					]
-					specs: 'tests/scripts/falcon.tests.js'
+					specs: 'tests/scripts/falcon.test.js'
 				#END options
 			#END jasmine:dist
 
@@ -176,7 +185,7 @@ module.exports = (grunt) ->
 			#END conductor
 
 			'adapters':
-				src: 'adapters/falcon.jquery_adapter.min.js'
+				src: 'adapters/falcon.jquery_rest_adapter.min.js'
 				options:
 					summary: true
 					vendor: [
@@ -190,7 +199,7 @@ module.exports = (grunt) ->
 						'tests/scripts/test.helpers.js'
 					]
 					specs: [
-						'tests/scripts/adapters/falcon.jquery_adapter.test.js'
+						'tests/scripts/adapters/falcon.jquery_rest_adapter.test.js'
 					]
 				#END options
 		#END jasmine
