@@ -45,6 +45,24 @@ describe "Falcon.TemplateAdapter", ->
 		#END it
 	#END describe
 
+	describe "getCachedTemplate", ->
+		adapter = new Falcon.TemplateAdapter
+
+		it "Should through if a string isn't given", ->
+			expect( -> adapter.getCachedTemplate() ).toThrow()
+			expect( -> adapter.getCachedTemplate(new Falcon.Model) ).toThrow()
+		#END it
+
+		it "Should return null if a template isn't cached", ->
+			expect( adapter.getCachedTemplate("#hello_world") ).toBeNull()
+		#END it
+
+		it "Should return the template if one exists", ->
+			adapter.cacheTemplate("#hello_world", "Hello World")
+			expect( adapter.getCachedTemplate("#hello_world") ).toBe("Hello World")
+		#END it
+	#END describe
+
 	describe "resetCache", ->
 		adapter = new Falcon.TemplateAdapter
 		it "Should reset the template cache properly", ->
