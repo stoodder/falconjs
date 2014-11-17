@@ -64,14 +64,10 @@ class FalconView extends FalconObject
 
 		@initialize.apply(this, arguments)
 
-		# Attempt to load the template from the server or cache
-		if isString(@template)
-			@__falcon_view__loaded_template__(@template)
-		else
-			Falcon.templateAdapter.resolveTemplate( @, (template) =>
-				@__falcon_view__loaded_template__(template)
-			)
-		#END if
+		# Attempt to load the template
+		Falcon.templateAdapter.resolveTemplate( @, (template) =>
+			@__falcon_view__loaded_template__(template)
+		)
 	#END constructor
 
 	#--------------------------------------------------------

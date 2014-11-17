@@ -29,17 +29,6 @@ describe "Falcon.View", ->
 
 			expect( view.__falcon_view__loaded_template__() ).toBe( "Some Template" )
 		#END it
-
-		it "Should recognize pre-defined templates", ->
-			view = new ( Falcon.View.extend(endpoint: "#hello_world", template: "Hello Template") )
-
-			expect( Falcon.View::initialize.calls.count() ).toBe( 1 )
-			expect( Falcon.View::initialize ).toHaveBeenCalledWith()
-
-			expect( Falcon.templateAdapter.resolveTemplate ).not.toHaveBeenCalled()
-
-			expect( view.__falcon_view__loaded_template__() ).toBe( "Hello Template" )
-		#END it
 	#END describe
 
 

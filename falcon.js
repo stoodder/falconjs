@@ -666,6 +666,10 @@
       if (!isFunction(callback)) {
         throw new Error("callback must be a function");
       }
+      if (isString(view.template)) {
+        callback(view.template);
+        return this;
+      }
       url = view.makeUrl();
       if (isEmpty(url)) {
         callback("");
@@ -711,9 +715,7 @@
       if (endpoint.charAt(0) === '#') {
         return endpoint;
       }
-      if (endpoint.charAt(0) !== '/') {
-        url = "/" + url;
-      }
+      url = endpoint.charAt(0) === "/" ? endpoint : "/" + endpoint;
       if (isString(Falcon.baseTemplateUrl)) {
         url = "" + Falcon.baseTemplateUrl + url;
       }
@@ -1746,13 +1748,9 @@
       this.__falcon_view__is_rendered__ = false;
       this.__falcon_view__child_views__ = [];
       this.initialize.apply(this, arguments);
-      if (isString(this.template)) {
-        this.__falcon_view__loaded_template__(this.template);
-      } else {
-        Falcon.templateAdapter.resolveTemplate(this, function(template) {
-          return _this.__falcon_view__loaded_template__(template);
-        });
-      }
+      Falcon.templateAdapter.resolveTemplate(this, function(template) {
+        return _this.__falcon_view__loaded_template__(template);
+      });
     }
 
     FalconView.prototype.initialize = (function() {});

@@ -106,7 +106,7 @@ describe "Bindings", ->
 			#END setup
 
 			it "Should setup the view binding properly with a basic view", ->
-				view = MockHelper.makeView("#hello_world").triggerReady()
+				view = MockHelper.makeView("#hello_world", {template: "Hello World"})
 
 				element = MockHelper.makeElement()
 				                    .bindings("view: view")
@@ -170,8 +170,7 @@ describe "Bindings", ->
 			#END it
 
 			it "Should update the template when a valid view with template is given", ->
-				view_a = MockHelper.makeView("#hello_world")
-				                   .triggerReady()
+				view_a = MockHelper.makeView("#hello_world", {template: "Hello World"})
 
 				obs( view_a )
 
@@ -189,8 +188,7 @@ describe "Bindings", ->
 			#END it
 
 			it "Should swap views properly", ->
-				view_b = MockHelper.makeView("#foo_bar")
-				                   .triggerReady()
+				view_b = MockHelper.makeView("#foo_bar", {template: "Foo Bar"})
 
 				obs( view_b )
 
@@ -523,21 +521,12 @@ describe "Bindings", ->
 			parent_view = null
 			comment = null
 
-			it "Setup", ->
-				MockHelper.makeElement("template")
-				          .setId("parent_template")
-				          .html("<div data-bind='view: $view.child_view'></div>")
-				          .addToDOM()
-
-				MockHelper.makeElement("template")
-				          .setId("hello_world")
-				          .html("Hello World")
-				          .addToDOM()
-			#END setup
+			hello_world_template = "Hello World"
+			parent_template = "<div data-bind='view: $view.child_view'></div>"
 
 			it "Should setup the view binding properly with a basic view", ->
-				view = MockHelper.makeView("#hello_world").triggerReady()
-				parent_view = MockHelper.makeView("#parent_template").triggerReady()
+				view = MockHelper.makeView("#hello_world", {template: hello_world_template})
+				parent_view = MockHelper.makeView("#parent_template", {template: parent_template})
 				parent_view.child_view = view
 
 				comment = MockHelper.makeCommentBinding("view: view")

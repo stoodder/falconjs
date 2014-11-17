@@ -40,7 +40,6 @@
 		definition ?= {}
 		definition.endpoint = endpoint
 		view = new (Falcon.View.extend(definition))
-		ready_call = Falcon.ready.calls.mostRecent()
 
 		view._render = jasmine.createSpy("Render Spy").and.callFake(view._render)
 		view.display = jasmine.createSpy("Display Spy").and.callFake(view.display)
@@ -54,11 +53,6 @@
 			view.dispose.calls.reset()
 			return view
 		#END resetSpies
-
-		view.triggerReady = ->
-			ready_call.args[0]()
-			return view
-		#END triggerReady
 
 		return view
 	#END makeView

@@ -42,7 +42,7 @@ class FalconTemplateAdapter extends FalconObject
 	#END cacheTemplate
 
 	#--------------------------------------------------------
-	# Method: Falcon.View.cacheTemplates
+	# Method: Falcon.View.cacheAllTemplates
 	#	Method used to cache and remove the template elements
 	#
 	# Returns:
@@ -104,6 +104,11 @@ class FalconTemplateAdapter extends FalconObject
 			throw new Error("callback must be a function")
 		#END unless
 
+		if isString(view.template)
+			callback(view.template)
+			return @
+		#END if
+
 		url = view.makeUrl()
 
 		if isEmpty(url)
@@ -148,8 +153,8 @@ class FalconTemplateAdapter extends FalconObject
 		return endpoint if isEmpty( endpoint )
 		return endpoint if endpoint.charAt(0) is '#'
 
-		#Make sure the url is now formatted correctly
-		url = "/#{url}" unless endpoint.charAt(0) is '/'
+		#Start building the url
+		url = if endpoint.charAt(0) is "/" then endpoint else "/#{endpoint}"
 
 		#Attempt to add on the base url if its set and the url is a uri (not an element ID)
 		url = "#{Falcon.baseTemplateUrl}#{url}" if isString(Falcon.baseTemplateUrl)

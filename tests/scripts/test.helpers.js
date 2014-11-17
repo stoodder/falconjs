@@ -38,13 +38,12 @@
     };
 
     _MockHelper.prototype.makeView = function(endpoint, definition) {
-      var ready_call, view;
+      var view;
       if (definition == null) {
         definition = {};
       }
       definition.endpoint = endpoint;
       view = new (Falcon.View.extend(definition));
-      ready_call = Falcon.ready.calls.mostRecent();
       view._render = jasmine.createSpy("Render Spy").and.callFake(view._render);
       view.display = jasmine.createSpy("Display Spy").and.callFake(view.display);
       view._unrender = jasmine.createSpy("Unrender Spy").and.callFake(view._unrender);
@@ -54,10 +53,6 @@
         view.display.calls.reset();
         view._unrender.calls.reset();
         view.dispose.calls.reset();
-        return view;
-      };
-      view.triggerReady = function() {
-        ready_call.args[0]();
         return view;
       };
       return view;
