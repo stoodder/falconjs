@@ -607,13 +607,10 @@
 
     FalconTemplateAdapter.prototype.cacheTemplate = function(identifier, template) {
       if (!isString(identifier)) {
-        identifier = "";
+        throw new Error("identifier must be a string");
       }
       if (!isString(template)) {
-        template = "";
-      }
-      if (isEmpty(identifier)) {
-        return this;
+        throw new Error("template must be a string");
       }
       this.__falcon_templateAdapter__cache__[identifier] = template;
       return this;

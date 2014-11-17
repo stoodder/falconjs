@@ -6,7 +6,7 @@ class FalconTemplateAdapter extends FalconObject
 	__falcon_templateAdapter__cache__: null
 
 	#------------------------------------------------------------------------
-	# Method: Falcon.DataAdapter.extend()
+	# Method: Falcon.TemplateAdapter.extend()
 	#	Inherit the global extend method
 	#------------------------------------------------------------------------
 	@extend = FalconObject.extend
@@ -17,7 +17,7 @@ class FalconTemplateAdapter extends FalconObject
 	#--------------------------------------------------------
 	constructor: ->
 		@__falcon_templateAdapter__cache__ = {} 
-		
+
 		super(arguments...)
 
 		# We must create a template element to force support for older browsers
@@ -33,10 +33,13 @@ class FalconTemplateAdapter extends FalconObject
 	#	**template** _(String)_ - The template to store
 	#--------------------------------------------------------
 	cacheTemplate: (identifier, template) ->
-		identifier = "" unless isString( identifier )
-		template = "" unless isString( template )
+		unless isString(identifier)
+			throw new Error("identifier must be a string")
+		#END unless
 
-		return @ if isEmpty( identifier )
+		unless isString(template)
+			throw new Error("template must be a string")
+		#END unless
 
 		@__falcon_templateAdapter__cache__[identifier] = template
 
@@ -102,7 +105,7 @@ class FalconTemplateAdapter extends FalconObject
 	#								 completed request.
 	#
 	# Returns:
-	#	_(Falcon.DataAdapter)_ - This instance
+	#	_(Falcon.TemplateAdapter)_ - This instance
 	#------------------------------------------------------------------------
 	resolveTemplate: (view, callback) ->
 		unless Falcon.isView( view )
@@ -131,6 +134,21 @@ class FalconTemplateAdapter extends FalconObject
 		return @
 	#END resolveTemplate
 
+	#------------------------------------------------------------------------
+	# Method: Falcon.TemplateLoader#loadTemplate( uri, callback )
+	#	Method used to load a template from a gven url and return the asynchornously
+	#	(or synchronously) retrieved values.
+	#
+	# Arguments:
+	#	**url** _(String)_ - The url endpoint to fetch the template from
+	#	**callback** _(Function)_  - Method to call when the template has been loaded. 
+	#								 This is here to provide adapters that use asynchronous 
+	#								 loading of templates with a way to respond to a 
+	#								 completed request.
+	#
+	# Returns:
+	#	_(Falcon.TemplateAdapter)_ - This instance
+	#------------------------------------------------------------------------
 	loadTemplate: (url, callback) ->
 		unless isString(url)
 			throw new Error("url must be a String")
@@ -150,6 +168,16 @@ class FalconTemplateAdapter extends FalconObject
 		return @
 	#END loadTemplate
 
+	#------------------------------------------------------------------------
+	# Method: Falcon.TemplateLoader#loadTemplate( view )
+	#	Makes a url for the given view
+	#
+	# Arguments:
+	#	**view** _(Falcon.View)_ - The view who's url needs to be created
+	#
+	# Returns:
+	#	_(String)_ - The generated url
+	#------------------------------------------------------------------------
 	makeUrl: (view) ->
 		unless Falcon.isView( view )
 			throw new Error("view must be an instanceof Falcon.View")

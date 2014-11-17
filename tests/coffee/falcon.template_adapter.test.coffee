@@ -28,20 +28,43 @@ describe "Falcon.TemplateAdapter", ->
 
 	describe "constructor", ->
 		beforeEach ->
-			spyOn(Falcon, 'Object').and.callThrough()
+			spyOn(Falcon.Object::, 'constructor').and.callThrough()
 			spyOn(document, 'createElement')
 		#END beforeEach
 
 		it "Should call the correct methods", ->
 			adapter = new Falcon.TemplateAdapter("A", "b", 3)
 
-			expect( Falcon.Object.calls.count() ).toBe( 1 )
-			expect( Falcon.Object ).toHaveBeenCalledWith("A", "b", 3)
+			expect( Falcon.Object::constructor.calls.count() ).toBe( 1 )
+			expect( Falcon.Object::constructor ).toHaveBeenCalledWith("A", "b", 3)
 
 			expect( document.createElement.calls.count() ).toBe( 1 )
 			expect( document.createElement ).toHaveBeenCalledWith("template")
 
 			expect( adapter ).toEqual(jasmine.any(Falcon.Object))
+		#END it
+	#END describe
+
+	describe "cacheTemplate", ->
+		adapter = new Falcon.TemplateAdapter
+
+		it "Should throw if a string identifier isn't given", ->
+			expect( -> adapter.cacheTemplate() ).toThrow()
+			expect( -> adapter.cacheTemplate(new Falcon.Model) ).toThrow()
+		#END it
+
+		it "Should throw if a string template isn't given", ->
+			expect( -> adapter.cacheTemplate("#hello_world") ).toThrow()
+			expect( -> adapter.cacheTemplate("#hello_world", new Falcon.Model) ).toThrow()
+		#END it
+
+		it "Should cache properly", ->
+			expect( adapter.getCachedTemplate("#hello_world") ).toBeNull()
+
+			ret = adapter.cacheTemplate("#hello_world", "Hello World")
+			expect( ret ).toBe( adapter )
+
+			expect( adapter.getCachedTemplate("#hello_world") ).toBe("Hello World")
 		#END it
 	#END describe
 

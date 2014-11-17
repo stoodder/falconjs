@@ -2473,17 +2473,63 @@
     })(Falcon.View);
     describe("constructor", function() {
       beforeEach(function() {
-        spyOn(Falcon, 'Object').and.callThrough();
+        spyOn(Falcon.Object.prototype, 'constructor').and.callThrough();
         return spyOn(document, 'createElement');
       });
       return it("Should call the correct methods", function() {
         var adapter;
         adapter = new Falcon.TemplateAdapter("A", "b", 3);
-        expect(Falcon.Object.calls.count()).toBe(1);
-        expect(Falcon.Object).toHaveBeenCalledWith("A", "b", 3);
+        expect(Falcon.Object.prototype.constructor.calls.count()).toBe(1);
+        expect(Falcon.Object.prototype.constructor).toHaveBeenCalledWith("A", "b", 3);
         expect(document.createElement.calls.count()).toBe(1);
         expect(document.createElement).toHaveBeenCalledWith("template");
         return expect(adapter).toEqual(jasmine.any(Falcon.Object));
+      });
+    });
+    describe("cacheTemplate", function() {
+      var adapter;
+      adapter = new Falcon.TemplateAdapter;
+      it("Should throw if a string identifier isn't given", function() {
+        expect(function() {
+          return adapter.cacheTemplate();
+        }).toThrow();
+        return expect(function() {
+          return adapter.cacheTemplate(new Falcon.Model);
+        }).toThrow();
+      });
+      it("Should throw if a string template isn't given", function() {
+        expect(function() {
+          return adapter.cacheTemplate("#hello_world");
+        }).toThrow();
+        return expect(function() {
+          return adapter.cacheTemplate("#hello_world", new Falcon.Model);
+        }).toThrow();
+      });
+      return it("Should cache properly", function() {
+        var ret;
+        expect(adapter.getCachedTemplate("#hello_world")).toBeNull();
+        ret = adapter.cacheTemplate("#hello_world", "Hello World");
+        expect(ret).toBe(adapter);
+        return expect(adapter.getCachedTemplate("#hello_world")).toBe("Hello World");
+      });
+    });
+    describe("getCachedTemplate", function() {
+      var adapter;
+      adapter = new Falcon.TemplateAdapter;
+      it("Should through if a string isn't given", function() {
+        expect(function() {
+          return adapter.getCachedTemplate();
+        }).toThrow();
+        return expect(function() {
+          return adapter.getCachedTemplate(new Falcon.Model);
+        }).toThrow();
+      });
+      it("Should return null if a template isn't cached", function() {
+        return expect(adapter.getCachedTemplate("#hello_world")).toBeNull();
+      });
+      return it("Should return the template if one exists", function() {
+        adapter.cacheTemplate("#hello_world", "Hello World");
+        return expect(adapter.getCachedTemplate("#hello_world")).toBe("Hello World");
       });
     });
     describe("resetCache", function() {
