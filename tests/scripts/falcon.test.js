@@ -2486,6 +2486,22 @@
         return expect(adapter).toEqual(jasmine.any(Falcon.Object));
       });
     });
+    describe("resetCache", function() {
+      var adapter;
+      adapter = new Falcon.TemplateAdapter;
+      return it("Should reset the template cache properly", function() {
+        var ret;
+        ret = adapter.getCachedTemplate("#hello_world");
+        expect(ret).toBe(null);
+        adapter.cacheTemplate("#hello_world", "Hello World");
+        ret = adapter.getCachedTemplate("#hello_world");
+        expect(ret).toBe("Hello World");
+        ret = adapter.resetCache();
+        expect(ret).toBe(adapter);
+        ret = adapter.getCachedTemplate("#hello_world");
+        return expect(ret).toBe(null);
+      });
+    });
     describe("cacheAllTemplates", function() {
       var template, template2;
       template = document.createElement("template");

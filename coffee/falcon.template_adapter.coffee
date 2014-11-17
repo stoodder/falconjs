@@ -3,7 +3,7 @@ class FalconTemplateAdapter extends FalconObject
 	# The internal cache of each template identified by 
 	# their endpoint or element id
 	#--------------------------------------------------------
-	__falcon_templateAdapter__cache__ = {}
+	__falcon_templateAdapter__cache__: null
 
 	#------------------------------------------------------------------------
 	# Method: Falcon.DataAdapter.extend()
@@ -16,6 +16,8 @@ class FalconTemplateAdapter extends FalconObject
 	#	The constructor method
 	#--------------------------------------------------------
 	constructor: ->
+		@__falcon_templateAdapter__cache__ = {} 
+		
 		super(arguments...)
 
 		# We must create a template element to force support for older browsers
@@ -36,10 +38,35 @@ class FalconTemplateAdapter extends FalconObject
 
 		return @ if isEmpty( identifier )
 
-		__falcon_templateAdapter__cache__[identifier] = template
+		@__falcon_templateAdapter__cache__[identifier] = template
 
 		return @
 	#END cacheTemplate
+
+	#--------------------------------------------------------
+	# Method: Falcon.View.getCachedTemplate
+	#	Retrieves a specific cached template
+	#
+	# Returns:
+	#	_(Falcon)_ - This Instance
+	#--------------------------------------------------------
+	getCachedTemplate: (identifier) ->
+		unless isString(identifier)
+			throw new Error("identifier must be a string")
+		#END unless
+
+		return (@__falcon_templateAdapter__cache__[identifier] ? null)
+	#END getCachedTemplate
+
+	#--------------------------------------------------------
+	# Method: Falcon.View.resetCache()
+	#	Method used to manually reset the static template cache
+	#--------------------------------------------------------
+	resetCache: ->
+		@__falcon_templateAdapter__cache__ = {}
+
+		return @
+	#END resetCache
 
 	#--------------------------------------------------------
 	# Method: Falcon.View.cacheAllTemplates
@@ -59,24 +86,6 @@ class FalconTemplateAdapter extends FalconObject
 
 		return @
 	#END cacheAllTemplates
-
-	getCachedTemplate: (identifier) ->
-		unless isString(identifier)
-			throw new Error("identifier must be a string")
-		#END unless
-
-		return (__falcon_templateAdapter__cache__[identifier] ? null)
-	#END getCachedTemplate
-
-	#--------------------------------------------------------
-	# Method: Falcon.View.resetCache()
-	#	Method used to manually reset the static template cache
-	#--------------------------------------------------------
-	resetCache: ->
-		__falcon_templateAdapter__cache__ = {}
-
-		return @
-	#END resetCache
 
 	#------------------------------------------------------------------------
 	# Method: Falcon.TemplateLoader#resolveTemplate( uri, callback )

@@ -593,15 +593,14 @@
   })(FalconObject);
 
   FalconTemplateAdapter = (function(_super) {
-    var __falcon_templateAdapter__cache__;
-
     __extends(FalconTemplateAdapter, _super);
 
-    __falcon_templateAdapter__cache__ = {};
+    FalconTemplateAdapter.prototype.__falcon_templateAdapter__cache__ = null;
 
     FalconTemplateAdapter.extend = FalconObject.extend;
 
     function FalconTemplateAdapter() {
+      this.__falcon_templateAdapter__cache__ = {};
       FalconTemplateAdapter.__super__.constructor.apply(this, arguments);
       document.createElement("template");
     }
@@ -616,7 +615,20 @@
       if (isEmpty(identifier)) {
         return this;
       }
-      __falcon_templateAdapter__cache__[identifier] = template;
+      this.__falcon_templateAdapter__cache__[identifier] = template;
+      return this;
+    };
+
+    FalconTemplateAdapter.prototype.getCachedTemplate = function(identifier) {
+      var _ref1;
+      if (!isString(identifier)) {
+        throw new Error("identifier must be a string");
+      }
+      return (_ref1 = this.__falcon_templateAdapter__cache__[identifier]) != null ? _ref1 : null;
+    };
+
+    FalconTemplateAdapter.prototype.resetCache = function() {
+      this.__falcon_templateAdapter__cache__ = {};
       return this;
     };
 
@@ -642,19 +654,6 @@
           _ref1.removeChild(template);
         }
       }
-      return this;
-    };
-
-    FalconTemplateAdapter.prototype.getCachedTemplate = function(identifier) {
-      var _ref1;
-      if (!isString(identifier)) {
-        throw new Error("identifier must be a string");
-      }
-      return (_ref1 = __falcon_templateAdapter__cache__[identifier]) != null ? _ref1 : null;
-    };
-
-    FalconTemplateAdapter.prototype.resetCache = function() {
-      __falcon_templateAdapter__cache__ = {};
       return this;
     };
 

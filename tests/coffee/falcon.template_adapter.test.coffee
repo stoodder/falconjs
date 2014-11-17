@@ -45,6 +45,24 @@ describe "Falcon.TemplateAdapter", ->
 		#END it
 	#END describe
 
+	describe "resetCache", ->
+		adapter = new Falcon.TemplateAdapter
+		it "Should reset the template cache properly", ->
+			ret = adapter.getCachedTemplate("#hello_world")
+			expect( ret ).toBe( null )
+
+			adapter.cacheTemplate("#hello_world", "Hello World")
+			ret = adapter.getCachedTemplate("#hello_world")
+			expect( ret ).toBe( "Hello World" )
+
+			ret = adapter.resetCache()
+			expect( ret ).toBe( adapter )
+
+			ret = adapter.getCachedTemplate("#hello_world")
+			expect( ret ).toBe( null )
+		#END it
+	#END describe
+
 	describe "cacheAllTemplates", ->
 		template = document.createElement("template")
 		template.setAttribute("id", "test_template_1")
