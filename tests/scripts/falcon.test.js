@@ -7892,13 +7892,8 @@
           return Falcon.templateAdapter.resetCache();
         });
       });
-<<<<<<< HEAD:tests/scripts/falcon.test.js
-      return describe("Nest Views in Observable Arrays with Element Bindings", function() {
-        var child_view, element, hello_world_template, obsArr, parent_template, parent_view;
-=======
       describe("Nest Views in Observable Arrays with Element Bindings", function() {
-        var child_view, element, obsArr, parent_view;
->>>>>>> Added tests and fixes for observables that update in either the display or dispose method:tests/scripts/falcon.tests.js
+        var child_view, element, hello_world_template, obsArr, parent_template, parent_view;
         element = null;
         obsArr = ko.observableArray([]);
         parent_view = null;
