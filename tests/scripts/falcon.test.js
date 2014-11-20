@@ -2375,102 +2375,6 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   describe("Falcon.TemplateAdapter", function() {
-    var ViewA, ViewB, ViewC, ViewD, ViewE, ViewF, ViewG, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6;
-    ViewA = (function(_super) {
-      __extends(ViewA, _super);
-
-      function ViewA() {
-        _ref = ViewA.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      ViewA.prototype.endpoint = 'view_a';
-
-      return ViewA;
-
-    })(Falcon.View);
-    ViewB = (function(_super) {
-      __extends(ViewB, _super);
-
-      function ViewB() {
-        _ref1 = ViewB.__super__.constructor.apply(this, arguments);
-        return _ref1;
-      }
-
-      ViewB.prototype.endpoint = function() {
-        return 'view_b';
-      };
-
-      return ViewB;
-
-    })(Falcon.View);
-    ViewC = (function(_super) {
-      __extends(ViewC, _super);
-
-      function ViewC() {
-        _ref2 = ViewC.__super__.constructor.apply(this, arguments);
-        return _ref2;
-      }
-
-      ViewC.prototype.endpoint = '#view_c';
-
-      return ViewC;
-
-    })(Falcon.View);
-    ViewD = (function(_super) {
-      __extends(ViewD, _super);
-
-      function ViewD() {
-        _ref3 = ViewD.__super__.constructor.apply(this, arguments);
-        return _ref3;
-      }
-
-      ViewD.prototype.endpoint = function() {
-        return '#view_d';
-      };
-
-      return ViewD;
-
-    })(Falcon.View);
-    ViewE = (function(_super) {
-      __extends(ViewE, _super);
-
-      function ViewE() {
-        _ref4 = ViewE.__super__.constructor.apply(this, arguments);
-        return _ref4;
-      }
-
-      ViewE.prototype.endpoint = '/view_e';
-
-      return ViewE;
-
-    })(Falcon.View);
-    ViewF = (function(_super) {
-      __extends(ViewF, _super);
-
-      function ViewF() {
-        _ref5 = ViewF.__super__.constructor.apply(this, arguments);
-        return _ref5;
-      }
-
-      ViewF.prototype.endpoint = function() {
-        return '/view_f';
-      };
-
-      return ViewF;
-
-    })(Falcon.View);
-    ViewG = (function(_super) {
-      __extends(ViewG, _super);
-
-      function ViewG() {
-        _ref6 = ViewG.__super__.constructor.apply(this, arguments);
-        return _ref6;
-      }
-
-      return ViewG;
-
-    })(Falcon.View);
     describe("constructor", function() {
       beforeEach(function() {
         spyOn(Falcon.Object.prototype, 'constructor').and.callThrough();
@@ -2723,14 +2627,69 @@
       });
     });
     return describe("makeUrl", function() {
+      var ViewD, ViewE, ViewF, ViewG, _ref, _ref1, _ref2, _ref3;
+      ViewD = (function(_super) {
+        __extends(ViewD, _super);
+
+        function ViewD() {
+          _ref = ViewD.__super__.constructor.apply(this, arguments);
+          return _ref;
+        }
+
+        ViewD.prototype.endpoint = function() {
+          return '#view_d';
+        };
+
+        return ViewD;
+
+      })(Falcon.View);
+      ViewE = (function(_super) {
+        __extends(ViewE, _super);
+
+        function ViewE() {
+          _ref1 = ViewE.__super__.constructor.apply(this, arguments);
+          return _ref1;
+        }
+
+        ViewE.prototype.endpoint = '/view_e';
+
+        return ViewE;
+
+      })(Falcon.View);
+      ViewF = (function(_super) {
+        __extends(ViewF, _super);
+
+        function ViewF() {
+          _ref2 = ViewF.__super__.constructor.apply(this, arguments);
+          return _ref2;
+        }
+
+        ViewF.prototype.endpoint = function() {
+          return '/view_f';
+        };
+
+        return ViewF;
+
+      })(Falcon.View);
+      ViewG = (function(_super) {
+        __extends(ViewG, _super);
+
+        function ViewG() {
+          _ref3 = ViewG.__super__.constructor.apply(this, arguments);
+          return _ref3;
+        }
+
+        return ViewG;
+
+      })(Falcon.View);
       it("Should generate the correct relative url from string", function() {
-        return expect(Falcon.templateAdapter.makeUrl(new ViewA)).toEqual("/view_a");
+        return expect(Falcon.templateAdapter.makeUrl(MockHelper.makeView("view_a"))).toEqual("/view_a");
       });
       it("Should generate the correct relative url from function", function() {
-        return expect(Falcon.templateAdapter.makeUrl(new ViewB)).toEqual("/view_b");
+        return expect(Falcon.templateAdapter.makeUrl(MockHelper.makeView("view_b"))).toEqual("/view_b");
       });
       it("Should generate the correct element id from string", function() {
-        return expect(Falcon.templateAdapter.makeUrl(new ViewC)).toEqual("#view_c");
+        return expect(Falcon.templateAdapter.makeUrl(MockHelper.makeView("#view_c"))).toEqual("#view_c");
       });
       it("Should generate the correct element id from function", function() {
         return expect(Falcon.templateAdapter.makeUrl(new ViewD)).toEqual("#view_d");
@@ -2743,15 +2702,15 @@
       });
       it("Should generate the correct relative url from string with baseTemplateUrl", function() {
         Falcon.baseTemplateUrl = "http://www.falconjs.com";
-        return expect(Falcon.templateAdapter.makeUrl(new ViewA)).toEqual("http://www.falconjs.com/view_a");
+        return expect(Falcon.templateAdapter.makeUrl(MockHelper.makeView("view_a"))).toEqual("http://www.falconjs.com/view_a");
       });
       it("Should generate the correct relative url from function with baseTemplateUrl", function() {
         Falcon.baseTemplateUrl = "http://www.falconjs.com";
-        return expect(Falcon.templateAdapter.makeUrl(new ViewB)).toEqual("http://www.falconjs.com/view_b");
+        return expect(Falcon.templateAdapter.makeUrl(MockHelper.makeView("view_b"))).toEqual("http://www.falconjs.com/view_b");
       });
       it("Should generate the correct element id from string with baseTemplateUrl", function() {
         Falcon.baseTemplateUrl = "http://www.falconjs.com";
-        return expect(Falcon.templateAdapter.makeUrl(new ViewC)).toEqual("#view_c");
+        return expect(Falcon.templateAdapter.makeUrl(MockHelper.makeView("#view_c"))).toEqual("#view_c");
       });
       it("Should generate the correct element id from function with baseTemplateUrl", function() {
         Falcon.baseTemplateUrl = "http://www.falconjs.com";
@@ -2767,15 +2726,15 @@
       });
       it("Should generate the correct relative url from string with baseTemplateUrl ending in '/'", function() {
         Falcon.baseTemplateUrl = "http://www.falconjs.com/";
-        return expect(Falcon.templateAdapter.makeUrl(new ViewA)).toEqual("http://www.falconjs.com/view_a");
+        return expect(Falcon.templateAdapter.makeUrl(MockHelper.makeView("view_a"))).toEqual("http://www.falconjs.com/view_a");
       });
       it("Should generate the correct relative url from function with baseTemplateUrl ending in '/'", function() {
         Falcon.baseTemplateUrl = "http://www.falconjs.com/";
-        return expect(Falcon.templateAdapter.makeUrl(new ViewB)).toEqual("http://www.falconjs.com/view_b");
+        return expect(Falcon.templateAdapter.makeUrl(MockHelper.makeView("view_b"))).toEqual("http://www.falconjs.com/view_b");
       });
       it("Should generate the correct element id from string with baseTemplateUrl ending in '/'", function() {
         Falcon.baseTemplateUrl = "http://www.falconjs.com/";
-        return expect(Falcon.templateAdapter.makeUrl(new ViewC)).toEqual("#view_c");
+        return expect(Falcon.templateAdapter.makeUrl(MockHelper.makeView("#view_c"))).toEqual("#view_c");
       });
       it("Should generate the correct element id from function with baseTemplateUrl ending in '/'", function() {
         Falcon.baseTemplateUrl = "http://www.falconjs.com/";

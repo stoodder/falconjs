@@ -1,31 +1,4 @@
 describe "Falcon.TemplateAdapter", ->
-	class ViewA extends Falcon.View
-		endpoint: 'view_a'
-	#END class
-
-	class ViewB extends Falcon.View
-		endpoint: -> 'view_b'
-	#END class
-
-	class ViewC extends Falcon.View
-		endpoint: '#view_c'
-	#END class
-
-	class ViewD extends Falcon.View
-		endpoint: -> '#view_d'
-	#END class
-
-	class ViewE extends Falcon.View
-		endpoint: '/view_e'
-	#END class
-
-	class ViewF extends Falcon.View
-		endpoint: -> '/view_f'
-	#END class
-
-	class ViewG extends Falcon.View
-	#END class
-
 	describe "constructor", ->
 		beforeEach ->
 			spyOn(Falcon.Object::, 'constructor').and.callThrough()
@@ -332,16 +305,32 @@ describe "Falcon.TemplateAdapter", ->
 	#END describe
 
 	describe "makeUrl", ->
+
+		class ViewD extends Falcon.View
+			endpoint: -> '#view_d'
+		#END class
+
+		class ViewE extends Falcon.View
+			endpoint: '/view_e'
+		#END class
+
+		class ViewF extends Falcon.View
+			endpoint: -> '/view_f'
+		#END class
+
+		class ViewG extends Falcon.View
+		#END class
+
 		it "Should generate the correct relative url from string", ->
-			expect( Falcon.templateAdapter.makeUrl( new ViewA ) ).toEqual( "/view_a" )
+			expect( Falcon.templateAdapter.makeUrl( MockHelper.makeView("view_a") ) ).toEqual( "/view_a" )
 		#END it
 
 		it "Should generate the correct relative url from function", ->
-			expect( Falcon.templateAdapter.makeUrl( new ViewB ) ).toEqual( "/view_b" )
+			expect( Falcon.templateAdapter.makeUrl( MockHelper.makeView("view_b") ) ).toEqual( "/view_b" )
 		#END it
 
 		it "Should generate the correct element id from string", ->
-			expect( Falcon.templateAdapter.makeUrl( new ViewC ) ).toEqual( "#view_c" )
+			expect( Falcon.templateAdapter.makeUrl( MockHelper.makeView("#view_c") ) ).toEqual( "#view_c" )
 		#END it
 
 		it "Should generate the correct element id from function", ->
@@ -361,17 +350,17 @@ describe "Falcon.TemplateAdapter", ->
 
 		it "Should generate the correct relative url from string with baseTemplateUrl", ->
 			Falcon.baseTemplateUrl = "http://www.falconjs.com"
-			expect( Falcon.templateAdapter.makeUrl( new ViewA ) ).toEqual( "http://www.falconjs.com/view_a" )
+			expect( Falcon.templateAdapter.makeUrl( MockHelper.makeView("view_a") ) ).toEqual( "http://www.falconjs.com/view_a" )
 		#END it
 
 		it "Should generate the correct relative url from function with baseTemplateUrl", ->
 			Falcon.baseTemplateUrl = "http://www.falconjs.com"
-			expect( Falcon.templateAdapter.makeUrl( new ViewB ) ).toEqual( "http://www.falconjs.com/view_b" )
+			expect( Falcon.templateAdapter.makeUrl( MockHelper.makeView("view_b") ) ).toEqual( "http://www.falconjs.com/view_b" )
 		#END it
 
 		it "Should generate the correct element id from string with baseTemplateUrl", ->
 			Falcon.baseTemplateUrl = "http://www.falconjs.com"
-			expect( Falcon.templateAdapter.makeUrl( new ViewC ) ).toEqual( "#view_c" )
+			expect( Falcon.templateAdapter.makeUrl( MockHelper.makeView("#view_c") ) ).toEqual( "#view_c" )
 		#END it
 
 		it "Should generate the correct element id from function with baseTemplateUrl", ->
@@ -394,17 +383,17 @@ describe "Falcon.TemplateAdapter", ->
 
 		it "Should generate the correct relative url from string with baseTemplateUrl ending in '/'", ->
 			Falcon.baseTemplateUrl = "http://www.falconjs.com/"
-			expect( Falcon.templateAdapter.makeUrl( new ViewA ) ).toEqual( "http://www.falconjs.com/view_a" )
+			expect( Falcon.templateAdapter.makeUrl( MockHelper.makeView("view_a") ) ).toEqual( "http://www.falconjs.com/view_a" )
 		#END it
 
 		it "Should generate the correct relative url from function with baseTemplateUrl ending in '/'", ->
 			Falcon.baseTemplateUrl = "http://www.falconjs.com/"
-			expect( Falcon.templateAdapter.makeUrl( new ViewB ) ).toEqual( "http://www.falconjs.com/view_b" )
+			expect( Falcon.templateAdapter.makeUrl( MockHelper.makeView("view_b") ) ).toEqual( "http://www.falconjs.com/view_b" )
 		#END it
 
 		it "Should generate the correct element id from string with baseTemplateUrl ending in '/'", ->
 			Falcon.baseTemplateUrl = "http://www.falconjs.com/"
-			expect( Falcon.templateAdapter.makeUrl( new ViewC ) ).toEqual( "#view_c" )
+			expect( Falcon.templateAdapter.makeUrl( MockHelper.makeView("#view_c") ) ).toEqual( "#view_c" )
 		#END it
 
 		it "Should generate the correct element id from function with baseTemplateUrl ending in '/'", ->
