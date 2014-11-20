@@ -1,9 +1,16 @@
 @Falcon = Falcon = new class extends FalconObject
+	GET: 'GET'
+	POST: 'POST'
+	PUT: 'PUT'
+	DELETE: 'DELETE'
+	REQUEST_TYPES: ['GET', 'POST', 'PUT', 'DELETE']
+
 	'Object': FalconObject
 	'Model': FalconModel
 	'Collection': FalconCollection
 	'View': FalconView
-	'Adapter': FalconAdapter
+	'DataAdapter': FalconDataAdapter
+	'TemplateAdapter': FalconTemplateAdapter
 
 	#--------------------------------------------------------
 	# Attribute: Falcon.version
@@ -47,13 +54,21 @@
 	deferEvaluation: true
 
 	#--------------------------------------------------------
-	# Attribute: Falcon.adapter
+	# Attribute: Falcon.dataAdapter
 	#	The adapater instance for syncing data between the
 	#	front end and data store
 	#
-	# Type: _(Falcon.Adapter)_
+	# Type: _(Falcon.DataAdapter)_
 	#--------------------------------------------------------
-	adapter: new FalconAdapter
+	dataAdapter: new FalconDataAdapter
+
+	#--------------------------------------------------------
+	# Attribute: Falcon.templateAdapter
+	#	The object used to load and cache templates
+	#
+	# Type: _(Falcon.TemplateLoader)_
+	#--------------------------------------------------------
+	templateAdapter: new FalconTemplateAdapter
 
 	#--------------------------------------------------------
 	# Method: Falcon.ready(callback)
@@ -80,10 +95,10 @@
 		#END _domLoadedEvent
 
 		if document.addEventListener
-			document.addEventListener "DOMContentLoaded", handler = ->
+			document.addEventListener "DOMContentLoaded", _DOMContentLoaded = ->
 				_domLoadedEvent()
-				document.removeEventListener( "DOMContentLoaded", handler, false )
-			, false
+				document.removeEventListener( "DOMContentLoaded", _DOMContentLoaded )
+			#END addEventListener
 		else
 			original_onreadystatechange = document.onreadystatechange
 			document.onreadystatechange = ->
@@ -92,15 +107,9 @@
 					document.onreadystatechange = original_onreadystatechange
 				#END if
 
-				original_onreadystatechange.apply(this, arguments) if isFunction( original_onreadystatechange )
+				original_onreadystatechange.apply(@, arguments) if isFunction( original_onreadystatechange )
 			#END onreadystatechange
 		#END if
-
-		#We need to create a template element for IE to recognize the tag
-		document.createElement("template")
-		
-		#Cache of the the <template> elements when the DOM has loaded
-		_ready -> Falcon.View.cacheTemplates()
 
 		return -> _ready(arguments...)
 	#END do
@@ -125,6 +134,8 @@
 		element ?= Falcon.applicationElement
 
 		Falcon.ready ->
+			Falcon.templateAdapter.cacheAllTemplates()
+			
 			unless isElement( element )
 				element = "" unless isString( element )
 				element = if isEmpty( element ) then "body" else trim( element )
@@ -213,7 +224,7 @@
 	#	_(Boolean)_ - Is the object a falcon adapter?
 	#--------------------------------------------------------
 	isAdapter: (object) -> 
-		return object? and object instanceof Falcon.Adapter
+		return object? and object instanceof Falcon.DataAdapter
 	#END isAdapter
 
 	#--------------------------------------------------------

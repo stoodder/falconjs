@@ -43,14 +43,16 @@ ko.bindingHandlers['view'] = do ->
 			disposeWhenNodeIsRemoved: element
 			read: ->
 				options = _standardizeOptions(valueAccessor)
+				view = ko.unwrap( options.data )
+
+				template = if Falcon.isView( view ) then ko.unwrap(view.__falcon_view__loaded_template__) else "" 
+				template = "" unless isString(template)
+
 				afterDisplay = ko.utils.peekObservable( options['afterDisplay'] )
 				beforeDispose = ko.utils.peekObservable( options['beforeDispose'] )
 				
-				view = ko.unwrap( options.data )
-				is_loaded = Falcon.isView( view ) and ko.unwrap( view.__falcon_view__is_loaded__ )
-				should_display = is_loaded and ko.unwrap( options['displayIf'] )
-				template = ( if should_display then (view.template() ? "") else "" ).toString()
-				should_display = not isEmpty( template )
+				should_display = ko.unwrap( options['displayIf'] ) isnt false
+				should_display = should_display and not isEmpty( template )
 
 				continuation = ->
 					continuation = (->)
@@ -66,14 +68,11 @@ ko.bindingHandlers['view'] = do ->
 					#END if
 
 					unless should_display
-						if Falcon.isView( view ) and view.__falcon_view__is_rendered__
-							_runUnobserved(view._unrender, view)
-						#END if
-
+						_runUnobserved(view._unrender, view) if Falcon.isView( view )
 						return ko.virtualElements.emptyNode(element)
 					#END unless
 					
-					childContext = context.createChildContext(viewModel).extend( '$view': view.viewModel() )
+					childContext = context.createChildContext(viewModel).extend( '$view': view.createViewModel() )
 							
 					container.innerHTML = template
 					anonymous_template['text'](template)

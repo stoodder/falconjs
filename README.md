@@ -8,8 +8,8 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 ## Change Log
 ### v1.0.0rc1
 **Enhancements**
-* Add makeBaseUrl method to Falcon.Adapter
 * Add displayIf, afterDisplay, beforeDispose to view binding
+* Add makeBaseUrl, makeUrlComponents, resovleUrl, and makeUrl methods to Falcon.Adapter
 * Optimizing fill related methods
 * Falcon.Collection#sort will now default its comparator to the collections comparator unless one is given
 * Added additional context argument to the off() method
@@ -24,13 +24,15 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 **Breaking Changes**
 * When using 'mixin' to add a function to a model or a collection, the function will simply be bound against the model and each argument is verbatim to each call. In the preivous version we would pass in the model or model, collection as the first arguments.
 * Falcon.Collection#sort now returns 'this' collection rather than the list of sorted models
+* Renamed 'url' to 'endpoint' throughout Falcon.
+* Falcon.Adapter has been split in to two separate classes Falcon.DataAdapter and Falcon.TemplateAdapter.  The Falcon.adapter instance has also been replaced with Falcon.data_adapater and Falcon.template_adapter
+* Add displayIf, afterDisplay, beforeDispose to view binding
 
 **TODO**
 * Add exec binding
 * Add change notifications to Falcon.Collection
 * Ensure that Falcon will work with require.js
 * Add Falcon.Observable to wrap ko.observable in the case that we'd want to switch
-* Change 'url' to 'uri' on Falcon.View
 * Fallback to local comparator if one isn't given in sort()
 * Add 'subscribe' method to collections
 * Allow for 'true' in attributes filtering
@@ -41,6 +43,9 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Bug: Should check the unwrapped value when serializing
 * Add Collection#insertAt(index)
 * Bug: Include url in model and collection clone
+* Make constants
+* Document makeBaseUrl, makeUrlComponents, resovleUrl, and makeUrl on adapter
+* Add 'endpoint' override option to adapter options
 
 ### v0.10.2
 **Highlights**

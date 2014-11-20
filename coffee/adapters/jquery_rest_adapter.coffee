@@ -1,6 +1,6 @@
-class @jQueryAdapter extends Falcon.Adapter
+class @jQueryRestDataAdapter extends Falcon.DataAdapter
 	cache: false
-
+	
 	#------------------------------------------------------------------------
 	# Method: jQueryAdapter#standardizeOptions( data_object, type, options, context )
 	#	Extends the standard standardize options routine with jQuery specific defaults:
@@ -36,7 +36,7 @@ class @jQueryAdapter extends Falcon.Adapter
 	#END standardizeOptions
 
 	#------------------------------------------------------------------------
-	# Method: jQueryAdapter#makeUrl( data_object, type, options, context )
+	# Method: jQueryAdapter#resolveUrl( data_object, type, options, context )
 	#	Used to make the request url and appends any params in the options onto
 	#	the url's query parameters.
 	#
@@ -49,7 +49,7 @@ class @jQueryAdapter extends Falcon.Adapter
 	# Returns:
 	#	_(String)_ - The full url
 	#------------------------------------------------------------------------
-	makeUrl: ( data_object, type, options, context ) ->
+	resolveUrl: ( data_object, type, options, context ) ->
 		url = super( data_object, type, options, context )
 
 		unless isEmpty( options.params )
@@ -58,7 +58,7 @@ class @jQueryAdapter extends Falcon.Adapter
 		#END unless
 
 		return url
-	#END makeUrl
+	#END resolveUrl
 
 	#------------------------------------------------------------------------
 	# Method: jQueryAdapter#serializeData( data_object, type, options, context )
@@ -110,7 +110,7 @@ class @jQueryAdapter extends Falcon.Adapter
 	#END parseRawResponseData
 
 	#------------------------------------------------------------------------
-	# Method: Falcon.Adapter#sync( data_object, type, options, context )
+	# Method: Falcon.DataAdapter#sync( data_object, type, options, context )
 	#	Created a jQuery ajax request to communicate model and collection data
 	#	with the backend server. 'null' is returned if the validations failed.
 	#
@@ -162,9 +162,13 @@ class @jQueryAdapter extends Falcon.Adapter
 			#END complete
 		#END $.ajax
 	#END sync
+#END class
+
+class @jQueryTemplateAdapter extends Falcon.TemplateAdapter
+	cache: false
 
 	#------------------------------------------------------------------------
-	# Method: jQueryAdapter#getTemplate( uri, callback )
+	# Method: jQueryAdapter#resolveTemplate( uri, callback )
 	#	Used to retrieve a template from the server using ajax unless the uri
 	#	is set to request a local template using the identifier syntax (starting)
 	#	with a '#'
@@ -177,29 +181,25 @@ class @jQueryAdapter extends Falcon.Adapter
 	#										completed request.
 	#
 	# Returns:
-	#	_(Falcon.Adapter)_ - This instance
+	#	_(Falcon.DataAdapter)_ - This instance
 	#------------------------------------------------------------------------
-	getTemplate: (uri, callback) ->
-		unless isString( uri )
-			throw new Error("uri must be a String")
-		#END unless
-		
-		unless isFunction( callback )
-			throw new Error("callback must be a Function")
-		#END unless
-		
+	loadTemplate: (uri, callback) ->
 		return super(uri, callback) if uri.charAt(0) is "#"
 
 		$.ajax
 			url: uri
-			type: "GET"
+			type: Falcon.GET
 			cache: @cache
 			error: => callback("")
-			success: (html) => callback(html)
+			success: (template) =>
+				@cacheTemplate( uri, template )
+				callback(template)
+			#END success
 		#END ajax
 
 		return @
-	#END getTemplate
-#END class
+	#END loadTemplate
+#END jQueryTemplateAdapter
 
-Falcon.adapter = new jQueryAdapter
+Falcon.dataAdapter = new jQueryRestDataAdapter
+Falcon.templateAdapter = new jQueryTemplateAdapter

@@ -1,5 +1,5 @@
 (function() {
-  var isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, _ref,
+  var isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -59,19 +59,19 @@
     };
   }
 
-  this.jQueryAdapter = (function(_super) {
-    __extends(jQueryAdapter, _super);
+  this.jQueryRestDataAdapter = (function(_super) {
+    __extends(jQueryRestDataAdapter, _super);
 
-    function jQueryAdapter() {
-      _ref = jQueryAdapter.__super__.constructor.apply(this, arguments);
+    function jQueryRestDataAdapter() {
+      _ref = jQueryRestDataAdapter.__super__.constructor.apply(this, arguments);
       return _ref;
     }
 
-    jQueryAdapter.prototype.cache = false;
+    jQueryRestDataAdapter.prototype.cache = false;
 
-    jQueryAdapter.prototype.standardizeOptions = function(data_object, type, options, context) {
+    jQueryRestDataAdapter.prototype.standardizeOptions = function(data_object, type, options, context) {
       var output_options, _ref1;
-      output_options = jQueryAdapter.__super__.standardizeOptions.call(this, data_object, type, options, context);
+      output_options = jQueryRestDataAdapter.__super__.standardizeOptions.call(this, data_object, type, options, context);
       if (!isString(output_options.dataType)) {
         output_options.dataType = "json";
       }
@@ -88,9 +88,9 @@
       return output_options;
     };
 
-    jQueryAdapter.prototype.makeUrl = function(data_object, type, options, context) {
+    jQueryRestDataAdapter.prototype.resolveUrl = function(data_object, type, options, context) {
       var key, url, value;
-      url = jQueryAdapter.__super__.makeUrl.call(this, data_object, type, options, context);
+      url = jQueryRestDataAdapter.__super__.resolveUrl.call(this, data_object, type, options, context);
       if (!isEmpty(options.params)) {
         url += url.indexOf("?") > -1 ? "&" : "?";
         url += ((function() {
@@ -107,9 +107,9 @@
       return url;
     };
 
-    jQueryAdapter.prototype.serializeData = function(data_object, type, options, context) {
+    jQueryRestDataAdapter.prototype.serializeData = function(data_object, type, options, context) {
       var serialized_data;
-      serialized_data = jQueryAdapter.__super__.serializeData.call(this, data_object, type, options, context);
+      serialized_data = jQueryRestDataAdapter.__super__.serializeData.call(this, data_object, type, options, context);
       if (serialized_data == null) {
         return "";
       }
@@ -119,9 +119,9 @@
       return JSON.stringify(serialized_data);
     };
 
-    jQueryAdapter.prototype.parseRawResponseData = function(data_object, type, options, context, response_args) {
+    jQueryRestDataAdapter.prototype.parseRawResponseData = function(data_object, type, options, context, response_args) {
       var data, ex, xhr, _ref1;
-      _ref1 = jQueryAdapter.__super__.parseRawResponseData.call(this, data_object, type, options, context, response_args), data = _ref1.data, xhr = _ref1.xhr;
+      _ref1 = jQueryRestDataAdapter.__super__.parseRawResponseData.call(this, data_object, type, options, context, response_args), data = _ref1.data, xhr = _ref1.xhr;
       try {
         if (isString(data)) {
           data = JSON.parse(data);
@@ -141,10 +141,10 @@
       return data;
     };
 
-    jQueryAdapter.prototype.sync = function(data_object, type, options, context) {
+    jQueryRestDataAdapter.prototype.sync = function(data_object, type, options, context) {
       var standardized_inputs,
         _this = this;
-      standardized_inputs = jQueryAdapter.__super__.sync.call(this, data_object, type, options, context);
+      standardized_inputs = jQueryRestDataAdapter.__super__.sync.call(this, data_object, type, options, context);
       if (!standardized_inputs.is_valid) {
         return null;
       }
@@ -178,35 +178,46 @@
       });
     };
 
-    jQueryAdapter.prototype.getTemplate = function(uri, callback) {
+    return jQueryRestDataAdapter;
+
+  })(Falcon.DataAdapter);
+
+  this.jQueryTemplateAdapter = (function(_super) {
+    __extends(jQueryTemplateAdapter, _super);
+
+    function jQueryTemplateAdapter() {
+      _ref1 = jQueryTemplateAdapter.__super__.constructor.apply(this, arguments);
+      return _ref1;
+    }
+
+    jQueryTemplateAdapter.prototype.cache = false;
+
+    jQueryTemplateAdapter.prototype.loadTemplate = function(uri, callback) {
       var _this = this;
-      if (!isString(uri)) {
-        throw new Error("uri must be a String");
-      }
-      if (!isFunction(callback)) {
-        throw new Error("callback must be a Function");
-      }
       if (uri.charAt(0) === "#") {
-        return jQueryAdapter.__super__.getTemplate.call(this, uri, callback);
+        return jQueryTemplateAdapter.__super__.loadTemplate.call(this, uri, callback);
       }
       $.ajax({
         url: uri,
-        type: "GET",
+        type: Falcon.GET,
         cache: this.cache,
         error: function() {
           return callback("");
         },
-        success: function(html) {
-          return callback(html);
+        success: function(template) {
+          _this.cacheTemplate(uri, template);
+          return callback(template);
         }
       });
       return this;
     };
 
-    return jQueryAdapter;
+    return jQueryTemplateAdapter;
 
-  })(Falcon.Adapter);
+  })(Falcon.TemplateAdapter);
 
-  Falcon.adapter = new jQueryAdapter;
+  Falcon.dataAdapter = new jQueryRestDataAdapter;
+
+  Falcon.templateAdapter = new jQueryTemplateAdapter;
 
 }).call(this);

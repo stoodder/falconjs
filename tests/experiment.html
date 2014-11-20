@@ -13,8 +13,11 @@
     var ContentView = Falcon.View.extend({
       url: "#content",
 
+<<<<<<< HEAD
       title: "content",
 
+=======
+>>>>>>> view_enhancements
        observables: {
         child_view: null
        },
@@ -32,7 +35,10 @@
     });
    
     var FinalView = ContentView.extend({
+<<<<<<< HEAD
        title: "final",
+=======
+>>>>>>> view_enhancements
       display: function() { console.log("Display Final View"); },
       dispose: function() { console.log("Disposed Final View"); }
     });
@@ -83,7 +89,11 @@
     <hr />
   </template>
   <template id="content">
+<<<<<<< HEAD
     <div>This is <!-- ko text: $view.title --><!-- /ko --></div>
+=======
+    <div>This is content</div>
+>>>>>>> view_enhancements
     <!-- ko if: $view.child_view -->
       <!-- ko view: $view.child_view --><!-- /ko -->
     <!-- /ko -->

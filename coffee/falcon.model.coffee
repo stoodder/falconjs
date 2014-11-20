@@ -12,22 +12,22 @@ class FalconModel extends FalconObject
 
 	#--------------------------------------------------------
 	# Member: Falcon.Model#id
-	#	This is the serve's id of this model.  This value will be converted
-	#	to an observable (keeping the same value) once this model is 
+	#	This is the serve's id of @ model.  This value will be converted
+	#	to an observable (keeping the same value) once @ model is 
 	#	instantiated.
 	#--------------------------------------------------------
 	id: null
 
 	#--------------------------------------------------------
-	# Member: Falcon.Model#url
-	#	This is the top level url for the model.
+	# Member: Falcon.Model#endpoint
+	#	This model's endpoint. Used by the adapter when generating URLs
 	#--------------------------------------------------------
-	url: null
+	endpoint: null
 
 	#--------------------------------------------------------
 	# Member: Falcon.Model#parent
-	#	This represents the 'parent' object that holds this
-	#	model.  Generally this is used for determining the URL
+	#	This represents the 'parent' object that holds @
+	#	model.  Generally @ is used for determining the URL
 	#	structure of rest objects in the makeURL() routine.
 	#	This should also be a Model.
 	#
@@ -36,12 +36,21 @@ class FalconModel extends FalconObject
 	parent: null
 
 	#--------------------------------------------------------
+	# Member: Falcon.Model#__falcon_model__is_null__
+	#	Status variable that checks if the last value passed in to
+	#	the fill method was 'null'
+	#
+	# Type: Falcon.Model
+	#--------------------------------------------------------
+	__falcon_model__is_null__: false
+
+	#--------------------------------------------------------
 	# Method: Falcon.Model()
 	#	The constructor for a model
 	#
 	# Arguments:
-	#	**models** _(Object)_ - An object of data to initialize this model with
-	#	**parent** _(Falcon.Model)_ - The parent object of this collection
+	#	**models** _(Object)_ - An object of data to initialize @ model with
+	#	**parent** _(Falcon.Model)_ - The parent object of @ collection
 	#--------------------------------------------------------
 	constructor: (data, parent) ->
 		super(arguments...)
@@ -56,11 +65,12 @@ class FalconModel extends FalconObject
 			throw new Error("parent must be null or a Falcon.Model")
 		#END unless
 
+		@__falcon_model__is_null__ = ko.observable(false)
 		@parent = parent
-		@initialize.apply(this, arguments)
+		@initialize.apply(@, arguments)
 		@fill(data) unless isEmpty( data )
 
-		return this
+		return @
 	#END constructor
 
 	#--------------------------------------------------------
@@ -72,7 +82,7 @@ class FalconModel extends FalconObject
 	# Arguments:
 	#	**data** _(Object)_ - The initial data to load in
 	#--------------------------------------------------------
-	initialize: (data) ->
+	initialize: ( (data) -> )
 	#END initialize
 
 	#--------------------------------------------------------
@@ -86,7 +96,7 @@ class FalconModel extends FalconObject
 	#	_(mixed)_ - The unwrapped value at the specific attribute
 	#--------------------------------------------------------
 	get: (attribute) ->
-		return thisundefined unless isString( attribute )
+		return undefined unless isString( attribute )
 		return ko.unwrap( @[attribute] )
 	#END get
 
@@ -107,10 +117,10 @@ class FalconModel extends FalconObject
 	set: (attribute, value) ->
 		if isObject( attribute )
 			@set(k, v) for k, v of attribute
-			return this
+			return @
 		#END if
 		
-		return this unless isString( attribute )
+		return @ unless isString( attribute )
 		
 		if ko.isObservable( @[attribute] )
 			@[attribute](value)
@@ -118,7 +128,7 @@ class FalconModel extends FalconObject
 			@[attribute] = value
 		#END if
 
-		return this
+		return @
 	#END set
 
 	#--------------------------------------------------------
@@ -147,7 +157,7 @@ class FalconModel extends FalconObject
 	#--------------------------------------------------------
 	increment: (attribute) ->
 		@set(attribute, @get(attribute)+1 )
-		return this
+		return @
 	#END increment
 
 	#--------------------------------------------------------
@@ -162,7 +172,7 @@ class FalconModel extends FalconObject
 	#--------------------------------------------------------
 	decrement: (attribute) ->
 		@set(attribute, @get(attribute)-1 )
-		return this
+		return @
 	#END decrement
 
 	#----------------------------------------------------------------------------------------------
@@ -172,18 +182,17 @@ class FalconModel extends FalconObject
 	# Arguments:
 	#	**data** _(Object)_ - The xhr response data
 	#	**options** _ - The options fed initially into the XHR request
-	#	**xhr** _(Object)_ - The XHR object
 	#
 	# Returns:
 	#	_(Object)_ - Parsing on a model expects an object to be returned
 	#----------------------------------------------------------------------------------------------
-	parse: (data, options, xhr) ->
+	parse: (data, options) ->
 		return data
 	#END parse
 
 	#--------------------------------------------------------
 	# Method: Falcon.Model#fill()
-	#	Method used to 'fill in' and add data to this model
+	#	Method used to 'fill in' and add data to @ model
 	#
 	# Arguments:
 	#	**data** _(Object)_ - The data to fill
@@ -192,12 +201,13 @@ class FalconModel extends FalconObject
 	#	_(Falcon.Model)_ - This instance
 	#--------------------------------------------------------
 	fill: (data) ->
+		@__falcon_model__is_null__( data is null )
 		data = {'id': data} if isNumber(data) or isString(data)
-		return this unless isObject(data)
-		return this if isEmpty(data)
+		return @ unless isObject(data)
+		return @ if isEmpty(data)
 
 		rejectedAttributes = {}
-		for attr, value of Falcon.Model.prototype when attr not in ["id", "url"]
+		for attr, value of Falcon.Model.prototype when attr not in ["id", "endpoint"]
 			rejectedAttributes[attr] = true
 		#END for
 
@@ -206,36 +216,36 @@ class FalconModel extends FalconObject
 		for attr, value of data when not rejectedAttributes[attr]
 			value = ko.unwrap( value )
 			
-			if Falcon.isModel(this[attr])
+			if Falcon.isModel(@[attr])
 				if Falcon.isModel( value )
-					this[attr] = value
+					@[attr] = value
 				else
-					this[attr].fill(value)
+					@[attr].fill(value)
 				#END if
 			
-			else if Falcon.isCollection(this[attr])
+			else if Falcon.isCollection(@[attr])
 				if Falcon.isCollection( value )
-					this[attr] = value
+					@[attr] = value
 				else
-					this[attr].fill(value)
+					@[attr].fill(value)
 				#END if
 			
-			else if ko.isWriteableObservable(this[attr])
-				this[attr](value)
+			else if ko.isWriteableObservable(@[attr])
+				@[attr](value)
 			
-			else unless isFunction(this[attr])
-				this[attr] = value
-			else if attr is 'url'
-				this[attr] = value
+			else unless isFunction(@[attr])
+				@[attr] = value
+			else if attr is 'endpoint'
+				@[attr] = value
 			#END if
 		#END for
 
-		return this
+		return @
 	#END fill
 
 	#--------------------------------------------------------
 	# Method: Falcon.Model#unwrap()
-	#	Method used to 'unwrap' this object into a raw object
+	#	Method used to 'unwrap' @ object into a raw object
 	#	Needed to cascade inwards on other Falcon Data objects (like lists)
 	#	to unwrap newly added member variables/objects
 	#
@@ -245,7 +255,7 @@ class FalconModel extends FalconObject
 	unwrap: () ->
 		unwrapped = {}
 
-		for attr, value of this when ( attr is "id" or not ( attr of Falcon.Model.prototype ) )
+		for attr, value of @ when ( attr is "id" or not ( attr of Falcon.Model.prototype ) )
 			unwrapped[attr] = if Falcon.isDataObject(value) then value.unwrap() else value
 		#END for
 
@@ -260,7 +270,7 @@ class FalconModel extends FalconObject
 	# Arguments:
 	#	**attributes** _(Array)_ -	The attributes that should be included in the 
 	#	                      		serialization "id" is always included. If 
-	#	                      		none given, all attributes from this models 'attributes' 
+	#	                      		none given, all attributes from @ models 'attributes' 
 	#	                      		member are serialized
 	#
 	# Returns:
@@ -270,7 +280,7 @@ class FalconModel extends FalconObject
 		serialized = {}
 
 		unless attributes?
-			attributes = ( attr for attr of this when ( attr is "id" or not ( attr of Falcon.Model.prototype ) ) )
+			attributes = ( attr for attr of @ when ( attr is "id" or not ( attr of Falcon.Model.prototype ) ) )
 		else if isString( attributes )
 			attributes = trim(attributes).split(",")
 		#END unless
@@ -284,7 +294,7 @@ class FalconModel extends FalconObject
 		return serialized unless isObject( attributes )
 
 		for attr, sub_attributes of attributes
-			value = this[attr]
+			value = @[attr]
 
 			if Falcon.isDataObject(value)
 				serialized[attr] = value.serialize(sub_attributes)
@@ -299,14 +309,14 @@ class FalconModel extends FalconObject
 	#END serialize
 		
 	#--------------------------------------------------------
-	# Method: Falcon.Model#makeURL()
-	#	Generates a URL based on this model's url, the parent model of this model, 
+	# Method: Falcon.Model#makeUrl()
+	#	Generates a URL based on @ model's endpoint, the parent model of @ model, 
 	#	the type of request we're making and Falcon's defined baseApiUrl
 	#
 	# Arguments:
 	#	**type** _(String)_ - The type of request we're making (GET, POST, PUT, DELETE)
 	#	**parent** _(Falcon.Model)_ - Optional override of the model's parent to generate 
-	#								  the url with. If parent is 'null' then this model will 
+	#								  the url with. If parent is 'null' then @ model will 
 	#								  act as the root node.
 	#	**id** _(String|Number) - Optional override for the model's id
 	#
@@ -316,17 +326,13 @@ class FalconModel extends FalconObject
 	makeUrl: (type, parent, id) ->
 		#Ensure the inputs are set up correctly
 		[parent, id] = [id, parent] if id is undefined and (isString( parent ) or isNumber( parent ))
-
-		{base_url, url_piece, id_piece, extension} = Falcon.adapter.makeUrlPieces( @, type, {parent, id}, @ )
-
-		#Generate the url
-		return "#{base_url}#{url_piece}#{id_piece}#{extension}"
+		return Falcon.dataAdapter.makeUrl( @, type, {parent, id}, @ )
 	#END makeUrl
 
 	#--------------------------------------------------------
 	# Method: Falcon.Model#validate()
-	#	Method used to validate this model before it is sent
-	#	to the server on create or save.  If this method returns
+	#	Method used to validate @ model before it is sent
+	#	to the server on create or save.  If @ method returns
 	#	true, saving will continue but if it returns false then
 	#	saving is halted
 	#
@@ -334,104 +340,98 @@ class FalconModel extends FalconObject
 	#	**options** _(Object)_ - The options passed into the sync method
 	#
 	# Returns:
-	#	_(Boolean)_ - Is this model valid?
+	#	_(Boolean)_ - Is @ model valid?
 	#--------------------------------------------------------
-	validate: (options) ->
-		return true
-	#END validate
+	validate: (options) -> true
 
 	#--------------------------------------------------------
 	# Method: Falcon.Model#sync()
 	#	Used to dynamically place calls to the server in order
-	#	to create, update, destroy, or read this from/to the
+	#	to create, update, destroy, or read @ from/to the
 	#	server
 	#
 	# Arguments:
 	#	**type** _(String)_ - The HTTP Method to call to the server with
-	#	**options** _(Object)_ - Optional object of settings to use on this call
+	#	**options** _(Object)_ - Optional object of settings to use on @ call
 	#	**context** _(Object)_ - Optional object to set the context of the request
 	#
 	# Returns:
 	#	_(mixed)_ - Whatever the response from the adapter's sync method is
 	#--------------------------------------------------------
-	sync: (type, options, context) ->
-		return Falcon.adapter.sync( @, type, options, context )
-	#END sync
+	sync: (type, options, context) -> Falcon.dataAdapter.sync( @, type, options, context )
 
 	#--------------------------------------------------------
 	# Method: Falcon.Model#fetch()
 	#	Calls the sync method with 'GET' as the default type
-	#	server. Get's this model's server data.
+	#	server. Get's @ model's server data.
 	#
 	# Arguments:
-	#	**options** _(Object)_ - Optional object of settings to use on this call
+	#	**options** _(Object)_ - Optional object of settings to use on @ call
 	#	**context** _(Object)_ - Optional object to set the context of the request
 	#
 	# Returns:
 	#	_(mixed)_ - Whatever the response from the adapter's sync method is
 	#--------------------------------------------------------
-	fetch: (options, context) -> 
-		return @sync('GET', options, context)
-	#END fetch
+	fetch: (options, context) -> @sync(Falcon.GET, options, context)
 
 	#--------------------------------------------------------
 	# Method: Falcon.Model#create()
 	#	Calls the sync method with 'POST' as the default type
-	#	server. Creates a new version of this model.
+	#	server. Creates a new version of @ model.
 	#
 	# Arguments:
-	#	**options** _(Object)_ - Optional object of settings to use on this call
+	#	**options** _(Object)_ - Optional object of settings to use on @ call
 	#	**context** _(Object)_ - Optional object to set the context of the request
 	#
 	# Returns:
 	#	_(mixed)_ - Whatever the response from the adapter's sync method is
 	#--------------------------------------------------------
-	create: (options, context) -> 
-		return @sync('POST', options, context)
-	#END create
+	create: (options, context) -> @sync(Falcon.POST, options, context)
 
 	#--------------------------------------------------------
 	# Method: Falcon.Model#save()
 	#	Calls the sync method with 'PUT' as the default type
-	#	server. Saves this model to the server.  If the model
+	#	server. Saves @ model to the server.  If the model
 	#	is new then create() will be called instead
 	#
 	# Arguments:
-	#	**options** _(Object)_ - Optional object of settings to use on this call
+	#	**options** _(Object)_ - Optional object of settings to use on @ call
 	#	**context** _(Object)_ - Optional object to set the context of the request
 	#
 	# Returns:
 	#	_(mixed)_ - Whatever the response from the adapter's sync method is
 	#--------------------------------------------------------
 	save: (options, context) -> 
-		return ( if @isNew() then @create(options, context) else @sync('PUT', options, context) )
+		if @isNew()
+			return @create(options, context)
+		else
+			return @sync(Falcon.PUT, options, context)
+		#END if
 	#END save
 
 	#--------------------------------------------------------
 	# Method: Falcon.Model#destroy()
 	#	Calls the sync method with 'DELETE' as the default type
-	#	server.  Deletes this model from the server.
+	#	server.  Deletes @ model from the server.
 	#
 	# Arguments:
-	#	**options** _(Object)_ - Optional object of settings to use on this call
+	#	**options** _(Object)_ - Optional object of settings to use on @ call
 	#	**context** _(Object)_ - Optional object to set the context of the request
 	#
 	# Returns:
 	#	_(mixed)_ - Whatever the response from the adapter's sync method is
 	#--------------------------------------------------------
-	destroy: (options, context) -> 
-		return @sync('DELETE', options, context)
-	#END destroy
+	destroy: (options, context) -> @sync(Falcon.DELETE, options, context)
 
 	#--------------------------------------------------------
 	# Method: Falcon.Model#equals()
-	#	Determines if this model is equivalent to the input value
+	#	Determines if @ model is equivalent to the input value
 	#
 	# Arguments 1:
-	#	**model** _(Falcon.Model)_ - Is this model the same as the one given, based on id
+	#	**model** _(Falcon.Model)_ - Is @ model the same as the one given, based on id
 	#
 	# Arguments 2:
-	#	**id** _(Number)_ - Treated as an id, checked against this id
+	#	**id** _(Number)_ - Treated as an id, checked against @ id
 	#
 	# Returns:
 	#	_(Boolean)_ - Are these equal?
@@ -454,15 +454,15 @@ class FalconModel extends FalconObject
 
 	#--------------------------------------------------------
 	# Method: Falcon.Model#mixin()
-	#	Maps extra atributes and methods onto this model for use
+	#	Maps extra atributes and methods onto @ model for use
 	#	later, mostly in Falcon views. Will ensure that any method
 	#	that is not a knockout observable will be called in the
-	#	context of this model as well as pass this model in as
+	#	context of @ model as well as pass @ model in as
 	#	the first argument, pushing the other arguments down the
 	#	list.
 	# 
 	# Arguments:
-	#	**mapping** _(Object)_ - The mapping to augment this model with
+	#	**mapping** _(Object)_ - The mapping to augment @ model with
 	#
 	# Returns:
 	#	_(Falcon.Model)_ - This model
@@ -474,27 +474,27 @@ class FalconModel extends FalconObject
 		mapping = {} unless isObject(mapping)
 
 		for key, value of mapping
-			if Falcon.isDataObject( this[key] )
-				this[key].mixin(value)
+			if Falcon.isDataObject( @[key] )
+				@[key].mixin(value)
 			else
 				if ko.isObservable(value)
-					unless ko.isObservable( this[key] )
-						this[key] = ko.observable( @get(key) ? ko.unwrap(value) )
+					unless ko.isObservable( @[key] )
+						@[key] = ko.observable( @get(key) ? ko.unwrap(value) )
 					#END unless
 				else if isFunction(value)
-					this[key] = bindFunction(value, this)
+					@[key] = bindFunction(value, @)
 				else
-					this[key] ?= value 
+					@[key] ?= value 
 				#END if
 			#END if
 		#END for
 
-		return this
+		return @
 	#END mixin
 
 	#--------------------------------------------------------
 	# Method: Falcon.Model#clone()
-	#	Method used to clone this model
+	#	Method used to clone @ model
 	#
 	# Arguments:
 	#	**attributes** _(Array)_ - A list of attributes to copy.
@@ -502,7 +502,7 @@ class FalconModel extends FalconObject
 	#							'null' to unset the parent.
 	#
 	# Returns:
-	#	_(Falcon.Model)_ - A clone of this model
+	#	_(Falcon.Model)_ - A clone of @ model
 	#--------------------------------------------------------
 	clone: (attributes, parent) ->
 		[ attributes, parent ] = [ undefined, attributes ] if attributes is null or Falcon.isModel( attributes )
@@ -512,12 +512,21 @@ class FalconModel extends FalconObject
 
 	#--------------------------------------------------------
 	# Method: Falcon.Model#isNew()
-	#	Method used to check if this model is new or is from the server.  Based on id.
+	#	Method used to check if @ model is new or is from the server.  Based on id.
 	#
 	# Returns:
-	#	_(Boolean)_ - Is this a new model?
+	#	_(Boolean)_ - Is @ a new model?
 	#--------------------------------------------------------
-	isNew: ->
-		return ( not @get("id")? )
-	#END isNew
+	isNew: -> not @get("id")?
+
+	#--------------------------------------------------------
+	# Method: Falcon.Model#isNull()
+	#	Checks to see if the last value passed in to the 'fill'
+	#	method was 'null'. This is useful to know when the server
+	#	returns 'null' in the response data
+	#
+	# Returns:
+	#	_(Boolean)_ - Is @ currently a null model?
+	#--------------------------------------------------------
+	isNull: -> @__falcon_model__is_null__()
 #END Falcon.Model

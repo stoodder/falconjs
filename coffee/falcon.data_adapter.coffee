@@ -1,12 +1,12 @@
-class FalconAdapter extends FalconObject
+class FalconDataAdapter extends FalconObject
 	#------------------------------------------------------------------------
-	# Method: Falcon.Adapter.extend()
+	# Method: Falcon.DataAdapter.extend()
 	#	Inherit the global extend method
 	#------------------------------------------------------------------------
 	@extend = FalconObject.extend
 
 	#------------------------------------------------------------------------
-	# Method: Falcon.Adapter#resolveRequestType( data_object, type, options, context )
+	# Method: Falcon.DataAdapter#resolveRequestType( data_object, type, options, context )
 	#	Used to reslve and standardize the request type to either
 	#	GET, PUT, POST, or DELETE.
 	#
@@ -17,7 +17,7 @@ class FalconAdapter extends FalconObject
 	#	**context** _(mixed)_ - The context to call the response handers on
 	#
 	# Returns:
-	#	_(String)_ - The request type, 'GET' if invalid
+	#	_(String)_ - The request type, Falcon.GET if invalid
 	#
 	# Note:
 	#	This is a Data Object (Models and Collections) related
@@ -25,14 +25,14 @@ class FalconAdapter extends FalconObject
 	#	arguments regardless if they're used or not.
 	#------------------------------------------------------------------------
 	resolveRequestType: ( data_object, type, options, context ) ->
-		return "GET" unless isString( type )
+		return Falcon.GET unless isString( type )
 		type = trim( type ).toUpperCase()
-		return "GET" unless type in ["GET", "PUT", "POST", "DELETE"]
+		return Falcon.GET unless type in Falcon.REQUEST_TYPES
 		return type
 	#END resolveRequestType
 
 	#------------------------------------------------------------------------
-	# Method: Falcon.Adapter#resolveContext( data_object, type, options, context )
+	# Method: Falcon.DataAdapter#resolveContext( data_object, type, options, context )
 	#	Used to discern the context to call the response handlers on.
 	#
 	# Arguments:
@@ -54,7 +54,7 @@ class FalconAdapter extends FalconObject
 	#END resolveContext
 
 	#------------------------------------------------------------------------
-	# Method: Falcon.Adapter#standardizeOptions( data_object, type, options, context )
+	# Method: Falcon.DataAdapter#standardizeOptions( data_object, type, options, context )
 	#	Standardizes the options object for the rest of the operations.  The
 	#	response object includes:
 	#	complete - Method to call when sync is completed
@@ -82,54 +82,50 @@ class FalconAdapter extends FalconObject
 	#	method. which will always have the first four related
 	#	arguments regardless if they're used or not.
 	#------------------------------------------------------------------------
-	standardizeOptions: do ->
-		class _standardizedOptionsObject
-			constructor: (options) ->
-				if isObject( options )
-					@[key] = value for key, value of options
-				
-				else if isFunction(options)
-					@complete = options
-				
-				else if isString(options)
-					@attributes = trim( options ).split(",")
-				
-				else if isArray( options )
-					@attributes = options
+	class FalconDataAdapterOptions
+		id: undefined
+		url: null
+		data: null
+		parent: undefined
 
-				#END if
-			#END constructor
+		attributes: null
+		fill_options: null
 
-			success: (->)
-			complete: (->)
-			error: (->)
+		success: (->)
+		complete: (->)
+		error: (->)
 
-			attributes: null
-			fill_options: null
+		constructor: (options) ->
+			if isObject( options )
+				@[key] = value for key, value of options
+			
+			else if isFunction(options)
+				@complete = options
+			
+			else if isString(options)
+				@attributes = trim( options ).split(",")
+			
+			else if isArray( options )
+				@attributes = options
 
-			id: undefined
-			url: null
-			data: null
-			parent: undefined
-		#END class
-		return ( data_object, type, options, context ) ->
-			return options if options instanceof _standardizedOptionsObject
+			#END if
+		#END constructor
+	#END class
+	standardizeOptions: ( data_object, type, options, context ) ->
+		return options if options instanceof FalconDataAdapterOptions
 
-			#Shallow clone the options so as to not disturb the original object
-			options = new _standardizedOptionsObject(options)
-			options.parent = data_object.parent unless Falcon.isModel( options.parent ) or options.parent is null
-			options.url = @makeUrl( data_object, type, options, context )
-			options.data = @serializeData( data_object, type, options, context )
+		#Shallow clone the options so as to not disturb the original object
+		options = new FalconDataAdapterOptions(options)
+		options.parent = data_object.parent unless Falcon.isModel( options.parent ) or options.parent is null
+		options.url = @resolveUrl( data_object, type, options, context )
+		options.data = @serializeData( data_object, type, options, context )
 
-			return options
-		#END do
+		return options
 	#END standardizeOptions
 
 	#------------------------------------------------------------------------
-	# Method: Falcon.Adapter#makeUrl( data_object, type, options, context )
-	#	Used to dicern the correct url creation method depending
-	#	if one is already present in the options or if we should
-	#	call the makeUrl method of the data object.
+	# Method: Falcon.DataAdapter#resolveUrl( data_object, type, options, context )
+	#	Resovled the url
 	#
 	# Arguments:
 	#	**data_object** _(Model|Collection)_  - The data object in question
@@ -145,12 +141,12 @@ class FalconAdapter extends FalconObject
 	#	method. which will always have the first four related
 	#	arguments regardless if they're used or not.
 	#------------------------------------------------------------------------
-	makeUrl: ( data_object, type, options, context ) ->
+	resolveUrl: ( data_object, type, options, context ) ->
 		return ( options.url ? data_object.makeUrl(type, options.parent) )
-	#END makeUrl
+	#END resolveUrl
 
 	#------------------------------------------------------------------------
-	# Method: Falcon.Adapter#makeBaseUrl( data_object, type, options, context )
+	# Method: Falcon.DataAdapter#makeBaseUrl( data_object, type, options, context )
 	#   Makes the base URL piece for a Model or Collection's makeUrl() method
 	#   method. This will include the Falcon.baseApiUrl strig, if set and a string
 	#	of this data object's parent url pieces and their ids.
@@ -160,7 +156,7 @@ class FalconAdapter extends FalconObject
 	#		Falcon.baseApiUrl = "http://www.falcon.js/"
 	#		my_model = new Falcon.Model({id: 'id1', url: 'my_model'})
 	#		my_model.parent = new Falcon.Model({id: 'pid2', url: 'my_model_parent'})
-	#		Falcon.adapter.makeBaseUrl(my_model, 'GET', {}, my_model)
+	#		Falcon.dataAdapter.makeBaseUrl(my_model, Falcon.GET, {}, my_model)
 	#
 	#	Will Return:
 	#		http://www.falcon.js/my_model_parent/pid2
@@ -174,40 +170,40 @@ class FalconAdapter extends FalconObject
 	#	**context** _(mixed)_ - The context to call the response handers on
 	#
 	# Returns:
-	#	_(String)_ - The base url url
+	#	_(String)_ - The base url
 	#------------------------------------------------------------------------
 	makeBaseUrl: ( data_object, type, options, context ) ->
 		parent = if options.parent is undefined then data_object.parent else options.parent
-		base_url_pieces = []
+		base_endpoints = []
+		
 		while Falcon.isModel( parent )
-			if isFunction(parent.url)
-				base_url_piece = parent.url('GET', parent.parent)
+			if isFunction(parent.endpoint)
+				base_endpoint = parent.endpoint(Falcon.GET, parent.parent)
 			else
-				base_url_piece = parent.url
+				base_endpoint = parent.endpoint
 			#END if
 
-			base_url_piece = "" unless isString( base_url_piece )
+			base_endpoint = "" unless isString( base_endpoint )
 
-			period_index = base_url_piece.lastIndexOf(".")
-			base_url_piece = base_url_piece.slice(0, period_index) if period_index > -1
-			base_url_pieces.push( trimSlashes(base_url_piece) )
-			base_url_pieces.push( parent.get('id') )
+			period_index = base_endpoint.lastIndexOf(".")
+			base_endpoint = base_endpoint.slice(0, period_index) if period_index > -1
+			base_endpoints.unshift( trimSlashes(base_endpoint) + "/" + parent.get('id') )
 
 			parent = parent.parent
 		#END while
 
 		#Join the peices to generate a full url without a base, yet
-		base_url = "/" + base_url_pieces.join("/") + "/"
+		base_url = "/" + base_endpoints.join("/") + "/"
 
 		#Prepend the base
 		base_url = "#{Falcon.baseApiUrl}#{base_url}" if isString( Falcon.baseApiUrl )
 
 		#Remove any double slashes outside of the initial protocol
-		base_url = base_url.replace(/([^:])\/\/+/gi, "$1/").replace(/^\/\//gi, "/")
+		return base_url.replace(/([^:])\/\/+/gi, "$1/").replace(/^\/\//gi, "/")
 	#END makeBaseUrl
 	
 	#------------------------------------------------------------------------
-	# Method: Falcon.Adapter#makeUrlPieces( data_object, type, options, context )
+	# Method: Falcon.DataAdapter#makeUrlComponents( data_object, type, options, context )
 	#   Standardizes the 'url' attribute on a Model or Collection and returns an
 	#	object of the standardized url piece stripped of its extension and the resultant
 	#	object has a key for the extension including the '.'
@@ -222,13 +218,13 @@ class FalconAdapter extends FalconObject
 	#
 	# Returns:
 	#	_(Object)_ - {
-	#		base_url: The base url
-	#		url_piece: This data object's url piece with the extension removed
-	#		id_piece: The url-ified id of the model (if data object is a model) on GET, PUT, DELETE
+	#		base_url: The base url returned from Falcon.DataAdapter#makeBaseUrl
+	#		endpoint: This data object's url endpoint with the extension removed
+	#		id: The id of the model (if data object is a model) on GET, PUT, DELETE. null by default
 	#		extension: The extension of the url piece
 	#	}
 	#------------------------------------------------------------------------
-	makeUrlPieces: ( data_object, type, options, context ) ->
+	makeUrlComponents: ( data_object, type, options, context ) ->
 		type = @resolveRequestType( data_object, type, options, context )
 
 		#----------------------------------------------------------
@@ -237,36 +233,69 @@ class FalconAdapter extends FalconObject
 		base_url = @makeBaseUrl( data_object, type, options, context )
 		
 		#----------------------------------------------------------
-		# Generate The url_piece
+		# Generate The endpoint
 		#----------------------------------------------------------
-		url_piece = if isFunction(data_object.url) then data_object.url(type, options.parent) else data_object.url
-		url_piece = if isString(url_piece) then trimSlashes(url_piece) else ''
+		endpoint = if isFunction(data_object.endpoint) then data_object.endpoint(type, options.parent) else data_object.endpoint
+		endpoint = if isString(endpoint) then trimSlashes(endpoint) else ""
 
 		#----------------------------------------------------------
 		# Generate and extract the extension
 		#----------------------------------------------------------
 		extension = ""
-		period_index = url_piece.lastIndexOf(".")
+		period_index = endpoint.lastIndexOf(".")
+		slash_index = endpoint.lastIndexOf("/")
 
 		# Split on the extension if it exists
-		if period_index > -1
-			extension = url_piece.slice(period_index)
-			url_piece = url_piece.slice(0, period_index)
+		if period_index > slash_index
+			extension = endpoint.slice(period_index)
+			endpoint = endpoint.slice(0, period_index)
 		#END if
 
 		#----------------------------------------------------------
-		# Generate the id_piece
+		# Generate the id
 		#----------------------------------------------------------
-		id_piece = ""
-		if Falcon.isModel( data_object ) and type in ['GET', 'PUT', 'DELETE']
-			id_piece = "/#{options.id ? data_object.get('id')}"
+		if Falcon.isModel( data_object )
+			id = "#{options.id ? data_object.get('id')}"
+		else
+			id = null
 		#END if
 
-		return {base_url, url_piece, id_piece, extension}
-	#END makeUrlPieces
+		return {base_url, endpoint, id, extension}
+	#END makeUrlComponents
 
 	#------------------------------------------------------------------------
-	# Method: Falcon.Adapter#serializeData( data_object, type, options, context )
+	# Method: Falcon.DataAdapter#makeUrl( data_object, type, options, context )
+	#   Method that generates a full url for any given model or collection for
+	#	the specified request type.
+	#
+	# Arguments:
+	#   **data_object** _(Model|Collection)_  - The data object in question
+	#	**type** _(String)_ - The resolved request type
+	#	**options** _(Object)_ - Non-standardized options. Expects at least the 'parent' 
+	#                            property to be defined to override the usage of the 
+	#                            data_model's parent
+	#	**context** _(mixed)_ - The context to call the response handers on
+	#
+	# Returns:
+	#	_(String)_ - The generated URL
+	#------------------------------------------------------------------------
+	makeUrl: ( data_object, type, options, context ) ->
+		{base_url, endpoint, id, extension} = @makeUrlComponents( data_object, type, options, context )
+
+		#Generate the url
+		if Falcon.isModel(data_object)
+			if type is Falcon.POST
+				return "#{base_url}#{endpoint}#{extension}"
+			else
+				return "#{base_url}#{endpoint}/#{id}#{extension}"
+			#END if
+		else if Falcon.isCollection(data_object)
+			return "#{base_url}#{endpoint}#{extension}"
+		#END if
+	#END makeUrl
+
+	#------------------------------------------------------------------------
+	# Method: Falcon.DataAdapter#serializeData( data_object, type, options, context )
 	#	Serializes the data to send to the server on POST or PUT request
 	#	if data has not already been provided in the options
 	#
@@ -285,7 +314,7 @@ class FalconAdapter extends FalconObject
 	#	arguments regardless if they're used or not.
 	#------------------------------------------------------------------------
 	serializeData: ( data_object, type, options, context ) ->
-		if not options.data? and type in ["POST", "PUT"]
+		if not options.data? and type in [Falcon.POST, Falcon.PUT]
 			return data_object.serialize( options.attributes )
 		else
 			return options.data
@@ -293,7 +322,7 @@ class FalconAdapter extends FalconObject
 	#END serializeData
 
 	#------------------------------------------------------------------------
-	# Method: Falcon.Adapter#parseRawResponseData( data_object, type, options, context, response_args )
+	# Method: Falcon.DataAdapter#parseRawResponseData( data_object, type, options, context, response_args )
 	#	Used to parse the response data from a success, error, and completed sync request.  Right
 	#	now this is simply a placeholder fo inheritting classes and will directly return the
 	#	response_args for inheritting classes
@@ -320,7 +349,7 @@ class FalconAdapter extends FalconObject
 	#END parseRawResponseData
 
 	#------------------------------------------------------------------------
-	# Method: Falcon.Adapter#successResponseHandler( data_object, type, options, context, response_args )
+	# Method: Falcon.DataAdapter#successResponseHandler( data_object, type, options, context, response_args )
 	#	Method to call on successful responses. This will parse the raw response data, provide that
 	#	raw data to the data objects 'parse' method, take that parsed data and fill the data object with it.
 	#	This method will then trigger the appropriate event based on the request type and will pass the
@@ -354,17 +383,17 @@ class FalconAdapter extends FalconObject
 		data_object.fill(parsed_data, options.fill_options)
 
 		switch type
-			when "GET" then data_object.trigger("fetch", parsed_data)
-			when "POST" then data_object.trigger("create", parsed_data)
-			when "PUT" then data_object.trigger("save", parsed_data)
-			when "DELETE" then data_object.trigger("destroy", parsed_data)
+			when Falcon.GET then data_object.trigger("fetch", parsed_data)
+			when Falcon.POST then data_object.trigger("create", parsed_data)
+			when Falcon.PUT then data_object.trigger("save", parsed_data)
+			when Falcon.DELETE then data_object.trigger("destroy", parsed_data)
 		#END switch
 
 		options.success.call(context, data_object, raw_response_data, options, response_args)
 	#END successResponseHandler
 
 	#------------------------------------------------------------------------
-	# Method: Falcon.Adapter#errorResponseHandler( data_object, type, options, context, response_args )
+	# Method: Falcon.DataAdapter#errorResponseHandler( data_object, type, options, context, response_args )
 	#	Method to call on erroneous responses. This will parse the raw response data and call the 'error'
 	#	response method provided in the options on the given context and with the data object, 
 	#	raw response data, and the response args as its arguments
@@ -389,7 +418,7 @@ class FalconAdapter extends FalconObject
 	#END errorResponseHandler
 
 	#------------------------------------------------------------------------
-	# Method: Falcon.Adapter#completeResponseHandler( data_object, type, options, context, response_args )
+	# Method: Falcon.DataAdapter#completeResponseHandler( data_object, type, options, context, response_args )
 	#	Method to call on completed responses. This will parse the raw response data and call the 'complete'
 	#	response method provided in the options on the given context and with the data object, 
 	#	raw response data, and the response args as its arguments
@@ -414,7 +443,7 @@ class FalconAdapter extends FalconObject
 	#END completeResponseHandler
 
 	#------------------------------------------------------------------------
-	# Method: Falcon.Adapter#sync( data_object, type, options, context )
+	# Method: Falcon.DataAdapter#sync( data_object, type, options, context )
 	#	THE Method to execute a synchronization between the data object and
 	#	the data store.  This method is currently a placeholder that simply
 	#	checks to ensure that the data object is actually a data object. All
@@ -453,43 +482,11 @@ class FalconAdapter extends FalconObject
 
 		#Validate any models that are trying to be created or saved
 		if Falcon.isModel( data_object )
-			return {data_object, type, options, context, is_valid} if (type in ["PUT", "POST"]) and (not data_object.validate(options))
+			return {data_object, type, options, context, is_valid} if (type in [Falcon.POST, Falcon.PUT]) and (not data_object.validate(options))
 		#END if
 
 		is_valid = true
 
 		return {data_object, type, options, context, is_valid}
 	#END sync
-
-	#------------------------------------------------------------------------
-	# Method: Falcon.Adapter#getTemplate( uri, callback )
-	#	Method used to lookup a template and execute a callback with the
-	#	resultant template's HTML as its only argument.  The base definition
-	#	expects to receive a URI beginning with a '#' to signify that we're
-	#	looking for an Element in the DOM
-	#
-	# Arguments:
-	#	**uri** _(String)_ - The uri to lookup the template with
-	#	**callback** _(Function)_  - Method to call when the template has been loaded. 
-	#								 This is here to provide adapters that use asynchronous 
-	#								 loading of templates with a way to respond to a 
-	#								 completed request.
-	#
-	# Returns:
-	#	_(Falcon.Adapter)_ - This instance
-	#------------------------------------------------------------------------
-	getTemplate: (uri, callback) ->
-		unless isString( uri )
-			throw new Error("uri must be a String")
-		#END unless
-
-		unless isFunction( callback )
-			throw new Error("callback must be a Function")
-		#END unless
-
-		element = document.getElementById(uri.slice(1))
-		callback( if element? then element.innerHTML else "" )
-
-		return @
-	#END getTemplate
 #END class

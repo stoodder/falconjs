@@ -222,7 +222,7 @@ describe "Falcon.Model", ->
 		collectionC = null
 
 		class ModelA extends Falcon.Model
-			url: "model_a"
+			endpoint: "model_a"
 
 			observables:
 				'_client': null
@@ -237,7 +237,7 @@ describe "Falcon.Model", ->
 		#END class
 
 		class ModelB extends Falcon.Model
-			url: "model_b"
+			endpoint: "model_b"
 		#END class
 
 		class ModelC extends Falcon.Model
@@ -274,14 +274,14 @@ describe "Falcon.Model", ->
 		data = {
 			"id": 33
 			"foo": "bar"
-			"url": "MODEL_A2"
+			"endpoint": "MODEL_A2"
 			"model_b": {
 				"b_foo": "B BAR"
 			}
 			"model_b2": {
 				"id": "test"
 				"b_foo": "B BAR 2"
-				"url": "model_b2"
+				"endpoint": "model_b2"
 			},
 			"model_b3": new ModelB,
 			"collection_c": [
@@ -298,16 +298,16 @@ describe "Falcon.Model", ->
 		it "Should fill properly", ->
 			expect( modelA.get("id") ).toBe( 33)
 			expect( modelA.get("foo") ).toBe( "bar")
-			expect( modelA.get("url") ).toBe( "MODEL_A2")
+			expect( modelA.get("endpoint") ).toBe( "MODEL_A2")
 			
 			expect( modelA.get("model_b") ).toBe( modelB)
 			expect( modelA.get("model_b").get("b_foo") ).toBe( "B BAR")
-			expect( modelA.get("model_b").get("url") ).toBe( "model_b")
+			expect( modelA.get("model_b").get("endpoint") ).toBe( "model_b")
 			
 			expect( modelA.get("model_b2") ).toBe( modelB2)
 			expect( modelA.get("model_b2").get("id") ).toBe( "test")
 			expect( modelA.get("model_b2").get("b_foo") ).toBe( "B BAR 2")
-			expect( modelA.get("model_b2").get("url") ).toBe( "model_b2")
+			expect( modelA.get("model_b2").get("endpoint") ).toBe( "model_b2")
 
 			expect( original_model_b3 ).toEqual( jasmine.any(ModelB) )
 			expect( data.model_b3 ).toEqual( jasmine.any(ModelB) )
@@ -418,7 +418,7 @@ describe "Falcon.Model", ->
 				"id": null
 				"model_b2": {
 					"b_foo": null
-					"url": null
+					"endpoint": null
 				}
 			}
 
@@ -507,7 +507,7 @@ describe "Falcon.Model", ->
 		#Make sure that we avoid having attributes from the Falcon.Model definition
 		expect( unwrapped['id'] ).toBeNull()
 		expect( unwrapped['parent'] ).not.toBeDefined()
-		expect( unwrapped['url'] ).not.toBeDefined()
+		expect( unwrapped['endpoint'] ).not.toBeDefined()
 	#END it
 
 
@@ -518,25 +518,25 @@ describe "Falcon.Model", ->
 	#--------------------------------------------------------------
 	describe "Testing makeUrl combinations", ->
 		class ModelA extends Falcon.Model
-			url: "model_a"
+			endpoint: "model_a"
 		#END class Model A
 
 		class ModelB extends Falcon.Model
-			url: "/model_b"
+			endpoint: "/model_b"
 		#END class ModelB
 
 		class ModelC extends Falcon.Model
-			url: "model_c.json"
+			endpoint: "model_c.json"
 		#END class ModelC
 
 		class ModelD extends Falcon.Model
-			url: "model_d.json"
+			endpoint: "model_d.json"
 		#END class ModelD
 
 		class ModelE extends Falcon.Model
-			url: ->
+			endpoint: ->
 				return "model_e"
-			#END url
+			#END endpoint
 		#END ModelC
 
 		beforeEach ->
@@ -848,7 +848,7 @@ describe "Falcon.Model", ->
 			expect( modelC.makeUrl("DELETE", modelD) ).toBe( "http://www.falconjs.com/model_d/d/model_c/3.json" )
 		#END it
 
-		it "Should be able to use url as a function, no parent", ->
+		it "Should be able to use endpoint as a function, no parent", ->
 			modelE = new ModelE(id: "e")
 
 			expect( modelE.makeUrl("GET") ).toBe( "/model_e/e" )
@@ -857,7 +857,7 @@ describe "Falcon.Model", ->
 			expect( modelE.makeUrl("DELETE") ).toBe( "/model_e/e" )
 		#END it
 
-		it "Should be able to use url as a function, with parent", ->
+		it "Should be able to use endpoint as a function, with parent", ->
 			modelE = new ModelE(id: "e", new ModelB(id: "b") )
 
 			expect( modelE.makeUrl("GET") ).toBe( "/model_b/b/model_e/e" )
@@ -866,8 +866,8 @@ describe "Falcon.Model", ->
 			expect( modelE.makeUrl("DELETE") ).toBe( "/model_b/b/model_e/e" )
 		#END it
 
-		it "Should be able to use override the url, no parent", ->
-			modelD = new ModelD(id: "d", url: "model_d2")
+		it "Should be able to use override the endpoint, no parent", ->
+			modelD = new ModelD(id: "d", endpoint: "model_d2")
 
 			expect( modelD.makeUrl("GET") ).toBe( "/model_d2/d" )
 			expect( modelD.makeUrl("POST") ).toBe( "/model_d2" )
@@ -875,8 +875,8 @@ describe "Falcon.Model", ->
 			expect( modelD.makeUrl("DELETE") ).toBe( "/model_d2/d" )
 		#END it
 
-		it "Should be able to use override the url,with parent", ->
-			modelD = new ModelD({id: "d", url: "model_d3"}, new ModelB(id: "b") )
+		it "Should be able to use override the endpoint,with parent", ->
+			modelD = new ModelD({id: "d", endpoint: "model_d3"}, new ModelB(id: "b") )
 
 			expect( modelD.makeUrl("GET") ).toBe( "/model_b/b/model_d3/d" )
 			expect( modelD.makeUrl("POST") ).toBe( "/model_b/b/model_d3" )
@@ -884,8 +884,8 @@ describe "Falcon.Model", ->
 			expect( modelD.makeUrl("DELETE") ).toBe( "/model_b/b/model_d3/d" )
 		#END it
 
-		it "Should be able to use override the function url, no parent", ->
-			modelE = new ModelD(id: "d", url: "model_d2")
+		it "Should be able to use override the function endpoint, no parent", ->
+			modelE = new ModelD(id: "d", endpoint: "model_d2")
 
 			expect( modelE.makeUrl("GET") ).toBe( "/model_d2/d" )
 			expect( modelE.makeUrl("POST") ).toBe( "/model_d2" )
@@ -893,8 +893,8 @@ describe "Falcon.Model", ->
 			expect( modelE.makeUrl("DELETE") ).toBe( "/model_d2/d" )
 		#END it
 
-		it "Should be able to use override the function url,with parent", ->
-			modelE = new ModelE({id: "e", url: "model_e3"}, new ModelB(id: "b") )
+		it "Should be able to use override the function endpoint,with parent", ->
+			modelE = new ModelE({id: "e", endpoint: "model_e3"}, new ModelB(id: "b") )
 
 			expect( modelE.makeUrl("GET") ).toBe( "/model_b/b/model_e3/e" )
 			expect( modelE.makeUrl("POST") ).toBe( "/model_b/b/model_e3" )
@@ -977,7 +977,7 @@ describe "Falcon.Model", ->
 	describe "Tesing model sync methods", ->
 		describe "Testing Sync Method Aliases", ->
 			class ModelA extends Falcon.Model
-				url: "model_a"
+				endpoint: "model_a"
 			#END ModelA
 
 			modelA = null
@@ -1045,7 +1045,7 @@ describe "Falcon.Model", ->
 			model = new Falcon.Model
 
 			beforeEach ->
-				spyOn( Falcon.adapter, 'sync' )
+				spyOn( Falcon.dataAdapter, 'sync' )
 			#END beforeEach
 
 			it "Should call the falcon adapter", ->
@@ -1054,8 +1054,8 @@ describe "Falcon.Model", ->
 				context = new Falcon.Model
 				model.sync(type, options, context)
 
-				expect( Falcon.adapter.sync.calls.count() ).toBe( 1 )
-				expect( Falcon.adapter.sync ).toHaveBeenCalledWith(model, type, options, context)
+				expect( Falcon.dataAdapter.sync.calls.count() ).toBe( 1 )
+				expect( Falcon.dataAdapter.sync ).toHaveBeenCalledWith(model, type, options, context)
 			#END it
 		#END describe
 	#END describe

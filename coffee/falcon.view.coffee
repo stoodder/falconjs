@@ -4,73 +4,25 @@
 #--------------------------------------------------------
 class FalconView extends FalconObject
 	#--------------------------------------------------------
-	# The internal cache of each template identified by 
-	# their url or element id
-	#--------------------------------------------------------
-	__falcon_view__template_cache__ = {}
-
-	#--------------------------------------------------------
-	# Method: Falcon.View.cacheTemplate( identifier, template )
-	#	Method used to manually cache a template
-	#
-	# Arguments:
-	#	**identifier** _(String)_ - The unique identifier for the template (usually a url or an element id)
-	#	**template** _(String)_ - The template to store
-	#--------------------------------------------------------
-	@cacheTemplate = (identifier, template) ->
-		identifier = "" unless isString( identifier )
-		template = "" unless isString( template )
-
-		return Falcon.View if isEmpty( identifier )
-
-		__falcon_view__template_cache__[identifier] = template
-
-		return Falcon.View
-	#END cacheTemplate
-
-	#--------------------------------------------------------
-	# Method: Falcon.View.cacheTemplates
-	#	Method used to cache and remove the template elements
-	#
-	# Returns:
-	#	_(Falcon)_ - This Instance
-	#--------------------------------------------------------
-	@cacheTemplates = ->
-		templates = (template for template in document.getElementsByTagName("template"))
-		
-		for template in templates
-			identifier = template.getAttribute("id")
-			Falcon.View.cacheTemplate( "##{identifier}", template.innerHTML ) if identifier?
-			template.parentNode?.removeChild(template)
-		#END each template
-
-		return Falcon.View
-	#END cacheTemplates
-
-	#--------------------------------------------------------
-	# Method: Falcon.View.resetCache()
-	#	Method used to manually reset the static template cache
-	#--------------------------------------------------------
-	@resetCache = () ->
-		__falcon_view__template_cache__ = {}
-
-		return Falcon.View
-	#END resetCache
-
-	#--------------------------------------------------------
 	# Method: Falcon.View.extend()
 	#	Inherit the global extend method
 	#--------------------------------------------------------
 	@extend = FalconObject.extend
 
 	#--------------------------------------------------------
-	# Member: Faclon.View#url
-	#	The url or element id where this template is defined. 
+	# Member: Faclon.View#endpoint
+	#	The endpoint or element id where this template is defined. 
 	#	Can either be a string or a function and can either point 
 	#	to a uri or a DOM object identifier.  This attribute 
 	#	should be overridden by any inheritting classes
 	#--------------------------------------------------------
-	url: null
+	endpoint: null
+
+	#--------------------------------------------------------
+	# Member: Faclon.View#template
+	#	An optional string to hard code a template
+	#--------------------------------------------------------
+	template: null
 
 	#--------------------------------------------------------
 	# Member: Falcon.View#is_loaded
@@ -79,7 +31,7 @@ class FalconView extends FalconObject
 	#	into the template cache. Making this an observable allows us to
 	#	bind against it and for the 'view' binding to update properly.
 	#--------------------------------------------------------
-	__falcon_view__is_loaded__: false
+	__falcon_view__loaded_template__: false
 
 	#--------------------------------------------------------
 	# Member: Falcon.View#__falcon_view__is_rendered__
@@ -90,14 +42,6 @@ class FalconView extends FalconObject
 	__falcon_view__is_rendered__: false
 
 	#--------------------------------------------------------
-	# Member: Falcon.View#__falcon_view__loaded_url__
-	#	This private, falcon specific, variable is used to store
-	#	the result of the makeUrl() function so that we can lookup
-	#	and store the resultant template in the template cache
-	#--------------------------------------------------------
-	__falcon_view__loaded_url__: null
-
-	#--------------------------------------------------------
 	# Method: Falcon.View()
 	#	The constuctor method for the view class, calls the super
 	#	constructor from Falcon.Object
@@ -105,28 +49,24 @@ class FalconView extends FalconObject
 	constructor: () ->
 		super(arguments...)
 
-		# Validate the public variables
-		url = @makeUrl()
-
-		# Setup the is_loaded variable
-		@__falcon_view__is_loaded__ = ko.observable( false )
+		# Setup the private state variables
+		@__falcon_view__loaded_template__ = ko.observable()
 		@__falcon_view__is_rendered__ = false
-		@__falcon_view__loaded_url__ = url
 
 		@initialize.apply(this, arguments)
 
-		# Attempt to load the template from the server or cache
-		Falcon.ready =>
-			if isEmpty(url) or __falcon_view__template_cache__[url]?
-				@__falcon_view__is_loaded__( true )
-			else
-				Falcon.adapter.getTemplate(url, (template) =>
-					Falcon.View.cacheTemplate( url, template )
-					@__falcon_view__is_loaded__( true )
-				)#END getTemplate
-			#END if
-		#END ready
+		# Attempt to load the template
+		Falcon.templateAdapter.resolveTemplate( @, (template) =>
+			@__falcon_view__loaded_template__(template)
+		)
 	#END constructor
+
+	#--------------------------------------------------------
+	# Method: Falcon.View#initialize
+	#	The psuedo consructor method that sholdbe overriden
+	#	instead of the actual constuctor.
+	#--------------------------------------------------------
+	initialize: ( -> )
 
 	#--------------------------------------------------------
 	# Method: Falcon.View#makeUrl
@@ -137,38 +77,7 @@ class FalconView extends FalconObject
 	# Returns:
 	#	_(String)_ - The full url
 	#--------------------------------------------------------
-	makeUrl: () ->
-		url = ko.utils.unwrapObservable( @url )
-		url = url() if isFunction( url )
-		url = "" unless isString( url )
-		url = trim( url )
-
-		return url if isEmpty( url ) or url.charAt(0) is '#'
-
-		#Make sure the url is now formatted correctly
-		url = "/#{url}" unless url.charAt(0) is '/'
-
-		#Attempt to add on the base url if its set and the url is a uri (not an element ID)
-		url = "#{Falcon.baseTemplateUrl}#{url}" if isString(Falcon.baseTemplateUrl)
-
-		#Replace any double slashes outside of the initial protocol
-		url = url.replace(/([^:])\/\/+/gi, "$1/")
-
-		return url
-	#END makeUrl
-
-	#--------------------------------------------------------
-	# Method: Falcon.View#template
-	#	Method used to return the string template used for this view
-	#
-	# Note:
-	#	This method should stay as is. It is used by the 'view' binding
-	#	to get the template string.
-	#--------------------------------------------------------
-	template: () ->
-		return "" unless ko.utils.unwrapObservable( @__falcon_view__is_loaded__ )
-		return ( __falcon_view__template_cache__[@__falcon_view__loaded_url__] ? "" )
-	#END template
+	makeUrl: () -> Falcon.templateAdapter.makeUrl(@)
 
 	#--------------------------------------------------------
 	# Method: Falcon.View#_render
@@ -209,7 +118,6 @@ class FalconView extends FalconObject
 	#--------------------------------------------------------
 	_unrender: () ->
 		return unless @__falcon_view__is_rendered__
-
 		@__falcon_view__is_rendered__ = false
 		@dispose.apply(this, arguments)
 
@@ -251,9 +159,9 @@ class FalconView extends FalconObject
 	#	this view are converted to be able retain 'this' view as
 	#	the context of this instance.
 	#--------------------------------------------------------
-	@__falcon_view__viewModel__: null
-	viewModel: ->
-		return @__falcon_view__viewModel__ if @__falcon_view__viewModel__?
+	@__falcon_view__cachedViewModel__: null
+	createViewModel: ->
+		return @__falcon_view__cachedViewModel__ if @__falcon_view__cachedViewModel__?
 
 		viewModel = {}
 
@@ -265,6 +173,6 @@ class FalconView extends FalconObject
 			viewModel[key] = value
 		#END for
 
-		return (@__falcon_view__viewModel__ = viewModel)
-	#END viewModel
+		return (@__falcon_view__cachedViewModel__ = viewModel)
+	#END createViewModel
 #END Falcon.View

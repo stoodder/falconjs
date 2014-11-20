@@ -1,41 +1,41 @@
-describe "Falcon.Adapter", ->
+describe "Falcon.DataAdapter", ->
 	describe "extend", ->
 	#END describe
 	
 	describe "resolveRequestType", ->
-		adapter = new Falcon.Adapter
+		adapter = new Falcon.DataAdapter
 		data_object = new Falcon.Model
 		options = {}
 		context = null
 
 		it "Should return GET if type isn't a string", ->
-			expect( adapter.resolveRequestType(data_object, null, options, context) ).toBe( "GET" )
-			expect( adapter.resolveRequestType(data_object, 123, options, context) ).toBe( "GET" )
+			expect( adapter.resolveRequestType(data_object, null, options, context) ).toBe( Falcon.GET )
+			expect( adapter.resolveRequestType(data_object, 123, options, context) ).toBe( Falcon.GET )
 		#END it
 
 		it "Should return GET is type isn't GET, PUT, POST, DELETE", ->
-			expect( adapter.resolveRequestType(data_object, "HELLO WORLD", options, context) ).toBe( "GET" )
+			expect( adapter.resolveRequestType(data_object, "HELLO WORLD", options, context) ).toBe( Falcon.GET )
 		#END it
 
 		it "Should cast get, put, post, delete (lower case) to their proper forms", ->
-			expect( adapter.resolveRequestType(data_object, "get", options, context) ).toBe( "GET" )
-			expect( adapter.resolveRequestType(data_object, "put", options, context) ).toBe( "PUT" )
-			expect( adapter.resolveRequestType(data_object, "post", options, context) ).toBe( "POST" )
-			expect( adapter.resolveRequestType(data_object, "delete", options, context) ).toBe( "DELETE" )
+			expect( adapter.resolveRequestType(data_object, "get", options, context) ).toBe( Falcon.GET )
+			expect( adapter.resolveRequestType(data_object, "put", options, context) ).toBe( Falcon.PUT )
+			expect( adapter.resolveRequestType(data_object, "post", options, context) ).toBe( Falcon.POST )
+			expect( adapter.resolveRequestType(data_object, "delete", options, context) ).toBe( Falcon.DELETE )
 		#END it
 
 		it "Should ignore whitespace", ->
-			expect( adapter.resolveRequestType(data_object, "  GET  ", options, context) ).toBe( "GET" )
-			expect( adapter.resolveRequestType(data_object, "  PUT  ", options, context) ).toBe( "PUT" )
-			expect( adapter.resolveRequestType(data_object, "  POST  ", options, context) ).toBe( "POST" )
-			expect( adapter.resolveRequestType(data_object, "  DELETE  ", options, context) ).toBe( "DELETE" )
+			expect( adapter.resolveRequestType(data_object, "  GET  ", options, context) ).toBe( Falcon.GET )
+			expect( adapter.resolveRequestType(data_object, "  PUT  ", options, context) ).toBe( Falcon.PUT )
+			expect( adapter.resolveRequestType(data_object, "  POST  ", options, context) ).toBe( Falcon.POST )
+			expect( adapter.resolveRequestType(data_object, "  DELETE  ", options, context) ).toBe( Falcon.DELETE )
 		#END it
 	#END describe
 
 	describe "resovleContext", ->
-		adapter = new Falcon.Adapter
+		adapter = new Falcon.DataAdapter
 		data_object = new Falcon.Model(id: 1)
-		type = "GET"
+		type = Falcon.GET
 		options = {context: {id: 2}}
 		context = {id: 3}
 
@@ -55,14 +55,14 @@ describe "Falcon.Adapter", ->
 	#END describe
 
 	describe "standardizeOptions", ->
-		adapter = new Falcon.Adapter
+		adapter = new Falcon.DataAdapter
 		parent = new Falcon.Model
 		data_object = new Falcon.Model({id: 1}, parent)
-		type = "GET"
+		type = Falcon.GET
 		context = {id: 3}
 
 		beforeEach ->
-			spyOn( adapter, 'makeUrl' ).and.callThrough()
+			spyOn( adapter, 'resolveUrl' ).and.callThrough()
 			spyOn( adapter, 'serializeData' ).and.callThrough()
 		#END beforeEach
 
@@ -79,8 +79,8 @@ describe "Falcon.Adapter", ->
 			expect( ret['attributes'] ).toBeNull()
 			expect( ret['fill_options'] ).toBeNull()
 
-			expect( adapter.makeUrl.calls.count() ).toBe( 1 )
-			expect( adapter.makeUrl ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
+			expect( adapter.resolveUrl.calls.count() ).toBe( 1 )
+			expect( adapter.resolveUrl ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
 
 			expect( adapter.serializeData.calls.count() ).toBe( 1 )
 			expect( adapter.serializeData ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
@@ -112,8 +112,8 @@ describe "Falcon.Adapter", ->
 			expect( ret['attributes'] ).toBe( options.attributes )
 			expect( ret['fill_options'] ).toBe( options.fill_options )
 
-			expect( adapter.makeUrl.calls.count() ).toBe( 1 )
-			expect( adapter.makeUrl ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
+			expect( adapter.resolveUrl.calls.count() ).toBe( 1 )
+			expect( adapter.resolveUrl ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
 
 			expect( adapter.serializeData.calls.count() ).toBe( 1 )
 			expect( adapter.serializeData ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
@@ -140,8 +140,8 @@ describe "Falcon.Adapter", ->
 			expect( ret['data'] ).toBeNull()
 			expect( ret['fill_options'] ).toBeNull()
 
-			expect( adapter.makeUrl.calls.count() ).toBe( 1 )
-			expect( adapter.makeUrl ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
+			expect( adapter.resolveUrl.calls.count() ).toBe( 1 )
+			expect( adapter.resolveUrl ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
 
 			expect( adapter.serializeData.calls.count() ).toBe( 1 )
 			expect( adapter.serializeData ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
@@ -162,8 +162,8 @@ describe "Falcon.Adapter", ->
 			expect( ret['data'] ).toBeNull()
 			expect( ret['fill_options'] ).toBeNull()
 
-			expect( adapter.makeUrl.calls.count() ).toBe( 1 )
-			expect( adapter.makeUrl ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
+			expect( adapter.resolveUrl.calls.count() ).toBe( 1 )
+			expect( adapter.resolveUrl ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
 
 			expect( adapter.serializeData.calls.count() ).toBe( 1 )
 			expect( adapter.serializeData ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
@@ -184,8 +184,8 @@ describe "Falcon.Adapter", ->
 			expect( ret['data'] ).toBeNull()
 			expect( ret['fill_options'] ).toBeNull()
 
-			expect( adapter.makeUrl.calls.count() ).toBe( 1 )
-			expect( adapter.makeUrl ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
+			expect( adapter.resolveUrl.calls.count() ).toBe( 1 )
+			expect( adapter.resolveUrl ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
 
 			expect( adapter.serializeData.calls.count() ).toBe( 1 )
 			expect( adapter.serializeData ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
@@ -207,8 +207,8 @@ describe "Falcon.Adapter", ->
 			expect( ret['data'] ).toBeNull()
 			expect( ret['fill_options'] ).toBeNull()
 
-			expect( adapter.makeUrl.calls.count() ).toBe( 1 )
-			expect( adapter.makeUrl ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
+			expect( adapter.resolveUrl.calls.count() ).toBe( 1 )
+			expect( adapter.resolveUrl ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
 
 			expect( adapter.serializeData.calls.count() ).toBe( 1 )
 			expect( adapter.serializeData ).toHaveBeenCalledWith( data_object, type, jasmine.any(Object), context )
@@ -221,10 +221,9 @@ describe "Falcon.Adapter", ->
 		#END it
 	#END describe
 
-	describe "makeUrl", ->
-		adapter = new Falcon.Adapter
-		parent = new Falcon.Model
-		data_object = new Falcon.Model({id: 1}, parent)
+	describe "resolveUrl", ->
+		adapter = new Falcon.DataAdapter
+		data_object = new Falcon.Model({id: 1})
 		context = {id: 3}
 		options = {
 			parent: new Falcon.Model
@@ -234,22 +233,509 @@ describe "Falcon.Adapter", ->
 			spyOn( data_object, 'makeUrl' ).and.returnValue("http://www.falconjs.com")
 		#END beforeEach
 
-		it "Should return the url of the options if one is present", ->
-			ret = adapter.makeUrl( data_object, "GET", {url: 'http://www.google.com'}, null)
-			expect( data_object.makeUrl ).not.toHaveBeenCalled()
-			expect( ret ).toBe('http://www.google.com')
+		it "Should call the data objects resolveUrl method", ->
+			ret = adapter.resolveUrl(data_object, Falcon.GET, options, context)
+
+			expect( data_object.makeUrl.calls.count() ).toBe(1)
+			expect( ret ).toBe("http://www.falconjs.com")
 		#END it
 
-		it "Should call the makeUrl method on the data object properly", ->
-			ret = adapter.makeUrl( data_object, "PUT", options, null)
-			expect( data_object.makeUrl.calls.count() ).toBe(1)
-			expect( data_object.makeUrl ).toHaveBeenCalledWith("PUT", options.parent)
-			expect( ret ).toBe('http://www.falconjs.com')
+		it "Should use the options' url if one is available", ->
+			options.url = "http://www.google.com"
+
+			ret = adapter.resolveUrl(data_object, Falcon.GET, options, context)
+
+			expect( data_object.makeUrl ).not.toHaveBeenCalled()
+			expect( ret ).toBe("http://www.google.com")
+		#END it
+	#END describe
+
+	describe "makeBaseUrl", ->
+		adapter = new Falcon.DataAdapter
+		data_object = new Falcon.Model({id: 1, endpoint: "a"})
+		context = data_object
+		options = null
+		baseApiUrl = null
+
+		beforeEach ->
+			baseApiUrl = Falcon.baseApiUrl
+			Falcon.baseApiUrl = null
+			options = {}
+		#END beforeEach
+
+		afterEach ->
+			Falcon.baseApiUrl = baseApiUrl
+		#END afterEach
+
+		it "Should generate a base url properly without a parent with GET", ->
+			ret = adapter.makeBaseUrl( data_object, Falcon.GET, options, context)
+			expect( ret ).toBe("/")
+		#END it
+
+		it "Should generate a base url properly without a parent with POST", ->
+			ret = adapter.makeBaseUrl( data_object, Falcon.POST, options, context)
+			expect( ret ).toBe("/")
+		#END it
+
+		it "Should generate a base url properly without a parent with PUT", ->
+			ret = adapter.makeBaseUrl( data_object, Falcon.PUT, options, context)
+			expect( ret ).toBe("/")
+		#END it
+
+		it "Should generate a base url properly without a parent with DELETE", ->
+			ret = adapter.makeBaseUrl( data_object, Falcon.DELETE, options, context)
+			expect( ret ).toBe("/")
+		#END it
+
+
+		it "Should generate a base url properly with a single parent with GET", ->
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"})
+			ret = adapter.makeBaseUrl( data_object, Falcon.GET, options, context)
+			expect( ret ).toBe("/b/2/")
+		#END it
+
+		it "Should generate a base url properly with a single parent with POST", ->
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"})
+			ret = adapter.makeBaseUrl( data_object, Falcon.POST, options, context)
+			expect( ret ).toBe("/b/2/")
+		#END it
+
+		it "Should generate a base url properly with a single parent with PUT", ->
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"})
+			ret = adapter.makeBaseUrl( data_object, Falcon.PUT, options, context)
+			expect( ret ).toBe("/b/2/")
+		#END it
+
+		it "Should generate a base url properly with a single parent with DELETE", ->
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"})
+			ret = adapter.makeBaseUrl( data_object, Falcon.DELETE, options, context)
+			expect( ret ).toBe("/b/2/")
+		#END it
+
+
+		it "Should generate a url properly with more than one parent with GET", ->
+			parent_model = new Falcon.Model({id: 3, endpoint: "c"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"}, parent_model)
+			ret = adapter.makeBaseUrl( data_object, Falcon.GET, options, context)
+			expect( ret ).toBe("/c/3/b/2/")
+		#END it
+
+		it "Should generate a url properly with more than one parent with POSt", ->
+			parent_model = new Falcon.Model({id: 3, endpoint: "c"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"}, parent_model)
+			ret = adapter.makeBaseUrl( data_object, "POSt", options, context)
+			expect( ret ).toBe("/c/3/b/2/")
+		#END it
+
+		it "Should generate a url properly with more than one parent with PUT", ->
+			parent_model = new Falcon.Model({id: 3, endpoint: "c"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"}, parent_model)
+			ret = adapter.makeBaseUrl( data_object, Falcon.PUT, options, context)
+			expect( ret ).toBe("/c/3/b/2/")
+		#END it
+
+		it "Should generate a url properly with more than one parent with DELETE", ->
+			parent_model = new Falcon.Model({id: 3, endpoint: "c"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"}, parent_model)
+			ret = adapter.makeBaseUrl( data_object, Falcon.DELETE, options, context)
+			expect( ret ).toBe("/c/3/b/2/")
+		#END it
+
+
+		it "Should generate a url properly using the parent from within options with GET", ->
+			options.parent = new Falcon.Model({id: 4, endpoint: "d"})
+			parent_model = new Falcon.Model({id: 3, endpoint: "c"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"}, parent_model)
+			ret = adapter.makeBaseUrl( data_object, Falcon.GET, options, context)
+			expect( ret ).toBe("/d/4/")
+		#END it
+
+		it "Should generate a url properly using the parent from within options with POST", ->
+			options.parent = new Falcon.Model({id: 4, endpoint: "d"})
+			parent_model = new Falcon.Model({id: 3, endpoint: "c"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"}, parent_model)
+			ret = adapter.makeBaseUrl( data_object, Falcon.POST, options, context)
+			expect( ret ).toBe("/d/4/")
+		#END it
+
+		it "Should generate a url properly using the parent from within options with PUT", ->
+			options.parent = new Falcon.Model({id: 4, endpoint: "d"})
+			parent_model = new Falcon.Model({id: 3, endpoint: "c"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"}, parent_model)
+			ret = adapter.makeBaseUrl( data_object, Falcon.PUT, options, context)
+			expect( ret ).toBe("/d/4/")
+		#END it
+
+		it "Should generate a url properly using the parent from within options with DELETE", ->
+			options.parent = new Falcon.Model({id: 4, endpoint: "d"})
+			parent_model = new Falcon.Model({id: 3, endpoint: "c"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"}, parent_model)
+			ret = adapter.makeBaseUrl( data_object, Falcon.DELETE, options, context)
+			expect( ret ).toBe("/d/4/")
+		#END it
+
+
+		it "Should include the base api url with regular parent", ->
+			Falcon.baseApiUrl = "http://www.falconjs.com"
+			parent_model = new Falcon.Model({id: 3, endpoint: "c"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"}, parent_model)
+			ret = adapter.makeBaseUrl( data_object, Falcon.GET, options, context)
+			expect( ret ).toBe("http://www.falconjs.com/c/3/b/2/")
+		#END it
+
+		it "Should include the base api url with regular parent and a trailing slash", ->
+			Falcon.baseApiUrl = "http://www.falconjs.com/"
+			parent_model = new Falcon.Model({id: 3, endpoint: "c"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"}, parent_model)
+			ret = adapter.makeBaseUrl( data_object, Falcon.GET, options, context)
+			expect( ret ).toBe("http://www.falconjs.com/c/3/b/2/")
+		#END it
+
+
+		it "Should include the base api url with an options parent", ->
+			Falcon.baseApiUrl = "http://www.falconjs.com"
+			options.parent = new Falcon.Model({id: 4, endpoint: "d"})
+			parent_model = new Falcon.Model({id: 3, endpoint: "c"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"}, parent_model)
+			ret = adapter.makeBaseUrl( data_object, Falcon.GET, options, context)
+			expect( ret ).toBe("http://www.falconjs.com/d/4/")
+		#END it
+
+		it "Should include the base api url with an options parent and a trailing slash", ->
+			Falcon.baseApiUrl = "http://www.falconjs.com/"
+			options.parent = new Falcon.Model({id: 4, endpoint: "d"})
+			parent_model = new Falcon.Model({id: 3, endpoint: "c"})
+			data_object.parent = new Falcon.Model({id: 2, endpoint: "b"}, parent_model)
+			ret = adapter.makeBaseUrl( data_object, Falcon.GET, options, context)
+			expect( ret ).toBe("http://www.falconjs.com/d/4/")
+		#END it
+
+
+		it "Should include the base api url without a parent", ->
+			Falcon.baseApiUrl = "http://www.falconjs.com"
+			data_object.parent = null
+			ret = adapter.makeBaseUrl( data_object, Falcon.GET, options, context)
+			expect( ret ).toBe("http://www.falconjs.com/")
+		#END it
+
+		it "Should include the base api url without a parent and a trailing slash", ->
+			Falcon.baseApiUrl = "http://www.falconjs.com/"
+			data_object.parent = null
+			ret = adapter.makeBaseUrl( data_object, Falcon.GET, options, context)
+			expect( ret ).toBe("http://www.falconjs.com/")
+		#END it
+
+
+		it "Should include the base api url with an empty base url", ->
+			Falcon.baseApiUrl = ""
+			data_object.parent = null
+			ret = adapter.makeBaseUrl( data_object, Falcon.GET, options, context)
+			expect( ret ).toBe("/")
+		#END it
+
+		it "Should include the base api url with the root basse url", ->
+			Falcon.baseApiUrl = "/"
+			data_object.parent = null
+			ret = adapter.makeBaseUrl( data_object, Falcon.GET, options, context)
+			expect( ret ).toBe("/")
+		#END it
+
+		it "Should include the base api url with the root base url and a trailing slash", ->
+			Falcon.baseApiUrl = "//"
+			data_object.parent = null
+			ret = adapter.makeBaseUrl( data_object, Falcon.GET, options, context)
+			expect( ret ).toBe("/")
+		#END it
+	#END describe
+
+	describe "makeUrlComponents", ->
+		adapter = null
+		base_api_url = null
+		data_object = null
+		options = null
+		context = null
+
+		beforeEach ->
+			base_api_url = Falcon.baseApiUrl
+			Falcon.baseApiUrl = "http://www.falconjs.com/"
+
+			adapter = new Falcon.DataAdapter
+			spyOn( adapter, "resolveRequestType" ).and.callThrough()
+			spyOn( adapter, "makeBaseUrl" ).and.callThrough()
+
+			data_object = new Falcon.Model({id: 1, endpoint: "a"})
+			options = {}
+			context = data_object
+		#END beforeEach
+
+		afterEach ->
+			Falcon.baseApiUrl = base_api_url
+		#END afterEach
+
+		it "Should return the url components properly with GET", ->
+			ret = adapter.makeUrlComponents( data_object, Falcon.GET, options, context )
+
+			expect( adapter.resolveRequestType.calls.count() ).toBe( 1 )
+			expect( adapter.resolveRequestType ).toHaveBeenCalledWith( data_object, Falcon.GET, options, context )
+
+			expect( adapter.makeBaseUrl.calls.count() ).toBe( 1 )
+			expect( adapter.makeBaseUrl ).toHaveBeenCalledWith( data_object, Falcon.GET, options, context )
+
+			expect( ret ).toEqual({
+				'base_url': "http://www.falconjs.com/"
+				'endpoint': "a"
+				'id': "1"
+				'extension': ""
+			})
+		#END it
+
+		it "Should return the url components properly with POST", ->
+			ret = adapter.makeUrlComponents( data_object, Falcon.POST, options, context )
+
+			expect( adapter.resolveRequestType.calls.count() ).toBe( 1 )
+			expect( adapter.resolveRequestType ).toHaveBeenCalledWith( data_object, Falcon.POST, options, context )
+
+			expect( adapter.makeBaseUrl.calls.count() ).toBe( 1 )
+			expect( adapter.makeBaseUrl ).toHaveBeenCalledWith( data_object, Falcon.POST, options, context )
+
+			expect( ret ).toEqual({
+				'base_url': "http://www.falconjs.com/"
+				'endpoint': "a"
+				'id': "1"
+				'extension': ""
+			})
+		#END it
+
+		it "Should return the url components properly with PUT", ->
+			ret = adapter.makeUrlComponents( data_object, Falcon.PUT, options, context )
+
+			expect( adapter.resolveRequestType.calls.count() ).toBe( 1 )
+			expect( adapter.resolveRequestType ).toHaveBeenCalledWith( data_object, Falcon.PUT, options, context )
+
+			expect( adapter.makeBaseUrl.calls.count() ).toBe( 1 )
+			expect( adapter.makeBaseUrl ).toHaveBeenCalledWith( data_object, Falcon.PUT, options, context )
+
+			expect( ret ).toEqual({
+				'base_url': "http://www.falconjs.com/"
+				'endpoint': "a"
+				'id': "1"
+				'extension': ""
+			})
+		#END it
+
+		it "Should return the url components properly with DELETE", ->
+			ret = adapter.makeUrlComponents( data_object, Falcon.DELETE, options, context )
+
+			expect( adapter.resolveRequestType.calls.count() ).toBe( 1 )
+			expect( adapter.resolveRequestType ).toHaveBeenCalledWith( data_object, Falcon.DELETE, options, context )
+
+			expect( adapter.makeBaseUrl.calls.count() ).toBe( 1 )
+			expect( adapter.makeBaseUrl ).toHaveBeenCalledWith( data_object, Falcon.DELETE, options, context )
+
+			expect( ret ).toEqual({
+				'base_url': "http://www.falconjs.com/"
+				'endpoint': "a"
+				'id': "1"
+				'extension': ""
+			})
+		#END it
+
+		it "Should get the correct endpoint wiht a url method definition on the data object", ->
+			data_object.endpoint = -> "b"
+
+			ret = adapter.makeUrlComponents( data_object, Falcon.DELETE, options, context )
+
+			expect( adapter.resolveRequestType.calls.count() ).toBe( 1 )
+			expect( adapter.resolveRequestType ).toHaveBeenCalledWith( data_object, Falcon.DELETE, options, context )
+
+			expect( adapter.makeBaseUrl.calls.count() ).toBe( 1 )
+			expect( adapter.makeBaseUrl ).toHaveBeenCalledWith( data_object, Falcon.DELETE, options, context )
+
+			expect( ret ).toEqual({
+				'base_url': "http://www.falconjs.com/"
+				'endpoint': "b"
+				'id': "1"
+				'extension': ""
+			})
+		#END it
+
+		it "Should remove slashes from the endpoint", ->
+			data_object.endpoint = "/c//"
+
+			ret = adapter.makeUrlComponents( data_object, Falcon.DELETE, options, context )
+
+			expect( adapter.resolveRequestType.calls.count() ).toBe( 1 )
+			expect( adapter.resolveRequestType ).toHaveBeenCalledWith( data_object, Falcon.DELETE, options, context )
+
+			expect( adapter.makeBaseUrl.calls.count() ).toBe( 1 )
+			expect( adapter.makeBaseUrl ).toHaveBeenCalledWith( data_object, Falcon.DELETE, options, context )
+
+			expect( ret ).toEqual({
+				'base_url': "http://www.falconjs.com/"
+				'endpoint': "c"
+				'id': "1"
+				'extension': ""
+			})
+		#END it
+
+		it "Should be able to handle extensions properly", ->
+			data_object.endpoint = "d.json"
+
+			ret = adapter.makeUrlComponents( data_object, Falcon.DELETE, options, context )
+
+			expect( adapter.resolveRequestType.calls.count() ).toBe( 1 )
+			expect( adapter.resolveRequestType ).toHaveBeenCalledWith( data_object, Falcon.DELETE, options, context )
+
+			expect( adapter.makeBaseUrl.calls.count() ).toBe( 1 )
+			expect( adapter.makeBaseUrl ).toHaveBeenCalledWith( data_object, Falcon.DELETE, options, context )
+
+			expect( ret ).toEqual({
+				'base_url': "http://www.falconjs.com/"
+				'endpoint': "d"
+				'id': "1"
+				'extension': ".json"
+			})
+		#END it
+
+		it "Should be able to handle extensions properly only after the last slash", ->
+			data_object.endpoint = "d.json/hello"
+
+			ret = adapter.makeUrlComponents( data_object, Falcon.DELETE, options, context )
+
+			expect( adapter.resolveRequestType.calls.count() ).toBe( 1 )
+			expect( adapter.resolveRequestType ).toHaveBeenCalledWith( data_object, Falcon.DELETE, options, context )
+
+			expect( adapter.makeBaseUrl.calls.count() ).toBe( 1 )
+			expect( adapter.makeBaseUrl ).toHaveBeenCalledWith( data_object, Falcon.DELETE, options, context )
+
+			expect( ret ).toEqual({
+				'base_url': "http://www.falconjs.com/"
+				'endpoint': "d.json/hello"
+				'id': "1"
+				'extension': ""
+			})
+		#END it
+
+		it "Should handle collections properly", ->
+			ModelE = Falcon.Model.extend({endpoint: 'e'})
+			CollectionE = Falcon.Collection.extend({model: ModelE})
+			data_object = new CollectionE
+
+			ret = adapter.makeUrlComponents( data_object, Falcon.DELETE, options, context )
+
+			expect( adapter.resolveRequestType.calls.count() ).toBe( 1 )
+			expect( adapter.resolveRequestType ).toHaveBeenCalledWith( data_object, Falcon.DELETE, options, context )
+
+			expect( adapter.makeBaseUrl.calls.count() ).toBe( 1 )
+			expect( adapter.makeBaseUrl ).toHaveBeenCalledWith( data_object, Falcon.DELETE, options, context )
+
+			expect( ret ).toEqual({
+				'base_url': "http://www.falconjs.com/"
+				'endpoint': "e"
+				'id': null
+				'extension': ""
+			})
+		#END it
+
+		it "Should handle collections with extensions properly", ->
+			ModelE = Falcon.Model.extend({endpoint: 'e.json'})
+			CollectionE = Falcon.Collection.extend({model: ModelE})
+			data_object = new CollectionE
+
+			ret = adapter.makeUrlComponents( data_object, Falcon.DELETE, options, context )
+
+			expect( adapter.resolveRequestType.calls.count() ).toBe( 1 )
+			expect( adapter.resolveRequestType ).toHaveBeenCalledWith( data_object, Falcon.DELETE, options, context )
+
+			expect( adapter.makeBaseUrl.calls.count() ).toBe( 1 )
+			expect( adapter.makeBaseUrl ).toHaveBeenCalledWith( data_object, Falcon.DELETE, options, context )
+
+			expect( ret ).toEqual({
+				'base_url': "http://www.falconjs.com/"
+				'endpoint': "e"
+				'id': null
+				'extension': ".json"
+			})
+		#END it
+	#END describe
+
+	describe "makeUrl", ->
+		adapter = null
+		base_api_url = null
+		data_object = null
+		parent_object = null
+		options = null
+		context = null
+
+		beforeEach ->
+			base_api_url = Falcon.baseApiUrl
+			Falcon.baseApiUrl = "http://www.falconjs.com/"
+
+			parent_object = new Falcon.Model({id: 2, endpoint: "b"})
+			data_object = new Falcon.Model({id: 1, endpoint: "a.json"}, parent_object)
+			options = {}
+			context = data_object
+
+			adapter = new Falcon.DataAdapter
+			spyOn( adapter, "makeUrlComponents" ).and.callThrough()
+		#END beforeEach
+
+		afterEach ->
+			Falcon.baseApiUrl = base_api_url
+		#END afterEach
+
+		it "Should return the correct url on GET", ->
+			ret = adapter.makeUrl( data_object, Falcon.GET, options, context )
+
+			expect( adapter.makeUrlComponents.calls.count() ).toBe( 1 )
+			expect( adapter.makeUrlComponents ).toHaveBeenCalledWith( data_object, Falcon.GET, options, context )
+
+			expect( ret ).toBe( "http://www.falconjs.com/b/2/a/1.json" )
+		#END it
+
+		it "Should return the correct url on POST", ->
+			ret = adapter.makeUrl( data_object, Falcon.POST, options, context )
+
+			expect( adapter.makeUrlComponents.calls.count() ).toBe( 1 )
+			expect( adapter.makeUrlComponents ).toHaveBeenCalledWith( data_object, Falcon.POST, options, context )
+
+			expect( ret ).toBe( "http://www.falconjs.com/b/2/a.json" )
+		#END it
+
+		it "Should return the correct url on PUT", ->
+			ret = adapter.makeUrl( data_object, Falcon.PUT, options, context )
+
+			expect( adapter.makeUrlComponents.calls.count() ).toBe( 1 )
+			expect( adapter.makeUrlComponents ).toHaveBeenCalledWith( data_object, Falcon.PUT, options, context )
+
+			expect( ret ).toBe( "http://www.falconjs.com/b/2/a/1.json" )
+		#END it
+
+		it "Should return the correct url on DELETE", ->
+			ret = adapter.makeUrl( data_object, Falcon.DELETE, options, context )
+
+			expect( adapter.makeUrlComponents.calls.count() ).toBe( 1 )
+			expect( adapter.makeUrlComponents ).toHaveBeenCalledWith( data_object, Falcon.DELETE, options, context )
+
+			expect( ret ).toBe( "http://www.falconjs.com/b/2/a/1.json" )
+		#END it
+
+		it "Should return the correct url on GET with a collection", ->
+			ModelE = Falcon.Model.extend({endpoint: 'e.json'})
+			CollectionE = Falcon.Collection.extend({model: ModelE})
+			data_object = new CollectionE
+
+			ret = adapter.makeUrl( data_object, Falcon.GET, options, context )
+
+			expect( adapter.makeUrlComponents.calls.count() ).toBe( 1 )
+			expect( adapter.makeUrlComponents ).toHaveBeenCalledWith( data_object, Falcon.GET, options, context )
+
+			expect( ret ).toBe( "http://www.falconjs.com/e.json" )
 		#END it
 	#END describe
 
 	describe "serializeData", ->
-		adapter = new Falcon.Adapter
+		adapter = new Falcon.DataAdapter
 		parent = new Falcon.Model
 		data_object = new Falcon.Model({id: 1}, parent)
 		context = {id: 3}
@@ -264,16 +750,16 @@ describe "Falcon.Adapter", ->
 		#END beforeEach
 
 		it "Should use the data attribute of options if one is present", ->
-			expect( adapter.serializeData( data_object, "GET", options, context ) ).toBe( options.data )
-			expect( adapter.serializeData( data_object, "POST", options, context ) ).toBe( options.data )
-			expect( adapter.serializeData( data_object, "PUT", options, context ) ).toBe( options.data )
-			expect( adapter.serializeData( data_object, "DELETE", options, context ) ).toBe( options.data )
+			expect( adapter.serializeData( data_object, Falcon.GET, options, context ) ).toBe( options.data )
+			expect( adapter.serializeData( data_object, Falcon.POST, options, context ) ).toBe( options.data )
+			expect( adapter.serializeData( data_object, Falcon.PUT, options, context ) ).toBe( options.data )
+			expect( adapter.serializeData( data_object, Falcon.DELETE, options, context ) ).toBe( options.data )
 
 			expect( data_object.serialize ).not.toHaveBeenCalled()
 		#END it
 
 		it "Should call the serialize method on the data object if the request type is POST", ->
-			ret = adapter.serializeData( data_object, "POST", {attributes}, context )
+			ret = adapter.serializeData( data_object, Falcon.POST, {attributes}, context )
 			
 			expect( data_object.serialize.calls.count() ).toBe( 1 )
 			expect( data_object.serialize ).toHaveBeenCalledWith( attributes )
@@ -282,7 +768,7 @@ describe "Falcon.Adapter", ->
 		#END it
 
 		it "Should call the serialize method on the data object if the request type is PUT", ->
-			ret = adapter.serializeData( data_object, "PUT", {attributes}, context )
+			ret = adapter.serializeData( data_object, Falcon.PUT, {attributes}, context )
 			
 			expect( data_object.serialize.calls.count() ).toBe( 1 )
 			expect( data_object.serialize ).toHaveBeenCalledWith( attributes )
@@ -291,8 +777,8 @@ describe "Falcon.Adapter", ->
 		#END it
 
 		it "Should not call serialzie on GET or DELETE", ->
-			ret = adapter.serializeData( data_object, "GET", {attributes}, context )
-			ret = adapter.serializeData( data_object, "DELETE", {attributes}, context )
+			ret = adapter.serializeData( data_object, Falcon.GET, {attributes}, context )
+			ret = adapter.serializeData( data_object, Falcon.DELETE, {attributes}, context )
 			
 			expect( data_object.serialize ).not.toHaveBeenCalled()
 			
@@ -301,10 +787,10 @@ describe "Falcon.Adapter", ->
 	#END describe
 
 	describe "parseRawResponseData", ->
-		adapter = new Falcon.Adapter
+		adapter = new Falcon.DataAdapter
 		parent = new Falcon.Model
 		data_object = new Falcon.Model({id: 1}, parent)
-		type = "GET"
+		type = Falcon.GET
 		context = {id: 3}
 		options = {}
 		response_args = {id: 5}
@@ -315,11 +801,11 @@ describe "Falcon.Adapter", ->
 	#END describe
 
 	describe "successResponseHandler", ->
-		adapter = new Falcon.Adapter
+		adapter = new Falcon.DataAdapter
 		parent = new Falcon.Model
 		data_object = new Falcon.Model({id: 1}, parent)
 		context = new Falcon.Model({id: 2}, parent)
-		type = "GET"
+		type = Falcon.GET
 
 		success = sinon.spy()
 		error = sinon.spy()
@@ -344,7 +830,7 @@ describe "Falcon.Adapter", ->
 		#END beforeEach
 
 		it "Should call the correct methods on GET", ->
-			type = "GET"
+			type = Falcon.GET
 			adapter.successResponseHandler( data_object, type, options, context, response_args )
 
 			expect( adapter.parseRawResponseData.calls.count() ).toBe( 1 )
@@ -368,7 +854,7 @@ describe "Falcon.Adapter", ->
 		#END it
 
 		it "Should call the correct methods on POST", ->
-			type = "POST"
+			type = Falcon.POST
 			adapter.successResponseHandler( data_object, type, options, context, response_args )
 
 			expect( adapter.parseRawResponseData.calls.count() ).toBe( 1 )
@@ -392,7 +878,7 @@ describe "Falcon.Adapter", ->
 		#END it
 
 		it "Should call the correct methods on PUT", ->
-			type = "PUT"
+			type = Falcon.PUT
 			adapter.successResponseHandler( data_object, type, options, context, response_args )
 
 			expect( adapter.parseRawResponseData.calls.count() ).toBe( 1 )
@@ -416,7 +902,7 @@ describe "Falcon.Adapter", ->
 		#END it
 
 		it "Should call the correct methods on DELETE", ->
-			type = "DELETE"
+			type = Falcon.DELETE
 			adapter.successResponseHandler( data_object, type, options, context, response_args )
 
 			expect( adapter.parseRawResponseData.calls.count() ).toBe( 1 )
@@ -441,11 +927,11 @@ describe "Falcon.Adapter", ->
 	#END describe
 
 	describe "errorResponseHandler", ->
-		adapter = new Falcon.Adapter
+		adapter = new Falcon.DataAdapter
 		parent = new Falcon.Model
 		data_object = new Falcon.Model({id: 1}, parent)
 		context = new Falcon.Model({id: 2}, parent)
-		type = "GET"
+		type = Falcon.GET
 
 		success = sinon.spy()
 		error = sinon.spy()
@@ -480,11 +966,11 @@ describe "Falcon.Adapter", ->
 	#END describe
 
 	describe "completeResponseHandler", ->
-		adapter = new Falcon.Adapter
+		adapter = new Falcon.DataAdapter
 		parent = new Falcon.Model
 		data_object = new Falcon.Model({id: 1}, parent)
 		context = new Falcon.Model({id: 2}, parent)
-		type = "GET"
+		type = Falcon.GET
 
 		success = sinon.spy()
 		error = sinon.spy()
@@ -519,11 +1005,11 @@ describe "Falcon.Adapter", ->
 	#END describe
 
 	describe "sync", ->
-		adapter = new Falcon.Adapter
+		adapter = new Falcon.DataAdapter
 		parent = new Falcon.Model
 		data_object = new Falcon.Model({id: 1}, parent)
 		context = new Falcon.Model({id: 2}, parent)
-		type = "GET"
+		type = Falcon.GET
 		options = {}
 
 		beforeEach ->
@@ -545,7 +1031,7 @@ describe "Falcon.Adapter", ->
 		#END it
 
 		it "Should return properly on GET", ->
-			type = "GET"
+			type = Falcon.GET
 			ret = adapter.sync( data_object, type, options, context )
 
 			expect( adapter.resolveRequestType ).toHaveBeenCalledOnce()
@@ -563,7 +1049,7 @@ describe "Falcon.Adapter", ->
 
 			expect( ret ).toEqual
 				data_object: data_object
-				type: "GET"
+				type: Falcon.GET
 				options: jasmine.any(Object)
 				context: context
 				is_valid: true
@@ -571,7 +1057,7 @@ describe "Falcon.Adapter", ->
 		#END it
 
 		it "Should return properly on POST", ->
-			type = "POST"
+			type = Falcon.POST
 			ret = adapter.sync( data_object, type, options, context )
 
 			expect( adapter.resolveRequestType ).toHaveBeenCalledOnce()
@@ -591,7 +1077,7 @@ describe "Falcon.Adapter", ->
 
 			expect( ret ).toEqual
 				data_object: data_object
-				type: "POST"
+				type: Falcon.POST
 				options: jasmine.any(Object)
 				context: context
 				is_valid: true
@@ -599,7 +1085,7 @@ describe "Falcon.Adapter", ->
 		#END it
 
 		it "Should return properly on PUT", ->
-			type = "PUT"
+			type = Falcon.PUT
 			ret = adapter.sync( data_object, type, options, context )
 
 			expect( adapter.resolveRequestType ).toHaveBeenCalledOnce()
@@ -619,7 +1105,7 @@ describe "Falcon.Adapter", ->
 
 			expect( ret ).toEqual
 				data_object: data_object
-				type: "PUT"
+				type: Falcon.PUT
 				options: jasmine.any(Object)
 				context: context
 				is_valid: true
@@ -627,7 +1113,7 @@ describe "Falcon.Adapter", ->
 		#END it
 
 		it "Should return properly on DELETE", ->
-			type = "DELETE"
+			type = Falcon.DELETE
 			ret = adapter.sync( data_object, type, options, context )
 
 			expect( adapter.resolveRequestType ).toHaveBeenCalledOnce()
@@ -645,7 +1131,7 @@ describe "Falcon.Adapter", ->
 
 			expect( ret ).toEqual
 				data_object: data_object
-				type: "DELETE"
+				type: Falcon.DELETE
 				options: jasmine.any(Object)
 				context: context
 				is_valid: true
@@ -653,7 +1139,7 @@ describe "Falcon.Adapter", ->
 		#END it
 
 		it "Should return properly with a failed POST validation", ->
-			type = "POST"
+			type = Falcon.POST
 			data_object.validate = sinon.spy( -> return false )
 			ret = adapter.sync( data_object, type, options, context )
 
@@ -674,7 +1160,7 @@ describe "Falcon.Adapter", ->
 
 			expect( ret ).toEqual
 				data_object: data_object
-				type: "POST"
+				type: Falcon.POST
 				options: jasmine.any(Object)
 				context: context
 				is_valid: false
@@ -682,7 +1168,7 @@ describe "Falcon.Adapter", ->
 		#END it
 
 		it "Should return properly with a failed PUT validation", ->
-			type = "PUT"
+			type = Falcon.PUT
 			data_object.validate = sinon.spy( -> return false )
 			ret = adapter.sync( data_object, type, options, context )
 
@@ -703,7 +1189,7 @@ describe "Falcon.Adapter", ->
 
 			expect( ret ).toEqual
 				data_object: data_object
-				type: "PUT"
+				type: Falcon.PUT
 				options: jasmine.any(Object)
 				context: context
 				is_valid: false
@@ -711,7 +1197,7 @@ describe "Falcon.Adapter", ->
 		#END it
 
 		it "Should not call validate on a collection", ->
-			type = "POST"
+			type = Falcon.POST
 			data_object = new Falcon.Collection
 			data_object.validate = sinon.spy( -> return false )
 			ret = adapter.sync( data_object, type, options, context )
@@ -731,68 +1217,11 @@ describe "Falcon.Adapter", ->
 
 			expect( ret ).toEqual
 				data_object: data_object
-				type: "POST"
+				type: Falcon.POST
 				options: jasmine.any(Object)
 				context: context
 				is_valid: true
 			#END toEqual
-		#END it
-	#END describe
-
-	describe "getTemplate", ->
-		adapter = new Falcon.Adapter
-		elm_id = "my-template"
-		uri = "##{elm_id}"
-		callback = null
-		template = "Hello World"
-		elm = null
-
-		beforeEach ->
-			callback = jasmine.createSpy()
-			spyOn( document, 'getElementById' ).and.callThrough()
-
-			elm = document.createElement("div")
-			elm.setAttribute("id", elm_id)
-			elm.innerHTML = template
-			document.body.appendChild( elm )
-		#END beforeEach
-
-		afterEach ->
-			document.body.removeChild( elm )
-		#END afterEach
-
-		it "Should throw if an invalid uri is given", ->
-			expect( -> adapter.getTemplate() ).toThrow()
-			expect( -> adapter.getTemplate(123) ).toThrow()
-		#END it
-
-		it "Should throw if an invalid callback is given", ->
-			expect( -> adapter.getTemplate(uri) ).toThrow()
-			expect( -> adapter.getTemplate(uri, 123) ).toThrow()
-		#END it
-
-		it "Should retrieve the element and assign the inner html", ->
-			ret = adapter.getTemplate( uri, callback )
-
-			expect( document.getElementById.calls.count() ).toBe( 1 )
-			expect( document.getElementById ).toHaveBeenCalledWith("my-template")
-
-			expect( callback.calls.count() ).toBe( 1 )
-			expect( callback ).toHaveBeenCalledWith(template)
-
-			expect( ret ).toBe( adapter )
-		#END it
-
-		it "Should assign an empty template to an unfound identifier", ->
-			ret = adapter.getTemplate( "#the_wrong_template_id", callback )
-
-			expect( document.getElementById.calls.count() ).toBe( 1 )
-			expect( document.getElementById ).toHaveBeenCalledWith("the_wrong_template_id")
-
-			expect( callback.calls.count() ).toBe( 1 )
-			expect( callback ).toHaveBeenCalledWith("")
-
-			expect( ret ).toBe( adapter )
 		#END it
 	#END describe
 #END describe

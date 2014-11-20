@@ -84,12 +84,13 @@ class FalconCollection extends FalconObject
 	model: null
 
 	#--------------------------------------------------------
-	# Member: Falcon.Collection#url
-	#	This is the top level url for the collection.
+	# Member: Falcon.Collection#endpoint
+	#	the endpoint to use when generating urls for the adapter.
+	#	Derrived typically from the collection's model definition
 	#
 	# Type: _(String)_
 	#--------------------------------------------------------
-	url: null
+	endpoint: null
 
 	#--------------------------------------------------------
 	# Member: Falcon.Collection#length
@@ -141,9 +142,9 @@ class FalconCollection extends FalconObject
 			throw new Error("parent must be null or a Falcon.Model")
 		#END unless
 
-		@url ?= @model::url if @model?
+		@endpoint ?= @model::endpoint if @model?
 		@length = ko.computed
-			deferEvaluation: true
+			deferEvaluation: Falcon.deferEvaluation
 			read: => @models().length
 		#END computed
 		@parent = parent
@@ -195,12 +196,11 @@ class FalconCollection extends FalconObject
 	# Arguments:
 	#	**data** _(Object)_ - The xhr response data
 	#	**options** _ - The options fed initiallyinto the XHR request
-	#	**xhr** _(Object)_ - The XHR object
 	#
 	# Returns:
 	#	_(Array)_ - Parsing on a collection expects an array to be returned
 	#--------------------------------------------------------
-	parse: (data, options, xhr) ->
+	parse: (data, options) ->
 		return data
 	#END parse
 
@@ -245,18 +245,12 @@ class FalconCollection extends FalconObject
 	#--------------------------------------------------------
 	# Method: Falcon.Collection#makeUrl
 	#	Attempts to generate a URL for this collection based on its parent
-	#	and the url that is defined
+	#	and the endpoint that is defined
 	#
 	# Arguments:
 	#	**type**
-	#
-	# TODO: Add Patch handling
-	# TODO: Finish Comments
 	#--------------------------------------------------------
-	makeUrl: (type, parent) ->
-		{base_url, url_piece, extension} = Falcon.adapter.makeUrlPieces( @, type, {parent}, @ )
-		return "#{base_url}#{url_piece}#{extension}"
-	#END makeUrl
+	makeUrl: (type, parent) -> Falcon.dataAdapter.makeUrl( @, type, {parent}, @ )
 
 	#--------------------------------------------------------
 	# Method: Falcon.Collection#sync()
@@ -267,13 +261,12 @@ class FalconCollection extends FalconObject
 	# Arguments:
 	#	**type** _(String)_ - The HTTP Method to call to the server with
 	#	**options** _(Object)_ - Optional object of settings to use on this call
+	#	**context** _(mixed)_ - The context to call the adapter response callbacks with
 	#
 	# Returns:
 	#	_(mixed)_ - Whatever the response from the adapter's sync method is
 	#--------------------------------------------------------
-	sync: (type, options, context) ->
-		return Falcon.adapter.sync( @, type, options, context )
-	#END sync
+	sync: (type, options, context) -> Falcon.dataAdapter.sync( @, type, options, context )
 
 	#--------------------------------------------------------
 	# Method: Falcon.Collection#fetch
@@ -282,14 +275,12 @@ class FalconCollection extends FalconObject
 	#
 	# Arguments:
 	#	**options** _(Object)_ - Optional object of settings to use on this call
-	#	**context** _(Object)_ - Optional object to set the context of the request
+	#	**context** _(mixed)_ - Optional object to set the context of the request
 	#
 	# Returns:
 	#	_(mixed)_ - Whatever the response from the adapter's sync method is
 	#--------------------------------------------------------
-	fetch: (options, context) -> 
-		return @sync('GET', options, context)
-	#END fetch
+	fetch: (options, context) -> @sync(Falcon.GET, options, context)
 
 	#--------------------------------------------------------
 	# Method: Falcon.Collection#create
@@ -311,7 +302,7 @@ class FalconCollection extends FalconObject
 		model = if Falcon.isModel(data) then data else new @model(data, @parent)
 		context ?= model
 
-		output_options = Falcon.adapter.standardizeOptions( model, 'POST', options, context )
+		output_options = Falcon.dataAdapter.standardizeOptions( model, Falcon.POST, options, context )
 		output_options.fill_options ?= {method: 'append'}
 		output_options.success = (model) =>
 			@fill(model, output_options.fill_options)
@@ -328,15 +319,15 @@ class FalconCollection extends FalconObject
 	#
 	# Arguments:
 	#	**model** _(Falcon.Model)_ - An array of the models to remove, if this is not an array, 
-	#						   it will be placed in one as the only object, if the models 
-	#						   is a collection, we will destroy all of the models in the collection.
-	#						   When no argument is given for models (or the argument is the 
-	#						   string 'all'), we'll destroy everything.
+	#                                it will be placed in one as the only object, if the models 
+	#                                is a collection, we will destroy all of the models in the collection.
+	#                                When no argument is given for models (or the argument is the 
+	#                                string 'all'), we'll destroy everything.
 	#
 	#	**options** _(Object)_ - An optional object of the settings to call when onto each 
 	#							 of the destroy methods of the
 	#
-	#	**context** _(Object)_ - Optional object to set the context of the request
+	#	**context** _(mixed)_ - Optional object to set the context of the request
 	#
 	# Returns:
 	#	_(mixed)_ - Whatever the response from the adapter's sync method is
@@ -349,7 +340,7 @@ class FalconCollection extends FalconObject
 		return null unless Falcon.isModel( model )
 
 		context ?= model
-		output_options = Falcon.adapter.standardizeOptions( model, 'DELETE', options, context )
+		output_options = Falcon.dataAdapter.standardizeOptions( model, Falcon.DELETE, options, context )
 		output_options.success = (model) =>
 			@remove(model)
 			options.success.apply(context, arguments) if isFunction( options.success )
@@ -992,9 +983,25 @@ class FalconCollection extends FalconObject
 	#						filter, any, and pluck, each, indexOf, lastIndexOf sort, push
 	#						methods
 	#--------------------------------------------------------
+	class FalconChainedCollection extends FalconCollection
+		slice: ->
+			@models( super(arguments...) )
+			return this
+		#END slice
+
+		filter: ->
+			@models( super(arguments...) )
+			return this
+		#END filter
+
+		without: ->
+			@models( super(arguments...) )
+			return this
+		#END without
+	#END FalconChainedCollection
 	chain: ->
 		#Create a new chained collection which is defined at the bottom of this file
-		chainedCollection = new ChainedCollection()
+		chainedCollection = new FalconChainedCollection()
 		chainedCollection.model = @model
 		chainedCollection.fill( @models() )
 		return chainedCollection
@@ -1056,25 +1063,3 @@ class FalconCollection extends FalconObject
 		return this
 	#END reset
 #END Falcon.Collection
-
-#==============================================================================================
-#
-# Class: Falcon.Collection
-#
-#==============================================================================================
-class ChainedCollection extends FalconCollection
-	slice: ->
-		@models( super(arguments...) )
-		return this
-	#END slice
-
-	filter: ->
-		@models( super(arguments...) )
-		return this
-	#END filter
-
-	without: ->
-		@models( super(arguments...) )
-		return this
-	#END without
-#END ChainedCollection

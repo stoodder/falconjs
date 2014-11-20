@@ -1,15 +1,15 @@
 (function() {
-  describe("jQueryAdapter", function() {
+  describe("jQueryRestDataAdapter", function() {
     describe("standardizeOptions", function() {
       var adapter, context, data_object, options, parent, type;
-      adapter = new jQueryAdapter;
+      adapter = new jQueryRestDataAdapter;
       parent = new Falcon.Model({
         id: 0
       });
       data_object = new Falcon.Model({
         id: 1
       }, parent);
-      type = "GET";
+      type = Falcon.GET;
       options = {
         dataType: 'new-json',
         contentType: 'application/new-json',
@@ -25,18 +25,18 @@
         id: 3
       });
       beforeEach(function() {
-        spyOn(Falcon.Adapter.prototype, 'standardizeOptions').and.callThrough();
-        spyOn(adapter, 'makeUrl').and.callThrough();
+        spyOn(Falcon.DataAdapter.prototype, 'standardizeOptions').and.callThrough();
+        spyOn(adapter, 'resolveUrl').and.callThrough();
         return spyOn(adapter, 'serializeData').and.callThrough();
       });
       it("Should generate the proper options by default", function() {
         var ret;
         ret = adapter.standardizeOptions(data_object, type, null, context);
         expect(adapter.cache).toBe(false);
-        expect(Falcon.Adapter.prototype.standardizeOptions.calls.count()).toBe(1);
-        expect(Falcon.Adapter.prototype.standardizeOptions).toHaveBeenCalledWith(data_object, type, null, context);
-        expect(adapter.makeUrl.calls.count()).toBe(1);
-        expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+        expect(Falcon.DataAdapter.prototype.standardizeOptions.calls.count()).toBe(1);
+        expect(Falcon.DataAdapter.prototype.standardizeOptions).toHaveBeenCalledWith(data_object, type, null, context);
+        expect(adapter.resolveUrl.calls.count()).toBe(1);
+        expect(adapter.resolveUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(adapter.serializeData.calls.count()).toBe(1);
         expect(adapter.serializeData).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(ret).toEqual;
@@ -58,10 +58,10 @@
         var ret;
         ret = adapter.standardizeOptions(data_object, type, options, context);
         expect(adapter.cache).toBe(false);
-        expect(Falcon.Adapter.prototype.standardizeOptions.calls.count()).toBe(1);
-        expect(Falcon.Adapter.prototype.standardizeOptions).toHaveBeenCalledWith(data_object, type, options, context);
-        expect(adapter.makeUrl.calls.count()).toBe(1);
-        expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+        expect(Falcon.DataAdapter.prototype.standardizeOptions.calls.count()).toBe(1);
+        expect(Falcon.DataAdapter.prototype.standardizeOptions).toHaveBeenCalledWith(data_object, type, options, context);
+        expect(adapter.resolveUrl.calls.count()).toBe(1);
+        expect(adapter.resolveUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(adapter.serializeData.calls.count()).toBe(1);
         expect(adapter.serializeData).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(ret).toEqual;
@@ -88,13 +88,12 @@
         var ret;
         adapter.cache = true;
         ret = adapter.standardizeOptions(data_object, type, null, context);
-        expect(Falcon.Adapter.prototype.standardizeOptions.calls.count()).toBe(1);
-        expect(Falcon.Adapter.prototype.standardizeOptions).toHaveBeenCalledWith(data_object, type, null, context);
-        expect(adapter.makeUrl.calls.count()).toBe(1);
-        expect(adapter.makeUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
+        expect(Falcon.DataAdapter.prototype.standardizeOptions.calls.count()).toBe(1);
+        expect(Falcon.DataAdapter.prototype.standardizeOptions).toHaveBeenCalledWith(data_object, type, null, context);
+        expect(adapter.resolveUrl.calls.count()).toBe(1);
+        expect(adapter.resolveUrl).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
         expect(adapter.serializeData.calls.count()).toBe(1);
         expect(adapter.serializeData).toHaveBeenCalledWith(data_object, type, jasmine.any(Object), context);
-        expect(ret).toEqual;
         expect(ret['success']).toEqual(jasmine.any(Function));
         expect(ret['error']).toEqual(jasmine.any(Function));
         expect(ret['complete']).toEqual(jasmine.any(Function));
@@ -110,13 +109,13 @@
         return expect(ret['cache']).toBe(true);
       });
     });
-    describe("makeUrl", function() {
+    describe("resolveUrl", function() {
       var adapter, context, data_object, options, params, type;
-      adapter = new jQueryAdapter;
+      adapter = new jQueryRestDataAdapter;
       data_object = new Falcon.Model({
         id: 1
       });
-      type = "GET";
+      type = Falcon.GET;
       options = {
         url: "http://www.google.com"
       };
@@ -128,39 +127,39 @@
         id: 2
       });
       beforeEach(function() {
-        return spyOn(Falcon.Adapter.prototype, 'makeUrl').and.callThrough();
+        return spyOn(Falcon.DataAdapter.prototype, 'resolveUrl').and.callThrough();
       });
       it("Should not have any query string parameters if no params present", function() {
         var ret;
-        ret = adapter.makeUrl(data_object, type, options, context);
-        expect(Falcon.Adapter.prototype.makeUrl.calls.count()).toBe(1);
-        expect(Falcon.Adapter.prototype.makeUrl).toHaveBeenCalledWith(data_object, type, options, context);
+        ret = adapter.resolveUrl(data_object, type, options, context);
+        expect(Falcon.DataAdapter.prototype.resolveUrl.calls.count()).toBe(1);
+        expect(Falcon.DataAdapter.prototype.resolveUrl).toHaveBeenCalledWith(data_object, type, options, context);
         return expect(ret).toBe("http://www.google.com");
       });
       it("Should append query string parameters properly", function() {
         var ret;
         options.params = params;
-        ret = adapter.makeUrl(data_object, type, options, context);
-        expect(Falcon.Adapter.prototype.makeUrl.calls.count()).toBe(1);
-        expect(Falcon.Adapter.prototype.makeUrl).toHaveBeenCalledWith(data_object, type, options, context);
+        ret = adapter.resolveUrl(data_object, type, options, context);
+        expect(Falcon.DataAdapter.prototype.resolveUrl.calls.count()).toBe(1);
+        expect(Falcon.DataAdapter.prototype.resolveUrl).toHaveBeenCalledWith(data_object, type, options, context);
         return expect(ret).toBe("http://www.google.com?hello=world&foo=bar");
       });
       return it("Should append paramters to existing paramters", function() {
         var ret;
         options.url = "http://www.google.com?free=bird";
-        ret = adapter.makeUrl(data_object, type, options, context);
-        expect(Falcon.Adapter.prototype.makeUrl.calls.count()).toBe(1);
-        expect(Falcon.Adapter.prototype.makeUrl).toHaveBeenCalledWith(data_object, type, options, context);
+        ret = adapter.resolveUrl(data_object, type, options, context);
+        expect(Falcon.DataAdapter.prototype.resolveUrl.calls.count()).toBe(1);
+        expect(Falcon.DataAdapter.prototype.resolveUrl).toHaveBeenCalledWith(data_object, type, options, context);
         return expect(ret).toBe("http://www.google.com?free=bird&hello=world&foo=bar");
       });
     });
     describe("serializeData", function() {
       var adapter, context, data_object, options, type;
-      adapter = new jQueryAdapter;
+      adapter = new jQueryRestDataAdapter;
       data_object = new Falcon.Model({
         id: 1
       });
-      type = "GET";
+      type = Falcon.GET;
       options = {
         data: {
           'hello': 'world'
@@ -170,38 +169,38 @@
         id: 2
       });
       beforeEach(function() {
-        return spyOn(Falcon.Adapter.prototype, 'serializeData').and.callThrough();
+        return spyOn(Falcon.DataAdapter.prototype, 'serializeData').and.callThrough();
       });
       it("Should return an empty string by default", function() {
         var ret;
-        ret = adapter.serializeData(data_object, "GET", {}, context);
-        expect(Falcon.Adapter.prototype.serializeData.calls.count()).toBe(1);
-        expect(Falcon.Adapter.prototype.serializeData).toHaveBeenCalledWith(data_object, "GET", jasmine.any(Object), context);
+        ret = adapter.serializeData(data_object, Falcon.GET, {}, context);
+        expect(Falcon.DataAdapter.prototype.serializeData.calls.count()).toBe(1);
+        expect(Falcon.DataAdapter.prototype.serializeData).toHaveBeenCalledWith(data_object, Falcon.GET, jasmine.any(Object), context);
         return expect(ret).toBe("");
       });
       it("Should stringify the data properly", function() {
         var ret;
-        ret = adapter.serializeData(data_object, "GET", options, context);
-        expect(Falcon.Adapter.prototype.serializeData.calls.count()).toBe(1);
-        expect(Falcon.Adapter.prototype.serializeData).toHaveBeenCalledWith(data_object, "GET", options, context);
+        ret = adapter.serializeData(data_object, Falcon.GET, options, context);
+        expect(Falcon.DataAdapter.prototype.serializeData.calls.count()).toBe(1);
+        expect(Falcon.DataAdapter.prototype.serializeData).toHaveBeenCalledWith(data_object, Falcon.GET, options, context);
         return expect(ret).toBe(JSON.stringify(options.data));
       });
       return it("Should return early if the data is already a string", function() {
         var ret;
         options.data = JSON.stringify(options.data);
-        ret = adapter.serializeData(data_object, "GET", options, context);
-        expect(Falcon.Adapter.prototype.serializeData.calls.count()).toBe(1);
-        expect(Falcon.Adapter.prototype.serializeData).toHaveBeenCalledWith(data_object, "GET", options, context);
+        ret = adapter.serializeData(data_object, Falcon.GET, options, context);
+        expect(Falcon.DataAdapter.prototype.serializeData.calls.count()).toBe(1);
+        expect(Falcon.DataAdapter.prototype.serializeData).toHaveBeenCalledWith(data_object, Falcon.GET, options, context);
         return expect(ret).toBe(options.data);
       });
     });
     describe("parseRawResponseData", function() {
       var adapter, context, data, data_object, options, type, xhr;
-      adapter = new jQueryAdapter;
+      adapter = new jQueryRestDataAdapter;
       data_object = new Falcon.Model({
         id: 1
       });
-      type = "GET";
+      type = Falcon.GET;
       options = {};
       context = new Falcon.Model({
         id: 2
@@ -215,7 +214,7 @@
         })
       };
       beforeEach(function() {
-        return spyOn(Falcon.Adapter.prototype, 'parseRawResponseData').and.callThrough();
+        return spyOn(Falcon.DataAdapter.prototype, 'parseRawResponseData').and.callThrough();
       });
       it("Should parse the response data", function() {
         var ret;
@@ -223,8 +222,8 @@
           data: data,
           xhr: xhr
         });
-        expect(Falcon.Adapter.prototype.parseRawResponseData.calls.count()).toBe(1);
-        expect(Falcon.Adapter.prototype.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, {
+        expect(Falcon.DataAdapter.prototype.parseRawResponseData.calls.count()).toBe(1);
+        expect(Falcon.DataAdapter.prototype.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, {
           data: data,
           xhr: xhr
         });
@@ -237,8 +236,8 @@
         ret = adapter.parseRawResponseData(data_object, type, options, context, {
           xhr: xhr
         });
-        expect(Falcon.Adapter.prototype.parseRawResponseData.calls.count()).toBe(1);
-        expect(Falcon.Adapter.prototype.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, {
+        expect(Falcon.DataAdapter.prototype.parseRawResponseData.calls.count()).toBe(1);
+        expect(Falcon.DataAdapter.prototype.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, {
           xhr: xhr
         });
         return expect(ret).toEqual({
@@ -248,16 +247,16 @@
       it("Should return an empty object if no parsing happend and a model is pased in", function() {
         var ret;
         ret = adapter.parseRawResponseData(data_object, type, options, context, {});
-        expect(Falcon.Adapter.prototype.parseRawResponseData.calls.count()).toBe(1);
-        expect(Falcon.Adapter.prototype.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, {});
+        expect(Falcon.DataAdapter.prototype.parseRawResponseData.calls.count()).toBe(1);
+        expect(Falcon.DataAdapter.prototype.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, {});
         return expect(ret).toEqual({});
       });
       it("Should return and empty array if no parsing happend and a collection is passed in", function() {
         var ret;
         data_object = new Falcon.Collection;
         ret = adapter.parseRawResponseData(data_object, type, options, context, {});
-        expect(Falcon.Adapter.prototype.parseRawResponseData.calls.count()).toBe(1);
-        expect(Falcon.Adapter.prototype.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, {});
+        expect(Falcon.DataAdapter.prototype.parseRawResponseData.calls.count()).toBe(1);
+        expect(Falcon.DataAdapter.prototype.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, {});
         return expect(ret).toEqual([]);
       });
       return it("Should parse the xhr respons text if no data is present", function() {
@@ -266,20 +265,20 @@
         ret = adapter.parseRawResponseData(data_object, type, options, context, {
           data: "<h1>Invalid</h1>"
         });
-        expect(Falcon.Adapter.prototype.parseRawResponseData.calls.count()).toBe(1);
-        expect(Falcon.Adapter.prototype.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, {
+        expect(Falcon.DataAdapter.prototype.parseRawResponseData.calls.count()).toBe(1);
+        expect(Falcon.DataAdapter.prototype.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, {
           data: "<h1>Invalid</h1>"
         });
         return expect(ret).toEqual({});
       });
     });
-    describe("sync", function() {
+    return describe("sync", function() {
       var adapter, complete, context, data_object, error, options, response_data, response_status, response_xhr, success, type, xhr_return;
-      adapter = new jQueryAdapter;
+      adapter = new jQueryRestDataAdapter;
       data_object = new Falcon.Model({
         id: 1
       });
-      type = "GET";
+      type = Falcon.GET;
       options = {
         url: "http://www.google.com",
         data: {
@@ -299,7 +298,7 @@
         })
       };
       beforeEach(function() {
-        spyOn(Falcon.Adapter.prototype, 'sync').and.callThrough();
+        spyOn(Falcon.DataAdapter.prototype, 'sync').and.callThrough();
         spyOn(adapter, 'successResponseHandler');
         spyOn(adapter, 'errorResponseHandler');
         spyOn(adapter, 'completeResponseHandler');
@@ -307,12 +306,12 @@
       });
       it("Should set up the ajax request properly", function() {
         var ret, _ref;
-        ret = adapter.sync(data_object, "GET", options, context);
-        expect(Falcon.Adapter.prototype.sync.calls.count()).toBe(1);
-        expect(Falcon.Adapter.prototype.sync).toHaveBeenCalledWith(data_object, "GET", options, context);
+        ret = adapter.sync(data_object, Falcon.GET, options, context);
+        expect(Falcon.DataAdapter.prototype.sync.calls.count()).toBe(1);
+        expect(Falcon.DataAdapter.prototype.sync).toHaveBeenCalledWith(data_object, Falcon.GET, options, context);
         expect($.ajax.calls.count()).toBe(1);
         expect($.ajax).toHaveBeenCalledWith({
-          'type': "GET",
+          'type': Falcon.GET,
           'url': "http://www.google.com",
           'data': JSON.stringify({
             "hello": "world"
@@ -333,12 +332,12 @@
       });
       it("Should call the success response handler properly", function() {
         success(response_data, response_status, response_xhr);
-        expect(Falcon.Adapter.prototype.sync).not.toHaveBeenCalled();
+        expect(Falcon.DataAdapter.prototype.sync).not.toHaveBeenCalled();
         expect($.ajax).not.toHaveBeenCalled();
         expect(adapter.errorResponseHandler).not.toHaveBeenCalled();
         expect(adapter.completeResponseHandler).not.toHaveBeenCalled();
         expect(adapter.successResponseHandler.calls.count()).toBe(1);
-        return expect(adapter.successResponseHandler).toHaveBeenCalledWith(data_object, "GET", jasmine.any(Object), context, {
+        return expect(adapter.successResponseHandler).toHaveBeenCalledWith(data_object, Falcon.GET, jasmine.any(Object), context, {
           data: response_data,
           status: response_status,
           xhr: response_xhr
@@ -346,23 +345,23 @@
       });
       it("Should call the error response handler properly", function() {
         error(response_xhr);
-        expect(Falcon.Adapter.prototype.sync).not.toHaveBeenCalled();
+        expect(Falcon.DataAdapter.prototype.sync).not.toHaveBeenCalled();
         expect($.ajax).not.toHaveBeenCalled();
         expect(adapter.successResponseHandler).not.toHaveBeenCalled();
         expect(adapter.completeResponseHandler).not.toHaveBeenCalled();
         expect(adapter.errorResponseHandler.calls.count()).toBe(1);
-        return expect(adapter.errorResponseHandler).toHaveBeenCalledWith(data_object, "GET", jasmine.any(Object), context, {
+        return expect(adapter.errorResponseHandler).toHaveBeenCalledWith(data_object, Falcon.GET, jasmine.any(Object), context, {
           xhr: response_xhr
         });
       });
       it("Should call the complete response handler properly", function() {
         complete(response_xhr, response_status);
-        expect(Falcon.Adapter.prototype.sync).not.toHaveBeenCalled();
+        expect(Falcon.DataAdapter.prototype.sync).not.toHaveBeenCalled();
         expect($.ajax).not.toHaveBeenCalled();
         expect(adapter.successResponseHandler).not.toHaveBeenCalled();
         expect(adapter.errorResponseHandler).not.toHaveBeenCalled();
         expect(adapter.completeResponseHandler.calls.count()).toBe(1);
-        return expect(adapter.completeResponseHandler).toHaveBeenCalledWith(data_object, "GET", jasmine.any(Object), context, {
+        return expect(adapter.completeResponseHandler).toHaveBeenCalledWith(data_object, Falcon.GET, jasmine.any(Object), context, {
           status: response_status,
           xhr: response_xhr
         });
@@ -372,9 +371,9 @@
         data_object.validate = (function() {
           return false;
         });
-        ret = adapter.sync(data_object, "POST", options, context);
-        expect(Falcon.Adapter.prototype.sync.calls.count()).toBe(1);
-        expect(Falcon.Adapter.prototype.sync).toHaveBeenCalledWith(data_object, "POST", options, context);
+        ret = adapter.sync(data_object, Falcon.POST, options, context);
+        expect(Falcon.DataAdapter.prototype.sync.calls.count()).toBe(1);
+        expect(Falcon.DataAdapter.prototype.sync).toHaveBeenCalledWith(data_object, Falcon.POST, options, context);
         expect($.ajax).not.toHaveBeenCalled();
         expect(adapter.successResponseHandler).not.toHaveBeenCalled();
         expect(adapter.errorResponseHandler).not.toHaveBeenCalled();
@@ -382,14 +381,17 @@
         return expect(ret).toBeNull();
       });
     });
-    return describe("getTemplate", function() {
+  });
+
+  describe("jQueryTemplateAdapter", function() {
+    return describe("loadTemplate", function() {
       var adapter, callback, elm, error, success;
-      adapter = new jQueryAdapter;
+      adapter = new jQueryTemplateAdapter;
       callback = jasmine.createSpy("Loaded Callback");
       elm = null;
       success = error = null;
       beforeEach(function() {
-        spyOn(Falcon.Adapter.prototype, 'getTemplate').and.callThrough();
+        spyOn(Falcon.TemplateAdapter.prototype, 'loadTemplate').and.callThrough();
         spyOn($, 'ajax');
         callback.calls.reset();
         elm = document.createElement("div");
@@ -402,38 +404,38 @@
       });
       it("Should throw if an invalid uri is given", function() {
         expect(function() {
-          return adapter.getTemplate();
+          return adapter.loadTemplate();
         }).toThrow();
         return expect(function() {
-          return adapter.getTemplate(123);
+          return adapter.loadTemplate(123);
         }).toThrow();
       });
       it("Should throw if an invalid callback is given", function() {
         expect(function() {
-          return adapter.getTemplate(uri);
+          return adapter.loadTemplate(uri);
         }).toThrow();
         return expect(function() {
-          return adapter.getTemplate(uri, 123);
+          return adapter.loadTemplate(uri, 123);
         }).toThrow();
       });
-      it("Should fall back to the original getTemplate method if an identifier is passed in", function() {
+      it("Should fall back to the original loadTemplate method if an identifier is passed in", function() {
         var ret;
-        ret = adapter.getTemplate("#hello_world", callback);
-        expect(Falcon.Adapter.prototype.getTemplate.calls.count()).toBe(1);
-        expect(Falcon.Adapter.prototype.getTemplate).toHaveBeenCalledWith("#hello_world", callback);
+        ret = adapter.loadTemplate("#hello_world", callback);
+        expect(Falcon.TemplateAdapter.prototype.loadTemplate.calls.count()).toBe(1);
+        expect(Falcon.TemplateAdapter.prototype.loadTemplate).toHaveBeenCalledWith("#hello_world", callback);
         expect(callback.calls.count()).toBe(1);
         expect($.ajax).not.toHaveBeenCalled();
         return expect(ret).toBe(adapter);
       });
       it("Should call the ajax method if a url is passed in", function() {
         var ret, _ref;
-        ret = adapter.getTemplate("http://www.google.com", callback);
-        expect(Falcon.Adapter.prototype.getTemplate).not.toHaveBeenCalled();
+        ret = adapter.loadTemplate("http://www.google.com", callback);
+        expect(Falcon.TemplateAdapter.prototype.loadTemplate).not.toHaveBeenCalled();
         expect(callback).not.toHaveBeenCalled();
         expect($.ajax.calls.count()).toBe(1);
         expect($.ajax).toHaveBeenCalledWith({
           url: "http://www.google.com",
-          type: "GET",
+          type: Falcon.GET,
           cache: false,
           error: jasmine.any(Function),
           success: jasmine.any(Function)
@@ -443,14 +445,14 @@
       });
       it("Should call the success routine properly", function() {
         success("Template HTML");
-        expect(Falcon.Adapter.prototype.getTemplate).not.toHaveBeenCalled();
+        expect(Falcon.TemplateAdapter.prototype.loadTemplate).not.toHaveBeenCalled();
         expect($.ajax).not.toHaveBeenCalled();
         expect(callback.calls.count()).toBe(1);
         return expect(callback).toHaveBeenCalledWith("Template HTML");
       });
       return it("Should call the error routine properly", function() {
         error();
-        expect(Falcon.Adapter.prototype.getTemplate).not.toHaveBeenCalled();
+        expect(Falcon.TemplateAdapter.prototype.loadTemplate).not.toHaveBeenCalled();
         expect($.ajax).not.toHaveBeenCalled();
         expect(callback.calls.count()).toBe(1);
         return expect(callback).toHaveBeenCalledWith("");
