@@ -7893,11 +7893,7 @@
         });
       });
       describe("Nest Views in Observable Arrays with Element Bindings", function() {
-<<<<<<< HEAD:tests/scripts/falcon.tests.js
-        var child_view, element, obsArr, parent_view;
-=======
         var child_view, element, hello_world_template, obsArr, parent_template, parent_view;
->>>>>>> view_enhancements:tests/scripts/falcon.test.js
         element = null;
         obsArr = ko.observableArray([]);
         parent_view = null;
@@ -8005,7 +8001,7 @@
           return Falcon.View.resetCache();
         });
       });
-      return describe("Observable updates in dispose", function() {
+      describe("Observable updates in dispose", function() {
         var element, obs, view;
         view = null;
         obs = null;
