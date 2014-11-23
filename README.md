@@ -8,7 +8,9 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 ## Change Log
 ### v1.0.0rc1
 **Enhancements**
-* Add makeBaseUrl, makeUrlComponents, resovleUrl, and makeUrl methods to Falcon.Adapter
+* Split adapter in to two new classes Falcon.DataAdapter and Falcon.TemplateAdapter
+* Add makeBaseUrl, makeUrlComponents, resovleUrl, and makeUrl methods to Falcon.DataAdapter
+* Add displayIf, afterDisplay, beforeDispose to view binding
 * Optimizing fill related methods
 * Falcon.Collection#sort will now default its comparator to the collections comparator unless one is given
 * Added additional context argument to the off() method

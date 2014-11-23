@@ -119,6 +119,7 @@ class FalconView extends FalconObject
 	#--------------------------------------------------------
 	_unrender: () ->
 		return unless @__falcon_view__is_rendered__
+
 		@__falcon_view__is_rendered__ = false
 		@dispose.apply(this, arguments)
 
