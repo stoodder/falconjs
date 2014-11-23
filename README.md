@@ -14,6 +14,7 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Optimizing fill related methods
 * Falcon.Collection#sort will now default its comparator to the collections comparator unless one is given
 * Added additional context argument to the off() method
+* Added subscribe method to collections which delegates its arguments to the internal observable array.
 
 **Bug Fixes**
 * Removed change counter on collections, it was redundant checking and not needed anymore
@@ -36,7 +37,6 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Ensure that Falcon will work with require.js
 * Add Falcon.Observable to wrap ko.observable in the case that we'd want to switch
 * Fallback to local comparator if one isn't given in sort()
-* Add 'subscribe' method to collections
 * Allow for 'true' in attributes filtering
 * use querySelector instead of querySelectorAll where possible
 * add once and listenToOnce
