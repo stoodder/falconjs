@@ -8055,6 +8055,7 @@
         });
         it("Should setup the view binding properly with a basic view", function() {
           view = MockHelper.makeView("#hello_world", {
+            template: "Hello World",
             observables: {
               'is_visible': false
             },
@@ -8063,7 +8064,7 @@
                 return this;
               }
             }
-          }).triggerReady();
+          });
           element = MockHelper.makeElement().bindings("view: view").addToDOM().andApply({
             view: view
           });
@@ -8086,7 +8087,7 @@
           return view.resetSpies();
         });
         return it("Teardown", function() {
-          return Falcon.View.resetCache();
+          return Falcon.templateAdapter.resetCache();
         });
       });
       return describe("Observable updates in dispose", function() {
@@ -8095,9 +8096,8 @@
         obs = null;
         element = null;
         it("Setup", function() {
-          var hello_world;
-          hello_world = MockHelper.makeElement("template").setId("hello_world").html("Hello World").addToDOM();
           view = MockHelper.makeView("#hello_world", {
+            template: "Hello World",
             observables: {
               'is_disposed': false
             },
@@ -8106,7 +8106,7 @@
                 return this;
               }
             }
-          }).triggerReady();
+          });
           obs = ko.observable(view);
           element = MockHelper.makeElement().bindings("view: obs").addToDOM().andApply({
             obs: obs
@@ -8130,7 +8130,7 @@
           return view.resetSpies();
         });
         return it("Teardown", function() {
-          return Falcon.View.resetCache();
+          return Falcon.templateAdapter.resetCache();
         });
       });
     });
