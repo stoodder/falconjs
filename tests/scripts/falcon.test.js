@@ -2491,19 +2491,23 @@
     });
     describe("resolveTemplate", function() {
       var adapter, callback, element, endpoint, template, view;
-      adapter = new Falcon.TemplateAdapter;
+      adapter = null;
       endpoint = "#hello_world";
       template = "Hello World";
       callback = null;
       element = null;
       view = null;
       beforeEach(function() {
+        if (adapter == null) {
+          adapter = new Falcon.TemplateAdapter;
+        }
         view = MockHelper.makeView(endpoint);
         callback = jasmine.createSpy();
         spyOn(adapter, 'loadTemplate');
         spyOn(adapter, 'getCachedTemplate').and.callThrough();
         spyOn(view, 'makeUrl').and.callThrough();
-        return adapter.resetCache();
+        adapter.resetCache();
+        return view.template = null;
       });
       it("Should throw if an invalid view is given", function() {
         expect(function() {
