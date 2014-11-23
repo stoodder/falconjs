@@ -24,6 +24,7 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Renamed 'url' to 'endpoint' throughout Falcon.
 * Falcon.Adapter has been split in to two separate classes Falcon.DataAdapter and Falcon.TemplateAdapter.  The Falcon.adapter instance has also been replaced with Falcon.data_adapater and Falcon.template_adapter
 * Add displayIf, afterDisplay, beforeDispose to view binding
+* Removed template() method from Falcon.View in favor of a template property which maybe be overridden in the view defintion to hard code a template
 
 **TODO**
 * Add exec binding
@@ -35,6 +36,7 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Add 'endpoint' override option to adapter options
 * use querySelector instead of querySelectorAll where possible
 * add once and listenToOnce
+* Test displayIf, beforeDispose, afterDisplay of the view binding
 
 ### v0.10.2
 **Highlights**

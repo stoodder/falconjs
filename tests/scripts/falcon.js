@@ -1742,6 +1742,7 @@
       this.__falcon_view__is_rendered__ = false;
       this.initialize.apply(this, arguments);
       Falcon.templateAdapter.resolveTemplate(this, function(template) {
+        _this.template = template;
         return _this.__falcon_view__loaded_template__(template);
       });
     }
@@ -1984,7 +1985,7 @@
   })(FalconObject));
 
   ko.bindingHandlers['view'] = (function() {
-    var _runUnobserved, _standardizeOptions;
+    var _runUnobserved, _standardizeOptions, _tryUnrender;
     _standardizeOptions = function(valueAccessor) {
       var options;
       options = valueAccessor();
@@ -2018,6 +2019,15 @@
       computed.peek();
       return computed.dispose();
     };
+    _tryUnrender = function(view) {
+      if (!Falcon.isView(view)) {
+        return;
+      }
+      if (!view.__falcon_view__is_rendered__) {
+        return;
+      }
+      return _runUnobserved(view._unrender, view);
+    };
     return {
       'init': function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
         var anonymous_template, container, continuation, is_displayed, is_disposing, oldView, view;
@@ -2031,11 +2041,7 @@
         anonymous_template['nodes'](container);
         anonymous_template['text']("");
         ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-          var _view;
-          _view = ko.unwrap(view);
-          if (Falcon.isView(_view)) {
-            return _view._unrender();
-          }
+          return _tryUnrender(view);
         });
         ko.computed({
           disposeWhenNodeIsRemoved: element,
@@ -2057,15 +2063,11 @@
               is_disposing = false;
               is_displayed = false;
               if (view !== oldView) {
-                if (Falcon.isView(oldView) && oldView.__falcon_view__is_rendered__) {
-                  _runUnobserved(oldView._unrender, oldView);
-                }
+                _tryUnrender(oldView);
                 oldView = view;
               }
               if (!should_display) {
-                if (Falcon.isView(view)) {
-                  _runUnobserved(view._unrender, view);
-                }
+                _tryUnrender(view);
                 return ko.virtualElements.emptyNode(element);
               }
               childContext = context.createChildContext(viewModel).extend({
