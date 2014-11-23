@@ -44,7 +44,6 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Add Falcon.onDipose for node disposal (perhaps rename)
 * Bug: Should check the unwrapped value when serializing
 * Add Collection#insertAt(index)
-* Bug: Include url in model and collection clone
 * Make constants
 * Document makeBaseUrl, makeUrlComponents, resovleUrl, and makeUrl on adapter
 * Add 'endpoint' override option to adapter options
