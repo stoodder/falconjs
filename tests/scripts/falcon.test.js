@@ -7152,7 +7152,7 @@
         return expect(collectionA.models()).toEqual([]);
       });
     });
-    return describe("Test the chain() method", function() {
+    describe("Test the chain() method", function() {
       var collectionA, model_a1, model_a2, model_a3, model_a4, model_a5;
       collectionA = null;
       model_a1 = model_a2 = model_a3 = model_a4 = model_a5 = null;
@@ -7232,6 +7232,29 @@
         chain.unshift(new ModelA);
         expect(chain.length()).toBe(5);
         return expect(collectionA.length()).toBe(5);
+      });
+    });
+    return describe("subscribe", function() {
+      var collection, spy, subscription;
+      subscription = null;
+      spy = jasmine.createSpy("Subscription Spy");
+      collection = new CollectionA();
+      beforeEach(function() {
+        return spy.calls.reset();
+      });
+      it("Should subscribe properly", function() {
+        subscription = collection.subscribe(spy);
+        expect(spy).not.toHaveBeenCalled();
+        return expect(subscription).not.toBeNull();
+      });
+      it("Should call the spy when the collection changes", function() {
+        collection.append(new ModelA);
+        return expect(spy.calls.count()).toBe(1);
+      });
+      return it("Should remove the subscription properly", function() {
+        subscription.dispose();
+        collection.append(new ModelA);
+        return expect(spy).not.toHaveBeenCalled();
       });
     });
   });

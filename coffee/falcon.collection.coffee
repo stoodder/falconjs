@@ -1062,4 +1062,15 @@ class FalconCollection extends FalconObject
 		@models([])
 		return this
 	#END reset
+
+	#--------------------------------------------------------
+	# Method: Falcon.Collection#subscribe
+	#	Delegates a subscription definiton to the interal
+	#	observable array and returns that observable array's
+	#	subscription.
+	#
+	# Returns:
+	#	_(ko.subscriotion)_ - The knockout subscription
+	#--------------------------------------------------------
+	subscribe: (callback, context, event) -> @models.subscribe(callback, context, event)
 #END Falcon.Collection

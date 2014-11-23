@@ -2598,4 +2598,36 @@ describe "Falcon.Collection", ->
 			expect( collectionA.length() ).toBe( 5 )
 		#END it
 	#END describe
+
+	describe "subscribe", ->
+		subscription = null
+		spy = jasmine.createSpy("Subscription Spy")
+		collection = new CollectionA()
+
+		beforeEach ->
+			spy.calls.reset()
+		#END beforeEach
+
+		it "Should subscribe properly", ->
+			subscription = collection.subscribe(spy)
+
+			expect( spy ).not.toHaveBeenCalled()
+
+			expect( subscription ).not.toBeNull()
+		#END it
+
+		it "Should call the spy when the collection changes", ->
+			collection.append( new ModelA )
+
+			expect( spy.calls.count() ).toBe( 1 )
+		#END it
+
+		it "Should remove the subscription properly", ->
+			subscription.dispose()
+
+			collection.append( new ModelA )
+
+			expect( spy ).not.toHaveBeenCalled()
+		#END it
+	#END describe
 #END describe

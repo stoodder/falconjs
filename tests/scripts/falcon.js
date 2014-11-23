@@ -1718,6 +1718,10 @@
       return this;
     };
 
+    FalconCollection.prototype.subscribe = function(callback, context, event) {
+      return this.models.subscribe(callback, context, event);
+    };
+
     return FalconCollection;
 
   })(FalconObject);
