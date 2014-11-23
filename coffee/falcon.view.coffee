@@ -57,6 +57,7 @@ class FalconView extends FalconObject
 
 		# Attempt to load the template
 		Falcon.templateAdapter.resolveTemplate( @, (template) =>
+			@template = template
 			@__falcon_view__loaded_template__(template)
 		)
 	#END constructor
@@ -118,6 +119,7 @@ class FalconView extends FalconObject
 	#--------------------------------------------------------
 	_unrender: () ->
 		return unless @__falcon_view__is_rendered__
+		
 		@__falcon_view__is_rendered__ = false
 		@dispose.apply(this, arguments)
 

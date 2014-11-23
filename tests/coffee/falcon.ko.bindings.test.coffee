@@ -755,15 +755,9 @@ describe "Bindings", ->
 			view = null
 			element = null
 
-			it "Setup", ->
-				hello_world = MockHelper.makeElement("template")
-				                        .setId("hello_world")
-				                        .html("Hello World")
-				                        .addToDOM()
-			#END setup
-
 			it "Should setup the view binding properly with a basic view", ->
 				view = MockHelper.makeView("#hello_world", {
+					template: "Hello World"
 					observables:
 						'is_visible': false
 					#END observables
@@ -771,7 +765,7 @@ describe "Bindings", ->
 					display: ->
 						return @ if @is_visible()
 					#END display
-				}).triggerReady()
+				})
 
 				element = MockHelper.makeElement()
 				                    .bindings("view: view")
@@ -806,7 +800,7 @@ describe "Bindings", ->
 				view.resetSpies()
 			#END it
 
-			it "Teardown", -> Falcon.View.resetCache()
+			it "Teardown", -> Falcon.templateAdapter.resetCache()
 		#END describe
 
 		describe "Observable updates in dispose", ->
@@ -815,12 +809,8 @@ describe "Bindings", ->
 			element = null
 
 			it "Setup", ->
-				hello_world = MockHelper.makeElement("template")
-				                        .setId("hello_world")
-				                        .html("Hello World")
-				                        .addToDOM()
-
 				view = MockHelper.makeView("#hello_world", {
+					template: "Hello World"
 					observables:
 						'is_disposed': false
 					#END observables
@@ -828,7 +818,7 @@ describe "Bindings", ->
 					dispose: ->
 						return @ if @is_disposed()
 					#END dispose
-				}).triggerReady()
+				})
 				
 				obs = ko.observable(view)
 
@@ -862,7 +852,7 @@ describe "Bindings", ->
 				view.resetSpies()
 			#END it
 
-			it "Teardown", -> Falcon.View.resetCache()
+			it "Teardown", -> Falcon.templateAdapter.resetCache()
 		#END describe
 
 		describe "Observable updates in display", ->

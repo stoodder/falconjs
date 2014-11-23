@@ -2491,19 +2491,23 @@
     });
     describe("resolveTemplate", function() {
       var adapter, callback, element, endpoint, template, view;
-      adapter = new Falcon.TemplateAdapter;
+      adapter = null;
       endpoint = "#hello_world";
       template = "Hello World";
       callback = null;
       element = null;
       view = null;
       beforeEach(function() {
+        if (adapter == null) {
+          adapter = new Falcon.TemplateAdapter;
+        }
         view = MockHelper.makeView(endpoint);
         callback = jasmine.createSpy();
         spyOn(adapter, 'loadTemplate');
         spyOn(adapter, 'getCachedTemplate').and.callThrough();
         spyOn(view, 'makeUrl').and.callThrough();
-        return adapter.resetCache();
+        adapter.resetCache();
+        return view.template = null;
       });
       it("Should throw if an invalid view is given", function() {
         expect(function() {
@@ -7961,12 +7965,9 @@
         var element, view;
         view = null;
         element = null;
-        it("Setup", function() {
-          var hello_world;
-          return hello_world = MockHelper.makeElement("template").setId("hello_world").html("Hello World").addToDOM();
-        });
         it("Should setup the view binding properly with a basic view", function() {
           view = MockHelper.makeView("#hello_world", {
+            template: "Hello World",
             observables: {
               'is_visible': false
             },
@@ -7975,7 +7976,7 @@
                 return this;
               }
             }
-          }).triggerReady();
+          });
           element = MockHelper.makeElement().bindings("view: view").addToDOM().andApply({
             view: view
           });
@@ -7998,7 +7999,7 @@
           return view.resetSpies();
         });
         return it("Teardown", function() {
-          return Falcon.View.resetCache();
+          return Falcon.templateAdapter.resetCache();
         });
       });
       describe("Observable updates in dispose", function() {
@@ -8007,9 +8008,8 @@
         obs = null;
         element = null;
         it("Setup", function() {
-          var hello_world;
-          hello_world = MockHelper.makeElement("template").setId("hello_world").html("Hello World").addToDOM();
           view = MockHelper.makeView("#hello_world", {
+            template: "Hello World",
             observables: {
               'is_disposed': false
             },
@@ -8018,7 +8018,7 @@
                 return this;
               }
             }
-          }).triggerReady();
+          });
           obs = ko.observable(view);
           element = MockHelper.makeElement().bindings("view: obs").addToDOM().andApply({
             obs: obs
@@ -8042,7 +8042,7 @@
           return view.resetSpies();
         });
         return it("Teardown", function() {
-          return Falcon.View.resetCache();
+          return Falcon.templateAdapter.resetCache();
         });
       });
       describe("Observable updates in display", function() {

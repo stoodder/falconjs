@@ -1742,6 +1742,7 @@
       this.__falcon_view__is_rendered__ = false;
       this.initialize.apply(this, arguments);
       Falcon.templateAdapter.resolveTemplate(this, function(template) {
+        _this.template = template;
         return _this.__falcon_view__loaded_template__(template);
       });
     }
@@ -1973,7 +1974,7 @@
   })(FalconObject));
 
   ko.bindingHandlers['view'] = (function() {
-    var _runUnobserved, _standardizeOptions;
+    var _runUnobserved, _standardizeOptions, _tryUnrender;
     _standardizeOptions = function(valueAccessor) {
       var options;
       options = valueAccessor();
@@ -2007,6 +2008,15 @@
       computed.peek();
       return computed.dispose();
     };
+    _tryUnrender = function(view) {
+      if (!Falcon.isView(view)) {
+        return;
+      }
+      if (!view.__falcon_view__is_rendered__) {
+        return;
+      }
+      return _runUnobserved(view._unrender, view);
+    };
     return {
       'init': function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
         var anonymous_template, container, continuation, is_displayed, is_disposing, oldView, view;
@@ -2020,16 +2030,12 @@
         anonymous_template['nodes'](container);
         anonymous_template['text']("");
         ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-          var _view;
-          _view = ko.unwrap(view);
-          if (Falcon.isView(_view)) {
-            return _view._unrender();
-          }
+          return _tryUnrender(view);
         });
         ko.computed({
           disposeWhenNodeIsRemoved: element,
           read: function() {
-            var afterDisplay, beforeDispose, options, should_display, template, _ref2;
+            var afterDisplay, beforeDispose, beforeDispose_length, options, should_display, template, _ref2, _ref3;
             options = _standardizeOptions(valueAccessor);
             view = ko.unwrap(options.data);
             template = Falcon.isView(view) ? ko.unwrap(view.__falcon_view__loaded_template__) : "";
@@ -2046,15 +2052,11 @@
               is_disposing = false;
               is_displayed = false;
               if (view !== oldView) {
-                if (Falcon.isView(oldView) && oldView.__falcon_view__is_rendered__) {
-                  _runUnobserved(oldView._unrender, oldView);
-                }
+                _tryUnrender(oldView);
                 oldView = view;
               }
               if (!should_display) {
-                if (Falcon.isView(view)) {
-                  _runUnobserved(view._unrender, view);
-                }
+                _tryUnrender(view);
                 return ko.virtualElements.emptyNode(element);
               }
               childContext = context.createChildContext(viewModel).extend({
@@ -2073,9 +2075,15 @@
               return;
             }
             if (is_displayed && isFunction(beforeDispose)) {
-              if (((_ref2 = beforeDispose.__falcon_bind__length__) != null ? _ref2 : beforeDispose.length) === 3) {
+              beforeDispose_length = (_ref2 = (_ref3 = beforeDispose.__falcon_bind__length__) != null ? _ref3 : beforeDispose.length) != null ? _ref2 : 0;
+              if (beforeDispose_length === 3) {
                 is_disposing = true;
                 return beforeDispose(ko.virtualElements.childNodes(element), view, function() {
+                  return continuation();
+                });
+              } else if (beforeDispose_length === 2) {
+                is_disposing = true;
+                return beforeDispose(ko.virtualElements.childNodes(element), function() {
                   return continuation();
                 });
               } else {
