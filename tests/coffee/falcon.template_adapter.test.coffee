@@ -133,7 +133,7 @@ describe "Falcon.TemplateAdapter", ->
 	#END describe
 
 	describe "resolveTemplate", ->
-		adapter = new Falcon.TemplateAdapter
+		adapter = null
 		endpoint = "#hello_world"
 		template = "Hello World"
 		callback = null
@@ -141,6 +141,7 @@ describe "Falcon.TemplateAdapter", ->
 		view = null
 
 		beforeEach ->
+			adapter ?= new Falcon.TemplateAdapter
 			view = MockHelper.makeView(endpoint)
 			callback = jasmine.createSpy()
 			spyOn(adapter, 'loadTemplate')
@@ -148,6 +149,7 @@ describe "Falcon.TemplateAdapter", ->
 			spyOn(view, 'makeUrl').and.callThrough()
 
 			adapter.resetCache()
+			view.template = null
 		#END beforeEach
 
 		it "Should throw if an invalid view is given", ->
@@ -161,6 +163,7 @@ describe "Falcon.TemplateAdapter", ->
 		#END it
 
 		it "Should call the loadTemplate method if the url is valid and the template hasn't been cached", ->
+
 			ret = adapter.resolveTemplate(view, callback)
 
 			expect( view.makeUrl.calls.count() ).toBe( 1 )

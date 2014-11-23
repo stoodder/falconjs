@@ -3,28 +3,36 @@
 #	Mehod used to handle view objects, fetching their html
 #	and binding them against their memebr objects
 #--------------------------------------------------------
-ko.bindingHandlers['view'] = 
+ko.bindingHandlers['view'] = do ->
+	_standardizeOptions = (valueAccessor) ->
+		options = valueAccessor()
+		options = {data: options} if Falcon.isView( options ) or ko.isObservable( options )
+		options = {} unless isObject(options)
+		options['data'] ?= null
+		options['displayIf'] ?= true
+		options['afterDisplay'] ?= null
+		options['beforeDispose'] ?= null
+		return options
+	#END _standardizeOptions
+
+	_runUnobserved = (callback, context) ->
+		computed = ko.computed -> callback.call(context ? this)
+		computed.peek()
+		computed.dispose()
+	#END _runUnobserved
+
+	_tryUnrender = (view) ->
+		return unless Falcon.isView( view )
+		return unless view.__falcon_view__is_rendered__
+		_runUnobserved(view._unrender, view)
+	#END _tryUnrender
+
 	'init': (element, valueAccessor, allBindingsAccessor, viewModel, context) ->
-		view = valueAccessor()
-
-		if ko.isSubscribable( view )
-			oldViewModel = ko.unwrap( view )
-			subscription = view.subscribe (newViewModel) ->
-				oldViewModel._unrender() if Falcon.isView(oldViewModel)
-				oldViewModel = newViewModel
-			#END subscribe
-
-			ko.utils.domNodeDisposal.addDisposeCallback element, ->
-				oldViewModel._unrender() if Falcon.isView(oldViewModel)
-				subscription.dispose()
-			#END domDisposal
-		#END if subscribable
-
-		else if Falcon.isView( view )
-			ko.utils.domNodeDisposal.addDisposeCallback element, ->
-				view._unrender()
-			#END domDisposal
-		#END if
+		view = null
+		oldView = null
+		is_displayed = false
+		is_disposing = false
+		continuation = (->)
 
 		container = document.createElement('div')
 
@@ -32,33 +40,77 @@ ko.bindingHandlers['view'] =
 		anonymous_template['nodes'](container)
 		anonymous_template['text']("")
 
+		ko.utils.domNodeDisposal.addDisposeCallback element, ->
+			_tryUnrender(view)
+		#END domDisposal
+
 		ko.computed
 			disposeWhenNodeIsRemoved: element
 			read: ->
-				view = ko.unwrap( valueAccessor() )
+				options = _standardizeOptions(valueAccessor)
+				view = ko.unwrap( options.data )
 
-				return ko.virtualElements.emptyNode(element) unless Falcon.isView( view )
-
-				template = ko.unwrap(view.__falcon_view__loaded_template__)
+				template = if Falcon.isView( view ) then ko.unwrap(view.__falcon_view__loaded_template__) else "" 
 				template = "" unless isString(template)
 
-				return ko.virtualElements.emptyNode(element) if isEmpty( template )
+				afterDisplay = ko.utils.peekObservable( options['afterDisplay'] )
+				beforeDispose = ko.utils.peekObservable( options['beforeDispose'] )
+				
+				should_display = ko.unwrap( options['displayIf'] ) isnt false
+				should_display = should_display and not isEmpty( template )
 
-				#The method below is added to the viewModel upon creation due to the fact that proto 
-				#method are abstracted away during viewModel generation, it's used to notify a view 
-				#which views have been created within its context.  This is then used when destroying 
-				#the view to also ensure that we destroy child views.
-				#TODO: Try and remove this, using the __falcon_view__addChildView__
-				context['__falcon_view__addChildView__']( view ) if context?['__falcon_view__addChildView__']?
-				
-				childContext = context.createChildContext(viewModel).extend( '$view': view.createViewModel() )
-				
-				container.innerHTML = template
-				anonymous_template['text'](template)
-				
-				ko.renderTemplate(element, childContext, {}, element)
+				continuation = ->
+					continuation = (->)
+					is_disposing = false
+					is_displayed = false
 
-				view._render()
+					if view isnt oldView
+						_tryUnrender(oldView)
+						oldView = view
+					#END if
+
+					unless should_display
+						_tryUnrender(view)
+						return ko.virtualElements.emptyNode(element)
+					#END unless
+					
+					childContext = context.createChildContext(viewModel).extend( '$view': view.createViewModel() )
+							
+					container.innerHTML = template
+					anonymous_template['text'](template)
+					
+					ko.renderTemplate(element, childContext, {}, element)
+
+					is_displayed = true
+
+					_runUnobserved(view._render, view)
+
+					if isFunction(afterDisplay)
+						afterDisplay( ko.virtualElements.childNodes(element), view )
+					#END if
+				#END continuation
+
+				return if is_disposing
+
+				if is_displayed and isFunction(beforeDispose)
+					beforeDispose_length = beforeDispose.__falcon_bind__length__ ? beforeDispose.length ? 0
+					if beforeDispose_length is 3
+						is_disposing = true
+						beforeDispose ko.virtualElements.childNodes(element), view, ->
+							continuation()
+						#END beforeDispose
+					else if beforeDispose_length is 2
+						is_disposing = true
+						beforeDispose ko.virtualElements.childNodes(element), ->
+							continuation()
+						#END beforeDispose
+					else
+						beforeDispose( ko.virtualElements.childNodes(element), view )
+						continuation()
+					#END if
+				else
+					continuation()
+				#END if
 			#END read
 		#END computed
 

@@ -8,7 +8,9 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 ## Change Log
 ### v1.0.0rc1
 **Enhancements**
-* Add makeBaseUrl, makeUrlComponents, resovleUrl, and makeUrl methods to Falcon.Adapter
+* Split adapter in to two new classes Falcon.DataAdapter and Falcon.TemplateAdapter
+* Add makeBaseUrl, makeUrlComponents, resovleUrl, and makeUrl methods to Falcon.DataAdapter
+* Add displayIf, afterDisplay, beforeDispose to view binding
 * Optimizing fill related methods
 * Falcon.Collection#sort will now default its comparator to the collections comparator unless one is given
 * Added additional context argument to the off() method
@@ -19,20 +21,24 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Made it possible to remove callback methods only based on context since create new instances still result in equivalent method calls, just different contexts
 
 **Breaking Changes**
-* When using 'mixin' to add a function to a model or a collection, the function will simply be bound against the model and each argument is verbatim to each call. In the preivous version we would pass in the model or model, collection as the first arguments.
+* When using 'mixin' to add a function to a model or a collection, the function will simply be bound against the model and each argument is verbatim to each call. In the preivous version we would pass in the model or model & collection pair as the first arguments.
 * Falcon.Collection#sort now returns 'this' collection rather than the list of sorted models
 * Renamed 'url' to 'endpoint' throughout Falcon.
 * Falcon.Adapter has been split in to two separate classes Falcon.DataAdapter and Falcon.TemplateAdapter.  The Falcon.adapter instance has also been replaced with Falcon.data_adapater and Falcon.template_adapter
+* Add displayIf, afterDisplay, beforeDispose to view binding
+* Removed template() method from Falcon.View in favor of a template property which maybe be overridden in the view defintion to hard code a template
 
 **TODO**
 * Add exec binding
 * Add change notifications to Falcon.Collection
-* Add disposeWhen, displayIf, afterDisplay, beforeDispose to view binding
 * Ensure that Falcon will work with require.js
 * Add Falcon.Observable to wrap ko.observable in the case that we'd want to switch
 * Make constants
 * Document makeBaseUrl, makeUrlComponents, resovleUrl, and makeUrl on adapter
 * Add 'endpoint' override option to adapter options
+* use querySelector instead of querySelectorAll where possible
+* add once and listenToOnce
+* Test displayIf, beforeDispose, afterDisplay of the view binding
 
 ### v0.10.2
 **Highlights**

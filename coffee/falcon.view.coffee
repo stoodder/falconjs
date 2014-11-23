@@ -42,14 +42,6 @@ class FalconView extends FalconObject
 	__falcon_view__is_rendered__: false
 
 	#--------------------------------------------------------
-	# Member: Falcon.View#__falcon_view__child_views__
-	#	This private, falcon specific, variable is used to store
-	#	an array of falcon views that have been rendered (via the
-	#	'view' data-binding) within this view's template
-	#--------------------------------------------------------
-	__falcon_view__child_views__: null
-
-	#--------------------------------------------------------
 	# Method: Falcon.View()
 	#	The constuctor method for the view class, calls the super
 	#	constructor from Falcon.Object
@@ -60,12 +52,12 @@ class FalconView extends FalconObject
 		# Setup the private state variables
 		@__falcon_view__loaded_template__ = ko.observable()
 		@__falcon_view__is_rendered__ = false
-		@__falcon_view__child_views__ = []
 
 		@initialize.apply(this, arguments)
 
 		# Attempt to load the template
 		Falcon.templateAdapter.resolveTemplate( @, (template) =>
+			@template = template
 			@__falcon_view__loaded_template__(template)
 		)
 	#END constructor
@@ -104,9 +96,9 @@ class FalconView extends FalconObject
 	_render: () ->
 		return if @__falcon_view__is_rendered__
 
+		@__falcon_view__is_rendered__ = true
 		@display.apply(this, arguments)
 
-		@__falcon_view__is_rendered__ = true
 		return
 	#END _render
 
@@ -128,29 +120,11 @@ class FalconView extends FalconObject
 	_unrender: () ->
 		return unless @__falcon_view__is_rendered__
 
-		child_view._unrender() for child_view in @__falcon_view__child_views__
-		@__falcon_view__child_views__ = []
-		@dispose.apply(@, arguments)
-
 		@__falcon_view__is_rendered__ = false
+		@dispose.apply(this, arguments)
+
 		return
 	#END _unrender
-
-	#--------------------------------------------------------
-	# Method: Falcon.View#_addChildView
-	#	Method that is called withtin the 'view' binding to add
-	#	a reference to a child view that was rendered in this views
-	#	template.  These views are then used to be handled when this
-	#	view is added and removed from the DOM.
-	#
-	# Note:
-	#	This method should not be called manually, it is only meant to
-	#	be called by the 'view' binding
-	#--------------------------------------------------------
-	_addChildView: (view) ->
-		return unless Falcon.isView( view )
-		@__falcon_view__child_views__.push( view )
-	#END _addChildView
 
 	#--------------------------------------------------------
 	# Method: Falcon.View#initialize
@@ -188,23 +162,28 @@ class FalconView extends FalconObject
 	#	the context of this instance.
 	#--------------------------------------------------------
 	__falcon_view__cachedViewModel__: null
-	createViewModel: () ->
-		return @__falcon_view__cachedViewModel__ if @__falcon_view__cachedViewModel__?
+	createViewModel: do ->
+		#Custom bind to work with ie8
+		_bind = (value, self) ->
+			func = -> value.apply(self, arguments)
+			func.__falcon_bind__length__ = value.length
+			return func
+		#END _bind
 
-		#TODO: Try and remove this, using the __falcon_view__addChildView__
-		viewModel = { "__falcon_view__addChildView__": (view) => @_addChildView(view) }
+		return ->
+			return @__falcon_view__cachedViewModel__ if @__falcon_view__cachedViewModel__?
 
-		for key, value of @ when not ( key of Falcon.View.prototype )
-			if isFunction(value) and not ko.isObservable(value)
-				value = do =>
-					_value = value
-					return (args...) => _value.call(@, args...)
-				#END assignment
-			#END if
-			
-			viewModel[key] = value
-		#END for
+			viewModel = {}
 
-		return (@__falcon_view__cachedViewModel__ = viewModel)
+			for key, value of this when not ( key of Falcon.View.prototype )
+				if isFunction(value) and not ko.isObservable(value)
+					value = _bind(value, this)
+				#END if
+				
+				viewModel[key] = value
+			#END for
+
+			return (@__falcon_view__cachedViewModel__ = viewModel)
+		#END return
 	#END createViewModel
 #END Falcon.View

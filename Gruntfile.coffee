@@ -151,6 +151,7 @@ module.exports = (grunt) ->
 			'dist':
 				src: 'falcon.min.js'
 				options:
+					display: 'short'
 					summary: true
 					vendor: [
 						'tests/lib/sinon-1.7.3.js'
