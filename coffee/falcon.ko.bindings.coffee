@@ -91,9 +91,15 @@ ko.bindingHandlers['view'] = do ->
 				return if is_disposing
 
 				if is_displayed and isFunction(beforeDispose)
-					if ( beforeDispose.__falcon_bind__length__ ? beforeDispose.length ) is 3
+					beforeDispose_length = beforeDispose.__falcon_bind__length__ ? beforeDispose.length ? 0
+					if beforeDispose_length is 3
 						is_disposing = true
 						beforeDispose ko.virtualElements.childNodes(element), view, ->
+							continuation()
+						#END beforeDispose
+					else if beforeDispose_length is 2
+						is_disposing = true
+						beforeDispose ko.virtualElements.childNodes(element), ->
 							continuation()
 						#END beforeDispose
 					else

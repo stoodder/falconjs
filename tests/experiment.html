@@ -11,7 +11,7 @@
 
   <script>
     var ContentView = Falcon.View.extend({
-      url: "#content",
+      endpoint: "#content",
 
        observables: {
         child_view: null
@@ -35,7 +35,7 @@
     });
     
     var LayoutView = Falcon.View.extend({
-      url: "#layout",
+      endpoint: "#layout",
 
       defaults: {
         content_view: function() { return new ContentView }

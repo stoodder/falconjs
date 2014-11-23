@@ -2040,7 +2040,7 @@
         ko.computed({
           disposeWhenNodeIsRemoved: element,
           read: function() {
-            var afterDisplay, beforeDispose, options, should_display, template, _ref2;
+            var afterDisplay, beforeDispose, beforeDispose_length, options, should_display, template, _ref2, _ref3;
             options = _standardizeOptions(valueAccessor);
             view = ko.unwrap(options.data);
             template = Falcon.isView(view) ? ko.unwrap(view.__falcon_view__loaded_template__) : "";
@@ -2084,9 +2084,15 @@
               return;
             }
             if (is_displayed && isFunction(beforeDispose)) {
-              if (((_ref2 = beforeDispose.__falcon_bind__length__) != null ? _ref2 : beforeDispose.length) === 3) {
+              beforeDispose_length = (_ref2 = (_ref3 = beforeDispose.__falcon_bind__length__) != null ? _ref3 : beforeDispose.length) != null ? _ref2 : 0;
+              if (beforeDispose_length === 3) {
                 is_disposing = true;
                 return beforeDispose(ko.virtualElements.childNodes(element), view, function() {
+                  return continuation();
+                });
+              } else if (beforeDispose_length === 2) {
+                is_disposing = true;
+                return beforeDispose(ko.virtualElements.childNodes(element), function() {
                   return continuation();
                 });
               } else {
