@@ -71,15 +71,6 @@ module.exports = (grunt) ->
 						"coffee/falcon.coffee"
 						"coffee/falcon.ko.bindings.coffee"
 						
-					],
-
-					'falcon.conductor.js': [
-						"coffee/banner.coffee"
-
-						"coffee/checking.utility.coffee"
-						"coffee/string.utility.coffee"
-						
-						"coffee/falcon.conductor.coffee"
 					]
 				#END files
 			#END coffee:dist
@@ -118,10 +109,6 @@ module.exports = (grunt) ->
 						"tests/coffee/falcon.ko.bindings.test.coffee"
 					]
 
-					"tests/scripts/falcon.conductor.test.js": [
-						"tests/coffee/falcon.conductor.test.coffee"
-					]
-
 					"tests/scripts/adapters/falcon.jquery_rest_adapter.test.js": [
 						"tests/coffee/adapters/falcon.jquery_rest_adapter.test.coffee"
 					]
@@ -136,7 +123,6 @@ module.exports = (grunt) ->
 				#END options
 				files:
 					'falcon.min.js': 'falcon.js'
-					'falcon.conductor.min.js': 'falcon.conductor.js'
 				#END files
 			#END uglify:dist
 
@@ -164,26 +150,6 @@ module.exports = (grunt) ->
 					specs: 'tests/scripts/falcon.test.js'
 				#END options
 			#END jasmine:dist
-
-			'conductor':
-				src: 'falcon.conductor.min.js'
-				options:
-					summary: true
-					vendor: [
-						'tests/lib/sinon-1.7.3.js'
-						'tests/lib/jasmine2.0.0-sinon.js'
-						'tests/lib/jquery-1.10.2.min.js'
-						'tests/lib/knockout-3.2.0.min.js'
-						'tests/scripts/falcon.min.js'
-					]
-					helpers: [
-						'tests/scripts/test.helpers.js'
-					]
-					specs: [
-						'tests/scripts/falcon.conductor.test.js'
-					]
-				#END options
-			#END conductor
 
 			'adapters':
 				src: 'adapters/falcon.jquery_rest_adapter.min.js'
@@ -216,8 +182,6 @@ module.exports = (grunt) ->
 						src: [
 							"falcon.js"
 							"falcon.min.js"
-							"falcon.conductor.js"
-							"falcon.conductor.min.js"
 						]
 					},{
 						expand: true
