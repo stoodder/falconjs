@@ -181,7 +181,7 @@
       }
     }
 
-    FalconObject.prototype.on = function(event, callback, context, allowence) {
+    FalconObject.prototype.on = function(event, callback, context, allowance) {
       var _base;
       if (!(isString(event) && isFunction(callback))) {
         return this;
@@ -189,8 +189,8 @@
       if (context == null) {
         context = this;
       }
-      if (allowence == null) {
-        allowence = -1;
+      if (allowance == null) {
+        allowance = -1;
       }
       event = trim(event).toLowerCase();
       if (isEmpty(event)) {
@@ -202,7 +202,7 @@
       ((_base = this.__falcon_object__events__)[event] != null ? (_base = this.__falcon_object__events__)[event] : _base[event] = []).push({
         callback: callback,
         context: context,
-        allowence: allowence
+        allowance: allowance
       });
       return this;
     };
@@ -306,12 +306,12 @@
       _ref = this.__falcon_object__events__[event];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         evt = _ref[_i];
-        if (evt.allowence !== 0) {
+        if (evt.allowance !== 0) {
           resultant_event_array.push(evt);
           evt.callback.apply(evt.context, args);
         }
-        if (evt.allowence > 0) {
-          evt.allowence--;
+        if (evt.allowance > 0) {
+          evt.allowance--;
         }
       }
       this.__falcon_object__events__[event] = resultant_event_array;
