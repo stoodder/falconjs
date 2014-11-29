@@ -139,6 +139,7 @@ class FalconObject
 	#	**event** _(string)_ - The event to listen tpo
 	#	**callback** _(function)_ - The callback function to attach to this event
 	#	**context** _(mixed)_ - The context to apply to the callback. Defaults to this object
+	#	**allowance** _(Number)_ - A count of how many times this event should be allowed to be triggered
 	#
 	# Returns:
 	#	_(Falcon.Object)_ - This instance
@@ -158,6 +159,18 @@ class FalconObject
 		return @
 	#END on
 
+	#--------------------------------------------------------
+	# Method: Falcon.Object#once()
+	#	This is the same as on except that the callback will only be triggered once
+	#
+	# Arguments:
+	#	**event** _(string)_ - The event to listen tpo
+	#	**callback** _(function)_ - The callback function to attach to this event
+	#	**context** _(mixed)_ - The context to apply to the callback. Defaults to this object
+	#
+	# Returns:
+	#	_(Falcon.Object)_ - This instance
+	#--------------------------------------------------------
 	once: (event, callback, context) -> @on(event, callback, context, 1)
 
 	#--------------------------------------------------------
@@ -293,6 +306,20 @@ class FalconObject
 		return @
 	#END listenTo
 
+	#--------------------------------------------------------
+	# Method: Falcon.Model#listenToOnce(object, event, callback)
+	# 	This is the same as listenTo except tht the calback will only
+	#	be triggered once
+	#
+	# Arguments:
+	#	**object** - _(Falcon.Object)_ - The object to listen for events on
+	#	**event** - _(String)_ - The event to respond to
+	#	**callback** - _(Function)_ - The callback to run when said event is triggered.
+	#								  Will be called in context of this
+	#
+	# Returns:
+	#	_(Falcon.Model)_ - This instance
+	#--------------------------------------------------------
 	listenToOnce: (object, event, callback) ->
 		return @ unless Falcon.isFalconObject( object )
 		return @ unless isString(event) and isFunction(callback)
