@@ -10,7 +10,6 @@
   <script type="text/javascript" src="scripts/falcon.js"></script>
 
   <script>
-
       var BaseView = Falcon.View.extend({
         endpoint: "#base-tmpl",
 
@@ -23,11 +22,11 @@
         endpoint: "#hello-world-cmpnt",
 
         observables: {
-          is_displaying_external: true
+          is_displaying_external_content: true
         },
 
         toggleDisplay: function() {
-          this.is_displaying_external( !this.is_displaying_external() );
+          this.is_displaying_external_content( !this.is_displaying_external_content() );
         }
       }));
 
@@ -36,8 +35,6 @@
 
 </head>
   <body>
-
-
     <template id="base-tmpl">
       <input type="text" data-bind="value: $view.message, valueUpdate: 'keyup'" />
       <hello-world>
@@ -47,16 +44,19 @@
         <hr />
       </hello-world>
     </template>
-
-
     <template id="hello-world-cmpnt">
-      <!-- ko yield: $component.is_displaying_external -->
+      <!--
+        The yield binding will display either the externally defined 
+        contents or the default contents defined within the yield inding 
+        depending on the true/false value passed in to the binding. If  
+        truthy, the external content is displayed otherwise the default 
+        content is displayed. 
+      -->
+      <!-- ko yield: $component.is_displaying_external_content -->
         Hello World!
       <!-- /ko -->
       <br />
       <button data-bind="click: $component.toggleDisplay">Toggle External</button>
     </template>
-
-
   </body>
 </html>
