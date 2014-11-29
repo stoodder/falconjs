@@ -293,6 +293,18 @@ class FalconObject
 		return @
 	#END listenTo
 
+	listenToOnce: (object, event, callback) ->
+		return @ unless Falcon.isFalconObject( object )
+		return @ unless isString(event) and isFunction(callback)
+
+		object.once(event, callback, @)
+
+		@__falcon_object__listeners__ ?= []
+		@__falcon_object__listeners__.push({object, event, callback})
+
+		return @
+	#END listenTo
+
 	#--------------------------------------------------------
 	# Method: Falcon.Model#stopListening([object], [event], [callback])
 	# 	Stops listening to events assigned by the listenTo method. Optional

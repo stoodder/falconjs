@@ -337,6 +337,25 @@
       return this;
     };
 
+    FalconObject.prototype.listenToOnce = function(object, event, callback) {
+      if (!Falcon.isFalconObject(object)) {
+        return this;
+      }
+      if (!(isString(event) && isFunction(callback))) {
+        return this;
+      }
+      object.once(event, callback, this);
+      if (this.__falcon_object__listeners__ == null) {
+        this.__falcon_object__listeners__ = [];
+      }
+      this.__falcon_object__listeners__.push({
+        object: object,
+        event: event,
+        callback: callback
+      });
+      return this;
+    };
+
     FalconObject.prototype.stopListening = function(object, event, callback) {
       var listener, new_listeners, _callback, _event, _i, _len, _object, _ref, _ref1, _ref2, _ref3;
       if (isString(object)) {
