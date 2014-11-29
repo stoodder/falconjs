@@ -143,19 +143,22 @@ class FalconObject
 	# Returns:
 	#	_(Falcon.Object)_ - This instance
 	#--------------------------------------------------------
-	on: (event, callback, context) ->
+	on: (event, callback, context, allowence) ->
 		return @ unless isString(event) and isFunction(callback)
 
 		context ?= @
+		allowence ?= -1 # -1 indicates infinite calls
 		event = trim(event).toLowerCase()
 
 		return @ if isEmpty(event)
 
 		@__falcon_object__events__ ?= {}
-		( @__falcon_object__events__[event] ?= [] ).push({callback, context})
+		( @__falcon_object__events__[event] ?= [] ).push({callback, context, allowence})
 
 		return @
 	#END on
+
+	once: (event, callback, context) -> @on(event, callback, context, 1)
 
 	#--------------------------------------------------------
 	# Method: Falcon.Model#off()
@@ -245,7 +248,18 @@ class FalconObject
 
 		return @ if isEmpty(event) or not @__falcon_object__events__[event]?
 
-		evt.callback.apply(evt.context, args) for evt in @__falcon_object__events__[event]
+		resultant_event_array = []
+
+		for evt in @__falcon_object__events__[event]
+			if evt.allowence isnt 0
+				resultant_event_array.push(evt)
+				evt.callback.apply(evt.context, args)
+			#END if
+
+			evt.allowence-- if evt.allowence > 0
+		#END for
+
+		@__falcon_object__events__[event] = resultant_event_array
 
 		return @
 	#END trigger

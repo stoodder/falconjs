@@ -181,13 +181,16 @@
       }
     }
 
-    FalconObject.prototype.on = function(event, callback, context) {
+    FalconObject.prototype.on = function(event, callback, context, allowence) {
       var _base;
       if (!(isString(event) && isFunction(callback))) {
         return this;
       }
       if (context == null) {
         context = this;
+      }
+      if (allowence == null) {
+        allowence = -1;
       }
       event = trim(event).toLowerCase();
       if (isEmpty(event)) {
@@ -198,9 +201,14 @@
       }
       ((_base = this.__falcon_object__events__)[event] != null ? (_base = this.__falcon_object__events__)[event] : _base[event] = []).push({
         callback: callback,
-        context: context
+        context: context,
+        allowence: allowence
       });
       return this;
+    };
+
+    FalconObject.prototype.once = function(event, callback, context) {
+      return this.on(event, callback, context, 1);
     };
 
     FalconObject.prototype.off = function(event, callback, context) {
@@ -282,7 +290,7 @@
     };
 
     FalconObject.prototype.trigger = function() {
-      var args, event, evt, _i, _len, _ref;
+      var args, event, evt, resultant_event_array, _i, _len, _ref;
       event = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
       if (!isString(event)) {
         return this;
@@ -294,11 +302,19 @@
       if (isEmpty(event) || (this.__falcon_object__events__[event] == null)) {
         return this;
       }
+      resultant_event_array = [];
       _ref = this.__falcon_object__events__[event];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         evt = _ref[_i];
-        evt.callback.apply(evt.context, args);
+        if (evt.allowence !== 0) {
+          resultant_event_array.push(evt);
+          evt.callback.apply(evt.context, args);
+        }
+        if (evt.allowence > 0) {
+          evt.allowence--;
+        }
       }
+      this.__falcon_object__events__[event] = resultant_event_array;
       return this;
     };
 
