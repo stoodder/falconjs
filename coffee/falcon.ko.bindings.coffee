@@ -205,8 +205,6 @@ Falcon.addBinding 'log', true, (element, valueAccessor) ->
 #--------------------------------------------------------
 Falcon.__binding__original_component__ = Falcon.getBinding('component') ? {}
 Falcon.addBinding 'component', true, 'init': (element, valueAccessor, allBindings, viewModel, bindingContext) ->
-	console.log( arguments )
-
 	Falcon.onDispose element, ->
 		return unless isObject( value = ko.unwrap( valueAccessor() ) )
 		return unless isObject( params = value['params'] )

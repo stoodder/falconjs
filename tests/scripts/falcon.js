@@ -2269,7 +2269,6 @@
 
   Falcon.addBinding('component', true, {
     'init': function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-      console.log(arguments);
       Falcon.onDispose(element, function() {
         var params, view;
         if (!isObject(value = ko.unwrap(valueAccessor()))) {
