@@ -3,7 +3,7 @@
 #	Mehod used to handle view objects, fetching their html
 #	and binding them against their memebr objects
 #--------------------------------------------------------
-ko.bindingHandlers['view'] = do ->
+Falcon.addBinding 'view', true, do ->
 	_standardizeOptions = (valueAccessor) ->
 		options = valueAccessor()
 		options = {data: options} if Falcon.isView( options ) or ko.isObservable( options )
@@ -27,7 +27,7 @@ ko.bindingHandlers['view'] = do ->
 		_runUnobserved(view._unrender, view)
 	#END _tryUnrender
 
-	'init': (element, valueAccessor, allBindingsAccessor, viewModel, context) ->
+	return 'init': (element, valueAccessor, allBindingsAccessor, viewModel, context) ->
 		view = null
 		oldView = null
 		is_displayed = false
@@ -74,7 +74,12 @@ ko.bindingHandlers['view'] = do ->
 						return ko.virtualElements.emptyNode(element)
 					#END unless
 					
-					childContext = context.createChildContext(viewModel).extend( '$view': view.createViewModel() )
+					view_model = view.createViewModel()
+					childContext = context.createChildContext(viewModel).extend({
+						'$view': view_model
+						'$data': view_model
+						'$root': context['$root'] ? view_model
+					})
 							
 					container.innerHTML = template
 					anonymous_template['text'](template)
@@ -138,8 +143,8 @@ _getForeachItems = (value) ->
 #END _getForeachItems
 
 #Store a copy of the old foreach
-Falcon.__binding__original_foreach__ = ko.bindingHandlers['foreach'] ? {}
-ko.bindingHandlers['foreach'] = 
+Falcon.__binding__original_foreach__ = Falcon.getBinding('foreach') ? {}
+Falcon.addBinding 'foreach',
 	'init': (element, valueAccessor, args...) ->
 		value = ko.unwrap( valueAccessor() )
 		return Falcon.__binding__original_foreach__['init'](element, _getForeachItems(value), args...)
@@ -167,8 +172,8 @@ _getOptionsItems = (value) ->
 	return ( -> value )
 #END _getOptionsItems
 
-Falcon.__binding__original_options__ = ko.bindingHandlers['options'] ? (->)
-ko.bindingHandlers['options'] = do ->
+Falcon.__binding__original_options__ = Falcon.getBinding('options') ? {}
+Falcon.addBinding 'options',
 	'init': (element, valueAccessor, args...) ->
 		value = ko.unwrap( valueAccessor() )
 		return ( Falcon.__binding__original_options__['init'] ? (->) )(element, _getOptionsItems(value), args...)
@@ -189,18 +194,51 @@ for key, value of Falcon.__binding__original_options__ when key not of ko.bindin
 # Method: ko.bindingHandlers.log
 #	Debug binding to log observable values
 #--------------------------------------------------------
-ko.bindingHandlers['log'] =
-	update: (element, valueAccessor) ->
-		console.log( ko.unwrap( valueAccessor() ) )
-	#END update
+Falcon.addBinding 'log', true, (element, valueAccessor) ->
+	console.log( ko.unwrap( valueAccessor() ) )
 #END log
 
+#--------------------------------------------------------
+# Method: ko.bindingHandlers.component
+#	Overriding the original component binding to account for
+#	falcon views
+#--------------------------------------------------------
+Falcon.__binding__original_component__ = Falcon.getBinding('component') ? {}
+Falcon.addBinding 'component', true, 'init': (element, valueAccessor, allBindings, viewModel, bindingContext) ->
+	console.log( arguments )
+
+	Falcon.onDispose element, ->
+		return unless isObject( value = ko.unwrap( valueAccessor() ) )
+		return unless isObject( params = value['params'] )
+		return unless Falcon.isView( view = params['__falcon_component_view__'] )
+		view._unrender()
+	#END onDispose
+
+	Falcon.__binding__original_component__['init'].apply(@, arguments)
+#END component
 
 #--------------------------------------------------------
-# Extends onto the context varibales utilized in knockout templating
-# to include $view (to access this view's members easily)
+# Method: ko.bindingHandlers.yield
+#	Binding used to yield to the original contents of a component
 #--------------------------------------------------------
+Falcon.addBinding 'yield', true, 'init': (element, valueAccessor, allBindings, viewModel, bindingContext) ->
+	yieldedNodes = bindingContext['$componentTemplateNodes']
+	defaultNodes = ko.virtualElements.childNodes(element)
 
-#Define which bindings should be allowed to be virtual
-ko.virtualElements.allowedBindings['view'] = true
-ko.virtualElements.allowedBindings['log'] = true
+	ko.computed
+		disposeWhenNodeIsRemoved: element
+		read: ->
+			value = ko.unwrap( valueAccessor() )
+
+			if value isnt false
+				ko.virtualElements.setDomNodeChildren(element, yieldedNodes)
+			else
+				ko.virtualElements.setDomNodeChildren(element, defaultNodes)
+			#END if
+
+			ko.applyBindingsToDescendants(bindingContext, element)
+		#END read
+	#END computed
+
+	return {controlsDescendantBindings: true}
+#END yield

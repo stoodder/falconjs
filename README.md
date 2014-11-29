@@ -8,12 +8,16 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 ## Change Log
 ### v1.0.0rc1
 **Enhancements**
+* Included support for Knockout 3.2.0
+* Added support for Knockout components with Falcon.View
 * Split adapter in to two new classes Falcon.DataAdapter and Falcon.TemplateAdapter
 * Add makeBaseUrl, makeUrlComponents, resovleUrl, and makeUrl methods to Falcon.DataAdapter
 * Add displayIf, afterDisplay, beforeDispose to view binding
 * Optimizing fill related methods
 * Falcon.Collection#sort will now default its comparator to the collections comparator unless one is given
 * Added additional context argument to the off() method
+* Added subscribe method to collections which delegates its arguments to the internal observable array.
+* Added Falcon.onDipose for node disposal callbacks
 
 **Bug Fixes**
 * Removed change counter on collections, it was redundant checking and not needed anymore
@@ -21,36 +25,34 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Fixed view binding to not listen to observable updates in the display and dispose methods
 * Fixed fill() method when writting to read-only computed observables or other function. Values should not overwrite unless specifically the 'url' property
 * Made it possible to remove callback methods only based on context since create new instances still result in equivalent method calls, just different contexts
+* Removed Falcon conductors in favor of knockout components
 
 **Breaking Changes**
 * When using 'mixin' to add a function to a model or a collection, the function will simply be bound against the model and each argument is verbatim to each call. In the preivous version we would pass in the model or model & collection pair as the first arguments.
 * Falcon.Collection#sort now returns 'this' collection rather than the list of sorted models
 * Renamed 'url' to 'endpoint' throughout Falcon.
 * Falcon.Adapter has been split in to two separate classes Falcon.DataAdapter and Falcon.TemplateAdapter.  The Falcon.adapter instance has also been replaced with Falcon.data_adapater and Falcon.template_adapter
-* Add displayIf, afterDisplay, beforeDispose to view binding
 * Removed template() method from Falcon.View in favor of a template property which maybe be overridden in the view defintion to hard code a template
 
 **TODO**
+* add once and listenToOnce
 * Add exec binding
 * Add change notifications to Falcon.Collection
 * Ensure that Falcon will work with require.js
 * Add Falcon.Observable to wrap ko.observable in the case that we'd want to switch
 * Fallback to local comparator if one isn't given in sort()
-* Add 'subscribe' method to collections
 * Allow for 'true' in attributes filtering
 * use querySelector instead of querySelectorAll where possible
-* add once and listenToOnce
-* Add setup method to adapter base class
-* Add Falcon.onDipose for node disposal (perhaps rename)
 * Bug: Should check the unwrapped value when serializing
 * Add Collection#insertAt(index)
-* Bug: Include url in model and collection clone
 * Make constants
 * Document makeBaseUrl, makeUrlComponents, resovleUrl, and makeUrl on adapter
 * Add 'endpoint' override option to adapter options
-* use querySelector instead of querySelectorAll where possible
-* add once and listenToOnce
 * Test displayIf, beforeDispose, afterDisplay of the view binding
+* Test Falcon.addComponent
+* Test Falcon.onDispose
+* Test componeont binding
+* Test yield binding
 
 ### v0.10.2
 **Highlights**

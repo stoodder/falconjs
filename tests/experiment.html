@@ -4,92 +4,59 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <title>Falcon.JS | Experimentation</title>
 
-  <script type="text/javascript" src="lib/knockout-3.1.0.min.js"></script>
+  <script type="text/javascript" src="lib/knockout-3.2.0.js"></script>
 
   <!-- include source files here... -->
-  <script type="text/javascript" src="scripts/falcon.min.js"></script>
+  <script type="text/javascript" src="scripts/falcon.js"></script>
 
   <script>
-    var ContentView = Falcon.View.extend({
-      endpoint: "#content",
+      var BaseView = Falcon.View.extend({
+        endpoint: "#base-tmpl",
 
-      title: "content",
+        observables: {
+          'message': ""
+        }
+      });
 
-      observables: {
-        child_view: null
-      },
+      Falcon.addComponent("hello-world", Falcon.View.extend({
+        endpoint: "#hello-world-cmpnt",
 
-      addContentView: function() {
-        this.child_view( new ContentView );
-      },
+        observables: {
+          is_displaying_external_content: true
+        },
 
-      addFinalView: function() {
-        this.child_view( new FinalView );
-      },
+        toggleDisplay: function() {
+          this.is_displaying_external_content( !this.is_displaying_external_content() );
+        }
+      }));
 
-      display: function() { console.log("Display Content View"); },
-      dispose: function() { console.log("Disposed Content View"); }
-    });
-   
-    var FinalView = ContentView.extend({
-      title: "final",
-      display: function() { console.log("Display Final View"); },
-      dispose: function() { console.log("Disposed Final View"); }
-    });
-    
-    var LayoutView = Falcon.View.extend({
-      endpoint: "#layout",
-
-      defaults: {
-        content_view: function() { return new ContentView }
-      },
-
-      observables: {
-        should_display: true
-      },
-
-      toggleDisplay: function()
-      {
-        this.should_display( !this.should_display() );
-      },
-
-      beforeDispose: function(nodes, continuation) {
-        console.log("beforeDispose", nodes);
-        window.next = continuation;
-      },
-
-      afterDisplay: function(nodes) {
-        console.log("afterDisplay", nodes)
-      },
-
-      continuation: function(){},
-      triggerNext: function() {
-        if(window.next) window.next();
-        window.next = null;
-      }
-    });
-
-    Falcon.apply(new LayoutView);
-  </script>
+      Falcon.apply(new BaseView);
+    </script>
 
 </head>
   <body>
+    <template id="base-tmpl">
+      <input type="text" data-bind="value: $view.message, valueUpdate: 'keyup'" />
+      <hello-world>
+        <hr />
+        A MESSAGE:
+        <div data-bind="text: $view.message"></div>
+        <hr />
+      </hello-world>
+    </template>
+    <template id="hello-world-cmpnt">
+      <!--
+        The yield binding will display either the externally defined 
+        contents or the default contents defined within the yield inding 
+        depending on the true/false value passed in to the binding. If  
+        truthy, the external content is displayed otherwise the default 
+        content is displayed. 
+      -->
+      <!-- ko yield: $component.is_displaying_external_content -->
+        Hello World!
+      <!-- /ko -->
+      <br />
+      <button data-bind="click: $component.toggleDisplay">Toggle External</button>
+    </template>
   </body>
-  <template id="layout">
-    <button data-bind="click: $view.toggleDisplay">Toggle</button>
-    <button data-bind="click: $view.triggerNext">Next</button>
-    <hr />
-    <!-- ko view: {data: $view.content_view, displayIf: $view.should_display, beforeDispose: $view.beforeDispose, afterDisplay: $view.afterDisplay} --><!-- /ko -->
-    <hr />
-  </template>
-  <template id="content">
-    <div>This is <!-- ko text: $view.title --><!-- /ko --></div>
-    <!-- ko if: $view.child_view -->
-      <!-- ko view: $view.child_view --><!-- /ko -->
-    <!-- /ko -->
-    <!-- ko ifnot: $view.child_view -->
-      <button data-bind="click: $view.addContentView">Content View</button>
-      <button data-bind="click: $view.addFinalView">Final View</button>
-    <!-- /ko -->
-  </template>
 </html>
