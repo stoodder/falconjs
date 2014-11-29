@@ -32,7 +32,7 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * When using 'mixin' to add a function to a model or a collection, the function will simply be bound against the model and each argument is verbatim to each call. In the preivous version we would pass in the model or model & collection pair as the first arguments.
 * Falcon.Collection#sort now returns 'this' collection rather than the list of sorted models
 * Renamed 'url' to 'endpoint' throughout Falcon.
-* Falcon.Adapter has been split in to two separate classes Falcon.DataAdapter and Falcon.TemplateAdapter.  The Falcon.adapter instance has also been replaced with Falcon.data_adapater and Falcon.template_adapter
+* Falcon.Adapter has been split in to two separate classes Falcon.DataAdapter and Falcon.TemplateAdapter.  The Falcon.adapter instance has also been replaced with Falcon.dataAdapater and Falcon.templateAdapter
 * Removed template() method from Falcon.View in favor of a template property which maybe be overridden in the view defintion to hard code a template
 
 **TODO**
