@@ -18,6 +18,7 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Added additional context argument to the off() method
 * Added subscribe method to collections which delegates its arguments to the internal observable array.
 * Added Falcon.onDipose for node disposal callbacks
+* Added once and listenToOnce methods to Falcon.Object
 
 **Bug Fixes**
 * Removed change counter on collections, it was redundant checking and not needed anymore
@@ -35,7 +36,6 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Removed template() method from Falcon.View in favor of a template property which maybe be overridden in the view defintion to hard code a template
 
 **TODO**
-* add once and listenToOnce
 * Add exec binding
 * Add change notifications to Falcon.Collection
 * Ensure that Falcon will work with require.js
@@ -53,6 +53,16 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Test Falcon.onDispose
 * Test componeont binding
 * Test yield binding
+* Test once
+* Test listenToOnce
+* Document endpoint
+* Document Falcon.addComponent
+* Document Falcon.onDispose
+* Document component binding updates
+* Document yield binding
+* Document once
+* Document listenToOnce
+
 
 ### v0.10.2
 **Highlights**
