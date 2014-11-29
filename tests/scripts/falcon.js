@@ -11,7 +11,7 @@
 
 
 (function() {
-  var Falcon, FalconCollection, FalconDataAdapter, FalconModel, FalconObject, FalconTemplateAdapter, FalconView, bindFunction, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, trim, trimSlashes, value, _getForeachItems, _getOptionsItems, _ref, _ref1, _ref2, _ref3, _ref4, _ref5,
+  var Falcon, FalconCollection, FalconDataAdapter, FalconModel, FalconObject, FalconTemplateAdapter, FalconView, bindFunction, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, trim, trimSlashes, value, _getForeachItems, _getOptionsItems, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -689,6 +689,9 @@
         var element, template;
         element = document.getElementById(url.slice(1));
         template = element != null ? element.innerHTML : "";
+        if (!isString(template)) {
+          template = "";
+        }
         _this.cacheTemplate(url, template);
         return callback(template);
       });
@@ -1735,7 +1738,7 @@
 
     FalconView.prototype.template = null;
 
-    FalconView.prototype.__falcon_view__loaded_template__ = false;
+    FalconView.prototype.__falcon_view__loaded_template__ = null;
 
     FalconView.prototype.__falcon_view__is_rendered__ = false;
 
@@ -1973,11 +1976,43 @@
       return ko.bindingHandlers[name];
     };
 
+    _Class.prototype.addComponent = function(tag_name, view_defintion) {
+      return ko.components.register(tag_name, view_defintion);
+    };
+
+    _Class.prototype.onDispose = function(element, callback) {
+      return ko.utils.domNodeDisposal.addDisposeCallback(element, callback);
+    };
+
     return _Class;
 
   })(FalconObject));
 
-  ko.bindingHandlers['view'] = (function() {
+  ko.components.loaders.unshift({
+    loadComponent: function(tag_name, view_definition, callback) {
+      if (Falcon.isView(view_definition.prototype)) {
+        Falcon.templateAdapter.resolveTemplate(view_definition.prototype, function(template) {
+          var element;
+          element = document.createElement('div');
+          element.innerHTML = template;
+          return callback({
+            template: element.childNodes,
+            createViewModel: function(params) {
+              var view;
+              view = new view_definition(params);
+              params['__falcon_component_view__'] = view;
+              view._render();
+              return view.createViewModel();
+            }
+          });
+        });
+      } else {
+        callback(null);
+      }
+    }
+  });
+
+  Falcon.addBinding('view', true, (function() {
     var _runUnobserved, _standardizeOptions, _tryUnrender;
     _standardizeOptions = function(valueAccessor) {
       var options;
@@ -2051,7 +2086,7 @@
             should_display = ko.unwrap(options['displayIf']) !== false;
             should_display = should_display && !isEmpty(template);
             continuation = function() {
-              var childContext;
+              var childContext, view_model, _ref2;
               continuation = (function() {});
               is_disposing = false;
               is_displayed = false;
@@ -2063,8 +2098,11 @@
                 _tryUnrender(view);
                 return ko.virtualElements.emptyNode(element);
               }
+              view_model = view.createViewModel();
               childContext = context.createChildContext(viewModel).extend({
-                '$view': view.createViewModel()
+                '$view': view_model,
+                '$data': view_model,
+                '$root': (_ref2 = context['$root']) != null ? _ref2 : view_model
               });
               container.innerHTML = template;
               anonymous_template['text'](template);
@@ -2104,7 +2142,7 @@
         };
       }
     };
-  })();
+  })());
 
   _getForeachItems = function(value) {
     value = ko.utils.peekObservable(value);
@@ -2128,9 +2166,9 @@
     });
   };
 
-  Falcon.__binding__original_foreach__ = (_ref2 = ko.bindingHandlers['foreach']) != null ? _ref2 : {};
+  Falcon.__binding__original_foreach__ = (_ref2 = Falcon.getBinding('foreach')) != null ? _ref2 : {};
 
-  ko.bindingHandlers['foreach'] = {
+  Falcon.addBinding('foreach', {
     'init': function() {
       var args, element, value, valueAccessor, _ref3;
       element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
@@ -2143,7 +2181,7 @@
       value = ko.unwrap(valueAccessor());
       return (_ref3 = Falcon.__binding__original_foreach__)['update'].apply(_ref3, [element, _getForeachItems(value)].concat(__slice.call(args)));
     }
-  };
+  });
 
   _ref3 = Falcon.__binding__original_foreach__;
   for (key in _ref3) {
@@ -2163,24 +2201,22 @@
     });
   };
 
-  Falcon.__binding__original_options__ = (_ref4 = ko.bindingHandlers['options']) != null ? _ref4 : (function() {});
+  Falcon.__binding__original_options__ = (_ref4 = Falcon.getBinding('options')) != null ? _ref4 : {};
 
-  ko.bindingHandlers['options'] = (function() {
-    return {
-      'init': function() {
-        var args, element, valueAccessor, _ref5;
-        element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
-        value = ko.unwrap(valueAccessor());
-        return ((_ref5 = Falcon.__binding__original_options__['init']) != null ? _ref5 : (function() {})).apply(null, [element, _getOptionsItems(value)].concat(__slice.call(args)));
-      },
-      'update': function() {
-        var args, element, valueAccessor, _ref5;
-        element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
-        value = ko.unwrap(valueAccessor());
-        return ((_ref5 = Falcon.__binding__original_options__['update']) != null ? _ref5 : (function() {})).apply(null, [element, _getOptionsItems(value)].concat(__slice.call(args)));
-      }
-    };
-  })();
+  Falcon.addBinding('options', {
+    'init': function() {
+      var args, element, valueAccessor, _ref5;
+      element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
+      value = ko.unwrap(valueAccessor());
+      return ((_ref5 = Falcon.__binding__original_options__['init']) != null ? _ref5 : (function() {})).apply(null, [element, _getOptionsItems(value)].concat(__slice.call(args)));
+    },
+    'update': function() {
+      var args, element, valueAccessor, _ref5;
+      element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
+      value = ko.unwrap(valueAccessor());
+      return ((_ref5 = Falcon.__binding__original_options__['update']) != null ? _ref5 : (function() {})).apply(null, [element, _getOptionsItems(value)].concat(__slice.call(args)));
+    }
+  });
 
   _ref5 = Falcon.__binding__original_options__;
   for (key in _ref5) {
@@ -2190,14 +2226,53 @@
     }
   }
 
-  ko.bindingHandlers['log'] = {
-    update: function(element, valueAccessor) {
-      return console.log(ko.unwrap(valueAccessor()));
+  Falcon.addBinding('log', true, function(element, valueAccessor) {
+    return console.log(ko.unwrap(valueAccessor()));
+  });
+
+  Falcon.__binding__original_component__ = (_ref6 = Falcon.getBinding('component')) != null ? _ref6 : {};
+
+  Falcon.addBinding('component', true, {
+    'init': function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+      console.log(arguments);
+      Falcon.onDispose(element, function() {
+        var params, view;
+        if (!isObject(value = ko.unwrap(valueAccessor()))) {
+          return;
+        }
+        if (!isObject(params = value['params'])) {
+          return;
+        }
+        if (!Falcon.isView(view = params['__falcon_component_view__'])) {
+          return;
+        }
+        return view._unrender();
+      });
+      return Falcon.__binding__original_component__['init'].apply(this, arguments);
     }
-  };
+  });
 
-  ko.virtualElements.allowedBindings['view'] = true;
-
-  ko.virtualElements.allowedBindings['log'] = true;
+  Falcon.addBinding('yield', true, {
+    'init': function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+      var defaultNodes, yieldedNodes;
+      yieldedNodes = bindingContext['$componentTemplateNodes'];
+      defaultNodes = ko.virtualElements.childNodes(element);
+      ko.computed({
+        disposeWhenNodeIsRemoved: element,
+        read: function() {
+          value = ko.unwrap(valueAccessor());
+          if (value !== false) {
+            ko.virtualElements.setDomNodeChildren(element, yieldedNodes);
+          } else {
+            ko.virtualElements.setDomNodeChildren(element, defaultNodes);
+          }
+          return ko.applyBindingsToDescendants(bindingContext, element);
+        }
+      });
+      return {
+        controlsDescendantBindings: true
+      };
+    }
+  });
 
 }).call(this);

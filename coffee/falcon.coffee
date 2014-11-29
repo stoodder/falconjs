@@ -273,5 +273,35 @@
 	#	_(Object)_ - The binding definition
 	#--------------------------------------------------------
 	getBinding: (name) -> ko.bindingHandlers[name]
+
+	#--------------------------------------------------------
+	# Method: Falcon.addComponent(tag_name, defintion)
+	#	Method used to define a component
+	#
+	# Arguments:
+	#	**tag_name** _(String)_ -  The tag name of your new component
+	#	**view_defintion** _(Falcon.View)_ - The falcon view defintion (not an instance)
+	#
+	# Returns:
+	#	_(Object)_ - The component definition
+	#--------------------------------------------------------
+	addComponent: (tag_name, view_defintion) ->
+		ko.components.register(tag_name, view_defintion)
+	#END addComponent
+
+	#--------------------------------------------------------
+	# Method: Falcon.onDispose(element, callback)
+	#	Event listenet method to assign a callback for when a node is diposed
+	#
+	# Arguments:
+	#	**element** _(Node)_ -  The Element or Virtual Node to listen to
+	#	**callback&& _(Function)_ - The callback function to trigger when this node is removed
+	#
+	# Returns:
+	#	_(Object)_ - The dispose listener
+	#--------------------------------------------------------
+	onDispose: (element, callback) ->
+		ko.utils.domNodeDisposal.addDisposeCallback(element, callback)
+	#END onDispose
 #END Falcon
 

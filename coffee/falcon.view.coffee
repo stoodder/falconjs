@@ -31,7 +31,7 @@ class FalconView extends FalconObject
 	#	into the template cache. Making this an observable allows us to
 	#	bind against it and for the 'view' binding to update properly.
 	#--------------------------------------------------------
-	__falcon_view__loaded_template__: false
+	__falcon_view__loaded_template__: null
 
 	#--------------------------------------------------------
 	# Member: Falcon.View#__falcon_view__is_rendered__

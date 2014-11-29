@@ -161,6 +161,7 @@ class FalconTemplateAdapter extends FalconObject
 		Falcon.ready =>
 			element = document.getElementById(url.slice(1))
 			template = if element? then element.innerHTML else ""
+			template = "" unless isString(template)
 			@cacheTemplate( url, template )
 			callback( template )
 		#END ready

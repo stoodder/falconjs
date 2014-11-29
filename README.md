@@ -17,6 +17,7 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Falcon.Collection#sort will now default its comparator to the collections comparator unless one is given
 * Added additional context argument to the off() method
 * Added subscribe method to collections which delegates its arguments to the internal observable array.
+* Added Falcon.onDipose for node disposal callbacks
 
 **Bug Fixes**
 * Removed change counter on collections, it was redundant checking and not needed anymore
@@ -34,6 +35,7 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Removed template() method from Falcon.View in favor of a template property which maybe be overridden in the view defintion to hard code a template
 
 **TODO**
+* add once and listenToOnce
 * Add exec binding
 * Add change notifications to Falcon.Collection
 * Ensure that Falcon will work with require.js
@@ -41,14 +43,16 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Fallback to local comparator if one isn't given in sort()
 * Allow for 'true' in attributes filtering
 * use querySelector instead of querySelectorAll where possible
-* add once and listenToOnce
-* Add Falcon.onDipose for node disposal (perhaps rename)
 * Bug: Should check the unwrapped value when serializing
 * Add Collection#insertAt(index)
 * Make constants
 * Document makeBaseUrl, makeUrlComponents, resovleUrl, and makeUrl on adapter
 * Add 'endpoint' override option to adapter options
 * Test displayIf, beforeDispose, afterDisplay of the view binding
+* Test Falcon.addComponent
+* Test Falcon.onDispose
+* Test componeont binding
+* Test yield binding
 
 ### v0.10.2
 **Highlights**
