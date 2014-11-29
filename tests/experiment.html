@@ -21,6 +21,13 @@
       Falcon.addComponent("hello-world", Falcon.View.extend({
         endpoint: "#hello-world-cmpnt",
 
+        defaults: {
+          title: function(params) {
+            console.log(arguments);
+            return ko.unwrap( params['title'] ) || "";
+          }
+        },
+
         observables: {
           is_displaying_external_content: true
         },
@@ -37,14 +44,12 @@
   <body>
     <template id="base-tmpl">
       <input type="text" data-bind="value: $view.message, valueUpdate: 'keyup'" />
-      <hello-world>
+      <hello-world params="title: 'Lets Do It'">
         <hr />
         A MESSAGE:
         <div data-bind="text: $view.message"></div>
         <hr />
       </hello-world>
-      <hr />
-      <hello-world>Some Other Default Content</hello-world>
     </template>
     <template id="hello-world-cmpnt">
       <!--
@@ -54,6 +59,7 @@
         truthy, the external content is displayed otherwise the default 
         content is displayed. 
       -->
+      <h1 data-bind="text: $component.title"></h1>
       <!-- ko yield: $component.is_displaying_external_content -->
         Hello World!
       <!-- /ko -->
