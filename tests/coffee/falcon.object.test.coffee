@@ -507,6 +507,7 @@ describe "Falcon.Object", ->
 				'free': 'bird'
 				'def_arr': [1,2,3]
 				'clazz': -> new Clazz
+				'obj': {'one': 1, 'two': 2}
 			#END defaults
 
 			observables:
@@ -534,6 +535,7 @@ describe "Falcon.Object", ->
 			expect( obj['free'] ).toBeDefined()
 			expect( obj['def_arr'] ).toBeDefined()
 			expect( obj['clazz'] ).toBeDefined()
+			expect( obj['obj'] ).toBeDefined()
 		#END it
 
 		it "Should have added the correct observable attributes", ->
@@ -549,6 +551,8 @@ describe "Falcon.Object", ->
 			expect( obj.foo ).not.toBe 'bar' #Should have been overitten by
 			expect( obj.free ).toBe( 'bird'  )
 			expect( obj.clazz ).toEqual( jasmine.any(Clazz) )
+			expect( obj.obj ).toEqual( {'one': 1, 'two': 2} )
+			expect( obj.obj ).not.toBe( Klass::defaults.obj)
 		#END it
 
 		it "Should have the correct values for a default array", ->

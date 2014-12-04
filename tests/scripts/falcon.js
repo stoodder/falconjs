@@ -11,7 +11,7 @@
 
 
 (function() {
-  var Falcon, FalconCollection, FalconDataAdapter, FalconModel, FalconObject, FalconTemplateAdapter, FalconView, bindFunction, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, trim, trimSlashes, value, _getForeachItems, _getOptionsItems, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6,
+  var Falcon, FalconCollection, FalconDataAdapter, FalconModel, FalconObject, FalconTemplateAdapter, FalconView, bindFunction, clone, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, trim, trimSlashes, value, _getForeachItems, _getOptionsItems, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -94,6 +94,37 @@
     };
     ret.__falcon_bind__length__ = func.length;
     return ret;
+  };
+
+  clone = function(object) {
+    var flags, key, newInstance;
+    if (!isObject(object)) {
+      return object;
+    }
+    if (object instanceof Date) {
+      return new Date(object.getTime());
+    }
+    if (object instanceof RegExp) {
+      flags = '';
+      if (object.global != null) {
+        flags += 'g';
+      }
+      if (object.ignoreCase != null) {
+        flags += 'i';
+      }
+      if (object.multiline != null) {
+        flags += 'm';
+      }
+      if (object.sticky != null) {
+        flags += 'y';
+      }
+      return new RegExp(object.source, flags);
+    }
+    newInstance = new object.constructor();
+    for (key in object) {
+      newInstance[key] = clone(object[key]);
+    }
+    return newInstance;
   };
 
   FalconObject = (function() {

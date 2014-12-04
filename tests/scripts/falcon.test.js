@@ -776,6 +776,10 @@
           'def_arr': [1, 2, 3],
           'clazz': function() {
             return new Clazz;
+          },
+          'obj': {
+            'one': 1,
+            'two': 2
           }
         };
 
@@ -809,7 +813,8 @@
         expect(obj['foo']).toBeDefined();
         expect(obj['free']).toBeDefined();
         expect(obj['def_arr']).toBeDefined();
-        return expect(obj['clazz']).toBeDefined();
+        expect(obj['clazz']).toBeDefined();
+        return expect(obj['obj']).toBeDefined();
       });
       it("Should have added the correct observable attributes", function() {
         expect(obj['hello']).toBeDefined();
@@ -822,7 +827,12 @@
         expect(obj.id).toBe(-1);
         expect(obj.foo).not.toBe('bar');
         expect(obj.free).toBe('bird');
-        return expect(obj.clazz).toEqual(jasmine.any(Clazz));
+        expect(obj.clazz).toEqual(jasmine.any(Clazz));
+        expect(obj.obj).toEqual({
+          'one': 1,
+          'two': 2
+        });
+        return expect(obj.obj).not.toBe(Klass.prototype.defaults.obj);
       });
       it("Should have the correct values for a default array", function() {
         expect(obj.def_arr).toEqual([1, 2, 3]);
