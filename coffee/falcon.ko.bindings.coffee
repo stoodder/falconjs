@@ -76,6 +76,7 @@ Falcon.addBinding 'view', true, do ->
 					
 					view_model = view.createViewModel()
 					childContext = context.createChildContext(viewModel).extend({
+						'$rawView': view
 						'$view': view_model
 						'$data': view_model
 						'$root': context['$root'] ? view_model

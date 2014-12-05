@@ -2166,6 +2166,7 @@
               }
               view_model = view.createViewModel();
               childContext = context.createChildContext(viewModel).extend({
+                '$rawView': view,
                 '$view': view_model,
                 '$data': view_model,
                 '$root': (_ref2 = context['$root']) != null ? _ref2 : view_model
