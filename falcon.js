@@ -597,7 +597,7 @@
 
     FalconDataAdapter.prototype.serializeData = function(data_object, type, options, context) {
       if ((options.data == null) && (type === Falcon.POST || type === Falcon.PUT)) {
-        return data_object.generateRequestData(options);
+        return data_object.serializeRequestData(options);
       } else {
         return options.data;
       }
@@ -887,7 +887,7 @@
       return this;
     };
 
-    FalconModel.prototype.generateRequestData = function(request_options) {
+    FalconModel.prototype.serializeRequestData = function(request_options) {
       return this.serialize(request_options.attributes);
     };
 
@@ -1214,7 +1214,7 @@
       return this;
     };
 
-    FalconCollection.prototype.generateRequestData = function(request_options) {
+    FalconCollection.prototype.serializeRequestData = function(request_options) {
       return this.serialize(request_options.attributes);
     };
 

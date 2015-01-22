@@ -176,7 +176,7 @@ class FalconModel extends FalconObject
 	#END decrement
 
 	#----------------------------------------------------------------------------------------------
-	# Method: Falcon.Model#generateRequestData()
+	# Method: Falcon.Model#serializeRequestData()
 	#	Transforms serialized data in to request data for the adapter
 	#
 	# Arguments:
@@ -185,9 +185,9 @@ class FalconModel extends FalconObject
 	# Returns:
 	#	_(Object)_ - The request data
 	#----------------------------------------------------------------------------------------------
-	generateRequestData: (request_options) ->
+	serializeRequestData: (request_options) ->
 		return @serialize( request_options.attributes )
-	#END generateRequestData
+	#END serializeRequestData
 
 	#----------------------------------------------------------------------------------------------
 	# Method: Falcon.Model#parseResponseData()

@@ -20,7 +20,7 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Added Falcon.onDipose for node disposal callbacks
 * Added once and listenToOnce methods to Falcon.Object
 * Added $rawView to the view's binding context to provide access to the actual Falcon.View instance, not just it's view model created from createViewModel().
-* Added generateRequestData to transform serialized data in to request data for both models and collections
+* Added serializeRequestData to transform serialized data in to request data for both models and collections
 
 **Bug Fixes**
 * Removed change counter on collections, it was redundant checking and not needed anymore

@@ -190,7 +190,7 @@ class FalconCollection extends FalconObject
 	#END set
 
 	#----------------------------------------------------------------------------------------------
-	# Method: Falcon.Collection#generateRequestData()
+	# Method: Falcon.Collection#serializeRequestData()
 	#	Transforms serialized data in to request data for the adapter
 	#
 	# Arguments:
@@ -199,9 +199,9 @@ class FalconCollection extends FalconObject
 	# Returns:
 	#	_(Object)_ - The request data
 	#----------------------------------------------------------------------------------------------
-	generateRequestData: (request_options) ->
+	serializeRequestData: (request_options) ->
 		return @serialize( request_options.attributes )
-	#END generateRequestData
+	#END serializeRequestData
 
 	#--------------------------------------------------------
 	# Method: Falcon.Collection#parseResponseData()
