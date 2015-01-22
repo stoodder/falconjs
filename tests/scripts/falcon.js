@@ -581,7 +581,7 @@
 
     FalconDataAdapter.prototype.serializeData = function(data_object, type, options, context) {
       if ((options.data == null) && (type === Falcon.POST || type === Falcon.PUT)) {
-        return data_object.serialize(options.attributes);
+        return data_object.generateRequestData(options);
       } else {
         return options.data;
       }
@@ -594,7 +594,7 @@
     FalconDataAdapter.prototype.successResponseHandler = function(data_object, type, options, context, response_args) {
       var parsed_data, raw_response_data;
       raw_response_data = this.parseRawResponseData(data_object, type, options, context, response_args);
-      parsed_data = data_object.parse(raw_response_data, options);
+      parsed_data = data_object.parseResponseData(raw_response_data, options);
       data_object.fill(parsed_data, options.fill_options);
       switch (type) {
         case Falcon.GET:
@@ -871,8 +871,12 @@
       return this;
     };
 
-    FalconModel.prototype.parse = function(data, options) {
-      return data;
+    FalconModel.prototype.generateRequestData = function(request_options) {
+      return this.serialize(request_options.attributes);
+    };
+
+    FalconModel.prototype.parseResponseData = function(response_data, request_options) {
+      return response_data;
     };
 
     FalconModel.prototype.fill = function(data) {
@@ -1194,8 +1198,12 @@
       return this;
     };
 
-    FalconCollection.prototype.parse = function(data, options) {
-      return data;
+    FalconCollection.prototype.generateRequestData = function(request_options) {
+      return this.serialize(request_options.attributes);
+    };
+
+    FalconCollection.prototype.parseResponseData = function(response_data, request_options) {
+      return response_data;
     };
 
     FalconCollection.prototype.unwrap = function() {

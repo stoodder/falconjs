@@ -189,20 +189,34 @@ class FalconCollection extends FalconObject
 		return @
 	#END set
 
+	#----------------------------------------------------------------------------------------------
+	# Method: Falcon.Collection#generateRequestData()
+	#	Transforms serialized data in to request data for the adapter
+	#
+	# Arguments:
+	#	**request_options** _ - The requst options fed in to the adapter
+	#
+	# Returns:
+	#	_(Object)_ - The request data
+	#----------------------------------------------------------------------------------------------
+	generateRequestData: (request_options) ->
+		return @serialize( request_options.attributes )
+	#END generateRequestData
+
 	#--------------------------------------------------------
-	# Method: Falcon.Collection#parse()
+	# Method: Falcon.Collection#parseResponseData()
 	#	parses the response data from an XHR request
 	#
 	# Arguments:
-	#	**data** _(Object)_ - The xhr response data
-	#	**options** _ - The options fed initiallyinto the XHR request
+	#	**response_data** _(Object)_ - The adapter response data
+	#	**request_options** _ - The requst options fed in to the adapter
 	#
 	# Returns:
 	#	_(Array)_ - Parsing on a collection expects an array to be returned
 	#--------------------------------------------------------
-	parse: (data, options) ->
-		return data
-	#END parse
+	parseResponseData: (response_data, request_options) ->
+		return response_data
+	#END parseResponseData
 
 	#--------------------------------------------------------
 	# Method: Falcon.Collection#unwrap()

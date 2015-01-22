@@ -20,6 +20,7 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Added Falcon.onDipose for node disposal callbacks
 * Added once and listenToOnce methods to Falcon.Object
 * Added $rawView to the view's binding context to provide access to the actual Falcon.View instance, not just it's view model created from createViewModel().
+* Added generateRequestData to transform serialized data in to request data for both models and collections
 
 **Bug Fixes**
 * Removed change counter on collections, it was redundant checking and not needed anymore
@@ -35,6 +36,7 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Renamed 'url' to 'endpoint' throughout Falcon.
 * Falcon.Adapter has been split in to two separate classes Falcon.DataAdapter and Falcon.TemplateAdapter.  The Falcon.adapter instance has also been replaced with Falcon.dataAdapater and Falcon.templateAdapter
 * Removed template() method from Falcon.View in favor of a template property which maybe be overridden in the view defintion to hard code a template
+* parse has been renamed to parseResponseData
 
 **TODO**
 * Add exec binding

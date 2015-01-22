@@ -746,7 +746,7 @@ describe "Falcon.DataAdapter", ->
 		serialized_data = {'hello': 'world'}
 
 		beforeEach ->
-			spyOn( data_object, 'serialize' ).and.returnValue(serialized_data)
+			spyOn( data_object, 'generateRequestData' ).and.returnValue(serialized_data)
 		#END beforeEach
 
 		it "Should use the data attribute of options if one is present", ->
@@ -755,14 +755,14 @@ describe "Falcon.DataAdapter", ->
 			expect( adapter.serializeData( data_object, Falcon.PUT, options, context ) ).toBe( options.data )
 			expect( adapter.serializeData( data_object, Falcon.DELETE, options, context ) ).toBe( options.data )
 
-			expect( data_object.serialize ).not.toHaveBeenCalled()
+			expect( data_object.generateRequestData ).not.toHaveBeenCalled()
 		#END it
 
 		it "Should call the serialize method on the data object if the request type is POST", ->
 			ret = adapter.serializeData( data_object, Falcon.POST, {attributes}, context )
 			
-			expect( data_object.serialize.calls.count() ).toBe( 1 )
-			expect( data_object.serialize ).toHaveBeenCalledWith( attributes )
+			expect( data_object.generateRequestData.calls.count() ).toBe( 1 )
+			expect( data_object.generateRequestData ).toHaveBeenCalledWith( {attributes} )
 			
 			expect( ret ).toBe( serialized_data )
 		#END it
@@ -770,8 +770,8 @@ describe "Falcon.DataAdapter", ->
 		it "Should call the serialize method on the data object if the request type is PUT", ->
 			ret = adapter.serializeData( data_object, Falcon.PUT, {attributes}, context )
 			
-			expect( data_object.serialize.calls.count() ).toBe( 1 )
-			expect( data_object.serialize ).toHaveBeenCalledWith( attributes )
+			expect( data_object.generateRequestData.calls.count() ).toBe( 1 )
+			expect( data_object.generateRequestData ).toHaveBeenCalledWith( {attributes} )
 			
 			expect( ret ).toBe( serialized_data )
 		#END it
@@ -780,7 +780,7 @@ describe "Falcon.DataAdapter", ->
 			ret = adapter.serializeData( data_object, Falcon.GET, {attributes}, context )
 			ret = adapter.serializeData( data_object, Falcon.DELETE, {attributes}, context )
 			
-			expect( data_object.serialize ).not.toHaveBeenCalled()
+			expect( data_object.generateRequestData ).not.toHaveBeenCalled()
 			
 			expect( ret ).not.toBeDefined()
 		#END it
@@ -820,7 +820,7 @@ describe "Falcon.DataAdapter", ->
 		beforeEach ->
 			spyOn( adapter, 'parseRawResponseData' ).and.returnValue(raw_response_data)
 
-			spyOn( data_object, 'parse' ).and.returnValue(parsed_data)
+			spyOn( data_object, 'parseResponseData' ).and.returnValue(parsed_data)
 			spyOn( data_object, 'fill' )
 			spyOn( data_object, 'trigger' )
 
@@ -836,8 +836,8 @@ describe "Falcon.DataAdapter", ->
 			expect( adapter.parseRawResponseData.calls.count() ).toBe( 1 )
 			expect( adapter.parseRawResponseData ).toHaveBeenCalledWith( data_object, type, options, context, response_args )
 
-			expect( data_object.parse.calls.count() ).toBe( 1 )
-			expect( data_object.parse ).toHaveBeenCalledWith( raw_response_data, options )
+			expect( data_object.parseResponseData.calls.count() ).toBe( 1 )
+			expect( data_object.parseResponseData ).toHaveBeenCalledWith( raw_response_data, options )
 
 			expect( data_object.fill.calls.count() ).toBe( 1 )
 			expect( data_object.fill ).toHaveBeenCalledWith( parsed_data, options.fill_options )
@@ -860,8 +860,8 @@ describe "Falcon.DataAdapter", ->
 			expect( adapter.parseRawResponseData.calls.count() ).toBe( 1 )
 			expect( adapter.parseRawResponseData ).toHaveBeenCalledWith( data_object, type, options, context, response_args )
 
-			expect( data_object.parse.calls.count() ).toBe( 1 )
-			expect( data_object.parse ).toHaveBeenCalledWith( raw_response_data, options )
+			expect( data_object.parseResponseData.calls.count() ).toBe( 1 )
+			expect( data_object.parseResponseData ).toHaveBeenCalledWith( raw_response_data, options )
 
 			expect( data_object.fill.calls.count() ).toBe( 1 )
 			expect( data_object.fill ).toHaveBeenCalledWith( parsed_data, options.fill_options )
@@ -884,8 +884,8 @@ describe "Falcon.DataAdapter", ->
 			expect( adapter.parseRawResponseData.calls.count() ).toBe( 1 )
 			expect( adapter.parseRawResponseData ).toHaveBeenCalledWith( data_object, type, options, context, response_args )
 
-			expect( data_object.parse.calls.count() ).toBe( 1 )
-			expect( data_object.parse ).toHaveBeenCalledWith( raw_response_data, options )
+			expect( data_object.parseResponseData.calls.count() ).toBe( 1 )
+			expect( data_object.parseResponseData ).toHaveBeenCalledWith( raw_response_data, options )
 
 			expect( data_object.fill.calls.count() ).toBe( 1 )
 			expect( data_object.fill ).toHaveBeenCalledWith( parsed_data, options.fill_options )
@@ -908,8 +908,8 @@ describe "Falcon.DataAdapter", ->
 			expect( adapter.parseRawResponseData.calls.count() ).toBe( 1 )
 			expect( adapter.parseRawResponseData ).toHaveBeenCalledWith( data_object, type, options, context, response_args )
 
-			expect( data_object.parse.calls.count() ).toBe( 1 )
-			expect( data_object.parse ).toHaveBeenCalledWith( raw_response_data, options )
+			expect( data_object.parseResponseData.calls.count() ).toBe( 1 )
+			expect( data_object.parseResponseData ).toHaveBeenCalledWith( raw_response_data, options )
 
 			expect( data_object.fill.calls.count() ).toBe( 1 )
 			expect( data_object.fill ).toHaveBeenCalledWith( parsed_data, options.fill_options )

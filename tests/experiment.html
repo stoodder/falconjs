@@ -10,63 +10,17 @@
   <script type="text/javascript" src="scripts/falcon.js"></script>
 
   <script>
-      var BaseView = Falcon.View.extend({
-        endpoint: "#base-tmpl",
+    var User = Falcon.Model.extend({
+      generateRequestData: function(request_options) {
+        return this.serialize()
+      }
+    });
 
-        observables: {
-          'message': ""
-        }
-      });
-
-      var HelloWorldComponent = Falcon.View.extend({
-        endpoint: "#hello-world-cmpnt",
-
-        defaults: {
-          title: function(params) {
-            console.log(arguments);
-            return ko.unwrap( params['title'] ) || "";
-          }
-        },
-
-        observables: {
-          is_displaying_external_content: true
-        },
-
-        toggleDisplay: function() {
-          this.is_displaying_external_content( !this.is_displaying_external_content() );
-        }
-      });
-
-      Falcon.addComponent("hello-world", HelloWorldComponent);
-
-      Falcon.apply(new BaseView);
-    </script>
+    var user = new User();
+    Falcon.dataAdapter.sync(user, Falcon.POST, {}, user);
+  </script>
 
 </head>
   <body>
-    <template id="base-tmpl">
-      <input type="text" data-bind="value: $view.message, valueUpdate: 'keyup'" />
-      <hello-world params="title: 'Lets Do It'">
-        <hr />
-        A MESSAGE:
-        <div data-bind="text: $view.message"></div>
-        <hr />
-      </hello-world>
-    </template>
-    <template id="hello-world-cmpnt">
-      <!--
-        The yield binding will display either the externally defined 
-        contents or the default contents defined within the yield inding 
-        depending on the true/false value passed in to the binding. If  
-        truthy, the external content is displayed otherwise the default 
-        content is displayed. 
-      -->
-      <h1 data-bind="text: $component.title"></h1>
-      <!-- ko yield: $component.is_displaying_external_content -->
-        Hello World!
-      <!-- /ko -->
-      <br />
-      <button data-bind="click: $component.toggleDisplay">Toggle External</button>
-    </template>
   </body>
 </html>

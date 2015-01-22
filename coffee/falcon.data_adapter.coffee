@@ -315,7 +315,7 @@ class FalconDataAdapter extends FalconObject
 	#------------------------------------------------------------------------
 	serializeData: ( data_object, type, options, context ) ->
 		if not options.data? and type in [Falcon.POST, Falcon.PUT]
-			return data_object.serialize( options.attributes )
+			return data_object.generateRequestData( options )
 		else
 			return options.data
 		#END if
@@ -379,7 +379,7 @@ class FalconDataAdapter extends FalconObject
 	#------------------------------------------------------------------------
 	successResponseHandler: ( data_object, type, options, context, response_args ) ->
 		raw_response_data = @parseRawResponseData( data_object, type, options, context, response_args )
-		parsed_data = data_object.parse( raw_response_data, options )
+		parsed_data = data_object.parseResponseData( raw_response_data, options )
 		data_object.fill(parsed_data, options.fill_options)
 
 		switch type

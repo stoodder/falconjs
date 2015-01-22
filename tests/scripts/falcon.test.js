@@ -1919,22 +1919,24 @@
         'hello': 'world'
       };
       beforeEach(function() {
-        return spyOn(data_object, 'serialize').and.returnValue(serialized_data);
+        return spyOn(data_object, 'generateRequestData').and.returnValue(serialized_data);
       });
       it("Should use the data attribute of options if one is present", function() {
         expect(adapter.serializeData(data_object, Falcon.GET, options, context)).toBe(options.data);
         expect(adapter.serializeData(data_object, Falcon.POST, options, context)).toBe(options.data);
         expect(adapter.serializeData(data_object, Falcon.PUT, options, context)).toBe(options.data);
         expect(adapter.serializeData(data_object, Falcon.DELETE, options, context)).toBe(options.data);
-        return expect(data_object.serialize).not.toHaveBeenCalled();
+        return expect(data_object.generateRequestData).not.toHaveBeenCalled();
       });
       it("Should call the serialize method on the data object if the request type is POST", function() {
         var ret;
         ret = adapter.serializeData(data_object, Falcon.POST, {
           attributes: attributes
         }, context);
-        expect(data_object.serialize.calls.count()).toBe(1);
-        expect(data_object.serialize).toHaveBeenCalledWith(attributes);
+        expect(data_object.generateRequestData.calls.count()).toBe(1);
+        expect(data_object.generateRequestData).toHaveBeenCalledWith({
+          attributes: attributes
+        });
         return expect(ret).toBe(serialized_data);
       });
       it("Should call the serialize method on the data object if the request type is PUT", function() {
@@ -1942,8 +1944,10 @@
         ret = adapter.serializeData(data_object, Falcon.PUT, {
           attributes: attributes
         }, context);
-        expect(data_object.serialize.calls.count()).toBe(1);
-        expect(data_object.serialize).toHaveBeenCalledWith(attributes);
+        expect(data_object.generateRequestData.calls.count()).toBe(1);
+        expect(data_object.generateRequestData).toHaveBeenCalledWith({
+          attributes: attributes
+        });
         return expect(ret).toBe(serialized_data);
       });
       return it("Should not call serialzie on GET or DELETE", function() {
@@ -1954,7 +1958,7 @@
         ret = adapter.serializeData(data_object, Falcon.DELETE, {
           attributes: attributes
         }, context);
-        expect(data_object.serialize).not.toHaveBeenCalled();
+        expect(data_object.generateRequestData).not.toHaveBeenCalled();
         return expect(ret).not.toBeDefined();
       });
     });
@@ -2011,7 +2015,7 @@
       };
       beforeEach(function() {
         spyOn(adapter, 'parseRawResponseData').and.returnValue(raw_response_data);
-        spyOn(data_object, 'parse').and.returnValue(parsed_data);
+        spyOn(data_object, 'parseResponseData').and.returnValue(parsed_data);
         spyOn(data_object, 'fill');
         spyOn(data_object, 'trigger');
         success.reset();
@@ -2023,8 +2027,8 @@
         adapter.successResponseHandler(data_object, type, options, context, response_args);
         expect(adapter.parseRawResponseData.calls.count()).toBe(1);
         expect(adapter.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, response_args);
-        expect(data_object.parse.calls.count()).toBe(1);
-        expect(data_object.parse).toHaveBeenCalledWith(raw_response_data, options);
+        expect(data_object.parseResponseData.calls.count()).toBe(1);
+        expect(data_object.parseResponseData).toHaveBeenCalledWith(raw_response_data, options);
         expect(data_object.fill.calls.count()).toBe(1);
         expect(data_object.fill).toHaveBeenCalledWith(parsed_data, options.fill_options);
         expect(data_object.trigger.calls.count()).toBe(1);
@@ -2040,8 +2044,8 @@
         adapter.successResponseHandler(data_object, type, options, context, response_args);
         expect(adapter.parseRawResponseData.calls.count()).toBe(1);
         expect(adapter.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, response_args);
-        expect(data_object.parse.calls.count()).toBe(1);
-        expect(data_object.parse).toHaveBeenCalledWith(raw_response_data, options);
+        expect(data_object.parseResponseData.calls.count()).toBe(1);
+        expect(data_object.parseResponseData).toHaveBeenCalledWith(raw_response_data, options);
         expect(data_object.fill.calls.count()).toBe(1);
         expect(data_object.fill).toHaveBeenCalledWith(parsed_data, options.fill_options);
         expect(data_object.trigger.calls.count()).toBe(1);
@@ -2057,8 +2061,8 @@
         adapter.successResponseHandler(data_object, type, options, context, response_args);
         expect(adapter.parseRawResponseData.calls.count()).toBe(1);
         expect(adapter.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, response_args);
-        expect(data_object.parse.calls.count()).toBe(1);
-        expect(data_object.parse).toHaveBeenCalledWith(raw_response_data, options);
+        expect(data_object.parseResponseData.calls.count()).toBe(1);
+        expect(data_object.parseResponseData).toHaveBeenCalledWith(raw_response_data, options);
         expect(data_object.fill.calls.count()).toBe(1);
         expect(data_object.fill).toHaveBeenCalledWith(parsed_data, options.fill_options);
         expect(data_object.trigger.calls.count()).toBe(1);
@@ -2074,8 +2078,8 @@
         adapter.successResponseHandler(data_object, type, options, context, response_args);
         expect(adapter.parseRawResponseData.calls.count()).toBe(1);
         expect(adapter.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, response_args);
-        expect(data_object.parse.calls.count()).toBe(1);
-        expect(data_object.parse).toHaveBeenCalledWith(raw_response_data, options);
+        expect(data_object.parseResponseData.calls.count()).toBe(1);
+        expect(data_object.parseResponseData).toHaveBeenCalledWith(raw_response_data, options);
         expect(data_object.fill.calls.count()).toBe(1);
         expect(data_object.fill).toHaveBeenCalledWith(parsed_data, options.fill_options);
         expect(data_object.trigger.calls.count()).toBe(1);
@@ -2190,6 +2194,7 @@
       type = Falcon.GET;
       options = {};
       beforeEach(function() {
+        Falcon.debug = true;
         sinonSpyOn(adapter, 'resolveRequestType');
         sinonSpyOn(adapter, 'standardizeOptions');
         sinonSpyOn(adapter, 'resolveContext');
