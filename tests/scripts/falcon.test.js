@@ -1919,22 +1919,22 @@
         'hello': 'world'
       };
       beforeEach(function() {
-        return spyOn(data_object, 'generateRequestData').and.returnValue(serialized_data);
+        return spyOn(data_object, 'serializeRequestData').and.returnValue(serialized_data);
       });
       it("Should use the data attribute of options if one is present", function() {
         expect(adapter.serializeData(data_object, Falcon.GET, options, context)).toBe(options.data);
         expect(adapter.serializeData(data_object, Falcon.POST, options, context)).toBe(options.data);
         expect(adapter.serializeData(data_object, Falcon.PUT, options, context)).toBe(options.data);
         expect(adapter.serializeData(data_object, Falcon.DELETE, options, context)).toBe(options.data);
-        return expect(data_object.generateRequestData).not.toHaveBeenCalled();
+        return expect(data_object.serializeRequestData).not.toHaveBeenCalled();
       });
       it("Should call the serialize method on the data object if the request type is POST", function() {
         var ret;
         ret = adapter.serializeData(data_object, Falcon.POST, {
           attributes: attributes
         }, context);
-        expect(data_object.generateRequestData.calls.count()).toBe(1);
-        expect(data_object.generateRequestData).toHaveBeenCalledWith({
+        expect(data_object.serializeRequestData.calls.count()).toBe(1);
+        expect(data_object.serializeRequestData).toHaveBeenCalledWith({
           attributes: attributes
         });
         return expect(ret).toBe(serialized_data);
@@ -1944,8 +1944,8 @@
         ret = adapter.serializeData(data_object, Falcon.PUT, {
           attributes: attributes
         }, context);
-        expect(data_object.generateRequestData.calls.count()).toBe(1);
-        expect(data_object.generateRequestData).toHaveBeenCalledWith({
+        expect(data_object.serializeRequestData.calls.count()).toBe(1);
+        expect(data_object.serializeRequestData).toHaveBeenCalledWith({
           attributes: attributes
         });
         return expect(ret).toBe(serialized_data);
@@ -1958,7 +1958,7 @@
         ret = adapter.serializeData(data_object, Falcon.DELETE, {
           attributes: attributes
         }, context);
-        expect(data_object.generateRequestData).not.toHaveBeenCalled();
+        expect(data_object.serializeRequestData).not.toHaveBeenCalled();
         return expect(ret).not.toBeDefined();
       });
     });
@@ -2194,7 +2194,6 @@
       type = Falcon.GET;
       options = {};
       beforeEach(function() {
-        Falcon.debug = true;
         sinonSpyOn(adapter, 'resolveRequestType');
         sinonSpyOn(adapter, 'standardizeOptions');
         sinonSpyOn(adapter, 'resolveContext');

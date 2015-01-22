@@ -315,7 +315,7 @@ class FalconDataAdapter extends FalconObject
 	#------------------------------------------------------------------------
 	serializeData: ( data_object, type, options, context ) ->
 		if not options.data? and type in [Falcon.POST, Falcon.PUT]
-			return data_object.generateRequestData( options )
+			return data_object.serializeRequestData( options )
 		else
 			return options.data
 		#END if

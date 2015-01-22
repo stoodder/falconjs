@@ -746,7 +746,7 @@ describe "Falcon.DataAdapter", ->
 		serialized_data = {'hello': 'world'}
 
 		beforeEach ->
-			spyOn( data_object, 'generateRequestData' ).and.returnValue(serialized_data)
+			spyOn( data_object, 'serializeRequestData' ).and.returnValue(serialized_data)
 		#END beforeEach
 
 		it "Should use the data attribute of options if one is present", ->
@@ -755,14 +755,14 @@ describe "Falcon.DataAdapter", ->
 			expect( adapter.serializeData( data_object, Falcon.PUT, options, context ) ).toBe( options.data )
 			expect( adapter.serializeData( data_object, Falcon.DELETE, options, context ) ).toBe( options.data )
 
-			expect( data_object.generateRequestData ).not.toHaveBeenCalled()
+			expect( data_object.serializeRequestData ).not.toHaveBeenCalled()
 		#END it
 
 		it "Should call the serialize method on the data object if the request type is POST", ->
 			ret = adapter.serializeData( data_object, Falcon.POST, {attributes}, context )
 			
-			expect( data_object.generateRequestData.calls.count() ).toBe( 1 )
-			expect( data_object.generateRequestData ).toHaveBeenCalledWith( {attributes} )
+			expect( data_object.serializeRequestData.calls.count() ).toBe( 1 )
+			expect( data_object.serializeRequestData ).toHaveBeenCalledWith( {attributes} )
 			
 			expect( ret ).toBe( serialized_data )
 		#END it
@@ -770,8 +770,8 @@ describe "Falcon.DataAdapter", ->
 		it "Should call the serialize method on the data object if the request type is PUT", ->
 			ret = adapter.serializeData( data_object, Falcon.PUT, {attributes}, context )
 			
-			expect( data_object.generateRequestData.calls.count() ).toBe( 1 )
-			expect( data_object.generateRequestData ).toHaveBeenCalledWith( {attributes} )
+			expect( data_object.serializeRequestData.calls.count() ).toBe( 1 )
+			expect( data_object.serializeRequestData ).toHaveBeenCalledWith( {attributes} )
 			
 			expect( ret ).toBe( serialized_data )
 		#END it
@@ -780,7 +780,7 @@ describe "Falcon.DataAdapter", ->
 			ret = adapter.serializeData( data_object, Falcon.GET, {attributes}, context )
 			ret = adapter.serializeData( data_object, Falcon.DELETE, {attributes}, context )
 			
-			expect( data_object.generateRequestData ).not.toHaveBeenCalled()
+			expect( data_object.serializeRequestData ).not.toHaveBeenCalled()
 			
 			expect( ret ).not.toBeDefined()
 		#END it

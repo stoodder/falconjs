@@ -230,11 +230,12 @@ Falcon.addBinding 'yield', true, 'init': (element, valueAccessor, allBindings, v
 			value = ko.unwrap( valueAccessor() )
 
 			if value isnt false
-				ko.virtualElements.setDomNodeChildren(element, yieldedNodes)
+				clonedNodes = cloneNodes(yieldedNodes)
 			else
-				ko.virtualElements.setDomNodeChildren(element, defaultNodes)
+				clonedNodes = cloneNodes(defaultNodes)
 			#END if
 
+			ko.virtualElements.setDomNodeChildren(element, clonedNodes)
 			ko.applyBindingsToDescendants(bindingContext, element)
 		#END read
 	#END computed

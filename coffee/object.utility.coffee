@@ -15,3 +15,8 @@ clone = (object) ->
 	
 	return newInstance
 #END clone
+
+cloneNodes = (nodes_array) ->
+	nodes_array ?= []
+	return (node.cloneNode(true) for node in nodes_array)
+#END cloneNodes
