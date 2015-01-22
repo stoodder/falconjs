@@ -2194,7 +2194,6 @@
       type = Falcon.GET;
       options = {};
       beforeEach(function() {
-        Falcon.debug = true;
         sinonSpyOn(adapter, 'resolveRequestType');
         sinonSpyOn(adapter, 'standardizeOptions');
         sinonSpyOn(adapter, 'resolveContext');
