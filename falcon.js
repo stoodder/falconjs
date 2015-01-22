@@ -11,7 +11,7 @@
 
 
 (function() {
-  var Falcon, FalconCollection, FalconDataAdapter, FalconModel, FalconObject, FalconTemplateAdapter, FalconView, bindFunction, clone, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, trim, trimSlashes, value, _getForeachItems, _getOptionsItems, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6,
+  var Falcon, FalconCollection, FalconDataAdapter, FalconModel, FalconObject, FalconTemplateAdapter, FalconView, bindFunction, clone, cloneNodes, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, trim, trimSlashes, value, _getForeachItems, _getOptionsItems, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -125,6 +125,22 @@
       newInstance[key] = clone(object[key]);
     }
     return newInstance;
+  };
+
+  cloneNodes = function(nodes_array) {
+    var node;
+    if (nodes_array == null) {
+      nodes_array = [];
+    }
+    return (function() {
+      var _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = nodes_array.length; _i < _len; _i++) {
+        node = nodes_array[_i];
+        _results.push(node.cloneNode(true));
+      }
+      return _results;
+    })();
   };
 
   FalconObject = (function() {
@@ -2334,12 +2350,14 @@
       ko.computed({
         disposeWhenNodeIsRemoved: element,
         read: function() {
+          var clonedNodes;
           value = ko.unwrap(valueAccessor());
           if (value !== false) {
-            ko.virtualElements.setDomNodeChildren(element, yieldedNodes);
+            clonedNodes = cloneNodes(yieldedNodes);
           } else {
-            ko.virtualElements.setDomNodeChildren(element, defaultNodes);
+            clonedNodes = cloneNodes(defaultNodes);
           }
+          ko.virtualElements.setDomNodeChildren(element, clonedNodes);
           return ko.applyBindingsToDescendants(bindingContext, element);
         }
       });

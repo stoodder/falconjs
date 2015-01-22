@@ -10,17 +10,49 @@
   <script type="text/javascript" src="scripts/falcon.js"></script>
 
   <script>
-    var User = Falcon.Model.extend({
-      generateRequestData: function(request_options) {
-        return this.serialize()
+    var LayoutView = Falcon.View.extend({
+      endpoint: '#layout',
+
+      defaults: {
+        'array': [
+          "1", "2", "3"
+        ]
+      },
+
+      initialize: function() {
+        console.log("New Layout");
       }
     });
 
-    var user = new User();
-    Falcon.dataAdapter.sync(user, Falcon.POST, {}, user);
+    var SnackComponent = Falcon.View.extend({
+      endpoint: '#snack-component',
+
+      defaults: {
+        'collection': function(params) {
+          if(!params) params = {};
+          return ko.unwrap(params.collection);
+        }
+      }
+    })
+
+    Falcon.addComponent('snack-component', SnackComponent);
+
+    Falcon.apply(new LayoutView, "#application");
   </script>
 
 </head>
   <body>
+    App:
+    <div id="application"></div>
   </body>
+  <template id="snack-component">
+    <!-- ko foreach: $component.collection -->
+      <!-- ko yield: true --><!-- /ko -->
+    <!-- /ko -->
+  </template>
+  <template id="layout">
+    <snack-component params="collection: $view.array">
+      <div>Hello Snack <!-- ko text: $data --><!-- /ko --></div>
+    </snack-component>
+  </template>
 </html>
