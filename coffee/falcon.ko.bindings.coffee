@@ -214,6 +214,7 @@ Falcon.addBinding 'component', true, 'init': (element, valueAccessor, allBinding
 	#END onDispose
 
 	Falcon.__binding__original_component__['init'].apply(@, arguments)
+	ko.virtualElements.emptyNode(element)
 #END component
 
 #--------------------------------------------------------

@@ -2338,7 +2338,8 @@
         }
         return view._unrender();
       });
-      return Falcon.__binding__original_component__['init'].apply(this, arguments);
+      Falcon.__binding__original_component__['init'].apply(this, arguments);
+      return ko.virtualElements.emptyNode(element);
     }
   });
 
