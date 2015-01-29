@@ -677,6 +677,10 @@
   FalconTemplateAdapter = (function(_super) {
     __extends(FalconTemplateAdapter, _super);
 
+    FalconTemplateAdapter.prototype.__falcon_templateAdapter__is_loaded__ = false;
+
+    FalconTemplateAdapter.prototype.__falcon_templateAdapter__load_routines__ = null;
+
     FalconTemplateAdapter.prototype.__falcon_templateAdapter__cache__ = null;
 
     FalconTemplateAdapter.extend = FalconObject.extend;
@@ -686,6 +690,31 @@
       FalconTemplateAdapter.__super__.constructor.apply(this, arguments);
       document.createElement("template");
     }
+
+    FalconTemplateAdapter.prototype.addLoadRoutine = function(routine) {
+      if (this.__falcon_templateAdapter__is_loaded__) {
+        routine();
+      }
+      return (this.__falcon_templateAdapter__load_routines__ != null ? this.__falcon_templateAdapter__load_routines__ : this.__falcon_templateAdapter__load_routines__ = []).push(routine);
+    };
+
+    FalconTemplateAdapter.prototype.executeLoadRoutines = function() {
+      var routine, _i, _len, _ref1, _results;
+      if (this.__falcon_templateAdapter__is_loaded__) {
+        return;
+      }
+      this.__falcon_templateAdapter__is_loaded__ = true;
+      if (this.__falcon_templateAdapter__load_routines__ == null) {
+        return;
+      }
+      _ref1 = this.__falcon_templateAdapter__load_routines__;
+      _results = [];
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        routine = _ref1[_i];
+        _results.push(routine());
+      }
+      return _results;
+    };
 
     FalconTemplateAdapter.prototype.cacheTemplate = function(identifier, template) {
       if (!isString(identifier)) {
@@ -733,11 +762,13 @@
           _ref1.removeChild(template);
         }
       }
+      this.executeLoadRoutines();
       return this;
     };
 
     FalconTemplateAdapter.prototype.resolveTemplate = function(view, callback) {
-      var template, url;
+      var url,
+        _this = this;
       if (!Falcon.isView(view)) {
         throw new Error("view must be a Falcon.View");
       }
@@ -751,32 +782,37 @@
       url = view.makeUrl();
       if (isEmpty(url)) {
         callback("");
-      } else if ((template = this.getCachedTemplate(url))) {
-        callback(template);
-      } else {
-        this.loadTemplate(url, callback);
+        return this;
       }
+      this.addLoadRoutine(function() {
+        var template;
+        template = _this.getCachedTemplate(url);
+        if (template) {
+          return callback(template);
+        }
+        return _this.loadTemplate(url, callback);
+      });
       return this;
     };
 
     FalconTemplateAdapter.prototype.loadTemplate = function(url, callback) {
-      var _this = this;
+      var element, template;
       if (!isString(url)) {
         throw new Error("url must be a String");
       }
       if (!isFunction(callback)) {
         throw new Error("callback must be a function");
       }
-      Falcon.ready(function() {
-        var element, template;
-        element = document.getElementById(url.slice(1));
-        template = element != null ? element.innerHTML : "";
-        if (!isString(template)) {
-          template = "";
-        }
-        _this.cacheTemplate(url, template);
-        return callback(template);
-      });
+      element = document.getElementById(url.slice(1));
+      if (element == null) {
+        callback("");
+      }
+      template = element.innerHTML;
+      if (!isString(template)) {
+        template = "";
+      }
+      this.cacheTemplate(url, template);
+      callback(template);
       return this;
     };
 
@@ -2086,7 +2122,7 @@
           element = document.createElement('div');
           element.innerHTML = template;
           return callback({
-            template: element.childNodes,
+            template: ko.utils.cloneNodes(element.childNodes),
             createViewModel: function(params) {
               var view;
               view = new view_definition(params);

@@ -1,4 +1,7 @@
 class FalconTemplateAdapter extends FalconObject
+	__falcon_templateAdapter__is_loaded__: false
+	__falcon_templateAdapter__load_routines__: null
+
 	#--------------------------------------------------------
 	# The internal cache of each template identified by 
 	# their endpoint or element id
@@ -23,6 +26,19 @@ class FalconTemplateAdapter extends FalconObject
 		# We must create a template element to force support for older browsers
 		document.createElement("template")
 	#END constructor
+
+	addLoadRoutine: (routine) ->
+		routine() if @__falcon_templateAdapter__is_loaded__
+		(@__falcon_templateAdapter__load_routines__ ?= []).push(routine)
+	#END addLoadRoutine
+
+	executeLoadRoutines: ->
+		return if @__falcon_templateAdapter__is_loaded__
+		@__falcon_templateAdapter__is_loaded__ = true
+		
+		return unless @__falcon_templateAdapter__load_routines__?
+		routine() for routine in @__falcon_templateAdapter__load_routines__
+	#END executeLoadRoutines
 
 	#--------------------------------------------------------
 	# Method: Falcon.View.cacheTemplate( identifier, template )
@@ -87,6 +103,8 @@ class FalconTemplateAdapter extends FalconObject
 			template.parentNode?.removeChild(template)
 		#END each template
 
+		@executeLoadRoutines()
+
 		return @
 	#END cacheAllTemplates
 
@@ -125,11 +143,14 @@ class FalconTemplateAdapter extends FalconObject
 
 		if isEmpty(url)
 			callback("")
-		else if (template = @getCachedTemplate(url))
-			callback(template)
-		else
-			@loadTemplate(url, callback)
+			return @
 		#END if
+
+		@addLoadRoutine =>
+			template = @getCachedTemplate(url)
+			return callback(template) if template
+			@loadTemplate(url, callback)
+		#END Falcon.ready
 
 		return @
 	#END resolveTemplate
@@ -158,13 +179,13 @@ class FalconTemplateAdapter extends FalconObject
 			throw new Error("callback must be a function")
 		#END unless
 
-		Falcon.ready =>
-			element = document.getElementById(url.slice(1))
-			template = if element? then element.innerHTML else ""
-			template = "" unless isString(template)
-			@cacheTemplate( url, template )
-			callback( template )
-		#END ready
+		element = document.getElementById(url.slice(1))
+		callback("") unless element?
+
+		template = element.innerHTML
+		template = "" unless isString(template)
+		@cacheTemplate( url, template )
+		callback( template )
 
 		return @
 	#END loadTemplate
