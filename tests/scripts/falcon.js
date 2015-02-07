@@ -597,7 +597,7 @@
 
     FalconDataAdapter.prototype.serializeData = function(data_object, type, options, context) {
       if ((options.data == null) && (type === Falcon.POST || type === Falcon.PUT)) {
-        return data_object.serializeRequestData(options);
+        return data_object.serializeRequestData(type, options);
       } else {
         return options.data;
       }
@@ -610,7 +610,7 @@
     FalconDataAdapter.prototype.successResponseHandler = function(data_object, type, options, context, response_args) {
       var parsed_data, raw_response_data;
       raw_response_data = this.parseRawResponseData(data_object, type, options, context, response_args);
-      parsed_data = data_object.parseResponseData(raw_response_data, options);
+      parsed_data = data_object.parseResponseData(raw_response_data, type, options);
       data_object.fill(parsed_data, options.fill_options);
       switch (type) {
         case Falcon.GET:
