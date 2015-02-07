@@ -805,7 +805,7 @@
       }
       element = document.getElementById(url.slice(1));
       if (element == null) {
-        callback("");
+        return callback("");
       }
       template = element.innerHTML;
       if (!isString(template)) {
@@ -2122,7 +2122,7 @@
           element = document.createElement('div');
           element.innerHTML = template;
           return callback({
-            template: ko.utils.cloneNodes(element.childNodes),
+            template: cloneNodes(element.childNodes),
             createViewModel: function(params) {
               var view;
               view = new view_definition(params);

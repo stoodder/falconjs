@@ -6,7 +6,7 @@ ko.components.loaders.unshift
 				element.innerHTML = template
 
 				callback({
-					template: ko.utils.cloneNodes(element.childNodes)
+					template: cloneNodes(element.childNodes)
 					createViewModel: (params) ->
 						view = new view_definition(params)
 

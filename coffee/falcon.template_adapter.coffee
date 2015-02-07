@@ -180,7 +180,7 @@ class FalconTemplateAdapter extends FalconObject
 		#END unless
 
 		element = document.getElementById(url.slice(1))
-		callback("") unless element?
+		return callback("") unless element?
 
 		template = element.innerHTML
 		template = "" unless isString(template)
