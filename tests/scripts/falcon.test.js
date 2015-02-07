@@ -1934,7 +1934,7 @@
           attributes: attributes
         }, context);
         expect(data_object.serializeRequestData.calls.count()).toBe(1);
-        expect(data_object.serializeRequestData).toHaveBeenCalledWith({
+        expect(data_object.serializeRequestData).toHaveBeenCalledWith(Falcon.POST, {
           attributes: attributes
         });
         return expect(ret).toBe(serialized_data);
@@ -1945,7 +1945,7 @@
           attributes: attributes
         }, context);
         expect(data_object.serializeRequestData.calls.count()).toBe(1);
-        expect(data_object.serializeRequestData).toHaveBeenCalledWith({
+        expect(data_object.serializeRequestData).toHaveBeenCalledWith(Falcon.PUT, {
           attributes: attributes
         });
         return expect(ret).toBe(serialized_data);
@@ -2028,7 +2028,7 @@
         expect(adapter.parseRawResponseData.calls.count()).toBe(1);
         expect(adapter.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, response_args);
         expect(data_object.parseResponseData.calls.count()).toBe(1);
-        expect(data_object.parseResponseData).toHaveBeenCalledWith(raw_response_data, options);
+        expect(data_object.parseResponseData).toHaveBeenCalledWith(raw_response_data, type, options);
         expect(data_object.fill.calls.count()).toBe(1);
         expect(data_object.fill).toHaveBeenCalledWith(parsed_data, options.fill_options);
         expect(data_object.trigger.calls.count()).toBe(1);
@@ -2045,7 +2045,7 @@
         expect(adapter.parseRawResponseData.calls.count()).toBe(1);
         expect(adapter.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, response_args);
         expect(data_object.parseResponseData.calls.count()).toBe(1);
-        expect(data_object.parseResponseData).toHaveBeenCalledWith(raw_response_data, options);
+        expect(data_object.parseResponseData).toHaveBeenCalledWith(raw_response_data, type, options);
         expect(data_object.fill.calls.count()).toBe(1);
         expect(data_object.fill).toHaveBeenCalledWith(parsed_data, options.fill_options);
         expect(data_object.trigger.calls.count()).toBe(1);
@@ -2062,7 +2062,7 @@
         expect(adapter.parseRawResponseData.calls.count()).toBe(1);
         expect(adapter.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, response_args);
         expect(data_object.parseResponseData.calls.count()).toBe(1);
-        expect(data_object.parseResponseData).toHaveBeenCalledWith(raw_response_data, options);
+        expect(data_object.parseResponseData).toHaveBeenCalledWith(raw_response_data, type, options);
         expect(data_object.fill.calls.count()).toBe(1);
         expect(data_object.fill).toHaveBeenCalledWith(parsed_data, options.fill_options);
         expect(data_object.trigger.calls.count()).toBe(1);
@@ -2079,7 +2079,7 @@
         expect(adapter.parseRawResponseData.calls.count()).toBe(1);
         expect(adapter.parseRawResponseData).toHaveBeenCalledWith(data_object, type, options, context, response_args);
         expect(data_object.parseResponseData.calls.count()).toBe(1);
-        expect(data_object.parseResponseData).toHaveBeenCalledWith(raw_response_data, options);
+        expect(data_object.parseResponseData).toHaveBeenCalledWith(raw_response_data, type, options);
         expect(data_object.fill.calls.count()).toBe(1);
         expect(data_object.fill).toHaveBeenCalledWith(parsed_data, options.fill_options);
         expect(data_object.trigger.calls.count()).toBe(1);

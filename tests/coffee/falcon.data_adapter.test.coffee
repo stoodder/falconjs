@@ -762,7 +762,7 @@ describe "Falcon.DataAdapter", ->
 			ret = adapter.serializeData( data_object, Falcon.POST, {attributes}, context )
 			
 			expect( data_object.serializeRequestData.calls.count() ).toBe( 1 )
-			expect( data_object.serializeRequestData ).toHaveBeenCalledWith( {attributes} )
+			expect( data_object.serializeRequestData ).toHaveBeenCalledWith( Falcon.POST, {attributes} )
 			
 			expect( ret ).toBe( serialized_data )
 		#END it
@@ -771,7 +771,7 @@ describe "Falcon.DataAdapter", ->
 			ret = adapter.serializeData( data_object, Falcon.PUT, {attributes}, context )
 			
 			expect( data_object.serializeRequestData.calls.count() ).toBe( 1 )
-			expect( data_object.serializeRequestData ).toHaveBeenCalledWith( {attributes} )
+			expect( data_object.serializeRequestData ).toHaveBeenCalledWith( Falcon.PUT, {attributes} )
 			
 			expect( ret ).toBe( serialized_data )
 		#END it
@@ -837,7 +837,7 @@ describe "Falcon.DataAdapter", ->
 			expect( adapter.parseRawResponseData ).toHaveBeenCalledWith( data_object, type, options, context, response_args )
 
 			expect( data_object.parseResponseData.calls.count() ).toBe( 1 )
-			expect( data_object.parseResponseData ).toHaveBeenCalledWith( raw_response_data, options )
+			expect( data_object.parseResponseData ).toHaveBeenCalledWith( raw_response_data, type, options )
 
 			expect( data_object.fill.calls.count() ).toBe( 1 )
 			expect( data_object.fill ).toHaveBeenCalledWith( parsed_data, options.fill_options )
@@ -861,7 +861,7 @@ describe "Falcon.DataAdapter", ->
 			expect( adapter.parseRawResponseData ).toHaveBeenCalledWith( data_object, type, options, context, response_args )
 
 			expect( data_object.parseResponseData.calls.count() ).toBe( 1 )
-			expect( data_object.parseResponseData ).toHaveBeenCalledWith( raw_response_data, options )
+			expect( data_object.parseResponseData ).toHaveBeenCalledWith( raw_response_data, type, options )
 
 			expect( data_object.fill.calls.count() ).toBe( 1 )
 			expect( data_object.fill ).toHaveBeenCalledWith( parsed_data, options.fill_options )
@@ -885,7 +885,7 @@ describe "Falcon.DataAdapter", ->
 			expect( adapter.parseRawResponseData ).toHaveBeenCalledWith( data_object, type, options, context, response_args )
 
 			expect( data_object.parseResponseData.calls.count() ).toBe( 1 )
-			expect( data_object.parseResponseData ).toHaveBeenCalledWith( raw_response_data, options )
+			expect( data_object.parseResponseData ).toHaveBeenCalledWith( raw_response_data, type, options )
 
 			expect( data_object.fill.calls.count() ).toBe( 1 )
 			expect( data_object.fill ).toHaveBeenCalledWith( parsed_data, options.fill_options )
@@ -909,7 +909,7 @@ describe "Falcon.DataAdapter", ->
 			expect( adapter.parseRawResponseData ).toHaveBeenCalledWith( data_object, type, options, context, response_args )
 
 			expect( data_object.parseResponseData.calls.count() ).toBe( 1 )
-			expect( data_object.parseResponseData ).toHaveBeenCalledWith( raw_response_data, options )
+			expect( data_object.parseResponseData ).toHaveBeenCalledWith( raw_response_data, type, options )
 
 			expect( data_object.fill.calls.count() ).toBe( 1 )
 			expect( data_object.fill ).toHaveBeenCalledWith( parsed_data, options.fill_options )
