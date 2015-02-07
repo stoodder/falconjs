@@ -2519,6 +2519,7 @@
         callback = jasmine.createSpy();
         spyOn(adapter, 'loadTemplate');
         spyOn(adapter, 'getCachedTemplate').and.callThrough();
+        spyOn(adapter, 'addLoadRoutine');
         spyOn(view, 'makeUrl').and.callThrough();
         adapter.resetCache();
         return view.template = null;
@@ -2542,6 +2543,9 @@
       it("Should call the loadTemplate method if the url is valid and the template hasn't been cached", function() {
         var ret;
         ret = adapter.resolveTemplate(view, callback);
+        expect(adapter.addLoadRoutine.calls.count()).toBe(1);
+        expect(adapter.addLoadRoutine).toHaveBeenCalledWith(jasmine.any(Function));
+        adapter.addLoadRoutine.calls.argsFor(0)[0]();
         expect(view.makeUrl.calls.count()).toBe(1);
         expect(adapter.getCachedTemplate.calls.count()).toBe(1);
         expect(adapter.getCachedTemplate).toHaveBeenCalledWith(jasmine.any(String));
@@ -2554,6 +2558,9 @@
         var ret;
         adapter.cacheTemplate(endpoint, template);
         ret = adapter.resolveTemplate(view, callback);
+        expect(adapter.addLoadRoutine.calls.count()).toBe(1);
+        expect(adapter.addLoadRoutine).toHaveBeenCalledWith(jasmine.any(Function));
+        adapter.addLoadRoutine.calls.argsFor(0)[0]();
         expect(view.makeUrl.calls.count()).toBe(1);
         expect(adapter.getCachedTemplate.calls.count()).toBe(1);
         expect(adapter.getCachedTemplate).toHaveBeenCalledWith(jasmine.any(String));
@@ -2590,7 +2597,6 @@
       adapter = new Falcon.TemplateAdapter;
       hello_world = null;
       beforeEach(function() {
-        spyOn(Falcon, "ready");
         spyOn(adapter, 'cacheTemplate');
         return hello_world = MockHelper.makeElement("template").setId("hello_world").html("Hello World").addToDOM();
       });
@@ -2608,17 +2614,9 @@
         }).toThrow();
       });
       it("Should execute properly", function() {
-        var callback_spy, ready_callback, ret;
+        var callback_spy, ret;
         callback_spy = jasmine.createSpy("Template Spy");
         ret = adapter.loadTemplate("#hello_world", callback_spy);
-        expect(Falcon.ready.calls.count()).toBe(1);
-        expect(Falcon.ready).toHaveBeenCalledWith(jasmine.any(Function));
-        expect(adapter.cacheTemplate).not.toHaveBeenCalled();
-        expect(callback_spy).not.toHaveBeenCalled();
-        ready_callback = Falcon.ready.calls.argsFor(0)[0];
-        ready_callback();
-        expect(Falcon.ready.calls.count()).toBe(1);
-        expect(Falcon.ready).toHaveBeenCalledWith(jasmine.any(Function));
         expect(adapter.cacheTemplate.calls.count()).toBe(1);
         expect(adapter.cacheTemplate).toHaveBeenCalledWith("#hello_world", "Hello World");
         expect(callback_spy.calls.count()).toBe(1);
@@ -2626,19 +2624,10 @@
         return expect(ret).toBe(adapter);
       });
       return it("Should execute proparly with a not-found element id is given", function() {
-        var callback_spy, ready_callback, ret;
+        var callback_spy, ret;
         callback_spy = jasmine.createSpy("Template Spy");
         ret = adapter.loadTemplate("#foo_bar", callback_spy);
-        expect(Falcon.ready.calls.count()).toBe(1);
-        expect(Falcon.ready).toHaveBeenCalledWith(jasmine.any(Function));
         expect(adapter.cacheTemplate).not.toHaveBeenCalled();
-        expect(callback_spy).not.toHaveBeenCalled();
-        ready_callback = Falcon.ready.calls.argsFor(0)[0];
-        ready_callback();
-        expect(Falcon.ready.calls.count()).toBe(1);
-        expect(Falcon.ready).toHaveBeenCalledWith(jasmine.any(Function));
-        expect(adapter.cacheTemplate.calls.count()).toBe(1);
-        expect(adapter.cacheTemplate).toHaveBeenCalledWith("#foo_bar", "");
         expect(callback_spy.calls.count()).toBe(1);
         expect(callback_spy).toHaveBeenCalledWith("");
         return expect(ret).toBe(adapter);

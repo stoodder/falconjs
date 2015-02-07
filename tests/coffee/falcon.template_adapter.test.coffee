@@ -146,6 +146,7 @@ describe "Falcon.TemplateAdapter", ->
 			callback = jasmine.createSpy()
 			spyOn(adapter, 'loadTemplate')
 			spyOn(adapter, 'getCachedTemplate').and.callThrough()
+			spyOn(adapter, 'addLoadRoutine')
 			spyOn(view, 'makeUrl').and.callThrough()
 
 			adapter.resetCache()
@@ -166,6 +167,12 @@ describe "Falcon.TemplateAdapter", ->
 
 			ret = adapter.resolveTemplate(view, callback)
 
+			expect(adapter.addLoadRoutine.calls.count()).toBe(1)
+			expect(adapter.addLoadRoutine).toHaveBeenCalledWith(jasmine.any(Function))
+
+			#Trigger the callback
+			adapter.addLoadRoutine.calls.argsFor(0)[0]()
+
 			expect( view.makeUrl.calls.count() ).toBe( 1 )
 
 			expect( adapter.getCachedTemplate.calls.count() ).toBe( 1 )
@@ -182,6 +189,12 @@ describe "Falcon.TemplateAdapter", ->
 		it "Should return the cached value if one exists", ->
 			adapter.cacheTemplate(endpoint, template)
 			ret = adapter.resolveTemplate(view, callback)
+
+			expect(adapter.addLoadRoutine.calls.count()).toBe(1)
+			expect(adapter.addLoadRoutine).toHaveBeenCalledWith(jasmine.any(Function))
+
+			#Trigger the callback
+			adapter.addLoadRoutine.calls.argsFor(0)[0]()
 
 			expect( view.makeUrl.calls.count() ).toBe( 1 )
 
@@ -231,7 +244,6 @@ describe "Falcon.TemplateAdapter", ->
 		hello_world = null
 
 		beforeEach ->
-			spyOn(Falcon, "ready")
 			spyOn(adapter, 'cacheTemplate')
 
 			hello_world = MockHelper.makeElement("template")
@@ -256,20 +268,6 @@ describe "Falcon.TemplateAdapter", ->
 			callback_spy = jasmine.createSpy("Template Spy")
 			ret = adapter.loadTemplate("#hello_world", callback_spy)
 
-			expect( Falcon.ready.calls.count() ).toBe( 1 )
-			expect( Falcon.ready ).toHaveBeenCalledWith( jasmine.any(Function) )
-
-			expect( adapter.cacheTemplate ).not.toHaveBeenCalled()
-			expect( callback_spy ).not.toHaveBeenCalled()
-
-			# Second half of execution after falcon.ready has been executed
-			ready_callback = Falcon.ready.calls.argsFor(0)[0]
-			ready_callback()
-
-			# Second Half Tests
-			expect( Falcon.ready.calls.count() ).toBe( 1 )
-			expect( Falcon.ready ).toHaveBeenCalledWith( jasmine.any(Function) )
-
 			expect( adapter.cacheTemplate.calls.count() ).toBe( 1 )
 			expect( adapter.cacheTemplate ).toHaveBeenCalledWith( "#hello_world", "Hello World" )
 
@@ -283,22 +281,7 @@ describe "Falcon.TemplateAdapter", ->
 			callback_spy = jasmine.createSpy("Template Spy")
 			ret = adapter.loadTemplate("#foo_bar", callback_spy)
 
-			expect( Falcon.ready.calls.count() ).toBe( 1 )
-			expect( Falcon.ready ).toHaveBeenCalledWith( jasmine.any(Function) )
-
 			expect( adapter.cacheTemplate ).not.toHaveBeenCalled()
-			expect( callback_spy ).not.toHaveBeenCalled()
-
-			# Second half of execution after falcon.ready has been executed
-			ready_callback = Falcon.ready.calls.argsFor(0)[0]
-			ready_callback()
-
-			# Second Half Tests
-			expect( Falcon.ready.calls.count() ).toBe( 1 )
-			expect( Falcon.ready ).toHaveBeenCalledWith( jasmine.any(Function) )
-
-			expect( adapter.cacheTemplate.calls.count() ).toBe( 1 )
-			expect( adapter.cacheTemplate ).toHaveBeenCalledWith( "#foo_bar", "" )
 
 			expect( callback_spy.calls.count() ).toBe( 1 )
 			expect( callback_spy ).toHaveBeenCalledWith( "" )

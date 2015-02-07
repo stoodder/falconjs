@@ -805,7 +805,8 @@
       }
       element = document.getElementById(url.slice(1));
       if (element == null) {
-        return callback("");
+        callback("");
+        return this;
       }
       template = element.innerHTML;
       if (!isString(template)) {
