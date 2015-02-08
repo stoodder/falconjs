@@ -202,7 +202,7 @@ class FalconModel extends FalconObject
 	# Returns:
 	#	_(Object)_ - Parsing on a model expects an object to be returned
 	#----------------------------------------------------------------------------------------------
-	parseResponseData: (response_data, , request_type, request_options) ->
+	parseResponseData: (response_data, request_type, request_options) ->
 		return response_data
 	#END parseResponseData
 

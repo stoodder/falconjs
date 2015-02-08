@@ -928,7 +928,7 @@
       return this.serialize(request_options.attributes);
     };
 
-    FalconModel.prototype.parseResponseData = function(response_data, request_options) {
+    FalconModel.prototype.parseResponseData = function(response_data, request_type, request_options) {
       return response_data;
     };
 
