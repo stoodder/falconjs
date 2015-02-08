@@ -924,7 +924,7 @@
       return this;
     };
 
-    FalconModel.prototype.serializeRequestData = function(request_options) {
+    FalconModel.prototype.serializeRequestData = function(request_type, request_options) {
       return this.serialize(request_options.attributes);
     };
 
@@ -1251,11 +1251,11 @@
       return this;
     };
 
-    FalconCollection.prototype.serializeRequestData = function(request_options) {
+    FalconCollection.prototype.serializeRequestData = function(request_type, request_options) {
       return this.serialize(request_options.attributes);
     };
 
-    FalconCollection.prototype.parseResponseData = function(response_data, request_options) {
+    FalconCollection.prototype.parseResponseData = function(response_data, request_type, request_options) {
       return response_data;
     };
 
