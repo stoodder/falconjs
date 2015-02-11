@@ -11,7 +11,7 @@
 
 
 (function() {
-  var Falcon, FalconCollection, FalconDataAdapter, FalconModel, FalconObject, FalconTemplateAdapter, FalconView, bindFunction, clone, cloneNodes, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, trim, trimSlashes, value, _getForeachItems, _getOptionsItems, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6,
+  var Falcon, FalconCollection, FalconComponent, FalconDataAdapter, FalconModel, FalconObject, FalconTemplateAdapter, FalconView, bindFunction, clone, cloneNodes, isArray, isBoolean, isElement, isEmpty, isFunction, isNaN, isNumber, isObject, isString, key, trim, trimSlashes, value, _getForeachItems, _getOptionsItems, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -1934,12 +1934,26 @@
 
   })(FalconObject);
 
+  FalconComponent = (function(_super) {
+    __extends(FalconComponent, _super);
+
+    function FalconComponent() {
+      _ref1 = FalconComponent.__super__.constructor.apply(this, arguments);
+      return _ref1;
+    }
+
+    FalconComponent.extend = FalconView.extend;
+
+    return FalconComponent;
+
+  })(FalconView);
+
   this.Falcon = Falcon = new ((function(_super) {
     __extends(_Class, _super);
 
     function _Class() {
-      _ref1 = _Class.__super__.constructor.apply(this, arguments);
-      return _ref1;
+      _ref2 = _Class.__super__.constructor.apply(this, arguments);
+      return _ref2;
     }
 
     _Class.prototype.GET = 'GET';
@@ -1959,6 +1973,8 @@
     _Class.prototype['Collection'] = FalconCollection;
 
     _Class.prototype['View'] = FalconView;
+
+    _Class.prototype['Component'] = FalconComponent;
 
     _Class.prototype['DataAdapter'] = FalconDataAdapter;
 
@@ -2022,25 +2038,25 @@
     })();
 
     _Class.prototype.apply = function(root, element, callback) {
-      var _ref2, _ref3;
+      var _ref3, _ref4;
       if (isFunction(element)) {
-        _ref2 = [element, null], callback = _ref2[0], element = _ref2[1];
+        _ref3 = [element, null], callback = _ref3[0], element = _ref3[1];
       }
       if (isFunction(root) && !ko.isObservable(root) && !isFunction(callback)) {
-        _ref3 = [root, null], callback = _ref3[0], root = _ref3[1];
+        _ref4 = [root, null], callback = _ref4[0], root = _ref4[1];
       }
       if (element == null) {
         element = Falcon.applicationElement;
       }
       Falcon.ready(function() {
-        var _ref4;
+        var _ref5;
         Falcon.templateAdapter.cacheAllTemplates();
         if (!isElement(element)) {
           if (!isString(element)) {
             element = "";
           }
           element = isEmpty(element) ? "body" : trim(element);
-          element = (_ref4 = document.querySelectorAll(element)[0]) != null ? _ref4 : document.body;
+          element = (_ref5 = document.querySelectorAll(element)[0]) != null ? _ref5 : document.body;
         }
         if (root != null) {
           ko.applyBindingAccessorsToNode(element, {
@@ -2083,9 +2099,9 @@
     };
 
     _Class.prototype.addBinding = function(name, definition, allowVirtual) {
-      var _ref2;
+      var _ref3;
       if (isBoolean(definition)) {
-        _ref2 = [allowVirtual, definition], definition = _ref2[0], allowVirtual = _ref2[1];
+        _ref3 = [allowVirtual, definition], definition = _ref3[0], allowVirtual = _ref3[1];
       }
       if (isFunction(definition)) {
         definition = {
@@ -2169,7 +2185,7 @@
     _runUnobserved = function(callback, context) {
       var computed;
       computed = ko.computed(function() {
-        return callback.call(context != null ? context : this);
+        return callback != null ? callback.call(context != null ? context : this) : void 0;
       });
       computed.peek();
       return computed.dispose();
@@ -2185,12 +2201,13 @@
     };
     return {
       'init': function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
-        var anonymous_template, container, continuation, is_displayed, is_disposing, oldView, view;
+        var anonymous_template, container, continuation, is_displayed, is_disposing, oldView, original_template, view, _ref3;
         view = null;
         oldView = null;
         is_displayed = false;
         is_disposing = false;
         continuation = (function() {});
+        original_template = (_ref3 = element.innerHTML) != null ? _ref3 : "";
         container = document.createElement('div');
         anonymous_template = new ko.templateSources.anonymousTemplate(element);
         anonymous_template['nodes'](container);
@@ -2201,19 +2218,19 @@
         ko.computed({
           disposeWhenNodeIsRemoved: element,
           read: function() {
-            var afterDisplay, beforeDispose, beforeDispose_length, options, should_display, template, _ref2, _ref3;
+            var afterDisplay, beforeDispose, beforeDispose_length, options, should_display, template, _ref4, _ref5;
             options = _standardizeOptions(valueAccessor);
             view = ko.unwrap(options.data);
-            template = Falcon.isView(view) ? ko.unwrap(view.__falcon_view__loaded_template__) : "";
+            template = Falcon.isView(view) ? ko.unwrap(view.__falcon_view__loaded_template__) : original_template;
             if (!isString(template)) {
-              template = "";
+              template = original_template;
             }
             afterDisplay = ko.utils.peekObservable(options['afterDisplay']);
             beforeDispose = ko.utils.peekObservable(options['beforeDispose']);
             should_display = ko.unwrap(options['displayIf']) !== false;
             should_display = should_display && !isEmpty(template);
             continuation = function() {
-              var childContext, view_model, _ref2;
+              var childContext, view_model, _ref4, _ref5;
               continuation = (function() {});
               is_disposing = false;
               is_displayed = false;
@@ -2225,18 +2242,18 @@
                 _tryUnrender(view);
                 return ko.virtualElements.emptyNode(element);
               }
-              view_model = view.createViewModel();
+              view_model = (_ref4 = view != null ? view.createViewModel() : void 0) != null ? _ref4 : {};
               childContext = context.createChildContext(viewModel).extend({
                 '$rawView': view,
                 '$view': view_model,
                 '$data': view_model,
-                '$root': (_ref2 = context['$root']) != null ? _ref2 : view_model
+                '$root': (_ref5 = context['$root']) != null ? _ref5 : view_model
               });
               container.innerHTML = template;
               anonymous_template['text'](template);
               ko.renderTemplate(element, childContext, {}, element);
               is_displayed = true;
-              _runUnobserved(view._render, view);
+              _runUnobserved(view != null ? view._render : void 0, view);
               if (isFunction(afterDisplay)) {
                 return afterDisplay(ko.virtualElements.childNodes(element), view);
               }
@@ -2245,7 +2262,7 @@
               return;
             }
             if (is_displayed && isFunction(beforeDispose)) {
-              beforeDispose_length = (_ref2 = (_ref3 = beforeDispose.__falcon_bind__length__) != null ? _ref3 : beforeDispose.length) != null ? _ref2 : 0;
+              beforeDispose_length = (_ref4 = (_ref5 = beforeDispose.__falcon_bind__length__) != null ? _ref5 : beforeDispose.length) != null ? _ref4 : 0;
               if (beforeDispose_length === 3) {
                 is_disposing = true;
                 return beforeDispose(ko.virtualElements.childNodes(element), view, function() {
@@ -2294,26 +2311,26 @@
     });
   };
 
-  Falcon.__binding__original_foreach__ = (_ref2 = Falcon.getBinding('foreach')) != null ? _ref2 : {};
+  Falcon.__binding__original_foreach__ = (_ref3 = Falcon.getBinding('foreach')) != null ? _ref3 : {};
 
   Falcon.addBinding('foreach', {
     'init': function() {
-      var args, element, value, valueAccessor, _ref3;
+      var args, element, value, valueAccessor, _ref4;
       element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
       value = ko.unwrap(valueAccessor());
-      return (_ref3 = Falcon.__binding__original_foreach__)['init'].apply(_ref3, [element, _getForeachItems(value)].concat(__slice.call(args)));
+      return (_ref4 = Falcon.__binding__original_foreach__)['init'].apply(_ref4, [element, _getForeachItems(value)].concat(__slice.call(args)));
     },
     'update': function() {
-      var args, element, value, valueAccessor, _ref3;
+      var args, element, value, valueAccessor, _ref4;
       element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
       value = ko.unwrap(valueAccessor());
-      return (_ref3 = Falcon.__binding__original_foreach__)['update'].apply(_ref3, [element, _getForeachItems(value)].concat(__slice.call(args)));
+      return (_ref4 = Falcon.__binding__original_foreach__)['update'].apply(_ref4, [element, _getForeachItems(value)].concat(__slice.call(args)));
     }
   });
 
-  _ref3 = Falcon.__binding__original_foreach__;
-  for (key in _ref3) {
-    value = _ref3[key];
+  _ref4 = Falcon.__binding__original_foreach__;
+  for (key in _ref4) {
+    value = _ref4[key];
     if (!(key in ko.bindingHandlers['foreach'])) {
       ko.bindingHandlers['foreach'][key] = value;
     }
@@ -2329,26 +2346,26 @@
     });
   };
 
-  Falcon.__binding__original_options__ = (_ref4 = Falcon.getBinding('options')) != null ? _ref4 : {};
+  Falcon.__binding__original_options__ = (_ref5 = Falcon.getBinding('options')) != null ? _ref5 : {};
 
   Falcon.addBinding('options', {
     'init': function() {
-      var args, element, valueAccessor, _ref5;
+      var args, element, valueAccessor, _ref6;
       element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
       value = ko.unwrap(valueAccessor());
-      return ((_ref5 = Falcon.__binding__original_options__['init']) != null ? _ref5 : (function() {})).apply(null, [element, _getOptionsItems(value)].concat(__slice.call(args)));
+      return ((_ref6 = Falcon.__binding__original_options__['init']) != null ? _ref6 : (function() {})).apply(null, [element, _getOptionsItems(value)].concat(__slice.call(args)));
     },
     'update': function() {
-      var args, element, valueAccessor, _ref5;
+      var args, element, valueAccessor, _ref6;
       element = arguments[0], valueAccessor = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
       value = ko.unwrap(valueAccessor());
-      return ((_ref5 = Falcon.__binding__original_options__['update']) != null ? _ref5 : (function() {})).apply(null, [element, _getOptionsItems(value)].concat(__slice.call(args)));
+      return ((_ref6 = Falcon.__binding__original_options__['update']) != null ? _ref6 : (function() {})).apply(null, [element, _getOptionsItems(value)].concat(__slice.call(args)));
     }
   });
 
-  _ref5 = Falcon.__binding__original_options__;
-  for (key in _ref5) {
-    value = _ref5[key];
+  _ref6 = Falcon.__binding__original_options__;
+  for (key in _ref6) {
+    value = _ref6[key];
     if (!(key in ko.bindingHandlers['options'])) {
       ko.bindingHandlers['options'][key] = value;
     }
@@ -2358,7 +2375,7 @@
     return console.log(ko.unwrap(valueAccessor()));
   });
 
-  Falcon.__binding__original_component__ = (_ref6 = Falcon.getBinding('component')) != null ? _ref6 : {};
+  Falcon.__binding__original_component__ = (_ref7 = Falcon.getBinding('component')) != null ? _ref7 : {};
 
   Falcon.addBinding('component', true, {
     'init': function(element, valueAccessor, allBindings, viewModel, bindingContext) {

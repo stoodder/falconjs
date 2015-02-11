@@ -9,6 +9,7 @@
 	'Model': FalconModel
 	'Collection': FalconCollection
 	'View': FalconView
+	'Component': FalconComponent
 	'DataAdapter': FalconDataAdapter
 	'TemplateAdapter': FalconTemplateAdapter
 
@@ -152,7 +153,7 @@
 			#Trigger any callback to notify the application that
 			#the app has been initialized and the bindings are applied.
 			callback() if isFunction( callback )
-		#END _ready
+		#END ready
 
 		return Falcon
 	#END apply

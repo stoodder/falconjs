@@ -69,6 +69,7 @@ module.exports = (grunt) ->
 						"coffee/falcon.model.coffee"
 						"coffee/falcon.collection.coffee"
 						"coffee/falcon.view.coffee"
+						"coffee/falcon.component.coffee"
 						"coffee/falcon.coffee"
 						"coffee/falcon.ko.component_loader.coffee"
 						"coffee/falcon.ko.bindings.coffee"

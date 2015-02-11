@@ -10,49 +10,52 @@
   <script type="text/javascript" src="scripts/falcon.js"></script>
 
   <script>
-    var LayoutView = Falcon.View.extend({
-      endpoint: '#layout',
+var __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  __hasProp = {}.hasOwnProperty;
 
-      defaults: {
-        'array': [
-          "1", "2", "3"
-        ]
-      },
+Falcon.addComponent('snack-component', (function(_super) {
+  __extends(_Class, _super);
 
-      initialize: function() {
-        console.log("New Layout");
-      }
-    });
+  function _Class() {
+    return _Class.__super__.constructor.apply(this, arguments);
+  }
 
-    var SnackComponent = Falcon.View.extend({
-      endpoint: '#snack-component',
+  _Class.prototype.template = "<div>The things I <!-- ko text: $component.title --><!-- /ko -->!</div>\n<div><!-- ko yield: true --><!-- /ko --></div>";
 
-      defaults: {
-        'collection': function(params) {
-          if(!params) params = {};
-          return ko.unwrap(params.collection);
-        }
-      }
-    })
+  _Class.prototype.defaults = {
+    "title": function(_arg) {
+      var title;
+      title = _arg.title;
+      return title != null ? title : "Do";
+    }
+  };
 
-    Falcon.addComponent('snack-component', SnackComponent);
+  return _Class;
 
-    Falcon.apply(new LayoutView, "#application");
+})(Falcon.Component));
+
+Falcon.addComponent('snack-list', (function(_super) {
+  __extends(_Class, _super);
+
+  function _Class() {
+    return _Class.__super__.constructor.apply(this, arguments);
+  }
+
+  _Class.prototype.template = "<input type=\"text\" data-bind=\"value: $component.title, valueUpdate: 'keyup'\" />\n<snack-component params=\"title: $component.title\"></snack-component>\n<snack-component params=\"title: $component.title\">Neat</snack-component>\n<snack-component></snack-component>";
+
+  _Class.prototype.observables = {
+    "title": ""
+  };
+
+  return _Class;
+
+})(Falcon.Component));
+
+Falcon.apply();
   </script>
 
 </head>
   <body>
-    App:
-    <div id="application"></div>
+    <snack-list></snack-list>
   </body>
-  <template id="snack-component">
-    <!-- ko foreach: $component.collection -->
-      <!-- ko yield: true --><!-- /ko -->
-    <!-- /ko -->
-  </template>
-  <template id="layout">
-    <snack-component params="collection: $view.array">
-      <div>Hello Snack <!-- ko text: $data --><!-- /ko --></div>
-    </snack-component>
-  </template>
 </html>

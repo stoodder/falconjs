@@ -16,7 +16,7 @@ Falcon.addBinding 'view', true, do ->
 	#END _standardizeOptions
 
 	_runUnobserved = (callback, context) ->
-		computed = ko.computed -> callback.call(context ? this)
+		computed = ko.computed -> callback?.call(context ? this)
 		computed.peek()
 		computed.dispose()
 	#END _runUnobserved
@@ -34,6 +34,7 @@ Falcon.addBinding 'view', true, do ->
 		is_disposing = false
 		continuation = (->)
 
+		original_template = element.innerHTML ? ""
 		container = document.createElement('div')
 
 		anonymous_template = new ko.templateSources.anonymousTemplate(element)
@@ -50,8 +51,8 @@ Falcon.addBinding 'view', true, do ->
 				options = _standardizeOptions(valueAccessor)
 				view = ko.unwrap( options.data )
 
-				template = if Falcon.isView( view ) then ko.unwrap(view.__falcon_view__loaded_template__) else "" 
-				template = "" unless isString(template)
+				template = if Falcon.isView( view ) then ko.unwrap(view.__falcon_view__loaded_template__) else original_template
+				template = original_template unless isString(template)
 
 				afterDisplay = ko.utils.peekObservable( options['afterDisplay'] )
 				beforeDispose = ko.utils.peekObservable( options['beforeDispose'] )
@@ -74,7 +75,7 @@ Falcon.addBinding 'view', true, do ->
 						return ko.virtualElements.emptyNode(element)
 					#END unless
 					
-					view_model = view.createViewModel()
+					view_model = view?.createViewModel() ? {}
 					childContext = context.createChildContext(viewModel).extend({
 						'$rawView': view
 						'$view': view_model
@@ -89,7 +90,7 @@ Falcon.addBinding 'view', true, do ->
 
 					is_displayed = true
 
-					_runUnobserved(view._render, view)
+					_runUnobserved(view?._render, view)
 
 					if isFunction(afterDisplay)
 						afterDisplay( ko.virtualElements.childNodes(element), view )
