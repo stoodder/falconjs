@@ -1944,6 +1944,8 @@
 
     FalconComponent.extend = FalconView.extend;
 
+    FalconComponent.prototype.style = null;
+
     return FalconComponent;
 
   })(FalconView);
@@ -2086,6 +2088,10 @@
       return (object != null) && object instanceof Falcon.View;
     };
 
+    _Class.prototype.isComponent = function(object) {
+      return (object != null) && object instanceof Falcon.Component;
+    };
+
     _Class.prototype.isDataObject = function(object) {
       return (object != null) && (object instanceof Falcon.Model || object instanceof Falcon.Collection);
     };
@@ -2131,29 +2137,66 @@
 
   })(FalconObject));
 
-  ko.components.loaders.unshift({
-    loadComponent: function(tag_name, view_definition, callback) {
-      if (Falcon.isView(view_definition.prototype)) {
-        Falcon.templateAdapter.resolveTemplate(view_definition.prototype, function(template) {
-          var element;
-          element = document.createElement('div');
-          element.innerHTML = template;
-          return callback({
-            template: cloneNodes(element.childNodes),
-            createViewModel: function(params) {
-              var view;
-              view = new view_definition(params);
-              params['__falcon_component_view__'] = view;
-              view._render();
-              return view.createViewModel();
+  ko.components.loaders.unshift((function() {
+    var head_element, _ref3;
+    head_element = (_ref3 = document.head) != null ? _ref3 : document.getElementsByTagName("head")[0];
+    return {
+      loadComponent: function(tag_name, view_definition, callback) {
+        if (Falcon.isComponent(view_definition.prototype)) {
+          Falcon.templateAdapter.resolveTemplate(view_definition.prototype, function(template) {
+            var element, stylesheet, _recurse, _ref4, _ref5;
+            element = document.createElement('div');
+            element.innerHTML = template;
+            if (isString(view_definition.prototype.style)) {
+              stylesheet = document.createElement("style");
+              stylesheet.innerHTML = view_definition.prototype.style;
+              head_element.appendChild(stylesheet);
+              (_recurse = function(sheet) {
+                var css, index, rule, rules, _i, _len, _ref6, _ref7, _results;
+                rules = (_ref6 = (_ref7 = sheet.cssRules) != null ? _ref7 : sheet.rules) != null ? _ref6 : [];
+                _results = [];
+                for (index = _i = 0, _len = rules.length; _i < _len; index = ++_i) {
+                  rule = rules[index];
+                  if (index < rules.length && (rule != null)) {
+                    switch (rule.type) {
+                      case CSSRule.STYLE_RULE:
+                        css = trim(rule.cssText);
+                        if (css.indexOf(tag_name) === -1) {
+                          sheet.deleteRule(index);
+                          css = "" + tag_name + " " + css;
+                          _results.push(sheet.insertRule(css, index));
+                        } else {
+                          _results.push(void 0);
+                        }
+                        break;
+                      case CSSRule.MEDIA_RULE:
+                        _results.push(_recurse(rule));
+                        break;
+                      default:
+                        _results.push(void 0);
+                    }
+                  }
+                }
+                return _results;
+              })((_ref4 = (_ref5 = stylesheet.styleSheet) != null ? _ref5 : stylesheet.sheet) != null ? _ref4 : {});
             }
+            return callback({
+              template: cloneNodes(element.childNodes),
+              createViewModel: function(params) {
+                var view;
+                view = new view_definition(params);
+                params['__falcon_component_view__'] = view;
+                view._render();
+                return view.createViewModel();
+              }
+            });
           });
-        });
-      } else {
-        callback(null);
+        } else {
+          callback(null);
+        }
       }
-    }
-  });
+    };
+  })());
 
   Falcon.addBinding('view', true, (function() {
     var _runUnobserved, _standardizeOptions, _tryUnrender;

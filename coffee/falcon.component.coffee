@@ -4,3 +4,5 @@ class FalconComponent extends FalconView
 	#	Inherit the global extend method
 	#--------------------------------------------------------
 	@extend = FalconView.extend
+
+	style: null

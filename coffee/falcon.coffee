@@ -201,6 +201,20 @@
 	#END isView
 
 	#--------------------------------------------------------
+	# Method: Falcon.isComponent()
+	#	Method used to test if an object is a Falcon View
+	#
+	# Arguments:
+	#	**object** _(mixed)_ -  The object to test
+	#
+	# Returns:
+	#	_(Boolean)_ - Is the object a view?
+	#--------------------------------------------------------
+	isComponent: (object) -> 
+		return object? and object instanceof Falcon.Component
+	#END isComponent
+
+	#--------------------------------------------------------
 	# Method: Falcon.isDataObject()
 	#	Method used to test if an object is a Falcon Model or Collection
 	#

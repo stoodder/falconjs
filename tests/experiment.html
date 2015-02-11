@@ -13,39 +13,16 @@
 var __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   __hasProp = {}.hasOwnProperty;
 
-Falcon.addComponent('snack-component', (function(_super) {
+Falcon.addComponent("hello-world", (function(_super) {
   __extends(_Class, _super);
 
   function _Class() {
     return _Class.__super__.constructor.apply(this, arguments);
   }
 
-  _Class.prototype.template = "<div>The things I <!-- ko text: $component.title --><!-- /ko -->!</div>\n<div><!-- ko yield: true --><!-- /ko --></div>";
+  _Class.prototype.style = "hello-world { font-size: 18px; } a { color: red }\nb { color: blue }\ni { color: green } @media (screen and max-width: 480px) { strong { color: yellow; } }";
 
-  _Class.prototype.defaults = {
-    "title": function(_arg) {
-      var title;
-      title = _arg.title;
-      return title != null ? title : "Do";
-    }
-  };
-
-  return _Class;
-
-})(Falcon.Component));
-
-Falcon.addComponent('snack-list', (function(_super) {
-  __extends(_Class, _super);
-
-  function _Class() {
-    return _Class.__super__.constructor.apply(this, arguments);
-  }
-
-  _Class.prototype.template = "<input type=\"text\" data-bind=\"value: $component.title, valueUpdate: 'keyup'\" />\n<snack-component params=\"title: $component.title\"></snack-component>\n<snack-component params=\"title: $component.title\">Neat</snack-component>\n<snack-component></snack-component>";
-
-  _Class.prototype.observables = {
-    "title": ""
-  };
+  _Class.prototype.template = "<a>Hello World?</a><br />\n<b>Hello World.</b><br />\n<i>Hello World!</i><br /><br />";
 
   return _Class;
 
@@ -56,6 +33,9 @@ Falcon.apply();
 
 </head>
   <body>
-    <snack-list></snack-list>
+    <hello-world></hello-world>
+    <hello-world></hello-world>
+    <hello-world></hello-world>
+    <hello-world></hello-world>
   </body>
 </html>
