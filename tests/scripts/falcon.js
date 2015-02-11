@@ -2230,7 +2230,7 @@
             should_display = ko.unwrap(options['displayIf']) !== false;
             should_display = should_display && !isEmpty(template);
             continuation = function() {
-              var childContext, view_model, _ref4, _ref5;
+              var childContext, view_model, _ref4;
               continuation = (function() {});
               is_disposing = false;
               is_displayed = false;
@@ -2242,12 +2242,12 @@
                 _tryUnrender(view);
                 return ko.virtualElements.emptyNode(element);
               }
-              view_model = (_ref4 = view != null ? view.createViewModel() : void 0) != null ? _ref4 : {};
+              view_model = Falcon.isView(view) ? view.createViewModel() : {};
               childContext = context.createChildContext(viewModel).extend({
                 '$rawView': view,
                 '$view': view_model,
                 '$data': view_model,
-                '$root': (_ref5 = context['$root']) != null ? _ref5 : view_model
+                '$root': (_ref4 = context['$root']) != null ? _ref4 : view_model
               });
               container.innerHTML = template;
               anonymous_template['text'](template);

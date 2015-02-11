@@ -18,7 +18,7 @@ describe "Bindings", ->
 
 				element = MockHelper.makeElement()
 				                    .bindings("view: test_view")
-				                    .html("Hello World")
+				                    .html("      ")
 				                    .andApply({
 				                    	test_view: test_view
 				                    })
@@ -38,7 +38,7 @@ describe "Bindings", ->
 
 				element = MockHelper.makeElement()
 				                    .bindings("view: test_view")
-				                    .html("Hello World")
+				                    .html("        ")
 				                    .andApply({
 				                    	test_view: test_view
 				                    })
@@ -51,6 +51,43 @@ describe "Bindings", ->
 
 				expect( element.innerHTML ).toBe("")
 			#END it
+
+			it "Should initialize correctly with an improper view and use the provided anonymous template", ->
+				test_view = {}
+
+				element = MockHelper.makeElement()
+				                    .bindings("view: test_view")
+				                    .html("Hello World")
+				                    .andApply({
+				                    	test_view: test_view
+				                    })
+
+				expect( ko.virtualElements.emptyNode ).not.toHaveBeenCalled()
+
+				expect( Falcon.View::_render ).not.toHaveBeenCalled()
+				expect( Falcon.View::_unrender ).not.toHaveBeenCalled()
+
+				expect( element.innerHTML ).toBe("Hello World")
+			#END it
+
+			it "Should initialize correctly and use the provided anonymous template", ->
+				test_view = new Falcon.View()
+				test_view.__falcon_view__loaded_template__(undefined)
+
+				element = MockHelper.makeElement()
+				                    .bindings("view: test_view")
+				                    .html("Hello World")
+				                    .andApply({
+				                    	test_view: test_view
+				                    })
+
+				expect( ko.virtualElements.emptyNode ).not.toHaveBeenCalled()
+
+				expect( Falcon.View::_render.calls.count() ).toBe( 1 )
+				expect( Falcon.View::_unrender ).not.toHaveBeenCalled()
+
+				expect( element.innerHTML ).toBe("Hello World")
+			#END it
 		#END describe
 
 		describe "Observable Exception Cases", ->
@@ -59,7 +96,7 @@ describe "Bindings", ->
 
 				element = MockHelper.makeElement()
 				                    .bindings("view: test_view")
-				                    .html("Hello World")
+				                    .html("        ")
 				                    .andApply({
 				                    	test_view: ko.observable(test_view)
 				                    })
@@ -79,7 +116,7 @@ describe "Bindings", ->
 
 				element = MockHelper.makeElement()
 				                    .bindings("view: test_view")
-				                    .html("Hello World")
+				                    .html("        ")
 				                    .andApply({
 				                    	test_view: ko.observable(test_view)
 				                    })
@@ -91,6 +128,43 @@ describe "Bindings", ->
 				expect( Falcon.View::_unrender ).not.toHaveBeenCalled()
 
 				expect( element.innerHTML ).toBe("")
+			#END it
+
+			it "Should initialize correctly with an improper view and an observable and use the provided anonymous template", ->
+				test_view = {}
+
+				element = MockHelper.makeElement()
+				                    .bindings("view: test_view")
+				                    .html("Hello World")
+				                    .andApply({
+				                    	test_view: ko.observable(test_view)
+				                    })
+
+				expect( ko.virtualElements.emptyNode ).not.toHaveBeenCalled()
+
+				expect( Falcon.View::_render ).not.toHaveBeenCalled()
+				expect( Falcon.View::_unrender ).not.toHaveBeenCalled()
+
+				expect( element.innerHTML ).toBe("Hello World")
+			#END it
+
+			it "Should initialize correctly with an observable and use the provided anonymous template", ->
+				test_view = new Falcon.View()
+				test_view.__falcon_view__loaded_template__(undefined)
+
+				element = MockHelper.makeElement()
+				                    .bindings("view: test_view")
+				                    .html("Hello World")
+				                    .andApply({
+				                    	test_view: ko.observable(test_view)
+				                    })
+
+				expect( ko.virtualElements.emptyNode ).not.toHaveBeenCalled()
+
+				expect( Falcon.View::_render.calls.count() ).toBe( 1 )
+				expect( Falcon.View::_unrender ).not.toHaveBeenCalled()
+
+				expect( element.innerHTML ).toBe("Hello World")
 			#END it
 		#END describe
 

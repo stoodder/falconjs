@@ -75,7 +75,7 @@ Falcon.addBinding 'view', true, do ->
 						return ko.virtualElements.emptyNode(element)
 					#END unless
 					
-					view_model = view?.createViewModel() ? {}
+					view_model = if Falcon.isView(view) then view.createViewModel() else {}
 					childContext = context.createChildContext(viewModel).extend({
 						'$rawView': view
 						'$view': view_model

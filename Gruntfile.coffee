@@ -138,7 +138,7 @@ module.exports = (grunt) ->
 
 		'jasmine':
 			'dist':
-				src: 'falcon.min.js'
+				src: 'falcon.js'
 				options:
 					display: 'short'
 					summary: true

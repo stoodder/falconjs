@@ -7407,7 +7407,7 @@
         it("Should initialize correctly, but empty the node if a view isn't given", function() {
           var element, test_view;
           test_view = {};
-          element = MockHelper.makeElement().bindings("view: test_view").html("Hello World").andApply({
+          element = MockHelper.makeElement().bindings("view: test_view").html("      ").andApply({
             test_view: test_view
           });
           expect(ko.virtualElements.emptyNode.calls.count()).toBe(1);
@@ -7416,11 +7416,11 @@
           expect(Falcon.View.prototype._unrender).not.toHaveBeenCalled();
           return expect(element.innerHTML).toBe("");
         });
-        return it("Should initialize correctly, but empty the node if the view doesn't have a template", function() {
+        it("Should initialize correctly, but empty the node if the view doesn't have a template", function() {
           var element, test_view;
           test_view = new Falcon.View();
           test_view.__falcon_view__loaded_template__(void 0);
-          element = MockHelper.makeElement().bindings("view: test_view").html("Hello World").andApply({
+          element = MockHelper.makeElement().bindings("view: test_view").html("        ").andApply({
             test_view: test_view
           });
           expect(ko.virtualElements.emptyNode.calls.count()).toBe(1);
@@ -7428,13 +7428,36 @@
           expect(Falcon.View.prototype._render).not.toHaveBeenCalled();
           expect(Falcon.View.prototype._unrender).not.toHaveBeenCalled();
           return expect(element.innerHTML).toBe("");
+        });
+        it("Should initialize correctly with an improper view and use the provided anonymous template", function() {
+          var element, test_view;
+          test_view = {};
+          element = MockHelper.makeElement().bindings("view: test_view").html("Hello World").andApply({
+            test_view: test_view
+          });
+          expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
+          expect(Falcon.View.prototype._render).not.toHaveBeenCalled();
+          expect(Falcon.View.prototype._unrender).not.toHaveBeenCalled();
+          return expect(element.innerHTML).toBe("Hello World");
+        });
+        return it("Should initialize correctly and use the provided anonymous template", function() {
+          var element, test_view;
+          test_view = new Falcon.View();
+          test_view.__falcon_view__loaded_template__(void 0);
+          element = MockHelper.makeElement().bindings("view: test_view").html("Hello World").andApply({
+            test_view: test_view
+          });
+          expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
+          expect(Falcon.View.prototype._render.calls.count()).toBe(1);
+          expect(Falcon.View.prototype._unrender).not.toHaveBeenCalled();
+          return expect(element.innerHTML).toBe("Hello World");
         });
       });
       describe("Observable Exception Cases", function() {
         it("Should initialize correctly with observable, but empty the node if a view isn't given", function() {
           var element, test_view;
           test_view = {};
-          element = MockHelper.makeElement().bindings("view: test_view").html("Hello World").andApply({
+          element = MockHelper.makeElement().bindings("view: test_view").html("        ").andApply({
             test_view: ko.observable(test_view)
           });
           expect(ko.virtualElements.emptyNode.calls.count()).toBe(1);
@@ -7443,11 +7466,11 @@
           expect(Falcon.View.prototype._unrender).not.toHaveBeenCalled();
           return expect(element.innerHTML).toBe("");
         });
-        return it("Should initialize correctly with observable, but empty the node if the view doesn't have a template", function() {
+        it("Should initialize correctly with observable, but empty the node if the view doesn't have a template", function() {
           var element, test_view;
           test_view = new Falcon.View();
           test_view.__falcon_view__loaded_template__(void 0);
-          element = MockHelper.makeElement().bindings("view: test_view").html("Hello World").andApply({
+          element = MockHelper.makeElement().bindings("view: test_view").html("        ").andApply({
             test_view: ko.observable(test_view)
           });
           expect(ko.virtualElements.emptyNode.calls.count()).toBe(1);
@@ -7455,6 +7478,29 @@
           expect(Falcon.View.prototype._render).not.toHaveBeenCalled();
           expect(Falcon.View.prototype._unrender).not.toHaveBeenCalled();
           return expect(element.innerHTML).toBe("");
+        });
+        it("Should initialize correctly with an improper view and an observable and use the provided anonymous template", function() {
+          var element, test_view;
+          test_view = {};
+          element = MockHelper.makeElement().bindings("view: test_view").html("Hello World").andApply({
+            test_view: ko.observable(test_view)
+          });
+          expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
+          expect(Falcon.View.prototype._render).not.toHaveBeenCalled();
+          expect(Falcon.View.prototype._unrender).not.toHaveBeenCalled();
+          return expect(element.innerHTML).toBe("Hello World");
+        });
+        return it("Should initialize correctly with an observable and use the provided anonymous template", function() {
+          var element, test_view;
+          test_view = new Falcon.View();
+          test_view.__falcon_view__loaded_template__(void 0);
+          element = MockHelper.makeElement().bindings("view: test_view").html("Hello World").andApply({
+            test_view: ko.observable(test_view)
+          });
+          expect(ko.virtualElements.emptyNode).not.toHaveBeenCalled();
+          expect(Falcon.View.prototype._render.calls.count()).toBe(1);
+          expect(Falcon.View.prototype._unrender).not.toHaveBeenCalled();
+          return expect(element.innerHTML).toBe("Hello World");
         });
       });
       describe("Basic Usage", function() {
