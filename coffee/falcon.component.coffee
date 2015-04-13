@@ -6,3 +6,5 @@ class FalconComponent extends FalconView
 	@extend = FalconView.extend
 
 	style: null
+	synchronous: true
+#END FalconComponent

@@ -1946,6 +1946,8 @@
 
     FalconComponent.prototype.style = null;
 
+    FalconComponent.prototype.synchronous = true;
+
     return FalconComponent;
 
   })(FalconView);
