@@ -1,7 +1,7 @@
 #--------------------------------------------------------
 # Method: ko.bindingHandlers.view
 #	Mehod used to handle view objects, fetching their html
-#	and binding them against their memebr objects
+#	and binding them against their member objects
 #--------------------------------------------------------
 Falcon.addBinding 'view', true, do ->
 	_standardizeOptions = (valueAccessor) ->
