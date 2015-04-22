@@ -28,7 +28,7 @@ class FalconTemplateAdapter extends FalconObject
 	#END constructor
 
 	addLoadRoutine: (routine) ->
-		routine() if @__falcon_templateAdapter__is_loaded__
+		return routine() if @__falcon_templateAdapter__is_loaded__
 		(@__falcon_templateAdapter__load_routines__ ?= []).push(routine)
 	#END addLoadRoutine
 
@@ -102,8 +102,6 @@ class FalconTemplateAdapter extends FalconObject
 			Falcon.templateAdapter.cacheTemplate( "##{identifier}", template.innerHTML ) if identifier?
 			template.parentNode?.removeChild(template)
 		#END each template
-
-		@executeLoadRoutines()
 
 		return @
 	#END cacheAllTemplates

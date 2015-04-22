@@ -201,6 +201,14 @@ Falcon.addBinding 'log', true, (element, valueAccessor) ->
 #END log
 
 #--------------------------------------------------------
+# Method: ko.bindingHandlers.debugger
+#	Debug binding to log observable values
+#--------------------------------------------------------
+Falcon.addBinding 'debugger', true, (element, valueAccessor) ->
+	debugger if ko.unwrap( valueAccessor() )
+#END debugger
+
+#--------------------------------------------------------
 # Method: ko.bindingHandlers.component
 #	Overriding the original component binding to account for
 #	falcon views
@@ -215,7 +223,7 @@ Falcon.addBinding 'component', true, 'init': (element, valueAccessor, allBinding
 	#END onDispose
 
 	Falcon.__binding__original_component__['init'].apply(@, arguments)
-	ko.virtualElements.emptyNode(element)
+	# ko.virtualElements.emptyNode(element)
 #END component
 
 #--------------------------------------------------------
