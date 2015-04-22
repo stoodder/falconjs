@@ -807,7 +807,6 @@
         callback("");
         return this;
       }
-      console.log("Loaded template");
       template = element.innerHTML;
       if (!isString(template)) {
         template = "";

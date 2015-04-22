@@ -22,6 +22,7 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Added $rawView to the view's binding context to provide access to the actual Falcon.View instance, not just it's view model created from createViewModel().
 * Added serializeRequestData to transform serialized data in to request data for both models and collections
 * Added 'debugger' binding to trigger the debugger on binding value change (to something truthy)
+* Support for knockout-3.3.0 and updated performance of components
 
 **Bug Fixes**
 * Removed change counter on collections, it was redundant checking and not needed anymore

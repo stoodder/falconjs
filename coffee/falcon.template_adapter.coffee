@@ -183,7 +183,6 @@ class FalconTemplateAdapter extends FalconObject
 			return @ 
 		#END unless
 
-		console.log("Loaded template")
 		template = element.innerHTML
 		template = "" unless isString(template)
 		@cacheTemplate( url, template )
