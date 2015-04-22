@@ -2,15 +2,15 @@ ko.components.loaders.unshift do ->
 	head_element = document.head ? document.getElementsByTagName("head")[0]
 
 	loadComponent: (tag_name, config, callback) ->
-		if '__falcon_component_definition__' of config
-			view_definition = config['__falcon_component_definition__']
-			Falcon.templateAdapter.resolveTemplate view_definition::, (template) ->
+		component_definition = config['__falcon_component_definition__']
+		if component_definition? and Falcon.isComponent(component_definition::)
+			Falcon.templateAdapter.resolveTemplate component_definition::, (template) ->
 				element = document.createElement('div')
 				element.innerHTML = template
 
-				if isString(view_definition::style)
+				if isString(component_definition::style)
 					stylesheet = document.createElement("style")
-					stylesheet.innerHTML = view_definition::style
+					stylesheet.innerHTML = component_definition::style
 					head_element.appendChild(stylesheet)
 
 					(_recurse = (sheet) ->
@@ -34,15 +34,15 @@ ko.components.loaders.unshift do ->
 				#END if
 
 				callback({
-					synchronous: view_definition::synchronous
+					synchronous: component_definition::synchronous
 					template: cloneNodes(element.childNodes)
 					createViewModel: (params, info) ->
-						view = new view_definition(params)
+						component = new component_definition(params)
 
-						params['__falcon_component_view__'] = view
-						view._render()
+						params['__falcon_component_view__'] = component
+						component._render()
 
-						return view.createViewModel()
+						return component.createViewModel()
 					#END createViewModel
 				})
 			#END resolveTemplate

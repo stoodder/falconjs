@@ -2129,6 +2129,9 @@
     };
 
     _Class.prototype.addComponent = function(tag_name, component_definition) {
+      if (isObject(component_definition) && !Falcon.isComponent(component_definition.prototype)) {
+        component_definition = Falcon.Component.extend(component_definition);
+      }
       return ko.components.register(tag_name, {
         '__falcon_component_definition__': component_definition,
         'synchronous': component_definition.prototype.synchronous
@@ -2148,16 +2151,16 @@
     head_element = (_ref3 = document.head) != null ? _ref3 : document.getElementsByTagName("head")[0];
     return {
       loadComponent: function(tag_name, config, callback) {
-        var view_definition;
-        if ('__falcon_component_definition__' in config) {
-          view_definition = config['__falcon_component_definition__'];
-          Falcon.templateAdapter.resolveTemplate(view_definition.prototype, function(template) {
+        var component_definition;
+        component_definition = config['__falcon_component_definition__'];
+        if ((component_definition != null) && Falcon.isComponent(component_definition.prototype)) {
+          Falcon.templateAdapter.resolveTemplate(component_definition.prototype, function(template) {
             var element, stylesheet, _recurse, _ref4, _ref5;
             element = document.createElement('div');
             element.innerHTML = template;
-            if (isString(view_definition.prototype.style)) {
+            if (isString(component_definition.prototype.style)) {
               stylesheet = document.createElement("style");
-              stylesheet.innerHTML = view_definition.prototype.style;
+              stylesheet.innerHTML = component_definition.prototype.style;
               head_element.appendChild(stylesheet);
               (_recurse = function(sheet) {
                 var css, index, rule, rules, _i, _len, _ref6, _ref7, _results;
@@ -2189,14 +2192,14 @@
               })((_ref4 = (_ref5 = stylesheet.styleSheet) != null ? _ref5 : stylesheet.sheet) != null ? _ref4 : {});
             }
             return callback({
-              synchronous: view_definition.prototype.synchronous,
+              synchronous: component_definition.prototype.synchronous,
               template: cloneNodes(element.childNodes),
               createViewModel: function(params, info) {
-                var view;
-                view = new view_definition(params);
-                params['__falcon_component_view__'] = view;
-                view._render();
-                return view.createViewModel();
+                var component;
+                component = new component_definition(params);
+                params['__falcon_component_view__'] = component;
+                component._render();
+                return component.createViewModel();
               }
             });
           });

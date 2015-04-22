@@ -302,6 +302,10 @@
 	#	_(Object)_ - The component definition
 	#--------------------------------------------------------
 	addComponent: (tag_name, component_definition) ->
+		if isObject(component_definition) and not Falcon.isComponent(component_definition::)
+			component_definition = Falcon.Component.extend(component_definition)
+		#END if
+		
 		ko.components.register(tag_name, {
 			'__falcon_component_definition__': component_definition
 			'synchronous': component_definition::synchronous

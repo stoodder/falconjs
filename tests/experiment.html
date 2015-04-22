@@ -10,7 +10,7 @@
   <script type="text/javascript" src="scripts/falcon.js"></script>
 
   <script>
-    Falcon.addComponent("hello-world", Falcon.Component.extend({
+    Falcon.addComponent("hello-world", {
       endpoint: "#hello_world-component",
 
       synchronous: true,
@@ -33,9 +33,9 @@
           setTimeout(recurse, 1000);
         })();
       }
-    }));
+    });
 
-    Falcon.addComponent("blip", Falcon.Component.extend({
+    Falcon.addComponent("blip", {
       endpoint: "#blip-component",
 
       synchronous: true,
@@ -47,7 +47,7 @@
           return options.count;
         }
       }
-    }));
+    });
 
     Falcon.addBinding("debugger", true, function(e, va) {
       return;
