@@ -1,8 +1,9 @@
 ko.components.loaders.unshift do ->
 	head_element = document.head ? document.getElementsByTagName("head")[0]
 
-	loadComponent: (tag_name, view_definition, callback) ->
-		if Falcon.isComponent(view_definition::)
+	loadComponent: (tag_name, config, callback) ->
+		if '__falcon_component_definition__' of config
+			view_definition = config['__falcon_component_definition__']
 			Falcon.templateAdapter.resolveTemplate view_definition::, (template) ->
 				element = document.createElement('div')
 				element.innerHTML = template
@@ -33,8 +34,9 @@ ko.components.loaders.unshift do ->
 				#END if
 
 				callback({
+					synchronous: view_definition::synchronous
 					template: cloneNodes(element.childNodes)
-					createViewModel: (params) ->
+					createViewModel: (params, info) ->
 						view = new view_definition(params)
 
 						params['__falcon_component_view__'] = view

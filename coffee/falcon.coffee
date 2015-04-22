@@ -136,6 +136,7 @@
 
 		Falcon.ready ->
 			Falcon.templateAdapter.cacheAllTemplates()
+			Falcon.templateAdapter.executeLoadRoutines()
 			
 			unless isElement( element )
 				element = "" unless isString( element )
@@ -295,13 +296,16 @@
 	#
 	# Arguments:
 	#	**tag_name** _(String)_ -  The tag name of your new component
-	#	**view_defintion** _(Falcon.View)_ - The falcon view defintion (not an instance)
+	#	**component_definition** _(Falcon.Component)_ - The falcon view defintion (not an instance)
 	#
 	# Returns:
 	#	_(Object)_ - The component definition
 	#--------------------------------------------------------
-	addComponent: (tag_name, view_defintion) ->
-		ko.components.register(tag_name, view_defintion)
+	addComponent: (tag_name, component_definition) ->
+		ko.components.register(tag_name, {
+			'__falcon_component_definition__': component_definition
+			'synchronous': component_definition::synchronous
+		})
 	#END addComponent
 
 	#--------------------------------------------------------

@@ -693,7 +693,7 @@
 
     FalconTemplateAdapter.prototype.addLoadRoutine = function(routine) {
       if (this.__falcon_templateAdapter__is_loaded__) {
-        routine();
+        return routine();
       }
       return (this.__falcon_templateAdapter__load_routines__ != null ? this.__falcon_templateAdapter__load_routines__ : this.__falcon_templateAdapter__load_routines__ = []).push(routine);
     };
@@ -762,7 +762,6 @@
           _ref1.removeChild(template);
         }
       }
-      this.executeLoadRoutines();
       return this;
     };
 
@@ -808,6 +807,7 @@
         callback("");
         return this;
       }
+      console.log("Loaded template");
       template = element.innerHTML;
       if (!isString(template)) {
         template = "";
@@ -2055,6 +2055,7 @@
       Falcon.ready(function() {
         var _ref5;
         Falcon.templateAdapter.cacheAllTemplates();
+        Falcon.templateAdapter.executeLoadRoutines();
         if (!isElement(element)) {
           if (!isString(element)) {
             element = "";
@@ -2127,8 +2128,11 @@
       return ko.bindingHandlers[name];
     };
 
-    _Class.prototype.addComponent = function(tag_name, view_defintion) {
-      return ko.components.register(tag_name, view_defintion);
+    _Class.prototype.addComponent = function(tag_name, component_definition) {
+      return ko.components.register(tag_name, {
+        '__falcon_component_definition__': component_definition,
+        'synchronous': component_definition.prototype.synchronous
+      });
     };
 
     _Class.prototype.onDispose = function(element, callback) {
@@ -2143,8 +2147,10 @@
     var head_element, _ref3;
     head_element = (_ref3 = document.head) != null ? _ref3 : document.getElementsByTagName("head")[0];
     return {
-      loadComponent: function(tag_name, view_definition, callback) {
-        if (Falcon.isComponent(view_definition.prototype)) {
+      loadComponent: function(tag_name, config, callback) {
+        var view_definition;
+        if ('__falcon_component_definition__' in config) {
+          view_definition = config['__falcon_component_definition__'];
           Falcon.templateAdapter.resolveTemplate(view_definition.prototype, function(template) {
             var element, stylesheet, _recurse, _ref4, _ref5;
             element = document.createElement('div');
@@ -2183,8 +2189,9 @@
               })((_ref4 = (_ref5 = stylesheet.styleSheet) != null ? _ref5 : stylesheet.sheet) != null ? _ref4 : {});
             }
             return callback({
+              synchronous: view_definition.prototype.synchronous,
               template: cloneNodes(element.childNodes),
-              createViewModel: function(params) {
+              createViewModel: function(params, info) {
                 var view;
                 view = new view_definition(params);
                 params['__falcon_component_view__'] = view;
@@ -2420,6 +2427,12 @@
     return console.log(ko.unwrap(valueAccessor()));
   });
 
+  Falcon.addBinding('debugger', true, function(element, valueAccessor) {
+    if (ko.unwrap(valueAccessor())) {
+      debugger;
+    }
+  });
+
   Falcon.__binding__original_component__ = (_ref7 = Falcon.getBinding('component')) != null ? _ref7 : {};
 
   Falcon.addBinding('component', true, {
@@ -2437,8 +2450,7 @@
         }
         return view._unrender();
       });
-      Falcon.__binding__original_component__['init'].apply(this, arguments);
-      return ko.virtualElements.emptyNode(element);
+      return Falcon.__binding__original_component__['init'].apply(this, arguments);
     }
   });
 

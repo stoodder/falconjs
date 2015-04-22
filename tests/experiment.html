@@ -4,38 +4,93 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <title>Falcon.JS | Experimentation</title>
 
-  <script type="text/javascript" src="lib/knockout-3.3.0-alpha.min.js"></script>
+  <script type="text/javascript" src="lib/knockout-3.3.0.js"></script>
 
   <!-- include source files here... -->
   <script type="text/javascript" src="scripts/falcon.js"></script>
 
   <script>
-var __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  __hasProp = {}.hasOwnProperty;
+    Falcon.addComponent("hello-world", Falcon.Component.extend({
+      endpoint: "#hello_world-component",
 
-Falcon.addComponent("hello-world", (function(_super) {
-  __extends(_Class, _super);
+      synchronous: true,
 
-  function _Class() {
-    return _Class.__super__.constructor.apply(this, arguments);
-  }
+      observables: {
+        'count': 10,
 
-  _Class.prototype.style = "hello-world { font-size: 18px; } a { color: red }\nb { color: blue }\ni { color: green } @media (screen and max-width: 480px) { strong { color: yellow; } }";
+        'should_show': function() {
+          count = this.count();
+          return count%2 === 0
+        }
+      },
 
-  _Class.prototype.template = "<a>Hello World?</a><br />\n<b>Hello World.</b><br />\n<i>Hello World!</i><br /><br />";
+      initialize: function() {
+        var recurse = null,
+            that = this;
 
-  return _Class;
+        (recurse = function() {
+          that.count( that.count() + 1 );
+          setTimeout(recurse, 1000);
+        })();
+      }
+    }));
 
-})(Falcon.Component));
+    Falcon.addComponent("blip", Falcon.Component.extend({
+      endpoint: "#blip-component",
 
-Falcon.apply();
+      synchronous: true,
+
+      defaults: {
+        count: function(options) { 
+          options = options || {};
+          options.count = options.count || 0;
+          return options.count;
+        }
+      }
+    }));
+
+    Falcon.addBinding("debugger", true, function(e, va) {
+      return;
+      console.trace(ko.unwrap(va()));
+      debugger;
+    });
+
+    Falcon.apply();
   </script>
+  <style>
+    hello-world {
+      display: block;
+      height: 80px;
+      line-height: 80px;
+    }
+  </style>
 
 </head>
   <body>
+    Hello World:
     <hello-world></hello-world>
-    <hello-world></hello-world>
-    <hello-world></hello-world>
-    <hello-world></hello-world>
+    Generic:
   </body>
+  <template id="hello_world-component">
+    <!-- ko with: $component.count -->
+      Sup: <blip params="count: $data"></blip>
+    <!--/ko -->
+  </template>
+  <template id="blip-component">
+    Blip <!-- ko text: $component.count --><!-- /ko -->
+  </template>
+  <div id="the_one"></div>
+    <script>
+      var the_one = document.getElementById("the_one"),
+          the_child = null,
+          recurse = null;
+
+      (recurse = function() {
+        if(the_child) the_one.removeChild(the_child);
+        the_child = document.createElement("div");
+        the_child.innerHTML = "Hello " + Math.round(Math.random() * 100);
+        the_one.appendChild(the_child);
+        setTimeout(recurse,1000);
+      })();
+    </script>
 </html>
