@@ -32,6 +32,7 @@ Download Development: [falcon.js](http://stoodder.github.io/falconjs/assets/scri
 * Made it possible to remove callback methods only based on context since create new instances still result in equivalent method calls, just different contexts
 * Removed Falcon conductors in favor of knockout components
 * Fixed yield binding to allow for iteratable content
+* Fixed yield binding to allow for embeddable yields within a component yield
 
 **Breaking Changes**
 * When using 'mixin' to add a function to a model or a collection, the function will simply be bound against the model and each argument is verbatim to each call. In the preivous version we would pass in the model or model & collection pair as the first arguments.

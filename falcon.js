@@ -2439,6 +2439,7 @@
 
   Falcon.addBinding('component', true, {
     'init': function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+      var childContext;
       Falcon.onDispose(element, function() {
         var params, view;
         if (!isObject(value = ko.unwrap(valueAccessor()))) {
@@ -2452,7 +2453,10 @@
         }
         return view._unrender();
       });
-      return Falcon.__binding__original_component__['init'].apply(this, arguments);
+      childContext = bindingContext.createChildContext(viewModel).extend({
+        '$parentComponentContext': bindingContext
+      });
+      return Falcon.__binding__original_component__['init'].call(this, element, valueAccessor, allBindings, viewModel, childContext);
     }
   });
 
@@ -2472,7 +2476,7 @@
             clonedNodes = cloneNodes(defaultNodes);
           }
           ko.virtualElements.setDomNodeChildren(element, clonedNodes);
-          return ko.applyBindingsToDescendants(bindingContext, element);
+          return ko.applyBindingsToDescendants(bindingContext['$parentComponentContext'], element);
         }
       });
       return {

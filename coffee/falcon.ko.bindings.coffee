@@ -222,8 +222,11 @@ Falcon.addBinding 'component', true, 'init': (element, valueAccessor, allBinding
 		view._unrender()
 	#END onDispose
 
-	Falcon.__binding__original_component__['init'].apply(@, arguments)
-	# ko.virtualElements.emptyNode(element)
+	childContext = bindingContext.createChildContext(viewModel).extend({
+		'$parentComponentContext': bindingContext
+	})
+
+	Falcon.__binding__original_component__['init'].call(@, element, valueAccessor, allBindings, viewModel, childContext)
 #END component
 
 #--------------------------------------------------------
@@ -246,7 +249,7 @@ Falcon.addBinding 'yield', true, 'init': (element, valueAccessor, allBindings, v
 			#END if
 
 			ko.virtualElements.setDomNodeChildren(element, clonedNodes)
-			ko.applyBindingsToDescendants(bindingContext, element)
+			ko.applyBindingsToDescendants(bindingContext['$parentComponentContext'], element)
 		#END read
 	#END computed
 

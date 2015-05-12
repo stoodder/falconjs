@@ -11,51 +11,20 @@
 
   <script>
     Falcon.addComponent("hello-world", {
-      endpoint: "#hello_world-component",
-
-      synchronous: true,
-
-      observables: {
-        'count': 10,
-
-        'should_show': function() {
-          count = this.count();
-          return count%2 === 0
-        }
-      },
-
-      initialize: function() {
-        var recurse = null,
-            that = this;
-
-        (recurse = function() {
-          that.count( that.count() + 1 );
-          setTimeout(recurse, 1000);
-        })();
-      }
+      endpoint: "#hello_world-component"
     });
 
     Falcon.addComponent("blip", {
-      endpoint: "#blip-component",
-
-      synchronous: true,
-
-      defaults: {
-        count: function(options) { 
-          options = options || {};
-          options.count = options.count || 0;
-          return options.count;
-        }
-      }
+      endpoint: "#blip-component"
     });
 
-    Falcon.addBinding("debugger", true, function(e, va) {
-      return;
-      console.trace(ko.unwrap(va()));
-      debugger;
-    });
+    var things = ko.observable( Math.random() );
 
-    Falcon.apply();
+    setInterval(function() { things( Math.random() ) }, 1000);
+
+    Falcon.apply({
+      things: things
+    });
   </script>
   <style>
     hello-world {
@@ -68,29 +37,19 @@
 </head>
   <body>
     Hello World:
-    <hello-world></hello-world>
-    Generic:
+    <hello-world>
+      Stuff right in here
+      <!--ko text: things --><!-- /ko -->
+    </hello-world>
   </body>
   <template id="hello_world-component">
-    <!-- ko with: $component.count -->
-      Sup: <blip params="count: $data"></blip>
-    <!--/ko -->
+    <blip>
+      <!-- ko yield: true --><!-- /ko -->
+    </blip>
+    <hr />
+    <!-- ko yield: true --><!-- /ko -->
   </template>
   <template id="blip-component">
-    Blip <!-- ko text: $component.count --><!-- /ko -->
+    Blip [<!-- ko yield: true --><!-- /ko -->]
   </template>
-  <div id="the_one"></div>
-    <script>
-      var the_one = document.getElementById("the_one"),
-          the_child = null,
-          recurse = null;
-
-      (recurse = function() {
-        if(the_child) the_one.removeChild(the_child);
-        the_child = document.createElement("div");
-        the_child.innerHTML = "Hello " + Math.round(Math.random() * 100);
-        the_one.appendChild(the_child);
-        setTimeout(recurse,1000);
-      })();
-    </script>
 </html>
